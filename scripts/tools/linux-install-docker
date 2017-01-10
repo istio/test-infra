@@ -13,7 +13,7 @@ DOCKER_VERSION='1.12.5'
 
 # Ubuntu 16-04
 XENIAL_REPO='ubuntu-xenial'
-XENIAL_VERSION_SUFFIX='-0~xenial'
+XENIAL_VERSION_SUFFIX="-0~${XENIAL_REPO}"
 # Default
 REPO="${XENIAL_REPO}"
 VERSION_SUFFIX="${XENIAL_VERSION_SUFFIX}"
@@ -37,7 +37,7 @@ function purge_docker() {
 function install_docker() {
   echo 'Installing docker'
   ${SUDO} apt-key adv \
-    --keyserver hkp://p80.pool.sks-keyservers.net:80 \
+    --keyserver hkp://ha.pool.sks-keyservers.net:80 \
     --recv-keys 58118E89F3A912897C070ADBF76221572C52609D \
   && clear_apt \
   && ${SUDO} apt-get -qqy install docker-engine="${DOCKER_VERSION}${VERSION_SUFFIX}" \

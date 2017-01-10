@@ -1,7 +1,7 @@
 # Stored at gcr.io/endpoints-jenkins/ubuntu-16-04-slave:latest
 FROM ubuntu:xenial
 
-# Please make sure that you update script/linux-install-software as well.
+# Please make sure that you update scripts/linux-install-software as well.
 ENV JENKINS_SLAVE_VERSION 2.62
 # Bucket used to store already built binaries
 ARG TOOLS_BUCKET
@@ -17,9 +17,9 @@ RUN rm -rf /var/lib/apt/lists/* \
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Installing Tools
-ADD script /tmp/esp_tmp/script
-RUN chmod +x /tmp/esp_tmp/script/tools/xenial/install-software
-RUN /tmp/esp_tmp/script/tools/xenial/install-software \
+ADD scripts /tmp/esp_tmp/scripts
+RUN chmod +x /tmp/esp_tmp/scripts/linux-install-software
+RUN /tmp/esp_tmp/scripts/linux-install-software \
       -b "${TOOLS_BUCKET}" \
     && rm -rf /tmp/esp_tmp
 

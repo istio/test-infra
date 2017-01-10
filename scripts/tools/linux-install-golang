@@ -23,7 +23,7 @@ function update_go() {
   fi
 
   if [[ "${GO_VERSION}" != "${go_current}" ]]; then
-    retry -n 3 wget -nc -P "${GO_DIRECTORY}" "${GO_URL}" \
+    retry -n 3 wget -q -nc -P "${GO_DIRECTORY}" "${GO_URL}" \
       || error_exit 'Could not download go.'
     ${SUDO} tar -C /usr/local -xzf "${GO_ARCHIVE}" \
       || error_exit 'Could not install go.'
