@@ -1,0 +1,76 @@
+#!/bin/bash
+# May require sudo login.
+
+if [[ "$(uname)" != "Linux" ]]; then
+  echo "Run on Linux only."
+  exit 1
+fi
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+# TOOLS
+. ${DIR}/tools/linux-install-bazel || error_exit "Cannot load Bazel install script"
+. ${DIR}/tools/linux-install-docker || error_exit "Cannot load Docker install script"
+. ${DIR}/tools/linux-install-gcloud || error_exit "Cannot load gcloud install script"
+
+export DEBIAN_FRONTEND=noninteractive
+
+function install_packages() {
+  echo "Installing tools."
+  clear_apt \
+  && ${SUDO} apt-get -qqy install \
+    apt-transport-https \
+    autoconf \
+    automake \
+    autotools-dev \
+    ca-certificates \
+    curl \
+    g++ \
+    gcc \
+    gettext \
+    git \
+    lcov \
+    libev-dev \
+    libevent-dev \
+    libjemalloc-dev \
+    libssl-dev \
+    libio-socket-ssl-perl \
+    libtool \
+    openjdk-8-jdk-headless \
+    python-pip \
+    pkg-config \
+    wget \
+    zlib1g-dev \
+    && return 0
+  return 1
+}
+
+
+while getopts :b:p: arg; do
+  case ${arg} in
+    p) PLATFORM="${OPTARG}";;
+    b) TOOLS_BUCKET="${OPTARG}";;
+  esac
+done
+
+[[ -z "${PLATFORM}" ]] && error_exit 'PLATFORM is not set'
+
+echo 'Clearing packages in apt'
+${SUDO} apt-get clean
+
+# Installing dependencies
+retry install_packages || error_exit 'Cannot install required packages.'
+
+# Installing tools
+echo "Installing tools if necessary"
+if [[ -d "${TOOLS_DIR}" ]]; then
+  [[ -n "${SUDO}" ]] && ${SUDO} chown -R "${USER}" "${TOOLS_DIR}"
+else
+  mkdir -p "${TOOLS_DIR}" -m 0777
+fi
+update_gcloud
+update_bazel
+update_docker "${PLATFORM}"
+clear_apt
+
+echo "Software installation complete."

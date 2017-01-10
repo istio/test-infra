@@ -1,0 +1,120 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<hudson>
+  <disabledAdministrativeMonitors>
+    <string>hudson.diagnosis.ReverseProxySetupMonitor</string>
+    <string>jenkins.security.s2m.MasterKillSwitchWarning</string>
+  </disabledAdministrativeMonitors>
+  <version>2.19.4</version>
+  <numExecutors>0</numExecutors>
+  <mode>EXCLUSIVE</mode>
+  <useSecurity>true</useSecurity>
+  <authorizationStrategy class="org.jenkinsci.plugins.GithubAuthorizationStrategy" plugin="github-oauth@0.25">
+    <rootACL>
+      <organizationNameList class="linked-list">
+        <string>istio</string>
+      </organizationNameList>
+      <adminUserNameList class="linked-list">
+        <string>sebastienvas</string>
+        <string>lizan</string>
+        <string></string>
+      </adminUserNameList>
+      <authenticatedUserReadPermission>false</authenticatedUserReadPermission>
+      <useRepositoryPermissions>true</useRepositoryPermissions>
+      <authenticatedUserCreateJobPermission>false</authenticatedUserCreateJobPermission>
+      <allowGithubWebHookPermission>true</allowGithubWebHookPermission>
+      <allowCcTrayPermission>false</allowCcTrayPermission>
+      <allowAnonymousReadPermission>false</allowAnonymousReadPermission>
+      <allowAnonymousJobStatusPermission>false</allowAnonymousJobStatusPermission>
+    </rootACL>
+  </authorizationStrategy>
+  <securityRealm class="org.jenkinsci.plugins.GithubSecurityRealm">
+    <githubWebUri>https://github.com</githubWebUri>
+    <githubApiUri>https://api.github.com</githubApiUri>
+    <clientID>71d6f96f30736e9f278b</clientID>
+    <clientSecret>QW5zYse5/ezkFK+M/2Mk8kHjIhcrWYQRvGh6nJMGlP41y1f1/2Z/zfK2dUboDq1rqc3oWDI+PtmXwIxrXIuiMg==</clientSecret>
+    <oauthScopes>read:org,user:email</oauthScopes>
+  </securityRealm>
+  <disableRememberMe>true</disableRememberMe>
+  <projectNamingStrategy class="jenkins.model.ProjectNamingStrategy$DefaultProjectNamingStrategy"/>
+  <workspaceDir>${ITEM_ROOTDIR}/workspace</workspaceDir>
+  <buildsDir>${ITEM_ROOTDIR}/builds</buildsDir>
+  <markupFormatter class="hudson.markup.EscapedMarkupFormatter"/>
+  <jdks/>
+  <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
+  <myViewsTabBar class="hudson.views.DefaultMyViewsTabBar"/>
+  <clouds>
+    <org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud plugin="kubernetes@0.10">
+      <name>local cluster</name>
+      <templates>
+        <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
+          <inheritFrom></inheritFrom>
+          <name>default</name>
+          <instanceCap>2147483647</instanceCap>
+          <idleMinutes>0</idleMinutes>
+          <label>k8s</label>
+          <nodeSelector></nodeSelector>
+          <volumes>
+            <org.csanchez.jenkins.plugins.kubernetes.volumes.HostPathVolume>
+              <mountPath>/usr/bin/docker</mountPath>
+              <hostPath>/usr/bin/docker</hostPath>
+            </org.csanchez.jenkins.plugins.kubernetes.volumes.HostPathVolume>
+            <org.csanchez.jenkins.plugins.kubernetes.volumes.HostPathVolume>
+              <mountPath>/var/run/docker.sock</mountPath>
+              <hostPath>/var/run/docker.sock</hostPath>
+            </org.csanchez.jenkins.plugins.kubernetes.volumes.HostPathVolume>
+          </volumes>
+          <containers>
+            <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
+              <name>default</name>
+              <image>gcr.io/cloud-solutions-images/jenkins-k8s-slave</image>
+              <privileged>false</privileged>
+              <alwaysPullImage>false</alwaysPullImage>
+              <workingDir>/root/</workingDir>
+              <command></command>
+              <args>${computer.jnlpmac} ${computer.name}</args>
+              <ttyEnabled>false</ttyEnabled>
+              <resourceRequestCpu></resourceRequestCpu>
+              <resourceRequestMemory></resourceRequestMemory>
+              <resourceLimitCpu></resourceLimitCpu>
+              <resourceLimitMemory></resourceLimitMemory>
+              <envVars/>
+            </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
+          </containers>
+          <envVars/>
+          <annotations/>
+          <imagePullSecrets/>
+          <nodeProperties/>
+        </org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
+      </templates>
+      <serverUrl>https://kubernetes.default</serverUrl>
+      <skipTlsVerify>false</skipTlsVerify>
+      <namespace>jenkins</namespace>
+      <jenkinsUrl>http://jenkins-ui.jenkins.svc.cluster.local:8080</jenkinsUrl>
+      <jenkinsTunnel>jenkins-discovery.jenkins.svc.cluster.local:50000</jenkinsTunnel>
+      <credentialsId>jenkins</credentialsId>
+      <containerCap>10</containerCap>
+      <retentionTimeout>5</retentionTimeout>
+      <connectTimeout>0</connectTimeout>
+      <readTimeout>0</readTimeout>
+    </org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud>
+  </clouds>
+  <quietPeriod>0</quietPeriod>
+  <scmCheckoutRetryCount>0</scmCheckoutRetryCount>
+  <views>
+    <hudson.model.AllView>
+      <owner class="hudson" reference="../../.."/>
+      <name>All</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+    </hudson.model.AllView>
+  </views>
+  <primaryView>All</primaryView>
+  <slaveAgentPort>50000</slaveAgentPort>
+  <label></label>
+  <crumbIssuer class="hudson.security.csrf.DefaultCrumbIssuer">
+    <excludeClientIPFromCrumb>false</excludeClientIPFromCrumb>
+  </crumbIssuer>
+  <nodeProperties/>
+  <globalNodeProperties/>
+</hudson>

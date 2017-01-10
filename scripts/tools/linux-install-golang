@@ -1,0 +1,34 @@
+#!/bin/bash
+
+if [[ "$(uname)" != "Linux" ]]; then
+  echo "Run on Linux only."
+  exit 1
+fi
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+
+GO_VERSION='1.7.4'
+GO_BASE_URL="https://storage.googleapis.com/golang"
+GO_ARCHIVE="go${GO_VERSION}.linux-amd64.tar.gz"
+GO_URL="${GO_BASE_URL}/${GO_ARCHIVE}"
+GO_DIRECTORY="${TOOLS_DIR}/go"
+
+function update_go() {
+  local go_current="$(go version | grep -oh '[0-9]*\.[0-9]*\.[0-9]*')" \
+    || go_current='none'
+
+  if [[ -d "${GO_DIRECTORY}" ]]; then
+    mkdir -p "${GO_DIRECTORY}"
+  fi
+
+  if [[ "${GO_VERSION}" != "${go_current}" ]]; then
+    retry -n 3 wget -nc -P "${GO_DIRECTORY}" "${GO_URL}" \
+      || error_exit 'Could not download go.'
+    ${SUDO} tar -C /usr/local -xzf "${GO_ARCHIVE}" \
+      || error_exit 'Could not install go.'
+    export PATH=${PATH}:/usr/local/go/bin
+  fi
+  echo 'Go up-to-date.'
+}
+

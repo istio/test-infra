@@ -1,0 +1,35 @@
+#!/bin/bash
+
+if [[ "$(uname)" != "Linux" ]]; then
+  echo "Run on Linux only."
+  exit 1
+fi
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+
+BAZEL_VERSION='0.4.3'
+BAZEL_BASE_URL='https://github.com/bazelbuild/bazel/releases/download'
+BAZEL_SH="bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh"
+BAZEL_URL="${BAZEL_BASE_URL}/${BAZEL_VERSION}/${BAZEL_SH}"
+BAZEL_DIRECTORY="${TOOLS_DIR}/bazel"
+
+function update_bazel() {
+  local bazel_current="$(bazel version | grep -oh '[0-9]*\.[0-9]*\.[0-9]*')" \
+    || bazel_current='none'
+
+  if [[ -d "${BAZEL_DIRECTORY}" ]]; then
+    mkdir -p "${BAZEL_DIRECTORY}"
+  fi
+
+  if [[ "${BAZEL_VERSION}" != "${bazel_current}" ]]; then
+    retry -n 3 wget -nc -P "${BAZEL_DIRECTORY}" "${BAZEL_URL}" \
+      || error_exit "Could not download bazel"
+    chmod +x "${BAZEL_DIRECTORY}/${BAZEL_SH}" \
+      || error_exit "Could not mark bazel shell as executable"
+    sh "${BAZEL_DIRECTORY}/${BAZEL_SH}" --user \
+      || error_exit "Could not install bazel"
+  fi
+  echo 'Bazel up-to-date.'
+}
+

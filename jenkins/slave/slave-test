@@ -1,0 +1,27 @@
+#!/bin/bash
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ESP_ROOT="$(cd "${DIR}/../.." && pwd)"
+
+. "${ESP_ROOT}"/script/jenkins-utilities || { echo "Cannot load Jenkins utilities" ; exit 1 ; }
+
+echo 'Verifying Docker Install'
+run docker info || error_exit 'Docker is not installed properly'
+run docker version || error_exit 'Docker is not installed properly'
+run docker run hello-world || error_exit 'Docker is not installed properly'
+
+echo 'Verifying Bazel installation'
+run bazel version || error_exit 'Bazel is not installed properly'
+
+echo 'Verifying gcloud installation'
+run gcloud version || error_exit 'gcloud is not installed properly'
+
+echo 'Verifying kubectl installation'
+run kubectl version || error_exit 'kubectl is not installed properly'
+
+echo 'Verifying gsutil installation'
+run gsutil version || error_exit 'gsutil is not installed properly'
+
+echo 'Verifying that the user is jenkins'
+THIS_USER="$(whoami)"
+[[ "${THIS_USER}" == 'jenkins' ]] || error_exit 'Slaves should be running as jenkins user'
