@@ -1,0 +1,32 @@
+#!/bin/bash
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DIR="${ROOT}/scripts"
+
+. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+export DEBIAN_FRONTEND=noninteractive
+
+NAMESPACE='jenkins'
+APP='master'
+
+BASH_SCRIPT='''BACKUP_FILES="$(find /var/jenkins_home \
+  -not -path "/var/jenkins_home/users/*" \
+  -not -path "/var/jenkins_home/nodes/*" \
+  -not -regex ".*workspace@.*" \
+  -type f -and \
+  \( -name config.xml -o \
+  -name credentials.xml -o \
+  -wholename "/var/jenkins_home/plugins/*.jpi" \))"
+
+tar czf - ${BACKUP_FILES}'''
+
+POD_NAME="$(kubectl get pods \
+  --selector=app="${APP}" \
+  -n "${NAMESPACE}" \
+  -o jsonpath='{.items[*].metadata.name}')"
+
+echo "Getting backup data from pod ${POD_NAME} in ns ${NAMESPACE}"
+
+kubectl exec "${POD_NAME}" -n "${NAMESPACE}" -- /bin/bash -c "${BASH_SCRIPT}" \
+  | tar zxvf - --strip-components 2 -C "${ROOT}/jenkins_home"
+
