@@ -19,12 +19,12 @@ TOOLS_BUCKET = ''
 
 node {
   utils.setGlobals()
-  stashSourceCode()
-  setArtifactsLink()
+  utils.stashSourceCode()
+  utils.setArtifactsLink()
 }
 
 node('master') {
-  def nodeLabel = getParam('SLAVE_LABEL', DEFAULT_SLAVE_LABEL)
+  def nodeLabel = utils.getParam('SLAVE_LABEL', DEFAULT_SLAVE_LABEL)
   try {
     stage('Slave Update') {
       node(nodeLabel) {
@@ -45,7 +45,7 @@ node('master') {
 }
 
 def buildNewDockerSlave(nodeLabel) {
-  checkoutSourceCode()
+  utils.checkoutSourceCode()
   def dockerImage = "${DOCKER_SLAVES[nodeLabel]}:${GIT_SHA}"
   // Test Slave image setup in Jenkins
   def testDockerImage = "${DOCKER_SLAVES[nodeLabel]}:test"
