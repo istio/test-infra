@@ -4,7 +4,7 @@
     <string>hudson.diagnosis.ReverseProxySetupMonitor</string>
     <string>jenkins.security.s2m.MasterKillSwitchWarning</string>
   </disabledAdministrativeMonitors>
-  <version>2.19.4</version>
+  <version>2.32.1</version>
   <numExecutors>0</numExecutors>
   <mode>EXCLUSIVE</mode>
   <useSecurity>true</useSecurity>
@@ -48,36 +48,102 @@
       <templates>
         <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
           <inheritFrom></inheritFrom>
-          <name>default</name>
-          <instanceCap>2147483647</instanceCap>
+          <name>ubuntu-16-04</name>
+          <instanceCap>30</instanceCap>
           <idleMinutes>0</idleMinutes>
-          <label>k8s</label>
+          <label>ubuntu-16-04</label>
           <nodeSelector></nodeSelector>
-          <volumes>
-            <org.csanchez.jenkins.plugins.kubernetes.volumes.HostPathVolume>
-              <mountPath>/usr/bin/docker</mountPath>
-              <hostPath>/usr/bin/docker</hostPath>
-            </org.csanchez.jenkins.plugins.kubernetes.volumes.HostPathVolume>
-            <org.csanchez.jenkins.plugins.kubernetes.volumes.HostPathVolume>
-              <mountPath>/var/run/docker.sock</mountPath>
-              <hostPath>/var/run/docker.sock</hostPath>
-            </org.csanchez.jenkins.plugins.kubernetes.volumes.HostPathVolume>
-          </volumes>
+          <volumes/>
           <containers>
             <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
-              <name>default</name>
-              <image>gcr.io/cloud-solutions-images/jenkins-k8s-slave</image>
-              <privileged>false</privileged>
-              <alwaysPullImage>false</alwaysPullImage>
-              <workingDir>/root/</workingDir>
+              <name>jnlp</name>
+              <image>gcr.io/istio-testing/ubuntu-16-04-slave:latest</image>
+              <privileged>true</privileged>
+              <alwaysPullImage>true</alwaysPullImage>
+              <workingDir>/home/jenkins</workingDir>
               <command></command>
               <args>${computer.jnlpmac} ${computer.name}</args>
               <ttyEnabled>false</ttyEnabled>
-              <resourceRequestCpu></resourceRequestCpu>
-              <resourceRequestMemory></resourceRequestMemory>
-              <resourceLimitCpu></resourceLimitCpu>
-              <resourceLimitMemory></resourceLimitMemory>
-              <envVars/>
+              <resourceRequestCpu>500m</resourceRequestCpu>
+              <resourceRequestMemory>512Mi</resourceRequestMemory>
+              <resourceLimitCpu>2000m</resourceLimitCpu>
+              <resourceLimitMemory>8Gi</resourceLimitMemory>
+              <envVars>
+                <org.csanchez.jenkins.plugins.kubernetes.ContainerEnvVar>
+                  <key>PLATFORM</key>
+                  <value>ubuntu</value>
+                </org.csanchez.jenkins.plugins.kubernetes.ContainerEnvVar>
+              </envVars>
+            </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
+          </containers>
+          <envVars/>
+          <annotations/>
+          <imagePullSecrets/>
+          <nodeProperties/>
+        </org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
+        <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
+          <inheritFrom></inheritFrom>
+          <name>ubuntu-16-04-build</name>
+          <instanceCap>10</instanceCap>
+          <idleMinutes>0</idleMinutes>
+          <label>ubuntu-16-04-build</label>
+          <nodeSelector></nodeSelector>
+          <volumes/>
+          <containers>
+            <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
+              <name>jnlp</name>
+              <image>gcr.io/istio-testing/ubuntu-16-04-slave:latest</image>
+              <privileged>true</privileged>
+              <alwaysPullImage>true</alwaysPullImage>
+              <workingDir>/home/jenkins</workingDir>
+              <command></command>
+              <args>${computer.jnlpmac} ${computer.name}</args>
+              <ttyEnabled>false</ttyEnabled>
+              <resourceRequestCpu>500m</resourceRequestCpu>
+              <resourceRequestMemory>512Mi</resourceRequestMemory>
+              <resourceLimitCpu>4000m</resourceLimitCpu>
+              <resourceLimitMemory>16Gi</resourceLimitMemory>
+              <envVars>
+                <org.csanchez.jenkins.plugins.kubernetes.ContainerEnvVar>
+                  <key>PLATFORM</key>
+                  <value>ubuntu</value>
+                </org.csanchez.jenkins.plugins.kubernetes.ContainerEnvVar>
+              </envVars>
+            </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
+          </containers>
+          <envVars/>
+          <annotations/>
+          <imagePullSecrets/>
+          <nodeProperties/>
+        </org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
+        <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
+          <inheritFrom></inheritFrom>
+          <name>ubuntu-16-04-test</name>
+          <instanceCap>10</instanceCap>
+          <idleMinutes>0</idleMinutes>
+          <label>ubuntu-16-04-test</label>
+          <nodeSelector></nodeSelector>
+          <volumes/>
+          <containers>
+            <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
+              <name>jnlp</name>
+              <image>gcr.io/istio-testing/ubuntu-16-04-slave:test</image>
+              <privileged>true</privileged>
+              <alwaysPullImage>true</alwaysPullImage>
+              <workingDir>/home/jenkins</workingDir>
+              <command></command>
+              <args>${computer.jnlpmac} ${computer.name}</args>
+              <ttyEnabled>false</ttyEnabled>
+              <resourceRequestCpu>500m</resourceRequestCpu>
+              <resourceRequestMemory>512Mi</resourceRequestMemory>
+              <resourceLimitCpu>2000m</resourceLimitCpu>
+              <resourceLimitMemory>4Gi</resourceLimitMemory>
+              <envVars>
+                <org.csanchez.jenkins.plugins.kubernetes.ContainerEnvVar>
+                  <key>PLATFORM</key>
+                  <value>ubuntu</value>
+                </org.csanchez.jenkins.plugins.kubernetes.ContainerEnvVar>
+              </envVars>
             </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
           </containers>
           <envVars/>
@@ -92,7 +158,7 @@
       <jenkinsUrl>http://jenkins-ui.jenkins.svc.cluster.local:8080</jenkinsUrl>
       <jenkinsTunnel>jenkins-discovery.jenkins.svc.cluster.local:50000</jenkinsTunnel>
       <credentialsId>jenkins</credentialsId>
-      <containerCap>10</containerCap>
+      <containerCap>50</containerCap>
       <retentionTimeout>5</retentionTimeout>
       <connectTimeout>0</connectTimeout>
       <readTimeout>0</readTimeout>
@@ -116,5 +182,31 @@
     <excludeClientIPFromCrumb>false</excludeClientIPFromCrumb>
   </crumbIssuer>
   <nodeProperties/>
-  <globalNodeProperties/>
+  <globalNodeProperties>
+    <hudson.slaves.EnvironmentVariablesNodeProperty>
+      <envVars serialization="custom">
+        <unserializable-parents/>
+        <tree-map>
+          <default>
+            <comparator class="hudson.util.CaseInsensitiveComparator"/>
+          </default>
+          <int>7</int>
+          <string>BAZEL_ARGS</string>
+          <string>--batch --host_jvm_args=-Dbazel.DigestFunction=SHA1</string>
+          <string>BAZEL_BUILD_ARGS</string>
+          <string>--hazelcast_node=hazelcast.hazelcast.svc.cluster.local --spawn_strategy=remote</string>
+          <string>BUCKET</string>
+          <string>istio-artifacts</string>
+          <string>DEFAULT_SLAVE_LABEL</string>
+          <string>ubuntu-16-04</string>
+          <string>NOTIFY_LIST</string>
+          <string>istio-testing@gmail.com</string>
+          <string>PATH</string>
+          <string>/usr/lib/google-cloud-sdk/bin:/usr/local/go/bin:/usr/local/bin:${PATH}</string>
+          <string>ZONE</string>
+          <string>us-central1-f</string>
+        </tree-map>
+      </envVars>
+    </hudson.slaves.EnvironmentVariablesNodeProperty>
+  </globalNodeProperties>
 </hudson>
