@@ -4,7 +4,7 @@
 #
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-. ${ROOT}/script/jenkins-utilities || { echo "Cannot load Jenkins utilities"; exit 1; }
+. ${ROOT}/scripts/all-utilities || { echo "Cannot load Jenkins utilities"; exit 1; }
 
 BUILD=false
 PUSH=false
@@ -44,7 +44,7 @@ if [[ "${BUILD}" == true ]]; then
   update_image "${IMAGE}"
   if [[ ${?} -eq 0 ]]; then
     echo "Building docker image ${IMAGE}."
-    run retry -n 10 docker build --build-arg TOOLS_BUCKET="${TOOLS_BUCKET}" --no-cache -t ${IMAGE} \
+    retry -n 10 docker build --build-arg TOOLS_BUCKET="${TOOLS_BUCKET}" --no-cache -t ${IMAGE} \
       -f "${DOCKER_FILE}" . || error_exit "Could not build ${SLAVE}"
     echo "Pushing Docker image: ${IMAGE}"
     retry -n 3 ${GCLOUD} docker -- push "${IMAGE}" \

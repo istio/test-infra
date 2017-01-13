@@ -3,24 +3,24 @@
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ESP_ROOT="$(cd "${DIR}/../.." && pwd)"
 
-. "${ESP_ROOT}"/script/jenkins-utilities || { echo "Cannot load Jenkins utilities" ; exit 1 ; }
+. "${ESP_ROOT}"/scripts/all-utilities || { echo "Cannot load utilities" ; exit 1 ; }
 
 echo 'Verifying Docker Install'
-run docker info || error_exit 'Docker is not installed properly'
-run docker version || error_exit 'Docker is not installed properly'
-run docker run hello-world || error_exit 'Docker is not installed properly'
+docker info || error_exit 'Docker is not installed properly'
+docker version || error_exit 'Docker is not installed properly'
+docker run hello-world || error_exit 'Docker is not installed properly'
 
 echo 'Verifying Bazel installation'
-run bazel version || error_exit 'Bazel is not installed properly'
+bazel version || error_exit 'Bazel is not installed properly'
 
 echo 'Verifying gcloud installation'
-run gcloud version || error_exit 'gcloud is not installed properly'
+gcloud version || error_exit 'gcloud is not installed properly'
 
 echo 'Verifying kubectl installation'
-run kubectl version || error_exit 'kubectl is not installed properly'
+kubectl version || error_exit 'kubectl is not installed properly'
 
 echo 'Verifying gsutil installation'
-run gsutil version || error_exit 'gsutil is not installed properly'
+gsutil version || error_exit 'gsutil is not installed properly'
 
 echo 'Verifying that the user is jenkins'
 THIS_USER="$(whoami)"
