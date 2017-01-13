@@ -13,18 +13,17 @@ DOCKER_SLAVES = [
 ]
 
 // Source Code related variables. Set in stashSourceCode.
-GIT_SHA = ''
-DEFAULT_SLAVE_LABEL = ''
 TOOLS_BUCKET = ''
 
 node {
   utils.setGlobals()
   utils.stashSourceCode()
   utils.setArtifactsLink()
+  TOOLS_BUCKET = utils.failIfNullOrEmpty(env.TOOLS_BUCKET, 'Please set TOOLS_BUCKET env.')
 }
 
 node('master') {
-  def nodeLabel = utils.getParam('SLAVE_LABEL', DEFAULT_SLAVE_LABEL)
+  def nodeLabel = utils.getParam('SLAVE_LABEL', utils.DEFAULT_SLAVE_LABEL)
   try {
     stage('Slave Update') {
       node(nodeLabel) {
@@ -39,14 +38,14 @@ node('master') {
     step([
         $class                  : 'Mailer',
         notifyEveryUnstableBuild: false,
-        recipients              : 'esp-alerts-jenkins@google.com',
+        recipients              : utils.NOTIFY_LIST,
         sendToIndividuals       : true])
   }
 }
 
 def buildNewDockerSlave(nodeLabel) {
   utils.checkoutSourceCode()
-  def dockerImage = "${DOCKER_SLAVES[nodeLabel]}:${GIT_SHA}"
+  def dockerImage = "${DOCKER_SLAVES[nodeLabel]}:${utils.GIT_SHA}"
   // Test Slave image setup in Jenkins
   def testDockerImage = "${DOCKER_SLAVES[nodeLabel]}:test"
   // Slave image setup in Jenkins
@@ -58,7 +57,7 @@ def buildNewDockerSlave(nodeLabel) {
       "-s ${nodeLabel} " +
       "-T \"${TOOLS_BUCKET}\"")
   echo("Testing ${testDockerImage}")
-  node(getTestSlaveLabel(nodeLabel)) {
+  node(utils.getTestSlaveLabel(nodeLabel)) {
     utils.checkoutSourceCode()
     sh('jenkins/slaves/slave-test')
   }
@@ -67,4 +66,3 @@ def buildNewDockerSlave(nodeLabel) {
       "-i ${testDockerImage} " +
       "-t ${finalDockerImage}")
 }
-
