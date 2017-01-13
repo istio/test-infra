@@ -18,15 +18,7 @@
     $ export PROJECT_ID='istio-testing'
     $ export ZONE='us-central1-f'
     $ export CLUSTER_NAME='jenkins-cluster'
-    $ export K8S_SCOPES='https://www.googleapis.com/auth/appengine.admin,
-    https://www.googleapis.com/auth/cloud-platform,
-    https://www.googleapis.com/auth/compute,
-    https://www.googleapis.com/auth/devstorage.full_control,
-    https://www.googleapis.com/auth/devstorage.read_only,
-    https://www.googleapis.com/auth/logging.write,
-    https://www.googleapis.com/auth/projecthosting,
-    https://www.googleapis.com/auth/servicecontrol,
-    https://www.googleapis.com/auth/service.management'
+    $ export K8S_SCOPES='https://www.googleapis.com/auth/appengine.admin,https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/projecthosting,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management'
 
 ## Kubernetes Setup ##
 
@@ -42,7 +34,7 @@ hardcoded in the Jenkinsfile.
     --machine-type "n1-highmem-32" \
     --disk-size 400 \
     --scopes "${K8S_SCOPES}" \
-    --num-nodes "2" \
+    --num-nodes "1" \
     --image-type=CONTAINER_VM \
     --network "default" \
     --enable-cloud-logging \
@@ -107,7 +99,7 @@ proxy using AppEngine and nginx. All we need to do checkout some code and deploy
 to AppEngine.
 
     $ cd appengine-proxy
-    $ sh setup.sh -a "${JENKINS_INSTANCE}" -b "${JENKINS_PORT}" -c "${PROJECT_ID}"
+    $ ./setup.sh -a "${JENKINS_INSTANCE}" -b "${JENKINS_PORT}" -c "${PROJECT_ID}"
 
 #### Jenkins Environment variables ####
 
