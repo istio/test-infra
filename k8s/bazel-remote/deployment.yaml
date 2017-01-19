@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bazel
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: bazel
+  labels:
+    name: bazel
+  namespace: bazel
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: bazel
+    spec:
+      containers:
+      - name: hazelcast
+        args:
+        - '-h'
+        image: gcr.io/istio-testing/bazel-remote:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5701
+        resources:
+          limits:
+            memory: 16Gi
+      - name: cache
+        args:
+        - '-c'
+        image: gcr.io/istio-testing/bazel-remote:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            memory: 16Gi
+      - name: worker
+        args:
+        - '-w'
+        image: gcr.io/istio-testing/bazel-remote:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8081
+        resources:
+          limits:
+            cpu: "16"
+            memory: 32Gi
+        securityContext:
+          privileged: true

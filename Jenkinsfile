@@ -56,7 +56,7 @@ def buildNewDockerSlave(gitUtils, utils) {
       "-T \"${TOOLS_BUCKET}\"")
   echo("Testing ${testDockerImage}")
   testNode(gitUtils) {
-    sh('jenkins/slaves/slave-test')
+    sh('docker/slaves/slave-test')
   }
   echo("Retagging ${testDockerImage} to ${dockerImage}")
   sh("scripts/jenkins-build-docker-slave " +

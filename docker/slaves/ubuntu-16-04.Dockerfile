@@ -37,8 +37,8 @@ RUN mkdir -p /usr/share/jenkins \
     && chmod 644 /usr/share/jenkins/slave.jar \
     && rm -rf /tmp/slave.jar
 
-ADD jenkins/slaves/jenkins-slave /usr/local/bin/jenkins-slave
-ADD jenkins/slaves/entrypoint /usr/local/bin/entrypoint
+ADD docker/slaves/jenkins-slave /usr/local/bin/jenkins-slave
+ADD docker/slaves/entrypoint /usr/local/bin/entrypoint
 RUN chmod +rx /usr/local/bin/jenkins-slave /usr/local/bin/entrypoint
 
 USER jenkins

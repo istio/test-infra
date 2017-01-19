@@ -1,0 +1,39 @@
+---
+  kind: Service
+  apiVersion: v1
+  metadata:
+    name: hazelcast
+    namespace: bazel
+    labels:
+      name: bazel
+  spec:
+    selector:
+      name: bazel
+    ports:
+      - port: 5071
+---
+  kind: Service
+  apiVersion: v1
+  metadata:
+    name: cache
+    namespace: bazel
+    labels:
+      name: bazel
+  spec:
+    selector:
+      name: bazel
+    ports:
+      - port: 8080
+---
+  kind: Service
+  apiVersion: v1
+  metadata:
+    name: worker
+    namespace: bazel
+    labels:
+      name: bazel
+  spec:
+    selector:
+      name: bazel
+    ports:
+      - port: 8081

@@ -1,0 +1,34 @@
+#!/bin/bash
+# May require sudo login.
+
+if [[ "$(uname)" != "Linux" ]]; then
+  echo "Run on Linux only."
+  exit 1
+fi
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+# TOOLS
+. ${DIR}/tools/linux-install-bazel || error_exit "Cannot load Bazel install script"
+
+update_bazel
+
+echo building remote cache and worker
+
+BAZEL_TMP="/tmp/bazel"
+if [[ ! -d "${BAZEL_TMP}" ]]; then
+  mkdir -p "${BAZEL_TMP}"
+  git clone https://github.com/bazelbuild/bazel "${BAZEL_TMP}" \
+    || error_exit 'Could not clone bazel'
+fi
+pushd "${BAZEL_TMP}"
+git fetch --all --tags --prune \
+  || error_exit 'Could not fetch tags'
+git checkout tags/${BAZEL_VERSION} -b remote \
+  || error_exit "Could not checkout tag ${BAZEL_VERSION}"
+bazel build --spawn_strategy=standalone \
+  src/tools/remote_worker:all \
+  || error_exit 'Could not build remote worker'
+bazel shutdown
+
+echo "Software installation complete."
