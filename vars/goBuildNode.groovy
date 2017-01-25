@@ -10,13 +10,15 @@ def call(gitUtils, goImportPath, Closure body) {
   def nodeLabel = utils.getParam('SLAVE_LABEL', gitUtils.DEFAULT_SLAVE_LABEL)
   def buildNodeLabel = "${nodeLabel}-build"
   node(buildNodeLabel) {
-    env.GOPATH = env.WORKSPACE
-    env.PATH = "${env.GOPATH}/bin:${env.PATH}"
-    def newWorkspace = "${env.GOPATH}/src/${goImportPath}"
+    def goPath = env.WORKSPACE
+    def path = "${goPath}/bin:${env.PATH}"
+    def newWorkspace = "${goPath}/src/${goImportPath}"
     sh("mkdir -p ${newWorkspace}")
-    dir(newWorkspace) {
-      gitUtils.checkoutSourceCode()
-      body()
+    withEnv(["GOPATH=${goPath}", "PATH=${path}"]) {
+      dir(newWorkspace) {
+        gitUtils.checkoutSourceCode()
+        body()
+      }
     }
   }
 }
