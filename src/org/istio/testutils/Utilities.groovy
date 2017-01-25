@@ -2,6 +2,7 @@ package org.istio.testutils
 
 // Updates Pull Request
 def updatePullRequest(flow, success = false) {
+  if (!getParam('UPDATE_PR', false)) return
   def state, message
   switch (flow) {
     case 'run':
@@ -20,6 +21,18 @@ def updatePullRequest(flow, success = false) {
       context: env.JOB_NAME,
       message: message,
       state: state)
+}
+
+def runStage(stage) {
+  stageToRun = getParam('STAGE', 'ALL')
+  if (this.stageToRun == 'ALL') {
+    // Stage starting with '_' should be called explicitly
+    if (stage.startsWith('_')) {
+      return false
+    }
+    return true
+  }
+  return stageToRun == stage
 }
 
 // Check parameter value and fails if null or empty
