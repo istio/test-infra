@@ -1,0 +1,71 @@
+#!groovy
+
+// Loading libraries one by one
+def gitUtils
+def utils
+def bazel
+def goBuildNode
+def defaultNode
+def buildNode
+def testNode
+
+node {
+  checkout(scm)
+  utils = load('src/org/istio/testutils/Utilities.groovy')
+  gitUtils = load('src/org/istio/testutils/GitUtilities.groovy')
+  bazel = load('src/org/istio/testutils/Bazel.groovy')
+  goBuildNode = load('vars/goBuildNode.groovy')
+  defaultNode = load('vars/defaultNode.groovy')
+  buildNode = load('vars/buildNode.groovy')
+  testNode = oad('vars/testNode.groovy')
+}
+
+node {
+  gitUtils.initialize()
+  bazel.setVars()
+}
+
+
+node('master') {
+  if (utils.runStage('PRESUBMIT')) {
+    def success = true
+    utils.updatePullRequest('run')
+    try {
+      presubmit(gitUtils, bazel)
+    } catch (Exception e) {
+      success = false
+      throw e
+    } finally {
+      utils.updatePullRequest('verify', success)
+    }
+  }
+}
+
+def presubmit(gitUtils, bazel) {
+  branches = [
+      'goBuildNode' : {
+        goBuildNode(gitUtils, 'istio.io/istio-testing') {
+          echo(env.PATH)
+          echo(env.GOPATH)
+          bazel.version()
+        }
+      },
+      'defaultNode': {
+        defaultNode(gitUtils) {
+          sh('ls -all')
+        }
+      },
+      'buildNode': {
+        buildNode(gitUtils) {
+          sh('ls -all')
+          bazel.version()
+        }
+      },
+      'testNode': {
+        testNode(gitUtils) {
+          sh('ls -all')
+        }
+      }
+  ]
+  parallel(branches)
+}
