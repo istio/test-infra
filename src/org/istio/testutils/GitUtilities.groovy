@@ -1,7 +1,5 @@
 package org.istio.testutils
 
-import static org.istio.testutils.Utilities.failIfNullOrEmpty
-
 GIT_SHA = ''
 BUCKET = ''
 NOTIFY_LIST = ''
@@ -15,10 +13,9 @@ def initialize() {
 }
 
 def setVars() {
-  BUCKET = failIfNullOrEmpty(env.BUCKET, 'BUCKET env must be set.')
-  DEFAULT_SLAVE_LABEL = failIfNullOrEmpty(
-      env.DEFAULT_SLAVE_LABEL, 'DEFAULT_SLAVE_LABEL env must be set.')
-  NOTIFY_LIST = failIfNullOrEmpty(env.NOTIFY_LIST, 'NOTIFY_LIST env must be set.')
+  BUCKET = env.BUCKET
+  DEFAULT_SLAVE_LABEL = env.DEFAULT_SLAVE_LABEL
+  NOTIFY_LIST = env.NOTIFY_LIST
 }
 
 // In a pipeline, multiple scm checkout might checkout different version of the code.
@@ -37,7 +34,7 @@ def stashSourceCode(postcheckout_call = null) {
     postcheckout_call()
   }
   // Setting source code related global variable once so it can be reused.
-  GIT_SHA = failIfNullOrEmpty(getRevision(), 'Could not find revision')
+  GIT_SHA = getRevision()
   echo('Stashing source code')
   fastStash('src-code', '.')
 }
@@ -102,3 +99,5 @@ def getRevision() {
   // Code needs to be checked out for this.
   return sh(returnStdout: true, script: 'git rev-parse --verify HEAD').trim()
 }
+
+return this
