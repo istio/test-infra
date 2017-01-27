@@ -99,3 +99,5 @@ def getRevision() {
   // Code needs to be checked out for this.
   return sh(returnStdout: true, script: 'git rev-parse --verify HEAD').trim()
 }
+
+return this

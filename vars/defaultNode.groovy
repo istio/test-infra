@@ -12,3 +12,5 @@ def call(gitUtils, Closure body) {
     body()
   }
 }
+
+return this

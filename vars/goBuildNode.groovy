@@ -21,3 +21,5 @@ def call(gitUtils, goImportPath, Closure body) {
     }
   }
 }
+
+return this

@@ -43,3 +43,5 @@ def updateBazelRc(updateBazelrc='.bazelrc.jenkins') {
     sh("cat ${updateBazelrc} >> .bazelrc")
   }
 }
+
+return this
