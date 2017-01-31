@@ -10,10 +10,9 @@ def call(gitUtils, goImportPath, Closure body) {
   def buildNodeLabel = "${nodeLabel}-build"
   node(buildNodeLabel) {
     def goPath = env.WORKSPACE
-    def path = "${goPath}/bin:${env.PATH}"
     def newWorkspace = "${goPath}/src/${goImportPath}"
     sh("mkdir -p ${newWorkspace}")
-    withEnv(["GOPATH=${goPath}", "PATH=${path}"]) {
+    withEnv(["GOPATH=${goPath}", "PATH+GOPATH=${goPath}/bin"]) {
       dir(newWorkspace) {
         gitUtils.checkoutSourceCode()
         body()
