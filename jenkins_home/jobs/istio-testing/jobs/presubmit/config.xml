@@ -13,7 +13,7 @@
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
     <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.25.1">
-      <projectUrl>https://github.com/istio/manager/</projectUrl>
+      <projectUrl>https://github.com/istio/istio-testing/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
     <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
@@ -61,6 +61,11 @@
             <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommitEvent/>
           </events>
           <preStatus>true</preStatus>
+          <branchRestriction>
+            <targetBranchList>
+              <string>master</string>
+            </targetBranchList>
+          </branchRestriction>
         </org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger>
       </triggers>
     </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
@@ -72,7 +77,7 @@
         <hudson.plugins.git.UserRemoteConfig>
           <name>origin-pull</name>
           <refspec>+refs/pull/${GITHUB_PR_NUMBER}/head:refs/remotes/origin-pull/pull/${GITHUB_PR_NUMBER}/head</refspec>
-          <url>https://github.com/istio/manager</url>
+          <url>https://github.com/istio/istio-testing</url>
         </hudson.plugins.git.UserRemoteConfig>
       </userRemoteConfigs>
       <branches>
@@ -86,7 +91,7 @@
         <hudson.plugins.git.extensions.impl.WipeWorkspace/>
       </extensions>
     </scm>
-    <scriptPath>Jenkinsfile</scriptPath>
+    <scriptPath>JenkinsfileTest</scriptPath>
   </definition>
   <triggers/>
 </flow-definition>

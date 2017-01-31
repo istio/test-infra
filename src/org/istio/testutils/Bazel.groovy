@@ -1,15 +1,12 @@
 package org.istio.testutils
 
-import static org.istio.testutils.Utilities.getWithDefault
-
-
 BAZEL_ARGS = ''
 BAZEL_BUILD_ARGS = ''
 
 
 def setVars() {
-  BAZEL_ARGS = getWithDefault(env.BAZEL_ARGS)
-  BAZEL_BUILD_ARGS = getWithDefault(env.BAZEL_BUILD_ARGS)
+  BAZEL_ARGS = env.BAZEL_ARGS
+  BAZEL_BUILD_ARGS = env.BAZEL_BUILD_ARGS
 }
 
 def fetch(args) {
@@ -37,8 +34,14 @@ def test(args) {
   }
 }
 
+def version() {
+  sh('bazel version')
+}
+
 def updateBazelRc(updateBazelrc='.bazelrc.jenkins') {
   if (fileExists(updateBazelrc)) {
     sh("cat ${updateBazelrc} >> .bazelrc")
   }
 }
+
+return this
