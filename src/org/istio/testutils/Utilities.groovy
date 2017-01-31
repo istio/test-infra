@@ -87,3 +87,5 @@ static def filterBranches(branches, regex) {
   }
   return filteredBranches
 }
+
+return this
