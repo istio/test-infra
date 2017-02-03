@@ -21,16 +21,17 @@ var (
 	head        = flag.String("head", "master", "The head branch used for PR.")
 	fastForward = flag.Bool("fast_forward", false, "Creates a PR updating Base to Head.")
 	verify      = flag.Bool("verify", false, "Verifies PR on Base and push them if success.")
+	GH          = newGhConst()
 )
 
-const (
-	SUCCESS string = "success"
-	FAILURE string = "failure"
-	PENDING string = "pending"
-	CLOSED  string = "closed"
-	ALL     string = "all"
-	COMMIT  string = "commit"
-)
+type ghConst struct {
+	success string
+	failure string
+	pending string
+	closed  string
+	all     string
+	commit  string
+}
 
 // Simple Github Helper
 type helper struct {
@@ -54,6 +55,18 @@ func getToken() (*http.Client, error) {
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: string(token[:])})
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 	return tc, nil
+}
+
+// Creates a new ghConst
+func newGhConst() *ghConst {
+	gh := new(ghConst)
+	gh.success = "success"
+	gh.failure = "failure"
+	gh.pending = "pending"
+	gh.closed = "closed"
+	gh.all = "all"
+	gh.commit = "commit"
+	return gh
 }
 
 // Creates a new Github Helper from provided
@@ -81,12 +94,13 @@ func (h helper) createPullRequestToBase(commit *string) error {
 		return errors.New("commit cannot be nil.")
 	}
 	title := fmt.Sprintf("Fast Forward %s to %s", h.Base, *commit)
-	req := new(github.NewPullRequest)
-	req.Head = &h.Head
-	req.Base = &h.Base
-	req.Title = &title
+	req := github.NewPullRequest{
+		Head:  &h.Head,
+		Base:  &h.Base,
+		Title: &title,
+	}
 	log.Printf("Creating a PR with Title: \"%s\"", title)
-	if pr, _, err := h.Client.PullRequests.Create(h.Owner, h.Repo, req); err == nil {
+	if pr, _, err := h.Client.PullRequests.Create(h.Owner, h.Repo, &req); err == nil {
 		log.Printf("Created new PR at %s", *pr.HTMLURL)
 	} else {
 		return err
@@ -116,12 +130,13 @@ func (h helper) fastForwardBase() error {
 		return err
 	}
 	if commit != nil {
-		options := new(github.PullRequestListOptions)
-		options.Head = h.Head
-		options.Base = h.Base
-		options.State = ALL
+		options := github.PullRequestListOptions{
+			Head:  h.Head,
+			Base:  h.Base,
+			State: GH.all,
+		}
 
-		prs, _, err := h.Client.PullRequests.List(h.Owner, h.Repo, options)
+		prs, _, err := h.Client.PullRequests.List(h.Owner, h.Repo, &options)
 		if err == nil {
 			for _, pr := range prs {
 				if strings.Contains(*pr.Title, *commit) {
@@ -139,7 +154,7 @@ func (h helper) fastForwardBase() error {
 // Close an existing PR
 func (h helper) closePullRequest(pr *github.PullRequest) error {
 	log.Printf("Closing PR %d", *pr.ID)
-	*pr.State = CLOSED
+	*pr.State = GH.closed
 	_, _, err := h.Client.PullRequests.Edit(h.Owner, h.Repo, *pr.ID, pr)
 	return err
 }
@@ -151,17 +166,18 @@ func (h helper) createStableTag(commit *string) error {
 	}
 	sha := *commit
 	tag := fmt.Sprintf("stable-%s", sha[0:7])
+	message := "Stable build\n Do not use the UI to merge this PR."
 	log.Printf("Creating tag %s on %s for commit %s", tag, h.Base, *commit)
-	t := new(github.Tag)
-	t.Object = new(github.GitObject)
-	t.Object.SHA = commit
-	t.Object.Type = new(string)
-	*t.Object.Type = COMMIT
-	t.Message = new(string)
-	*t.Message = "Stable build"
-	t.Tag = new(string)
-	*t.Tag = tag
-	t, resp, err := h.Client.Git.CreateTag(h.Owner, h.Repo, t)
+	gho := github.GitObject{
+		SHA:  commit,
+		Type: &GH.commit,
+	}
+	gt := github.Tag{
+		Object:  &gho,
+		Message: &message,
+		Tag:     &tag,
+	}
+	t, resp, err := h.Client.Git.CreateTag(h.Owner, h.Repo, &gt)
 	if err != nil {
 		return err
 	}
@@ -186,14 +202,18 @@ func (h helper) updateBaseReference(commit *string) error {
 	}
 	ref := fmt.Sprintf("refs/heads/%s", h.Base)
 	log.Printf("Updating ref %s to commit %s", ref, *commit)
-	r := new(github.Reference)
+	gho := github.GitObject{
+		SHA:  commit,
+		Type: &GH.commit,
+	}
+	r := github.Reference{
+		Ref:    &ref,
+		Object: &gho,
+	}
 	r.Ref = new(string)
 	*r.Ref = ref
-	r.Object = new(github.GitObject)
-	r.Object.SHA = commit
-	r.Object.Type = new(string)
-	*r.Object.Type = COMMIT
-	_, _, err := h.Client.Git.UpdateRef(h.Owner, h.Repo, r, false)
+
+	_, _, err := h.Client.Git.UpdateRef(h.Owner, h.Repo, &r, false)
 	return err
 }
 
@@ -201,7 +221,7 @@ func (h helper) updateBaseReference(commit *string) error {
 // fast forward Base to the PR's head commit.
 func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStatus) error {
 	switch *s.State {
-	case SUCCESS:
+	case GH.success:
 		if err := h.createStableTag(s.SHA); err == nil {
 			if err := h.updateBaseReference(s.SHA); err != nil {
 				log.Printf("Could not update %s reference to %s.\n%v", h.Base, *s.SHA, err)
@@ -212,10 +232,10 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 		} else {
 			return err
 		}
-	case FAILURE:
+	case GH.failure:
 		log.Printf("Closing PR %d", *pr.ID)
 		return h.closePullRequest(pr)
-	case PENDING:
+	case GH.pending:
 		log.Printf("Pull Request %d is still being checked", pr.ID)
 	}
 	return nil
@@ -223,11 +243,12 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 
 // Checks all the PR on Base and calls updatePullRequest on each.
 func (h helper) verifyPullRequestStatus() error {
-	options := new(github.PullRequestListOptions)
-	options.Head = h.Head
-	options.Base = h.Base
-	options.State = "open"
-	prs, _, err := h.Client.PullRequests.List(h.Owner, h.Repo, options)
+	options := github.PullRequestListOptions{
+		Head:  h.Head,
+		Base:  h.Base,
+		State: "open",
+	}
+	prs, _, err := h.Client.PullRequests.List(h.Owner, h.Repo, &options)
 	if err != nil {
 		return err
 	}
