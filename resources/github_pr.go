@@ -15,7 +15,7 @@ import (
 
 var (
 	tokenFile   = flag.String("token_file", "", "File containing Auth Token.")
-	owner       = flag.String("org", "istio", "Github Owner or org.")
+	owner       = flag.String("owner", "istio", "Github Owner or org.")
 	repo        = flag.String("repo", "", "Github repo within the org.")
 	base        = flag.String("base", "stable", "The base branch used for PR.")
 	head        = flag.String("head", "master", "The head branch used for PR.")
