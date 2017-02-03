@@ -29,7 +29,7 @@ main(utils) {
     slaveUpdate(gitUtils, utils)
   }
   if (utils.runStage('_FAST_FORWARD')) {
-    fastForwardStable('istio-testing', '')
+    fastForwardStable('istio-testing')
   }
 }
 
