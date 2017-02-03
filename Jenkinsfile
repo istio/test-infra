@@ -67,7 +67,7 @@ def fastForwardStable(gitUtils, repo, base = 'stable', head = 'master', owner = 
       def tokenFile = '/tmp/gh.token'
       def credentialId = env.ISTIO_TESTING_TOKEN_ID
       withCredentials([string(credentialsId: credentialId, variable: 'GITHUB_TOKEN')]) {
-        writeFile(file: tokenFile, env.GITHUB_TOKEN)
+        writeFile(file: tokenFile, text: env.GITHUB_TOKEN)
       }
       writeFile(file: 'gh.go', text: res)
       sh "go get ./..."
