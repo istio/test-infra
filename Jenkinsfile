@@ -29,7 +29,7 @@ mainFlow(utils) {
     slaveUpdate(gitUtils, utils)
   }
   if (utils.runStage('_FAST_FORWARD')) {
-    fastForwardStable('istio-testing')
+    fastForwardStable(gitUtils, 'istio-testing')
   }
 }
 
@@ -60,7 +60,7 @@ def slaveUpdate(gitUtils, utils) {
   }
 }
 
-def fastForwardStable(repo, base = 'stable', head = 'master', owner = 'istio') {
+def fastForwardStable(gitUtils, repo, base = 'stable', head = 'master', owner = 'istio') {
   goBuildNode(gitUtils, 'main') {
     stage('Fast Forward') {
       def res = libraryResource('github_pr.go')
