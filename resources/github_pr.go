@@ -82,9 +82,9 @@ func (h helper) createPullRequestToBase(commit *string) error {
 	}
 	title := fmt.Sprintf("Fast Forward %s to %s", h.Base, *commit)
 	req := new(github.NewPullRequest)
-	*req.Head = h.Head
-	*req.Base = h.Base
-	*req.Title = title
+	req.Head = &h.Head
+	req.Base = &h.Base
+	req.Title = &title
 	log.Printf("Creating a PR with Title: \"%s\"", title)
 	if pr, _, err := h.Client.PullRequests.Create(h.Owner, h.Repo, req); err == nil {
 		log.Printf("Created new PR at %s", *pr.HTMLURL)
@@ -206,13 +206,14 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 			if err := h.updateBaseReference(s.SHA); err != nil {
 				log.Printf("Could not update %s reference to %s.\n%v", h.Base, *s.SHA, err)
 				return nil
-			} else {
-				return h.closePullRequest(pr)
 			}
+			// Note there is no need to close the PR here.
+			// It will be done automatically once Base ref is updated
 		} else {
 			return err
 		}
 	case FAILURE:
+		log.Printf("Closing PR %d", *pr.ID)
 		return h.closePullRequest(pr)
 	case PENDING:
 		log.Printf("Pull Request %d is still being checked", pr.ID)
@@ -250,14 +251,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("Could not instantiate a github client %v", err)
 	}
-	if *fastForward {
-		if err = h.fastForwardBase(); err != nil {
-			log.Fatalf("Unable to fast forward %s.\n%v", h.Base, err)
-		}
-	}
 	if *verify {
 		if err = h.verifyPullRequestStatus(); err != nil {
 			log.Fatalf("Unable to verify PR from %s.\n%v", h.Base, err)
+		}
+	}
+	if *fastForward {
+		if err = h.fastForwardBase(); err != nil {
+			log.Fatalf("Unable to fast forward %s.\n%v", h.Base, err)
 		}
 	}
 }
