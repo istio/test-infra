@@ -24,7 +24,7 @@ node {
   TOOLS_BUCKET = failIfNullOrEmpty(env.TOOLS_BUCKET, 'Please set TOOLS_BUCKET env.')
 }
 
-main(utils) {
+mainFlow(utils) {
   if (utils.runStage('_SLAVE_UPDATE')) {
     slaveUpdate(gitUtils, utils)
   }
@@ -63,13 +63,13 @@ def slaveUpdate(gitUtils, utils) {
 def fastForwardStable(repo, base = 'stable', head = 'master', owner = 'istio') {
   goBuildNode(gitUtils, 'main') {
     stage('Fast Forward') {
-      def githubPr = libraryResource('github_pr.go')
+      def res = libraryResource('github_pr.go')
       def tokenFile = '/tmp/gh.token'
       def credentialId = env.ISTIO_TESTING_TOKEN_ID
       withCredentials([string(credentialsId: credentialId, variable: 'GITHUB_TOKEN')]) {
         writeFile(file: tokenFile, env.GITHUB_TOKEN)
       }
-      writeFile(file: 'gh.go', text: githubPr)
+      writeFile(file: 'gh.go', text: res)
       sh "go get ./..."
       sh "go run gh.go --owner=${owner} " +
           "--repo=${repo} " +
