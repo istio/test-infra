@@ -10,45 +10,49 @@ node {
   def defaultNode = load('vars/defaultNode.groovy')
   def buildNode = load('vars/buildNode.groovy')
   def testNode = load('vars/testNode.groovy')
+  def main = load('vars/testNode.groovy')
+
 
   gitUtils.initialize()
   bazel.setVars()
 
-  if (utils.runStage('PRESUBMIT')) {
-    def success = true
-    def branches = [
-        'goBuildNode': {
-          goBuildNode(gitUtils, 'istio.io/istio-testing') {
-            echo(env.PATH)
-            echo(env.GOPATH)
-            bazel.version()
+  main(utils) {
+    if (utils.runStage('PRESUBMIT')) {
+      def success = true
+      def branches = [
+          'goBuildNode': {
+            goBuildNode(gitUtils, 'istio.io/istio-testing') {
+              echo(env.PATH)
+              echo(env.GOPATH)
+              bazel.version()
+            }
+          },
+          'defaultNode': {
+            defaultNode(gitUtils) {
+              sh('ls -all')
+            }
+          },
+          'buildNode'  : {
+            buildNode(gitUtils) {
+              sh('ls -all')
+              bazel.version()
+            }
+          },
+          'testNode'   : {
+            testNode(gitUtils) {
+              sh('ls -all')
+            }
           }
-        },
-        'defaultNode': {
-          defaultNode(gitUtils) {
-            sh('ls -all')
-          }
-        },
-        'buildNode': {
-          buildNode(gitUtils) {
-            sh('ls -all')
-            bazel.version()
-          }
-        },
-        'testNode': {
-          testNode(gitUtils) {
-            sh('ls -all')
-          }
-        }
-    ]
-    utils.updatePullRequest('run')
-    try {
-      parallel(branches)
-    } catch (Exception e) {
-      success = false
-      throw e
-    } finally {
-      utils.updatePullRequest('verify', success)
+      ]
+      utils.updatePullRequest('run')
+      try {
+        parallel(branches)
+      } catch (Exception e) {
+        success = false
+        throw e
+      } finally {
+        utils.updatePullRequest('verify', success)
+      }
     }
   }
 }

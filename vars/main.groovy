@@ -10,7 +10,10 @@ def call(utils, Closure body) {
       currentBuild.result = 'FAILURE'
       throw e
     } finally {
-      utils.sendNotification(gitUtils.NOTIFY_LIST)
+      notifyList = utils.getParam(env.NOTIFY_LIST)
+      if (notifyList) {
+        utils.sendNotification(notifyList)
+      }
     }
   }
 }
