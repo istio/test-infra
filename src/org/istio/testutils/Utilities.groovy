@@ -66,7 +66,7 @@ def fastForwardStable() {
   def res = libraryResource('github_pr.go')
   def tokenFile = '/tmp/gh.token'
   def owner = getParam('FF_OWNER', 'istio')
-  def repo = failIfNullOrEmpty(getParam(FF_REPO))
+  def repo = failIfNullOrEmpty(getParam(FF_REPO), 'FF_REPO build parameter needs to be set!')
   def base = getParam('FF_BASE', 'stable')
   def head = getParam('FF_HEAD', 'master')
   def credentialId = getParam('FF_TOKEN_ID', env.ISTIO_TESTING_TOKEN_ID)
