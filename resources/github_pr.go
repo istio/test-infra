@@ -93,7 +93,8 @@ func (h helper) createPullRequestToBase(commit *string) error {
 	if commit == nil {
 		return errors.New("commit cannot be nil.")
 	}
-	title := fmt.Sprintf("Fast Forward %s to %s", h.Base, *commit)
+	title := fmt.Sprintf(
+		"Fast Forward %s to %s\n Do not use the UI to merge this PR.", h.Base, *commit)
 	req := github.NewPullRequest{
 		Head:  &h.Head,
 		Base:  &h.Base,
@@ -166,7 +167,7 @@ func (h helper) createStableTag(commit *string) error {
 	}
 	sha := *commit
 	tag := fmt.Sprintf("stable-%s", sha[0:7])
-	message := "Stable build\n Do not use the UI to merge this PR."
+	message := "Stable build"
 	log.Printf("Creating tag %s on %s for commit %s", tag, h.Base, *commit)
 	gho := github.GitObject{
 		SHA:  commit,

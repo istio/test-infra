@@ -28,9 +28,6 @@ mainFlow(utils) {
   if (utils.runStage('_SLAVE_UPDATE')) {
     slaveUpdate(gitUtils, utils)
   }
-  if (utils.runStage('_FAST_FORWARD')) {
-    fastForwardStable(gitUtils, 'istio-testing')
-  }
 }
 
 def slaveUpdate(gitUtils, utils) {
@@ -56,28 +53,6 @@ def slaveUpdate(gitUtils, utils) {
       sh("scripts/jenkins-build-docker-slave " +
           "-i ${testDockerImage} " +
           "-t ${finalDockerImage}")
-    }
-  }
-}
-
-def fastForwardStable(gitUtils, repo, base = 'stable', head = 'master', owner = 'istio') {
-  goBuildNode(gitUtils, 'main') {
-    stage('Fast Forward') {
-      def res = libraryResource('github_pr.go')
-      def tokenFile = '/tmp/gh.token'
-      def credentialId = env.ISTIO_TESTING_TOKEN_ID
-      withCredentials([string(credentialsId: credentialId, variable: 'GITHUB_TOKEN')]) {
-        writeFile(file: tokenFile, text: env.GITHUB_TOKEN)
-      }
-      writeFile(file: 'gh.go', text: res)
-      sh "go get ./..."
-      sh "go run gh.go --owner=${owner} " +
-          "--repo=${repo} " +
-          "--head=${head} " +
-          "--base=${base} " +
-          "--token_file=${tokenFile} " +
-          "--fast_forward " +
-          "--verify"
     }
   }
 }
