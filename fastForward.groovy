@@ -13,7 +13,9 @@ node {
   sh("mkdir -p ${newWorkspace}")
   withEnv(["GOPATH=${goPath}", "PATH+GOPATH=${goPath}/bin"]) {
     dir(newWorkspace) {
-      utils.fastForwardStable()
+      stage('Fast Forward') {
+        utils.fastForwardStable()
+      }
     }
   }
 }
