@@ -17,7 +17,10 @@ spec:
     spec:
       containers:
       - name: master
-        image: jenkins:2.32.1
+        image: jenkins:2.32.2
+        env:
+        - name: JAVA_OPTS
+          value: "-Dorg.apache.commons.jelly.tags.fmt.timeZone=America/Los_Angeles"
         ports:
         - containerPort: 8080
         - containerPort: 50000
