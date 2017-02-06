@@ -59,30 +59,30 @@ func getToken() (*http.Client, error) {
 
 // Creates a new ghConst
 func newGhConst() *ghConst {
-	gh := new(ghConst)
-	gh.success = "success"
-	gh.failure = "failure"
-	gh.pending = "pending"
-	gh.closed = "closed"
-	gh.all = "all"
-	gh.commit = "commit"
-	return gh
+	return &ghConst{
+		success: "success",
+		failure: "failure",
+		pending: "pending",
+		closed: "closed",
+		all: "all",
+		commit: "commit",
+	}
 }
 
 // Creates a new Github Helper from provided
 func newHelper() (*helper, error) {
 	if tc, err := getToken(); err == nil {
-		client := github.NewClient(tc)
-		h := new(helper)
 		if *repo == "" {
 			return nil, errors.New("repo flag must be set!")
 		}
-		h.Owner = *owner
-		h.Repo = *repo
-		h.Base = *base
-		h.Head = *head
-		h.Client = client
-		return h, nil
+		client := github.NewClient(tc)
+		return &helper{
+			Owner:  *owner,
+			Repo:   *repo,
+			Base:   *base,
+			Head:   *head,
+			Client: client,
+		}, nil
 	} else {
 		return nil, err
 	}
