@@ -24,43 +24,37 @@ node {
   TOOLS_BUCKET = failIfNullOrEmpty(env.TOOLS_BUCKET, 'Please set TOOLS_BUCKET env.')
 }
 
-node('master') {
-  try {
-    stage('Slave Update') {
-      defaultNode(gitUtils) {
-        gitSha = gitUtils.GIT_SHA
-        buildNewDockerSlave(gitUtils, utils)
+mainFlow(utils) {
+  if (utils.runStage('_SLAVE_UPDATE')) {
+    slaveUpdate(gitUtils, utils)
+  }
+}
+
+def slaveUpdate(gitUtils, utils) {
+  stage('Slave Update') {
+    defaultNode(gitUtils) {
+      nodeLabel = utils.getParam('SLAVE_LABEL', gitUtils.DEFAULT_SLAVE_LABEL)
+      def dockerImage = "${DOCKER_SLAVES[nodeLabel]}:${gitUtils.GIT_SHA}"
+      // Test Slave image setup in Jenkins
+      def testDockerImage = "${DOCKER_SLAVES[nodeLabel]}:test"
+      // Slave image setup in Jenkins
+      def finalDockerImage = "${DOCKER_SLAVES[nodeLabel]}:latest"
+      echo("Building ${testDockerImage}")
+      sh("scripts/jenkins-build-docker-slave -b " +
+          "-i ${dockerImage} " +
+          "-t ${testDockerImage} " +
+          "-s ${nodeLabel} " +
+          "-T \"${TOOLS_BUCKET}\"")
+      echo("Testing ${testDockerImage}")
+      testNode(gitUtils) {
+        sh('docker/slaves/slave-test')
       }
+      echo("Retagging ${testDockerImage} to ${dockerImage}")
+      sh("scripts/jenkins-build-docker-slave " +
+          "-i ${testDockerImage} " +
+          "-t ${finalDockerImage}")
     }
-  } catch (Exception e) {
-    currentBuild.result = 'FAILURE'
-    throw e
-  } finally {
-    utils.sendNotification(gitUtils.NOTIFY_LIST)
   }
 }
 
-
-def buildNewDockerSlave(gitUtils, utils) {
-  nodeLabel = utils.getParam('SLAVE_LABEL', gitUtils.DEFAULT_SLAVE_LABEL)
-  def dockerImage = "${DOCKER_SLAVES[nodeLabel]}:${gitUtils.GIT_SHA}"
-  // Test Slave image setup in Jenkins
-  def testDockerImage = "${DOCKER_SLAVES[nodeLabel]}:test"
-  // Slave image setup in Jenkins
-  def finalDockerImage = "${DOCKER_SLAVES[nodeLabel]}:latest"
-  echo("Building ${testDockerImage}")
-  sh("scripts/jenkins-build-docker-slave -b " +
-      "-i ${dockerImage} " +
-      "-t ${testDockerImage} " +
-      "-s ${nodeLabel} " +
-      "-T \"${TOOLS_BUCKET}\"")
-  echo("Testing ${testDockerImage}")
-  testNode(gitUtils) {
-    sh('docker/slaves/slave-test')
-  }
-  echo("Retagging ${testDockerImage} to ${dockerImage}")
-  sh("scripts/jenkins-build-docker-slave " +
-      "-i ${testDockerImage} " +
-      "-t ${finalDockerImage}")
-}
 
