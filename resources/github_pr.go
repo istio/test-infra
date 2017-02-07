@@ -94,11 +94,13 @@ func (h helper) createPullRequestToBase(commit *string) error {
 		return errors.New("commit cannot be nil.")
 	}
 	title := fmt.Sprintf(
-		"Fast Forward %s to %s\n Do not use the UI to merge this PR.", h.Base, *commit)
+		"Fast Forward %s to %s", h.Base, *commit)
+	body := "Do not use the UI to merge this PR."
 	req := github.NewPullRequest{
 		Head:  &h.Head,
 		Base:  &h.Base,
 		Title: &title,
+		Body: &body,
 	}
 	log.Printf("Creating a PR with Title: \"%s\"", title)
 	if pr, _, err := h.Client.PullRequests.Create(h.Owner, h.Repo, &req); err == nil {
