@@ -30,6 +30,7 @@ def stashSourceCode(postcheckout_call = null) {
     }
     sleep(5)
   }
+  updateSubmodules()
   if (postcheckout_call != null) {
     postcheckout_call()
   }
@@ -71,6 +72,21 @@ def fastStash(name, stashPaths) {
       sleep(5)
     }
   }
+}
+
+// This only trigger when SUBMODULES_UPDATE build parameter is set.
+// Format is FILE1:KEY1:VALUE1,FILE2:KEY2:VALUE2
+// Which will update the key1 in file1 with the new value
+// and key2 in file2 with the value2 and create a commit for each change
+def updateSubmodules() {
+  def submodules_update = params.get('SUBMODULES_UPDATE')
+  if (submodules_update == '' || submodules_update == null) {
+    return
+  }
+  def res = libraryResource('update-submodules')
+  writeFile(file: 'update-submodules', text: res)
+  sh('chmod +x update-submodules')
+  sh("./update-submodules -s ${submodules_update}")
 }
 
 // Unstashing data to current directory.
