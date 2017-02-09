@@ -10,7 +10,7 @@ def defaultValue(first, second) {
 }
 
 def setVars(startup = null, build = null, test = null) {
-  BAZEL_STARTUP_ARGS = defaultValue(startup, env.BAZEL_ARGS)
+  BAZEL_STARTUP_ARGS = defaultValue(startup, env.BAZEL_STARTUP_ARGS)
   BAZEL_BUILD_ARGS = defaultValue(build, env.BAZEL_BUILD_ARGS)
   BAZEL_TEST_ARGS = defaultValue(test, env.BAZEL_TEST_ARGS)
 }
