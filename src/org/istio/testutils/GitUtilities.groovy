@@ -12,6 +12,17 @@ def initialize() {
   setArtifactsLink()
 }
 
+def setGit() {
+  writeFile(
+      file: "${env.HOME}/.gitconfig",
+      text: '''
+[user]
+        name = istio-testing
+        email = istio-testing@gmail.com
+[remote "origin"]
+        fetch = +refs/pull/*/head:refs/remotes/origin/pr/*''')
+}
+
 def setVars() {
   BUCKET = env.BUCKET
   DEFAULT_SLAVE_LABEL = env.DEFAULT_SLAVE_LABEL
@@ -52,6 +63,7 @@ def checkoutSourceCode() {
   echo('Unstashing source code')
   fastUnstash('src-code')
   sh("git status")
+  setGit()
 }
 
 // Generates the archive path based on the bucket, git_sha and name
