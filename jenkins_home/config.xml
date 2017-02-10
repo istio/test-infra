@@ -104,7 +104,7 @@
               <resourceRequestCpu>500m</resourceRequestCpu>
               <resourceRequestMemory>512Mi</resourceRequestMemory>
               <resourceLimitCpu>4000m</resourceLimitCpu>
-              <resourceLimitMemory>16Gi</resourceLimitMemory>
+              <resourceLimitMemory>20Gi</resourceLimitMemory>
               <envVars>
                 <org.csanchez.jenkins.plugins.kubernetes.ContainerEnvVar>
                   <key>PLATFORM</key>
@@ -135,7 +135,7 @@
               <workingDir>/home/jenkins</workingDir>
               <command></command>
               <args>${computer.jnlpmac} ${computer.name}</args>
-              <ttyEnabled>false</ttyEnabled>
+              <ttyEnabled>true</ttyEnabled>
               <resourceRequestCpu>500m</resourceRequestCpu>
               <resourceRequestMemory>512Mi</resourceRequestMemory>
               <resourceLimitCpu>2000m</resourceLimitCpu>
@@ -193,10 +193,10 @@
             <comparator class="hudson.util.CaseInsensitiveComparator"/>
           </default>
           <int>9</int>
-          <string>BAZEL_ARGS</string>
-          <string>--batch --host_jvm_args=-Dbazel.DigestFunction=SHA1</string>
           <string>BAZEL_BUILD_ARGS</string>
           <string>--hazelcast_node=hazelcast.hazelcast.svc.cluster.local --spawn_strategy=remote</string>
+          <string>BAZEL_STARTUP_ARGS</string>
+          <string>--batch --host_jvm_args=-Dbazel.DigestFunction=SHA1</string>
           <string>BUCKET</string>
           <string>istio-artifacts</string>
           <string>DEFAULT_SLAVE_LABEL</string>
