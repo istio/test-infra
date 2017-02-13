@@ -94,8 +94,8 @@ func (h helper) createPullRequestToBase(commit *string) error {
 		return errors.New("commit cannot be nil.")
 	}
 	title := fmt.Sprintf(
-		"Fast Forward %s to %s", h.Base, *commit)
-	body := "Do not use the UI to merge this PR."
+		"DO NOT MERGE! Fast Forward %s to %s.", h.Base, *commit)
+	body := "This PR will be merged automatically once checks are successful."
 	req := github.NewPullRequest{
 		Head:  &h.Head,
 		Base:  &h.Base,
@@ -150,7 +150,7 @@ func (h helper) fastForwardBase() error {
 		}
 		return h.createPullRequestToBase(commit)
 	}
-	log.Printf("Branches %s and %s as in sync.", h.Base, h.Head)
+	log.Printf("Branches %s and %s are in sync.", h.Base, h.Head)
 	return nil
 }
 
