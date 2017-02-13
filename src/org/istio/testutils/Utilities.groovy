@@ -83,30 +83,33 @@ def fastForwardStable() {
   def head = getParam('FF_HEAD', 'master')
   def remoteFile = 'gh.go'
   def tokenFile = '/tmp/token.jenkins'
-  installGithubPr(remoteFile, tokenFile)
-  sh("go run ${remoteFile} " +
-      "--owner=${owner} " +
-      "--repo=${repo} " +
-      "--head=${head} " +
-      "--base=${base} " +
-      "--token_file=${tokenFile} " +
-      "--fast_forward " +
-      "--verify")
+  runGo {
+    installGithubPr(remoteFile, tokenFile)
+    sh("go run ${remoteFile} " +
+        "--owner=${owner} " +
+        "--repo=${repo} " +
+        "--head=${head} " +
+        "--base=${base} " +
+        "--token_file=${tokenFile} " +
+        "--fast_forward " +
+        "--verify")
+  }
 }
-
 
 def commentOnPr(message) {
   // Passed in by GitHub Integration plugin
   def pr = failIfNullOrEmpty(env.GITHUB_PR_NUMBER)
   def remoteFile = 'gh.go'
   def tokenFile = '/tmp/token.jenkins'
-  installGithubPr(remoteFile, tokenFile)
-  sh("go run ${remoteFile} " +
-      "--owner=${owner} " +
-      "--repo=${repo} " +
-      "--pr=${pr} " +
-      "--token_file=${tokenFile} " +
-      "--comment \"${message}\"")
+  runGo {
+    installGithubPr(remoteFile, tokenFile)
+    sh("go run ${remoteFile} " +
+        "--owner=${owner} " +
+        "--repo=${repo} " +
+        "--pr=${pr} " +
+        "--token_file=${tokenFile} " +
+        "--comment \"${message}\"")
+  }
 }
 
 // Send Email failure notfication
