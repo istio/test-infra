@@ -11,7 +11,7 @@ def updatePullRequest(flow, success = false) {
       break
     case 'verify':
       state = success ? 'SUCCESS' : 'FAILURE'
-      message = "${success ? 'Successful' : 'Failed'} presubmits. " +
+      message = "${env.JOB_NAME} ${success ? 'passed' : 'failed'}. " +
           "Details at ${env.BUILD_URL}."
       break
     default:
@@ -21,6 +21,7 @@ def updatePullRequest(flow, success = false) {
       context: env.JOB_NAME,
       message: message,
       state: state)
+  commentOnPr(message)
 }
 
 def runStage(stage) {
@@ -36,7 +37,7 @@ def runStage(stage) {
 }
 
 // Check parameter value and fails if null or empty
-static def failIfNullOrEmpty(value, message) {
+static def failIfNullOrEmpty(value, message = 'Value not set') {
   if (value == null || value == '') {
     throw Exception(message)
   }
@@ -56,32 +57,56 @@ def getParam(name, defaultValue = '') {
   return getWithDefault(params.get(name), defaultValue)
 }
 
+// install GitHub pr resource
+def installGithubPr(remoteFile, tokenFile = null) {
+  def res = libraryResource('github_pr.go')
+  writeFile(file: remoteFile, text: res)
+  sh("go get ./...")
+  if (tokenFile != null) {
+    def credentialId = getParam('FF_TOKEN_ID', env.ISTIO_TESTING_TOKEN_ID)
+    withCredentials([string(credentialsId: credentialId, variable: 'GITHUB_TOKEN')]) {
+      writeFile(file: tokenFile, text: env.GITHUB_TOKEN)
+    }
+  }
+}
+
 // This Workflow uses the following Build Parameters:
-// FF_OWNER: The name of the Githug org or user, default istio
+// FF_OWNER: The name of the GitHub org or user, default istio
 // FF_REPO: The name of the repo
 // FF_BASE: The branch to use for base, default stable
 // FF_HEAD: The branch to use for head, default master
-// FF_TOKEN_ID: The token id to use in Jenkins. Default is set to ISTIO_TESTING_TOKEN_ID env variable.
+// FF_TOKEN_ID: The token id to use in Jenkins. Default is ISTIO_TESTING_TOKEN_ID env variable.
 def fastForwardStable() {
-  def res = libraryResource('github_pr.go')
-  def tokenFile = '/tmp/gh.token'
   def owner = getParam('FF_OWNER', 'istio')
   def repo = failIfNullOrEmpty(getParam('FF_REPO'), 'FF_REPO build parameter needs to be set!')
   def base = getParam('FF_BASE', 'stable')
   def head = getParam('FF_HEAD', 'master')
-  def credentialId = getParam('FF_TOKEN_ID', env.ISTIO_TESTING_TOKEN_ID)
-  withCredentials([string(credentialsId: credentialId, variable: 'GITHUB_TOKEN')]) {
-    writeFile(file: tokenFile, text: env.GITHUB_TOKEN)
-  }
-  writeFile(file: 'gh.go', text: res)
-  sh("go get ./...")
-  sh("go run gh.go --owner=${owner} " +
+  def remoteFile = 'gh.go'
+  def tokenFile = '/tmp/token.jenkins'
+  installGithubPr(remoteFile, tokenFile)
+  sh("go run ${remoteFile} " +
+      "--owner=${owner} " +
       "--repo=${repo} " +
       "--head=${head} " +
       "--base=${base} " +
       "--token_file=${tokenFile} " +
       "--fast_forward " +
       "--verify")
+}
+
+
+def commentOnPr(message) {
+  // Passed in by GitHub Integration plugin
+  def pr = failIfNullOrEmpty(env.GITHUB_PR_NUMBER)
+  def remoteFile = 'gh.go'
+  def tokenFile = '/tmp/token.jenkins'
+  installGithubPr(remoteFile, tokenFile)
+  sh("go run ${remoteFile} " +
+      "--owner=${owner} " +
+      "--repo=${repo} " +
+      "--pr=${pr} " +
+      "--token_file=${tokenFile} " +
+      "--comment \"${message}\"")
 }
 
 // Send Email failure notfication

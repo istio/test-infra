@@ -96,9 +96,9 @@ def updateSubmodules() {
     return
   }
   def res = libraryResource('update-submodules')
-  writeFile(file: 'update-submodules', text: res)
+  writeFile(file: '/tmp/update-submodules', text: res)
   sh('chmod +x update-submodules')
-  sh("./update-submodules -s ${submodules_update}")
+  sh("/tmp/update-submodules -s ${submodules_update}")
 }
 
 // Unstashing data to current directory.

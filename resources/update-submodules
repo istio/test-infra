@@ -44,19 +44,26 @@ function error_exit() {
 function update_file() {
   local file="${1}"
   local key="${2}"
-  local sha="${3}"
+  local value="${3}"
 
-  sed -i -e "s|${key}\s=.*|${key} = \"${sha}\"|" "${file}" \
+  echo "Updating file: ${file} with key: \"${key}\" and value \"${value}\"."
+
+  sed -i -e "s|${key}\s=.*|${key} = \"${value}\"|" "${file}" \
     || error_exit "Could not update WORKSPACE for ${key}."
 }
 
 function commit_file() {
   local file="${1}"
   local key="${2}"
+  local changes="$(git status -s)"
 
-  git add "${file}" \
-    && git commit -m "Updates ${key} in ${file}" \
-    || error_exit "Could not create commit for ${key} update in ${file}."
+  if [[ "${changes}" =~ "${file}" ]]; then
+    git add "${file}" \
+      && git commit -m "Updates ${key} in ${file}" \
+      || error_exit "Could not create commit for ${key} update in ${file}."
+  else
+    echo 'Nothing to commit.'
+  fi
 }
 
 while getopts :s: arg; do

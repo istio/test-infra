@@ -19,8 +19,10 @@ var (
 	repo        = flag.String("repo", "", "Github repo within the org.")
 	base        = flag.String("base", "stable", "The base branch used for PR.")
 	head        = flag.String("head", "master", "The head branch used for PR.")
+	pr          = flag.Int("pr", 0, "The Pull request to use.")
 	fastForward = flag.Bool("fast_forward", false, "Creates a PR updating Base to Head.")
 	verify      = flag.Bool("verify", false, "Verifies PR on Base and push them if success.")
+	comment     = flag.String("comment", "", "The comment to send to the Pull Request.")
 	GH          = newGhConst()
 )
 
@@ -39,6 +41,7 @@ type helper struct {
 	Repo   string
 	Base   string
 	Head   string
+	Pr     int
 	Client *github.Client
 }
 
@@ -63,9 +66,9 @@ func newGhConst() *ghConst {
 		success: "success",
 		failure: "failure",
 		pending: "pending",
-		closed: "closed",
-		all: "all",
-		commit: "commit",
+		closed:  "closed",
+		all:     "all",
+		commit:  "commit",
 	}
 }
 
@@ -81,6 +84,7 @@ func newHelper() (*helper, error) {
 			Repo:   *repo,
 			Base:   *base,
 			Head:   *head,
+			Pr:     *pr,
 			Client: client,
 		}, nil
 	} else {
@@ -100,7 +104,7 @@ func (h helper) createPullRequestToBase(commit *string) error {
 		Head:  &h.Head,
 		Base:  &h.Base,
 		Title: &title,
-		Body: &body,
+		Body:  &body,
 	}
 	log.Printf("Creating a PR with Title: \"%s\"", title)
 	if pr, _, err := h.Client.PullRequests.Create(h.Owner, h.Repo, &req); err == nil {
@@ -269,6 +273,19 @@ func (h helper) verifyPullRequestStatus() error {
 	return nil
 }
 
+// Creates a comment on a Pull Request
+func (h helper) createComment(comment *string) error {
+	if h.Pr <= 0 {
+		return errors.New("PR number needs to be greather than 0")
+	}
+	c := github.IssueComment{
+		Body: comment,
+	}
+	log.Printf("Commenting \"%s\" on PR %d for %s/%s", *comment, h.Pr, h.Owner, h.Repo)
+	_, _, err := h.Client.Issues.CreateComment(h.Owner, h.Repo, h.Pr, &c)
+	return err
+}
+
 func main() {
 	flag.Parse()
 	h, err := newHelper()
@@ -283,6 +300,11 @@ func main() {
 	if *fastForward {
 		if err = h.fastForwardBase(); err != nil {
 			log.Fatalf("Unable to fast forward %s.\n%v", h.Base, err)
+		}
+	}
+	if *comment != "" {
+		if err := h.createComment(comment); err != nil {
+			log.Fatalf("Unable to create a comment on PR %d.\n%v", h.Pr, err)
 		}
 	}
 }
