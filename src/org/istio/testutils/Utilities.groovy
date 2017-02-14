@@ -83,7 +83,7 @@ def fastForwardStable() {
   def head = getParam('FF_HEAD', 'master')
   def remoteFile = 'gh.go'
   def tokenFile = '/tmp/token.jenkins'
-  runGo {
+  runGo('main') {
     installGithubPr(remoteFile, tokenFile)
     sh("go run ${remoteFile} " +
         "--owner=${owner} " +
@@ -101,7 +101,7 @@ def commentOnPr(message) {
   def pr = failIfNullOrEmpty(env.GITHUB_PR_NUMBER)
   def remoteFile = 'gh.go'
   def tokenFile = '/tmp/token.jenkins'
-  runGo {
+  runGo('main') {
     installGithubPr(remoteFile, tokenFile)
     sh("go run ${remoteFile} " +
         "--owner=${owner} " +
