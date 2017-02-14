@@ -99,6 +99,8 @@ def fastForwardStable() {
 def commentOnPr(message) {
   // Passed in by GitHub Integration plugin
   def pr = failIfNullOrEmpty(env.GITHUB_PR_NUMBER)
+  def owner = getParam('FF_OWNER', 'istio')
+  def repo = failIfNullOrEmpty(getParam('FF_REPO'), 'FF_REPO build parameter needs to be set!')
   def remoteFile = 'gh.go'
   def tokenFile = '/tmp/token.jenkins'
   runGo('main') {
