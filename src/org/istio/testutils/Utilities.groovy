@@ -7,12 +7,11 @@ def updatePullRequest(flow, success = false) {
   switch (flow) {
     case 'run':
       state = 'PENDING'
-      message = "Running presubmits at ${env.BUILD_URL} ..."
+      message = "Jenkins job ${env.JOB_NAME} started"
       break
     case 'verify':
       state = success ? 'SUCCESS' : 'FAILURE'
-      message = "${env.JOB_NAME} ${success ? 'passed' : 'failed'}. " +
-          "Details at ${env.BUILD_URL}."
+      message = "Jenkins job ${env.JOB_NAME} ${success ? 'passed' : 'failed'}"
       break
     default:
       error('flow can only be run or verify')
