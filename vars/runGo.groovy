@@ -2,7 +2,7 @@
 Sets Up environment to run go.
 */
 
-def call(gitUtils, goImportPath, Closure body) {
+def call(Closure body) {
   def goPath = env.WORKSPACE
   def newWorkspace = "${goPath}/src/${goImportPath}"
   sh("mkdir -p ${newWorkspace}")
