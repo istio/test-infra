@@ -71,16 +71,16 @@ def installGithubPr(remoteFile, tokenFile = null) {
 }
 
 // This Workflow uses the following Build Parameters:
-// FF_OWNER: The name of the GitHub org or user, default istio
-// FF_REPO: The name of the repo
-// FF_BASE: The branch to use for base, default stable
-// FF_HEAD: The branch to use for head, default master
-// FF_TOKEN_ID: The token id to use in Jenkins. Default is ISTIO_TESTING_TOKEN_ID env variable.
+// GITHUB_OWNER: The name of the GitHub org or user, default istio
+// GITHUB_REPO: The name of the repo
+// REPO_BASE: The branch to use for base, default stable
+// REPO_HEAD: The branch to use for head, default master
+// GITHUB_TOKEN_ID: The token id to use in Jenkins. Default is ISTIO_TESTING_TOKEN_ID env variable.
 def fastForwardStable() {
-  def owner = getParam('FF_OWNER', 'istio')
-  def repo = failIfNullOrEmpty(getParam('FF_REPO'), 'FF_REPO build parameter needs to be set!')
-  def base = getParam('FF_BASE', 'stable')
-  def head = getParam('FF_HEAD', 'master')
+  def owner = getParam('GITHUB_OWNER', 'istio')
+  def repo = failIfNullOrEmpty(getParam('GITHUB_REPO'), 'GITHUB_REPO build parameter needs to be set!')
+  def base = getParam('REPO_BASE', 'stable')
+  def head = getParam('REPO_HEAD', 'master')
   def remoteFile = 'gh.go'
   def tokenFile = '/tmp/token.jenkins'
   runGo('main') {
@@ -99,8 +99,8 @@ def fastForwardStable() {
 def commentOnPr(message) {
   // Passed in by GitHub Integration plugin
   def pr = failIfNullOrEmpty(env.GITHUB_PR_NUMBER)
-  def owner = getParam('FF_OWNER', 'istio')
-  def repo = failIfNullOrEmpty(getParam('FF_REPO'), 'FF_REPO build parameter needs to be set!')
+  def owner = getParam('GITHUB_OWNER', 'istio')
+  def repo = failIfNullOrEmpty(getParam('GITHUB_REPO'), 'GITHUB_REPO build parameter needs to be set!')
   def remoteFile = 'gh.go'
   def tokenFile = '/tmp/token.jenkins'
   runGo('main') {
