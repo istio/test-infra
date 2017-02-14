@@ -19,7 +19,7 @@ var (
 	repo        = flag.String("repo", "", "Github repo within the org.")
 	base        = flag.String("base", "stable", "The base branch used for PR.")
 	head        = flag.String("head", "master", "The head branch used for PR.")
-	pr          = flag.Int("pr", 0, "The Pull request to use.")
+	pullRequest = flag.Int("pr", 0, "The Pull request to use.")
 	fastForward = flag.Bool("fast_forward", false, "Creates a PR updating Base to Head.")
 	verify      = flag.Bool("verify", false, "Verifies PR on Base and push them if success.")
 	comment     = flag.String("comment", "", "The comment to send to the Pull Request.")
@@ -84,7 +84,7 @@ func newHelper() (*helper, error) {
 			Repo:   *repo,
 			Base:   *base,
 			Head:   *head,
-			Pr:     *pr,
+			Pr:     *pullRequest,
 			Client: client,
 		}, nil
 	} else {
@@ -160,9 +160,9 @@ func (h helper) fastForwardBase() error {
 
 // Close an existing PR
 func (h helper) closePullRequest(pr *github.PullRequest) error {
-	log.Printf("Closing PR %d", *pr.ID)
+	log.Printf("Closing PR %d", *pr.Number)
 	*pr.State = GH.closed
-	_, _, err := h.Client.PullRequests.Edit(h.Owner, h.Repo, *pr.ID, pr)
+	_, _, err := h.Client.PullRequests.Edit(h.Owner, h.Repo, *pr.Number, pr)
 	return err
 }
 
@@ -240,10 +240,9 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 			return err
 		}
 	case GH.failure:
-		log.Printf("Closing PR %d", *pr.ID)
 		return h.closePullRequest(pr)
 	case GH.pending:
-		log.Printf("Pull Request %d is still being checked", pr.ID)
+		log.Printf("Pull Request %d is still being checked", pr.Number)
 	}
 	return nil
 }
@@ -266,7 +265,7 @@ func (h helper) verifyPullRequestStatus() error {
 			err = h.updatePullRequest(pr, statuses)
 		}
 		if err != nil {
-			log.Fatalf("Could not update PR %d. \n%v", *pr.ID, err)
+			log.Fatalf("Could not update PR %d. \n%v", *pr.Number, err)
 		}
 	}
 	log.Printf("No more PR to verify for branch %s.", h.Base)
