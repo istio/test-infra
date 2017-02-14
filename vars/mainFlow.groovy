@@ -3,7 +3,7 @@ Run the main on master and send notification in case of error.
 */
 
 def call(utils, Closure body) {
-  node('master') {
+  node {
     try {
       body()
     } catch (Exception e) {

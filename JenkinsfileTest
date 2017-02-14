@@ -1,58 +1,62 @@
 #!groovy
 
-// Loading libraries one by one
+// For testing push your code to the testing branch of istio/istio-testing
+// and create a PR from there.
+
+@Library('testutils@testing')
+
+import org.istio.testutils.Utilities
+import org.istio.testutils.GitUtilities
+import org.istio.testutils.Bazel
+
+
+// Utilities shared amongst modules
+def gitUtils = new GitUtilities()
+def utils = new Utilities()
+def bazel = new Bazel()
+
+
 node {
-  checkout(scm)
-  def utils = load('src/org/istio/testutils/Utilities.groovy')
-  def gitUtils = load('src/org/istio/testutils/GitUtilities.groovy')
-  def bazel = load('src/org/istio/testutils/Bazel.groovy')
-  def goBuildNode = load('vars/goBuildNode.groovy')
-  def defaultNode = load('vars/defaultNode.groovy')
-  def buildNode = load('vars/buildNode.groovy')
-  def testNode = load('vars/testNode.groovy')
-  def mainFlow = load('vars/mainFlow.groovy')
-
-
   gitUtils.initialize()
   bazel.setVars()
+}
 
-  mainFlow(utils) {
-    if (utils.runStage('PRESUBMIT')) {
-      def success = true
-      def branches = [
-          'goBuildNode': {
-            goBuildNode(gitUtils, 'istio.io/istio-testing') {
-              echo(env.PATH)
-              echo(env.GOPATH)
-              bazel.version()
-            }
-          },
-          'defaultNode': {
-            defaultNode(gitUtils) {
-              sh('ls -all')
-            }
-          },
-          'buildNode'  : {
-            buildNode(gitUtils) {
-              sh('ls -all')
-              bazel.version()
-            }
-          },
-          'testNode'   : {
-            testNode(gitUtils) {
-              sh('ls -all')
-            }
+mainFlow(utils) {
+  if (utils.runStage('PRESUBMIT')) {
+    def success = true
+    def branches = [
+        'goBuildNode': {
+          goBuildNode(gitUtils, 'istio.io/istio-testing') {
+            echo(env.PATH)
+            echo(env.GOPATH)
+            bazel.version()
           }
-      ]
-      utils.updatePullRequest('run')
-      try {
-        parallel(branches)
-      } catch (Exception e) {
-        success = false
-        throw e
-      } finally {
-        utils.updatePullRequest('verify', success)
-      }
+        },
+        'defaultNode': {
+          defaultNode(gitUtils) {
+            sh('ls -all')
+          }
+        },
+        'buildNode'  : {
+          buildNode(gitUtils) {
+            sh('ls -all')
+            bazel.version()
+          }
+        },
+        'testNode'   : {
+          testNode(gitUtils) {
+            sh('ls -all')
+          }
+        }
+    ]
+    utils.updatePullRequest('run')
+    try {
+      parallel(branches)
+    } catch (Exception e) {
+      success = false
+      throw e
+    } finally {
+      utils.updatePullRequest('verify', success)
     }
   }
 }
