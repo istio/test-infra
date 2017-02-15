@@ -12,6 +12,9 @@ def updatePullRequest(flow, success = false) {
     case 'verify':
       state = success ? 'SUCCESS' : 'FAILURE'
       message = "Jenkins job ${env.JOB_NAME} ${success ? 'passed' : 'failed'}"
+      if (success) {
+        commentOnPr(message)
+      }
       break
     default:
       error('flow can only be run or verify')
@@ -20,7 +23,6 @@ def updatePullRequest(flow, success = false) {
       context: env.JOB_NAME,
       message: message,
       state: state)
-  commentOnPr(message)
 }
 
 def runStage(stage) {
