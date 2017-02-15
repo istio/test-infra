@@ -227,7 +227,13 @@ func (h helper) updateBaseReference(commit *string) error {
 // Checks if a PR is ready to be pushed. Create a stable tag and
 // fast forward Base to the PR's head commit.
 func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStatus) error {
-	switch *s.State {
+	state := *s.State
+	if *s.TotalCount == 0 {
+		// There seems to be a bug in the Github API when no check are set.
+		// The status stays in pending state forever
+		state = GH.success
+	}
+	switch state {
 	case GH.success:
 		if err := h.createStableTag(s.SHA); err == nil {
 			if err := h.updateBaseReference(s.SHA); err != nil {
@@ -242,7 +248,7 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 	case GH.failure:
 		return h.closePullRequest(pr)
 	case GH.pending:
-		log.Printf("Pull Request %d is still being checked", pr.Number)
+		log.Printf("Pull Request %d is still being checked", *pr.Number)
 	}
 	return nil
 }
