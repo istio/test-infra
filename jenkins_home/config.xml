@@ -51,7 +51,7 @@
         <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
           <inheritFrom></inheritFrom>
           <name>ubuntu-16-04</name>
-          <instanceCap>30</instanceCap>
+          <instanceCap>20</instanceCap>
           <idleMinutes>0</idleMinutes>
           <label>ubuntu-16-04</label>
           <nodeSelector></nodeSelector>
@@ -86,7 +86,7 @@
         <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
           <inheritFrom></inheritFrom>
           <name>ubuntu-16-04-build</name>
-          <instanceCap>10</instanceCap>
+          <instanceCap>20</instanceCap>
           <idleMinutes>0</idleMinutes>
           <label>ubuntu-16-04-build</label>
           <nodeSelector></nodeSelector>
@@ -176,6 +176,28 @@
       <filterQueue>false</filterQueue>
       <properties class="hudson.model.View$PropertyList"/>
     </hudson.model.AllView>
+    <listView>
+      <owner class="hudson" reference="../../.."/>
+      <name>All Jobs</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator"/>
+      </jobNames>
+      <jobFilters/>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.WeatherColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <hudson.views.BuildButtonColumn/>
+      </columns>
+      <includeRegex>.*</includeRegex>
+      <recurse>true</recurse>
+    </listView>
   </views>
   <primaryView>All</primaryView>
   <slaveAgentPort>50000</slaveAgentPort>
@@ -190,13 +212,11 @@
         <unserializable-parents/>
         <tree-map>
           <default>
-            <comparator class="hudson.util.CaseInsensitiveComparator"/>
+            <comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../../../../views/listView/jobNames/comparator"/>
           </default>
-          <int>9</int>
-          <string>BAZEL_BUILD_ARGS</string>
-          <string>--hazelcast_node=hazelcast.hazelcast.svc.cluster.local --spawn_strategy=remote</string>
+          <int>8</int>
           <string>BAZEL_STARTUP_ARGS</string>
-          <string>--batch --host_jvm_args=-Dbazel.DigestFunction=SHA1</string>
+          <string>--batch</string>
           <string>BUCKET</string>
           <string>istio-artifacts</string>
           <string>DEFAULT_SLAVE_LABEL</string>

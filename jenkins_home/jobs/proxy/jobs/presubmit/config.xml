@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<flow-definition plugin="workflow-job@2.9">
+<flow-definition plugin="workflow-job@2.10">
   <actions/>
   <description></description>
   <keepDependencies>false</keepDependencies>
@@ -12,7 +12,7 @@
         <artifactNumToKeep>-1</artifactNumToKeep>
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
-    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.25.1">
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.0">
       <projectUrl>https://github.com/istio/proxy/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
@@ -33,14 +33,9 @@
           <defaultValue>PRESUBMIT</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>BAZEL_ARGS</name>
+          <name>GITHUB_REPO</name>
           <description></description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>BAZEL_BUILD_ARGS</name>
-          <description></description>
-          <defaultValue></defaultValue>
+          <defaultValue>proxy</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -71,12 +66,17 @@
             <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommitEvent/>
           </events>
           <preStatus>true</preStatus>
+          <branchRestriction>
+            <targetBranchList>
+              <string>^(?!.*(stable)).*$</string>
+            </targetBranchList>
+          </branchRestriction>
         </org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger>
       </triggers>
     </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
   </properties>
-  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.25">
-    <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.4">
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.26">
+    <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.5">
       <configVersion>2</configVersion>
       <userRemoteConfigs>
         <hudson.plugins.git.UserRemoteConfig>
