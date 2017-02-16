@@ -4,16 +4,8 @@
   <description></description>
   <keepDependencies>false</keepDependencies>
   <properties>
-    <jenkins.model.BuildDiscarderProperty>
-      <strategy class="hudson.tasks.LogRotator">
-        <daysToKeep>15</daysToKeep>
-        <numToKeep>30</numToKeep>
-        <artifactDaysToKeep>-1</artifactDaysToKeep>
-        <artifactNumToKeep>-1</artifactNumToKeep>
-      </strategy>
-    </jenkins.model.BuildDiscarderProperty>
     <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.0">
-      <projectUrl>https://github.com/istio/manager/</projectUrl>
+      <projectUrl>https://github.com/istio/proxy/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
     <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
@@ -22,6 +14,11 @@
     </com.sonyericsson.rebuild.RebuildSettings>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>SUBMODULES_UPDATE</name>
+          <description></description>
+          <defaultValue>WORKSPACE:PROXY:${GITHUB_PR_HEAD_SHA},WORKSPACE:PROXY_SHA:</defaultValue>
+        </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>STAGE</name>
           <description></description>
@@ -35,15 +32,15 @@
         <hudson.model.StringParameterDefinition>
           <name>GITHUB_REPO</name>
           <description></description>
-          <defaultValue>manager</defaultValue>
+          <defaultValue>proxy</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
     <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@1.9.0">
       <maxConcurrentPerNode>0</maxConcurrentPerNode>
-      <maxConcurrentTotal>3</maxConcurrentTotal>
+      <maxConcurrentTotal>0</maxConcurrentTotal>
       <categories class="java.util.concurrent.CopyOnWriteArrayList"/>
-      <throttleEnabled>true</throttleEnabled>
+      <throttleEnabled>false</throttleEnabled>
       <throttleOption>project</throttleOption>
       <limitOneJobWithMatchingParams>false</limitOneJobWithMatchingParams>
       <paramsToUseForLimit></paramsToUseForLimit>
@@ -51,7 +48,7 @@
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>
         <org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger plugin="github-pullrequest@0.1.0-rc19">
-          <spec>H/2 * * * *</spec>
+          <spec>* * * * *</spec>
           <triggerMode>CRON</triggerMode>
           <cancelQueued>true</cancelQueued>
           <abortRunning>false</abortRunning>
@@ -62,13 +59,14 @@
             </com.github.kostyasha.github.integration.generic.repoprovider.GitHubPluginRepoProvider>
           </repoProviders>
           <events>
-            <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPROpenEvent/>
-            <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommitEvent/>
+            <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
+              <comment>.*(Jenkins job proxy/presubmit passed).*</comment>
+            </org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
           </events>
           <preStatus>true</preStatus>
           <branchRestriction>
             <targetBranchList>
-              <string>^(?!.*(stable)).*$</string>
+              <string>master</string>
             </targetBranchList>
           </branchRestriction>
         </org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger>
@@ -80,21 +78,17 @@
       <configVersion>2</configVersion>
       <userRemoteConfigs>
         <hudson.plugins.git.UserRemoteConfig>
-          <name>origin-pull</name>
-          <refspec>+refs/pull/${GITHUB_PR_NUMBER}/head:refs/remotes/origin-pull/pull/${GITHUB_PR_NUMBER}/head</refspec>
           <url>https://github.com/istio/manager</url>
         </hudson.plugins.git.UserRemoteConfig>
       </userRemoteConfigs>
       <branches>
         <hudson.plugins.git.BranchSpec>
-          <name>origin-pull/pull/${GITHUB_PR_NUMBER}/head</name>
+          <name>stable</name>
         </hudson.plugins.git.BranchSpec>
       </branches>
       <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
       <submoduleCfg class="list"/>
-      <extensions>
-        <hudson.plugins.git.extensions.impl.WipeWorkspace/>
-      </extensions>
+      <extensions/>
     </scm>
     <scriptPath>Jenkinsfile</scriptPath>
   </definition>
