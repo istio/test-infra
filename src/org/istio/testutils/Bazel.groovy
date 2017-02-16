@@ -1,7 +1,8 @@
 package org.istio.testutils
 
-BAZEL_STARTUP_ARGS = ''
 BAZEL_BUILD_ARGS = ''
+BAZEL_RUN_ARGS = ''
+BAZEL_STARTUP_ARGS = ''
 BAZEL_TEST_ARGS = ''
 
 def defaultValue(first, second) {
@@ -10,8 +11,9 @@ def defaultValue(first, second) {
 }
 
 def setVars(startup = null, build = null, test = null) {
-  BAZEL_STARTUP_ARGS = defaultValue(startup, env.BAZEL_STARTUP_ARGS)
   BAZEL_BUILD_ARGS = defaultValue(build, env.BAZEL_BUILD_ARGS)
+  BAZEL_RUN_ARGS = defaultValue(test, env.BAZEL_RUN_ARGS)
+  BAZEL_STARTUP_ARGS = defaultValue(startup, env.BAZEL_STARTUP_ARGS)
   BAZEL_TEST_ARGS = defaultValue(test, env.BAZEL_TEST_ARGS)
 }
 
@@ -38,6 +40,11 @@ def test(args) {
     sh("bazel ${BAZEL_STARTUP_ARGS} test ${BAZEL_TEST_ARGS} ${args}")
     sleep(5)
   }
+}
+
+def run(args) {
+  sh("bazel ${BAZEL_STARTUP_ARGS} run ${BAZEL_RUN_ARGS} ${args}")
+  sleep(5)
 }
 
 def version() {
