@@ -27,18 +27,20 @@
 Jenkins runs all its slaves in a Kubernetes Cluster. The cluster name is
 hardcoded in the Jenkinsfile.
 
-    $ gcloud container \
-    --project "${PROJECT_ID}" \
-    clusters create "${CLUSTER_NAME}" \
-    --zone "${ZONE}" \
-    --machine-type "n1-highmem-32" \
-    --disk-size 400 \
-    --scopes "${K8S_SCOPES}" \
-    --num-nodes "1" \
-    --image-type=CONTAINER_VM \
-    --network "default" \
+    $ gcloud container clusters create "${CLUSTER_NAME}" \
+    --project="${PROJECT_ID}" \
+    --zone="${ZONE}" \
+    --machine-type=n1-standard-8 \
+    --disk-size=100 \
+    --scopes="${K8S_SCOPES}" \
+    --num-nodes=8 \
+    --image-type=gci \
+    --network=default \
     --enable-cloud-logging \
-    --no-enable-cloud-monitoring
+    --no-enable-cloud-monitoring \
+    --no-enable-cloud-endpoints \
+    --local-ssd-count=1 \
+    --node-labels=role=build
 
     # Update kubectl config.
     # You might want to run this command as well on your desktop.

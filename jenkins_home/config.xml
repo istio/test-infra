@@ -60,7 +60,7 @@
             <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
               <name>jnlp</name>
               <image>gcr.io/istio-testing/ubuntu-16-04-slave:latest</image>
-              <privileged>true</privileged>
+              <privileged>false</privileged>
               <alwaysPullImage>true</alwaysPullImage>
               <workingDir>/home/jenkins</workingDir>
               <command></command>
@@ -86,11 +86,16 @@
         <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
           <inheritFrom></inheritFrom>
           <name>ubuntu-16-04-build</name>
-          <instanceCap>20</instanceCap>
+          <instanceCap>8</instanceCap>
           <idleMinutes>0</idleMinutes>
           <label>ubuntu-16-04-build</label>
-          <nodeSelector></nodeSelector>
-          <volumes/>
+          <nodeSelector>role=build</nodeSelector>
+          <volumes>
+            <org.csanchez.jenkins.plugins.kubernetes.volumes.HostPathVolume>
+              <mountPath>/home/jenkins/.cache</mountPath>
+              <hostPath>/mnt/disks/ssd0</hostPath>
+            </org.csanchez.jenkins.plugins.kubernetes.volumes.HostPathVolume>
+          </volumes>
           <containers>
             <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
               <name>jnlp</name>
@@ -121,7 +126,7 @@
         <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
           <inheritFrom></inheritFrom>
           <name>ubuntu-16-04-test</name>
-          <instanceCap>10</instanceCap>
+          <instanceCap>2</instanceCap>
           <idleMinutes>0</idleMinutes>
           <label>ubuntu-16-04-test</label>
           <nodeSelector></nodeSelector>
@@ -130,7 +135,7 @@
             <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
               <name>jnlp</name>
               <image>gcr.io/istio-testing/ubuntu-16-04-slave:test</image>
-              <privileged>true</privileged>
+              <privileged>false</privileged>
               <alwaysPullImage>true</alwaysPullImage>
               <workingDir>/home/jenkins</workingDir>
               <command></command>
@@ -160,7 +165,7 @@
       <jenkinsUrl>http://jenkins-ui.jenkins.svc.cluster.local:8080</jenkinsUrl>
       <jenkinsTunnel>jenkins-discovery.jenkins.svc.cluster.local:50000</jenkinsTunnel>
       <credentialsId>jenkins</credentialsId>
-      <containerCap>50</containerCap>
+      <containerCap>30</containerCap>
       <retentionTimeout>5</retentionTimeout>
       <connectTimeout>0</connectTimeout>
       <readTimeout>0</readTimeout>
@@ -212,7 +217,7 @@
         <unserializable-parents/>
         <tree-map>
           <default>
-            <comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../../../../views/listView/jobNames/comparator"/>
+            <comparator class="hudson.util.CaseInsensitiveComparator"/>
           </default>
           <int>8</int>
           <string>BAZEL_STARTUP_ARGS</string>
