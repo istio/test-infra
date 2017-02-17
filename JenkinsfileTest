@@ -49,14 +49,8 @@ mainFlow(utils) {
           }
         }
     ]
-    utils.updatePullRequest('run')
-    try {
+    pullRequest(utils) {
       parallel(branches)
-    } catch (Exception e) {
-      success = false
-      throw e
-    } finally {
-      utils.updatePullRequest('verify', success)
     }
   }
 }
