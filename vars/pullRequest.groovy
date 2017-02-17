@@ -6,7 +6,7 @@ def call(utils, Closure body) {
   utils.updatePullRequest('run')
   try {
     body()
-    } catch (Exception e) {
+  } catch (Exception e) {
     success = false
     throw e
   } finally {
