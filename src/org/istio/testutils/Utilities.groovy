@@ -105,7 +105,8 @@ def commentOnPr(message) {
   def url = "https://api.github.com/repos/${owner}/${repo}/issues/${pr}/comments"
   def credentialId = getParam('GITHUB_TOKEN_ID', env.ISTIO_TESTING_TOKEN_ID)
   withCredentials([string(credentialsId: credentialId, variable: 'GITHUB_TOKEN')]) {
-    def curlCommand = "curl -H \"Authorization: token ${GITHUB_TOKEN}\" ${url} --data '{\"body\": \"${message}\"}'"
+    def curlCommand = "curl -H \"Authorization: token ${GITHUB_TOKEN}\" " +
+        "-X POST ${url} --data '{\"body\": \"${message}\"}'"
     sh(curlCommand)
   }
 }
