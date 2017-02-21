@@ -64,7 +64,7 @@ def installGithubPr(remoteFile, tokenFile = null) {
   writeFile(file: remoteFile, text: res)
   sh("go get ./...")
   if (tokenFile != null) {
-    def credentialId = getParam('FF_TOKEN_ID', env.ISTIO_TESTING_TOKEN_ID)
+    def credentialId = getParam('GITHUB_TOKEN_ID', env.ISTIO_TESTING_TOKEN_ID)
     withCredentials([string(credentialsId: credentialId, variable: 'GITHUB_TOKEN')]) {
       writeFile(file: tokenFile, text: env.GITHUB_TOKEN)
     }
@@ -102,16 +102,12 @@ def commentOnPr(message) {
   def pr = failIfNullOrEmpty(env.GITHUB_PR_NUMBER)
   def owner = getParam('GITHUB_OWNER', 'istio')
   def repo = failIfNullOrEmpty(getParam('GITHUB_REPO'), 'GITHUB_REPO build parameter needs to be set!')
-  def remoteFile = 'gh.go'
-  def tokenFile = '/tmp/token.jenkins'
-  runGo('main') {
-    installGithubPr(remoteFile, tokenFile)
-    sh("go run ${remoteFile} " +
-        "--owner=${owner} " +
-        "--repo=${repo} " +
-        "--pr=${pr} " +
-        "--token_file=${tokenFile} " +
-        "--comment \"${message}\"")
+  def url = "https://api.github.com/repos/${owner}/${repo}/issues/${pr}/comments"
+  def credentialId = getParam('GITHUB_TOKEN_ID', env.ISTIO_TESTING_TOKEN_ID)
+  withCredentials([string(credentialsId: credentialId, variable: 'GITHUB_TOKEN')]) {
+    def curlCommand = "curl -H \"Authorization: token ${GITHUB_TOKEN}\" " +
+        "-X POST ${url} --data '{\"body\": \"${message}\"}'"
+    sh(curlCommand)
   }
 }
 
