@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"context"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -107,7 +108,7 @@ func (h helper) createPullRequestToBase(commit *string) error {
 		Body:  &body,
 	}
 	log.Printf("Creating a PR with Title: \"%s\"", title)
-	if pr, _, err := h.Client.PullRequests.Create(h.Owner, h.Repo, &req); err == nil {
+	if pr, _, err := h.Client.PullRequests.Create(context.TODO(), h.Owner, h.Repo, &req); err == nil {
 		log.Printf("Created new PR at %s", *pr.HTMLURL)
 	} else {
 		return err
@@ -117,7 +118,7 @@ func (h helper) createPullRequestToBase(commit *string) error {
 
 // Gets the last commit from Head branch.
 func (h helper) getLastCommitFromHead() (*string, error) {
-	comp, _, err := h.Client.Repositories.CompareCommits(h.Owner, h.Repo, h.Head, h.Base)
+	comp, _, err := h.Client.Repositories.CompareCommits(context.TODO(), h.Owner, h.Repo, h.Head, h.Base)
 	if err == nil {
 		if *comp.BehindBy > 0 {
 			commit := comp.BaseCommit.SHA
@@ -143,7 +144,7 @@ func (h helper) fastForwardBase() error {
 			State: GH.all,
 		}
 
-		prs, _, err := h.Client.PullRequests.List(h.Owner, h.Repo, &options)
+		prs, _, err := h.Client.PullRequests.List(context.TODO(), h.Owner, h.Repo, &options)
 		if err == nil {
 			for _, pr := range prs {
 				if strings.Contains(*pr.Title, *commit) {
@@ -162,7 +163,7 @@ func (h helper) fastForwardBase() error {
 func (h helper) closePullRequest(pr *github.PullRequest) error {
 	log.Printf("Closing PR %d", *pr.Number)
 	*pr.State = GH.closed
-	_, _, err := h.Client.PullRequests.Edit(h.Owner, h.Repo, *pr.Number, pr)
+	_, _, err := h.Client.PullRequests.Edit(context.TODO(), h.Owner, h.Repo, *pr.Number, pr)
 	return err
 }
 
@@ -184,7 +185,7 @@ func (h helper) createStableTag(commit *string) error {
 		Message: &message,
 		Tag:     &tag,
 	}
-	t, resp, err := h.Client.Git.CreateTag(h.Owner, h.Repo, &gt)
+	t, resp, err := h.Client.Git.CreateTag(context.TODO(), h.Owner, h.Repo, &gt)
 	if err != nil {
 		return err
 	}
@@ -194,7 +195,7 @@ func (h helper) createStableTag(commit *string) error {
 		Ref:    &ref,
 		Object: t.Object,
 	}
-	_, resp, err = h.Client.Git.CreateRef(h.Owner, h.Repo, &r)
+	_, resp, err = h.Client.Git.CreateRef(context.TODO(), h.Owner, h.Repo, &r)
 	// Already exists
 	if resp.StatusCode != 422 {
 		return err
@@ -220,7 +221,7 @@ func (h helper) updateBaseReference(commit *string) error {
 	r.Ref = new(string)
 	*r.Ref = ref
 
-	_, _, err := h.Client.Git.UpdateRef(h.Owner, h.Repo, &r, false)
+	_, _, err := h.Client.Git.UpdateRef(context.TODO(), h.Owner, h.Repo, &r, false)
 	return err
 }
 
@@ -260,13 +261,13 @@ func (h helper) verifyPullRequestStatus() error {
 		Base:  h.Base,
 		State: "open",
 	}
-	prs, _, err := h.Client.PullRequests.List(h.Owner, h.Repo, &options)
+	prs, _, err := h.Client.PullRequests.List(context.TODO(), h.Owner, h.Repo, &options)
 	if err != nil {
 		return err
 	}
 	for _, pr := range prs {
 		statuses, _, err := h.Client.Repositories.GetCombinedStatus(
-			h.Owner, h.Repo, *pr.Head.SHA, new(github.ListOptions))
+			context.TODO(), h.Owner, h.Repo, *pr.Head.SHA, new(github.ListOptions))
 		if err == nil {
 			err = h.updatePullRequest(pr, statuses)
 		}
@@ -287,7 +288,7 @@ func (h helper) createComment(comment *string) error {
 		Body: comment,
 	}
 	log.Printf("Commenting \"%s\" on PR %d for %s/%s", *comment, h.Pr, h.Owner, h.Repo)
-	_, _, err := h.Client.Issues.CreateComment(h.Owner, h.Repo, h.Pr, &c)
+	_, _, err := h.Client.Issues.CreateComment(context.TODO(), h.Owner, h.Repo, h.Pr, &c)
 	return err
 }
 
