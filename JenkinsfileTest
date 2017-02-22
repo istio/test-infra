@@ -28,7 +28,9 @@ mainFlow(utils) {
           goBuildNode(gitUtils, 'istio.io/istio-testing') {
             echo(env.PATH)
             echo(env.GOPATH)
-            bazel.version()
+            bazel.fetch('//...')
+            bazel.build('//...')
+            commentOnPr("This is a test.")
           }
         },
         'defaultNode': {
@@ -36,13 +38,13 @@ mainFlow(utils) {
             sh('ls -all')
           }
         },
-        'buildNode'  : {
+        'buildNode': {
           buildNode(gitUtils) {
             sh('ls -all')
             bazel.version()
           }
         },
-        'testNode'   : {
+        'testNode': {
           testNode(gitUtils) {
             sh('ls -all')
           }
@@ -52,4 +54,19 @@ mainFlow(utils) {
       parallel(branches)
     }
   }
+}
+
+def commentOnPr(message) {
+  // Passed in by GitHub Integration plugin
+  def pr = failIfNullOrEmpty(env.GITHUB_PR_NUMBER)
+  def owner = getParam('GITHUB_OWNER', 'istio')
+  def repo = failIfNullOrEmpty(getParam('GITHUB_REPO'), 'GITHUB_REPO build parameter needs to be set!')
+  def credentialId = getParam('GITHUB_TOKEN_ID', env.ISTIO_TESTING_TOKEN_ID)
+  def tokenFile = '/tmp/token.jenkins'
+  utils.createTokenFile(tokenFile)
+  sh("github_helper --owner=${owner} " +
+      "--repo=${repo} " +
+      "--pr=${pr} " +
+      "--token_file=${tokenFile} " +
+      "--comment \"${message}\"")
 }
