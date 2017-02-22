@@ -9,48 +9,47 @@ import org.istio.testutils.Utilities
 import org.istio.testutils.GitUtilities
 import org.istio.testutils.Bazel
 
-
 // Utilities shared amongst modules
 def gitUtils = new GitUtilities()
 def utils = new Utilities()
 def bazel = new Bazel()
 
-
-node {
-  gitUtils.initialize()
-  bazel.setVars()
-}
-
 mainFlow(utils) {
-  if (utils.runStage('PRESUBMIT')) {
-    def branches = [
-        'goBuildNode': {
-          goBuildNode(gitUtils, 'istio.io/istio-testing') {
-            echo(env.PATH)
-            echo(env.GOPATH)
-            bazel.fetch('//...')
-            bazel.build('//...')
-            commentOnPr(utils, "This is a test.")
+  pullRequest(utils) {
+
+    node {
+      gitUtils.initialize()
+      bazel.setVars()
+    }
+
+    if (utils.runStage('PRESUBMIT')) {
+      def branches = [
+          'goBuildNode': {
+            goBuildNode(gitUtils, 'istio.io/istio-testing') {
+              echo(env.PATH)
+              echo(env.GOPATH)
+              bazel.fetch('//...')
+              bazel.build('//...')
+              commentOnPr(utils, "This is a test.")
+            }
+          },
+          'defaultNode': {
+            defaultNode(gitUtils) {
+              sh('ls -all')
+            }
+          },
+          'buildNode': {
+            buildNode(gitUtils) {
+              sh('ls -all')
+              bazel.version()
+            }
+          },
+          'testNode': {
+            testNode(gitUtils) {
+              sh('ls -all')
+            }
           }
-        },
-        'defaultNode': {
-          defaultNode(gitUtils) {
-            sh('ls -all')
-          }
-        },
-        'buildNode': {
-          buildNode(gitUtils) {
-            sh('ls -all')
-            bazel.version()
-          }
-        },
-        'testNode': {
-          testNode(gitUtils) {
-            sh('ls -all')
-          }
-        }
-    ]
-    pullRequest(utils) {
+      ]
       parallel(branches)
     }
   }
@@ -60,7 +59,7 @@ def commentOnPr(utils, message) {
   // Passed in by GitHub Integration plugin
   def pr = utils.failIfNullOrEmpty(env.GITHUB_PR_NUMBER)
   def owner = utils.getParam('GITHUB_OWNER', 'istio')
-  def repo = utils.failIfNullOrEmpty(getParam('GITHUB_REPO'), 'GITHUB_REPO build parameter needs to be set!')
+  def repo = utils.failIfNullOrEmpty(utils.getParam('GITHUB_REPO'), 'GITHUB_REPO build parameter needs to be set!')
   def tokenFile = '/tmp/token.jenkins'
   utils.createTokenFile(tokenFile)
   sh("github_helper --owner=${owner} " +
