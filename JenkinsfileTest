@@ -30,7 +30,7 @@ mainFlow(utils) {
             echo(env.GOPATH)
             bazel.fetch('//...')
             bazel.build('//...')
-            commentOnPr("This is a test.")
+            commentOnPr(utils, "This is a test.")
           }
         },
         'defaultNode': {
@@ -56,12 +56,11 @@ mainFlow(utils) {
   }
 }
 
-def commentOnPr(message) {
+def commentOnPr(utils, message) {
   // Passed in by GitHub Integration plugin
-  def pr = failIfNullOrEmpty(env.GITHUB_PR_NUMBER)
-  def owner = getParam('GITHUB_OWNER', 'istio')
-  def repo = failIfNullOrEmpty(getParam('GITHUB_REPO'), 'GITHUB_REPO build parameter needs to be set!')
-  def credentialId = getParam('GITHUB_TOKEN_ID', env.ISTIO_TESTING_TOKEN_ID)
+  def pr = utils.failIfNullOrEmpty(env.GITHUB_PR_NUMBER)
+  def owner = utils.getParam('GITHUB_OWNER', 'istio')
+  def repo = utils.failIfNullOrEmpty(getParam('GITHUB_REPO'), 'GITHUB_REPO build parameter needs to be set!')
   def tokenFile = '/tmp/token.jenkins'
   utils.createTokenFile(tokenFile)
   sh("github_helper --owner=${owner} " +
