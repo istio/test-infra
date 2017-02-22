@@ -6,6 +6,7 @@
 @Library('testutils@testing')
 
 import org.istio.testutils.Utilities
+import static org.istio.testutils.Utilities.failIfNullOrEmpty
 import org.istio.testutils.GitUtilities
 import org.istio.testutils.Bazel
 
@@ -57,9 +58,9 @@ mainFlow(utils) {
 
 def commentOnPr(utils, message) {
   // Passed in by GitHub Integration plugin
-  def pr = utils.failIfNullOrEmpty(env.GITHUB_PR_NUMBER)
+  def pr = failIfNullOrEmpty(env.GITHUB_PR_NUMBER)
   def owner = utils.getParam('GITHUB_OWNER', 'istio')
-  def repo = utils.failIfNullOrEmpty(utils.getParam('GITHUB_REPO'), 'GITHUB_REPO build parameter needs to be set!')
+  def repo = failIfNullOrEmpty(utils.getParam('GITHUB_REPO'), 'GITHUB_REPO build parameter needs to be set!')
   def tokenFile = '/tmp/token.jenkins'
   utils.createTokenFile(tokenFile)
   sh("github_helper --owner=${owner} " +
