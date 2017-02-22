@@ -6,6 +6,8 @@
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 . ${ROOT}/scripts/all-utilities || { echo "Cannot load Jenkins utilities"; exit 1; }
 
+GH_BAZEL_BIN="${ROOT}/bazel-bin/tools/github_helper/github_helper"
+
 BUILD=false
 PUSH=false
 FORCE=false
@@ -37,6 +39,13 @@ done
 
 # Build
 if [[ "${BUILD}" == true ]]; then
+  if [[ ! -e "${GH_BAZEL_BIN}" ]]; then
+    bazel build -c opt //tools/github_helper \
+      || error_exit 'Could not build github helper'
+  fi
+  cp -f "${GH_BAZEL_BIN}" "${ROOT}/" \
+    || error_exit 'Could not copy github_helper'
+
   DOCKER_FILE="${ROOT}/docker/slaves/${SLAVE}.Dockerfile"
   [[ -e "${DOCKER_FILE=}" ]] \
     || error_exit "File ${DOCKER_FILE} does not exist.
@@ -44,7 +53,7 @@ if [[ "${BUILD}" == true ]]; then
   update_image "${IMAGE}"
   if [[ ${?} -eq 0 ]]; then
     echo "Building docker image ${IMAGE}."
-    retry -n 10 docker build --build-arg TOOLS_BUCKET="${TOOLS_BUCKET}" --no-cache -t ${IMAGE} \
+    retry -n 10 docker build --build-arg TOOLS_BUCKET="${TOOLS_BUCKET}" -t ${IMAGE} \
       -f "${DOCKER_FILE}" . || error_exit "Could not build ${SLAVE}"
     echo "Pushing Docker image: ${IMAGE}"
     retry -n 3 ${GCLOUD} docker -- push "${IMAGE}" \
