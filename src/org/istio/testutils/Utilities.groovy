@@ -58,16 +58,11 @@ def getParam(name, defaultValue = '') {
   return getWithDefault(params.get(name), defaultValue)
 }
 
-// install GitHub pr resource
-def installGithubPr(remoteFile, tokenFile = null) {
-  def res = libraryResource('github_pr.go')
-  writeFile(file: remoteFile, text: res)
-  sh("go get ./...")
-  if (tokenFile != null) {
-    def credentialId = getParam('GITHUB_TOKEN_ID', env.ISTIO_TESTING_TOKEN_ID)
-    withCredentials([string(credentialsId: credentialId, variable: 'GITHUB_TOKEN')]) {
-      writeFile(file: tokenFile, text: env.GITHUB_TOKEN)
-    }
+// Creates Token file
+def createTokenFile(tokenFile) {
+  def credentialId = getParam('GITHUB_TOKEN_ID', env.ISTIO_TESTING_TOKEN_ID)
+  withCredentials([string(credentialsId: credentialId, variable: 'GITHUB_TOKEN')]) {
+    writeFile(file: tokenFile, text: env.GITHUB_TOKEN)
   }
 }
 
@@ -82,19 +77,15 @@ def fastForwardStable() {
   def repo = failIfNullOrEmpty(getParam('GITHUB_REPO'), 'GITHUB_REPO build parameter needs to be set!')
   def base = getParam('REPO_BASE', 'stable')
   def head = getParam('REPO_HEAD', 'master')
-  def remoteFile = 'gh.go'
   def tokenFile = '/tmp/token.jenkins'
-  runGo('main') {
-    installGithubPr(remoteFile, tokenFile)
-    sh("go run ${remoteFile} " +
-        "--owner=${owner} " +
-        "--repo=${repo} " +
-        "--head=${head} " +
-        "--base=${base} " +
-        "--token_file=${tokenFile} " +
-        "--fast_forward " +
-        "--verify")
-  }
+  createTokenFile(tokenFile)
+  sh("github_helper --owner=${owner} " +
+      "--repo=${repo} " +
+      "--head=${head} " +
+      "--base=${base} " +
+      "--token_file=${tokenFile} " +
+      "--fast_forward " +
+      "--verify")
 }
 
 def commentOnPr(message) {
@@ -114,10 +105,10 @@ def commentOnPr(message) {
 // Send Email failure notfication
 def sendNotification(notify_list) {
   step([
-      $class                  : 'Mailer',
+      $class: 'Mailer',
       notifyEveryUnstableBuild: false,
-      recipients              : notify_list,
-      sendToIndividuals       : true])
+      recipients: notify_list,
+      sendToIndividuals: true])
 }
 
 // Converts a list of [key, value] to a map

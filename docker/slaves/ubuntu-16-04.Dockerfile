@@ -30,6 +30,8 @@ ENV HOME /home/jenkins
 
 RUN useradd -c "Jenkins user" -d ${HOME} -G docker,sudo -m jenkins -s /bin/bash
 
+ADD github_helper /usr/local/bin/github_helper
+
 ADD http://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${JENKINS_SLAVE_VERSION}/remoting-${JENKINS_SLAVE_VERSION}.jar /tmp/slave.jar
 RUN mkdir -p /usr/share/jenkins \
     && chmod 755 /usr/share/jenkins \
@@ -39,7 +41,7 @@ RUN mkdir -p /usr/share/jenkins \
 
 ADD docker/slaves/jenkins-slave /usr/local/bin/jenkins-slave
 ADD docker/slaves/entrypoint /usr/local/bin/entrypoint
-RUN chmod +rx /usr/local/bin/jenkins-slave /usr/local/bin/entrypoint
+RUN chmod +rx /usr/local/bin/jenkins-slave /usr/local/bin/entrypoint /usr/local/bin/github_helper
 
 USER jenkins
 RUN mkdir ${HOME}/.jenkins
