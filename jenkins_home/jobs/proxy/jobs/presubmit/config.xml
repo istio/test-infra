@@ -50,8 +50,8 @@
     </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>
-        <org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger plugin="github-pullrequest@0.1.0-rc19">
-          <spec>* * * * *</spec>
+        <org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger plugin="github-pullrequest@0.1.0-rc21">
+          <spec>H/5 * * * *</spec>
           <triggerMode>HEAVY_HOOKS</triggerMode>
           <cancelQueued>true</cancelQueued>
           <abortRunning>false</abortRunning>
@@ -61,6 +61,17 @@
               <cacheConnection>true</cacheConnection>
             </com.github.kostyasha.github.integration.generic.repoprovider.GitHubPluginRepoProvider>
           </repoProviders>
+          <errorsAction>
+            <description>GitHub Pull Requests Trigger Errors</description>
+            <errors class="java.util.Collections$SynchronizedSet" serialization="custom">
+              <java.util.Collections_-SynchronizedCollection>
+                <default>
+                  <c class="set"/>
+                  <mutex class="java.util.Collections$SynchronizedSet" reference="../../.."/>
+                </default>
+              </java.util.Collections_-SynchronizedCollection>
+            </errors>
+          </errorsAction>
           <events>
             <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPROpenEvent/>
             <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommitEvent/>
@@ -75,7 +86,7 @@
       </triggers>
     </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
   </properties>
-  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.26">
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.28">
     <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.5">
       <configVersion>2</configVersion>
       <userRemoteConfigs>
