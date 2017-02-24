@@ -13,29 +13,29 @@
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
     <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.0">
-      <projectUrl>https://github.com/istio/proxy/</projectUrl>
+      <projectUrl>https://github.com/istio/mixerclient/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
     <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
-      <autoRebuild>false</autoRebuild>
+      <autoRebuild>true</autoRebuild>
       <rebuildDisabled>false</rebuildDisabled>
     </com.sonyericsson.rebuild.RebuildSettings>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>STAGE</name>
+          <description></description>
+          <defaultValue>PRESUBMIT</defaultValue>
+        </hudson.model.StringParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name>UPDATE_PR</name>
           <description></description>
           <defaultValue>true</defaultValue>
         </hudson.model.BooleanParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>STAGE</name>
-          <description></description>
-          <defaultValue>PRESUBMIT</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
           <name>GITHUB_REPO</name>
           <description></description>
-          <defaultValue>proxy</defaultValue>
+          <defaultValue>mixerclient</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -43,7 +43,7 @@
       <maxConcurrentPerNode>0</maxConcurrentPerNode>
       <maxConcurrentTotal>3</maxConcurrentTotal>
       <categories class="java.util.concurrent.CopyOnWriteArrayList"/>
-      <throttleEnabled>true</throttleEnabled>
+      <throttleEnabled>false</throttleEnabled>
       <throttleOption>project</throttleOption>
       <limitOneJobWithMatchingParams>false</limitOneJobWithMatchingParams>
       <paramsToUseForLimit></paramsToUseForLimit>
@@ -51,8 +51,8 @@
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>
         <org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger plugin="github-pullrequest@0.1.0-rc19">
-          <spec>* * * * *</spec>
-          <triggerMode>HEAVY_HOOKS</triggerMode>
+          <spec>* * * * * </spec>
+          <triggerMode>CRON</triggerMode>
           <cancelQueued>true</cancelQueued>
           <abortRunning>false</abortRunning>
           <skipFirstRun>false</skipFirstRun>
@@ -82,7 +82,7 @@
         <hudson.plugins.git.UserRemoteConfig>
           <name>origin-pull</name>
           <refspec>+refs/pull/${GITHUB_PR_NUMBER}/head:refs/remotes/origin-pull/pull/${GITHUB_PR_NUMBER}/head</refspec>
-          <url>https://github.com/istio/proxy</url>
+          <url>https://github.com/istio/mixerclient</url>
         </hudson.plugins.git.UserRemoteConfig>
       </userRemoteConfigs>
       <branches>

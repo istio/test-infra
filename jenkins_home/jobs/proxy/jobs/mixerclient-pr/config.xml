@@ -48,7 +48,7 @@
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>
         <org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger plugin="github-pullrequest@0.1.0-rc19">
-          <spec>H/2 * * * *</spec>
+          <spec>* * * * *</spec>
           <triggerMode>CRON</triggerMode>
           <cancelQueued>true</cancelQueued>
           <abortRunning>false</abortRunning>
@@ -59,8 +59,9 @@
             </com.github.kostyasha.github.integration.generic.repoprovider.GitHubPluginRepoProvider>
           </repoProviders>
           <events>
-            <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPROpenEvent/>
-            <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommitEvent/>
+            <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
+              <comment>.*(Jenkins job mixerclient/presubmit passed).*</comment>
+            </org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
           </events>
           <preStatus>true</preStatus>
           <branchRestriction>
