@@ -33,7 +33,7 @@ mainFlow(utils) {
 
 def slaveUpdate(gitUtils, utils) {
   stage('Slave Update') {
-    defaultNode(gitUtils) {
+    buildNode(gitUtils) {
       nodeLabel = utils.getParam('SLAVE_LABEL', gitUtils.DEFAULT_SLAVE_LABEL)
       def dockerImage = "${DOCKER_SLAVES[nodeLabel]}:${gitUtils.GIT_SHA}"
       // Test Slave image setup in Jenkins
