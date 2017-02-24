@@ -105,10 +105,10 @@ def commentOnPr(message) {
 // Send Email failure notfication
 def sendNotification(notify_list) {
   step([
-      $class                  : 'Mailer',
+      $class: 'Mailer',
       notifyEveryUnstableBuild: false,
-      recipients              : notify_list,
-      sendToIndividuals       : true])
+      recipients: notify_list,
+      sendToIndividuals: true])
 }
 
 // Push images to hub
@@ -121,6 +121,13 @@ def publishDockerImages(images, tags, config = '', hub = 'docker.io/istio') {
   withDockerRegistry([credentialsId: credentialId]) {
     sh("${releaseDocker} -h ${hub} -t ${tags} -i ${images} " +
         "${config == '' ? '' : "-c ${config}"}")
+  }
+}
+
+// Publish Code Coverage
+def publishCodeCoverage(credentialId) {
+  withCredentials([string(credentialsId: credentialId, variable: 'CODECOV_TOKEN')]) {
+    sh('curl -s https://codecov.io/bash | bash /dev/stdin -K')
   }
 }
 
