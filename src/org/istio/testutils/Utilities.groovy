@@ -105,10 +105,23 @@ def commentOnPr(message) {
 // Send Email failure notfication
 def sendNotification(notify_list) {
   step([
-      $class: 'Mailer',
+      $class                  : 'Mailer',
       notifyEveryUnstableBuild: false,
-      recipients: notify_list,
-      sendToIndividuals: true])
+      recipients              : notify_list,
+      sendToIndividuals       : true])
+}
+
+// Push images to hub
+def publishDockerImages(images, tags, config = '', hub = 'docker.io/istio') {
+  def res = libraryResource('release-docker')
+  def releaseDocker = '/tmp/release-docker'
+  def credentialId = env.ISTIO_TESTING_DOCKERHUB
+  writeFile(file: releaseDocker, text: res)
+  sh("chmod +x ${releaseDocker}")
+  withDockerRegistry([credentialsId: credentialId]) {
+    sh("${releaseDocker} -h ${hub} -t ${tags} -i ${images} " +
+        "${config == '' ? '' : "-c ${config}"}")
+  }
 }
 
 // Converts a list of [key, value] to a map

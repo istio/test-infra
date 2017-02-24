@@ -1,6 +1,7 @@
 package org.istio.testutils
 
 GIT_SHA = ''
+GIT_SHORT_SHA = ''
 BUCKET = ''
 NOTIFY_LIST = ''
 DEFAULT_SLAVE_LABEL = ''
@@ -47,6 +48,7 @@ def stashSourceCode(postcheckout_call = null) {
   }
   // Setting source code related global variable once so it can be reused.
   GIT_SHA = getRevision()
+  GIT_SHORT_SHA = GIT_SHA.take(7)
   echo('Stashing source code')
   fastStash('src-code', '.')
 }
