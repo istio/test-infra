@@ -48,16 +48,23 @@
   <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
   <myViewsTabBar class="hudson.views.DefaultMyViewsTabBar"/>
   <clouds>
-    <org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud plugin="kubernetes@0.10">
+    <org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud plugin="kubernetes@0.11">
       <name>local cluster</name>
+      <defaultsProviderTemplate></defaultsProviderTemplate>
       <templates>
         <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
           <inheritFrom></inheritFrom>
           <name>ubuntu-16-04</name>
+          <privileged>false</privileged>
+          <alwaysPullImage>false</alwaysPullImage>
           <instanceCap>20</instanceCap>
           <idleMinutes>0</idleMinutes>
           <label>ubuntu-16-04</label>
           <nodeSelector></nodeSelector>
+          <customWorkspaceVolumeEnabled>false</customWorkspaceVolumeEnabled>
+          <workspaceVolume class="org.csanchez.jenkins.plugins.kubernetes.volumes.workspace.EmptyDirWorkspaceVolume">
+            <memory>false</memory>
+          </workspaceVolume>
           <volumes/>
           <containers>
             <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
@@ -84,15 +91,20 @@
           <envVars/>
           <annotations/>
           <imagePullSecrets/>
-          <nodeProperties/>
         </org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
         <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
           <inheritFrom></inheritFrom>
           <name>ubuntu-16-04-build</name>
+          <privileged>false</privileged>
+          <alwaysPullImage>false</alwaysPullImage>
           <instanceCap>8</instanceCap>
           <idleMinutes>0</idleMinutes>
           <label>ubuntu-16-04-build</label>
           <nodeSelector>role=build</nodeSelector>
+          <customWorkspaceVolumeEnabled>false</customWorkspaceVolumeEnabled>
+          <workspaceVolume class="org.csanchez.jenkins.plugins.kubernetes.volumes.workspace.EmptyDirWorkspaceVolume">
+            <memory>false</memory>
+          </workspaceVolume>
           <volumes>
             <org.csanchez.jenkins.plugins.kubernetes.volumes.HostPathVolume>
               <mountPath>/home/jenkins/.cache</mountPath>
@@ -124,15 +136,20 @@
           <envVars/>
           <annotations/>
           <imagePullSecrets/>
-          <nodeProperties/>
         </org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
         <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
           <inheritFrom></inheritFrom>
           <name>ubuntu-16-04-test</name>
+          <privileged>false</privileged>
+          <alwaysPullImage>false</alwaysPullImage>
           <instanceCap>2</instanceCap>
           <idleMinutes>0</idleMinutes>
           <label>ubuntu-16-04-test</label>
           <nodeSelector></nodeSelector>
+          <customWorkspaceVolumeEnabled>false</customWorkspaceVolumeEnabled>
+          <workspaceVolume class="org.csanchez.jenkins.plugins.kubernetes.volumes.workspace.EmptyDirWorkspaceVolume">
+            <memory>false</memory>
+          </workspaceVolume>
           <volumes/>
           <containers>
             <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
@@ -159,7 +176,6 @@
           <envVars/>
           <annotations/>
           <imagePullSecrets/>
-          <nodeProperties/>
         </org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
       </templates>
       <serverUrl>https://kubernetes.default</serverUrl>

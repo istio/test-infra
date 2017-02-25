@@ -10,13 +10,11 @@ NAMESPACE='jenkins'
 APP='master'
 
 BASH_SCRIPT='''BACKUP_FILES="$(find /var/jenkins_home \
-  -not -path "/var/jenkins_home/users/*" \
-  -not -path "/var/jenkins_home/nodes/*" \
-  -not -regex ".*workspace@.*" \
-  -type f -and \
-  \( -name config.xml -o \
-  -name credentials.xml -o \
-  -wholename "/var/jenkins_home/plugins/*.jpi" \))"
+  \( -not -path "/var/jenkins_home/*/*" -and \
+     -wholename "/var/jenkins_home/*.xml" \) -o \
+  \( -wholename "/var/jenkins_home/jobs/*/config.xml" \
+     -and -not -regex ".*workspace@.*" \) -o \
+  -wholename "/var/jenkins_home/plugins/*.jpi")"
 
 tar czf - ${BACKUP_FILES}'''
 
