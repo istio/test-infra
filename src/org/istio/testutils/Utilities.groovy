@@ -80,7 +80,7 @@ def fastForwardStable() {
   def tokenFile = '/tmp/token.jenkins'
   createTokenFile(tokenFile)
   sh("github_helper --owner=${owner} " +
-      "--repo=${repo} " +
+      "--repos=${repo} " +
       "--head=${head} " +
       "--base=${base} " +
       "--token_file=${tokenFile} " +
