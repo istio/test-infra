@@ -64,7 +64,7 @@ def commentOnPr(utils, message) {
   def tokenFile = '/tmp/token.jenkins'
   utils.createTokenFile(tokenFile)
   sh("github_helper --owner=${owner} " +
-      "--repo=${repo} " +
+      "--repos=${repo} " +
       "--pr=${pr} " +
       "--token_file=${tokenFile} " +
       "--comment=\"${message}\"")
