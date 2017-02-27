@@ -63,7 +63,7 @@ def commentOnPr(utils, message) {
   def repo = failIfNullOrEmpty(utils.getParam('GITHUB_REPO'), 'GITHUB_REPO build parameter needs to be set!')
   def tokenFile = '/tmp/token.jenkins'
   utils.createTokenFile(tokenFile)
-  sh("github_helper --owner=${owner} " +
+  sh("bazel-bin/tools/github_helper/github_helper --owner=${owner} " +
       "--repos=${repo} " +
       "--pr=${pr} " +
       "--token_file=${tokenFile} " +
