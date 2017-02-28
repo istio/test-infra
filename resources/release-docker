@@ -40,7 +40,7 @@ fi
 set -ex
 
 for IMAGE in "${IMAGES[@]}"; do
-  bazel ${BAZEL_STARTUP_ARGS} run ${BAZEL_ARGS} "//docker:${IMAGE}"
+  bazel ${BAZEL_STARTUP_ARGS} run ${BAZEL_ARGS} "//docker:${IMAGE}" istio/docker:"${IMAGE}"
   for TAG in "${TAGS[@]}"; do
     docker tag istio/docker:"${IMAGE}" "${HUB}/${IMAGE}:${TAG}"
     docker push "${HUB}/${IMAGE}:${TAG}"
