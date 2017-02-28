@@ -5,7 +5,7 @@
     <string>jenkins.security.s2m.MasterKillSwitchWarning</string>
   </disabledAdministrativeMonitors>
   <version>2.32.2</version>
-  <numExecutors>10</numExecutors>
+  <numExecutors>7</numExecutors>
   <mode>EXCLUSIVE</mode>
   <useSecurity>true</useSecurity>
   <authorizationStrategy class="org.jenkinsci.plugins.GithubAuthorizationStrategy" plugin="github-oauth@0.25">
@@ -57,7 +57,7 @@
           <name>ubuntu-16-04</name>
           <privileged>false</privileged>
           <alwaysPullImage>false</alwaysPullImage>
-          <instanceCap>20</instanceCap>
+          <instanceCap>10</instanceCap>
           <idleMinutes>0</idleMinutes>
           <label>ubuntu-16-04</label>
           <nodeSelector></nodeSelector>
@@ -75,7 +75,7 @@
               <workingDir>/home/jenkins</workingDir>
               <command></command>
               <args>${computer.jnlpmac} ${computer.name}</args>
-              <ttyEnabled>false</ttyEnabled>
+              <ttyEnabled>true</ttyEnabled>
               <resourceRequestCpu>500m</resourceRequestCpu>
               <resourceRequestMemory>512Mi</resourceRequestMemory>
               <resourceLimitCpu>2000m</resourceLimitCpu>
@@ -120,7 +120,7 @@
               <workingDir>/home/jenkins</workingDir>
               <command></command>
               <args>${computer.jnlpmac} ${computer.name}</args>
-              <ttyEnabled>false</ttyEnabled>
+              <ttyEnabled>true</ttyEnabled>
               <resourceRequestCpu>500m</resourceRequestCpu>
               <resourceRequestMemory>512Mi</resourceRequestMemory>
               <resourceLimitCpu>4000m</resourceLimitCpu>
@@ -183,9 +183,8 @@
       <namespace>jenkins</namespace>
       <jenkinsUrl>http://jenkins-ui.jenkins.svc.cluster.local:8080</jenkinsUrl>
       <jenkinsTunnel>jenkins-discovery.jenkins.svc.cluster.local:50000</jenkinsTunnel>
-      <credentialsId>jenkins</credentialsId>
-      <containerCap>30</containerCap>
-      <retentionTimeout>5</retentionTimeout>
+      <containerCap>20</containerCap>
+      <retentionTimeout>20</retentionTimeout>
       <connectTimeout>0</connectTimeout>
       <readTimeout>0</readTimeout>
     </org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud>
