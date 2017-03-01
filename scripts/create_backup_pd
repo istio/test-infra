@@ -1,0 +1,63 @@
+#!/bin/bash
+
+ZONE=us-central1-f
+BUCKET=jenkins-backup-image
+SHA=""
+TOOL_BUCKET=jenkins-backup-image
+
+while getopts z:b:s:t: arg; do
+  case ${arg} in
+    z) ZONE="${OPTARG}";;
+    b) BUCKET="${OPTARG}";;
+    s) SHA="${OPTARG}";;
+    t) TOOL_BUCKET="${OPTARG}";;
+    *) echo "Unrecognized argument ${OPTARG}"; exit 1;
+  esac
+done
+
+if ["$SHA" = ""];then
+  echo 'Missing SHA for secrets. Please use -s'
+  exit 1;
+fi
+
+sudo rm -rf /tmp/jenkins-backup-pd
+sudo mkdir -p /tmp/jenkins-backup-pd/mnt
+
+cd /tmp/jenkins-backup-pd
+sudo dd if=/dev/zero of=disk.raw bs=1024k seek=10240 count=0
+echo '>>>>>>>>>>>>>>>>>>>> Created a blank image.'
+
+sudo losetup -f disk.raw
+sudo losetup -a
+sudo mkfs.ext4 -F -E lazy_itable_init=0,lazy_journal_init=0 /dev/loop0
+echo '>>>>>>>>>>>>>>>>>>>> Format the block in ext4.'
+
+sudo mount /dev/loop0 /tmp/jenkins-backup-pd/mnt
+sudo chown -R $USER /tmp/jenkins-backup-pd
+echo '>>>>>>>>>>>>>>>>>>>> Mounted to mnt.'
+
+sudo gsutil cp gs://$TOOL_BUCKET/secrets-$SHA.tar.gz .
+sudo tar -xvf secrets-$SHA.tar.gz
+sudo cp -R var/jenkins_home/secrets/* /tmp/jenkins-backup-pd/mnt
+
+sudo git clone https://github.com/istio/istio-testing
+sudo cp -R istio-testing/jenkins_home/* /tmp/jenkins-backup-pd/mnt/
+sudo chown -R 1000:1000 /tmp/jenkins-backup-pd/mnt
+echo '>>>>>>>>>>>>>>>>>>>> Loaded source code to the image.'
+
+sudo umount /dev/loop0
+sudo losetup -d /dev/loop0
+
+sudo tar -cSzvf jenkins-home.tar.gz disk.raw
+echo '>>>>>>>>>>>>>>>>>>>> Packaged the image.'
+
+export K8S_SCOPES=https://www.googleapis.com/auth/appengine.admin,https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/projecthosting,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management
+
+gsutil cp jenkins-home.tar.gz gs://$BUCKET/
+echo '>>>>>>>>>>>>>>>>>>>> Uploaded to Cloud Storage.'
+gcloud compute images create jenkins-home-image --source-uri gs://$BUCKET/jenkins-home.tar.gz
+echo '>>>>>>>>>>>>>>>>>>>> Created a CE image.'
+gcloud compute disks create jenkins-home --zone $ZONE --image jenkins-home-image
+echo '>>>>>>>>>>>>>>>>>>>> Created a CE disk jenkins-home.'
+
+sudo rm -rf /tmp/jenkins-backup-pd
