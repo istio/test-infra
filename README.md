@@ -1,5 +1,6 @@
 ## Table of Content
 
+- [Create a persistent disk Jenkins home](create-a-persisten-disk-Jenkins-home)
 - [Deployment information](#deployment-information)
 - [Kubernetes Setup](#kubernetes-setup)
   * [Creating Jenkins Cluster](#creating-jenkins-cluster)
@@ -12,6 +13,18 @@
   * [Keeping Jenkins Plugins up to date](#keeping-jenkins-plugins-up-to-date)
 - [Troubleshooting](#troubleshooting)
   * [All Slaves are marked as offline](#all-slaves-are-marked-as-offline)
+
+
+## Create a persistent disk Jenkins home ##
+
+Change volumes partition from 1 to 0 in the file k8s/jenkins/jenkins.yaml\<br> 
+
+Run script/create_backup_pd with the following parameters<br />
+  $ -z Which zone do you want the backup disk in. (default: us-central1-f)<br />
+  $ -b Which bucket prepared to store disk image. (default: jenkins-backup-image)<br />
+  $ -s The SHA backing up jenkins home. (necessary parameter)<br />
+  $ -t The Storage bucket for the secrets files. (default: jenkins-backup-image)<br />
+
 
 ## Deployment information ##
 
