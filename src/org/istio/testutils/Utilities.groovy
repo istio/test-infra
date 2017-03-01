@@ -112,16 +112,21 @@ def sendNotification(notify_list) {
 }
 
 // Push images to hub
-def publishDockerImages(images, tags, config = '', hub = 'docker.io/istio') {
+def publishDockerImages(images, tags, config = '') {
+  def dockerRegistry = 'docker.io/istio'
+  def googleRegistry = 'gcr.io/istio-testing'
   def res = libraryResource('release-docker')
   def releaseDocker = '/tmp/release-docker'
   def credentialId = env.ISTIO_TESTING_DOCKERHUB
   writeFile(file: releaseDocker, text: res)
   sh("chmod +x ${releaseDocker}")
   withDockerRegistry([credentialsId: credentialId]) {
-    sh("${releaseDocker} -h ${hub} -t ${tags} -i ${images} " +
+    sh("${releaseDocker} -h ${dockerRegistry} -t ${tags} -i ${images} " +
         "${config == '' ? '' : "-c ${config}"}")
   }
+  sh("${releaseDocker} -h ${googleRegistry} -t ${tags} -i ${images} " +
+      "${config == '' ? '' : "-c ${config}"}")
+
 }
 
 // Publish Code Coverage
