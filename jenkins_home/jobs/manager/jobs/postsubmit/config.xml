@@ -13,7 +13,7 @@
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
     <org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty/>
-    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.0">
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.1">
       <projectUrl>https://github.com/istio/manager/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
@@ -32,9 +32,13 @@
     </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>
-        <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.26.0">
+        <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.26.1">
           <spec></spec>
         </com.cloudbees.jenkins.GitHubPushTrigger>
+        <hudson.triggers.SCMTrigger>
+          <spec>H/2 * * * *</spec>
+          <ignorePostCommitHooks>false</ignorePostCommitHooks>
+        </hudson.triggers.SCMTrigger>
       </triggers>
     </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
   </properties>

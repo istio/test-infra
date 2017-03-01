@@ -8,8 +8,9 @@ export DEBIAN_FRONTEND=noninteractive
 
 NAMESPACE='jenkins'
 APP='master'
+BUCKET='gs://istio-tools/jenkins-secrets'
 
-BASH_SCRIPT='''BACKUP_FILES="$(find /var/jenkins_home \
+BACKUP_HOME='''BACKUP_FILES="$(find /var/jenkins_home \
   \( -not -path "/var/jenkins_home/*/*" -and \
      -wholename "/var/jenkins_home/*.xml" \) -o \
   \( -wholename "/var/jenkins_home/jobs/*/config.xml" \
@@ -18,6 +19,17 @@ BASH_SCRIPT='''BACKUP_FILES="$(find /var/jenkins_home \
 
 tar czf - ${BACKUP_FILES}'''
 
+BACKUP_SECRETS='''BACKUP_FILES="$(find /var/jenkins_home \
+  -wholename "/var/jenkins_home/secrets/*")"
+
+tar czf - ${BACKUP_FILES}'''
+
+GIT_FILES="$(git status -s)"
+[[ -z "${GIT_FILES}" ]] \
+  || error_exit "You have modified files. Please commit or reset your workspace."
+
+rm -rf jenkins_home/*
+
 POD_NAME="$(kubectl get pods \
   --selector=app="${APP}" \
   -n "${NAMESPACE}" \
@@ -25,6 +37,14 @@ POD_NAME="$(kubectl get pods \
 
 echo "Getting backup data from pod ${POD_NAME} in ns ${NAMESPACE}"
 
-kubectl exec "${POD_NAME}" -n "${NAMESPACE}" -- /bin/bash -c "${BASH_SCRIPT}" \
+kubectl exec "${POD_NAME}" -n "${NAMESPACE}" -- /bin/bash -c "${BACKUP_HOME}" \
   | tar zxvf - --strip-components 2 -C "${ROOT}/jenkins_home"
 
+git add .
+git commit -m "Backup Jenkins Home"
+
+COMMIT="$(git rev-parse --verify HEAD)"
+ARCHIVE="${BUCKET}/secrets-${COMMIT}.tar.gz"
+
+kubectl exec "${POD_NAME}" -n "${NAMESPACE}" -- /bin/bash -c "${BACKUP_SECRETS}" \
+  | gsutil cp - "${ARCHIVE}"

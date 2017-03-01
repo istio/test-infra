@@ -1,8 +1,8 @@
 package main
 
 import (
-	"errors"
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -17,7 +17,7 @@ import (
 var (
 	tokenFile   = flag.String("token_file", "", "File containing Auth Token.")
 	owner       = flag.String("owner", "istio", "Github Owner or org.")
-	repo        = flag.String("repo", "", "Github repo within the org.")
+	repos       = flag.String("repos", "", "Comma separated list of Github repo within the org.")
 	base        = flag.String("base", "stable", "The base branch used for PR.")
 	head        = flag.String("head", "master", "The head branch used for PR.")
 	pullRequest = flag.Int("pr", 0, "The Pull request to use.")
@@ -74,15 +74,15 @@ func newGhConst() *ghConst {
 }
 
 // Creates a new Github Helper from provided
-func newHelper() (*helper, error) {
+func newHelper(r *string) (*helper, error) {
 	if tc, err := getToken(); err == nil {
-		if *repo == "" {
+		if *repos == "" {
 			return nil, errors.New("repo flag must be set!")
 		}
 		client := github.NewClient(tc)
 		return &helper{
 			Owner:  *owner,
-			Repo:   *repo,
+			Repo:   *r,
 			Base:   *base,
 			Head:   *head,
 			Pr:     *pullRequest,
@@ -107,7 +107,7 @@ func (h helper) createPullRequestToBase(commit *string) error {
 		Title: &title,
 		Body:  &body,
 	}
-	log.Printf("Creating a PR with Title: \"%s\"", title)
+	log.Printf("Creating a PR with Title: \"%s\" for repo %s", title, h.Repo)
 	if pr, _, err := h.Client.PullRequests.Create(context.TODO(), h.Owner, h.Repo, &req); err == nil {
 		log.Printf("Created new PR at %s", *pr.HTMLURL)
 	} else {
@@ -123,8 +123,8 @@ func (h helper) getLastCommitFromHead() (*string, error) {
 		if *comp.BehindBy > 0 {
 			commit := comp.BaseCommit.SHA
 			log.Printf(
-				"%s is %d commits ahead from %s, and HEAD commit is %s",
-				h.Head, *comp.BehindBy, h.Base, *commit)
+				"%s is %d commits ahead from %s, and HEAD commit is %s in repo %s",
+				h.Head, *comp.BehindBy, h.Base, *commit, h.Repo)
 			return commit, nil
 		}
 	}
@@ -148,20 +148,20 @@ func (h helper) fastForwardBase() error {
 		if err == nil {
 			for _, pr := range prs {
 				if strings.Contains(*pr.Title, *commit) {
-					log.Printf("A PR already exist for %s", *commit)
+					log.Printf("A PR already exist for %s on repo %s", *commit, h.Repo)
 					return nil
 				}
 			}
 		}
 		return h.createPullRequestToBase(commit)
 	}
-	log.Printf("Branches %s and %s are in sync.", h.Base, h.Head)
+	log.Printf("Branches %s and %s are in sync for repo %s.", h.Base, h.Head, h.Repo)
 	return nil
 }
 
 // Close an existing PR
 func (h helper) closePullRequest(pr *github.PullRequest) error {
-	log.Printf("Closing PR %d", *pr.Number)
+	log.Printf("Closing PR %d on repo %s", *pr.Number, h.Repo)
 	*pr.State = GH.closed
 	_, _, err := h.Client.PullRequests.Edit(context.TODO(), h.Owner, h.Repo, *pr.Number, pr)
 	return err
@@ -175,7 +175,7 @@ func (h helper) createStableTag(commit *string) error {
 	sha := *commit
 	tag := fmt.Sprintf("stable-%s", sha[0:7])
 	message := "Stable build"
-	log.Printf("Creating tag %s on %s for commit %s", tag, h.Base, *commit)
+	log.Printf("Creating tag %s on %s for commit %s in repo %s", tag, h.Base, *commit, h.Repo)
 	gho := github.GitObject{
 		SHA:  commit,
 		Type: &GH.commit,
@@ -189,7 +189,7 @@ func (h helper) createStableTag(commit *string) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("Creating ref tag %s on %s for commit %s", tag, h.Base, *commit)
+	log.Printf("Creating ref tag %s on %s for commit %s in repo %s", tag, h.Base, *commit, h.Repo)
 	ref := fmt.Sprintf("refs/tags/%s", tag)
 	r := github.Reference{
 		Ref:    &ref,
@@ -209,7 +209,7 @@ func (h helper) updateBaseReference(commit *string) error {
 		return errors.New("commit cannot be nil")
 	}
 	ref := fmt.Sprintf("refs/heads/%s", h.Base)
-	log.Printf("Updating ref %s to commit %s", ref, *commit)
+	log.Printf("Updating ref %s to commit %s for repo %s", ref, *commit, h.Repo)
 	gho := github.GitObject{
 		SHA:  commit,
 		Type: &GH.commit,
@@ -238,7 +238,7 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 	case GH.success:
 		if err := h.createStableTag(s.SHA); err == nil {
 			if err := h.updateBaseReference(s.SHA); err != nil {
-				log.Printf("Could not update %s reference to %s.\n%v", h.Base, *s.SHA, err)
+				log.Printf("Could not update %s reference to %s for repo %s.\n%v", h.Base, *s.SHA, h.Repo, err)
 				return nil
 			}
 			// Note there is no need to close the PR here.
@@ -249,7 +249,7 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 	case GH.failure:
 		return h.closePullRequest(pr)
 	case GH.pending:
-		log.Printf("Pull Request %d is still being checked", *pr.Number)
+		log.Printf("Pull Request %d is still being checked for repo %s", *pr.Number, h.Repo)
 	}
 	return nil
 }
@@ -272,10 +272,10 @@ func (h helper) verifyPullRequestStatus() error {
 			err = h.updatePullRequest(pr, statuses)
 		}
 		if err != nil {
-			log.Fatalf("Could not update PR %d. \n%v", *pr.Number, err)
+			log.Fatalf("Could not update PR %d for repo %s. \n%v", *pr.Number, h.Repo, err)
 		}
 	}
-	log.Printf("No more PR to verify for branch %s.", h.Base)
+	log.Printf("No more PR to verify for branch %s in repo %s.", h.Base, h.Repo)
 	return nil
 }
 
@@ -294,23 +294,37 @@ func (h helper) createComment(comment *string) error {
 
 func main() {
 	flag.Parse()
-	h, err := newHelper()
-	if err != nil {
-		log.Fatalf("Could not instantiate a github client %v", err)
-	}
 	if *verify {
-		if err = h.verifyPullRequestStatus(); err != nil {
-			log.Fatalf("Unable to verify PR from %s.\n%v", h.Base, err)
+		for _, r := range strings.Split(*repos, ",") {
+			h, err := newHelper(&r)
+			if err != nil {
+				log.Fatalf("Could not instantiate a github client %v", err)
+			}
+			if err = h.verifyPullRequestStatus(); err != nil {
+				log.Fatalf("Unable to verify PR from %s.\n%v", h.Base, err)
+			}
 		}
 	}
 	if *fastForward {
-		if err = h.fastForwardBase(); err != nil {
-			log.Fatalf("Unable to fast forward %s.\n%v", h.Base, err)
+		for _, r := range strings.Split(*repos, ",") {
+			h, err := newHelper(&r)
+			if err != nil {
+				log.Fatalf("Could not instantiate a github client %v", err)
+			}
+			if err = h.fastForwardBase(); err != nil {
+				log.Fatalf("Unable to fast forward %s.\n%v", h.Base, err)
+			}
 		}
 	}
 	if *comment != "" {
-		if err := h.createComment(comment); err != nil {
-			log.Fatalf("Unable to create a comment on PR %d.\n%v", h.Pr, err)
+		for _, r := range strings.Split(*repos, ",") {
+			h, err := newHelper(&r)
+			if err != nil {
+				log.Fatalf("Could not instantiate a github client %v", err)
+			}
+			if err := h.createComment(comment); err != nil {
+				log.Fatalf("Unable to create a comment on PR %d.\n%v", h.Pr, err)
+			}
 		}
 	}
 }

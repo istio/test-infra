@@ -10,7 +10,7 @@ go_repositories()
 
 new_go_repository(
     name = "com_github_google_go_github",
-    commit = "23d6cb9cacb5aa314e93d600fe20a48496a718d4",
+    commit = "9be6ce168fa69a3cc2db27a776950a42d18c2ae0",
     importpath = "github.com/google/go-github",
 )
 

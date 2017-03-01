@@ -53,7 +53,8 @@ if [[ "${BUILD}" == true ]]; then
   update_image "${IMAGE}"
   if [[ ${?} -eq 0 ]]; then
     echo "Building docker image ${IMAGE}."
-    retry -n 10 docker build --build-arg TOOLS_BUCKET="${TOOLS_BUCKET}" -t ${IMAGE} \
+    retry -n 10 docker build --no-cache \
+      --build-arg TOOLS_BUCKET="${TOOLS_BUCKET}" -t ${IMAGE} \
       -f "${DOCKER_FILE}" . || error_exit "Could not build ${SLAVE}"
     echo "Pushing Docker image: ${IMAGE}"
     retry -n 3 ${GCLOUD} docker -- push "${IMAGE}" \

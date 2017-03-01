@@ -68,19 +68,19 @@ def createTokenFile(tokenFile) {
 
 // This Workflow uses the following Build Parameters:
 // GITHUB_OWNER: The name of the GitHub org or user, default istio
-// GITHUB_REPO: The name of the repo
+// GITHUB_REPOS: The name of the repos
 // REPO_BASE: The branch to use for base, default stable
 // REPO_HEAD: The branch to use for head, default master
 // GITHUB_TOKEN_ID: The token id to use in Jenkins. Default is ISTIO_TESTING_TOKEN_ID env variable.
 def fastForwardStable() {
   def owner = getParam('GITHUB_OWNER', 'istio')
-  def repo = failIfNullOrEmpty(getParam('GITHUB_REPO'), 'GITHUB_REPO build parameter needs to be set!')
+  def repo = failIfNullOrEmpty(getParam('GITHUB_REPOS'), 'GITHUB_REPOS build parameter needs to be set!')
   def base = getParam('REPO_BASE', 'stable')
   def head = getParam('REPO_HEAD', 'master')
   def tokenFile = '/tmp/token.jenkins'
   createTokenFile(tokenFile)
   sh("github_helper --owner=${owner} " +
-      "--repo=${repo} " +
+      "--repos=${repo} " +
       "--head=${head} " +
       "--base=${base} " +
       "--token_file=${tokenFile} " +
