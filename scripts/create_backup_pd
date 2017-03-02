@@ -1,63 +1,97 @@
 #!/bin/bash
+set -ex
 
-ZONE=us-central1-f
-BUCKET=jenkins-backup-image
+TMP_DIR="$(mktemp -d /tmp/jkpd.XXXX)"
+ZONE='us-central1-f'
+BUCKET='istio-tools/jenkins/images'
 SHA=""
-TOOL_BUCKET=jenkins-backup-image
+TOOL_BUCKET='istio-tools/jenkins-secrets'
+DISK='jenkins-home'
 
-while getopts z:b:s:t: arg; do
+
+function usage () {
+   cat <<EOF
+Usage: 
+    -z  Specify zone (Optional, default:us-central1-f)
+    -b  Bucket name where backup disk be stored (Optional, default:istio-tools/jenkins/images)
+    -s  SHA which collected jenkins secrets (Necessry)
+    -t  Bucket where secrets are stored (Optional, default:istio-tools/jenkins-secrets)
+    -d  Name for backup disk (Optional, default:jenkins-home) 
+EOF
+}
+
+function cleanup {
+  if [[ ${LOOP_DEVICE} == /dev/loop* ]]; then 
+    if [[ $(sudo mount | grep ${LOOP_DEVICE}) == ${LOOP_DEVICE}* ]]; then 
+      sudo umount ${LOOP_DEVICE}
+    fi
+    sudo losetup -d ${LOOP_DEVICE}
+  fi
+  rm -rf ${TMP_DIR}
+}
+
+trap cleanup EXIT
+
+while getopts z:b:s:t:d:p:h arg; do
   case ${arg} in
     z) ZONE="${OPTARG}";;
     b) BUCKET="${OPTARG}";;
     s) SHA="${OPTARG}";;
     t) TOOL_BUCKET="${OPTARG}";;
-    *) echo "Unrecognized argument ${OPTARG}"; exit 1;
+    d) DISK="${OPTARG}";;
+    h) usage;;
+    *) error_exit "Unrecognized argument ${OPTARG}";;
   esac
 done
 
-if ["$SHA" = ""];then
-  echo 'Missing SHA for secrets. Please use -s'
-  exit 1;
+if ["$SHA" = ""]; then
+  error_exit 'Missing SHA for secrets. Please use -s'
 fi
 
-sudo rm -rf /tmp/jenkins-backup-pd
-sudo mkdir -p /tmp/jenkins-backup-pd/mnt
+mkdir -p ${TMP_DIR}/mnt
 
-cd /tmp/jenkins-backup-pd
-sudo dd if=/dev/zero of=disk.raw bs=1024k seek=10240 count=0
+cd ${TMP_DIR}
+dd if=/dev/zero of=disk.raw bs=1024k seek=102400 count=0
 echo '>>>>>>>>>>>>>>>>>>>> Created a blank image.'
 
-sudo losetup -f disk.raw
-sudo losetup -a
-sudo mkfs.ext4 -F -E lazy_itable_init=0,lazy_journal_init=0 /dev/loop0
+LOOP_DEVICE=$(sudo losetup -f)
+echo ${LOOP_DEVICE}
+
+if [[ ${LOOP_DEVICE} == /dev/loop* ]]; then
+  sudo losetup ${LOOP_DEVICE} disk.raw
+else
+  error_exit 'No enough loop devices. Try to free one or create a new loop device.'
+fi
+
+sudo mkfs.ext4 -F -E lazy_itable_init=0,lazy_journal_init=0 ${LOOP_DEVICE}
 echo '>>>>>>>>>>>>>>>>>>>> Format the block in ext4.'
 
-sudo mount /dev/loop0 /tmp/jenkins-backup-pd/mnt
-sudo chown -R $USER /tmp/jenkins-backup-pd
+sudo mount ${LOOP_DEVICE} ${TMP_DIR}/mnt
+sudo chown -R ${USER} ${TMP_DIR}
 echo '>>>>>>>>>>>>>>>>>>>> Mounted to mnt.'
 
-sudo gsutil cp gs://$TOOL_BUCKET/secrets-$SHA.tar.gz .
-sudo tar -xvf secrets-$SHA.tar.gz
-sudo cp -R var/jenkins_home/secrets/* /tmp/jenkins-backup-pd/mnt
+gsutil cp gs://${TOOL_BUCKET}/secrets-${SHA}.tar.gz .
+tar -xvf secrets-${SHA}.tar.gz
+cp -R var/jenkins_home/secrets/* ${TMP_DIR}/mnt
 
-sudo git clone https://github.com/istio/istio-testing
-sudo cp -R istio-testing/jenkins_home/* /tmp/jenkins-backup-pd/mnt/
-sudo chown -R 1000:1000 /tmp/jenkins-backup-pd/mnt
+git clone https://github.com/istio/istio-testing
+cp -R istio-testing/jenkins_home/* ${TMP_DIR}/mnt/
+sudo chown -R 1000:1000 ${TMP_DIR}/mnt
+#Change owner to jenkins whose uid and gid are 1000
 echo '>>>>>>>>>>>>>>>>>>>> Loaded source code to the image.'
 
-sudo umount /dev/loop0
-sudo losetup -d /dev/loop0
+sudo umount ${LOOP_DEVICE}
+sudo losetup -d ${LOOP_DEVICE}
+LOOP_DEVICE=Disconnected
 
-sudo tar -cSzvf jenkins-home.tar.gz disk.raw
+tar -cSzvf jenkins-home.tar.gz disk.raw
 echo '>>>>>>>>>>>>>>>>>>>> Packaged the image.'
 
-export K8S_SCOPES=https://www.googleapis.com/auth/appengine.admin,https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/projecthosting,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management
-
-gsutil cp jenkins-home.tar.gz gs://$BUCKET/
+gsutil cp jenkins-home.tar.gz gs://${BUCKET}/
 echo '>>>>>>>>>>>>>>>>>>>> Uploaded to Cloud Storage.'
-gcloud compute images create jenkins-home-image --source-uri gs://$BUCKET/jenkins-home.tar.gz
+gcloud compute images create ${DISK}-image --source-uri gs://${BUCKET}/jenkins-home.tar.gz
 echo '>>>>>>>>>>>>>>>>>>>> Created a CE image.'
-gcloud compute disks create jenkins-home --zone $ZONE --image jenkins-home-image
+gcloud compute disks create ${DISK} --zone ${ZONE} --size 100 --image jenkins-home-image
 echo '>>>>>>>>>>>>>>>>>>>> Created a CE disk jenkins-home.'
 
-sudo rm -rf /tmp/jenkins-backup-pd
+cleanup
