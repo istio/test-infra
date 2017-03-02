@@ -105,28 +105,35 @@ def commentOnPr(message) {
 // Send Email failure notfication
 def sendNotification(notify_list) {
   step([
-      $class: 'Mailer',
+      $class                  : 'Mailer',
       notifyEveryUnstableBuild: false,
-      recipients: notify_list,
-      sendToIndividuals: true])
+      recipients              : notify_list,
+      sendToIndividuals       : true])
 }
 
 // Push images to hub
 def publishDockerImages(images, tags, config = '') {
-  def dockerRegistry = 'docker.io/istio'
-  def googleRegistry = 'gcr.io/istio-testing'
+  publishDockerImagesToDockerHub(images, tags, config)
+  publishDockerImagesToContainerRegistry(images, tags, config)
+}
+
+def publishDockerImagesToDockerHub(images, tags, config = '', registry = 'docker.io/istio') {
+  withDockerRegistry([credentialsId: env.ISTIO_TESTING_DOCKERHUB]) {
+    runReleaseDocker(images, tags, registry, config)
+  }
+}
+
+def publishDockerImagesToContainerRegistry(images, tags, config = '', registry = 'gcr.io/istio-testing') {
+  runReleaseDocker(images, tags, registry, config)
+}
+
+def runReleaseDocker(images, tags, registry, config = '') {
   def res = libraryResource('release-docker')
   def releaseDocker = '/tmp/release-docker'
-  def credentialId = env.ISTIO_TESTING_DOCKERHUB
   writeFile(file: releaseDocker, text: res)
   sh("chmod +x ${releaseDocker}")
-  withDockerRegistry([credentialsId: credentialId]) {
-    sh("${releaseDocker} -h ${dockerRegistry} -t ${tags} -i ${images} " +
-        "${config == '' ? '' : "-c ${config}"}")
-  }
-  sh("${releaseDocker} -h ${googleRegistry} -t ${tags} -i ${images} " +
+  sh("${releaseDocker} -h ${registry} -t ${tags} -i ${images} " +
       "${config == '' ? '' : "-c ${config}"}")
-
 }
 
 // Publish Code Coverage
