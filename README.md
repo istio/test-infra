@@ -19,11 +19,21 @@
 
 Change volumes partition from 1 to 0 in the file k8s/jenkins/jenkins.yaml\<br> 
 
-Run script/create_backup_pd with the following parameters<br />
-  $ -z Which zone do you want the backup disk in. (default: us-central1-f)<br />
-  $ -b Which bucket prepared to store disk image. (default: jenkins-backup-image)<br />
-  $ -s The SHA backing up jenkins home. (necessary parameter)<br />
-  $ -t The Storage bucket for the secrets files. (default: jenkins-backup-image)<br />
+Run script/create_backup_pd with the following parameters 
+
+Usage: 
+
+  -z  Specify zone (Optional, default:us-central1-f)
+  
+  -b  Bucket name where backup disk be stored (Optional, default:istio-tools/jenkins/images)
+  
+  -s  SHA which collected jenkins secrets (Necessry)
+  
+  -t  Bucket where secrets are stored (Optional, default:istio-tools/jenkins-secrets)
+  
+  -d  Name for backup disk (Optional, default:jenkins-home) 
+
+    $ ./create_backup_pd -s 8d2254052161885b7437f39be8c92bd4b1c0265b -d jenkins-home-backup 
 
 
 ## Deployment information ##
