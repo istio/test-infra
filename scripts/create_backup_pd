@@ -1,0 +1,97 @@
+#!/bin/bash
+set -ex
+
+TMP_DIR="$(mktemp -d /tmp/jkpd.XXXX)"
+ZONE='us-central1-f'
+BUCKET='istio-tools/jenkins/images'
+SHA=""
+TOOL_BUCKET='istio-tools/jenkins-secrets'
+DISK='jenkins-home'
+
+
+function usage () {
+   cat <<EOF
+Usage: 
+    -z  Specify zone (Optional, default:us-central1-f)
+    -b  Bucket name where backup disk be stored (Optional, default:istio-tools/jenkins/images)
+    -s  SHA which collected jenkins secrets (Necessry)
+    -t  Bucket where secrets are stored (Optional, default:istio-tools/jenkins-secrets)
+    -d  Name for backup disk (Optional, default:jenkins-home) 
+EOF
+}
+
+function cleanup {
+  if [[ ${LOOP_DEVICE} == /dev/loop* ]]; then 
+    if [[ $(sudo mount | grep ${LOOP_DEVICE}) == ${LOOP_DEVICE}* ]]; then 
+      sudo umount ${LOOP_DEVICE}
+    fi
+    sudo losetup -d ${LOOP_DEVICE}
+  fi
+  rm -rf ${TMP_DIR}
+}
+
+trap cleanup EXIT
+
+while getopts z:b:s:t:d:p:h arg; do
+  case ${arg} in
+    z) ZONE="${OPTARG}";;
+    b) BUCKET="${OPTARG}";;
+    s) SHA="${OPTARG}";;
+    t) TOOL_BUCKET="${OPTARG}";;
+    d) DISK="${OPTARG}";;
+    h) usage;;
+    *) error_exit "Unrecognized argument ${OPTARG}";;
+  esac
+done
+
+if ["$SHA" = ""]; then
+  error_exit 'Missing SHA for secrets. Please use -s'
+fi
+
+mkdir -p ${TMP_DIR}/mnt
+
+cd ${TMP_DIR}
+dd if=/dev/zero of=disk.raw bs=1024k seek=102400 count=0
+echo '>>>>>>>>>>>>>>>>>>>> Created a blank image.'
+
+LOOP_DEVICE=$(sudo losetup -f)
+echo ${LOOP_DEVICE}
+
+if [[ ${LOOP_DEVICE} == /dev/loop* ]]; then
+  sudo losetup ${LOOP_DEVICE} disk.raw
+else
+  error_exit 'No enough loop devices. Try to free one or create a new loop device.'
+fi
+
+sudo mkfs.ext4 -F -E lazy_itable_init=0,lazy_journal_init=0 ${LOOP_DEVICE}
+echo '>>>>>>>>>>>>>>>>>>>> Format the block in ext4.'
+
+sudo mount ${LOOP_DEVICE} ${TMP_DIR}/mnt
+sudo chown -R ${USER} ${TMP_DIR}
+echo '>>>>>>>>>>>>>>>>>>>> Mounted to mnt.'
+
+gsutil cp gs://${TOOL_BUCKET}/secrets-${SHA}.tar.gz .
+tar -xvf secrets-${SHA}.tar.gz
+cp -R var/jenkins_home/secrets/* ${TMP_DIR}/mnt
+
+git clone https://github.com/istio/istio-testing
+cp -R istio-testing/jenkins_home/* ${TMP_DIR}/mnt/
+sudo chown -R 1000:1000 ${TMP_DIR}/mnt
+#Change owner to jenkins whose uid and gid are 1000
+echo '>>>>>>>>>>>>>>>>>>>> Loaded source code to the image.'
+
+sudo umount ${LOOP_DEVICE}
+sudo losetup -d ${LOOP_DEVICE}
+LOOP_DEVICE=Disconnected
+
+tar -cSzvf jenkins-home.tar.gz disk.raw
+echo '>>>>>>>>>>>>>>>>>>>> Packaged the image.'
+
+gsutil cp jenkins-home.tar.gz gs://${BUCKET}/
+echo '>>>>>>>>>>>>>>>>>>>> Uploaded to Cloud Storage.'
+gcloud compute images create ${DISK}-image --source-uri gs://${BUCKET}/jenkins-home.tar.gz
+echo '>>>>>>>>>>>>>>>>>>>> Created a CE image.'
+gcloud compute disks create ${DISK} --zone ${ZONE} --size 100 --image jenkins-home-image
+echo '>>>>>>>>>>>>>>>>>>>> Created a CE disk jenkins-home.'
+
+cleanup
