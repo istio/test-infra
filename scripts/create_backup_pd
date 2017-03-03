@@ -21,7 +21,7 @@ EOF
 }
 
 function cleanup {
-  if [[ ${LOOP_DEVICE} == /dev/loop* ]]; then 
+  if [[ -n ${LOOP_DEVICE} ]]; then 
     if [[ $(sudo mount | grep ${LOOP_DEVICE}) == ${LOOP_DEVICE}* ]]; then 
       sudo umount ${LOOP_DEVICE}
     fi
@@ -54,14 +54,9 @@ cd ${TMP_DIR}
 dd if=/dev/zero of=disk.raw bs=1024k seek=102400 count=0
 echo '>>>>>>>>>>>>>>>>>>>> Created a blank image.'
 
-LOOP_DEVICE=$(sudo losetup -f)
-echo ${LOOP_DEVICE}
+LOOP_DEVICE=$(sudo losetup -f) || { LOOP_DEVICE=''; error_exit 'Cannot get a loop device'; }
 
-if [[ ${LOOP_DEVICE} == /dev/loop* ]]; then
-  sudo losetup ${LOOP_DEVICE} disk.raw
-else
-  error_exit 'No enough loop devices. Try to free one or create a new loop device.'
-fi
+sudo losetup ${LOOP_DEVICE} disk.raw
 
 sudo mkfs.ext4 -F -E lazy_itable_init=0,lazy_journal_init=0 ${LOOP_DEVICE}
 echo '>>>>>>>>>>>>>>>>>>>> Format the block in ext4.'
@@ -82,7 +77,7 @@ echo '>>>>>>>>>>>>>>>>>>>> Loaded source code to the image.'
 
 sudo umount ${LOOP_DEVICE}
 sudo losetup -d ${LOOP_DEVICE}
-LOOP_DEVICE=Disconnected
+LOOP_DEVICE=''
 
 tar -cSzvf jenkins-home.tar.gz disk.raw
 echo '>>>>>>>>>>>>>>>>>>>> Packaged the image.'
@@ -91,7 +86,7 @@ gsutil cp jenkins-home.tar.gz gs://${BUCKET}/
 echo '>>>>>>>>>>>>>>>>>>>> Uploaded to Cloud Storage.'
 gcloud compute images create ${DISK}-image --source-uri gs://${BUCKET}/jenkins-home.tar.gz
 echo '>>>>>>>>>>>>>>>>>>>> Created a CE image.'
-gcloud compute disks create ${DISK} --zone ${ZONE} --size 100 --image jenkins-home-image
+gcloud compute disks create ${DISK} --zone ${ZONE} --size 100 --image ${DISK}-image
 echo '>>>>>>>>>>>>>>>>>>>> Created a CE disk jenkins-home.'
 
 cleanup
