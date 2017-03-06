@@ -22,9 +22,7 @@ EOF
 
 function cleanup {
   if [[ -n ${LOOP_DEVICE} ]]; then 
-    if [[ $(sudo mount | grep ${LOOP_DEVICE}) == ${LOOP_DEVICE}* ]]; then 
-      sudo umount ${LOOP_DEVICE}
-    fi
+    { mount | grep ${LOOP_DEVICE}; } && sudo umount ${LOOP_DEVICE}
     sudo losetup -d ${LOOP_DEVICE}
   fi
   rm -rf ${TMP_DIR}
@@ -72,7 +70,7 @@ cp -R var/jenkins_home/secrets/* ${TMP_DIR}/mnt
 git clone https://github.com/istio/istio-testing
 cp -R istio-testing/jenkins_home/* ${TMP_DIR}/mnt/
 sudo chown -R 1000:1000 ${TMP_DIR}/mnt
-#Change owner to jenkins whose uid and gid are 1000
+#Change owner to 'jenkins' whose uid and gid are 1000
 echo '>>>>>>>>>>>>>>>>>>>> Loaded source code to the image.'
 
 sudo umount ${LOOP_DEVICE}
@@ -89,4 +87,3 @@ echo '>>>>>>>>>>>>>>>>>>>> Created a CE image.'
 gcloud compute disks create ${DISK} --zone ${ZONE} --size 100 --image ${DISK}-image
 echo '>>>>>>>>>>>>>>>>>>>> Created a CE disk jenkins-home.'
 
-cleanup
