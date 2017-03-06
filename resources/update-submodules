@@ -62,14 +62,14 @@ function commit_file() {
       && git commit -m "Updates ${key} in ${file}" \
       || error_exit "Could not create commit for ${key} update in ${file}."
   else
-    echo 'Nothing to commit.'
+    error_exit 'Nothing to commit. Something should have changed'
   fi
 }
 
 while getopts :s: arg; do
   case ${arg} in
     s) SUBMODULES="${OPTARG}";;
-    *) echo "Invalid option: -${OPTARG}";;
+    *) error_exit "Invalid option: -${OPTARG}";;
   esac
 done
 
