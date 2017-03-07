@@ -48,7 +48,7 @@ function update_file() {
 
   echo "Updating file: ${file} with key: \"${key}\" and value \"${value}\"."
 
-  sed -i -e "s|${key}\s=.*|${key} = \"${value}\"|" "${file}" \
+  sed -i -e "s|${key}\s*=.*|${key} = \"${value}\"|" "${file}" \
     || error_exit "Could not update ${file} for ${key}."
 }
 
