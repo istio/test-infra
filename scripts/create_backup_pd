@@ -20,11 +20,16 @@ Usage:
 EOF
 }
 
-function cleanup {
+function disconnect {
   if [[ -n ${LOOP_DEVICE} ]]; then 
     { mount | grep ${LOOP_DEVICE}; } && sudo umount ${LOOP_DEVICE}
     sudo losetup -d ${LOOP_DEVICE}
+    LOOP_DEVICE=''
   fi
+}
+
+function cleanup {
+  disconnect
   rm -rf ${TMP_DIR}
 }
 
@@ -73,9 +78,7 @@ sudo chown -R 1000:1000 ${TMP_DIR}/mnt
 #Change owner to 'jenkins' whose uid and gid are 1000
 echo '>>>>>>>>>>>>>>>>>>>> Loaded source code to the image.'
 
-sudo umount ${LOOP_DEVICE}
-sudo losetup -d ${LOOP_DEVICE}
-LOOP_DEVICE=''
+disconnect
 
 tar -cSzvf jenkins-home.tar.gz disk.raw
 echo '>>>>>>>>>>>>>>>>>>>> Packaged the image.'
