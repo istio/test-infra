@@ -1,0 +1,88 @@
+#!/bin/bash
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DIR="${ROOT}/scripts"
+
+. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+export DEBIAN_FRONTEND=noninteractive
+
+APP='master'
+ARGS=()
+BUCKET='gs://istio-tools/jenkins-secrets'
+CLUSTER_NAME='jenkins-cluster'
+DATE="$(date +%m-%d-%g-%H%M)"
+DISK_NAME='jenkins'
+NAMESPACE='jenkins'
+PROJECT_ID='istio-testing'
+SNAPSHOT_NAME="${DISK_NAME}-${DATE}"
+ZONE='us-central1-f'
+UUID="$(uuidgen)"
+
+while getopts :p:z: arg; do
+  case ${arg} in
+    d) DISK_NAME="${OPTARG}";;
+    p) PROJECT_ID="${OPTARG}";;
+    z) ZONE="${OPTARG}";;
+    *) error_exit "Unrecognized argument -${OPTARG}";;
+  esac
+done
+
+[[ -n "${PROJECT_ID}" ]] && ARGS+=(--project "${PROJECT_ID}")
+[[ -n "${ZONE}" ]] && ARGS+=(--zone "${ZONE}")
+
+BACKUP_HOME='''BACKUP_FILES="$(find /var/jenkins_home \
+  \( -not -path "/var/jenkins_home/*/*" -and \
+     -wholename "/var/jenkins_home/*.xml" \) -o \
+  \( -wholename "/var/jenkins_home/jobs/*/config.xml" \
+     -and -not -regex ".*workspace@.*" \) -o \
+  -wholename "/var/jenkins_home/plugins/*.jpi")"
+
+tar czf - ${BACKUP_FILES}'''
+
+BACKUP_SECRETS='''BACKUP_FILES="$(find /var/jenkins_home \
+  -wholename "/var/jenkins_home/secrets/*")"
+
+tar czf - ${BACKUP_FILES}'''
+
+GIT_FILES="$(git status -s)"
+[[ -z "${GIT_FILES}" ]] \
+  || error_exit "You have modified files. Please commit or reset your workspace."
+
+rm -rf jenkins_home/*
+
+POD_NAME="$(kubectl get pods \
+  --selector=app="${APP}" \
+  -n "${NAMESPACE}" \
+  -o jsonpath='{.items[*].metadata.name}')"
+
+[[ -z "${POD_NAME}" ]] && error_exit 'Could not find Jenkins pod name.'
+
+echo "Getting backup data from pod ${POD_NAME} in ns ${NAMESPACE}"
+gcloud container clusters get-credentials ${CLUSTER_NAME} ${ARGS[@]}\
+  || error_exit 'Could not get kubectl config for cluster'
+
+echo "Gathering Jenkins configuration from ${POD_NAME}"
+kubectl exec "${POD_NAME}" -n "${NAMESPACE}" -- /bin/bash -c "${BACKUP_HOME}" \
+  | tar zxvf - --strip-components 2 -C "${ROOT}/jenkins_home" \
+  || error_exit 'Could not gather backup information'
+
+ARCHIVE="${BUCKET}/secrets-${UUID}.tar.gz"
+
+echo "Uploading secrets to ${ARCHIVE}"
+kubectl exec "${POD_NAME}" -n "${NAMESPACE}" -- /bin/bash \
+  -c "${BACKUP_SECRETS}" | gsutil cp - "${ARCHIVE}" \
+  || error_exit 'Could not upload secrets to cloud storage'
+
+echo "${ARCHIVE}" > "${ROOT}/jenkins_home/creds.ref"
+
+echo 'Creating a commit'
+git add jenkins_home/ \
+  && git commit -m "Backup Jenkins Home at ${DATE}" \
+  || error_exit "Could not create a commit"
+
+echo "Creating a snapshot of ${DISK_NAME} ..."
+gcloud compute disks snapshot "${DISK_NAME}" \
+  --snapshot-names "${SNAPSHOT_NAME}" ${ARGS[@]} \
+  || error_exit 'Could not create a snapshot'
+
+echo 'Please create a PR for this branch and merge it.'
