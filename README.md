@@ -96,9 +96,6 @@ To:
 
 ### Setting up Jenkins ###
 
-The persistent disk should already be created. If not follow instruction from
-[Google Cloud Plaform] (https://github.com/GoogleCloudPlatform/continuous-deployment-on-kubernetes).
-
 In order to create the Jenkins Instance in the Kubernetes cluster
 
     $ kubectl apply -f k8s/jenkins/
