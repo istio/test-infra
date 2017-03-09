@@ -1,42 +1,19 @@
 ## Table of Content
 
-- [Create a persistent disk Jenkins home](create-a-persisten-disk-Jenkins-home)
 - [Deployment information](#deployment-information)
 - [Kubernetes Setup](#kubernetes-setup)
   * [Creating Jenkins Cluster](#creating-jenkins-cluster)
+  * [Create a persistent disk Jenkins home](#create-a-persistent-disk-jenkins-home)
   * [Setting up Jenkins](#setting-up-jenkins)
     + [Setup AppEngine Reverse Proxy](#setup-appengine-reverse-proxy)
-    + [Jenkins Environment variables](#jenkins-environment-variables)
-  * [Updating Jenkins to point to the cluster](#updating-jenkins-to-point-to-the-cluster)
   * [Creating an Hazelcast cluster](#creating-an-hazelcast-cluster)
 - [Maintenance](#maintenance)
-  * [Keeping Jenkins Plugins up to date](#keeping-jenkins-plugins-up-to-date)
+  * [Preparing for update](#preparing-for-update)
+  * [Keeping Jenkins Setup up to date](#keeping-jenkins-setup-up-to-date)
+  * [Upgrading Jenkins plugins](#upgrading-jenkins-plugins)
+  * [Reverting to a working configuration](#reverting-to-a-working-configuration)
 - [Troubleshooting](#troubleshooting)
   * [All Slaves are marked as offline](#all-slaves-are-marked-as-offline)
-
-
-## Create a persistent disk Jenkins home ##
-
-Change volumes partition from 1 to 0 in the file k8s/jenkins/jenkins.yaml\<br> 
-
-Run script/create_backup_pd with the following parameters 
-
-    Usage: 
-
-    -z  Specify zone (Optional, default:us-central1-f)
-  
-    -b  Bucket name where backup disk be stored (Optional, default:istio-tools/jenkins/images)
-  
-    -s  SHA which collected jenkins secrets (Necessry)
-  
-    -t  Bucket where secrets are stored (Optional, default:istio-tools/jenkins-secrets)
-  
-    -d  Name for backup disk (Optional, default:jenkins-home) 
-
-Run command example (specifiy SHA and the name of disk we are going to create)
-
-    $ ./create_backup_pd -s 8d2254052161885b7437f39be8c92bd4b1c0265b -d jenkins-home-backup 
-
 
 ## Deployment information ##
 
@@ -71,6 +48,51 @@ hardcoded in the Jenkinsfile.
     # You might want to run this command as well on your desktop.
     $ gcloud container clusters get-credentials "${CLUSTER_NAME}" \
     --project "${PROJECT_ID}" --zone "${ZONE}"
+
+### Create a persistent disk Jenkins home ###
+
+This step should only be necessary if a disk does not already exist.
+
+If there is no existing persistent disk for Jenkins, we need to create one from
+source code. To do so, let's use the script/create_backup_pd script
+
+    $ scripts/create_backup_pd -h
+    Usage:
+        -z  Specify zone (Optional, default:us-central1-f)
+        -b  Bucket name where backup disk be stored (Optional,
+            default:istio-tools/jenkins/images)
+        -s  SHA which collected jenkins secrets (Necessry)
+        -t  Bucket where secrets are stored (Optional,
+            default:istio-tools/jenkins-secrets)
+        -d  Name for backup disk (Optional, default:jenkins-home)
+
+
+The only required argument is the SHA at which the backup was created. You can find those by running
+
+     $ git log jenkins_home/
+
+
+For this example we'll use 1623630acb3d3a1b79d687647f162e7f76501e2a and create a disk named jenkins-home-backup.
+
+    $ export SHA='1623630acb3d3a1b79d687647f162e7f76501e2a'
+    $ ./create_backup_pd -s ${SHA} \
+        -d jenkins-home-backup
+
+Disk created via this method do not use partition, so we need to update
+k8s/jenkins/jenkins.yaml to use the raw device directly and use the disk
+that we just created
+
+From
+
+    pdName: jenkins
+    fsType: ext4
+    partition: 1
+
+To:
+
+    pdName: jenkins-home-backup.
+    fsType: ext4
+    partition: 0
 
 ### Setting up Jenkins ###
 
@@ -128,107 +150,9 @@ to AppEngine.
     $ cd appengine-proxy
     $ ./setup.sh -a "${JENKINS_INSTANCE}" -b "${JENKINS_PORT}" -c "${PROJECT_ID}"
 
-#### Jenkins Environment variables ####
-
-Point your browser to https://istio-testing.appspot.com/configure.
-
-In the Global Properties section, add the following environment variables:
-
-
-    name: BAZEL_ARGS
-    value: --batch --host_jvm_args=-Dbazel.DigestFunction=SHA1
-
-    name: BAZEL_BUILD_ARGS
-    value: --hazelcast_node=hazelcast.hazelcast.svc.cluster.local --spawn_strategy=remote
-
-    name: BUCKET
-    value: istio-artifacts
-
-    name: GKE_CLUSTER
-    value: jenkins-cluster
-
-    name: PATH
-    value: /usr/lib/google-cloud-sdk/bin:/usr/local/go/bin:${PATH}
-
-    name: ZONE
-    value: us-central1-f
-
-
-### Updating Jenkins to point to the cluster ###
-
-Point your browser to to https://istio-testing.appspot-preview.com/configure
-and find the 'Kubernetes' section at the end of the page. The only things that
-needs to be updated is 'Kubernetes URL' which should point to the URL above.
-
-In https://istio-testing.appspot.com/configure, in the Global properties
-section, make sure GKE_CLUSTER points to the value of ${CLUSTER_NAME}.
-
-Other configuration details:
-
-    # Cloud.Kubernetes Section
-    Name: Jenkins Cluster
-    Kubernetes URL: https://kubernetes.default
-    Kubernetes Namespace: jenkins
-
-    # Jenkins URL is jenkins local ip in pantheon plus ${JENKINS_PORT}
-    Jenkins URL: http://jenkins-ui.jenkins.svc.cluster.local:8080
-    Jenkins tunnel: jenkins-discovery.jenkins.svc.cluster.local:50000
-
-    Container Cap: 100
-
-    # Add 3 pod Templates:
-    # Pod 1
-    Name: ubuntu-16-04
-    Labels: ubuntu-16-04
-    Container Name: jnlp
-    Docker iamge: gcr.io/istio-testing/ubuntu-16-04-slave:latest
-    Always pull image: true
-    Working Directory: /home/jenkins
-    Command To run slave Agent:
-    Arguments to pass to the command: ${computer.jnlpmac} ${computer.name}
-    Max number of instances: 30
-    Advanded:
-      Run in privileged mode: true
-      Request CPU: 500m
-      Request Memory: 512Mi
-      Limit CPU: 2000m
-      Limit Memory: 8Gi
-    # Pod 2
-    Name: ubuntu-16-04-test
-    Labels: ubuntu-16-04-test
-    Container Name: jnlp
-    Docker iamge: gcr.io/istio-testing/ubuntu-16-04-slave:test
-    Always pull image: true
-    Working Directory: /home/jenkins
-    Command To run slave Agent:
-    Arguments to pass to the command: ${computer.jnlpmac} ${computer.name}
-    Max number of instances: 10
-    Advanced:
-      Run in privileged mode: true
-      Request CPU: 500m
-      Request Memory: 512Mi
-      Limit CPU: 2000m
-      Limit Memory: 4Gi
-    # Pod 3
-    Name: ubuntu-16-04-build
-    Labels: ubuntu-16-04-build
-    Container Name: jnlp
-    Docker iamge: gcr.io/istio-testing/ubuntu-16-04-slave:latest
-    Always pull image: true
-    Working Directory: /home/jenkins
-    Command To run slave Agent:
-    Arguments to pass to the command: ${computer.jnlpmac} ${computer.name}
-    Max number of instances: 10
-    Advanced:
-      Run in privileged mode: true
-      Request CPU: 500m
-      Request Memory: 512Mi
-      Limit CPU: 4000m
-      Limit Memory: 16Gi
-
-
 ### Creating an Hazelcast cluster ###
 
+This is not required anymore. You can skip the next section.
 Hazelcast is used to create a distributed cache to Bazel, enabling faster
 builds.
 
@@ -257,10 +181,101 @@ Let's deploy it:
 
 ## Maintenance ##
 
-### Keeping Jenkins Plugins up to date ###
+### Preparing for update ###
+
+When doing an upgrade, it is better to make sure that no jobs are running. In
+order to prevent new test from running, direct your browser to
+https://istio-testing.appspot.com/quietDown.
+
+Checkout the last version of istio-testing.
+
+Next run this script, which will backup important jenkins persistent data and
+make a snapshot of the Persistent Disk used for Jenkins.
+
+    $ scripts/prepare_for_upgrade
+
+This script will create a commit to your local checkout. Please create a PR and
+have the PR be merged in.
+
+### Keeping Jenkins Setup up to date ###
+
+For jenkins upgrade, we just need to update the k8s/jenkins/jenkins.yaml file
+and apply the configuration, check that everything works as expected and save the change to
+source code.
+
+Update k8s/jenkins/jenkins.yaml from:
+
+    spec:
+      containers:
+      - name: master
+        image: jenkins:2.32.3
+
+to the new version of Jenkinsi (Here 2.32.4 as an example):
+
+    spec:
+      containers:
+      - name: master
+        image: jenkins:2.32.4
+
+And apply the changes:
+
+    kubectl apply -f k8s/jenkins/jenkins.yaml
+
+
+Please don't forget to commit and push your changes.
+
+
+### Upgrading Jenkins plugins ###
+
+Jenkins plugins upgrade needs to be done via the UI. It is recommended
+to check the each plugin changelog to understand what the impact could be.
+The plugins that more likely to break workflows are the one related to
+github, pipeline, and kubernetes-plugin.
 
 Go to the [Plugin Manager](https://istio-testing.appspot.com/pluginManager),
 select all plugins, click update and check the restart checkbox.
+
+
+### Reverting to a working configuration ###
+
+Check the existing disk snapshots
+
+    $ gcloud compute snapshots list
+    NAME                   DISK_SIZE_GB  SRC_DISK                     STATUS
+    jenkins-03-08-17-1204  100           us-central1-f/disks/jenkins  READY
+    jenkins-03-08-17-1417  100           us-central1-f/disks/jenkins  READY
+
+And create a disk from the snapshot you created before the upgrade:
+
+    $ gcloud compute disks create jenkins-home \
+       --type "pd-ssd" \
+       --source-snapshot=jenkins-03-08-17-1417 \
+       --project ${PROJECT_ID} \
+       --zone ${ZONE}
+
+Update k8s/jenkins/jenkins.yaml from:
+
+    volumes:
+      - name: jenkins
+        gcePersistentDisk:
+          pdName: jenkins
+          fsType: ext4
+          partition: 1
+
+with the new created disk:
+
+    volumes:
+      - name: jenkins
+        gcePersistentDisk:
+          pdName: jenkins-home
+          fsType: ext4
+          partition: 1
+
+And apply the changes:
+
+    kubectl apply -f k8s/jenkins/jenkins.yaml
+
+Please don't forget to commit and push your changes.
 
 ## Troubleshooting ##
 
