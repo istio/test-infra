@@ -1,6 +1,5 @@
 ## Table of Content
 
-- [Table of Content](#table-of-content)
 - [Deployment information](#deployment-information)
 - [Kubernetes Setup](#kubernetes-setup)
   * [Creating Jenkins Cluster](#creating-jenkins-cluster)
