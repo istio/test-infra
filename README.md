@@ -51,9 +51,9 @@ hardcoded in the Jenkinsfile.
 
 ### Create a persistent disk Jenkins home ###
 
-This steop should only be necessary if a disk does not already exist.
+This step should only be necessary if a disk does not already exist.
 
-If there is no existing persistend disk for Jenkins, we need to create one from
+If there is no existing persistent disk for Jenkins, we need to create one from
 source code. To do so, let's use the script/create_backup_pd script
 
     $ scripts/create_backup_pd -h
@@ -262,7 +262,7 @@ Update k8s/jenkins/jenkins.yaml from:
           fsType: ext4
           partition: 1
 
-to the new version of Jenkinsi (Here 2.32.4 as an example):
+with the new created disk:
 
     volumes:
       - name: jenkins
