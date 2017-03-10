@@ -253,7 +253,7 @@ And create a disk from the snapshot you created before the upgrade:
 Update k8s/jenkins/jenkins.yaml from:
 
     volumes:
-      - name: jenkins
+      - name: jenkins-home
         gcePersistentDisk:
           pdName: jenkins
           fsType: ext4
@@ -262,7 +262,7 @@ Update k8s/jenkins/jenkins.yaml from:
 with the new created disk:
 
     volumes:
-      - name: jenkins
+      - name: jenkins-home
         gcePersistentDisk:
           pdName: jenkins-home
           fsType: ext4
