@@ -4,7 +4,7 @@
   <description></description>
   <keepDependencies>false</keepDependencies>
   <properties>
-    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.0">
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.1">
       <projectUrl>https://github.com/istio/proxy/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
@@ -17,7 +17,7 @@
         <hudson.model.StringParameterDefinition>
           <name>SUBMODULES_UPDATE</name>
           <description></description>
-          <defaultValue>WORKSPACE:PROXY:${GITHUB_PR_HEAD_SHA},WORKSPACE:PROXY_SHA:</defaultValue>
+          <defaultValue>WORKSPACE:PROXY:${GITHUB_PR_HEAD_SHA}</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>STAGE</name>
@@ -47,7 +47,7 @@
     </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>
-        <org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger plugin="github-pullrequest@0.1.0-rc21">
+        <org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger plugin="github-pullrequest@0.1.0-rc22">
           <spec>H/5 * * * *</spec>
           <triggerMode>HEAVY_HOOKS</triggerMode>
           <cancelQueued>true</cancelQueued>
@@ -84,8 +84,8 @@
       </triggers>
     </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
   </properties>
-  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.28">
-    <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.5">
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.29">
+    <scm class="hudson.plugins.git.GitSCM" plugin="git@3.1.0">
       <configVersion>2</configVersion>
       <userRemoteConfigs>
         <hudson.plugins.git.UserRemoteConfig>
@@ -102,6 +102,7 @@
       <extensions/>
     </scm>
     <scriptPath>Jenkinsfile</scriptPath>
+    <lightweight>false</lightweight>
   </definition>
   <triggers/>
 </flow-definition>
