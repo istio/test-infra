@@ -10,6 +10,6 @@ def utils = new Utilities()
 node {
   stage('Fast Forward') {
     utils.fastForwardStable()
-    sleep(60)
+    sleep(1)
   }
 }
