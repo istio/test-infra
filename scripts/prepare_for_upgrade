@@ -11,10 +11,8 @@ ARGS=()
 BUCKET='gs://istio-tools/jenkins-secrets'
 CLUSTER_NAME='jenkins-cluster'
 DATE="$(date +%m-%d-%g-%H%M)"
-DISK_NAME='jenkins'
 NAMESPACE='jenkins'
 PROJECT_ID='istio-testing'
-SNAPSHOT_NAME="${DISK_NAME}-${DATE}"
 ZONE='us-central1-f'
 UUID="$(uuidgen)"
 
@@ -48,7 +46,9 @@ GIT_FILES="$(git status -s)"
 [[ -z "${GIT_FILES}" ]] \
   || error_exit "You have modified files. Please commit or reset your workspace."
 
-rm -rf jenkins_home/*
+echo 'Getting credentials for Kubernetes cluster'
+gcloud container clusters get-credentials ${CLUSTER_NAME} ${ARGS[@]}\
+  || error_exit 'Could not get kubectl config for cluster'
 
 POD_NAME="$(kubectl get pods \
   --selector=app="${APP}" \
@@ -57,11 +57,18 @@ POD_NAME="$(kubectl get pods \
 
 [[ -z "${POD_NAME}" ]] && error_exit 'Could not find Jenkins pod name.'
 
-echo "Getting backup data from pod ${POD_NAME} in ns ${NAMESPACE}"
-gcloud container clusters get-credentials ${CLUSTER_NAME} ${ARGS[@]}\
-  || error_exit 'Could not get kubectl config for cluster'
+DISK_NAME="$(kubectl get pod  -n "${NAMESPACE}" "${POD_NAME}" \
+  -o jsonpath='{.spec.volumes[*].gcePersistentDisk.pdName}')"
+[[ -z "${DISK_NAME}" ]] && error_exit "Could not find Jenkins persistend disk"
+
+echo "Creating a snapshot of ${DISK_NAME} ..."
+SNAPSHOT_NAME="${DISK_NAME}-${DATE}"
+gcloud compute disks snapshot "${DISK_NAME}" \
+  --snapshot-names "${SNAPSHOT_NAME}" ${ARGS[@]} \
+  || error_exit 'Could not create a snapshot'
 
 echo "Gathering Jenkins configuration from ${POD_NAME}"
+rm -rf jenkins_home/*
 kubectl exec "${POD_NAME}" -n "${NAMESPACE}" -- /bin/bash -c "${BACKUP_HOME}" \
   | tar zxvf - --strip-components 2 -C "${ROOT}/jenkins_home" \
   || error_exit 'Could not gather backup information'
@@ -80,9 +87,5 @@ git add jenkins_home/ \
   && git commit -m "Backup Jenkins Home at ${DATE}" \
   || error_exit "Could not create a commit"
 
-echo "Creating a snapshot of ${DISK_NAME} ..."
-gcloud compute disks snapshot "${DISK_NAME}" \
-  --snapshot-names "${SNAPSHOT_NAME}" ${ARGS[@]} \
-  || error_exit 'Could not create a snapshot'
 
 echo 'Please create a PR for this branch and merge it.'
