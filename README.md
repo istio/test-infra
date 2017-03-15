@@ -105,6 +105,11 @@ Next we'll create an self signed SSL certificate that we'll feed to an ingress.
     $ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /tmp/tls.key \
     -out /tmp/tls.crt -subj "/CN=jenkins/O=jenkins"
 
+Let's create the secret that our ingress config expect
+
+    $ kubectl create secret generic tls --from-file=/tmp/tls.crt
+    --from-file=/tmp/tls.key --namespace jenkins
+
     $ kubectl apply -f k8s/jenkins/lb
 
     # Wait for the ingress to be available.
@@ -139,6 +144,11 @@ In this example, Jenkins can be accessed at 35.186.199.210:80.
     $ export JENKINS_PORT=80
 
 #### Setup AppEngine Reverse Proxy ####
+
+This is not required anymore as the IP created by the ingress is already mapped
+to testing.istio.io.
+
+Use this for testing only.
 
 We need to limit authentication to our Jenkins. To do so we'll create a reverse
 proxy using AppEngine and nginx. All we need to do checkout some code and deploy
