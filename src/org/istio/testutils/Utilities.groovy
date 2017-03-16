@@ -111,6 +111,16 @@ def sendNotification(notify_list) {
       sendToIndividuals       : true])
 }
 
+// init Testing Cluster.
+def initTestingCluster() {
+  def cluster = failIfNullOrEmpty(env.E2E_CLUSTER, 'E2E_CLUSTER is not set')
+  def zone = failIfNullOrEmpty(env.E2E_CLUSTER_ZONE, 'E2E_CLUSTER_ZONE is not set')
+  def project = failIfNullOrEmpty(env.PROJECT, 'PROJECT is not set')
+  sh('gcloud config set container/use_client_certificate True')
+  sh("gcloud container clusters get-credentials " +
+      "--project ${project} --zone ${zone} ${cluster}")
+}
+
 // Push images to hub
 def publishDockerImages(images, tags, config = '') {
   publishDockerImagesToDockerHub(images, tags, config)
