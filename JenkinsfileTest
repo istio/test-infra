@@ -16,43 +16,40 @@ def utils = new Utilities()
 def bazel = new Bazel()
 
 mainFlow(utils) {
-  pullRequest(utils) {
+  node {
+    gitUtils.initialize()
+    bazel.setVars()
+  }
 
-    node {
-      gitUtils.initialize()
-      bazel.setVars()
-    }
-
-    if (utils.runStage('PRESUBMIT')) {
-      def branches = [
-          'goBuildNode': {
-            goBuildNode(gitUtils, 'istio.io/istio-testing') {
-              echo(env.PATH)
-              echo(env.GOPATH)
-              bazel.fetch('//...')
-              bazel.build('//...')
-              commentOnPr(utils, "This is a test.")
-            }
-          },
-          'defaultNode': {
-            defaultNode(gitUtils) {
-              sh('ls -all')
-            }
-          },
-          'buildNode': {
-            buildNode(gitUtils) {
-              sh('ls -all')
-              bazel.version()
-            }
-          },
-          'testNode': {
-            testNode(gitUtils) {
-              sh('ls -all')
-            }
+  if (utils.runStage('PRESUBMIT')) {
+    def branches = [
+        'goBuildNode': {
+          goBuildNode(gitUtils, 'istio.io/istio-testing') {
+            echo(env.PATH)
+            echo(env.GOPATH)
+            bazel.fetch('//...')
+            bazel.build('//...')
+            commentOnPr(utils, "This is a test.")
           }
-      ]
-      parallel(branches)
-    }
+        },
+        'defaultNode': {
+          defaultNode(gitUtils) {
+            sh('ls -all')
+          }
+        },
+        'buildNode': {
+          buildNode(gitUtils) {
+            sh('ls -all')
+            bazel.version()
+          }
+        },
+        'testNode': {
+          testNode(gitUtils) {
+            sh('ls -all')
+          }
+        }
+    ]
+    parallel(branches)
   }
 }
 

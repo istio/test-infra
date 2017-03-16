@@ -20,15 +20,13 @@ def gitUtils = new GitUtilities()
 def utils = new Utilities()
 
 mainFlow(utils) {
-  pullRequest(utils) {
-    node {
-      gitUtils.initialize()
-      TOOLS_BUCKET = failIfNullOrEmpty(env.TOOLS_BUCKET, 'Please set TOOLS_BUCKET env.')
-    }
+  node {
+    gitUtils.initialize()
+    TOOLS_BUCKET = failIfNullOrEmpty(env.TOOLS_BUCKET, 'Please set TOOLS_BUCKET env.')
+  }
 
-    if (utils.runStage('_SLAVE_UPDATE')) {
-      slaveUpdate(gitUtils, utils)
-    }
+  if (utils.runStage('_SLAVE_UPDATE')) {
+    slaveUpdate(gitUtils, utils)
   }
 }
 
