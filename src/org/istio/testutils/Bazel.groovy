@@ -51,9 +51,9 @@ def version() {
   sh('bazel version')
 }
 
-def updateBazelRc(updateBazelrc = '.bazelrc.jenkins') {
+def updateBazelRc(updateBazelrc = 'tools/bazel.rc.jenkins') {
   if (fileExists(updateBazelrc)) {
-    sh("cat ${updateBazelrc} >> .bazelrc")
+    sh("cat ${updateBazelrc} >> tools/bazel.rc")
   }
 }
 
