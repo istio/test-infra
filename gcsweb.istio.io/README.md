@@ -1,12 +1,12 @@
 `gcsweb` is a tiny web frontend to [GCS](https://cloud.google.com/storage/docs/) browsing that DOES NOT REQUIRE A GOOGLE LOGIN.
 
-See it in action: http://gcsweb.k8s.io/gcs/kubernetes-release/release/
+See it in action: http://gcsweb.istio.io/gcs/istio-release/releases/
 
 #### Problem
 
-`kubernetes` releases can be downloaded using direct API links to specific
+`istio` releases can be downloaded using direct API links to specific
 files. However, to browse all available files at
-https://console.cloud.google.com/storage/browser/kubernetes-release/release/
+https://console.cloud.google.com/storage/browser/istio-release/releases/
 or with `gsutil` people
 [need Google login](https://cloud.google.com/storage/docs/access-public-data).
 
