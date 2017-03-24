@@ -7,9 +7,9 @@ NOTIFY_LIST = ''
 DEFAULT_SLAVE_LABEL = ''
 
 
-def initialize() {
+def initialize(Closure postcheckoutCall = null) {
   setVars()
-  stashSourceCode()
+  stashSourceCode(postcheckoutCall)
   setArtifactsLink()
 }
 
@@ -33,7 +33,7 @@ def setVars() {
 // In a pipeline, multiple scm checkout might checkout different version of the code.
 // Stashing source code to make sure that all pipeline branches uses the same version.
 // See JENKINS-35245 bug for more info.
-def stashSourceCode(postcheckout_call = null) {
+def stashSourceCode(Closure postcheckoutCall = null) {
   // Checking out code
   retry(10) {
     // Timeout after 5 minute
@@ -43,8 +43,8 @@ def stashSourceCode(postcheckout_call = null) {
     sleep(5)
   }
   updateSubmodules()
-  if (postcheckout_call != null) {
-    postcheckout_call()
+  if (postcheckoutCall != null) {
+    postcheckoutCall()
   }
   // Setting source code related global variable once so it can be reused.
   GIT_SHA = getRevision()
