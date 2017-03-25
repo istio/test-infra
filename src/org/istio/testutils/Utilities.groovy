@@ -79,7 +79,8 @@ def fastForwardStable() {
   def head = getParam('REPO_HEAD', 'master')
   def tokenFile = '/tmp/token.jenkins'
   createTokenFile(tokenFile)
-  sh("github_helper --owner=${owner} " +
+  sh("github_helper " +
+      "--owner=${owner} " +
       "--repos=${repo} " +
       "--head=${head} " +
       "--base=${base} " +
@@ -91,8 +92,10 @@ def fastForwardStable() {
 def commentOnPr(message) {
   // Passed in by GitHub Integration plugin
   def pr = failIfNullOrEmpty(env.GITHUB_PR_NUMBER)
-  def owner = getParam('GITHUB_OWNER', 'istio')
-  def repo = failIfNullOrEmpty(getParam('GITHUB_REPO'), 'GITHUB_REPO build parameter needs to be set!')
+  // Get the repo from the env GITHUB_PR_URL passed by github integration.
+  def prUrl = failIfNullOrEmpty(env.GITHUB_PR_URL)
+  def repo = prUrl.split('/')[4]
+  def owner = prUrl.split('/')[3]
   def url = "https://api.github.com/repos/${owner}/${repo}/issues/${pr}/comments"
   def credentialId = getParam('GITHUB_TOKEN_ID', env.ISTIO_TESTING_TOKEN_ID)
   withCredentials([string(credentialsId: credentialId, variable: 'GITHUB_TOKEN')]) {
