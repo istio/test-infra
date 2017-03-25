@@ -56,8 +56,10 @@ mainFlow(utils) {
 def commentOnPr(utils, message) {
   // Passed in by GitHub Integration plugin
   def pr = failIfNullOrEmpty(env.GITHUB_PR_NUMBER)
-  def owner = utils.getParam('GITHUB_OWNER', 'istio')
-  def repo = failIfNullOrEmpty(utils.getParam('GITHUB_REPO'), 'GITHUB_REPO build parameter needs to be set!')
+  // Get the repo from the env GITHUB_PR_URL passed by github integration.
+  def prUrl = failIfNullOrEmpty(env.GITHUB_PR_URL)
+  def repo = prUrl.split('/')[4]
+  def owner = prUrl.split('/')[3]
   def tokenFile = '/tmp/token.jenkins'
   utils.createTokenFile(tokenFile)
   sh("bazel-bin/tools/github_helper/github_helper --owner=${owner} " +
