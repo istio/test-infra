@@ -4,7 +4,7 @@
   <description></description>
   <keepDependencies>false</keepDependencies>
   <properties>
-    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.0">
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.1">
       <projectUrl>https://github.com/istio/mixerclient/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
@@ -32,7 +32,7 @@
         <hudson.model.StringParameterDefinition>
           <name>GITHUB_REPO</name>
           <description></description>
-          <defaultValue>mixerclient</defaultValue>
+          <defaultValue>proxy</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -47,7 +47,7 @@
     </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>
-        <org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger plugin="github-pullrequest@0.1.0-rc21">
+        <org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger plugin="github-pullrequest@0.1.0-rc22">
           <spec>H/5 * * * *</spec>
           <triggerMode>HEAVY_HOOKS</triggerMode>
           <cancelQueued>true</cancelQueued>
@@ -73,8 +73,21 @@
             <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
               <comment>.*(Jenkins job mixerclient/presubmit passed).*</comment>
             </org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
+            <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
+              <comment>.*(build proxy/mixerclient-pr).*</comment>
+            </org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
           </events>
           <preStatus>true</preStatus>
+          <userRestriction>
+            <orgs>istio</orgs>
+            <orgsSet>
+              <string>istio</string>
+            </orgsSet>
+            <users></users>
+            <usersSet>
+              <string></string>
+            </usersSet>
+          </userRestriction>
           <branchRestriction>
             <targetBranchList>
               <string>master</string>
@@ -84,8 +97,8 @@
       </triggers>
     </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
   </properties>
-  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.28">
-    <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.5">
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.29">
+    <scm class="hudson.plugins.git.GitSCM" plugin="git@3.1.0">
       <configVersion>2</configVersion>
       <userRemoteConfigs>
         <hudson.plugins.git.UserRemoteConfig>
@@ -104,6 +117,7 @@
       <extensions/>
     </scm>
     <scriptPath>Jenkinsfile</scriptPath>
+    <lightweight>true</lightweight>
   </definition>
   <triggers/>
 </flow-definition>

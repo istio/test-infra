@@ -7,13 +7,13 @@
     <jenkins.model.BuildDiscarderProperty>
       <strategy class="hudson.tasks.LogRotator">
         <daysToKeep>15</daysToKeep>
-        <numToKeep>20</numToKeep>
+        <numToKeep>30</numToKeep>
         <artifactDaysToKeep>-1</artifactDaysToKeep>
         <artifactNumToKeep>-1</artifactNumToKeep>
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
     <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.1">
-      <projectUrl>https://github.com/istio/istio-testing/</projectUrl>
+      <projectUrl>https://github.com/istio/istio/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
     <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
@@ -25,7 +25,7 @@
         <hudson.model.StringParameterDefinition>
           <name>STAGE</name>
           <description></description>
-          <defaultValue>_SLAVE_UPDATE</defaultValue>
+          <defaultValue>PRESUBMIT</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name>UPDATE_PR</name>
@@ -35,7 +35,7 @@
         <hudson.model.StringParameterDefinition>
           <name>GITHUB_REPO</name>
           <description></description>
-          <defaultValue>istio-testing</defaultValue>
+          <defaultValue>istio</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -76,7 +76,7 @@
             <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPROpenEvent/>
             <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommitEvent/>
             <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
-              <comment>.*(build istio-testing/pr-stable).*</comment>
+              <comment>.*(build istio/presubmit).*</comment>
             </org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
           </events>
           <preStatus>true</preStatus>
@@ -92,7 +92,7 @@
           </userRestriction>
           <branchRestriction>
             <targetBranchList>
-              <string>stable</string>
+              <string>^(?!.*(stable)).*$</string>
             </targetBranchList>
           </branchRestriction>
         </org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger>
@@ -106,7 +106,7 @@
         <hudson.plugins.git.UserRemoteConfig>
           <name>origin-pull</name>
           <refspec>+refs/pull/${GITHUB_PR_NUMBER}/head:refs/remotes/origin-pull/pull/${GITHUB_PR_NUMBER}/head</refspec>
-          <url>https://github.com/istio/istio-testing</url>
+          <url>https://github.com/istio/istio</url>
         </hudson.plugins.git.UserRemoteConfig>
       </userRemoteConfigs>
       <branches>
