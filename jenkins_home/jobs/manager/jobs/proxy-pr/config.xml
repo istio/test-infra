@@ -32,7 +32,7 @@
         <hudson.model.StringParameterDefinition>
           <name>GITHUB_REPO</name>
           <description></description>
-          <defaultValue>proxy</defaultValue>
+          <defaultValue>manager</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -73,8 +73,21 @@
             <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
               <comment>.*(Jenkins job proxy/presubmit passed).*</comment>
             </org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
+            <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
+              <comment>.*(build manager/proxy-pr).*</comment>
+            </org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
           </events>
           <preStatus>true</preStatus>
+          <userRestriction>
+            <orgs>istio</orgs>
+            <orgsSet>
+              <string>istio</string>
+            </orgsSet>
+            <users></users>
+            <usersSet>
+              <string></string>
+            </usersSet>
+          </userRestriction>
           <branchRestriction>
             <targetBranchList>
               <string>master</string>
@@ -102,7 +115,7 @@
       <extensions/>
     </scm>
     <scriptPath>Jenkinsfile</scriptPath>
-    <lightweight>false</lightweight>
+    <lightweight>true</lightweight>
   </definition>
   <triggers/>
 </flow-definition>

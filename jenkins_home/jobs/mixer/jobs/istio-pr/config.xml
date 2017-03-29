@@ -6,14 +6,14 @@
   <properties>
     <jenkins.model.BuildDiscarderProperty>
       <strategy class="hudson.tasks.LogRotator">
-        <daysToKeep>15</daysToKeep>
+        <daysToKeep>10</daysToKeep>
         <numToKeep>20</numToKeep>
         <artifactDaysToKeep>-1</artifactDaysToKeep>
         <artifactNumToKeep>-1</artifactNumToKeep>
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
     <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.1">
-      <projectUrl>https://github.com/istio/istio-testing/</projectUrl>
+      <projectUrl>https://github.com/istio/mixer/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
     <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
@@ -23,9 +23,9 @@
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
-          <name>STAGE</name>
+          <name>SUBMODULES_UPDATE</name>
           <description></description>
-          <defaultValue>_SLAVE_UPDATE</defaultValue>
+          <defaultValue>istio.VERSION.qual:MIXER:gcr.io/istio-testing/mixer:${GITHUB_PR_HEAD_SHA}</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name>UPDATE_PR</name>
@@ -33,17 +33,22 @@
           <defaultValue>true</defaultValue>
         </hudson.model.BooleanParameterDefinition>
         <hudson.model.StringParameterDefinition>
+          <name>STAGE</name>
+          <description></description>
+          <defaultValue>PRESUBMIT</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
           <name>GITHUB_REPO</name>
           <description></description>
-          <defaultValue>istio-testing</defaultValue>
+          <defaultValue>MIXER</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
     <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@1.9.0">
       <maxConcurrentPerNode>0</maxConcurrentPerNode>
-      <maxConcurrentTotal>3</maxConcurrentTotal>
+      <maxConcurrentTotal>0</maxConcurrentTotal>
       <categories class="java.util.concurrent.CopyOnWriteArrayList"/>
-      <throttleEnabled>true</throttleEnabled>
+      <throttleEnabled>false</throttleEnabled>
       <throttleOption>project</throttleOption>
       <limitOneJobWithMatchingParams>false</limitOneJobWithMatchingParams>
       <paramsToUseForLimit></paramsToUseForLimit>
@@ -73,10 +78,11 @@
             </errors>
           </errorsAction>
           <events>
-            <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPROpenEvent/>
-            <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommitEvent/>
             <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
-              <comment>.*(build istio-testing/pr-stable).*</comment>
+              <comment>.*(Jenkins job mixer/presubmit passed).*</comment>
+            </org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
+            <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
+              <comment>.*(build mixer/istio-pr).*</comment>
             </org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
           </events>
           <preStatus>true</preStatus>
@@ -92,7 +98,7 @@
           </userRestriction>
           <branchRestriction>
             <targetBranchList>
-              <string>stable</string>
+              <string>master</string>
             </targetBranchList>
           </branchRestriction>
         </org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger>
@@ -104,14 +110,12 @@
       <configVersion>2</configVersion>
       <userRemoteConfigs>
         <hudson.plugins.git.UserRemoteConfig>
-          <name>origin-pull</name>
-          <refspec>+refs/pull/${GITHUB_PR_NUMBER}/head:refs/remotes/origin-pull/pull/${GITHUB_PR_NUMBER}/head</refspec>
-          <url>https://github.com/istio/istio-testing</url>
+          <url>https://github.com/istio/istio</url>
         </hudson.plugins.git.UserRemoteConfig>
       </userRemoteConfigs>
       <branches>
         <hudson.plugins.git.BranchSpec>
-          <name>origin-pull/pull/${GITHUB_PR_NUMBER}/head</name>
+          <name>qual</name>
         </hudson.plugins.git.BranchSpec>
       </branches>
       <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
