@@ -2,6 +2,7 @@ package org.istio.testutils
 
 GIT_SHA = ''
 GIT_SHORT_SHA = ''
+GIT_TAG = ''
 BUCKET = ''
 NOTIFY_LIST = ''
 DEFAULT_SLAVE_LABEL = ''
@@ -49,6 +50,7 @@ def stashSourceCode(Closure postcheckoutCall = null) {
   // Setting source code related global variable once so it can be reused.
   GIT_SHA = getRevision()
   GIT_SHORT_SHA = GIT_SHA.take(7)
+  GIT_TAG = getTag()
   echo('Stashing source code')
   fastStash('src-code', '.')
 }
@@ -68,9 +70,31 @@ def checkoutSourceCode() {
   setGit()
 }
 
+// Base Path
+def basePath(name='') {
+  def path  = "gs://${BUCKET}/${GIT_TAG == '' ? GIT_SHA: GIT_TAG}"
+  if (name != '') {
+    path = "${path}/${name}"
+  }
+  return path
+}
+
+// Artifacts Path
+def artifactsPath(name='') {
+  def path = basePath('artifacts')
+  if (name != '') {
+    path = "${path}/${name}"
+  }
+  return path
+}
+
 // Generates the archive path based on the bucket, git_sha and name
 def stashArchivePath(name) {
-  return "gs://${BUCKET}/${GIT_SHA}/tmp/${name}.tar.gz"
+  return basePath("tmp/${name}.tar.gz")
+}
+
+def logsPath() {
+  return basePath("logs")
 }
 
 // pipeline stash/unstash is too slow as it stores and retrieve data from Jenkins.
@@ -115,7 +139,7 @@ def fastUnstash(name) {
 
 // Sets an artifacts links to the Build.
 def setArtifactsLink() {
-  def url = "https://console.cloud.google.com/storage/browser/${BUCKET}/${GIT_SHA}"
+  def url = "https://console.cloud.google.com/storage/browser/${BUCKET}/${GIT_TAG == '' ? GIT_SHA: GIT_TAG}"
   def html = """
 <!DOCTYPE HTML>
 Find <a href='${url}'>artifacts</a> here
@@ -129,6 +153,10 @@ Find <a href='${url}'>artifacts</a> here
 def getRevision() {
   // Code needs to be checked out for this.
   return sh(returnStdout: true, script: 'git rev-parse --verify HEAD').trim()
+}
+
+def getTag() {
+  return sh(returnStdout: true, script: 'git describe 2> /dev/null || exit 0').trim()
 }
 
 return this
