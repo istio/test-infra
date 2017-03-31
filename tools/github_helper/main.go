@@ -191,9 +191,14 @@ func (h helper) createStableTag(commit *string) error {
 	}
 	log.Printf("Creating ref tag %s on %s for commit %s in repo %s", tag, h.Base, *commit, h.Repo)
 	ref := fmt.Sprintf("refs/tags/%s", tag)
+	// Getting the SHA from the annotated tag
+	at := github.GitObject{
+		SHA: t.SHA,
+		Type: &GH.commit,
+	}
 	r := github.Reference{
 		Ref:    &ref,
-		Object: t.Object,
+		Object: &at,
 	}
 	_, resp, err = h.Client.Git.CreateRef(context.TODO(), h.Owner, h.Repo, &r)
 	// Already exists
