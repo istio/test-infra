@@ -93,16 +93,55 @@ func newHelper(r *string) (*helper, error) {
 	}
 }
 
+// Create a new branch for fast forward
+func (h helper) createBranchForFastForward(commit *string) (*string, error) {
+	count := 0
+
+	for true {
+		ref := fmt.Sprintf("refs/heads/FastForward-%d", count)
+		_, resp, err := h.Client.Git.GetRef(context.TODO(), h.Owner, h.Repo, ref)
+		if resp.StatusCode == 404 {
+			//This branch name doesn't exist, use it!
+			break
+		} else if err != nil {
+			return nil, err
+		}
+		count++
+	}
+
+	branchName := fmt.Sprintf("FastForward-%d", count)
+	ref := fmt.Sprintf("refs/heads/%s", branchName)
+	gho := github.GitObject{
+		SHA: commit,
+	}
+	r := github.Reference{
+		Ref:    &ref,
+		Object: &gho,
+	}
+
+	if _, _, err := h.Client.Git.CreateRef(context.TODO(), h.Owner, h.Repo, &r); err == nil {
+		return &branchName, nil
+	} else {
+		return nil, err
+	}
+}
+
 // Creates a pull request from Base branch
 func (h helper) createPullRequestToBase(commit *string) error {
 	if commit == nil {
 		return errors.New("commit cannot be nil.")
 	}
+
+	newHead, err := h.createBranchForFastForward(commit)
+	if err != nil {
+		return err
+	}
+	log.Printf("Created a new branch for fast forward: %s", *newHead)
 	title := fmt.Sprintf(
 		"DO NOT MERGE! Fast Forward %s to %s.", h.Base, *commit)
 	body := "This PR will be merged automatically once checks are successful."
 	req := github.NewPullRequest{
-		Head:  &h.Head,
+		Head:  newHead,
 		Base:  &h.Base,
 		Title: &title,
 		Body:  &body,
@@ -230,6 +269,14 @@ func (h helper) updateBaseReference(commit *string) error {
 	return err
 }
 
+// Deletes the new branch created for fast forward
+func (h helper) deleteFastForwardBranch(head string) {
+	ref := fmt.Sprintf("refs/heads/%s", head)
+	if _, err := h.Client.Git.DeleteRef(context.TODO(), h.Owner, h.Repo, ref); err != nil {
+		log.Panicf("Failed to delete fast forward branch %s in repo %s", head, h.Repo)
+	}
+}
+
 // Checks if a PR is ready to be pushed. Create a stable tag and
 // fast forward Base to the PR's head commit.
 func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStatus) error {
@@ -246,12 +293,15 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 				log.Printf("Could not update %s reference to %s for repo %s.\n%v", h.Base, *s.SHA, h.Repo, err)
 				return nil
 			}
+			h.deleteFastForwardBranch(*pr.Head.Ref)
 			// Note there is no need to close the PR here.
 			// It will be done automatically once Base ref is updated
 		} else {
+			// We may fix github problems and manually merge, so keep the branch.
 			return err
 		}
 	case GH.failure:
+		h.deleteFastForwardBranch(*pr.Head.Ref)
 		return h.closePullRequest(pr)
 	case GH.pending:
 		log.Printf("Pull Request %d is still being checked for repo %s", *pr.Number, h.Repo)
@@ -262,7 +312,6 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 // Checks all the PR on Base and calls updatePullRequest on each.
 func (h helper) verifyPullRequestStatus() error {
 	options := github.PullRequestListOptions{
-		Head:  h.Head,
 		Base:  h.Base,
 		State: "open",
 	}
