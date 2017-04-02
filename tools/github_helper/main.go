@@ -94,22 +94,8 @@ func newHelper(r *string) (*helper, error) {
 }
 
 // Create a new branch for fast forward
-func (h helper) createBranchForFastForward(commit *string) (*string, error) {
-	count := 0
-
-	for true {
-		ref := fmt.Sprintf("refs/heads/FastForward-%d", count)
-		_, resp, err := h.Client.Git.GetRef(context.TODO(), h.Owner, h.Repo, ref)
-		if resp.StatusCode == 404 {
-			//This branch name doesn't exist, use it!
-			break
-		} else if err != nil {
-			return nil, err
-		}
-		count++
-	}
-
-	branchName := fmt.Sprintf("FastForward-%d", count)
+func (h helper) createBranchForFastForward(commit *string) error {
+	branchName := fmt.Sprintf("fastForward-%s", (*commit)[0:7])
 	ref := fmt.Sprintf("refs/heads/%s", branchName)
 	gho := github.GitObject{
 		SHA: commit,
@@ -120,9 +106,9 @@ func (h helper) createBranchForFastForward(commit *string) (*string, error) {
 	}
 
 	if _, _, err := h.Client.Git.CreateRef(context.TODO(), h.Owner, h.Repo, &r); err == nil {
-		return &branchName, nil
+		return nil
 	} else {
-		return nil, err
+		return err
 	}
 }
 
@@ -132,16 +118,17 @@ func (h helper) createPullRequestToBase(commit *string) error {
 		return errors.New("commit cannot be nil.")
 	}
 
-	newHead, err := h.createBranchForFastForward(commit)
-	if err != nil {
+	if err := h.createBranchForFastForward(commit); err != nil {
 		return err
 	}
-	log.Printf("Created a new branch for fast forward: %s", *newHead)
+
+	newHead := fmt.Sprintf("fastForward-%s", (*commit)[0:7])
+	log.Printf("Created a new branch for fast forward: %s", newHead)
 	title := fmt.Sprintf(
 		"DO NOT MERGE! Fast Forward %s to %s.", h.Base, *commit)
 	body := "This PR will be merged automatically once checks are successful."
 	req := github.NewPullRequest{
-		Head:  newHead,
+		Head:  &newHead,
 		Base:  &h.Base,
 		Title: &title,
 		Body:  &body,
@@ -232,7 +219,7 @@ func (h helper) createStableTag(commit *string) error {
 	ref := fmt.Sprintf("refs/tags/%s", tag)
 	// Getting the SHA from the annotated tag
 	at := github.GitObject{
-		SHA: t.SHA,
+		SHA:  t.SHA,
 		Type: &GH.commit,
 	}
 	r := github.Reference{
@@ -320,6 +307,9 @@ func (h helper) verifyPullRequestStatus() error {
 		return err
 	}
 	for _, pr := range prs {
+		if !strings.Contains(*pr.Title, "DO NOT MERGE! Fast Forward") {
+			continue
+		}
 		statuses, _, err := h.Client.Repositories.GetCombinedStatus(
 			context.TODO(), h.Owner, h.Repo, *pr.Head.SHA, new(github.ListOptions))
 		if err == nil {
