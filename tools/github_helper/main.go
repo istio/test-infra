@@ -98,13 +98,6 @@ func (h helper) createBranchForFastForward(commit *string) (*string, error) {
 	branchName := fmt.Sprintf("fastForward-%s-%s", h.Head, (*commit)[0:7])
 	ref := fmt.Sprintf("refs/heads/%s", branchName)
 
-	if refer, resp, err := h.Client.Git.GetRef(context.TODO(), h.Owner, h.Repo, ref); resp.StatusCode != 404 {
-		if refer != nil {
-			err = fmt.Errorf("Branch %s already exists in repo %s!", branchName, h.Repo)
-		}
-		return nil, err
-	}
-
 	gho := github.GitObject{
 		SHA: commit,
 	}
@@ -113,10 +106,13 @@ func (h helper) createBranchForFastForward(commit *string) (*string, error) {
 		Object: &gho,
 	}
 
-	if _, _, err := h.Client.Git.CreateRef(context.TODO(), h.Owner, h.Repo, &r); err == nil {
+	if _, resp, err := h.Client.Git.CreateRef(context.TODO(), h.Owner, h.Repo, &r); err == nil {
 		log.Printf("Created a new branch for fast forward: %s", branchName)
 		return &branchName, nil
 	} else {
+		if resp.StatusCode == 422 {
+			log.Printf("Branch %s already exists in repo %s!", branchName, h.Repo)
+		}
 		return nil, err
 	}
 }
