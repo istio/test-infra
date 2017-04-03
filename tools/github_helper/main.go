@@ -94,9 +94,17 @@ func newHelper(r *string) (*helper, error) {
 }
 
 // Create a new branch for fast forward
-func (h helper) createBranchForFastForward(commit *string) error {
-	branchName := fmt.Sprintf("fastForward-%s", (*commit)[0:7])
+func (h helper) createBranchForFastForward(commit *string) (*string, error) {
+	branchName := fmt.Sprintf("fastForward-%s-%s", h.Head, (*commit)[0:7])
 	ref := fmt.Sprintf("refs/heads/%s", branchName)
+
+	if refer, resp, err := h.Client.Git.GetRef(context.TODO(), h.Owner, h.Repo, ref); resp.StatusCode != 404 {
+		if refer != nil {
+			err = fmt.Errorf("Branch %s already exists in repo %s!", branchName, h.Repo)
+		}
+		return nil, err
+	}
+
 	gho := github.GitObject{
 		SHA: commit,
 	}
@@ -106,9 +114,10 @@ func (h helper) createBranchForFastForward(commit *string) error {
 	}
 
 	if _, _, err := h.Client.Git.CreateRef(context.TODO(), h.Owner, h.Repo, &r); err == nil {
-		return nil
+		log.Printf("Created a new branch for fast forward: %s", branchName)
+		return &branchName, nil
 	} else {
-		return err
+		return nil, err
 	}
 }
 
@@ -118,17 +127,16 @@ func (h helper) createPullRequestToBase(commit *string) error {
 		return errors.New("commit cannot be nil.")
 	}
 
-	if err := h.createBranchForFastForward(commit); err != nil {
+	newHead, err := h.createBranchForFastForward(commit)
+	if err != nil {
 		return err
 	}
 
-	newHead := fmt.Sprintf("fastForward-%s", (*commit)[0:7])
-	log.Printf("Created a new branch for fast forward: %s", newHead)
 	title := fmt.Sprintf(
 		"DO NOT MERGE! Fast Forward %s to %s.", h.Base, *commit)
 	body := "This PR will be merged automatically once checks are successful."
 	req := github.NewPullRequest{
-		Head:  &newHead,
+		Head:  newHead,
 		Base:  &h.Base,
 		Title: &title,
 		Body:  &body,
