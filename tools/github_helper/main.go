@@ -21,6 +21,8 @@ var (
 	base        = flag.String("base", "stable", "The base branch used for PR.")
 	head        = flag.String("head", "master", "The head branch used for PR.")
 	pullRequest = flag.Int("pr", 0, "The Pull request to use.")
+	codecov     = flag.Bool("codecov", false, "Skip code coverage failure")
+	cla         = flag.Bool("cla", false, "Skip cla failure")
 	fastForward = flag.Bool("fast_forward", false, "Creates a PR updating Base to Head.")
 	verify      = flag.Bool("verify", false, "Verifies PR on Base and push them if success.")
 	comment     = flag.String("comment", "", "The comment to send to the Pull Request.")
@@ -38,12 +40,14 @@ type ghConst struct {
 
 // Simple Github Helper
 type helper struct {
-	Owner  string
-	Repo   string
-	Base   string
-	Head   string
-	Pr     int
-	Client *github.Client
+	Owner   string
+	Repo    string
+	Base    string
+	Head    string
+	Pr      int
+	Codecov bool
+	Cla     bool
+	Client  *github.Client
 }
 
 // Get token from tokenFile is set, otherwise is anonymous.
@@ -81,12 +85,14 @@ func newHelper(r *string) (*helper, error) {
 		}
 		client := github.NewClient(tc)
 		return &helper{
-			Owner:  *owner,
-			Repo:   *r,
-			Base:   *base,
-			Head:   *head,
-			Pr:     *pullRequest,
-			Client: client,
+			Owner:   *owner,
+			Repo:    *r,
+			Base:    *base,
+			Head:    *head,
+			Pr:      *pullRequest,
+			Codecov: *codecov,
+			Cla:     *cla,
+			Client:  client,
 		}, nil
 	} else {
 		return nil, err
@@ -277,6 +283,23 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 		// The status stays in pending state forever
 		state = GH.success
 	}
+
+	if state == GH.failure && (h.Codecov || h.Cla) {
+		privilege := true
+		for _, status := range s.Statuses {
+			if *status.State != GH.success {
+				if !(h.Codecov && strings.HasPrefix(*status.Context, "codecov")) && !(h.Cla && strings.HasPrefix(*status.Context, "cla")) {
+					//Failed, and not eligible for any privilege
+					privilege = false
+					break
+				}
+			}
+		}
+		if privilege {
+			state = GH.success
+		}
+	}
+
 	switch state {
 	case GH.success:
 		if err := h.createStableTag(s.SHA); err == nil {
