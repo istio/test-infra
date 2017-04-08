@@ -4,8 +4,16 @@
   <description></description>
   <keepDependencies>false</keepDependencies>
   <properties>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>10</daysToKeep>
+        <numToKeep>20</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
     <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.1">
-      <projectUrl>https://github.com/istio/proxy/</projectUrl>
+      <projectUrl>https://github.com/istio/mixer/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
     <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
@@ -17,7 +25,7 @@
         <hudson.model.StringParameterDefinition>
           <name>SUBMODULES_UPDATE</name>
           <description></description>
-          <defaultValue>WORKSPACE:PROXY:${GITHUB_PR_HEAD_SHA}</defaultValue>
+          <defaultValue>test/integration/driver.go:mixerTag:${GITHUB_PR_HEAD_SHA}</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>STAGE</name>
@@ -29,11 +37,6 @@
           <description></description>
           <defaultValue>true</defaultValue>
         </hudson.model.BooleanParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>GITHUB_REPO</name>
-          <description></description>
-          <defaultValue>manager</defaultValue>
-        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
     <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@1.9.0">
@@ -71,10 +74,10 @@
           </errorsAction>
           <events>
             <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
-              <comment>.*(Jenkins job proxy/presubmit passed).*</comment>
+              <comment>.*(Jenkins job mixer/presubmit passed).*</comment>
             </org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
             <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
-              <comment>.*(build manager/proxy-pr).*</comment>
+              <comment>.*(build mixer/manager-regression).*</comment>
             </org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
           </events>
           <preStatus>true</preStatus>
