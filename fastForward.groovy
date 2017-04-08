@@ -9,7 +9,7 @@ def utils = new Utilities()
 
 node {
   stage('Fast Forward') {
-    utils.fastForwardStable()
+    utils.verifyStable()
     sleep(60)
   }
 }
