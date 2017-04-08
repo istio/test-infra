@@ -72,20 +72,43 @@ def createTokenFile(tokenFile) {
 // REPO_BASE: The branch to use for base, default stable
 // REPO_HEAD: The branch to use for head, default master
 // GITHUB_TOKEN_ID: The token id to use in Jenkins. Default is ISTIO_TESTING_TOKEN_ID env variable.
-def fastForwardStable() {
+def fastForwardStable(repos = '') {
+  if (repos == '') {
+    repos = failIfNullOrEmpty(getParam('GITHUB_REPOS'), 'GITHUB_REPOS build parameter needs to be set!')
+  }
   def owner = getParam('GITHUB_OWNER', 'istio')
-  def repo = failIfNullOrEmpty(getParam('GITHUB_REPOS'), 'GITHUB_REPOS build parameter needs to be set!')
   def base = getParam('REPO_BASE', 'stable')
   def head = getParam('REPO_HEAD', 'master')
   def tokenFile = '/tmp/token.jenkins'
   createTokenFile(tokenFile)
   sh("github_helper " +
       "--owner=${owner} " +
-      "--repos=${repo} " +
+      "--repos=${repos} " +
       "--head=${head} " +
       "--base=${base} " +
       "--token_file=${tokenFile} " +
-      "--fast_forward " +
+      "--fast_forward")
+}
+
+// This Workflow uses the following Build Parameters:
+// GITHUB_OWNER: The name of the GitHub org or user, default istio
+// GITHUB_REPOS: The name of the repos
+// REPO_BASE: The branch to use for base, default stable
+// REPO_HEAD: The branch to use for head, default master
+// GITHUB_TOKEN_ID: The token id to use in Jenkins. Default is ISTIO_TESTING_TOKEN_ID env variable.
+def verifyStable() {
+  def owner = getParam('GITHUB_OWNER', 'istio')
+  def repos = failIfNullOrEmpty(getParam('GITHUB_REPOS'), 'GITHUB_REPOS build parameter needs to be set!')
+  def base = getParam('REPO_BASE', 'stable')
+  def head = getParam('REPO_HEAD', 'master')
+  def tokenFile = '/tmp/token.jenkins'
+  createTokenFile(tokenFile)
+  sh("github_helper " +
+      "--owner=${owner} " +
+      "--repos=${repos} " +
+      "--head=${head} " +
+      "--base=${base} " +
+      "--token_file=${tokenFile} " +
       "--verify")
 }
 
@@ -108,10 +131,10 @@ def commentOnPr(message) {
 // Send Email failure notfication
 def sendNotification(notify_list) {
   step([
-      $class                  : 'Mailer',
+      $class: 'Mailer',
       notifyEveryUnstableBuild: false,
-      recipients              : notify_list,
-      sendToIndividuals       : true])
+      recipients: notify_list,
+      sendToIndividuals: true])
 }
 
 // init Testing Cluster.
