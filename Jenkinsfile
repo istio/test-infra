@@ -24,9 +24,18 @@ mainFlow(utils) {
     gitUtils.initialize()
     TOOLS_BUCKET = failIfNullOrEmpty(env.TOOLS_BUCKET, 'Please set TOOLS_BUCKET env.')
   }
+  if (utils.runStage('POSTSUBMIT')) {
+    postSubmit(utils)
+  }
 
-  if (utils.runStage('_SLAVE_UPDATE')) {
+  if (utils.runStage('STABLE_PRESUBMIT')) {
     slaveUpdate(gitUtils, utils)
+  }
+}
+
+def postSubmit(utils) {
+  node {
+    utils.fastForwardStable('istio-testing')
   }
 }
 
