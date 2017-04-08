@@ -36,6 +36,9 @@ mainFlow(utils) {
 def postSubmit(utils) {
   node {
     utils.fastForwardStable('istio-testing')
+    // Adding extra sleep to prevent Node
+    // from ending up in suspended state in Jenkins
+    sleep(60)
   }
 }
 
