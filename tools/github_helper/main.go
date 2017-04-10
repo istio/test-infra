@@ -21,8 +21,7 @@ var (
 	base        = flag.String("base", "stable", "The base branch used for PR.")
 	head        = flag.String("head", "master", "The head branch used for PR.")
 	pullRequest = flag.Int("pr", 0, "The Pull request to use.")
-	codecov     = flag.Bool("codecov", false, "Skip code coverage failure")
-	cla         = flag.Bool("cla", false, "Skip cla failure")
+	checkToSkip = flag.String("check_to_skip", "", "Lists of check(s) can be skipped, full context separated with comma.")
 	fastForward = flag.Bool("fast_forward", false, "Creates a PR updating Base to Head.")
 	verify      = flag.Bool("verify", false, "Verifies PR on Base and push them if success.")
 	comment     = flag.String("comment", "", "The comment to send to the Pull Request.")
@@ -45,8 +44,7 @@ type helper struct {
 	Base    string
 	Head    string
 	Pr      int
-	Codecov bool
-	Cla     bool
+	CheckToSkip  []string
 	Client  *github.Client
 }
 
@@ -90,8 +88,7 @@ func newHelper(r *string) (*helper, error) {
 			Base:    *base,
 			Head:    *head,
 			Pr:      *pullRequest,
-			Codecov: *codecov,
-			Cla:     *cla,
+			CheckToSkip:  strings.Split(*checkToSkip, ","),
 			Client:  client,
 		}, nil
 	} else {
@@ -284,12 +281,20 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 		state = GH.success
 	}
 
-	if state == GH.failure && (h.Codecov || h.Cla) {
+	if state == GH.failure && (len(h.CheckToSkip) > 0) {
 		privilege := true
 		for _, status := range s.Statuses {
 			if *status.State != GH.success {
-				if !(h.Codecov && strings.HasPrefix(*status.Context, "codecov")) && !(h.Cla && strings.HasPrefix(*status.Context, "cla")) {
-					//Failed, and not eligible for any privilege
+				skip := false
+				for _, check := range h.CheckToSkip {
+					if *status.Context == check {
+						//Find a match so that this failure can be skipped
+						skip = true
+						break
+					}
+				}
+				if !skip {
+					//If this failure cannot be skipped, this fast-forward is not eligible for privilege
 					privilege = false
 					break
 				}
@@ -399,3 +404,4 @@ func main() {
 		}
 	}
 }
+
