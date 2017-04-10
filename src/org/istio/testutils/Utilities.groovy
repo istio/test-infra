@@ -174,10 +174,21 @@ def runReleaseDocker(images, tags, registry, config = '') {
 
 // Publish Code Coverage
 def publishCodeCoverage(credentialId) {
+  def codecovArgs = '-K '
+  if (getParam('GITHUB_PR_NUMBER') != '') {
+    // This is a PR
+    codecovArgs += "-B ${getParam('GITHUB_PR_TARGET_BRANCH')} " +
+        "-C ${getParam('GITHUB_PR_HEAD_SHA')} " +
+        "-P ${getParam('GITHUB_PR_NUMBER')} "
+  } else {
+    // Not a PR
+    codecovArgs += "-B ${getParam('GIT_BRANCH')} " +
+        "-C ${getParam('GIT_COMMIT')} "
+  }
   withCredentials([string(credentialsId: credentialId, variable: 'CODECOV_TOKEN')]) {
     def exitCode = sh(
         returnStatus: true,
-        script: 'curl -s https://codecov.io/bash | bash /dev/stdin -K')
+        script: "curl -s https://codecov.io/bash | bash /dev/stdin ${codecovArgs}")
     if (exitCode != 0) {
       echo('Failed to upload code coverage to codecov')
     }
