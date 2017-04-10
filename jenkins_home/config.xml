@@ -3,6 +3,7 @@
   <disabledAdministrativeMonitors>
     <string>hudson.diagnosis.ReverseProxySetupMonitor</string>
     <string>jenkins.security.s2m.MasterKillSwitchWarning</string>
+    <string>GitHubHookRegisterProblemMonitor</string>
   </disabledAdministrativeMonitors>
   <version>2.32.3</version>
   <numExecutors>10</numExecutors>
@@ -219,6 +220,30 @@
         <hudson.views.BuildButtonColumn/>
       </columns>
       <includeRegex>.*</includeRegex>
+      <recurse>true</recurse>
+    </listView>
+    <listView>
+      <owner class="hudson" reference="../../.."/>
+      <name>Qualification</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator"/>
+        <string>istio-testing/postsubmit</string>
+        <string>manager/postsubmit</string>
+      </jobNames>
+      <jobFilters/>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.WeatherColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <hudson.views.BuildButtonColumn/>
+        <hudson.plugins.favorite.column.FavoriteColumn plugin="favorite@2.0.4"/>
+      </columns>
       <recurse>true</recurse>
     </listView>
   </views>
