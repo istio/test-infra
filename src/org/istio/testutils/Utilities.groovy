@@ -175,7 +175,12 @@ def runReleaseDocker(images, tags, registry, config = '') {
 // Publish Code Coverage
 def publishCodeCoverage(credentialId) {
   withCredentials([string(credentialsId: credentialId, variable: 'CODECOV_TOKEN')]) {
-    sh('curl -s https://codecov.io/bash | bash /dev/stdin -K')
+    def exitCode = sh(
+        returnStatus: true,
+        script: 'curl -s https://codecov.io/bash | bash /dev/stdin -K')
+    if (exitCode != 0) {
+      echo('Failed to upload code coverage to codecov')
+    }
   }
 }
 
