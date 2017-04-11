@@ -5,13 +5,13 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/google/go-github/github"
+	"golang.org/x/oauth2"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
-
-	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
 )
 
 var (
@@ -21,6 +21,7 @@ var (
 	base        = flag.String("base", "stable", "The base branch used for PR.")
 	head        = flag.String("head", "master", "The head branch used for PR.")
 	pullRequest = flag.Int("pr", 0, "The Pull request to use.")
+	checkToSkip = flag.String("check_to_skip", "", "Lists of check(s) can be skipped, key words separated by comma.")
 	fastForward = flag.Bool("fast_forward", false, "Creates a PR updating Base to Head.")
 	verify      = flag.Bool("verify", false, "Verifies PR on Base and push them if success.")
 	comment     = flag.String("comment", "", "The comment to send to the Pull Request.")
@@ -38,12 +39,13 @@ type ghConst struct {
 
 // Simple Github Helper
 type helper struct {
-	Owner  string
-	Repo   string
-	Base   string
-	Head   string
-	Pr     int
-	Client *github.Client
+	Owner       string
+	Repo        string
+	Base        string
+	Head        string
+	Pr          int
+	CheckToSkip []string
+	Client      *github.Client
 }
 
 // Get token from tokenFile is set, otherwise is anonymous.
@@ -81,12 +83,13 @@ func newHelper(r *string) (*helper, error) {
 		}
 		client := github.NewClient(tc)
 		return &helper{
-			Owner:  *owner,
-			Repo:   *r,
-			Base:   *base,
-			Head:   *head,
-			Pr:     *pullRequest,
-			Client: client,
+			Owner:       *owner,
+			Repo:        *r,
+			Base:        *base,
+			Head:        *head,
+			Pr:          *pullRequest,
+			CheckToSkip: strings.Split(*checkToSkip, ","),
+			Client:      client,
 		}, nil
 	} else {
 		return nil, err
@@ -277,6 +280,32 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 		// The status stays in pending state forever
 		state = GH.success
 	}
+
+	if state == GH.failure && (len(h.CheckToSkip) > 0) {
+		privilege := true
+		for _, status := range s.Statuses {
+			if *status.State != GH.success {
+				skip := false
+				for _, check := range h.CheckToSkip {
+					pattern := fmt.Sprintf("(^|/)%s(/|$)", check)
+					if match, _ := regexp.MatchString(pattern, *status.Context); match {
+						//Find a match so that this failure can be skipped
+						skip = true
+						break
+					}
+				}
+				if !skip {
+					//If this failure cannot be skipped, this fast-forward is not eligible for privilege
+					privilege = false
+					break
+				}
+			}
+		}
+		if privilege {
+			state = GH.success
+		}
+	}
+
 	switch state {
 	case GH.success:
 		if err := h.createStableTag(s.SHA); err == nil {
