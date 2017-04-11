@@ -45,8 +45,8 @@ def postSubmit(utils) {
 def slaveUpdate(gitUtils, utils) {
   stage('Slave Update') {
     buildNode(gitUtils) {
-      nodeLabel = utils.getParam('SLAVE_LABEL', gitUtils.DEFAULT_SLAVE_LABEL)
-      def dockerImage = "${DOCKER_SLAVES[nodeLabel]}:${gitUtils.GIT_SHA}"
+      nodeLabel = utils.getParam('SLAVE_LABEL', env.DEFAULT_SLAVE_LABEL)
+      def dockerImage = "${DOCKER_SLAVES[nodeLabel]}:${env.GIT_SHA}"
       // Test Slave image setup in Jenkins
       def testDockerImage = "${DOCKER_SLAVES[nodeLabel]}:test"
       // Slave image setup in Jenkins

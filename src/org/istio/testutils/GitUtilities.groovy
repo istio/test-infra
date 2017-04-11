@@ -1,15 +1,7 @@
 package org.istio.testutils
 
-GIT_SHA = ''
-GIT_SHORT_SHA = ''
-GIT_TAG = ''
-BUCKET = ''
-NOTIFY_LIST = ''
-DEFAULT_SLAVE_LABEL = ''
-
 
 def initialize(Closure postcheckoutCall = null) {
-  setVars()
   stashSourceCode(postcheckoutCall)
   setArtifactsLink()
 }
@@ -23,12 +15,6 @@ def setGit() {
         email = istio-testing@gmail.com
 [remote "origin"]
         fetch = +refs/pull/*/head:refs/remotes/origin/pr/*''')
-}
-
-def setVars() {
-  BUCKET = env.BUCKET
-  DEFAULT_SLAVE_LABEL = env.DEFAULT_SLAVE_LABEL
-  NOTIFY_LIST = env.NOTIFY_LIST
 }
 
 // In a pipeline, multiple scm checkout might checkout different version of the code.
@@ -48,9 +34,15 @@ def stashSourceCode(Closure postcheckoutCall = null) {
     postcheckoutCall()
   }
   // Setting source code related global variable once so it can be reused.
-  GIT_SHA = getRevision()
-  GIT_SHORT_SHA = GIT_SHA.take(7)
-  GIT_TAG = getTag()
+  def gitCommit = getRevision()
+  env.GIT_SHA = gitCommit
+  env.GIT_COMMIT = gitCommit
+  env.GIT_SHORT_SHA = gitCommit.take(7)
+  env.GIT_TAG = getTag()
+  env.GIT_BRANCH = getBranch()
+  // Might not be safe to share envs.
+  sh('env')
+
   echo('Stashing source code')
   fastStash('src-code', '.')
 }
@@ -71,8 +63,8 @@ def checkoutSourceCode() {
 }
 
 // Base Path
-def basePath(name='') {
-  def path  = "gs://${BUCKET}/${GIT_TAG == '' ? GIT_SHA: GIT_TAG}"
+def basePath(name = '') {
+  def path = "gs://${env.BUCKET}/${env.GIT_TAG == '' ? env.GIT_SHA : env.GIT_TAG}"
   if (name != '') {
     path = "${path}/${name}"
   }
@@ -80,7 +72,7 @@ def basePath(name='') {
 }
 
 // Artifacts Path
-def artifactsPath(name='') {
+def artifactsPath(name = '') {
   def path = basePath('artifacts')
   if (name != '') {
     path = "${path}/${name}"
@@ -139,7 +131,8 @@ def fastUnstash(name) {
 
 // Sets an artifacts links to the Build.
 def setArtifactsLink() {
-  def url = "https://console.cloud.google.com/storage/browser/${BUCKET}/${GIT_TAG == '' ? GIT_SHA: GIT_TAG}"
+  def ref = env.GIT_TAG == '' ? env.GIT_SHA : env.GIT_TAG
+  def url = "https://console.cloud.google.com/storage/browser/${env.BUCKET}/${ref}"
   def html = """
 <!DOCTYPE HTML>
 Find <a href='${url}'>artifacts</a> here
@@ -155,8 +148,23 @@ def getRevision() {
   return sh(returnStdout: true, script: 'git rev-parse --verify HEAD').trim()
 }
 
+def getRemotes() {
+  return sh(returnStdout: true, script: 'git remote').trim()
+}
+
 def getTag() {
   return sh(returnStdout: true, script: 'git describe 2> /dev/null || exit 0').trim()
+}
+
+def getBranch() {
+  def sha = getRevision()
+  def remotes = getRemotes()
+  def remote = remotes.split()[0]
+  def branch = sh(
+      returnStdout: true,
+      script: "git show-ref | grep ${sha} | grep remotes | " +
+          "grep -v HEAD | sed -e 's/.*remotes.${remote}.//' || echo NOT_FOUND").trim()
+  return branch == 'NOT_FOUND' ? '' : branch
 }
 
 return this
