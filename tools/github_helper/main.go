@@ -9,7 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
-
+	"regexp"
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
 )
@@ -21,7 +21,7 @@ var (
 	base        = flag.String("base", "stable", "The base branch used for PR.")
 	head        = flag.String("head", "master", "The head branch used for PR.")
 	pullRequest = flag.Int("pr", 0, "The Pull request to use.")
-	checkToSkip = flag.String("check_to_skip", "", "Lists of check(s) can be skipped, full context separated with comma.")
+	checkToSkip = flag.String("check_to_skip", "", "Lists of check(s) can be skipped, key words separated by comma.")
 	fastForward = flag.Bool("fast_forward", false, "Creates a PR updating Base to Head.")
 	verify      = flag.Bool("verify", false, "Verifies PR on Base and push them if success.")
 	comment     = flag.String("comment", "", "The comment to send to the Pull Request.")
@@ -287,7 +287,8 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 			if *status.State != GH.success {
 				skip := false
 				for _, check := range h.CheckToSkip {
-					if *status.Context == check {
+					pattern := fmt.Sprintf("(^|/)%s(/|$)", check)
+					if match, _ := regexp.MatchString(pattern, *status.Context); match {
 						//Find a match so that this failure can be skipped
 						skip = true
 						break
@@ -404,4 +405,3 @@ func main() {
 		}
 	}
 }
-
