@@ -5,13 +5,13 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/google/go-github/github"
+	"golang.org/x/oauth2"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strings"
 	"regexp"
-	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
+	"strings"
 )
 
 var (
@@ -39,13 +39,13 @@ type ghConst struct {
 
 // Simple Github Helper
 type helper struct {
-	Owner   string
-	Repo    string
-	Base    string
-	Head    string
-	Pr      int
-	CheckToSkip  []string
-	Client  *github.Client
+	Owner       string
+	Repo        string
+	Base        string
+	Head        string
+	Pr          int
+	CheckToSkip []string
+	Client      *github.Client
 }
 
 // Get token from tokenFile is set, otherwise is anonymous.
@@ -83,13 +83,13 @@ func newHelper(r *string) (*helper, error) {
 		}
 		client := github.NewClient(tc)
 		return &helper{
-			Owner:   *owner,
-			Repo:    *r,
-			Base:    *base,
-			Head:    *head,
-			Pr:      *pullRequest,
-			CheckToSkip:  strings.Split(*checkToSkip, ","),
-			Client:  client,
+			Owner:       *owner,
+			Repo:        *r,
+			Base:        *base,
+			Head:        *head,
+			Pr:          *pullRequest,
+			CheckToSkip: strings.Split(*checkToSkip, ","),
+			Client:      client,
 		}, nil
 	} else {
 		return nil, err

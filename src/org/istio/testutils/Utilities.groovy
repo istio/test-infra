@@ -102,6 +102,8 @@ def verifyStable() {
   def base = getParam('REPO_BASE', 'stable')
   def head = getParam('REPO_HEAD', 'master')
   def tokenFile = '/tmp/token.jenkins'
+  def checkToSkip = getParam('CHECK_TO_SKIP', '')
+  def skipCheck = checkToSkip == '' ? '' : "--check_to_skip=${checkToSkip} "
   createTokenFile(tokenFile)
   sh("github_helper " +
       "--owner=${owner} " +
@@ -109,6 +111,7 @@ def verifyStable() {
       "--head=${head} " +
       "--base=${base} " +
       "--token_file=${tokenFile} " +
+      skipCheck +
       "--verify")
 }
 
