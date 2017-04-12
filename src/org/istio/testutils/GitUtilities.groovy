@@ -1,5 +1,13 @@
 package org.istio.testutils
 
+// Get a build parameter or use default value.
+def getParam(name, defaultValue = '') {
+  def value = params.get(name)
+  if (value == null || value == '') {
+    return defaultValue
+  }
+  return value
+}
 
 def initialize(Closure postcheckoutCall = null) {
   stashSourceCode(postcheckoutCall)
@@ -62,9 +70,20 @@ def checkoutSourceCode() {
   setGit()
 }
 
+// Get the reference to use
+def getRef() {
+  def useTag = getParam('USE_TAG', false)
+  def ref = env.GIT_SHA
+  if (useTag && env.GIT_TAG != '') {
+    ref = env.GIT_TAG
+  }
+  return ref
+}
+
 // Base Path
 def basePath(name = '') {
-  def path = "gs://${env.BUCKET}/${env.GIT_TAG == '' ? env.GIT_SHA : env.GIT_TAG}"
+  def ref = getRef()
+  def path = "gs://${env.BUCKET}/${ref}"
   if (name != '') {
     path = "${path}/${name}"
   }
@@ -109,8 +128,8 @@ def fastStash(name, stashPaths) {
 // Which will update the key1 in file1 with the new value
 // and key2 in file2 with the value2 and create a commit for each change
 def updateSubmodules() {
-  def submodules_update = params.get('SUBMODULES_UPDATE')
-  if (submodules_update == '' || submodules_update == null) {
+  def submodules_update = getParam('SUBMODULES_UPDATE', false)
+  if (!submodules_update) {
     return
   }
   def res = libraryResource('update-submodules')
@@ -131,7 +150,7 @@ def fastUnstash(name) {
 
 // Sets an artifacts links to the Build.
 def setArtifactsLink() {
-  def ref = env.GIT_TAG == '' ? env.GIT_SHA : env.GIT_TAG
+  def ref = getRef()
   def url = "https://console.cloud.google.com/storage/browser/${env.BUCKET}/${ref}"
   def html = """
 <!DOCTYPE HTML>
@@ -148,22 +167,16 @@ def getRevision() {
   return sh(returnStdout: true, script: 'git rev-parse --verify HEAD').trim()
 }
 
-def getRemotes() {
-  return sh(returnStdout: true, script: 'git remote').trim()
-}
-
 def getTag() {
   return sh(returnStdout: true, script: 'git describe 2> /dev/null || exit 0').trim()
 }
 
 def getBranch() {
   def sha = getRevision()
-  def remotes = getRemotes()
-  def remote = remotes.split()[0]
   def branch = sh(
       returnStdout: true,
-      script: "git show-ref | grep ${sha} | grep remotes | " +
-          "grep -v HEAD | sed -e 's/.*remotes.${remote}.//' || echo NOT_FOUND").trim()
+      script: "git show-ref | grep ${sha} " +
+          "| grep -oP \"refs/remotes/.*/\\K.*\" | grep -v -i head || echo NOT_FOUND").trim()
   return branch == 'NOT_FOUND' ? '' : branch
 }
 
