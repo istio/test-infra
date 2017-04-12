@@ -3,68 +3,8 @@
 // For testing push your code to the testing branch of istio/istio-testing
 // and create a PR from there.
 
-@Library('testutils@testing')
-
-import org.istio.testutils.Utilities
-import static org.istio.testutils.Utilities.failIfNullOrEmpty
-import org.istio.testutils.GitUtilities
-import org.istio.testutils.Bazel
-
-// Utilities shared amongst modules
-def gitUtils = new GitUtilities()
-def utils = new Utilities()
-def bazel = new Bazel()
-
-mainFlow(utils) {
-  node {
-    gitUtils.initialize()
-    bazel.setVars()
-  }
-
-  if (utils.runStage('PRESUBMIT')) {
-    def branches = [
-        'goBuildNode': {
-          goBuildNode(gitUtils, 'istio.io/istio-testing') {
-            echo(env.PATH)
-            echo(env.GOPATH)
-            bazel.fetch('//...')
-            bazel.build('//...')
-            commentOnPr(utils, "This is a test.")
-          }
-        },
-        'defaultNode': {
-          defaultNode(gitUtils) {
-            sh('ls -all')
-          }
-        },
-        'buildNode': {
-          buildNode(gitUtils) {
-            sh('ls -all')
-            bazel.version()
-          }
-        },
-        'testNode': {
-          testNode(gitUtils) {
-            sh('ls -all')
-          }
-        }
-    ]
-    parallel(branches)
-  }
+node {
+  checkout(scm)
+  sh('env')
 }
 
-def commentOnPr(utils, message) {
-  // Passed in by GitHub Integration plugin
-  def pr = failIfNullOrEmpty(env.GITHUB_PR_NUMBER)
-  // Get the repo from the env GITHUB_PR_URL passed by github integration.
-  def prUrl = failIfNullOrEmpty(env.GITHUB_PR_URL)
-  def repo = prUrl.split('/')[4]
-  def owner = prUrl.split('/')[3]
-  def tokenFile = '/tmp/token.jenkins'
-  utils.createTokenFile(tokenFile)
-  sh("bazel-bin/tools/github_helper/github_helper --owner=${owner} " +
-      "--repos=${repo} " +
-      "--pr=${pr} " +
-      "--token_file=${tokenFile} " +
-      "--comment=\"${message}\"")
-}
