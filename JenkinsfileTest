@@ -1,6 +1,6 @@
 #!groovy
 
-// For testing push your code to the testing branch of istio/istio-testing
+// For testing push your code to the testing branch of istio/test-infra
 // and create a PR from there.
 
 @Library('testutils@testing')
@@ -24,7 +24,7 @@ mainFlow(utils) {
   if (utils.runStage('PRESUBMIT')) {
     def branches = [
         'goBuildNode': {
-          goBuildNode(gitUtils, 'istio.io/istio-testing') {
+          goBuildNode(gitUtils, 'istio.io/test-infra') {
             echo(env.PATH)
             echo(env.GOPATH)
             bazel.fetch('//...')

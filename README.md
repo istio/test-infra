@@ -192,9 +192,9 @@ Let's deploy it:
 
 When doing an upgrade, it is better to make sure that no jobs are running. In
 order to prevent new test from running, direct your browser to
-https://istio-testing.appspot.com/quietDown.
+https://testing.istio.io/quietDown.
 
-Checkout the last version of istio-testing.
+Checkout the last version of test-infra.
 
 Next run this script, which will backup important jenkins persistent data and
 make a snapshot of the Persistent Disk used for Jenkins.
@@ -239,7 +239,7 @@ to check the each plugin changelog to understand what the impact could be.
 The plugins that more likely to break workflows are the one related to
 github, pipeline, and kubernetes-plugin.
 
-Go to the [Plugin Manager](https://istio-testing.appspot.com/pluginManager),
+Go to the [Plugin Manager](https://testing.istio.io/pluginManager),
 select all plugins, click update and check the restart checkbox.
 
 
@@ -306,10 +306,10 @@ First lets look at the slaves on Kubernetes
 if most listed pods are in Running or ContainerCreating status, then it must be
 an issue with Jenkins. You should have the same number of running (as opposed to
 offline or suspended) slave in Jenkins as the one list here. To find the list of
-slaves point your browser to https://istio-testing.appspot.com/computer/.
+slaves point your browser to https://testing.istio.io/computer/.
 
 In any case, while we cleanup we want to stop new builds from starting. To do so
-point your browser to https://istio-testing.appspot.com/quietDown
+point your browser to https://testing.istio.io/quietDown
 
 Now that no new build should start, we need to stop all running builds. You
 might have to go to the console and click on printed links to forcibly kill the

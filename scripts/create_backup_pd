@@ -58,7 +58,7 @@ while getopts :b:d:ho:s:z: arg; do
   esac
 done
 
-GITHUB_URL="https://github.com/${OWNER}/istio-testing"
+GITHUB_URL="https://github.com/${OWNER}/test-infra"
 
 if ["${SHA}" = ""]; then
   error_exit 'Missing SHA for secrets. Please use -s'
@@ -89,8 +89,8 @@ ${SUDO} mount "${LOOP_DEVICE}" "${MNT_DIR}" \
 echo '>>>>>>>>>>>>>>>>>>>> Mounted to mnt.'
 
 git clone "${GITHUB_URL}" \
-  || error_exit 'Failed to clone istio-testing'
-pushd istio-testing
+  || error_exit 'Failed to clone test-infra'
+pushd test-infra
 git reset --hard ${SHA} \
   || error_exit 'Could not reset to ${SHA}'
 ARCHIVE="$(cat jenkins_home/creds.ref)"
@@ -101,7 +101,7 @@ gsutil cp "${ARCHIVE}" - \
 popd
 
 echo 'Copying content to disk'
-cp -R istio-testing/jenkins_home/* "${MNT_DIR}"/ \
+cp -R test-infra/jenkins_home/* "${MNT_DIR}"/ \
   || error_exit 'Failed to copy files'
 
 ${SUDO} chown -R 1000:1000 "${MNT_DIR}"
