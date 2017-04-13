@@ -12,7 +12,7 @@
         <artifactNumToKeep>-1</artifactNumToKeep>
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
-    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.1">
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.2">
       <projectUrl>https://github.com/istio/proxy/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
@@ -40,27 +40,24 @@
     </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>
-        <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.26.1">
+        <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.26.2">
           <spec></spec>
         </com.cloudbees.jenkins.GitHubPushTrigger>
-        <hudson.triggers.SCMTrigger>
-          <spec>H/2 * * * *</spec>
-          <ignorePostCommitHooks>false</ignorePostCommitHooks>
-        </hudson.triggers.SCMTrigger>
       </triggers>
     </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
   </properties>
-  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.28">
-    <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.5">
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.29">
+    <scm class="hudson.plugins.git.GitSCM" plugin="git@3.2.0">
       <configVersion>2</configVersion>
       <userRemoteConfigs>
         <hudson.plugins.git.UserRemoteConfig>
+          <refspec>+refs/heads/master:refs/remotes/origin/master</refspec>
           <url>https://github.com/istio/proxy</url>
         </hudson.plugins.git.UserRemoteConfig>
       </userRemoteConfigs>
       <branches>
         <hudson.plugins.git.BranchSpec>
-          <name>master</name>
+          <name>refs/heads/master</name>
         </hudson.plugins.git.BranchSpec>
       </branches>
       <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
@@ -68,6 +65,7 @@
       <extensions/>
     </scm>
     <scriptPath>Jenkinsfile</scriptPath>
+    <lightweight>false</lightweight>
   </definition>
   <triggers/>
 </flow-definition>

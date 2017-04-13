@@ -13,7 +13,7 @@
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
     <org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty/>
-    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.1">
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.2">
       <projectUrl>https://github.com/istio/mixer/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
@@ -28,6 +28,11 @@
           <description></description>
           <defaultValue>STABLE_POSTSUBMIT</defaultValue>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>USE_TAG</name>
+          <description></description>
+          <defaultValue>true</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
     <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@1.9.0">
@@ -41,27 +46,24 @@
     </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>
-        <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.26.1">
+        <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.26.2">
           <spec></spec>
         </com.cloudbees.jenkins.GitHubPushTrigger>
-        <hudson.triggers.SCMTrigger>
-          <spec>H/2 * * * *</spec>
-          <ignorePostCommitHooks>false</ignorePostCommitHooks>
-        </hudson.triggers.SCMTrigger>
       </triggers>
     </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
   </properties>
   <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.29">
-    <scm class="hudson.plugins.git.GitSCM" plugin="git@3.1.0">
+    <scm class="hudson.plugins.git.GitSCM" plugin="git@3.2.0">
       <configVersion>2</configVersion>
       <userRemoteConfigs>
         <hudson.plugins.git.UserRemoteConfig>
+          <refspec>+refs/heads/stable:refs/remotes/origin/stable</refspec>
           <url>https://github.com/istio/mixer</url>
         </hudson.plugins.git.UserRemoteConfig>
       </userRemoteConfigs>
       <branches>
         <hudson.plugins.git.BranchSpec>
-          <name>stable</name>
+          <name>refs/heads/stable</name>
         </hudson.plugins.git.BranchSpec>
       </branches>
       <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
