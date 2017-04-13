@@ -12,7 +12,7 @@
         <artifactNumToKeep>-1</artifactNumToKeep>
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
-    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.1">
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.2">
       <projectUrl>https://github.com/istio/mixer/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
@@ -49,7 +49,7 @@
           <spec>H/5 * * * *</spec>
           <triggerMode>HEAVY_HOOKS</triggerMode>
           <cancelQueued>true</cancelQueued>
-          <abortRunning>false</abortRunning>
+          <abortRunning>true</abortRunning>
           <skipFirstRun>false</skipFirstRun>
           <repoProviders>
             <com.github.kostyasha.github.integration.generic.repoprovider.GitHubPluginRepoProvider>
@@ -95,7 +95,7 @@
     </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
   </properties>
   <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.29">
-    <scm class="hudson.plugins.git.GitSCM" plugin="git@3.1.0">
+    <scm class="hudson.plugins.git.GitSCM" plugin="git@3.2.0">
       <configVersion>2</configVersion>
       <userRemoteConfigs>
         <hudson.plugins.git.UserRemoteConfig>
