@@ -2,7 +2,16 @@
 [![Build Status](https://testing.istio.io/buildStatus/icon?job=test-infra/postsubmit)](https://testing.istio.io/job/test-infra/)
 
 ## Testing Infrastructure ##
+
+Istio current testing infrastructure is based on Jenkins.
+
+Jenkins listen on PR for all modules that have a Jenkinsfile. For each protected branch, a set of required tests
+are defined. Only once tests are passing and review approval a PR can be merged to master branch. if a stable branch
+exists for that module, a new fastForward branch (based on HEAD of master) will be created and a PR will be automatically
+created for the stable branch. This will trigger qualification jobs.
+
 More details [here](doc/deployment.md).
+
 ## Tests Types ##
 
 * Unit tests: Should be done in specific modules for features implemented in a module. (PR to master)
@@ -13,6 +22,7 @@ More details [here](doc/deployment.md).
 * Performance Regression: Stored in istio/istio. (PR master to stable)
 
 ## Life of a PR ##
+
 1. PR on master: We build necessary artifacts for other tests and we tag them with PR’s branch head SHA.
 
     Example:
@@ -84,14 +94,41 @@ In that case follow this procedure
 
 ![Breaking Change](doc/breaking_change.png)
 
+## Admin Responsabilities ##
 
-## End to End Testing ##
+1. Force push breaking change after checking that testing artifacts created by the PR are passing the smoke test.
+1. Working with breaking change author until the situation is resolved.
+1. During a breaking change, prevent other changes from going in, which will delay the process.
+1. Make sure that istio/istio is using latest stable version of module artifacts.
+1. Update bazel dependencies on other modules with latest stable one..
+
+## Build Cop Responsibilities ##
+
+1. Look at unassigned PRs.
+1. Checks build status at https://testing.istio.io/.
+1. Investigate postsubmit issues and assign issues to Admins.
+
 
 
 ## FAQ ##
 
 ### My PR has required check but they did not start. Why ? ###
 
+Are you part of the istio Github Organization? If not you might need someone else to run tests for you after
+having reviewed the submitted code.
+
+If you are part of the istio org, you can start test by:
+
+1. Going to the Jenkins job page, clicking on GitHub PR link and click rebuild on your PR.
+2. Drop a comment on your PR: "jenkins build manager/presubmit" if manager/presubmit is the required check that you want to start
+
 ### How can I retest my PR ? ###
 
+If you are part of the istio org, you can start test by:
+
+1. Going to the Jenkins job page, clicking on GitHub PR link and click rebuild on your PR.
+2. Drop a comment on your PR: "jenkins build manager/presubmit" if manager/presubmit is the required check that you want to start
+
 ### I have a breaking change. How can I go about it ? ###
+
+Follow the [Breaking Change](#breaking-change) procedure.
