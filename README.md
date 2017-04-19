@@ -33,29 +33,23 @@ More details [here](doc/deployment.md).
     * istioctl: https://storage.googleapis.com/istio-artifacts/:${STABLE_TAG}/artifacts/istioctl.
     * Docker Images: gcr.io//istio-io/manager:${DATE}, docker.io.istio/manager:${DATE}
 
-+-------------------+-------------------------------+-------------------------------+
 |                   | PR to Master                  | PR to stable                  |
-+===================+===============================+===============================+
+|:------------------|:------------------------------|:------------------------------|
 | istio/manager     | - Unit tests                  | - Longer integration tests    |
 |                   | - Integration tests           | - istio/istio e2e suite       |
 |                   | - istio/istio e2e smoke test  |                               |
-+-------------------+-------------------------------+-------------------------------+
 | istio/mixer       | - Unit tests                  | - istio/istio e2e suite       |
 |                   | - Manager Regression          |                               |
 |                   | - istio/istio e2e smoke test  |                               |
-+-------------------+-------------------------------+-------------------------------+
 | istio/proxy       | - Unit tests                  |                               |
 |                   | - Manager Regression          |                               |
 |                   | - istio/istio e2e smoke test  |                               |
-+-------------------+-------------------------------+-------------------------------+
 | istio/mixerclient | - Unit tests                  |                               |
 |                   | - Proxy Regression            |                               |
 |                   | - istio/istio e2e smoke test  |                               |
-+-------------------+-------------------------------+-------------------------------+
 | istio/auth        | - Unit tests                  |                               |
 |                   | - Manager Regression          |                               |
 |                   | - istio/istio e2e smoke test  |                               |
-+-------------------+-------------------------------+-------------------------------+
 
 This diagram is just an example for Mixer. It is the responsibility of each module to
 listen to other module they depend on to prevent breakage. The test done on master branches
