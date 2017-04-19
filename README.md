@@ -1,6 +1,18 @@
 # Istio Test Infra #
 [![Build Status](https://testing.istio.io/buildStatus/icon?job=test-infra/postsubmit)](https://testing.istio.io/job/test-infra/)
 
+[Istio Test Infra](#istio-test-infra)
+* [Testing Infrastructure](#testing-infrastructure)
+* [Tests Types](#tests-types)
+* [Life of a PR](#life-of-a-pr)
+* [Breaking Change](#breaking-change)
+* [Admin Responsabilities](#admin-responsabilities)
+* [Build Cop Responsibilities](#build-cop-responsibilities)
+* [FAQ](#faq)
+  + [My PR has required check but they did not start. Why ?](#my-pr-has-required-check-but-they-did-not-start-why-)
+  + [How can I retest my PR ?](#how-can-i-retest-my-pr-)
+  + [I have a breaking change. How can I go about it ?](#i-have-a-breaking-change-how-can-i-go-about-it-)%  
+
 ## Testing Infrastructure ##
 
 Istio current testing infrastructure is based on Jenkins.
