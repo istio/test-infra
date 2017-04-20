@@ -3,6 +3,9 @@ kind: Ingress
 metadata:
   name: jenkins
   namespace: jenkins
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "jenkins-ip"
+    kubernetes.io/ingress.class: "gce"
 spec:
   tls:
   - secretName: tls
