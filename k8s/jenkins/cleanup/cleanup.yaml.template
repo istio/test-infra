@@ -10,7 +10,7 @@ spec:
       containers:
       - name: cache-cleanup
         image: ubuntu:xenial
-        command: ["rm", "-rf", "/root/.cache/*"]
+        command: ["bash", "-c", "rm -rf /root/.cache/*"]
         volumeMounts:
         - name: cache-ssd
           mountPath: /root/.cache
