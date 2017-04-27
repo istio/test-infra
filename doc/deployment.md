@@ -54,9 +54,9 @@ hardcoded in the Jenkinsfile.
 This step should only be necessary if a disk does not already exist.
 
 If there is no existing persistent disk for Jenkins, we need to create one from
-source code. To do so, let's use the script/create_backup_pd script
+source code. To do so, let's use the script/create-backup-pd script
 
-    $ scripts/create_backup_pd -h
+    $ scripts/create-backup-pd -h
     Usage:
         -z  Specify zone (Optional, default:us-central1-f)
         -b  Bucket name where backup disk be stored (Optional,
@@ -75,7 +75,7 @@ The only required argument is the SHA at which the backup was created. You can f
 For this example we'll use 1623630acb3d3a1b79d687647f162e7f76501e2a and create a disk named jenkins-home-backup.
 
     $ export SHA='1623630acb3d3a1b79d687647f162e7f76501e2a'
-    $ ./create_backup_pd -s ${SHA} \
+    $ ./create-backup-pd -s ${SHA} \
         -d jenkins-home-backup
 
 Disk created via this method do not use partition, so we need to update
@@ -199,7 +199,7 @@ Checkout the last version of test-infra.
 Next run this script, which will backup important jenkins persistent data and
 make a snapshot of the Persistent Disk used for Jenkins.
 
-    $ scripts/prepare_for_upgrade
+    $ scripts/prepare-for-upgrade
 
 This script will create a commit to your local checkout. Please create a PR and
 have the PR be merged in.

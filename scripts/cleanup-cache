@@ -1,0 +1,55 @@
+#!/bin/bash
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DIR="${ROOT}/scripts"
+
+. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+
+ARGS=()
+CLUSTER_NAME='jenkins-cluster'
+PROJECT_ID='istio-testing'
+ZONE='us-central1-f'
+JOB_TEMPLATE="${ROOT}//k8s/jenkins/cleanup/cleanup.yaml.template"
+TMP_DIR="$(mktemp -d /tmp/bazel-cleanup.XXXXX)"
+
+function generate_job_yaml() {
+  local node="${1}"
+  local yaml="${2}"
+  local uuids=(${node//-/ })
+  local uuid="${uuids[-2]}-${uuids[-1]}"
+  cp "${JOB_TEMPLATE}" "${yaml}"
+  sed -i "s|{UUID}|${uuid}|g" "${yaml}" \
+    || error_exit "Could not generate yaml"
+  sed -i "s|{CLUSTER_NODE}|${node}|g" "${yaml}" \
+    || error_exit "Could not generate yaml"
+  echo "Created ${yaml}"
+}
+
+while getopts :p:z: arg; do
+  case ${arg} in
+    p) PROJECT_ID="${OPTARG}";;
+    z) ZONE="${OPTARG}";;
+    *) error_exit "Unrecognized argument -${OPTARG}";;
+  esac
+done
+
+[[ -n "${PROJECT_ID}" ]] && ARGS+=(--project "${PROJECT_ID}")
+[[ -n "${ZONE}" ]] && ARGS+=(--zone "${ZONE}")
+
+
+echo 'Getting credentials for Kubernetes cluster'
+gcloud container clusters get-credentials ${CLUSTER_NAME} ${ARGS[@]}\
+  || error_exit 'Could not get kubectl config for cluster'
+
+CLUSTER_NODES="$(kubectl get nodes \
+  --selector=role=build \
+  -o jsonpath='{.items[*].metadata.name}')"
+
+[[ -z "${CLUSTER_NODES}" ]] && error_exit 'Could not find Jenkins nodes.'
+
+for CLUSTER_NODE in ${CLUSTER_NODES[@]}; do
+  YAML="${TMP_DIR}/${CLUSTER_NODE}.yaml"
+  generate_job_yaml "${CLUSTER_NODE}" "${YAML}"
+  kubectl apply -f "${YAML}" \
+    || error_exit "Could not create a job on node ${CLUSTER_NODE}"
+done
