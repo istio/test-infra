@@ -275,11 +275,6 @@ func (h helper) deleteFastForwardBranch(head string) {
 // fast forward Base to the PR's head commit.
 func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStatus) error {
 	state := *s.State
-	if *s.TotalCount == 0 {
-		// There seems to be a bug in the Github API when no check are set.
-		// The status stays in pending state forever
-		state = GH.success
-	}
 
 	if state == GH.failure && (len(h.CheckToSkip) > 0) {
 		privilege := true
