@@ -340,7 +340,7 @@ func (h helper) verifyPullRequestStatus() error {
 		return err
 	}
 	for _, pr := range prs {
-		if !strings.Contains(*pr.Title, "DO NOT MERGE! Fast Forward") {
+		if !strings.Contains(*pr.Title, "DO NOT MERGE! Fast Forward") || !strings.HasPrefix(*pr.Head.Ref, "fastForward") {
 			continue
 		}
 		statuses, _, err := h.Client.Repositories.GetCombinedStatus(
