@@ -5,13 +5,18 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"regexp"
 	"strings"
+
+	"github.com/google/go-github/github"
+	"golang.org/x/oauth2"
+)
+
+const (
+	fastForwardPrefix = "fastForward"
 )
 
 var (
@@ -97,8 +102,8 @@ func newHelper(r *string) (*helper, error) {
 }
 
 // Create a new branch for fast forward
-func (h helper) createBranchForFastForward(commit *string) (*string, error) {
-	branchName := fmt.Sprintf("fastForward-%s-%s", h.Head, (*commit)[0:7])
+func (h helper) createFastForwardBranch(commit *string) (*string, error) {
+	branchName := fmt.Sprintf("%s-%s-%s", fastForwardPrefix, h.Head, (*commit)[0:7])
 	ref := fmt.Sprintf("refs/heads/%s", branchName)
 
 	gho := github.GitObject{
@@ -126,7 +131,7 @@ func (h helper) createPullRequestToBase(commit *string) error {
 		return errors.New("commit cannot be nil.")
 	}
 
-	newHead, err := h.createBranchForFastForward(commit)
+	newHead, err := h.createFastForwardBranch(commit)
 	if err != nil {
 		return err
 	}
@@ -335,7 +340,7 @@ func (h helper) verifyPullRequestStatus() error {
 		return err
 	}
 	for _, pr := range prs {
-		if !strings.Contains(*pr.Title, "DO NOT MERGE! Fast Forward") {
+		if !strings.Contains(*pr.Title, "DO NOT MERGE! Fast Forward") || !strings.HasPrefix(*pr.Head.Ref, fastForwardPrefix) {
 			continue
 		}
 		statuses, _, err := h.Client.Repositories.GetCombinedStatus(
