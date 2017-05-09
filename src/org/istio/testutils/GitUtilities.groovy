@@ -151,7 +151,7 @@ def fastUnstash(name) {
 // Sets an artifacts links to the Build.
 def setArtifactsLink() {
   def ref = getRef()
-  def url = "https://console.cloud.google.com/storage/browser/${env.BUCKET}/${ref}"
+  def url = "http://gcsweb.istio.io/gcs/${env.BUCKET}/${ref}"
   def html = """
 <!DOCTYPE HTML>
 Find <a href='${url}'>artifacts</a> here
