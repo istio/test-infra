@@ -48,6 +48,7 @@ def stashSourceCode(Closure postcheckoutCall = null) {
   env.GIT_SHORT_SHA = gitCommit.take(7)
   env.GIT_TAG = getTag()
   env.GIT_BRANCH = getBranch()
+  env.GIT_REPO = getRepo()
   // Might not be safe to share envs.
   sh('env')
 
@@ -83,7 +84,7 @@ def getRef() {
 // Base Path
 def basePath(name = '') {
   def ref = getRef()
-  def path = "gs://${env.BUCKET}/${ref}"
+  def path = "gs://${env.BUCKET}/${env.GIT_REPO}/${ref}"
   if (name != '') {
     path = "${path}/${name}"
   }
@@ -178,6 +179,11 @@ def getBranch() {
       script: "git show-ref | grep ${sha} " +
           "| grep -oP \"refs/remotes/.*/\\K.*\" | grep -v -i head || echo NOT_FOUND").trim()
   return branch == 'NOT_FOUND' ? '' : branch
+}
+
+def getRepo() {
+  def url = sh(returnStdout: true, script: 'git config --get remote.origin.url').trim()
+  return url.split('/')[-1]
 }
 
 return this
