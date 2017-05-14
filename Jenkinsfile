@@ -32,7 +32,10 @@ mainFlow(utils) {
   if (utils.runStage('STABLE_PRESUBMIT')) {
     slaveUpdate(gitUtils, utils)
   }
-  println build.getDurationString()
+  def duration = build.getDurationString()
+  printf ("Build total time: %s", duration)
+  echo("total build time: ${duration}")
+
 }
 
 def postSubmit(utils) {
