@@ -1,3 +1,17 @@
+// Copyright 2017 Istio Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package main
 
 import (
@@ -30,11 +44,12 @@ var (
 	fastForward = flag.Bool("fast_forward", false, "Creates a PR updating Base to Head.")
 	verify      = flag.Bool("verify", false, "Verifies PR on Base and push them if success.")
 	comment     = flag.String("comment", "", "The comment to send to the Pull Request.")
-	GH          = newGhConst()
+	gh          = newGhConst()
 )
 
 type ghConst struct {
 	success string
+	error   string
 	failure string
 	pending string
 	closed  string
@@ -63,8 +78,8 @@ func getToken() (*http.Client, error) {
 		return nil, err
 	}
 	token := strings.TrimSpace(string(b[:]))
-	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: string(token[:])})
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
+	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
+	tc := oauth2.NewClient(context.Background(), ts)
 	return tc, nil
 }
 
@@ -73,6 +88,7 @@ func newGhConst() *ghConst {
 	return &ghConst{
 		success: "success",
 		failure: "failure",
+		error:   "error",
 		pending: "pending",
 		closed:  "closed",
 		all:     "all",
@@ -82,23 +98,23 @@ func newGhConst() *ghConst {
 
 // Creates a new Github Helper from provided
 func newHelper(r *string) (*helper, error) {
-	if tc, err := getToken(); err == nil {
-		if *repos == "" {
-			return nil, errors.New("repo flag must be set!")
-		}
-		client := github.NewClient(tc)
-		return &helper{
-			Owner:       *owner,
-			Repo:        *r,
-			Base:        *base,
-			Head:        *head,
-			Pr:          *pullRequest,
-			CheckToSkip: strings.Split(*checkToSkip, ","),
-			Client:      client,
-		}, nil
-	} else {
+	tc, err := getToken()
+	if err != nil {
 		return nil, err
 	}
+	if *repos == "" {
+		return nil, errors.New("repo flag must be set")
+	}
+	client := github.NewClient(tc)
+	return &helper{
+		Owner:       *owner,
+		Repo:        *r,
+		Base:        *base,
+		Head:        *head,
+		Pr:          *pullRequest,
+		CheckToSkip: strings.Split(*checkToSkip, ","),
+		Client:      client,
+	}, nil
 }
 
 // Create a new branch for fast forward
@@ -114,21 +130,21 @@ func (h helper) createFastForwardBranch(commit *string) (*string, error) {
 		Object: &gho,
 	}
 
-	if _, resp, err := h.Client.Git.CreateRef(context.TODO(), h.Owner, h.Repo, &r); err == nil {
-		log.Printf("Created a new branch for fast forward: %s", branchName)
-		return &branchName, nil
-	} else {
+	_, resp, err := h.Client.Git.CreateRef(context.TODO(), h.Owner, h.Repo, &r)
+	if err != nil {
 		if resp.StatusCode == 422 {
 			log.Printf("Branch %s already exists in repo %s!", branchName, h.Repo)
 		}
 		return nil, err
 	}
+	log.Printf("Created a new branch for fast forward: %s", branchName)
+	return &branchName, nil
 }
 
 // Creates a pull request from Base branch
 func (h helper) createPullRequestToBase(commit *string) error {
 	if commit == nil {
-		return errors.New("commit cannot be nil.")
+		return errors.New("commit cannot be nil")
 	}
 
 	newHead, err := h.createFastForwardBranch(commit)
@@ -146,27 +162,28 @@ func (h helper) createPullRequestToBase(commit *string) error {
 		Body:  &body,
 	}
 	log.Printf("Creating a PR with Title: \"%s\" for repo %s", title, h.Repo)
-	if pr, _, err := h.Client.PullRequests.Create(context.TODO(), h.Owner, h.Repo, &req); err == nil {
-		log.Printf("Created new PR at %s", *pr.HTMLURL)
-	} else {
+	pr, _, err := h.Client.PullRequests.Create(context.TODO(), h.Owner, h.Repo, &req)
+	if err != nil {
 		return err
 	}
+	log.Printf("Created new PR at %s", *pr.HTMLURL)
 	return nil
 }
 
 // Gets the last commit from Head branch.
 func (h helper) getLastCommitFromHead() (*string, error) {
 	comp, _, err := h.Client.Repositories.CompareCommits(context.TODO(), h.Owner, h.Repo, h.Head, h.Base)
-	if err == nil {
-		if *comp.BehindBy > 0 {
-			commit := comp.BaseCommit.SHA
-			log.Printf(
-				"%s is %d commits ahead from %s, and HEAD commit is %s in repo %s",
-				h.Head, *comp.BehindBy, h.Base, *commit, h.Repo)
-			return commit, nil
-		}
+	if err != nil {
+		return nil, err
 	}
-	return nil, err
+	if *comp.BehindBy > 0 {
+		commit := comp.BaseCommit.SHA
+		log.Printf(
+			"%s is %d commits ahead from %s, and HEAD commit is %s in repo %s",
+			h.Head, *comp.BehindBy, h.Base, *commit, h.Repo)
+		return commit, nil
+	}
+	return nil, nil
 }
 
 // Fast forward Base branch to the last commit of Head branch.
@@ -179,7 +196,7 @@ func (h helper) fastForwardBase() error {
 		options := github.PullRequestListOptions{
 			Head:  h.Head,
 			Base:  h.Base,
-			State: GH.all,
+			State: gh.all,
 		}
 
 		prs, _, err := h.Client.PullRequests.List(context.TODO(), h.Owner, h.Repo, &options)
@@ -200,7 +217,7 @@ func (h helper) fastForwardBase() error {
 // Close an existing PR
 func (h helper) closePullRequest(pr *github.PullRequest) error {
 	log.Printf("Closing PR %d on repo %s", *pr.Number, h.Repo)
-	*pr.State = GH.closed
+	*pr.State = gh.closed
 	_, _, err := h.Client.PullRequests.Edit(context.TODO(), h.Owner, h.Repo, *pr.Number, pr)
 	return err
 }
@@ -208,7 +225,7 @@ func (h helper) closePullRequest(pr *github.PullRequest) error {
 // Create an annotated stable tag from the given commit.
 func (h helper) createStableTag(commit *string) error {
 	if commit == nil {
-		return errors.New("commit cannot be nil.")
+		return errors.New("commit cannot be nil")
 	}
 	sha := *commit
 	tag := fmt.Sprintf("stable-%s", sha[0:7])
@@ -216,14 +233,14 @@ func (h helper) createStableTag(commit *string) error {
 	log.Printf("Creating tag %s on %s for commit %s in repo %s", tag, h.Base, *commit, h.Repo)
 	gho := github.GitObject{
 		SHA:  commit,
-		Type: &GH.commit,
+		Type: &gh.commit,
 	}
 	gt := github.Tag{
 		Object:  &gho,
 		Message: &message,
 		Tag:     &tag,
 	}
-	t, resp, err := h.Client.Git.CreateTag(context.TODO(), h.Owner, h.Repo, &gt)
+	t, _, err := h.Client.Git.CreateTag(context.TODO(), h.Owner, h.Repo, &gt)
 	if err != nil {
 		return err
 	}
@@ -232,13 +249,13 @@ func (h helper) createStableTag(commit *string) error {
 	// Getting the SHA from the annotated tag
 	at := github.GitObject{
 		SHA:  t.SHA,
-		Type: &GH.commit,
+		Type: &gh.commit,
 	}
 	r := github.Reference{
 		Ref:    &ref,
 		Object: &at,
 	}
-	_, resp, err = h.Client.Git.CreateRef(context.TODO(), h.Owner, h.Repo, &r)
+	_, resp, err := h.Client.Git.CreateRef(context.TODO(), h.Owner, h.Repo, &r)
 	// Already exists
 	if resp.StatusCode != 422 {
 		return err
@@ -255,7 +272,7 @@ func (h helper) updateBaseReference(commit *string) error {
 	log.Printf("Updating ref %s to commit %s for repo %s", ref, *commit, h.Repo)
 	gho := github.GitObject{
 		SHA:  commit,
-		Type: &GH.commit,
+		Type: &gh.commit,
 	}
 	r := github.Reference{
 		Ref:    &ref,
@@ -281,49 +298,50 @@ func (h helper) deleteFastForwardBranch(head string) {
 func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStatus) error {
 	state := *s.State
 
-	if state == GH.failure && (len(h.CheckToSkip) > 0) {
-		privilege := true
+	skipContext := func(context string) bool {
+		for _, check := range h.CheckToSkip {
+			pattern := fmt.Sprintf("(^|/)%s(/|$)", check)
+			if match, _ := regexp.MatchString(pattern, context); match {
+				//Find a match so that this failure can be skipped
+				return true
+			}
+		}
+		return false
+	}
+
+	if (state == gh.failure || state == gh.error) && (len(h.CheckToSkip) > 0) {
+		isSuccess := true
 		for _, status := range s.Statuses {
-			if *status.State != GH.success {
-				skip := false
-				for _, check := range h.CheckToSkip {
-					pattern := fmt.Sprintf("(^|/)%s(/|$)", check)
-					if match, _ := regexp.MatchString(pattern, *status.Context); match {
-						//Find a match so that this failure can be skipped
-						skip = true
-						break
-					}
-				}
-				if !skip {
-					//If this failure cannot be skipped, this fast-forward is not eligible for privilege
-					privilege = false
+			if *status.State == gh.error || *status.State == gh.failure {
+				if skipContext(*status.Context) {
+					continue
+				} else {
+					isSuccess = false
 					break
 				}
 			}
 		}
-		if privilege {
-			state = GH.success
+		if isSuccess {
+			state = gh.success
 		}
 	}
 
 	switch state {
-	case GH.success:
-		if err := h.createStableTag(s.SHA); err == nil {
-			if err := h.updateBaseReference(s.SHA); err != nil {
-				log.Printf("Could not update %s reference to %s for repo %s.\n%v", h.Base, *s.SHA, h.Repo, err)
-				return nil
-			}
-			h.deleteFastForwardBranch(*pr.Head.Ref)
-			// Note there is no need to close the PR here.
-			// It will be done automatically once Base ref is updated
-		} else {
-			// We may fix github problems and manually merge, so keep the branch.
+	case gh.success:
+		if err := h.createStableTag(s.SHA); err != nil {
 			return err
 		}
-	case GH.failure:
+		if err := h.updateBaseReference(s.SHA); err != nil {
+			log.Printf("Could not update %s reference to %s for repo %s.\n%v", h.Base, *s.SHA, h.Repo, err)
+			return nil
+		}
+		h.deleteFastForwardBranch(*pr.Head.Ref)
+		// Note there is no need to close the PR here.
+		// It will be done automatically once Base ref is updated
+	case gh.failure:
 		h.deleteFastForwardBranch(*pr.Head.Ref)
 		return h.closePullRequest(pr)
-	case GH.pending:
+	case gh.pending:
 		log.Printf("Pull Request %d is still being checked for repo %s", *pr.Number, h.Repo)
 	}
 	return nil
