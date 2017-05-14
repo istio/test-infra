@@ -24,6 +24,7 @@ mainFlow(utils) {
     gitUtils.initialize()
     TOOLS_BUCKET = failIfNullOrEmpty(env.TOOLS_BUCKET, 'Please set TOOLS_BUCKET env.')
   }
+  def build = manager.build
   if (utils.runStage('POSTSUBMIT')) {
     postSubmit(utils)
   }
@@ -31,6 +32,7 @@ mainFlow(utils) {
   if (utils.runStage('STABLE_PRESUBMIT')) {
     slaveUpdate(gitUtils, utils)
   }
+  println build.getDurationString()
 }
 
 def postSubmit(utils) {
