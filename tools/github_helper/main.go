@@ -296,9 +296,10 @@ func (h helper) deleteFastForwardBranch(head string) {
 // Checks if a PR is ready to be pushed. Create a stable tag and
 // fast forward Base to the PR's head commit.
 func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStatus) error {
-	state := *s.State
-
 	skipContext := func(context string) bool {
+		if len(h.CheckToSkip) == 0 {
+			return false
+		}
 		for _, check := range h.CheckToSkip {
 			pattern := fmt.Sprintf("(^|/)%s(/|$)", check)
 			if match, _ := regexp.MatchString(pattern, context); match {
@@ -309,21 +310,30 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 		return false
 	}
 
-	if (state == gh.failure || state == gh.error) && (len(h.CheckToSkip) > 0) {
-		isSuccess := true
-		for _, status := range s.Statuses {
-			if *status.State == gh.error || *status.State == gh.failure {
-				if skipContext(*status.Context) {
-					continue
-				} else {
-					isSuccess = false
-					break
-				}
+	// Not trusting Combined output.
+	// Not counting successes as there could be no required checks.
+	failures := 0
+	pending := 0
+	for _, status := range s.Statuses {
+		if *status.State == gh.error || *status.State == gh.failure {
+			if skipContext(*status.Context) {
+				continue
 			}
+			failures++
+		} else if *status.State == gh.pending {
+			pending++
 		}
-		if isSuccess {
+	}
+
+	var state string
+	if failures == 0 {
+		if pending > 0 {
+			state = gh.pending
+		} else {
 			state = gh.success
 		}
+	} else {
+		state = gh.failure
 	}
 
 	switch state {
