@@ -27,8 +27,7 @@ mainFlow(utils) {
           goBuildNode(gitUtils, 'istio.io/test-infra') {
             echo(env.PATH)
             echo(env.GOPATH)
-            bazel.fetch('//...')
-            bazel.build('//...')
+            sh('scripts/linters.sh')
             commentOnPr(utils, "This is a test.")
           }
         },

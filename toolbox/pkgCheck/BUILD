@@ -4,7 +4,6 @@ py_binary(
     visibility = ["//visibility:public"],
 )
 
-
 py_test(
     name = "pkg_cc_check_test",
     srcs = ["pkg_cc_check_test.py"],
