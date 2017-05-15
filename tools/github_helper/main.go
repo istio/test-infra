@@ -312,8 +312,7 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 
 	// Not trusting Combined output.
 	// Not counting successes as there could be no required checks.
-	failures := 0
-	pending := 0
+	var failures, pending, successes int
 	for _, status := range s.Statuses {
 		if *status.State == gh.error || *status.State == gh.failure {
 			if skipContext(*status.Context) {
@@ -322,22 +321,24 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 			failures++
 		} else if *status.State == gh.pending {
 			pending++
+		} else if *status.State == gh.success {
+			successes++
+		} else {
+			log.Printf("Check Status %s is unknown", *status.State)
 		}
 	}
 
 	log.Printf(
-		"%s/%s#%d has %d check(s) pending, %d checks(failed)",
-		h.Owner, h.Repo, *pr.Number, pending, failures)
+		"%s/%s#%d has %d check(s) pending, %d check(s) failed, %d check(s) successful",
+		h.Owner, h.Repo, *pr.Number, pending, failures, successes)
 
 	var state string
-	if failures == 0 {
-		if pending > 0 {
-			state = gh.pending
-		} else {
-			state = gh.success
-		}
-	} else {
+	if pending > 0 {
+		state = gh.pending
+	} else if failures > 0 {
 		state = gh.failure
+	} else {
+		state = gh.success
 	}
 
 	switch state {
