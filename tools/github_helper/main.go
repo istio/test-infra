@@ -216,7 +216,7 @@ func (h helper) fastForwardBase() error {
 
 // Close an existing PR
 func (h helper) closePullRequest(pr *github.PullRequest) error {
-	log.Printf("Closing PR %d on repo %s", *pr.Number, h.Repo)
+	log.Printf("Closing %s/%s#%d", h.Owner, h.Repo, *pr.Number)
 	*pr.State = gh.closed
 	_, _, err := h.Client.PullRequests.Edit(context.TODO(), h.Owner, h.Repo, *pr.Number, pr)
 	return err
@@ -296,9 +296,10 @@ func (h helper) deleteFastForwardBranch(head string) {
 // Checks if a PR is ready to be pushed. Create a stable tag and
 // fast forward Base to the PR's head commit.
 func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStatus) error {
-	state := *s.State
-
 	skipContext := func(context string) bool {
+		if len(h.CheckToSkip) == 0 {
+			return false
+		}
 		for _, check := range h.CheckToSkip {
 			pattern := fmt.Sprintf("(^|/)%s(/|$)", check)
 			if match, _ := regexp.MatchString(pattern, context); match {
@@ -309,21 +310,35 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 		return false
 	}
 
-	if (state == gh.failure || state == gh.error) && (len(h.CheckToSkip) > 0) {
-		isSuccess := true
-		for _, status := range s.Statuses {
-			if *status.State == gh.error || *status.State == gh.failure {
-				if skipContext(*status.Context) {
-					continue
-				} else {
-					isSuccess = false
-					break
-				}
+	// Not trusting Combined output.
+	// Not counting successes as there could be no required checks.
+	var failures, pending, successes int
+	for _, status := range s.Statuses {
+		if *status.State == gh.error || *status.State == gh.failure {
+			if skipContext(*status.Context) {
+				continue
 			}
+			failures++
+		} else if *status.State == gh.pending {
+			pending++
+		} else if *status.State == gh.success {
+			successes++
+		} else {
+			log.Printf("Check Status %s is unknown", *status.State)
 		}
-		if isSuccess {
-			state = gh.success
-		}
+	}
+
+	log.Printf(
+		"%s/%s#%d has %d check(s) pending, %d check(s) failed, %d check(s) successful",
+		h.Owner, h.Repo, *pr.Number, pending, failures, successes)
+
+	var state string
+	if pending > 0 {
+		state = gh.pending
+	} else if failures > 0 {
+		state = gh.failure
+	} else {
+		state = gh.success
 	}
 
 	switch state {
@@ -342,7 +357,7 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 		h.deleteFastForwardBranch(*pr.Head.Ref)
 		return h.closePullRequest(pr)
 	case gh.pending:
-		log.Printf("Pull Request %d is still being checked for repo %s", *pr.Number, h.Repo)
+		log.Printf("%s/%s#%d is still being checked", h.Owner, h.Repo, *pr.Number)
 	}
 	return nil
 }
@@ -367,7 +382,7 @@ func (h helper) verifyPullRequestStatus() error {
 			err = h.updatePullRequest(pr, statuses)
 		}
 		if err != nil {
-			log.Fatalf("Could not update PR %d for repo %s. \n%v", *pr.Number, h.Repo, err)
+			log.Fatalf("Could not update %s/%s#%d. \n%v", h.Owner, h.Repo, *pr.Number, err)
 		}
 	}
 	log.Printf("No more PR to verify for branch %s in repo %s.", h.Base, h.Repo)
@@ -382,7 +397,7 @@ func (h helper) createComment(comment *string) error {
 	c := github.IssueComment{
 		Body: comment,
 	}
-	log.Printf("Commenting \"%s\" on PR %d for %s/%s", *comment, h.Pr, h.Owner, h.Repo)
+	log.Printf("Commenting \"%s\" on %s/%s#%d", *comment, h.Owner, h.Repo, h.Pr)
 	_, _, err := h.Client.Issues.CreateComment(context.TODO(), h.Owner, h.Repo, h.Pr, &c)
 	return err
 }
