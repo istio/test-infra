@@ -2,7 +2,6 @@
 
 set -e
 
+echo "PRESENT WORKING DIR:"
 pwd
-ls /workspace
-ls /workspace/github.com/nlandolfi
 bazel build //...
