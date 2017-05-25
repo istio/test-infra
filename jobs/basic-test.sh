@@ -2,4 +2,5 @@
 
 set -e
 
+pwd
 bazel build //...
