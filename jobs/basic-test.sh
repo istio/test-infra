@@ -2,4 +2,4 @@
 
 set -e
 
-echo "this is my script"
+bazel build //...
