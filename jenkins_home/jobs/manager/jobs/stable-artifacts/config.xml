@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<flow-definition plugin="workflow-job@2.10">
+<flow-definition plugin="workflow-job@2.11">
   <actions/>
   <description></description>
   <keepDependencies>false</keepDependencies>
@@ -12,7 +12,6 @@
         <artifactNumToKeep>-1</artifactNumToKeep>
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
-    <org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty/>
     <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.27.0">
       <projectUrl>https://github.com/istio/manager/</projectUrl>
       <displayName></displayName>
@@ -40,7 +39,7 @@
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@1.9.0">
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@2.0">
       <maxConcurrentPerNode>0</maxConcurrentPerNode>
       <maxConcurrentTotal>0</maxConcurrentTotal>
       <categories class="java.util.concurrent.CopyOnWriteArrayList"/>
@@ -55,18 +54,18 @@
           <spec></spec>
         </com.cloudbees.jenkins.GitHubPushTrigger>
         <hudson.triggers.SCMTrigger>
-          <spec>H/5 * * * *</spec>
+          <spec>H/2 * * * *</spec>
           <ignorePostCommitHooks>false</ignorePostCommitHooks>
         </hudson.triggers.SCMTrigger>
       </triggers>
     </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
   </properties>
-  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.30">
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.31">
     <scm class="hudson.plugins.git.GitSCM" plugin="git@3.3.0">
       <configVersion>2</configVersion>
       <userRemoteConfigs>
         <hudson.plugins.git.UserRemoteConfig>
-          <refspec>+refs/heads/master:refs/remotes/origin/master</refspec>
+          <refspec>+refs/heads/stable:refs/remotes/origin/stable</refspec>
           <url>https://github.com/istio/manager</url>
         </hudson.plugins.git.UserRemoteConfig>
       </userRemoteConfigs>
@@ -83,4 +82,5 @@
     <lightweight>false</lightweight>
   </definition>
   <triggers/>
+  <disabled>false</disabled>
 </flow-definition>

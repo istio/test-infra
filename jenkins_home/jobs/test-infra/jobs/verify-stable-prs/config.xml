@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<flow-definition plugin="workflow-job@2.10">
+<flow-definition plugin="workflow-job@2.11">
   <actions/>
   <description></description>
   <keepDependencies>false</keepDependencies>
@@ -35,7 +35,7 @@
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@1.9.0">
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@2.0">
       <maxConcurrentPerNode>0</maxConcurrentPerNode>
       <maxConcurrentTotal>0</maxConcurrentTotal>
       <categories class="java.util.concurrent.CopyOnWriteArrayList"/>
@@ -47,12 +47,12 @@
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>
         <hudson.triggers.TimerTrigger>
-          <spec>H/10 * * * *</spec>
+          <spec>H/20 * * * *</spec>
         </hudson.triggers.TimerTrigger>
       </triggers>
     </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
   </properties>
-  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.30">
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.31">
     <scm class="hudson.plugins.git.GitSCM" plugin="git@3.3.0">
       <configVersion>2</configVersion>
       <userRemoteConfigs>
@@ -74,4 +74,5 @@
     <lightweight>false</lightweight>
   </definition>
   <triggers/>
+  <disabled>false</disabled>
 </flow-definition>
