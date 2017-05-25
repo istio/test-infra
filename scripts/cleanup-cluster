@@ -1,0 +1,75 @@
+#!/bin/bash
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DIR="${ROOT}/scripts"
+
+. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+export DEBIAN_FRONTEND=noninteractive
+
+ARGS=()
+CLUSTER_NAME='e2e-testing'
+PROJECT_ID='istio-testing'
+ZONE='us-west1-a'
+HOURS_OLD=2
+
+while getopts :c:h:p:z: arg; do
+  case ${arg} in
+    c) CLUSTER_NAME="${OPTARG}";;
+    h) HOURS_OLD=${OPTARG};;
+    p) PROJECT_ID="${OPTARG}";;
+    z) ZONE="${OPTARG}";;
+    *) error_exit "Unrecognized argument -${OPTARG}";;
+  esac
+done
+
+[[ -n "${PROJECT_ID}" ]] && ARGS+=(--project "${PROJECT_ID}")
+[[ -n "${ZONE}" ]] && ARGS+=(--zone "${ZONE}")
+
+echo 'Getting credentials for Kubernetes cluster'
+gcloud container clusters get-credentials ${CLUSTER_NAME} ${ARGS[@]}\
+  || error_exit 'Could not get kubectl config for cluster'
+
+JSON_FILE="$(mktemp /tmp/cluster.cleanup.XXXXX.json)"
+
+kubectl get ns -o json > "${JSON_FILE}"
+
+function filter_ns() {
+  local json_file=${1}
+  local hours_old=${2}
+python - <<EOF ${json_file} ${hours_old}
+
+import sys
+import datetime
+import json
+
+PROTECTED_NS = ['default', 'kube-public', 'kube-system']
+
+json_file = sys.argv[1]
+hours_old = int(sys.argv[2])
+
+with open(json_file, 'r') as f:
+  result = json.load(f)
+
+ns = {}
+
+date_format = '%Y-%m-%dT%H:%M:%SZ'
+
+for i in result['items']:
+  namespace = i['metadata']['name']
+  ts = i['metadata']['creationTimestamp']
+  if namespace not in PROTECTED_NS:
+    ns[namespace] = datetime.datetime.strptime(ts, date_format)
+
+min_time = datetime.datetime.utcnow() - datetime.timedelta(hours=hours_old)
+
+for k, v in ns.iteritems():
+  if v < min_time: print k
+EOF
+
+}
+
+NAMESPACES=$(filter_ns "${JSON_FILE}" ${HOURS_OLD})
+
+if [[ -n "${NAMESPACES}" ]]; then 
+  echo "${NAMESPACES}" | xargs kubectl delete ns
+fi
