@@ -21,6 +21,7 @@ mainFlow(utils) {
     bazel.setVars()
   }
 
+  def build = manager.build
   if (utils.runStage('PRESUBMIT')) {
     def branches = [
         'goBuildNode': {
@@ -50,6 +51,9 @@ mainFlow(utils) {
     ]
     parallel(branches)
   }
+  def duration = build.getDurationString()
+  printf ("Build total time: %s", duration)
+  echo("total build time: ${duration}")
 }
 
 def commentOnPr(utils, message) {
