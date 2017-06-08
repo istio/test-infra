@@ -34,7 +34,7 @@
         </hudson.model.BooleanParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@1.9.0">
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@2.0">
       <maxConcurrentPerNode>0</maxConcurrentPerNode>
       <maxConcurrentTotal>3</maxConcurrentTotal>
       <categories class="java.util.concurrent.CopyOnWriteArrayList"/>
@@ -45,7 +45,7 @@
     </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>
-        <org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger plugin="github-pullrequest@0.1.0-rc24">
+        <org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger plugin="github-pullrequest@0.1.0-rc22">
           <spec>H/5 * * * *</spec>
           <triggerMode>HEAVY_HOOKS</triggerMode>
           <cancelQueued>true</cancelQueued>
@@ -88,13 +88,14 @@
           <branchRestriction>
             <targetBranchList>
               <string>stable</string>
+              <string>release-0.1-stable</string>
             </targetBranchList>
           </branchRestriction>
         </org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger>
       </triggers>
     </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
   </properties>
-  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.30">
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.31">
     <scm class="hudson.plugins.git.GitSCM" plugin="git@3.3.0">
       <configVersion>2</configVersion>
       <userRemoteConfigs>
