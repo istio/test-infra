@@ -19,7 +19,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"log"
+
 	"os"
 	"strconv"
 	"strings"
@@ -30,7 +30,7 @@ import (
 
 const (
 	jobName = "JOB_NAME"
-	buildId = "BUILD_ID"
+	buildID = "BUILD_ID"
 )
 
 var (
@@ -50,10 +50,14 @@ type codecovChecker struct {
 func (c *codecovChecker) parseReport() error {
 	f, err := os.Open(c.report)
 	if err != nil {
-		log.Printf("Failed to open report file %s, %v", c.report, err)
+		fmt.Printf("Failed to open report file %s, %v", c.report, err)
 		return err
 	}
-	defer f.Close()
+	defer func() {
+		if err = f.Close(); err != nil {
+			fmt.Printf("Failed to close file %s, %v", c.report, err)
+		}
+	}()
 
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
@@ -61,12 +65,12 @@ func (c *codecovChecker) parseReport() error {
 		if len(parts) == 4 || parts[0] == "ok" {
 			words := strings.Split(parts[3], " ")
 			if len(words) == 4 {
-				if n, err := strconv.ParseFloat(strings.TrimSuffix(words[1], "%"), 64); err != nil {
-					log.Printf("Failed to parse coverage for package %s: %s, %v", words[1], parts[1], err)
+				n, err := strconv.ParseFloat(strings.TrimSuffix(words[1], "%"), 64)
+				if err != nil {
+					fmt.Printf("Failed to parse coverage for package %s: %s, %v", words[1], parts[1], err)
 					return err
-				} else {
-					c.codeCoverage[parts[1]] = n
 				}
+				c.codeCoverage[parts[1]] = n
 			}
 		}
 	}
@@ -77,24 +81,29 @@ func (c *codecovChecker) parseReport() error {
 func (c *codecovChecker) checkRequirement() error {
 	f, err := os.Open(c.requirement)
 	if err != nil {
-		log.Printf("Failed to open requirement file, %v", c.requirement, err)
+		fmt.Printf("Failed to open requirement file, %s, %v", c.requirement, err)
 		return err
 	}
-	defer f.Close()
+	defer func() {
+		if err = f.Close(); err != nil {
+			fmt.Printf("Failed to close file %s, %s", c.requirement, err)
+		}
+	}()
 
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		parts := strings.Split(scanner.Text(), "\t")
 		if len(parts) == 2 {
 			if cov, exist := c.codeCoverage[parts[0]]; exist {
-				if re, err := strconv.ParseFloat(parts[1], 64); err != nil {
-					log.Printf("Failed to get requirement for package %s: %s, %v", parts[0], parts[1], err)
+				re, err := strconv.ParseFloat(parts[1], 64)
+				if err != nil {
+					fmt.Printf("Failed to get requirement for package %s: %s, %v", parts[0], parts[1], err)
 					return err
-				} else {
-					if cov < re {
-						c.failedPackage = append(c.failedPackage, fmt.Sprint("%s\t%.2f\t%s", parts[0], cov, parts[1]))
-					}
 				}
+				if cov < re {
+					c.failedPackage = append(c.failedPackage, fmt.Sprintf("%s\t%.2f\t%s", parts[0], cov, parts[1]))
+				}
+
 			} else {
 				c.failedPackage = append(c.failedPackage, fmt.Sprintf("%s\t%s\t%s", parts[0], "0.0", parts[1]))
 			}
@@ -108,17 +117,18 @@ func (c *codecovChecker) uploadCoverage() error {
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("Failed to get storage client, %v", err)
+		return err
 	}
 
 	jobName := os.Getenv(jobName)
-	buildId := os.Getenv(buildId)
-	if buildId == "" || jobName == "" {
-		fmt.Printf("Missing build info: buildId: \"%s\", jobName: \"%s\"\n", buildId, jobName)
+	buildID := os.Getenv(buildID)
+	if buildID == "" || jobName == "" {
+		fmt.Printf("Missing build info: buildId: \"%s\", jobName: \"%s\"\n", buildID, jobName)
 		return errors.New("missing build info")
 	}
 
-	object := jobName + "/" + buildId
+	object := jobName + "/" + buildID
 
 	coverageString := ""
 	for p, c := range c.codeCoverage {
@@ -126,12 +136,16 @@ func (c *codecovChecker) uploadCoverage() error {
 	}
 
 	w := client.Bucket(c.bucket).Object(object).NewWriter(ctx)
-	w.Write([]byte(coverageString))
-
-	if err := w.Close(); err != nil {
-		fmt.Printf("Failed to close bucket writer, %v", err)
-		return err
+	if _, err = w.Write([]byte(coverageString)); err != nil {
+		fmt.Printf("Failed to write coverage to gcs, %v", err)
 	}
+
+	defer func() {
+		if err = w.Close(); err != nil {
+			fmt.Printf("Failed to close gcs writer file, %v", err)
+		}
+	}()
+
 	fmt.Printf("Successfully upload codecov.report %s", object)
 	return nil
 }
@@ -147,7 +161,7 @@ func main() {
 	}
 
 	if err := c.parseReport(); err != nil {
-		fmt.Print("Failed to parse report.")
+		fmt.Printf("Failed to parse report")
 		os.Exit(1)
 	}
 

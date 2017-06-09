@@ -49,7 +49,7 @@ go_metalinter() {
     fi
 
     # default: lint everything. This runs on the main build
-    PKGS="./tools/github_helper/..."
+    PKGS="./tools/github_helper/... ./toolbox/..."
 
     # convert LAST_GOOD_GITSHA to list of packages.
     if [[ ! -z ${LAST_GOOD_GITSHA} ]];then

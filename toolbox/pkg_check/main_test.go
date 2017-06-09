@@ -15,6 +15,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -28,7 +29,9 @@ var (
 func TestParseReport(t *testing.T) {
 	exampleReport := "?   \tpilot/cmd\t[no test files]\nok  \tpilot/model\t1.3s\tcoverage: 90.2% of statements"
 	reportFile := filepath.Join(tmpDir, "report")
-	ioutil.WriteFile(reportFile, []byte(exampleReport), 0644)
+	if err := ioutil.WriteFile(reportFile, []byte(exampleReport), 0644); err != nil {
+		t.Errorf("Failed to write example report file, %v", err)
+	}
 
 	c := &codecovChecker{
 		codeCoverage: make(map[string]float64),
@@ -47,7 +50,10 @@ func TestParseReport(t *testing.T) {
 func TestSatisfiedRequirement(t *testing.T) {
 	exampleRequirement := "pilot/model\t90"
 	requirementFile := filepath.Join(tmpDir, "requirement1")
-	ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644)
+	if err := ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644); err != nil {
+		t.Errorf("Failed to write example requirement file, %v", err)
+	}
+
 	c := &codecovChecker{
 		codeCoverage: map[string]float64{
 			"pilot/model": 90.2,
@@ -56,7 +62,7 @@ func TestSatisfiedRequirement(t *testing.T) {
 	}
 
 	if err := c.checkRequirement(); err != nil {
-		t.Error("Failed to check requirement, %v", err)
+		t.Errorf("Failed to check requirement, %v", err)
 	} else {
 		if len(c.failedPackage) != 0 {
 			t.Error("Wrong result from checkRequirement()")
@@ -67,7 +73,12 @@ func TestSatisfiedRequirement(t *testing.T) {
 func TestMissRequirement(t *testing.T) {
 	exampleRequirement := "pilot/model\t92.3"
 	requirementFile := filepath.Join(tmpDir, "requirement1")
-	ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644)
+	if err := ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644); err != nil {
+		if err := ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644); err != nil {
+			t.Errorf("Failed to write example requirement file, %v", err)
+		}
+	}
+
 	c := &codecovChecker{
 		codeCoverage: map[string]float64{
 			"pilot/model": 90.2,
@@ -76,7 +87,7 @@ func TestMissRequirement(t *testing.T) {
 	}
 
 	if err := c.checkRequirement(); err != nil {
-		t.Error("Failed to check requirement, %v", err)
+		t.Errorf("Failed to check requirement, %v", err)
 	} else {
 		if len(c.failedPackage) != 1 {
 			t.Error("Wrong result from checkRequirement()")
@@ -85,7 +96,10 @@ func TestMissRequirement(t *testing.T) {
 }
 
 func TestMain(m *testing.M) {
-	os.MkdirAll(tmpDir, 0777)
-	defer os.RemoveAll(tmpDir)
+	defer func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			fmt.Printf("Failed to remove tmpDir %s", tmpDir)
+		}
+	}()
 	os.Exit(m.Run())
 }
