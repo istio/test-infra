@@ -49,7 +49,7 @@ func TestParseReport(t *testing.T) {
 
 func TestSatisfiedRequirement(t *testing.T) {
 	exampleRequirement := "pilot/model\t90"
-	requirementFile := filepath.Join(tmpDir, "requirement1")
+	requirementFile := filepath.Join(tmpDir, "requirement2")
 	if err := ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644); err != nil {
 		t.Errorf("Failed to write example requirement file, %v", err)
 	}
@@ -72,7 +72,7 @@ func TestSatisfiedRequirement(t *testing.T) {
 
 func TestMissRequirement(t *testing.T) {
 	exampleRequirement := "pilot/model\t92.3"
-	requirementFile := filepath.Join(tmpDir, "requirement1")
+	requirementFile := filepath.Join(tmpDir, "requirement3")
 	if err := ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644); err != nil {
 		if err := ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644); err != nil {
 			t.Errorf("Failed to write example requirement file, %v", err)
@@ -92,6 +92,59 @@ func TestMissRequirement(t *testing.T) {
 		if len(c.failedPackage) != 1 {
 			t.Error("Wrong result from checkRequirement()")
 		}
+	}
+}
+
+func TestPassCheck(t *testing.T) {
+	exampleReport := "?   \tpilot/cmd\t[no test files]\nok  \tpilot/model\t1.3s\tcoverage: 90.2% of statements"
+	reportFile := filepath.Join(tmpDir, "report4")
+	if err := ioutil.WriteFile(reportFile, []byte(exampleReport), 0644); err != nil {
+		t.Errorf("Failed to write example report file, %v", err)
+	}
+
+	exampleRequirement := "pilot/model\t89"
+	requirementFile := filepath.Join(tmpDir, "requirement4")
+	if err := ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644); err != nil {
+		if err := ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644); err != nil {
+			t.Errorf("Failed to write example requirement file, %v", err)
+		}
+	}
+
+	c := &codecovChecker{
+		codeCoverage: make(map[string]float64),
+		report:       reportFile,
+		requirement:  requirementFile,
+	}
+
+	// No other error code, code only show gcs upload failed which is expected
+	if code := c.checkPackageCoverage(); code != 3 {
+		t.Errorf("Unexpected return code, expected: %d, actual: %d", 3, code)
+	}
+}
+
+func TestFailedCheck(t *testing.T) {
+	exampleReport := "?   \tpilot/cmd\t[no test files]\nok  \tpilot/model\t1.3s\tcoverage: 90.2% of statements"
+	reportFile := filepath.Join(tmpDir, "report5")
+	if err := ioutil.WriteFile(reportFile, []byte(exampleReport), 0644); err != nil {
+		t.Errorf("Failed to write example report file, %v", err)
+	}
+
+	exampleRequirement := "pilot/model\t93"
+	requirementFile := filepath.Join(tmpDir, "requirement5")
+	if err := ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644); err != nil {
+		if err := ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644); err != nil {
+			t.Errorf("Failed to write example requirement file, %v", err)
+		}
+	}
+
+	c := &codecovChecker{
+		codeCoverage: make(map[string]float64),
+		report:       reportFile,
+		requirement:  requirementFile,
+	}
+
+	if code := c.checkPackageCoverage(); code != 2 {
+		t.Errorf("Unexpected return code, expected: %d, actual: %d", 2, code)
 	}
 }
 

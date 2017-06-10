@@ -19,7 +19,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -35,7 +35,7 @@ const (
 
 var (
 	reportFile      = flag.String("report_file", "codecov.report", "Package code coverage report.")
-	requirementFile = flag.String("requirement_file", "codecov.requirement", "Package code coverage requuirement.")
+	requirementFile = flag.String("requirement_file", "codecov.requirement", "Package code coverage requirement.")
 	gcsBucket       = flag.String("bucket", "istio-code-coverage", "gcs bucket")
 )
 
@@ -50,27 +50,38 @@ type codecovChecker struct {
 func (c *codecovChecker) parseReport() error {
 	f, err := os.Open(c.report)
 	if err != nil {
-		fmt.Printf("Failed to open report file %s, %v", c.report, err)
+		log.Printf("Failed to open report file %s", c.report)
 		return err
 	}
 	defer func() {
 		if err = f.Close(); err != nil {
-			fmt.Printf("Failed to close file %s, %v", c.report, err)
+			log.Printf("Failed to close file %s, %v", c.report, err)
 		}
 	}()
 
 	scanner := bufio.NewScanner(f)
+
+	//Report example: "ok  	istio.io/mixer/adapter/denyChecker	0.023s	coverage: 100.0% of statements"
+	//Report example: "?   istio.io/mixer/adapter/denyChecker/config	[no test files]"
+	//expected output: c.codeCoverage["istio.io/mixer/adapter/denyChecker"] = 100
 	for scanner.Scan() {
+		fmt.Println(scanner.Text()) //Print report back to stdout
 		parts := strings.Split(scanner.Text(), "\t")
-		if len(parts) == 4 || parts[0] == "ok" {
+		if len(parts) == 4 && parts[0] == "ok  " {
 			words := strings.Split(parts[3], " ")
 			if len(words) == 4 {
 				n, err := strconv.ParseFloat(strings.TrimSuffix(words[1], "%"), 64)
 				if err != nil {
-					fmt.Printf("Failed to parse coverage for package %s: %s, %v", words[1], parts[1], err)
+					log.Printf("Failed to parse coverage for package %s: %s", words[1], parts[1])
 					return err
 				}
 				c.codeCoverage[parts[1]] = n
+			} else {
+				log.Printf("Unclear line from report: %s", parts[3])
+			}
+		} else {
+			if len(parts) != 3 || parts[0] != "?   " {
+				log.Printf("Unclear line from report: %s", scanner.Text())
 			}
 		}
 	}
@@ -81,23 +92,26 @@ func (c *codecovChecker) parseReport() error {
 func (c *codecovChecker) checkRequirement() error {
 	f, err := os.Open(c.requirement)
 	if err != nil {
-		fmt.Printf("Failed to open requirement file, %s, %v", c.requirement, err)
+		log.Printf("Failed to open requirement file, %s", c.requirement)
 		return err
 	}
 	defer func() {
 		if err = f.Close(); err != nil {
-			fmt.Printf("Failed to close file %s, %s", c.requirement, err)
+			log.Printf("Failed to close file %s, %v", c.requirement, err)
 		}
 	}()
 
 	scanner := bufio.NewScanner(f)
+
+	//Requirement example: "istio.io/mixer/adapter/denyChecker	99"
+	//Expected output: parts = {"istio.io/mixer/adapter/denyChecker", "99"}
 	for scanner.Scan() {
 		parts := strings.Split(scanner.Text(), "\t")
 		if len(parts) == 2 {
 			if cov, exist := c.codeCoverage[parts[0]]; exist {
 				re, err := strconv.ParseFloat(parts[1], 64)
 				if err != nil {
-					fmt.Printf("Failed to get requirement for package %s: %s, %v", parts[0], parts[1], err)
+					log.Printf("Failed to get requirement for package %s: %s", parts[0], parts[1])
 					return err
 				}
 				if cov < re {
@@ -107,6 +121,9 @@ func (c *codecovChecker) checkRequirement() error {
 			} else {
 				c.failedPackage = append(c.failedPackage, fmt.Sprintf("%s\t%s\t%s", parts[0], "0.0", parts[1]))
 			}
+		} else {
+			fmt.Println(len(parts))
+			log.Printf("Unclear line from requirement: %s", scanner.Text())
 		}
 	}
 
@@ -117,14 +134,14 @@ func (c *codecovChecker) uploadCoverage() error {
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx)
 	if err != nil {
-		fmt.Printf("Failed to get storage client, %v", err)
+		log.Print("Failed to get storage client")
 		return err
 	}
 
 	jobName := os.Getenv(jobName)
 	buildID := os.Getenv(buildID)
 	if buildID == "" || jobName == "" {
-		fmt.Printf("Missing build info: buildId: \"%s\", jobName: \"%s\"\n", buildID, jobName)
+		log.Printf("Missing build info: buildID: \"%s\", jobName: \"%s\"\n", buildID, jobName)
 		return errors.New("missing build info")
 	}
 
@@ -137,17 +154,49 @@ func (c *codecovChecker) uploadCoverage() error {
 
 	w := client.Bucket(c.bucket).Object(object).NewWriter(ctx)
 	if _, err = w.Write([]byte(coverageString)); err != nil {
-		fmt.Printf("Failed to write coverage to gcs, %v", err)
+		log.Print("Failed to write coverage to gcs")
 	}
 
 	defer func() {
 		if err = w.Close(); err != nil {
-			fmt.Printf("Failed to close gcs writer file, %v", err)
+			log.Printf("Failed to close gcs writer file, %v", err)
 		}
 	}()
 
-	fmt.Printf("Successfully upload codecov.report %s", object)
+	log.Printf("Successfully upload codecov.report %s", object)
 	return nil
+}
+
+func (c *codecovChecker) checkPackageCoverage() (code int) {
+	defer func() {
+		if err := c.uploadCoverage(); err != nil {
+			log.Printf("Failed to upload coverage, %v", err)
+			if code == 0 {
+				code = 3 //If no other error code, Error code 3: Failed to upload coverage
+			}
+		}
+	}()
+
+	if err := c.parseReport(); err != nil {
+		log.Printf("Failed to parse report, %v", err)
+		return 1 //Error code 1: Parse file failure
+	}
+
+	if err := c.checkRequirement(); err != nil {
+		log.Printf("Failed to check requirement, %v", err)
+		return 1 //Error code 1: Parse file failure
+	}
+
+	if len(c.failedPackage) == 0 {
+		log.Println("All packages passed code coverage requirements!")
+	} else {
+		log.Printf("Following package(s) failed to meet requirements:\nPackage Name\t\tActual Coverage\t\tRequirement\n")
+		for _, p := range c.failedPackage {
+			log.Println(p)
+		}
+		return 2 //Error code 2: Unsatisfied coverage requirement
+	}
+	return 0
 }
 
 func main() {
@@ -160,28 +209,5 @@ func main() {
 		bucket:       *gcsBucket,
 	}
 
-	if err := c.parseReport(); err != nil {
-		fmt.Printf("Failed to parse report")
-		os.Exit(1)
-	}
-
-	if err := c.checkRequirement(); err != nil {
-		fmt.Print("Failed to check requirement.")
-		os.Exit(1)
-	}
-
-	if len(c.failedPackage) == 0 {
-		fmt.Println("All packages passed code coverage requirements!")
-	} else {
-		fmt.Printf("Following package(s) failed to meet requirements:\nPackage Name\t\tActual Coverage\t\tRequirement\n")
-		for _, p := range c.failedPackage {
-			fmt.Println(p)
-		}
-		os.Exit(2)
-	}
-
-	if err := c.uploadCoverage(); err != nil {
-		fmt.Print("Failed to upload coverage.")
-		os.Exit(3)
-	}
+	os.Exit(c.checkPackageCoverage())
 }
