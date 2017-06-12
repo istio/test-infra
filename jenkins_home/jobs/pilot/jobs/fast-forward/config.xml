@@ -12,8 +12,9 @@
         <artifactNumToKeep>-1</artifactNumToKeep>
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
+    <org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty/>
     <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.27.0">
-      <projectUrl>https://github.com/istio/mixer/</projectUrl>
+      <projectUrl>https://github.com/istio/pilot/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
     <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
@@ -22,15 +23,10 @@
     </com.sonyericsson.rebuild.RebuildSettings>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
-        <hudson.model.BooleanParameterDefinition>
-          <name>UPDATE_PR</name>
-          <description></description>
-          <defaultValue>true</defaultValue>
-        </hudson.model.BooleanParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>STAGE</name>
           <description></description>
-          <defaultValue>SMOKE_TEST</defaultValue>
+          <defaultValue>POSTSUBMIT</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -45,53 +41,9 @@
     </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>
-        <org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger plugin="github-pullrequest@0.1.0-rc22">
-          <spec>H/5 * * * *</spec>
-          <triggerMode>HEAVY_HOOKS</triggerMode>
-          <cancelQueued>true</cancelQueued>
-          <abortRunning>false</abortRunning>
-          <skipFirstRun>false</skipFirstRun>
-          <repoProviders>
-            <com.github.kostyasha.github.integration.generic.repoprovider.GitHubPluginRepoProvider>
-              <cacheConnection>true</cacheConnection>
-            </com.github.kostyasha.github.integration.generic.repoprovider.GitHubPluginRepoProvider>
-          </repoProviders>
-          <errorsAction>
-            <description>GitHub Pull Requests Trigger Errors</description>
-            <errors class="java.util.Collections$SynchronizedSet" serialization="custom">
-              <java.util.Collections_-SynchronizedCollection>
-                <default>
-                  <c class="set"/>
-                  <mutex class="java.util.Collections$SynchronizedSet" reference="../../.."/>
-                </default>
-              </java.util.Collections_-SynchronizedCollection>
-            </errors>
-          </errorsAction>
-          <events>
-            <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
-              <comment>.*(Jenkins job mixer/presubmit passed).*</comment>
-            </org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
-            <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
-              <comment>.*(build mixer/e2e-smoketest).*</comment>
-            </org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
-          </events>
-          <preStatus>true</preStatus>
-          <userRestriction>
-            <orgs>istio</orgs>
-            <orgsSet>
-              <string>istio</string>
-            </orgsSet>
-            <users></users>
-            <usersSet>
-              <string></string>
-            </usersSet>
-          </userRestriction>
-          <branchRestriction>
-            <targetBranchList>
-              <string>master</string>
-            </targetBranchList>
-          </branchRestriction>
-        </org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger>
+        <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.27.0">
+          <spec></spec>
+        </com.cloudbees.jenkins.GitHubPushTrigger>
       </triggers>
     </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
   </properties>
@@ -100,12 +52,13 @@
       <configVersion>2</configVersion>
       <userRemoteConfigs>
         <hudson.plugins.git.UserRemoteConfig>
-          <url>https://github.com/istio/istio</url>
+          <refspec>+refs/heads/master:refs/remotes/origin/master</refspec>
+          <url>https://github.com/istio/pilot</url>
         </hudson.plugins.git.UserRemoteConfig>
       </userRemoteConfigs>
       <branches>
         <hudson.plugins.git.BranchSpec>
-          <name>master</name>
+          <name>refs/heads/master</name>
         </hudson.plugins.git.BranchSpec>
       </branches>
       <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
@@ -113,7 +66,7 @@
       <extensions/>
     </scm>
     <scriptPath>Jenkinsfile</scriptPath>
-    <lightweight>true</lightweight>
+    <lightweight>false</lightweight>
   </definition>
   <triggers/>
   <disabled>false</disabled>
