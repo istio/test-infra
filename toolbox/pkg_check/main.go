@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -64,28 +65,23 @@ func (c *codecovChecker) parseReport() error {
 	//Report example: "ok  	istio.io/mixer/adapter/denyChecker	0.023s	coverage: 100.0% of statements"
 	//Report example: "?   istio.io/mixer/adapter/denyChecker/config	[no test files]"
 	//expected output: c.codeCoverage["istio.io/mixer/adapter/denyChecker"] = 100
+	regOK := regexp.MustCompile(`(ok  )\t(.*)\t(.*)\tcoverage: (.*) of statements`)
+	regQ := regexp.MustCompile(`(\\?   )\t(.*)\t(.*)`)
 	for scanner.Scan() {
 		fmt.Println(scanner.Text()) //Print report back to stdout
-		parts := strings.Split(scanner.Text(), "\t")
-		if len(parts) == 4 && parts[0] == "ok  " {
-			words := strings.Split(parts[3], " ")
-			if len(words) == 4 {
-				n, err := strconv.ParseFloat(strings.TrimSuffix(words[1], "%"), 64)
-				if err != nil {
-					log.Printf("Failed to parse coverage for package %s: %s", words[1], parts[1])
-					return err
-				}
-				c.codeCoverage[parts[1]] = n
-			} else {
-				log.Printf("Unclear line from report: %s", parts[3])
+		if m := regOK.FindStringSubmatch(scanner.Text()); len(m) != 0 {
+			n, err := strconv.ParseFloat(strings.TrimSuffix(m[4], "%"), 64)
+			if err != nil {
+				log.Printf("Failed to parse coverage to float64 for package %s: %s", m[2], m[4])
+				return err
 			}
+			c.codeCoverage[m[2]] = n
+		} else if m := regQ.FindStringSubmatch(scanner.Text()); len(m) != 0 {
+			log.Printf("No test file in this package: %s", m[2])
 		} else {
-			if len(parts) != 3 || parts[0] != "?   " {
-				log.Printf("Unclear line from report: %s", scanner.Text())
-			}
+			log.Printf("Unclear line from report: %s", scanner.Text())
 		}
 	}
-
 	return scanner.Err()
 }
 
@@ -105,24 +101,24 @@ func (c *codecovChecker) checkRequirement() error {
 
 	//Requirement example: "istio.io/mixer/adapter/denyChecker	99"
 	//Expected output: parts = {"istio.io/mixer/adapter/denyChecker", "99"}
+	reg := regexp.MustCompile(`(.*)\t(.*)`)
 	for scanner.Scan() {
-		parts := strings.Split(scanner.Text(), "\t")
-		if len(parts) == 2 {
-			if cov, exist := c.codeCoverage[parts[0]]; exist {
-				re, err := strconv.ParseFloat(parts[1], 64)
+		m := reg.FindStringSubmatch(scanner.Text())
+		if len(m) != 0 {
+			if cov, exist := c.codeCoverage[m[1]]; exist {
+				re, err := strconv.ParseFloat(m[2], 64)
 				if err != nil {
-					log.Printf("Failed to get requirement for package %s: %s", parts[0], parts[1])
+					log.Printf("Failed to get requirement for package %s: %s", m[1], m[2])
 					return err
 				}
 				if cov < re {
-					c.failedPackage = append(c.failedPackage, fmt.Sprintf("%s\t%.2f\t%s", parts[0], cov, parts[1]))
+					c.failedPackage = append(c.failedPackage, fmt.Sprintf("%s\t%.2f\t%s", m[1], cov, m[2]))
 				}
 
 			} else {
-				c.failedPackage = append(c.failedPackage, fmt.Sprintf("%s\t%s\t%s", parts[0], "0.0", parts[1]))
+				c.failedPackage = append(c.failedPackage, fmt.Sprintf("%s\t%s\t%s", m[1], "0.0", m[2]))
 			}
 		} else {
-			fmt.Println(len(parts))
 			log.Printf("Unclear line from requirement: %s", scanner.Text())
 		}
 	}
