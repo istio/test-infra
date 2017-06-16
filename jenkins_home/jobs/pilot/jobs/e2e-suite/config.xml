@@ -13,7 +13,7 @@
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
     <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.27.0">
-      <projectUrl>https://github.com/istio/mixer/</projectUrl>
+      <projectUrl>https://github.com/istio/pilot/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
     <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
@@ -69,10 +69,10 @@
           </errorsAction>
           <events>
             <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
-              <comment>.*(Jenkins job mixer/presubmit passed).*</comment>
+              <comment>.*(build pilot/e2e-suite).*</comment>
             </org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
             <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
-              <comment>.*(build mixer/e2e-smoketest).*</comment>
+              <comment>.*(Jenkins job pilot/postsubmit passed).*</comment>
             </org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
           </events>
           <preStatus>true</preStatus>
@@ -88,7 +88,7 @@
           </userRestriction>
           <branchRestriction>
             <targetBranchList>
-              <string>master</string>
+              <string>stable</string>
             </targetBranchList>
           </branchRestriction>
         </org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger>

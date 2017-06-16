@@ -13,7 +13,7 @@
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
     <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.27.0">
-      <projectUrl>https://github.com/istio/mixer/</projectUrl>
+      <projectUrl>https://github.com/istio/pilot/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
     <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
@@ -22,23 +22,23 @@
     </com.sonyericsson.rebuild.RebuildSettings>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>STAGE</name>
+          <description></description>
+          <defaultValue>STABLE_PRESUBMIT</defaultValue>
+        </hudson.model.StringParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name>UPDATE_PR</name>
           <description></description>
           <defaultValue>true</defaultValue>
         </hudson.model.BooleanParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>STAGE</name>
-          <description></description>
-          <defaultValue>SMOKE_TEST</defaultValue>
-        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
     <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@2.0">
       <maxConcurrentPerNode>0</maxConcurrentPerNode>
-      <maxConcurrentTotal>0</maxConcurrentTotal>
+      <maxConcurrentTotal>3</maxConcurrentTotal>
       <categories class="java.util.concurrent.CopyOnWriteArrayList"/>
-      <throttleEnabled>false</throttleEnabled>
+      <throttleEnabled>true</throttleEnabled>
       <throttleOption>project</throttleOption>
       <limitOneJobWithMatchingParams>false</limitOneJobWithMatchingParams>
       <paramsToUseForLimit></paramsToUseForLimit>
@@ -47,13 +47,13 @@
       <triggers>
         <org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger plugin="github-pullrequest@0.1.0-rc22">
           <spec>H/5 * * * *</spec>
-          <triggerMode>HEAVY_HOOKS</triggerMode>
+          <triggerMode>HEAVY_HOOKS_CRON</triggerMode>
           <cancelQueued>true</cancelQueued>
           <abortRunning>false</abortRunning>
           <skipFirstRun>false</skipFirstRun>
           <repoProviders>
             <com.github.kostyasha.github.integration.generic.repoprovider.GitHubPluginRepoProvider>
-              <cacheConnection>true</cacheConnection>
+              <cacheConnection>false</cacheConnection>
             </com.github.kostyasha.github.integration.generic.repoprovider.GitHubPluginRepoProvider>
           </repoProviders>
           <errorsAction>
@@ -68,11 +68,10 @@
             </errors>
           </errorsAction>
           <events>
+            <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPROpenEvent/>
+            <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommitEvent/>
             <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
-              <comment>.*(Jenkins job mixer/presubmit passed).*</comment>
-            </org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
-            <org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
-              <comment>.*(build mixer/e2e-smoketest).*</comment>
+              <comment>.*(build pilot/postsubmit).*</comment>
             </org.jenkinsci.plugins.github.pullrequest.events.impl.GitHubPRCommentEvent>
           </events>
           <preStatus>true</preStatus>
@@ -88,7 +87,8 @@
           </userRestriction>
           <branchRestriction>
             <targetBranchList>
-              <string>master</string>
+              <string>stable</string>
+              <string>release-0.1-stable</string>
             </targetBranchList>
           </branchRestriction>
         </org.jenkinsci.plugins.github.pullrequest.GitHubPRTrigger>
@@ -100,17 +100,20 @@
       <configVersion>2</configVersion>
       <userRemoteConfigs>
         <hudson.plugins.git.UserRemoteConfig>
-          <url>https://github.com/istio/istio</url>
+          <refspec>+refs/pull/${GITHUB_PR_NUMBER}/head:refs/remotes/origin/pull/${GITHUB_PR_NUMBER}/head</refspec>
+          <url>https://github.com/istio/pilot</url>
         </hudson.plugins.git.UserRemoteConfig>
       </userRemoteConfigs>
       <branches>
         <hudson.plugins.git.BranchSpec>
-          <name>master</name>
+          <name>origin/pull/${GITHUB_PR_NUMBER}/head</name>
         </hudson.plugins.git.BranchSpec>
       </branches>
       <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
       <submoduleCfg class="list"/>
-      <extensions/>
+      <extensions>
+        <hudson.plugins.git.extensions.impl.WipeWorkspace/>
+      </extensions>
     </scm>
     <scriptPath>Jenkinsfile</scriptPath>
     <lightweight>true</lightweight>
