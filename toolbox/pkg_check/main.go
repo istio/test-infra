@@ -68,7 +68,6 @@ func (c *codecovChecker) parseReport() error {
 	regOK := regexp.MustCompile(`(ok  )\t(.*)\t(.*)\tcoverage: (.*) of statements`)
 	regQ := regexp.MustCompile(`(\\?   )\t(.*)\t(.*)`)
 	for scanner.Scan() {
-		fmt.Println(scanner.Text()) //Print report back to stdout
 		if m := regOK.FindStringSubmatch(scanner.Text()); len(m) != 0 {
 			n, err := strconv.ParseFloat(strings.TrimSuffix(m[4], "%"), 64)
 			if err != nil {
