@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package checker
 
 import (
 	"fmt"
@@ -33,7 +33,7 @@ func TestParseReport(t *testing.T) {
 		t.Errorf("Failed to write example report file, %v", err)
 	}
 
-	c := &codecovChecker{
+	c := &CodecovChecker{
 		codeCoverage: make(map[string]float64),
 		report:       reportFile,
 	}
@@ -54,7 +54,7 @@ func TestSatisfiedRequirement(t *testing.T) {
 		t.Errorf("Failed to write example requirement file, %v", err)
 	}
 
-	c := &codecovChecker{
+	c := &CodecovChecker{
 		codeCoverage: map[string]float64{
 			"pilot/model": 90.2,
 		},
@@ -79,7 +79,7 @@ func TestMissRequirement(t *testing.T) {
 		}
 	}
 
-	c := &codecovChecker{
+	c := &CodecovChecker{
 		codeCoverage: map[string]float64{
 			"pilot/model": 90.2,
 		},
@@ -110,14 +110,14 @@ func TestPassCheck(t *testing.T) {
 		}
 	}
 
-	c := &codecovChecker{
+	c := &CodecovChecker{
 		codeCoverage: make(map[string]float64),
 		report:       reportFile,
 		requirement:  requirementFile,
 	}
 
 	// No other error code, code only show gcs upload failed which is expected
-	if code := c.checkPackageCoverage(); code != 3 {
+	if code := c.CheckPackageCoverage(); code != 3 {
 		t.Errorf("Unexpected return code, expected: %d, actual: %d", 3, code)
 	}
 }
@@ -137,13 +137,13 @@ func TestFailedCheck(t *testing.T) {
 		}
 	}
 
-	c := &codecovChecker{
+	c := &CodecovChecker{
 		codeCoverage: make(map[string]float64),
 		report:       reportFile,
 		requirement:  requirementFile,
 	}
 
-	if code := c.checkPackageCoverage(); code != 2 {
+	if code := c.CheckPackageCoverage(); code != 2 {
 		t.Errorf("Unexpected return code, expected: %d, actual: %d", 2, code)
 	}
 }

@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package checker
 
 import (
 	"bufio"
 	"errors"
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -34,13 +33,8 @@ const (
 	buildID = "BUILD_ID"
 )
 
-var (
-	reportFile      = flag.String("report_file", "codecov.report", "Package code coverage report.")
-	requirementFile = flag.String("requirement_file", "codecov.requirement", "Package code coverage requirement.")
-	gcsBucket       = flag.String("bucket", "istio-code-coverage", "gcs bucket")
-)
-
-type codecovChecker struct {
+// CodecovChecker is used to check if every package(with test file) satisfies its requirement
+type CodecovChecker struct {
 	codeCoverage  map[string]float64
 	report        string
 	requirement   string
@@ -48,7 +42,17 @@ type codecovChecker struct {
 	bucket        string
 }
 
-func (c *codecovChecker) parseReport() error {
+// NewCodecovChecker creates a CodecovChecker
+func NewCodecovChecker(reportFile, requirementFile, gcsBucket string) *CodecovChecker {
+	return &CodecovChecker{
+		codeCoverage: make(map[string]float64),
+		report:       reportFile,
+		requirement:  requirementFile,
+		bucket:       gcsBucket,
+	}
+}
+
+func (c *CodecovChecker) parseReport() error {
 	f, err := os.Open(c.report)
 	if err != nil {
 		log.Printf("Failed to open report file %s", c.report)
@@ -84,7 +88,7 @@ func (c *codecovChecker) parseReport() error {
 	return scanner.Err()
 }
 
-func (c *codecovChecker) checkRequirement() error {
+func (c *CodecovChecker) checkRequirement() error {
 	f, err := os.Open(c.requirement)
 	if err != nil {
 		log.Printf("Failed to open requirement file, %s", c.requirement)
@@ -125,7 +129,7 @@ func (c *codecovChecker) checkRequirement() error {
 	return scanner.Err()
 }
 
-func (c *codecovChecker) uploadCoverage() error {
+func (c *CodecovChecker) uploadCoverage() error {
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx)
 	if err != nil {
@@ -162,7 +166,8 @@ func (c *codecovChecker) uploadCoverage() error {
 	return nil
 }
 
-func (c *codecovChecker) checkPackageCoverage() (code int) {
+// CheckPackageCoverage checks package coverage
+func (c *CodecovChecker) CheckPackageCoverage() (code int) {
 	defer func() {
 		if err := c.uploadCoverage(); err != nil {
 			log.Printf("Failed to upload coverage, %v", err)
@@ -192,17 +197,4 @@ func (c *codecovChecker) checkPackageCoverage() (code int) {
 		return 2 //Error code 2: Unsatisfied coverage requirement
 	}
 	return 0
-}
-
-func main() {
-	flag.Parse()
-
-	c := &codecovChecker{
-		codeCoverage: make(map[string]float64),
-		report:       *reportFile,
-		requirement:  *requirementFile,
-		bucket:       *gcsBucket,
-	}
-
-	os.Exit(c.checkPackageCoverage())
 }
