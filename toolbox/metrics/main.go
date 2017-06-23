@@ -25,6 +25,7 @@ import (
 	"math"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -84,55 +85,47 @@ var (
 		[]string{"package", "repo"},
 	)
 
-	jobRegister = map[string][]string{
-		"pilot":       {"presubmit", "postsubmit", "e2e-smoketest", "e2e-suite"},
-		"mixer":       {"presubmit", "postsubmit", "e2e-smoketest", "e2e-suite"},
-		"proxy":       {"presubmit", "postsubmit"},
-		"auth":        {"presubmit", "postsubmit"},
-		"mixerclient": {"presubmit"},
-		"istio":       {"presubmit"},
-		"test-infra":  {"presubmit"},
-	}
+	repoRegister = map[string]*repo{}
 
-	codeCovRegister = map[string]bool{
-		"pilot": true,
-		"mixer": true,
-		"auth":  true,
-	}
+	codeCovTrackJob = "postsubmit"
 
-	codeCovTrackJob = "presubmit"
-
-	gcsClient *storage.Client
+	gcsClient  *storage.Client
+	httpClient = &http.Client{}
 
 	jk = &jkConst{
+		name:          "name",
+		jobs:          "jobs",
 		building:      "building",
 		result:        "result",
 		duration:      "duration",
 		number:        "number",
 		resultFailure: "FAILURE",
 		resultSUCCESS: "SUCCESS",
+		apiJSON:       "api/json",
 	}
 )
 
 type jkConst struct {
+	name          string
+	jobs          string
 	building      string
 	result        string
 	duration      string
 	number        string
 	resultSUCCESS string
 	resultFailure string
+	apiJSON       string
 }
 
 type repo struct {
 	name string
-	jobs []*job
+	jobs map[string]*job
 }
 
 type job struct {
 	repoName    string
 	jobName     string
 	lastBuildID int
-	client      *http.Client
 }
 
 func newJob(repoName, jobName string) *job {
@@ -140,17 +133,13 @@ func newJob(repoName, jobName string) *job {
 		repoName:    repoName,
 		jobName:     jobName,
 		lastBuildID: -1,
-		client:      &http.Client{},
 	}
 }
 
 func newRepo(name string) *repo {
 	r := &repo{
 		name: name,
-		jobs: make([]*job, 0),
-	}
-	for n := range jobRegister[name] {
-		r.jobs = append(r.jobs, newJob(r.name, jobRegister[name][n]))
+		jobs: make(map[string]*job),
 	}
 	return r
 }
@@ -165,10 +154,6 @@ func init() {
 
 func main() {
 	flag.Parse()
-	var repos []*repo
-	for repoName := range jobRegister {
-		repos = append(repos, newRepo(repoName))
-	}
 
 	var err error
 	gcsClient, err = storage.NewClient(context.Background())
@@ -178,7 +163,9 @@ func main() {
 
 	go func() {
 		for {
-			for _, repo := range repos {
+			updateRepoList()
+			for _, repo := range repoRegister {
+				repo.updateJobList()
 				for _, job := range repo.jobs {
 					if err := job.publishCIMetrics(); err != nil {
 						log.Printf("Failed to process %s/%s: %v", job.repoName, job.jobName, err)
@@ -191,6 +178,35 @@ func main() {
 
 	http.Handle("/metrics", promhttp.Handler())
 	log.Print(http.ListenAndServe(*webAddress, nil))
+
+}
+
+func updateRepoList() {
+	l, err := listJenkinsItems("")
+	if err != nil {
+		log.Printf("Failed to update repo list: %s", err)
+		return
+	}
+
+	for _, repoName := range l {
+		if _, existed := repoRegister[repoName]; !existed {
+			repoRegister[repoName] = newRepo(repoName)
+		}
+	}
+}
+
+func (r *repo) updateJobList() {
+	l, err := listJenkinsItems(fmt.Sprintf("job/%s", r.name))
+	if err != nil {
+		log.Printf("Failed to update job list for repo %s: %s", r.name, err)
+		return
+	}
+
+	for _, jobName := range l {
+		if _, existed := r.jobs[jobName]; !existed {
+			r.jobs[jobName] = newJob(r.name, jobName)
+		}
+	}
 }
 
 func (j *job) publishCIMetrics() error {
@@ -210,7 +226,7 @@ func (j *job) publishCIMetrics() error {
 	}
 
 	for i := j.lastBuildID + 1; i <= latestCompletedBuild; i++ {
-		build, err := j.getJenkinsObject(fmt.Sprint(i))
+		build, err := getJenkinsObject(fmt.Sprintf("job/%s/job/%s/%d", j.repoName, j.jobName, i))
 		if err != nil {
 			log.Printf("Failed to get build No.%d from %s/%s, %v", i, j.repoName, j.jobName, err)
 		}
@@ -242,7 +258,7 @@ func (j *job) publishCIMetrics() error {
 				max = math.Max(max, t)
 				min = math.Min(min, t)
 				succeededBuilds.WithLabelValues(j.jobName, j.repoName).Observe(t)
-				if codeCovRegister[j.repoName] && j.jobName == codeCovTrackJob {
+				if j.jobName == codeCovTrackJob {
 					object := fmt.Sprintf("%s/%s/%d", j.repoName, j.jobName, i)
 					coverage, err := getCoverage(object)
 					if err != nil {
@@ -270,12 +286,12 @@ func (j *job) publishCIMetrics() error {
 }
 
 func (j *job) getLatestCompletedBuild() (int, error) {
-	o, err := j.getJenkinsObject("lastCompletedBuild")
+	o, err := getJenkinsObject(fmt.Sprintf("job/%s/job/%s/%s", j.repoName, j.jobName, "lastCompletedBuild"))
 	if err != nil {
 		return 0, fmt.Errorf("failed to get last build info of build, %v", err)
 	}
 	if len(o) == 0 {
-		return 0, errors.New("get empty result from jenkins")
+		return 0, errors.New("got empty result from jenkins")
 	}
 	id, ok := o[jk.number].(float64)
 	if !ok {
@@ -285,8 +301,8 @@ func (j *job) getLatestCompletedBuild() (int, error) {
 
 }
 
-func (j *job) getJenkinsObject(build string) (map[string]interface{}, error) {
-	url := fmt.Sprintf("%s/job/%s/job/%s/%s/api/json", *jenkinsURL, j.repoName, j.jobName, build)
+func getJenkinsObject(object string) (map[string]interface{}, error) {
+	url := fmt.Sprintf("%s/%s", *jenkinsURL, filepath.Join(object, jk.apiJSON))
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Print("Failed to create new request.")
@@ -294,7 +310,7 @@ func (j *job) getJenkinsObject(build string) (map[string]interface{}, error) {
 	}
 
 	request.SetBasicAuth(os.Getenv("JENKINS_USERNAME"), os.Getenv("JENKINS_TOKEN"))
-	resp, err := j.client.Do(request)
+	resp, err := httpClient.Do(request)
 	if err != nil {
 		log.Print("Failed to accomplish the request.")
 		return nil, err
@@ -320,11 +336,43 @@ func (j *job) getJenkinsObject(build string) (map[string]interface{}, error) {
 	return o, nil
 }
 
+func listJenkinsItems(object string) ([]string, error) {
+	o, err := getJenkinsObject(object)
+	if err != nil {
+		fmt.Print(err)
+		return nil, err
+	}
+	var list []string
+	l, ok := o[jk.jobs].([]interface{})
+	if !ok {
+		log.Printf("can't parse from jenkins jobs to list of interface: %s", o[jk.jobs])
+		return list, errors.New("unexpected jenkins value")
+	}
+
+	for _, i := range l {
+		j, ok := i.(map[string]interface{})
+		if !ok {
+			log.Printf("can't parse to map: %s", j)
+		} else {
+			jobName, ok := j[jk.name].(string)
+			if !ok {
+				log.Printf("can't parse to string: %s", j[jk.name])
+			}
+			list = append(list, jobName)
+		}
+	}
+
+	return list, nil
+}
+
 func getCoverage(object string) (map[string]float64, error) {
 	cov := make(map[string]float64)
 	ctx := context.Background()
 	r, err := gcsClient.Bucket(*gcsBucket).Object(object).NewReader(ctx)
 	if err != nil {
+		if err == storage.ErrBucketNotExist || err == storage.ErrObjectNotExist {
+			return cov, nil
+		}
 		log.Printf("Failed to download coverage file from gcs, %v", err)
 		return nil, err
 	}
