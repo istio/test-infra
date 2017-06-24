@@ -26,8 +26,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
-	"strings"
 	"time"
 
 	"cloud.google.com/go/storage"
@@ -37,84 +37,55 @@ import (
 )
 
 const (
-	fetchInterval = 5
+	fetchInterval   = 5
+	jenkinsUsername = "JENKINS_USERNAME"
+	jenkinsToken    = "JENKINS_TOKEN"
 )
 
 var (
-	webAddress = flag.String("listen_port", ":9103", "port on which to expose metrics and web interface.")
-	jenkinsURL = flag.String("jenkins_url", "https://testing.istio.io", "URL to Jenkins API")
-	gcsBucket  = flag.String("bucket", "istio-code-coverage", "gcs bucket")
+	webAddress      = flag.String("listen_port", ":9103", "Port on which to expose metrics and web interface.")
+	jenkinsURL      = flag.String("jenkins_url", "https://testing.istio.io", "Jenkins URL.")
+	gcsBucket       = flag.String("bucket", "istio-code-coverage", "GCS bucket name.")
+	codeCovTrackJob = flag.String("coverage_job", "postsubmit", "In which job we are tracking code coverage.")
 
-	succeededBuilds = prometheus.NewSummaryVec(
-		prometheus.SummaryOpts{
-			Name: "succeeded_build_durations_seconds",
-			Help: "Succeeded build durations seconds.",
-		},
-		[]string{"build_job", "repo"},
-	)
-
-	failedBuilds = prometheus.NewSummaryVec(
-		prometheus.SummaryOpts{
-			Name: "failed_build_durations_seconds",
-			Help: "Failed build durations seconds.",
-		},
-		[]string{"build_job", "repo"},
-	)
-
-	succeededBuildMax = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "succeeded_build_durations_max_seconds",
-			Help: "Succeeded max build durations seconds.",
-		},
-		[]string{"build_job", "repo"},
-	)
-
-	succeededBuildMin = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "succeeded_build_durations_min_seconds",
-			Help: "Succeeded min build durations seconds.",
-		},
-		[]string{"build_job", "repo"},
-	)
-
-	codeCoverage = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "package_code_coverage",
-			Help: "Package code coverage.",
-		},
-		[]string{"package", "repo"},
-	)
-
-	repoRegister = map[string]*repo{}
-
-	codeCovTrackJob = "postsubmit"
+	metricsSuite *p8sMetricsSuite
 
 	gcsClient  *storage.Client
 	httpClient = &http.Client{}
 
 	jk = &jkConst{
-		name:          "name",
-		jobs:          "jobs",
-		building:      "building",
-		result:        "result",
-		duration:      "duration",
-		number:        "number",
-		resultFailure: "FAILURE",
-		resultSUCCESS: "SUCCESS",
-		apiJSON:       "api/json",
+		name:               "name",
+		jobs:               "jobs",
+		building:           "building",
+		result:             "result",
+		duration:           "duration",
+		number:             "number",
+		resultFailure:      "FAILURE",
+		resultSUCCESS:      "SUCCESS",
+		apiJSON:            "api/json",
+		lastCompletedBuild: "lastCompletedBuild",
 	}
 )
 
 type jkConst struct {
-	name          string
-	jobs          string
-	building      string
-	result        string
-	duration      string
-	number        string
-	resultSUCCESS string
-	resultFailure string
-	apiJSON       string
+	name               string
+	jobs               string
+	building           string
+	result             string
+	duration           string
+	number             string
+	resultSUCCESS      string
+	resultFailure      string
+	apiJSON            string
+	lastCompletedBuild string
+}
+
+type p8sMetricsSuite struct {
+	succeededBuilds   *prometheus.SummaryVec
+	failedBuilds      *prometheus.SummaryVec
+	succeededBuildMax *prometheus.GaugeVec
+	succeededBuildMin *prometheus.GaugeVec
+	codeCoverage      *prometheus.GaugeVec
 }
 
 type repo struct {
@@ -137,19 +108,59 @@ func newJob(repoName, jobName string) *job {
 }
 
 func newRepo(name string) *repo {
-	r := &repo{
+	return &repo{
 		name: name,
 		jobs: make(map[string]*job),
 	}
-	return r
+}
+
+func newP8sMetricsSuite() *p8sMetricsSuite {
+	return &p8sMetricsSuite{
+		succeededBuilds: prometheus.NewSummaryVec(
+			prometheus.SummaryOpts{
+				Name: "succeeded_build_durations_seconds",
+				Help: "Succeeded build durations seconds.",
+			},
+			[]string{"build_job", "repo"},
+		),
+
+		failedBuilds: prometheus.NewSummaryVec(
+			prometheus.SummaryOpts{
+				Name: "failed_build_durations_seconds",
+				Help: "Failed build durations seconds.",
+			},
+			[]string{"build_job", "repo"},
+		),
+
+		succeededBuildMax: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Name: "succeeded_build_durations_max_seconds",
+				Help: "Succeeded max build durations seconds.",
+			},
+			[]string{"build_job", "repo"},
+		),
+
+		succeededBuildMin: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Name: "succeeded_build_durations_min_seconds",
+				Help: "Succeeded min build durations seconds.",
+			},
+			[]string{"build_job", "repo"},
+		),
+
+		codeCoverage: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Name: "package_code_coverage",
+				Help: "Package code coverage.",
+			},
+			[]string{"package", "repo"},
+		),
+	}
 }
 
 func init() {
-	prometheus.MustRegister(succeededBuilds)
-	prometheus.MustRegister(succeededBuildMax)
-	prometheus.MustRegister(succeededBuildMin)
-	prometheus.MustRegister(failedBuilds)
-	prometheus.MustRegister(codeCoverage)
+	metricsSuite = newP8sMetricsSuite()
+	metricsSuite.registerMetricVec()
 }
 
 func main() {
@@ -161,9 +172,10 @@ func main() {
 		log.Printf("Failed to create a gcs client, %v", err)
 	}
 
+	repoRegister := map[string]*repo{}
 	go func() {
 		for {
-			updateRepoList()
+			updateRepoList(repoRegister)
 			for _, repo := range repoRegister {
 				repo.updateJobList()
 				for _, job := range repo.jobs {
@@ -181,7 +193,15 @@ func main() {
 
 }
 
-func updateRepoList() {
+func (m *p8sMetricsSuite) registerMetricVec() {
+	prometheus.MustRegister(m.succeededBuilds)
+	prometheus.MustRegister(m.succeededBuildMax)
+	prometheus.MustRegister(m.succeededBuildMin)
+	prometheus.MustRegister(m.failedBuilds)
+	prometheus.MustRegister(m.codeCoverage)
+}
+
+func updateRepoList(repoRegister map[string]*repo) {
 	l, err := listJenkinsItems("")
 	if err != nil {
 		log.Printf("Failed to update repo list: %s", err)
@@ -252,20 +272,20 @@ func (j *job) publishCIMetrics() error {
 				return errors.New("unexpected jenkins value")
 			}
 			if result == jk.resultFailure {
-				failedBuilds.WithLabelValues(j.jobName, j.repoName).Observe(t)
+				metricsSuite.failedBuilds.WithLabelValues(j.jobName, j.repoName).Observe(t)
 				log.Printf("%s, %s, %d build failed", j.repoName, j.jobName, i)
 			} else if result == jk.resultSUCCESS {
 				max = math.Max(max, t)
 				min = math.Min(min, t)
-				succeededBuilds.WithLabelValues(j.jobName, j.repoName).Observe(t)
-				if j.jobName == codeCovTrackJob {
+				metricsSuite.succeededBuilds.WithLabelValues(j.jobName, j.repoName).Observe(t)
+				if j.jobName == *codeCovTrackJob {
 					object := fmt.Sprintf("%s/%s/%d", j.repoName, j.jobName, i)
 					coverage, err := getCoverage(object)
 					if err != nil {
 						log.Printf("Failed to get coverage, target: %s", object)
 					} else {
 						for p, c := range coverage {
-							codeCoverage.WithLabelValues(p, j.repoName).Set(c)
+							metricsSuite.codeCoverage.WithLabelValues(p, j.repoName).Set(c)
 						}
 					}
 				}
@@ -275,10 +295,10 @@ func (j *job) publishCIMetrics() error {
 	}
 
 	if max > 0 {
-		succeededBuildMax.WithLabelValues(j.jobName, j.repoName).Set(max)
+		metricsSuite.succeededBuildMax.WithLabelValues(j.jobName, j.repoName).Set(max)
 	}
 	if min < math.MaxFloat64 {
-		succeededBuildMin.WithLabelValues(j.jobName, j.repoName).Set(min)
+		metricsSuite.succeededBuildMin.WithLabelValues(j.jobName, j.repoName).Set(min)
 	}
 	j.lastBuildID = latestCompletedBuild
 
@@ -286,7 +306,7 @@ func (j *job) publishCIMetrics() error {
 }
 
 func (j *job) getLatestCompletedBuild() (int, error) {
-	o, err := getJenkinsObject(fmt.Sprintf("job/%s/job/%s/%s", j.repoName, j.jobName, "lastCompletedBuild"))
+	o, err := getJenkinsObject(fmt.Sprintf("job/%s/job/%s/%s", j.repoName, j.jobName, jk.lastCompletedBuild))
 	if err != nil {
 		return 0, fmt.Errorf("failed to get last build info of build, %v", err)
 	}
@@ -309,7 +329,7 @@ func getJenkinsObject(object string) (map[string]interface{}, error) {
 		return nil, err
 	}
 
-	request.SetBasicAuth(os.Getenv("JENKINS_USERNAME"), os.Getenv("JENKINS_TOKEN"))
+	request.SetBasicAuth(os.Getenv(jenkinsUsername), os.Getenv(jenkinsToken))
 	resp, err := httpClient.Do(request)
 	if err != nil {
 		log.Print("Failed to accomplish the request.")
@@ -383,13 +403,15 @@ func getCoverage(object string) (map[string]float64, error) {
 		}
 	}()
 
+	//Line example: "istio.io/mixer/adapter/denyChecker	99"
 	scanner := bufio.NewScanner(r)
+	reg := regexp.MustCompile(`(.*)\t(.*)`)
 	for scanner.Scan() {
-		if parts := strings.Split(scanner.Text(), "\t"); len(parts) == 2 {
-			if n, err := strconv.ParseFloat(parts[1], 64); err != nil {
+		if m := reg.FindStringSubmatch(scanner.Text()); len(m) == 2 {
+			if n, err := strconv.ParseFloat(m[2], 64); err != nil {
 				log.Printf("Failed to parse codecov file: %s, %v", scanner.Text(), err)
 			} else {
-				cov[parts[0]] = n
+				cov[m[1]] = n
 			}
 		} else {
 			log.Printf("Failed to parse codcov file: %s, broken line", scanner.Text())
