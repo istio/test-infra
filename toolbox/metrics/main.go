@@ -61,7 +61,7 @@ var (
 		duration:           "duration",
 		number:             "number",
 		resultFailure:      "FAILURE",
-		resultSUCCESS:      "SUCCESS",
+		resultSuccess:      "SUCCESS",
 		apiJSON:            "api/json",
 		lastCompletedBuild: "lastCompletedBuild",
 	}
@@ -74,7 +74,7 @@ type jkConst struct {
 	result             string
 	duration           string
 	number             string
-	resultSUCCESS      string
+	resultSuccess      string
 	resultFailure      string
 	apiJSON            string
 	lastCompletedBuild string
@@ -274,7 +274,7 @@ func (j *job) publishCIMetrics() error {
 			if result == jk.resultFailure {
 				metricsSuite.failedBuilds.WithLabelValues(j.jobName, j.repoName).Observe(t)
 				log.Printf("%s, %s, %d build failed", j.repoName, j.jobName, i)
-			} else if result == jk.resultSUCCESS {
+			} else if result == jk.resultSuccess {
 				max = math.Max(max, t)
 				min = math.Min(min, t)
 				metricsSuite.succeededBuilds.WithLabelValues(j.jobName, j.repoName).Observe(t)
@@ -359,7 +359,6 @@ func getJenkinsObject(object string) (map[string]interface{}, error) {
 func listJenkinsItems(object string) ([]string, error) {
 	o, err := getJenkinsObject(object)
 	if err != nil {
-		fmt.Print(err)
 		return nil, err
 	}
 	var list []string
