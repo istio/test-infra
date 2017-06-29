@@ -46,7 +46,7 @@ var (
 	webAddress      = flag.String("listen_port", ":9103", "Port on which to expose metrics and web interface.")
 	jenkinsURL      = flag.String("jenkins_url", "https://testing.istio.io", "Jenkins URL.")
 	gcsBucket       = flag.String("bucket", "istio-code-coverage", "GCS bucket name.")
-	codeCovTrackJob = flag.String("coverage_job", "postsubmit", "In which job we are tracking code coverage.")
+	codeCovTrackJob = flag.String("coverage_job", "fast-forward", "In which job we are tracking code coverage.")
 
 	metricsSuite *p8sMetricsSuite
 

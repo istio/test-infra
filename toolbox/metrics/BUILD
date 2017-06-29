@@ -31,9 +31,3 @@ docker_build(
     cmd = ["./fetcher"],
     files = [":fetcher"],
 )
-
-go_binary(
-    name = "metrics",
-    library = ":go_default_library",
-    visibility = ["//visibility:public"],
-)
