@@ -15,8 +15,8 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"testing"
@@ -149,10 +149,17 @@ func TestFailedCheck(t *testing.T) {
 }
 
 func TestMain(m *testing.M) {
+	if _, err := os.Stat(tmpDir); os.IsNotExist(err) {
+		os.Mkdir(tmpDir, 1744)
+	} else if err != nil {
+		log.Printf("Failed to create tmp directory: %s, %s", tmpDir, err)
+	}
+
 	defer func() {
 		if err := os.RemoveAll(tmpDir); err != nil {
-			fmt.Printf("Failed to remove tmpDir %s", tmpDir)
+			log.Printf("Failed to remove tmpDir %s", tmpDir)
 		}
 	}()
+
 	os.Exit(m.Run())
 }

@@ -1,0 +1,31 @@
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: metrics-fetcher
+spec:
+  replicas: 1
+  strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        istio: metrics-fetcher
+    spec:
+      containers:
+      - name: metrics-fetcher
+        image: gcr.io/istio-testing/metrics_fetcher:ce66da2846135425acc36dc90e47540196ba5bf1
+        imagePullPolicy: Always
+        env:
+          - name: JENKINS_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-credential
+                key: username.txt
+          - name: JENKINS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-credential
+                key: password.txt
