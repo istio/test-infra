@@ -150,9 +150,13 @@ func TestFailedCheck(t *testing.T) {
 
 func TestMain(m *testing.M) {
 	if _, err := os.Stat(tmpDir); os.IsNotExist(err) {
-		os.Mkdir(tmpDir, 1744)
+		if err = os.Mkdir(tmpDir, 1744); err != nil {
+			log.Printf("Failed to create tmp directory: %s, %s", tmpDir, err)
+			os.Exit(4)
+		}
 	} else if err != nil {
-		log.Printf("Failed to create tmp directory: %s, %s", tmpDir, err)
+		log.Printf("Failed to access tmp directory: %s, %s", tmpDir, err)
+		os.Exit(4)
 	}
 
 	defer func() {
