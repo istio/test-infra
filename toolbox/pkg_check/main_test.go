@@ -22,8 +22,12 @@ import (
 	"testing"
 )
 
+const (
+	tmpDirPrefix = "test-infra_package-coverage-"
+)
+
 var (
-	tmpDir = "/tmp/test-infra_package-coverage"
+	tmpDir string
 )
 
 func TestParseReport(t *testing.T) {
@@ -149,21 +153,17 @@ func TestFailedCheck(t *testing.T) {
 }
 
 func TestMain(m *testing.M) {
-	if _, err := os.Stat(tmpDir); os.IsNotExist(err) {
-		if err = os.Mkdir(tmpDir, 1744); err != nil {
-			log.Printf("Failed to create tmp directory: %s, %s", tmpDir, err)
-			os.Exit(4)
-		}
-	} else if err != nil {
-		log.Printf("Failed to access tmp directory: %s, %s", tmpDir, err)
+	var err error
+	if tmpDir, err = ioutil.TempDir("", tmpDirPrefix); err != nil {
+		log.Printf("Failed to create tmp directory: %s, %s", tmpDir, err)
 		os.Exit(4)
 	}
 
-	defer func() {
-		if err := os.RemoveAll(tmpDir); err != nil {
-			log.Printf("Failed to remove tmpDir %s", tmpDir)
-		}
-	}()
+	exitCode := m.Run()
 
-	os.Exit(m.Run())
+	if err := os.RemoveAll(tmpDir); err != nil {
+		log.Printf("Failed to remove tmpDir %s", tmpDir)
+	}
+
+	os.Exit(exitCode)
 }
