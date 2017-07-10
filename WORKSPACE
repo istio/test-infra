@@ -2,8 +2,14 @@ workspace(name = "com_github_istio_test_infra")
 
 git_repository(
     name = "io_bazel_rules_go",
-    tag = "0.4.4",
     remote = "https://github.com/bazelbuild/rules_go.git",
+    tag = "0.4.4",
+)
+
+git_repository(
+    name = "com_github_bazelbuild_buildtools",
+    remote = "https://github.com/bazelbuild/buildtools.git",
+    tag = "0.4.5",
 )
 
 load("@io_bazel_rules_go//go:def.bzl", "go_repositories", "new_go_repository")
@@ -106,14 +112,19 @@ new_go_repository(
     importpath = "google.golang.org/genproto",
 )
 
+new_go_repository(
+    name = "org_golang_x_tools",
+    commit = "3d92dd60033c312e3ae7cac319c792271cf67e37",
+    importpath = "golang.org/x/tools",
+)
 
 ##
 ## docker
 ##
 git_repository(
     name = "io_bazel_rules_docker",
-    tag = "v0.0.1",  # May 5 2017 (0.0.1)
     remote = "https://github.com/bazelbuild/rules_docker.git",
+    tag = "v0.0.1",  # May 5 2017 (0.0.1)
 )
 
 new_go_repository(
@@ -122,8 +133,8 @@ new_go_repository(
     importpath = "github.com/docker/distribution",
 )
 
-
 load("@io_bazel_rules_docker//docker:docker.bzl", "docker_repositories", "docker_pull")
+
 docker_repositories()
 
 docker_pull(
