@@ -9,4 +9,11 @@ if [ "$CI" == "bootstrap" ]; then
     cd $GOPATH/src/istio.io/test-infra/
 fi
 
+echo "=== Building ==="
+bazel build //...
+
+echo "=== Testing ==="
+bazel test //...
+
+echo "=== Linting ==="
 ./scripts/linters.sh
