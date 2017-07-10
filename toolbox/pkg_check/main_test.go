@@ -15,15 +15,19 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"testing"
 )
 
+const (
+	tmpDirPrefix = "test-infra_package-coverage-"
+)
+
 var (
-	tmpDir = "/tmp/test-infra_package-coverage"
+	tmpDir string
 )
 
 func TestParseReport(t *testing.T) {
@@ -149,10 +153,17 @@ func TestFailedCheck(t *testing.T) {
 }
 
 func TestMain(m *testing.M) {
-	defer func() {
-		if err := os.RemoveAll(tmpDir); err != nil {
-			fmt.Printf("Failed to remove tmpDir %s", tmpDir)
-		}
-	}()
-	os.Exit(m.Run())
+	var err error
+	if tmpDir, err = ioutil.TempDir("", tmpDirPrefix); err != nil {
+		log.Printf("Failed to create tmp directory: %s, %s", tmpDir, err)
+		os.Exit(4)
+	}
+
+	exitCode := m.Run()
+
+	if err := os.RemoveAll(tmpDir); err != nil {
+		log.Printf("Failed to remove tmpDir %s", tmpDir)
+	}
+
+	os.Exit(exitCode)
 }

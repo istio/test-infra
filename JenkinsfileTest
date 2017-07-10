@@ -28,6 +28,9 @@ mainFlow(utils) {
             echo(env.PATH)
             echo(env.GOPATH)
             sh('scripts/linters.sh')
+            bazel.fetch('-k //...')
+            bazel.build('//...')
+            bazel.test('//...')
             commentOnPr(utils, "This is a test.")
           }
         },
