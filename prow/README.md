@@ -27,10 +27,15 @@ Both of these types of jobs can be configured using the config configmap [here](
 
 ```yaml
 # in config.yaml
+triggers:
+- repos:
+  - istio/istio
+  - istio/test-infra
+  - istio/<my-repo> # ADD THIS LINE
+# ...
 presubmits:
   # ...
-
-  istio/<my-repo>:
+  istio/<my-repo>: # ADD THIS BLOCK
   - name: my-repo-presubmit
     context: prow/my-repo-presubmit.sh
     always_run: true
@@ -44,7 +49,7 @@ presubmits:
     # ...
 
 # in plugins.yaml
-my-repo:
+my-repo: # ADD THIS BLOCK
 - trigger
 ```
 
@@ -67,6 +72,11 @@ $ tree
 │   └── my-job.sh
 ├── LICENSE
 └── README.md
+```
+
+Remember that when you add a job file, you need to set the execution bit!
+```bash
+$ chmod +x prow/my-repo-presubmit.sh
 ```
 
 ### Test-Infra Prow Jobs
