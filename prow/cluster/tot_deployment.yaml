@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  labels:
+    app: tot
+  name: tot-storage
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  gcePersistentDisk:
+    pdName: tot-storage
+    fsType: ext4
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  labels:
+    app: tot
+  name: tot-storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: tot
+  labels:
+    app: tot
+spec:
+  replicas: 1  # one canonical source of build numbers
+  template:
+    metadata:
+      labels:
+        app: tot
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: tot
+        image: gcr.io/k8s-prow/tot:0.3
+        imagePullPolicy: Always
+        args:
+        - -log-json
+        - -storage=/store/tot.json
+        ports:
+          - name: http
+            containerPort: 8888
+        volumeMounts:
+        - mountPath: /store
+          name: tot-volume
+      volumes:
+        - name: tot-volume
+          persistentVolumeClaim:
+            claimName: tot-storage

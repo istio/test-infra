@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+# entrypoint starts docker daemon and runs bootstrap.py
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+set -x # print all commands that are run
+
+if [[ ${UID} -ne 0 ]]; then
+  SUDO=sudo
+else
+  SUDO=
+fi
+
+${SUDO} service docker start
+
+# Useful to have in logs for debugging
+pwd
+env
+
+# start harness (checkout code/run job/upload logs)
+./bootstrap.py \
+    --repo="github.com/${REPO_OWNER}/${REPO_NAME:-test-infra}" \
+    --job=${JOB_NAME} \
+    --service-account=${GOOGLE_APPLICATION_CREDENTIALS} \
+    --upload="gs://istio-prow/" \
+    --root="${GOPATH}/src" \
+    --no-magic-env \
+    --jobs-dir="prow" \
+    "$@"
