@@ -24,6 +24,43 @@ presubmits:
   #   spec:          If this exists then run a kubernetes pod with this spec.
   #                  Otherwise, run a Jenkins job.
 
+  istio/istio:
+  - name: istio-presubmit
+    context: prow/istio-presubmit.sh
+    always_run: true
+    rerun_command: "@istio-testing bazel test this"
+    trigger: "@istio-testing (bazel )?test this"
+    branches:
+    - master
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.1.5
+        args:
+        - "--pull=$(PULL_REFS)"
+        - "--clean"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: cache-ssd
+          mountPath: /home/bootstrap/.cache
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0
+
   # Skip reporting on PRs for now
   istio/pilot:
   - name: pilot-presubmit
