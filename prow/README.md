@@ -76,7 +76,7 @@ $ tree
 
 Remember that when you add a job file, you need to set the execution bit!
 ```bash
-$ chmod +x prow/my-repo-presubmit.sh
+$ chmod +x prow/my-presubmit.sh
 ```
 
 ### Test-Infra Prow Jobs
