@@ -1,0 +1,25 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: deck
+  labels:
+    app: deck
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: deck
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: deck
+        image: gcr.io/k8s-prow/deck:0.32
+        ports:
+          - name: http
+            containerPort: 8080
