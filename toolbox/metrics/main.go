@@ -48,7 +48,6 @@ var (
 	gcsBucket       = flag.String("bucket", "istio-code-coverage", "GCS bucket name.")
 	codeCovTrackJob = flag.String("coverage_job", "fast-forward", "In which job we are tracking code coverage.")
 
-
 	metricsSuite *p8sMetricsSuite
 
 	gcsClient  *storage.Client
