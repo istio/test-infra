@@ -48,6 +48,7 @@ var (
 	gcsBucket       = flag.String("bucket", "istio-code-coverage", "GCS bucket name.")
 	codeCovTrackJob = flag.String("coverage_job", "fast-forward", "In which job we are tracking code coverage.")
 
+
 	metricsSuite *p8sMetricsSuite
 
 	gcsClient  *storage.Client
@@ -246,15 +247,17 @@ func (j *job) publishCIMetrics() error {
 	}
 
 	for i := j.lastBuildID + 1; i <= latestCompletedBuild; i++ {
+		object := fmt.Sprintf("%s/%s/%d", j.repoName, j.jobName, i)
 		build, err := getJenkinsObject(fmt.Sprintf("job/%s/job/%s/%d", j.repoName, j.jobName, i))
 		if err != nil {
-			log.Printf("Failed to get build No.%d from %s/%s, %v", i, j.repoName, j.jobName, err)
+			log.Printf("Failed to get build %s, %v", object, err)
+			continue
 		}
 
 		b, ok := build[jk.building].(bool)
 		if !ok {
-			log.Printf("Building is not a bool: %s", build[jk.building])
-			return errors.New("unexpected jenkins value")
+			log.Printf("Unexpected jenkins value, %s. Building is not a bool: %s", object, build[jk.building])
+			continue
 		}
 
 		if b {
@@ -262,24 +265,23 @@ func (j *job) publishCIMetrics() error {
 		} else {
 			duration, ok := build[jk.duration].(float64)
 			if !ok {
-				log.Printf("Duration is not a float64: %s", build[jk.duration])
-				return errors.New("unexpected jenkins value")
+				log.Printf("Unexpected jenkins value, %s. Duration is not a float64: %s", object, build[jk.duration])
+				continue
 			}
 			t := duration / 1000
 			result, ok := build[jk.result].(string)
 			if !ok {
-				log.Printf("Result is not a string: %s", build[jk.result])
-				return errors.New("unexpected jenkins value")
+				log.Printf("Unexpected jenkins value, %s. Result is not a string: %s", object, build[jk.result])
+				continue
 			}
 			if result == jk.resultFailure {
 				metricsSuite.failedBuilds.WithLabelValues(j.jobName, j.repoName).Observe(t)
-				log.Printf("%s, %s, %d build failed", j.repoName, j.jobName, i)
+				log.Printf("%s build failed", object)
 			} else if result == jk.resultSuccess {
 				max = math.Max(max, t)
 				min = math.Min(min, t)
 				metricsSuite.succeededBuilds.WithLabelValues(j.jobName, j.repoName).Observe(t)
 				if j.jobName == *codeCovTrackJob {
-					object := fmt.Sprintf("%s/%s/%d", j.repoName, j.jobName, i)
 					coverage, err := getCoverage(object)
 					if err != nil {
 						log.Printf("Failed to get coverage, target: %s", object)
@@ -289,7 +291,8 @@ func (j *job) publishCIMetrics() error {
 						}
 					}
 				}
-				log.Printf("%s, %s, %d build succeeded", j.repoName, j.jobName, i)
+				log.Printf("%s build succeeded", object)
+
 			}
 		}
 	}
@@ -406,14 +409,14 @@ func getCoverage(object string) (map[string]float64, error) {
 	scanner := bufio.NewScanner(r)
 	reg := regexp.MustCompile(`(.*)\t(.*)`)
 	for scanner.Scan() {
-		if m := reg.FindStringSubmatch(scanner.Text()); len(m) == 2 {
+		if m := reg.FindStringSubmatch(scanner.Text()); len(m) == 3 {
 			if n, err := strconv.ParseFloat(m[2], 64); err != nil {
 				log.Printf("Failed to parse codecov file: %s, %v", scanner.Text(), err)
 			} else {
 				cov[m[1]] = n
 			}
 		} else {
-			log.Printf("Failed to parse codcov file: %s, broken line", scanner.Text())
+			log.Printf("Failed to parse codecov file: %s, broken line", scanner.Text())
 		}
 	}
 
