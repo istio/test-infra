@@ -4,6 +4,7 @@ plank:
 
 triggers:
 - repos:
+  - istio/istio
   - istio/test-infra
   - istio/pilot
   trusted_org: istio
@@ -48,6 +49,9 @@ presubmits:
         - name: service
           mountPath: /etc/service-account
           readOnly: true
+        - name: e2e-testing-kubeconfig
+          mountPath: /etc/e2e-testing-kubeconfig
+          readOnly: true
         - name: cache-ssd
           mountPath: /home/bootstrap/.cache
         ports:
@@ -57,6 +61,9 @@ presubmits:
       - name: service
         secret:
           secretName: service-account
+      - name: e2e-testing-kubeconfig
+        secret:
+          secretName: e2e-testing-kubeconfig
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
@@ -87,6 +94,9 @@ presubmits:
         - name: service
           mountPath: /etc/service-account
           readOnly: true
+        - name: e2e-testing-kubeconfig
+          mountPath: /etc/e2e-testing-kubeconfig
+          readOnly: true
         - name: cache-ssd
           mountPath: /home/bootstrap/.cache
         ports:
@@ -96,6 +106,9 @@ presubmits:
       - name: service
         secret:
           secretName: service-account
+      - name: e2e-testing-kubeconfig
+        secret:
+          secretName: e2e-testing-kubeconfig
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
