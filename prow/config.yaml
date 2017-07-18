@@ -97,6 +97,9 @@ presubmits:
         - name: e2e-testing-kubeconfig
           mountPath: /etc/e2e-testing-kubeconfig
           readOnly: true
+        - name: pilot-codecov-token
+          mountPath: /etc/codecov
+          readOnly: true
         - name: cache-ssd
           mountPath: /home/bootstrap/.cache
         ports:
@@ -109,6 +112,9 @@ presubmits:
       - name: e2e-testing-kubeconfig
         secret:
           secretName: e2e-testing-kubeconfig
+      - name: pilot-codecov-token
+        secret:
+          secretName: pilot-codecov-token
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
