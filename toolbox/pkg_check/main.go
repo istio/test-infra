@@ -150,6 +150,7 @@ func (c *codecovChecker) uploadCoverage() error {
 	w := client.Bucket(c.bucket).Object(object).NewWriter(ctx)
 	if _, err = w.Write([]byte(coverageString)); err != nil {
 		log.Print("Failed to write coverage to gcs")
+		return err
 	}
 
 	defer func() {
