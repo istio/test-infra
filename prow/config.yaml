@@ -30,7 +30,7 @@ presubmits:
     context: prow/istio-presubmit.sh
     always_run: true
     rerun_command: "@istio-testing bazel test this"
-    trigger: "@istio-testing (bazel )?test this"
+    trigger: "((?m)^@istio-testing (bazel )?test this,?(\\s+|$)|(?m)^/test( all| bazel),?(\\s+|$))"
     branches:
     - master
     spec:
@@ -73,7 +73,7 @@ presubmits:
     context: prow/pilot-presubmit.sh
     always_run: true
     rerun_command: "@istio-testing bazel test this"
-    trigger: "@istio-testing (bazel )?test this"
+    trigger: "((?m)^@istio-testing (bazel )?test this,?(\\s+|$)|(?m)^/test( all| bazel),?(\\s+|$))"
     branches:
     - master
     spec:
@@ -122,7 +122,7 @@ presubmits:
     context: prow/test-infra-presubmit.sh
     always_run: true
     rerun_command: "@istio-testing bazel test this"
-    trigger: "@istio-testing (bazel )?test this"
+    trigger: "((?m)^@istio-testing (bazel )?test this,?(\\s+|$)|(?m)^/test( all| bazel),?(\\s+|$))"
     branches:
     - master
     spec:
