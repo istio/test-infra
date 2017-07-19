@@ -68,10 +68,8 @@ presubmits:
         hostPath:
           path: /mnt/disks/ssd0
 
-  # Skip reporting on PRs for now
   istio/pilot:
   - name: pilot-presubmit
-    skip_report: true
     context: prow/pilot-presubmit.sh
     always_run: true
     rerun_command: "@istio-testing bazel test this"
