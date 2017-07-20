@@ -26,13 +26,5 @@ set -u
 # Print commands
 set -x
 
-if [ "${CI:-}" == 'bootstrap' ]; then
-    # Test harness will checkout code to directoryc$GOPATH/src/github.com/istio
-    # but we depend on being at path $GOPATH/src/istio.io for imports.
-    mkdir -p ${GOPATH}/src/istio.io
-    ln -s ${GOPATH}/src/github.com/istio/test-infra ${GOPATH}/src/istio.io
-    cd ${GOPATH}/src/istio.io/test-infra/
-fi
-
 echo "=== Cleaning up cluster ==="
 ./scripts/cleanup-cluster -h 2
