@@ -164,8 +164,6 @@ postsubmits:
       - image: gcr.io/istio-testing/prowbazel:0.1.5
         args:
         - "--branch=$(PULL_REFS)"
-        - "--upload=gs://kubernetes-jenkins/logs"
-        - "--git-cache=/root/.cache/git"
         - "--clean"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
