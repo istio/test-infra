@@ -123,8 +123,6 @@ presubmits:
       rerun_command: "@istio-testing smoke test this"
       trigger: "((?m)^@istio-testing (smoke )?test this,?(\\s+|$)|(?m)^/test( all| bazel),?(\\s+|$))"
       skip_report: true
-      branches:
-      - master
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.1.5
@@ -141,9 +139,6 @@ presubmits:
           - name: e2e-testing-kubeconfig
             mountPath: /home/bootstrap/.kube
             readOnly: true
-          - name: pilot-codecov-token
-            mountPath: /etc/codecov
-            readOnly: true
           - name: cache-ssd
             mountPath: /home/bootstrap/.cache
           ports:
@@ -156,9 +151,6 @@ presubmits:
         - name: e2e-testing-kubeconfig
           secret:
             secretName: e2e-testing-kubeconfig
-        - name: pilot-codecov-token
-          secret:
-            secretName: pilot-codecov-token
             items:
             - key: e2e-testing-kubeconfig
               path: config
