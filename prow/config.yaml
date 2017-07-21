@@ -153,3 +153,49 @@ presubmits:
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
+
+postsubmits:
+  istio/pilot:
+  - name: pilot-postsubmit
+    branches:
+    - master
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.1.5
+        args:
+        - "--branch=$(PULL_REFS)"
+        - "--clean"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: e2e-testing-kubeconfig
+          mountPath: /etc/e2e-testing-kubeconfig
+          readOnly: true
+        - name: pilot-codecov-token
+          mountPath: /etc/codecov
+          readOnly: true
+        - name: cache-ssd
+          mountPath: /home/bootstrap/.cache
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: e2e-testing-kubeconfig
+        secret:
+          secretName: e2e-testing-kubeconfig
+      - name: pilot-codecov-token
+        secret:
+          secretName: pilot-codecov-token
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0
