@@ -4,9 +4,10 @@ plank:
 
 triggers:
 - repos:
+  - istio/auth
   - istio/istio
-  - istio/test-infra
   - istio/pilot
+  - istio/test-infra
   trusted_org: istio
 
 presubmits:
@@ -24,6 +25,59 @@ presubmits:
   #   skip_report:   If true, then do not set status or comment on GitHub.
   #   spec:          If this exists then run a kubernetes pod with this spec.
   #                  Otherwise, run a Jenkins job.
+
+  istio/auth:
+  - name: auth-presubmit
+    context: prow/auth-presubmit.sh
+    skip_report: true
+    always_run: true
+    rerun_command: "@istio-testing bazel test this"
+    trigger: "((?m)^@istio-testing (bazel )?test this,?(\\s+|$)|(?m)^/test( all| bazel),?(\\s+|$))"
+    branches:
+    - master
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.1.5
+        args:
+        - "--pull=$(PULL_REFS)"
+        - "--clean"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: e2e-testing-kubeconfig
+          mountPath: /home/bootstrap/.kube/
+          readOnly: true
+        - name: auth-codecov-token
+          mountPath: /etc/codecov
+          readOnly: true
+        - name: cache-ssd
+          mountPath: /home/bootstrap/.cache
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: e2e-testing-kubeconfig
+        secret:
+          secretName: e2e-testing-kubeconfig
+          items:
+          - key: e2e-testing-kubeconfig
+            path: config
+      - name: auth-codecov-token
+        secret:
+          secretName: auth-codecov-token
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0
 
   istio/istio:
   - name: istio-presubmit
@@ -48,7 +102,7 @@ presubmits:
           mountPath: /etc/service-account
           readOnly: true
         - name: e2e-testing-kubeconfig
-          mountPath: /etc/e2e-testing-kubeconfig
+          mountPath: /home/bootstrap/.kube/
           readOnly: true
         - name: cache-ssd
           mountPath: /home/bootstrap/.cache
@@ -62,6 +116,9 @@ presubmits:
       - name: e2e-testing-kubeconfig
         secret:
           secretName: e2e-testing-kubeconfig
+          items:
+          - key: e2e-testing-kubeconfig
+            path: config
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
