@@ -200,38 +200,38 @@ postsubmits:
 
 periodics:
 - interval: 2h
-  - name: test-infra-cleanup-cluster
-    spec:
-      containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.5
-        args:
-        - "--repo=istio/test-infra=master"
-        - "--clean"
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-        - name: e2e-testing-kubeconfig
-          mountPath: /home/bootstrap/.kube/
-          readOnly: true
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
-      volumes:
+  name: test-infra-cleanup-cluster
+  spec:
+    containers:
+    - image: gcr.io/istio-testing/prowbazel:0.1.5
+      args:
+      - "--repo=istio/test-infra=master"
+      - "--clean"
+      env:
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/service-account/service-account.json
+      volumeMounts:
       - name: service
-        secret:
-          secretName: service-account
+        mountPath: /etc/service-account
+        readOnly: true
       - name: e2e-testing-kubeconfig
-        secret:
-          secretName: e2e-testing-kubeconfig
-          items:
-          - key: e2e-testing-kubeconfig
-            path: config
+        mountPath: /home/bootstrap/.kube/
+        readOnly: true
       - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
+        mountPath: /home/bootstrap/.cache
+      ports:
+      - containerPort: 9999
+        hostPort: 9998
+    volumes:
+    - name: service
+      secret:
+        secretName: service-account
+    - name: e2e-testing-kubeconfig
+      secret:
+        secretName: e2e-testing-kubeconfig
+        items:
+        - key: e2e-testing-kubeconfig
+          path: config
+    - name: cache-ssd
+      hostPath:
+        path: /mnt/disks/ssd0
