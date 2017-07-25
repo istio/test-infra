@@ -5,15 +5,16 @@ This directory contains a Makefile and other resources for managing the Istio CI
 
 ### Managing a Cluster
 
-The infrastructure runs on a k8s cluster. All of our tools are set up to handle running on GKE. The variables for project/zone/cluster are in the Makefile. The Makefile also contains commands for common management tasks.
+The infrastructure runs on a k8s cluster. All of our tools make it easy to run on GKE, although another k8s provider could be used. The variables for the GCP project/zone/cluster are in the Makefile. The Makefile also contains commands for common management tasks.
 
 #### Deployments
 
-1. [hook](./cluster/hook_deployment.yaml)     - handle webhooks and create prow jobs
-2. [plank](./cluster/plank_deployment.yaml)   - poll for prow jobs and start them, mark completed, statuses to Github
-3. [deck](./cluster/deck_deployment.yaml)     - simple ui for prow jobs
-4. [sinker](./cluster/sinker_deployment.yaml) - clean up old prow jobs
-5. [tot](./cluster/tot_deployment.yaml)       - vendor build numbers (i.e., `<number>` in job name: `pilot-presubmit-<number>`)
+1. [hook](./cluster/hook_deployment.yaml)               - handle webhooks and create prow jobs
+2. [plank](./cluster/plank_deployment.yaml)             - poll for prow jobs and start them, mark completed, statuses to Github
+3. [deck](./cluster/deck_deployment.yaml)               - simple ui for prow jobs
+4. [sinker](./cluster/sinker_deployment.yaml)           - clean up old prow jobs
+5. [tot](./cluster/tot_deployment.yaml)                 - vendor build numbers (i.e., `<number>` in job name: `pilot-presubmit-<number>`)
+6. [horologium](./cluster/horologium_deployment.yaml)   - start periodic jobs
 
 We run the k8s-prow images. These images are built from source [here](https://github.com/kubernetes/test-infra/tree/master/prow).
 
