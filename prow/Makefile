@@ -66,7 +66,7 @@ startd:
 	make plank-deployment
 	make tot-deployment
 	make sinker-deployment
-	makr horologium-deployment
+	make horologium-deployment
 
 stopd:
 	kubectl delete deployment hook deck plank tot sinker horologium
