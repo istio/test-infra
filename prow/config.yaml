@@ -182,6 +182,9 @@ presubmits:
           args:
           - "--pull=$(PULL_REFS)"
           - "--clean"
+          # Bazel needs privileged mode in order to sandbox builds.
+          securityContext:
+            privileged: true
           env:
           - name: GOOGLE_APPLICATION_CREDENTIALS
             value: /etc/service-account/service-account.json
