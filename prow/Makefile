@@ -39,6 +39,9 @@ hook-deployment: get-cluster-credentials
 hook-service: get-cluster-credentials
 	kubectl apply -f cluster/hook_service.yaml
 
+horologium-deployment: get-cluster-credentials
+	kubectl apply -f cluster/horologium_deployment.yaml
+
 sinker-deployment: get-cluster-credentials
 	kubectl apply -f cluster/sinker_deployment.yaml
 
@@ -63,9 +66,10 @@ startd:
 	make plank-deployment
 	make tot-deployment
 	make sinker-deployment
+	make horologium-deployment
 
 stopd:
-	kubectl delete deployment hook deck plank tot sinker
+	kubectl delete deployment hook deck plank tot sinker horologium
 
 restartd:
 	make stopd
