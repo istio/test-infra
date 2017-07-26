@@ -9,7 +9,7 @@ git_repository(
 git_repository(
     name = "com_github_bazelbuild_buildtools",
     remote = "https://github.com/bazelbuild/buildtools.git",
-    tag = "0.5.2",
+    tag = "0.4.5",
 )
 
 load("@io_bazel_rules_go//go:def.bzl", "go_repositories", "new_go_repository")
