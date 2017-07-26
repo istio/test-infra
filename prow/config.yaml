@@ -54,7 +54,7 @@ presubmits:
           mountPath: /etc/service-account
           readOnly: true
         - name: e2e-testing-kubeconfig
-          mountPath: /home/bootstrap/.kube/
+          mountPath: /home/bootstrap/.kube
         - name: auth-codecov-token
           mountPath: /etc/codecov
           readOnly: true
@@ -69,10 +69,7 @@ presubmits:
           secretName: service-account
       - name: e2e-testing-kubeconfig
         secret:
-          secretName: e2e-testing-kubeconfig
-          items:
-          - key: e2e-testing-kubeconfig
-            path: config
+          secretName: e2e-testing-kube-config
       - name: auth-codecov-token
         secret:
           secretName: auth-codecov-token
@@ -103,7 +100,7 @@ presubmits:
           mountPath: /etc/service-account
           readOnly: true
         - name: e2e-testing-kubeconfig
-          mountPath: /home/bootstrap/.kube/
+          mountPath: /home/bootstrap/.kube
         - name: cache-ssd
           mountPath: /home/bootstrap/.cache
         ports:
@@ -115,10 +112,7 @@ presubmits:
           secretName: service-account
       - name: e2e-testing-kubeconfig
         secret:
-          secretName: e2e-testing-kubeconfig
-          items:
-          - key: e2e-testing-kubeconfig
-            path: config
+          secretName: e2e-testing-kube-config
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
@@ -195,7 +189,7 @@ presubmits:
             mountPath: /etc/service-account
             readOnly: true
           - name: e2e-testing-kubeconfig
-            mountPath: /home/bootstrap/.kube/
+            mountPath: /home/bootstrap/.kube
           - name: cache-ssd
             mountPath: /home/bootstrap/.cache
           ports:
@@ -207,10 +201,7 @@ presubmits:
             secretName: service-account
         - name: e2e-testing-kubeconfig
           secret:
-            secretName: e2e-testing-kubeconfig
-            items:
-            - key: e2e-testing-kubeconfig
-              path: config
+            secretName: e2e-testing-kube-config
         - name: cache-ssd
           hostPath:
             path: /mnt/disks/ssd0
@@ -316,7 +307,7 @@ periodics:
         mountPath: /etc/service-account
         readOnly: true
       - name: e2e-testing-kubeconfig
-        mountPath: /home/bootstrap/.kube/
+        mountPath: /home/bootstrap/.kube
       - name: cache-ssd
         mountPath: /home/bootstrap/.cache
       ports:
@@ -328,10 +319,7 @@ periodics:
         secretName: service-account
     - name: e2e-testing-kubeconfig
       secret:
-        secretName: e2e-testing-kubeconfig
-        items:
-        - key: e2e-testing-kubeconfig
-          path: config
+        secretName: e2e-testing-kube-config
     - name: cache-ssd
       hostPath:
         path: /mnt/disks/ssd0
