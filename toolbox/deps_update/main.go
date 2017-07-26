@@ -15,6 +15,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -29,7 +30,7 @@ var (
 )
 
 // Generates the url to the remote repository on github
-// embeded with proper username and token
+// embedded with proper username and token
 func remote(repo string) (string, error) {
 	acct := *owner // passed in as flag in githubClient
 	token, err := getToken()
@@ -43,7 +44,7 @@ func remote(repo string) (string, error) {
 // to the latest stable version
 // returns the updated line
 func replaceCommit(line string, dep dependency) (string, error) {
-	commitSHA, err := githubClnt.getHeadCommitSHA(dep.repoName, dep.prodBranch)
+	commitSHA, err := githubClnt.getHeadCommitSHA(dep.RepoName, dep.ProdBranch)
 	if err != nil {
 		return line, err
 	}
@@ -52,37 +53,23 @@ func replaceCommit(line string, dep dependency) (string, error) {
 }
 
 // Get the list of dependencies of a repo
-func getDeps(repo string) []dependency {
-	// TODO (chx) implement the dependency hoisting in all repos
-	// TODO (chx) read dependencies from file in each parent repo
-	deps := make(map[string][]dependency)
-	deps["mixerclient"] = []dependency{
-		{"mixerapi_git", "api", "master", "repositories.bzl"},
+// Assumes repo has been cloned to local
+func getDeps() ([]dependency, error) {
+	var deps []dependency
+	raw, err := ioutil.ReadFile("istio.deps")
+	if err != nil {
+		return deps, err
 	}
-	deps["galley"] = []dependency{
-		{"com_github_istio_api", "api", "master", "WORKSPACE"},
-	}
-
-	deps["mixer"] = []dependency{
-		{"com_github_istio_api", "api", "master", "WORKSPACE"},
-	}
-
-	deps["proxy"] = []dependency{
-		{"mixerclient_git", "mixerclient", "master", "src/envoy/mixer/repositories.bzl"},
-	}
-
-	deps["pilot"] = []dependency{
-		{"PROXY", "proxy", "stable", "WORKSPACE"},
-	}
-	return deps[repo]
+	err = json.Unmarshal(raw, &deps)
+	return deps, err
 }
 
 // Generates an MD5 digest of the version set of the repo dependencies
 // useful in avoiding making duplicate branches of the same code change
-func fingerPrint(repo string) (string, error) {
+func fingerPrint(deps []dependency) (string, error) {
 	digest := ""
-	for _, dep := range getDeps(repo) {
-		commitSHA, err := githubClnt.getHeadCommitSHA(dep.repoName, dep.prodBranch)
+	for _, dep := range deps {
+		commitSHA, err := githubClnt.getHeadCommitSHA(dep.RepoName, dep.ProdBranch)
 		if err != nil {
 			return "", err
 		}
@@ -93,20 +80,20 @@ func fingerPrint(repo string) (string, error) {
 
 // Update the commit SHA reference in the dependency file of dep
 func updateDepFile(dep dependency) error {
-	input, err := ioutil.ReadFile(dep.file)
+	input, err := ioutil.ReadFile(dep.File)
 	if err != nil {
 		return err
 	}
 	lines := strings.Split(string(input), "\n")
 	for i, line := range lines {
-		if strings.Contains(line, dep.name+" = ") {
+		if strings.Contains(line, dep.Name+" = ") {
 			if lines[i], err = replaceCommit(line, dep); err != nil {
 				return err
 			}
 		}
 	}
 	output := strings.Join(lines, "\n")
-	return ioutil.WriteFile(dep.file, []byte(output), 0600)
+	return ioutil.WriteFile(dep.File, []byte(output), 0600)
 }
 
 // Assumes at the root of istio directory
@@ -138,13 +125,17 @@ func updateDeps(repo string) error {
 	if err != nil {
 		return err
 	}
-	if _, err := Shell("git clone " + remoteURL); err != nil {
+	if _, err = Shell("git clone " + remoteURL); err != nil {
 		return err
 	}
-	if err := os.Chdir(repo); err != nil {
+	if err = os.Chdir(repo); err != nil {
 		return err
 	}
-	depVersions, err := fingerPrint(repo)
+	deps, err := getDeps()
+	if err != nil {
+		return err
+	}
+	depVersions, err := fingerPrint(deps)
 	if err != nil {
 		return err
 	}
@@ -157,7 +148,7 @@ func updateDeps(repo string) error {
 			return err
 		}
 	} else {
-		for _, dep := range getDeps(repo) {
+		for _, dep := range deps {
 			if err := updateDepFile(dep); err != nil {
 				return err
 			}

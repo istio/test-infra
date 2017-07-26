@@ -34,12 +34,8 @@ package main
 */
 
 type dependency struct {
-	name       string
-	repoName   string
-	prodBranch string // either master or stable
-	file       string // where in the *parent* repo such dependecy is recorded
+	Name       string `json:"name"`
+	RepoName   string `json:"repoName"`
+	ProdBranch string `json:"prodBranch"` // either master or stable
+	File       string `json:"file"`       // where in the *parent* repo such dependecy is recorded
 }
-
-var (
-	deps = make(map[string][]dependency)
-)
