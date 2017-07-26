@@ -54,7 +54,7 @@ presubmits:
           mountPath: /etc/service-account
           readOnly: true
         - name: e2e-testing-kubeconfig
-          mountPath: /home/bootstrap/.kube
+          mountPath: /home/bootstrap/.kube/
         - name: auth-codecov-token
           mountPath: /etc/codecov
           readOnly: true
@@ -195,7 +195,7 @@ presubmits:
             mountPath: /etc/service-account
             readOnly: true
           - name: e2e-testing-kubeconfig
-            mountPath: /home/bootstrap/.kube
+            mountPath: /home/bootstrap/.kube/
           - name: cache-ssd
             mountPath: /home/bootstrap/.cache
           ports:
@@ -317,7 +317,6 @@ periodics:
         readOnly: true
       - name: e2e-testing-kubeconfig
         mountPath: /home/bootstrap/.kube/
-        readOnly: true
       - name: cache-ssd
         mountPath: /home/bootstrap/.cache
       ports:
