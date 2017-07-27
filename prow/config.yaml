@@ -40,7 +40,7 @@ presubmits:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.1.7
         args:
-        - "--pull=$(PULL_REFS)"
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
@@ -86,7 +86,7 @@ presubmits:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.1.7
         args:
-        - "--pull=$(PULL_REFS)"
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
@@ -128,7 +128,7 @@ presubmits:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.1.7
         args:
-        - "--pull=$(PULL_REFS)"
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
@@ -175,7 +175,7 @@ presubmits:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.1.7
           args:
-          - "--pull=$(PULL_REFS)"
+          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
           - "--clean"
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
@@ -217,7 +217,7 @@ presubmits:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.1.7
         args:
-        - "--pull=$(PULL_REFS)"
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
@@ -251,7 +251,7 @@ postsubmits:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.1.7
         args:
-        - "--branch=$(PULL_REFS)"
+        - "--repo=github.com/istio/test-infra=$(PULL_REFS)"
         - "--clean"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
