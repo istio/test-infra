@@ -27,4 +27,4 @@ set -u
 set -x
 
 echo "=== Cleaning up cluster ==="
-./scripts/cleanup-cluster -h 2
+./scripts/cleanup-cluster -c '' -h 2
