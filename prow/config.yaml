@@ -1,6 +1,6 @@
 ---
 plank:
-  job_url_template: 'https://k8s-gubernator.appspot.com/build/istio-prow/{{if eq .Spec.Type "presubmit"}}pull{{else if eq .Spec.Type "batch"}}pr-logs/pull{{else}}{{end}}{{if ne .Spec.Refs.Org ""}}{{if ne .Spec.Refs.Org "kubernetes"}}/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}{{else if ne .Spec.Refs.Repo "kubernetes"}}/{{.Spec.Refs.Repo}}{{end}}{{end}}{{if eq .Spec.Type "presubmit"}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if eq .Spec.Type "batch"}}/batch{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}/'
+  job_url_template: 'https://k8s-gubernator.appspot.com/build/istio-prow/{{if eq .Spec.Type "presubmit"}}pull{{else if eq .Spec.Type "batch"}}pr-logs/pull{{else}}logs{{end}}{{if ne .Spec.Refs.Org ""}}{{if ne .Spec.Refs.Org "kubernetes"}}/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}{{else if ne .Spec.Refs.Repo "kubernetes"}}/{{.Spec.Refs.Repo}}{{end}}{{end}}{{if eq .Spec.Type "presubmit"}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if eq .Spec.Type "batch"}}/batch{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}/'
 
 prowjob_namespace: default
 
@@ -38,7 +38,7 @@ presubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.7
+      - image: gcr.io/istio-testing/prowbazel:0.1.5
         args:
         - "--pull=$(PULL_REFS)"
         - "--clean"
@@ -84,7 +84,7 @@ presubmits:
     trigger: "((?m)^@istio-testing (bazel )?test this,?(\\s+|$)|(?m)^/test( all| bazel),?(\\s+|$))"
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.7
+      - image: gcr.io/istio-testing/prowbazel:0.1.5
         args:
         - "--pull=$(PULL_REFS)"
         - "--clean"
@@ -126,7 +126,7 @@ presubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.7
+      - image: gcr.io/istio-testing/prowbazel:0.1.5
         args:
         - "--pull=$(PULL_REFS)"
         - "--clean"
@@ -173,7 +173,7 @@ presubmits:
       skip_report: true
       spec:
         containers:
-        - image: gcr.io/istio-testing/prowbazel:0.1.7
+        - image: gcr.io/istio-testing/prowbazel:0.1.5
           args:
           - "--pull=$(PULL_REFS)"
           - "--clean"
@@ -205,6 +205,7 @@ presubmits:
           hostPath:
             path: /mnt/disks/ssd0
 
+
   istio/test-infra:
   - name: test-infra-presubmit
     context: prow/test-infra-presubmit.sh
@@ -215,7 +216,7 @@ presubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.7
+      - image: gcr.io/istio-testing/prowbazel:0.1.5
         args:
         - "--pull=$(PULL_REFS)"
         - "--clean"
@@ -249,7 +250,7 @@ postsubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.7
+      - image: gcr.io/istio-testing/prowbazel:0.1.5
         args:
         - "--branch=$(PULL_REFS)"
         - "--clean"
