@@ -38,7 +38,7 @@ presubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.5
+      - image: gcr.io/istio-testing/prowbazel:0.1.7
         args:
         - "--pull=$(PULL_REFS)"
         - "--clean"
@@ -84,7 +84,7 @@ presubmits:
     trigger: "((?m)^@istio-testing (bazel )?test this,?(\\s+|$)|(?m)^/test( all| bazel),?(\\s+|$))"
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.5
+      - image: gcr.io/istio-testing/prowbazel:0.1.7
         args:
         - "--pull=$(PULL_REFS)"
         - "--clean"
@@ -126,7 +126,7 @@ presubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.5
+      - image: gcr.io/istio-testing/prowbazel:0.1.7
         args:
         - "--pull=$(PULL_REFS)"
         - "--clean"
@@ -173,7 +173,7 @@ presubmits:
       skip_report: true
       spec:
         containers:
-        - image: gcr.io/istio-testing/prowbazel:0.1.5
+        - image: gcr.io/istio-testing/prowbazel:0.1.7
           args:
           - "--pull=$(PULL_REFS)"
           - "--clean"
@@ -205,7 +205,6 @@ presubmits:
           hostPath:
             path: /mnt/disks/ssd0
 
-
   istio/test-infra:
   - name: test-infra-presubmit
     context: prow/test-infra-presubmit.sh
@@ -216,7 +215,7 @@ presubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.5
+      - image: gcr.io/istio-testing/prowbazel:0.1.7
         args:
         - "--pull=$(PULL_REFS)"
         - "--clean"
@@ -250,7 +249,7 @@ postsubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.5
+      - image: gcr.io/istio-testing/prowbazel:0.1.7
         args:
         - "--branch=$(PULL_REFS)"
         - "--clean"
