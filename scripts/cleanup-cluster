@@ -25,9 +25,11 @@ done
 [[ -n "${PROJECT_ID}" ]] && ARGS+=(--project "${PROJECT_ID}")
 [[ -n "${ZONE}" ]] && ARGS+=(--zone "${ZONE}")
 
-echo 'Getting credentials for Kubernetes cluster'
-gcloud container clusters get-credentials ${CLUSTER_NAME} ${ARGS[@]}\
-  || error_exit 'Could not get kubectl config for cluster'
+if [[ ${CLUSTER_NAME} != '' ]]; then
+  echo 'Getting credentials for Kubernetes cluster'
+  gcloud container clusters get-credentials ${CLUSTER_NAME} ${ARGS[@]}\
+    || error_exit 'Could not get kubectl config for cluster'
+fi
 
 JSON_FILE="$(mktemp /tmp/cluster.cleanup.XXXXX.json)"
 
