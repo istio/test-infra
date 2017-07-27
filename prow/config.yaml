@@ -1,6 +1,6 @@
 ---
 plank:
-  job_url_template: 'https://k8s-gubernator.appspot.com/build/istio-prow/{{if eq .Spec.Type "presubmit"}}pull{{else if eq .Spec.Type "batch"}}pr-logs/pull{{else}}logs{{end}}{{if ne .Spec.Refs.Org ""}}{{if ne .Spec.Refs.Org "kubernetes"}}/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}{{else if ne .Spec.Refs.Repo "kubernetes"}}/{{.Spec.Refs.Repo}}{{end}}{{end}}{{if eq .Spec.Type "presubmit"}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if eq .Spec.Type "batch"}}/batch{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}/'
+  job_url_template: 'https://k8s-gubernator.appspot.com/build/istio-prow/{{if eq .Spec.Type "presubmit"}}pull{{else if eq .Spec.Type "batch"}}pr-logs/pull{{else}}{{end}}{{if ne .Spec.Refs.Org ""}}{{if ne .Spec.Refs.Org "kubernetes"}}/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}{{else if ne .Spec.Refs.Repo "kubernetes"}}/{{.Spec.Refs.Repo}}{{end}}{{end}}{{if eq .Spec.Type "presubmit"}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if eq .Spec.Type "batch"}}/batch{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}/'
 
 prowjob_namespace: default
 
@@ -38,9 +38,9 @@ presubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.5
+      - image: gcr.io/istio-testing/prowbazel:0.1.7
         args:
-        - "--pull=$(PULL_REFS)"
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
@@ -84,9 +84,9 @@ presubmits:
     trigger: "((?m)^@istio-testing (bazel )?test this,?(\\s+|$)|(?m)^/test( all| bazel),?(\\s+|$))"
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.5
+      - image: gcr.io/istio-testing/prowbazel:0.1.7
         args:
-        - "--pull=$(PULL_REFS)"
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
@@ -126,9 +126,9 @@ presubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.5
+      - image: gcr.io/istio-testing/prowbazel:0.1.7
         args:
-        - "--pull=$(PULL_REFS)"
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
@@ -173,9 +173,9 @@ presubmits:
       skip_report: true
       spec:
         containers:
-        - image: gcr.io/istio-testing/prowbazel:0.1.5
+        - image: gcr.io/istio-testing/prowbazel:0.1.7
           args:
-          - "--pull=$(PULL_REFS)"
+          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
           - "--clean"
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
@@ -205,7 +205,6 @@ presubmits:
           hostPath:
             path: /mnt/disks/ssd0
 
-
   istio/test-infra:
   - name: test-infra-presubmit
     context: prow/test-infra-presubmit.sh
@@ -216,9 +215,9 @@ presubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.5
+      - image: gcr.io/istio-testing/prowbazel:0.1.7
         args:
-        - "--pull=$(PULL_REFS)"
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
@@ -250,9 +249,9 @@ postsubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.5
+      - image: gcr.io/istio-testing/prowbazel:0.1.7
         args:
-        - "--branch=$(PULL_REFS)"
+        - "--repo=github.com/istio/test-infra=$(PULL_REFS)"
         - "--clean"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
@@ -294,7 +293,7 @@ periodics:
   name: test-infra-cleanup-cluster
   spec:
     containers:
-    - image: gcr.io/istio-testing/prowbazel:0.1.6
+    - image: gcr.io/istio-testing/prowbazel:0.1.7
       args:
       - "--repo=github.com/istio/test-infra=master"
       - "--clean"
