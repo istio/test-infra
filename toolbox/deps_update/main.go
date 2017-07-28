@@ -139,6 +139,10 @@ func updateDeps(repo string) error {
 	if err != nil {
 		return err
 	}
+	// TODO (chx) for each branch with prefix auto*, check status, if error or failed, delete PR and its branch
+	// TODO (chx) check if branch already exists, if so abort
+	// TODO (chx) digest need to include master branch sha, check if such branch exist before pushing
+	// TODO (chx) refactor github helper
 	branch := "autoUpdateDeps" + depVersions
 	if _, err := Shell("git checkout -b " + branch); err != nil {
 		return err

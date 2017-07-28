@@ -6,9 +6,9 @@ go_library(
     	"main.go",
     	"dependency.go",
     	"githubClient.go",
-        "util.go",
     ],
     deps = [
+        "//toolbox/util:go_default_library",
         "@com_github_google_go_github//github:go_default_library",
         "@org_golang_x_oauth2//:go_default_library",
     ],

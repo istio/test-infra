@@ -25,12 +25,15 @@ import (
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
+
+	"istio.io/test-infra/toolbox/util"
 )
 
 var (
 	tokenFile = flag.String("token_file", "", "File containing Auth Token.")
 	owner     = flag.String("owner", "istio-testing", "Github Owner or org.")
 	token     = ""
+	ci        = util.NewCIState()
 )
 
 type githubClient struct {
@@ -100,6 +103,31 @@ func (g githubClient) getListRepos() ([]string, error) {
 		listRepoNames = append(listRepoNames, *r.Name)
 	}
 	return listRepoNames, nil
+}
+
+func (g githubClient) getListBranches(repo string) ([]string, error) {
+	branches, _, err := g.client.Repositories.ListBranches(
+		context.Background(), *owner, repo, nil)
+	if err != nil {
+		return nil, err
+	}
+	var branchNames []string
+	for _, b := range branches {
+		branchNames = append(branchNames, b.GetName())
+	}
+	return branchNames, nil
+}
+
+func (g githubClient) hasFailedAnyCICheck(repo, branch string) (bool, error) {
+	// TODO (chx) list pr, use pr commit sha to get combined status
+	// TODO (chx) test with istio token
+	combinedStatus, _, err := g.client.Repositories.GetCombinedStatus(
+		context.Background(), *owner, repo, branch, nil)
+	if err != nil {
+		return false, err
+	}
+	finalState := util.GetCIState(combinedStatus, nil)
+	return (finalState == ci.Failure), nil
 }
 
 func (g githubClient) getHeadCommitSHA(repo, branch string) (string, error) {
