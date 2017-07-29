@@ -68,7 +68,7 @@ presubmits:
           secretName: service-account
       - name: e2e-testing-kubeconfig
         secret:
-          secretName: e2e-testing-kube-config
+          secretName: e2e-testing-kubeconfig
       - name: auth-codecov-token
         secret:
           secretName: auth-codecov-token
@@ -111,7 +111,7 @@ presubmits:
           secretName: service-account
       - name: e2e-testing-kubeconfig
         secret:
-          secretName: e2e-testing-kube-config
+          secretName: e2e-testing-kubeconfig
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
@@ -141,7 +141,7 @@ presubmits:
           mountPath: /etc/service-account
           readOnly: true
         - name: e2e-testing-kubeconfig
-          mountPath: /etc/e2e-testing-kubeconfig
+          mountPath: /home/bootstrap/.kube
           readOnly: true
         - name: pilot-codecov-token
           mountPath: /etc/codecov
@@ -199,7 +199,7 @@ presubmits:
             secretName: service-account
         - name: e2e-testing-kubeconfig
           secret:
-            secretName: e2e-testing-kube-config
+            secretName: e2e-testing-kubeconfig
         - name: cache-ssd
           hostPath:
             path: /mnt/disks/ssd0
@@ -263,7 +263,7 @@ postsubmits:
           mountPath: /etc/service-account
           readOnly: true
         - name: e2e-testing-kubeconfig
-          mountPath: /etc/e2e-testing-kubeconfig
+          mountPath: /home/bootstrap/.kube
           readOnly: true
         - name: pilot-codecov-token
           mountPath: /etc/codecov
@@ -316,7 +316,7 @@ periodics:
         secretName: service-account
     - name: e2e-testing-kubeconfig
       secret:
-        secretName: e2e-testing-kube-config
+        secretName: e2e-testing-kubeconfig
     - name: cache-ssd
       hostPath:
         path: /mnt/disks/ssd0
