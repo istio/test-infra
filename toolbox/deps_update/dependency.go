@@ -14,6 +14,11 @@
 
 package main
 
+import (
+	"encoding/json"
+	"io/ioutil"
+)
+
 /*
 	Assumes Dependency Hoisting in all bazel dependency files. Example:
 
@@ -38,4 +43,15 @@ type dependency struct {
 	RepoName   string `json:"repoName"`
 	ProdBranch string `json:"prodBranch"` // either master or stable
 	File       string `json:"file"`       // where in the *parent* repo such dependecy is recorded
+}
+
+// Get the list of dependencies of a repo
+func getDeps(depsFilePath string) ([]dependency, error) {
+	var deps []dependency
+	raw, err := ioutil.ReadFile(depsFilePath)
+	if err != nil {
+		return deps, err
+	}
+	err = json.Unmarshal(raw, &deps)
+	return deps, err
 }

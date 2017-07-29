@@ -17,11 +17,8 @@ package main
 import (
 	"context"
 	"errors"
-	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"strings"
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
@@ -30,44 +27,29 @@ import (
 )
 
 var (
-	tokenFile = flag.String("token_file", "", "File containing Auth Token.")
-	owner     = flag.String("owner", "istio-testing", "Github Owner or org.")
-	token     = ""
-	ci        = util.NewCIState()
+	ci = util.NewCIState()
 )
 
 type githubClient struct {
 	client *github.Client
+	owner  string
+	token  string
 }
 
-// Get github api token from tokenFile
-func getToken() (string, error) {
-	if token != "" {
-		return token, nil
-	}
-	if *tokenFile == "" {
-		return "", fmt.Errorf("token_file not provided")
-	}
-	b, err := ioutil.ReadFile(*tokenFile)
-	if err != nil {
-		return "", err
-	}
-	token = strings.TrimSpace(string(b[:]))
-	return token, nil
-}
-
-func newGithubClient() (*githubClient, error) {
-	token, err := getToken()
-	if err != nil {
-		return nil, err
-	}
+func newGithubClient(owner, token string) (*githubClient, error) {
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
 	tc := oauth2.NewClient(context.Background(), ts)
-	if err != nil {
-		return nil, err
-	}
 	client := github.NewClient(tc)
-	return &githubClient{client}, nil
+	return &githubClient{client, owner, token}, nil
+}
+
+// Generates the url to the remote repository on github
+// embedded with proper username and token
+func (g githubClient) remote(repo string) string {
+	return fmt.Sprintf(
+		"https://%s:%s@github.com/%s/%s.git",
+		g.owner, g.token, g.owner, repo,
+	)
 }
 
 func (g githubClient) createPullRequest(branch, repo string) error {
@@ -84,7 +66,7 @@ func (g githubClient) createPullRequest(branch, repo string) error {
 		Body:  &body,
 	}
 	log.Printf("Creating a PR with Title: \"%s\" for repo %s", title, repo)
-	pr, _, err := g.client.PullRequests.Create(context.TODO(), *owner, repo, &req)
+	pr, _, err := g.client.PullRequests.Create(context.Background(), g.owner, repo, &req)
 	if err != nil {
 		return err
 	}
@@ -92,9 +74,9 @@ func (g githubClient) createPullRequest(branch, repo string) error {
 	return nil
 }
 
-func (g githubClient) getListRepos() ([]string, error) {
+func (g githubClient) listRepos() ([]string, error) {
 	opt := &github.RepositoryListOptions{Type: "owner"}
-	repos, _, err := g.client.Repositories.List(context.Background(), *owner, opt)
+	repos, _, err := g.client.Repositories.List(context.Background(), g.owner, opt)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +89,7 @@ func (g githubClient) getListRepos() ([]string, error) {
 
 func (g githubClient) getListBranches(repo string) ([]string, error) {
 	branches, _, err := g.client.Repositories.ListBranches(
-		context.Background(), *owner, repo, nil)
+		context.Background(), g.owner, repo, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +104,7 @@ func (g githubClient) hasFailedAnyCICheck(repo, branch string) (bool, error) {
 	// TODO (chx) list pr, use pr commit sha to get combined status
 	// TODO (chx) test with istio token
 	combinedStatus, _, err := g.client.Repositories.GetCombinedStatus(
-		context.Background(), *owner, repo, branch, nil)
+		context.Background(), g.owner, repo, branch, nil)
 	if err != nil {
 		return false, err
 	}
@@ -131,7 +113,7 @@ func (g githubClient) hasFailedAnyCICheck(repo, branch string) (bool, error) {
 }
 
 func (g githubClient) getHeadCommitSHA(repo, branch string) (string, error) {
-	ref, _, err := g.client.Git.GetRef(context.Background(), *owner, repo, "refs/heads/"+branch)
+	ref, _, err := g.client.Git.GetRef(context.Background(), g.owner, repo, "refs/heads/"+branch)
 	if err != nil {
 		return "", err
 	}

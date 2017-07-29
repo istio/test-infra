@@ -15,6 +15,10 @@
 package util
 
 import (
+	"io/ioutil"
+	"log"
+	"strings"
+
 	"github.com/google/go-github/github"
 )
 
@@ -67,4 +71,14 @@ func GetCIState(combinedStatus *github.CombinedStatus, skipContext func(string) 
 	} else {
 		return ci.Success
 	}
+}
+
+// GetAPITokenFromFile returns the github api token from tokenFile
+func GetAPITokenFromFile(tokenFile string) (string, error) {
+	b, err := ioutil.ReadFile(tokenFile)
+	if err != nil {
+		return "", err
+	}
+	token := strings.TrimSpace(string(b[:]))
+	return token, nil
 }

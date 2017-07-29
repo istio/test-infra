@@ -15,30 +15,26 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
+
+	"istio.io/test-infra/toolbox/util"
 )
 
 var (
 	repo       = flag.String("repo", "", "Update dependencies of only this repository")
+	owner      = flag.String("owner", "istio", "Github Owner or org.")
+	tokenFile  = flag.String("token_file", "", "File containing Github API Access Token.")
 	githubClnt *githubClient
 )
 
-// Generates the url to the remote repository on github
-// embedded with proper username and token
-func remote(repo string) (string, error) {
-	acct := *owner // passed in as flag in githubClient
-	token, err := getToken()
-	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("https://%s:%s@github.com/%s/%s.git", acct, token, acct, repo), nil
-}
+const (
+	istioDepsFile = "istio.deps"
+)
 
 // Update the commit SHA reference in a given line from dependency file
 // to the latest stable version
@@ -52,22 +48,13 @@ func replaceCommit(line string, dep dependency) (string, error) {
 	return line[:idx] + "\"" + commitSHA + "\",", nil
 }
 
-// Get the list of dependencies of a repo
-// Assumes repo has been cloned to local
-func getDeps() ([]dependency, error) {
-	var deps []dependency
-	raw, err := ioutil.ReadFile("istio.deps")
-	if err != nil {
-		return deps, err
-	}
-	err = json.Unmarshal(raw, &deps)
-	return deps, err
-}
-
 // Generates an MD5 digest of the version set of the repo dependencies
 // useful in avoiding making duplicate branches of the same code change
-func fingerPrint(deps []dependency) (string, error) {
-	digest := ""
+func fingerPrint(repo string, deps []dependency) (string, error) {
+	digest, err := githubClnt.getHeadCommitSHA(repo, "master")
+	if err != nil {
+		return "", err
+	}
 	for _, dep := range deps {
 		commitSHA, err := githubClnt.getHeadCommitSHA(dep.RepoName, dep.ProdBranch)
 		if err != nil {
@@ -75,7 +62,7 @@ func fingerPrint(deps []dependency) (string, error) {
 		}
 		digest = digest + commitSHA
 	}
-	return GetMD5Hash(digest), nil
+	return util.GetMD5Hash(digest), nil
 }
 
 // Update the commit SHA reference in the dependency file of dep
@@ -107,10 +94,12 @@ func updateIstioDeps() error {
 	if err != nil {
 		return err
 	}
-	istioctlURL := fmt.Sprintf("https://storage.googleapis.com/istio-artifacts/pilot/%s/artifacts/istioctl", pilotSHA)
+	istioctlURL := fmt.Sprintf(
+		"https://storage.googleapis.com/istio-artifacts/pilot/%s/artifacts/istioctl", pilotSHA)
 	hub := "gcr.io/istio-testing"
-	cmd := fmt.Sprintf("./install/updateVersion.sh -p %s,%s -x %s,%s -i %s", hub, pilotSHA, hub, mixerSHA, istioctlURL)
-	_, err = Shell(cmd)
+	cmd := fmt.Sprintf("./install/updateVersion.sh -p %s,%s -x %s,%s -i %s",
+		hub, pilotSHA, hub, mixerSHA, istioctlURL)
+	_, err = util.Shell(cmd)
 	return err
 }
 
@@ -118,24 +107,20 @@ func updateIstioDeps() error {
 // push new branch to remote, create pull request on master,
 // which is auto-merged after presumbit
 func updateDeps(repo string) error {
-	if _, err := Shell("rm -rf " + repo); err != nil {
+	if err := os.RemoveAll(repo); err != nil {
 		return err
 	}
-	remoteURL, err := remote(repo)
+	if _, err := util.Shell("git clone " + githubClnt.remote(repo)); err != nil {
+		return err
+	}
+	if err := os.Chdir(repo); err != nil {
+		return err
+	}
+	deps, err := getDeps(istioDepsFile)
 	if err != nil {
 		return err
 	}
-	if _, err = Shell("git clone " + remoteURL); err != nil {
-		return err
-	}
-	if err = os.Chdir(repo); err != nil {
-		return err
-	}
-	deps, err := getDeps()
-	if err != nil {
-		return err
-	}
-	depVersions, err := fingerPrint(deps)
+	depVersions, err := fingerPrint(repo, deps)
 	if err != nil {
 		return err
 	}
@@ -143,8 +128,10 @@ func updateDeps(repo string) error {
 	// TODO (chx) check if branch already exists, if so abort
 	// TODO (chx) digest need to include master branch sha, check if such branch exist before pushing
 	// TODO (chx) refactor github helper
+	// TODO (chx) updateIstioDeps() should also take care of istio-ca (auth)
+	// TODO (chx) comment functions
 	branch := "autoUpdateDeps" + depVersions
-	if _, err := Shell("git checkout -b " + branch); err != nil {
+	if _, err := util.Shell("git checkout -b " + branch); err != nil {
 		return err
 	}
 	if repo == "istio" {
@@ -158,13 +145,13 @@ func updateDeps(repo string) error {
 			}
 		}
 	}
-	if _, err := Shell("git add *"); err != nil {
+	if _, err := util.Shell("git add *"); err != nil {
 		return err
 	}
-	if _, err := Shell("git commit -m Update_Dependencies"); err != nil {
+	if _, err := util.Shell("git commit -m Update_Dependencies"); err != nil {
 		return err
 	}
-	if _, err := Shell("git push --set-upstream origin " + branch); err != nil {
+	if _, err := util.Shell("git push --set-upstream origin " + branch); err != nil {
 		return err
 	}
 	if err := githubClnt.createPullRequest(branch, repo); err != nil {
@@ -173,7 +160,7 @@ func updateDeps(repo string) error {
 	if err := os.Chdir(".."); err != nil {
 		return err
 	}
-	if _, err := Shell("rm -rf " + repo); err != nil {
+	if err := os.RemoveAll(repo); err != nil {
 		return err
 	}
 	return nil
@@ -181,8 +168,15 @@ func updateDeps(repo string) error {
 
 func main() {
 	flag.Parse()
-	var err error
-	githubClnt, err = newGithubClient()
+	if *tokenFile == "" {
+		log.Panicf("token_file not provided\n")
+		return
+	}
+	token, err := util.GetAPITokenFromFile(*tokenFile)
+	if err != nil {
+		log.Panicf("Error accessing user supplied token_file: %v\n", err)
+	}
+	githubClnt, err = newGithubClient(*owner, token)
 	if err != nil {
 		log.Panicf("Error when initializing github client: %v\n", err)
 	}
@@ -191,7 +185,7 @@ func main() {
 			log.Panicf("Failed to udpate dependency: %v\n", err)
 		}
 	} else { // update dependencies of all repos in the istio project
-		repos, err := githubClnt.getListRepos()
+		repos, err := githubClnt.listRepos()
 		if err != nil {
 			log.Panicf("Error when fetching list of repos: %v\n", err)
 			return

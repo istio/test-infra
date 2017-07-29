@@ -29,7 +29,7 @@ func GetMD5Hash(text string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-// Shell run command on shell and get back output and error if get one
+// Shell runs command on shell and get back output and error if get one
 func Shell(format string, args ...interface{}) (string, error) {
 	command := fmt.Sprintf(format, args...)
 	parts := strings.Split(command, " ")

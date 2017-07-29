@@ -27,6 +27,8 @@ import (
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
+
+	"istio.io/test-infra/toolbox/util"
 )
 
 const (
@@ -310,37 +312,7 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 		return false
 	}
 
-	// Not trusting Combined output.
-	// Not counting successes as there could be no required checks.
-	var failures, pending, successes int
-	for _, status := range s.Statuses {
-		if *status.State == gh.error || *status.State == gh.failure {
-			if skipContext(*status.Context) {
-				continue
-			}
-			failures++
-		} else if *status.State == gh.pending {
-			pending++
-		} else if *status.State == gh.success {
-			successes++
-		} else {
-			log.Printf("Check Status %s is unknown", *status.State)
-		}
-	}
-
-	log.Printf(
-		"%s/%s#%d has %d check(s) pending, %d check(s) failed, %d check(s) successful",
-		h.Owner, h.Repo, *pr.Number, pending, failures, successes)
-
-	var state string
-	if pending > 0 {
-		state = gh.pending
-	} else if failures > 0 {
-		state = gh.failure
-	} else {
-		state = gh.success
-	}
-
+	state := util.GetCIState(s, skipContext)
 	switch state {
 	case gh.success:
 		if err := h.createStableTag(s.SHA); err != nil {
