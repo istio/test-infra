@@ -29,6 +29,18 @@ new_go_repository(
 )
 
 new_go_repository(
+    name = "com_github_hashicorp_errwrap",
+    commit = "7554cd9344cec97297fa6649b055a8c98c2a1e55",
+    importpath = "github.com/hashicorp/errwrap",
+)
+
+new_go_repository(
+    name = "com_github_hashicorp_go_multierror",
+    commit = "8484912a3b9987857bac52e0c5fec2b95f419628",
+    importpath = "github.com/hashicorp/go-multierror",
+)
+
+new_go_repository(
     name = "org_golang_x_oauth2",
     commit = "3c3a985cb79f52a3190fbc056984415ca6763d01",
     importpath = "golang.org/x/oauth2",

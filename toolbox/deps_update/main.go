@@ -103,6 +103,14 @@ func updateIstioDeps() error {
 	return err
 }
 
+// Delete the local git repo just cloned
+func cleanUp(repo string) error {
+	if err := os.Chdir(".."); err != nil {
+		return err
+	}
+	return os.RemoveAll(repo)
+}
+
 // Update the given repository so that it uses the latest dependency references
 // push new branch to remote, create pull request on master,
 // which is auto-merged after presumbit
@@ -116,6 +124,11 @@ func updateDeps(repo string) error {
 	if err := os.Chdir(repo); err != nil {
 		return err
 	}
+	defer func() {
+		if err := cleanUp(repo); err != nil {
+			log.Fatalf("Error during clean up: %v\n", err)
+		}
+	}()
 	deps, err := getDeps(istioDepsFile)
 	if err != nil {
 		return err
@@ -124,13 +137,19 @@ func updateDeps(repo string) error {
 	if err != nil {
 		return err
 	}
-	// TODO (chx) for each branch with prefix auto*, check status, if error or failed, delete PR and its branch
-	// TODO (chx) check if branch already exists, if so abort
-	// TODO (chx) digest need to include master branch sha, check if such branch exist before pushing
+	branch := "autoUpdateDeps" + depVersions
+	exists, err := githubClnt.existBranch(repo, branch)
+	if err != nil {
+		return err
+	}
+	// if branch exists, stop here and do not create another PR of identical delta
+	if err = githubClnt.closeFailedPullRequests(repo); exists || err != nil {
+		return err
+	}
 	// TODO (chx) refactor github helper
+	// TODO (chx) metrics
 	// TODO (chx) updateIstioDeps() should also take care of istio-ca (auth)
 	// TODO (chx) comment functions
-	branch := "autoUpdateDeps" + depVersions
 	if _, err := util.Shell("git checkout -b " + branch); err != nil {
 		return err
 	}
@@ -155,12 +174,6 @@ func updateDeps(repo string) error {
 		return err
 	}
 	if err := githubClnt.createPullRequest(branch, repo); err != nil {
-		return err
-	}
-	if err := os.Chdir(".."); err != nil {
-		return err
-	}
-	if err := os.RemoveAll(repo); err != nil {
 		return err
 	}
 	return nil
