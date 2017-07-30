@@ -39,14 +39,15 @@ import (
 */
 
 type dependency struct {
-	Name       string `json:"name"`
-	RepoName   string `json:"repoName"`
-	ProdBranch string `json:"prodBranch"` // either master or stable
-	File       string `json:"file"`       // where in the *parent* repo such dependecy is recorded
+	Name          string `json:"name"`
+	RepoName      string `json:"repoName"`
+	ProdBranch    string `json:"prodBranch"`    // either master or stable
+	File          string `json:"file"`          // where in the *parent* repo such dependecy is recorded
+	LastStableSHA string `json:"lastStableSHA"` // sha used in the latest stable build of parent
 }
 
-// Get the list of dependencies of a repo
-func getDeps(depsFilePath string) ([]dependency, error) {
+// Get the list of dependencies of a repo by deserializing the file on depsFilePath
+func deserializeDeps(depsFilePath string) ([]dependency, error) {
 	var deps []dependency
 	raw, err := ioutil.ReadFile(depsFilePath)
 	if err != nil {
@@ -54,4 +55,13 @@ func getDeps(depsFilePath string) ([]dependency, error) {
 	}
 	err = json.Unmarshal(raw, &deps)
 	return deps, err
+}
+
+// Writes in-memory dependencies to file
+func serializeDeps(depsFilePath string, deps *[]dependency) error {
+	pickled, err := json.Marshal(*deps)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(depsFilePath, pickled, 0600)
 }

@@ -19,9 +19,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"regexp"
 	"strings"
 
@@ -70,21 +68,6 @@ type helper struct {
 	Client      *github.Client
 }
 
-// Get token from tokenFile is set, otherwise is anonymous.
-func getToken() (*http.Client, error) {
-	if *tokenFile == "" {
-		return nil, nil
-	}
-	b, err := ioutil.ReadFile(*tokenFile)
-	if err != nil {
-		return nil, err
-	}
-	token := strings.TrimSpace(string(b[:]))
-	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
-	tc := oauth2.NewClient(context.Background(), ts)
-	return tc, nil
-}
-
 // Creates a new ghConst
 func newGhConst() *ghConst {
 	return &ghConst{
@@ -100,13 +83,12 @@ func newGhConst() *ghConst {
 
 // Creates a new Github Helper from provided
 func newHelper(r *string) (*helper, error) {
-	tc, err := getToken()
+	token, err := util.GetAPITokenFromFile(*tokenFile)
 	if err != nil {
 		return nil, err
 	}
-	if *repos == "" {
-		return nil, errors.New("repo flag must be set")
-	}
+	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
+	tc := oauth2.NewClient(context.Background(), ts)
 	client := github.NewClient(tc)
 	return &helper{
 		Owner:       *owner,
@@ -376,6 +358,9 @@ func (h helper) createComment(comment *string) error {
 
 func main() {
 	flag.Parse()
+	if *repos == "" {
+		log.Fatalf("repo flag must be set\n")
+	}
 	if *verify {
 		for _, r := range strings.Split(*repos, ",") {
 			h, err := newHelper(&r)

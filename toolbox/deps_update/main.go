@@ -38,29 +38,27 @@ const (
 
 // Update the commit SHA reference in a given line from dependency file
 // to the latest stable version
-// returns the updated line
+// Returns the updated line
 func replaceCommit(line string, dep dependency) (string, error) {
-	commitSHA, err := githubClnt.getHeadCommitSHA(dep.RepoName, dep.ProdBranch)
-	if err != nil {
-		return line, err
-	}
 	idx := strings.Index(line, "\"")
-	return line[:idx] + "\"" + commitSHA + "\",", nil
+	return line[:idx] + "\"" + dep.LastStableSHA + "\",", nil
 }
 
 // Generates an MD5 digest of the version set of the repo dependencies
 // useful in avoiding making duplicate branches of the same code change
-func fingerPrint(repo string, deps []dependency) (string, error) {
+// Also updates dependency objects deserialized from istio.deps
+func fingerPrintAndUpdateDepSHA(repo string, deps *[]dependency) (string, error) {
 	digest, err := githubClnt.getHeadCommitSHA(repo, "master")
 	if err != nil {
 		return "", err
 	}
-	for _, dep := range deps {
+	for i, dep := range *deps {
 		commitSHA, err := githubClnt.getHeadCommitSHA(dep.RepoName, dep.ProdBranch)
 		if err != nil {
 			return "", err
 		}
 		digest = digest + commitSHA
+		(*deps)[i].LastStableSHA = commitSHA
 	}
 	return util.GetMD5Hash(digest), nil
 }
@@ -94,13 +92,34 @@ func updateIstioDeps() error {
 	if err != nil {
 		return err
 	}
+	AuthSHA, err := githubClnt.getHeadCommitSHA("auth", "stable")
+	if err != nil {
+		return err
+	}
+	caHub := "docker.io/istio"
 	istioctlURL := fmt.Sprintf(
 		"https://storage.googleapis.com/istio-artifacts/pilot/%s/artifacts/istioctl", pilotSHA)
 	hub := "gcr.io/istio-testing"
-	cmd := fmt.Sprintf("./install/updateVersion.sh -p %s,%s -x %s,%s -i %s",
-		hub, pilotSHA, hub, mixerSHA, istioctlURL)
+	cmd := fmt.Sprintf("./install/updateVersion.sh -p %s,%s -x %s,%s -i %s -c %s,%s",
+		hub, pilotSHA, hub, mixerSHA, istioctlURL, caHub, AuthSHA)
 	_, err = util.Shell(cmd)
 	return err
+}
+
+// Update the commit SHA reference in the dependency file of dep
+func updateDeps(repo string, deps []dependency) error {
+	if repo == "istio" {
+		if err := updateIstioDeps(); err != nil {
+			return err
+		}
+	} else {
+		for _, dep := range deps {
+			if err := updateDepFile(dep); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // Delete the local git repo just cloned
@@ -114,7 +133,7 @@ func cleanUp(repo string) error {
 // Update the given repository so that it uses the latest dependency references
 // push new branch to remote, create pull request on master,
 // which is auto-merged after presumbit
-func updateDeps(repo string) error {
+func updateDependenciesOf(repo string) error {
 	if err := os.RemoveAll(repo); err != nil {
 		return err
 	}
@@ -129,40 +148,39 @@ func updateDeps(repo string) error {
 			log.Fatalf("Error during clean up: %v\n", err)
 		}
 	}()
-	deps, err := getDeps(istioDepsFile)
+
+	if _, err := util.Shell("git checkout deps"); err != nil {
+		return err
+	}
+
+	deps, err := deserializeDeps(istioDepsFile)
 	if err != nil {
 		return err
 	}
-	depVersions, err := fingerPrint(repo, deps)
+	depVersions, err := fingerPrintAndUpdateDepSHA(repo, &deps)
 	if err != nil {
 		return err
 	}
-	branch := "autoUpdateDeps" + depVersions
+	branch := "autoUpdateDeps_" + depVersions
 	exists, err := githubClnt.existBranch(repo, branch)
 	if err != nil {
 		return err
+	}
+	if exists {
+		log.Printf("Branch already exists")
 	}
 	// if branch exists, stop here and do not create another PR of identical delta
 	if err = githubClnt.closeFailedPullRequests(repo); exists || err != nil {
 		return err
 	}
-	// TODO (chx) refactor github helper
-	// TODO (chx) metrics
-	// TODO (chx) updateIstioDeps() should also take care of istio-ca (auth)
-	// TODO (chx) comment functions
 	if _, err := util.Shell("git checkout -b " + branch); err != nil {
 		return err
 	}
-	if repo == "istio" {
-		if err := updateIstioDeps(); err != nil {
-			return err
-		}
-	} else {
-		for _, dep := range deps {
-			if err := updateDepFile(dep); err != nil {
-				return err
-			}
-		}
+	if err := updateDeps(repo, deps); err != nil {
+		return err
+	}
+	if err := serializeDeps(istioDepsFile, &deps); err != nil {
+		return err
 	}
 	if _, err := util.Shell("git add *"); err != nil {
 		return err
@@ -194,7 +212,7 @@ func main() {
 		log.Panicf("Error when initializing github client: %v\n", err)
 	}
 	if *repo != "" { // only update dependencies of this repo
-		if err := updateDeps(*repo); err != nil {
+		if err := updateDependenciesOf(*repo); err != nil {
 			log.Panicf("Failed to udpate dependency: %v\n", err)
 		}
 	} else { // update dependencies of all repos in the istio project
@@ -204,7 +222,7 @@ func main() {
 			return
 		}
 		for _, r := range repos {
-			if err := updateDeps(r); err != nil {
+			if err := updateDependenciesOf(r); err != nil {
 				log.Panicf("Failed to udpate dependency: %v\n", err)
 			}
 		}
