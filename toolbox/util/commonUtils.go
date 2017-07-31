@@ -31,9 +31,22 @@ func GetMD5Hash(text string) string {
 
 // Shell runs command on shell and get back output and error if get one
 func Shell(format string, args ...interface{}) (string, error) {
+	return sh(format, false, args...)
+}
+
+// ShellSilent runs command on shell without logging the exact command
+// useful when command involves secrets
+func ShellSilent(format string, args ...interface{}) (string, error) {
+	return sh(format, true, args...)
+}
+
+// Runs command on shell and get back output and error if get one
+func sh(format string, muted bool, args ...interface{}) (string, error) {
 	command := fmt.Sprintf(format, args...)
 	parts := strings.Split(command, " ")
-	log.Printf("Running command %s", command)
+	if !muted {
+		log.Printf("Running command %s", command)
+	}
 	c := exec.Command(parts[0], parts[1:]...) // #nosec
 	bytes, err := c.CombinedOutput()
 	log.Printf("Command output: \n%s", string(bytes[:]))

@@ -20,6 +20,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 
 	"istio.io/test-infra/toolbox/util"
@@ -39,9 +40,9 @@ const (
 // Update the commit SHA reference in a given line from dependency file
 // to the latest stable version
 // Returns the updated line
-func replaceCommit(line string, dep dependency) (string, error) {
+func replaceCommit(line string, dep dependency) string {
 	idx := strings.Index(line, "\"")
-	return line[:idx] + "\"" + dep.LastStableSHA + "\",", nil
+	return line[:idx] + "\"" + dep.LastStableSHA + "\","
 }
 
 // Generates an MD5 digest of the version set of the repo dependencies
@@ -63,6 +64,19 @@ func fingerPrintAndUpdateDepSHA(repo string, deps *[]dependency) (string, error)
 	return util.GetMD5Hash(digest), nil
 }
 
+// Read the exported environment variable named :key in istio.VERSION
+// and return its value
+func istioVersionGet(key string) (string, error) {
+	// exec always forks a child process to execute the given command, which means
+	// istio.VERSION is sourced to a forked bash process and all exported values
+	// are gone once the child process exits.
+	// The following is a workaround to pass value back to the parent process,
+	// which is whoever executing this go script
+	cmd := fmt.Sprintf("source istio.VERSION ; echo $%s", key)
+	value, err := exec.Command("bash", "-c", cmd).CombinedOutput()
+	return strings.TrimSpace(string(value)), err
+}
+
 // Update the commit SHA reference in the dependency file of dep
 func updateDepFile(dep dependency) error {
 	input, err := ioutil.ReadFile(dep.File)
@@ -72,9 +86,7 @@ func updateDepFile(dep dependency) error {
 	lines := strings.Split(string(input), "\n")
 	for i, line := range lines {
 		if strings.Contains(line, dep.Name+" = ") {
-			if lines[i], err = replaceCommit(line, dep); err != nil {
-				return err
-			}
+			lines[i] = replaceCommit(line, dep)
 		}
 	}
 	output := strings.Join(lines, "\n")
@@ -96,12 +108,29 @@ func updateIstioDeps() error {
 	if err != nil {
 		return err
 	}
-	caHub := "docker.io/istio"
-	istioctlURL := fmt.Sprintf(
-		"https://storage.googleapis.com/istio-artifacts/pilot/%s/artifacts/istioctl", pilotSHA)
-	hub := "gcr.io/istio-testing"
+	caHub, err := istioVersionGet("CA_HUB")
+	if err != nil {
+		return err
+	}
+	phub, err := istioVersionGet("PILOT_HUB")
+	if err != nil {
+		return err
+	}
+	mhub, err := istioVersionGet("MIXER_HUB")
+	if err != nil {
+		return err
+	}
+	istioctlURL, err := istioVersionGet("ISTIOCTL_URL")
+	if err != nil {
+		return err
+	}
+	oldPilotSHA, err := istioVersionGet("PILOT_TAG")
+	if err != nil {
+		return err
+	}
+	istioctlURL = strings.Replace(istioctlURL, oldPilotSHA, pilotSHA, 1)
 	cmd := fmt.Sprintf("./install/updateVersion.sh -p %s,%s -x %s,%s -i %s -c %s,%s",
-		hub, pilotSHA, hub, mixerSHA, istioctlURL, caHub, AuthSHA)
+		phub, pilotSHA, mhub, mixerSHA, istioctlURL, caHub, AuthSHA)
 	_, err = util.Shell(cmd)
 	return err
 }
@@ -134,10 +163,11 @@ func cleanUp(repo string) error {
 // push new branch to remote, create pull request on master,
 // which is auto-merged after presumbit
 func updateDependenciesOf(repo string) error {
+	log.Printf("Updating dependencies of %s\n", repo)
 	if err := os.RemoveAll(repo); err != nil {
 		return err
 	}
-	if _, err := util.Shell("git clone " + githubClnt.remote(repo)); err != nil {
+	if _, err := util.ShellSilent("git clone " + githubClnt.remote(repo)); err != nil {
 		return err
 	}
 	if err := os.Chdir(repo); err != nil {
@@ -148,11 +178,6 @@ func updateDependenciesOf(repo string) error {
 			log.Fatalf("Error during clean up: %v\n", err)
 		}
 	}()
-
-	if _, err := util.Shell("git checkout deps"); err != nil {
-		return err
-	}
-
 	deps, err := deserializeDeps(istioDepsFile)
 	if err != nil {
 		return err
@@ -182,10 +207,7 @@ func updateDependenciesOf(repo string) error {
 	if err := serializeDeps(istioDepsFile, &deps); err != nil {
 		return err
 	}
-	if _, err := util.Shell("git add *"); err != nil {
-		return err
-	}
-	if _, err := util.Shell("git commit -m Update_Dependencies"); err != nil {
+	if _, err := util.Shell("git commit -am Update_Dependencies"); err != nil {
 		return err
 	}
 	if _, err := util.Shell("git push --set-upstream origin " + branch); err != nil {
@@ -213,17 +235,17 @@ func main() {
 	}
 	if *repo != "" { // only update dependencies of this repo
 		if err := updateDependenciesOf(*repo); err != nil {
-			log.Panicf("Failed to udpate dependency: %v\n", err)
+			log.Printf("Failed to udpate dependency: %v\n", err)
 		}
 	} else { // update dependencies of all repos in the istio project
 		repos, err := githubClnt.listRepos()
 		if err != nil {
-			log.Panicf("Error when fetching list of repos: %v\n", err)
+			log.Printf("Error when fetching list of repos: %v\n", err)
 			return
 		}
 		for _, r := range repos {
 			if err := updateDependenciesOf(r); err != nil {
-				log.Panicf("Failed to udpate dependency: %v\n", err)
+				log.Printf("Failed to udpate dependency: %v\n", err)
 			}
 		}
 	}
