@@ -59,7 +59,7 @@ func deserializeDeps(depsFilePath string) ([]dependency, error) {
 
 // Writes in-memory dependencies to file
 func serializeDeps(depsFilePath string, deps *[]dependency) error {
-	pickled, err := json.Marshal(*deps)
+	pickled, err := json.MarshalIndent(*deps, "", "\t")
 	if err != nil {
 		return err
 	}

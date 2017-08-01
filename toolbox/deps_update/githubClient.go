@@ -59,16 +59,15 @@ func (g githubClient) remote(repo string) string {
 }
 
 // Create a pull request within repo from branch to master
-func (g githubClient) createPullRequest(branch, repo string) error {
+func (g githubClient) createPullRequest(branch, baseBranch, repo string) error {
 	if branch == "" {
 		return errors.New("branch cannot be empty")
 	}
 	title := prTitlePrefix + repo
 	body := "This PR will be merged automatically once checks are successful."
-	base := "master"
 	req := github.NewPullRequest{
 		Head:  &branch,
-		Base:  &base,
+		Base:  &baseBranch,
 		Title: &title,
 		Body:  &body,
 	}
@@ -116,10 +115,10 @@ func (g githubClient) existBranch(repo, branch string) (bool, error) {
 // Checks all auto PRs to update dependencies
 // Close the ones that have failed the presubmit
 // Deletes the remote branches from which the PRs are made
-func (g githubClient) closeFailedPullRequests(repo string) error {
+func (g githubClient) closeFailedPullRequests(repo, baseBranch string) error {
 	log.Printf("Search for failed auto PRs to update dependencies in repo %s", repo)
 	options := github.PullRequestListOptions{
-		Base:  "master",
+		Base:  baseBranch,
 		State: "open",
 	}
 	prs, _, err := g.client.PullRequests.List(
@@ -129,7 +128,7 @@ func (g githubClient) closeFailedPullRequests(repo string) error {
 	}
 	var multiErr error
 	for _, pr := range prs {
-		if strings.Contains(*pr.Title, prTitlePrefix) {
+		if !strings.HasPrefix(*pr.Title, prTitlePrefix) {
 			continue
 		}
 		combinedStatus, _, err := g.client.Repositories.GetCombinedStatus(

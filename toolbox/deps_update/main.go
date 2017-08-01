@@ -28,8 +28,9 @@ import (
 
 var (
 	repo       = flag.String("repo", "", "Update dependencies of only this repository")
-	owner      = flag.String("owner", "istio", "Github Owner or org.")
-	tokenFile  = flag.String("token_file", "", "File containing Github API Access Token.")
+	owner      = flag.String("owner", "istio", "Github Owner or org")
+	tokenFile  = flag.String("token_file", "", "File containing Github API Access Token")
+	baseBranch = flag.String("base_branch", "master", "Branch from which the deps update commit is based")
 	githubClnt *githubClient
 )
 
@@ -49,16 +50,17 @@ func replaceCommit(line string, dep dependency) string {
 // useful in avoiding making duplicate branches of the same code change
 // Also updates dependency objects deserialized from istio.deps
 func fingerPrintAndUpdateDepSHA(repo string, deps *[]dependency) (string, error) {
-	digest, err := githubClnt.getHeadCommitSHA(repo, "master")
+	digest, err := githubClnt.getHeadCommitSHA(repo, *baseBranch)
 	if err != nil {
 		return "", err
 	}
+	digest += *baseBranch
 	for i, dep := range *deps {
 		commitSHA, err := githubClnt.getHeadCommitSHA(dep.RepoName, dep.ProdBranch)
 		if err != nil {
 			return "", err
 		}
-		digest = digest + commitSHA
+		digest += commitSHA
 		(*deps)[i].LastStableSHA = commitSHA
 	}
 	return util.GetMD5Hash(digest), nil
@@ -95,18 +97,20 @@ func updateDepFile(dep dependency) error {
 
 // Assumes at the root of istio directory
 // Runs the updateVersion.sh script
-func updateIstioDeps() error {
-	pilotSHA, err := githubClnt.getHeadCommitSHA("pilot", "stable")
-	if err != nil {
-		return err
+func updateIstioDeps(deps *[]dependency) error {
+	getSHAByName := func(name string) string {
+		for _, d := range *deps {
+			if d.RepoName == name {
+				return d.LastStableSHA
+			}
+		}
+		return ""
 	}
-	mixerSHA, err := githubClnt.getHeadCommitSHA("mixer", "stable")
-	if err != nil {
-		return err
-	}
-	AuthSHA, err := githubClnt.getHeadCommitSHA("auth", "stable")
-	if err != nil {
-		return err
+	pilotSHA := getSHAByName("pilot")
+	mixerSHA := getSHAByName("mixer")
+	AuthSHA := getSHAByName("auth")
+	if pilotSHA == "" || mixerSHA == "" || AuthSHA == "" {
+		return fmt.Errorf("incomplete dependencies in %s", istioDepsFile)
 	}
 	caHub, err := istioVersionGet("CA_HUB")
 	if err != nil {
@@ -136,13 +140,13 @@ func updateIstioDeps() error {
 }
 
 // Update the commit SHA reference in the dependency file of dep
-func updateDeps(repo string, deps []dependency) error {
+func updateDeps(repo string, deps *[]dependency) error {
 	if repo == "istio" {
-		if err := updateIstioDeps(); err != nil {
+		if err := updateIstioDeps(deps); err != nil {
 			return err
 		}
 	} else {
-		for _, dep := range deps {
+		for _, dep := range *deps {
 			if err := updateDepFile(dep); err != nil {
 				return err
 			}
@@ -178,6 +182,9 @@ func updateDependenciesOf(repo string) error {
 			log.Fatalf("Error during clean up: %v\n", err)
 		}
 	}()
+	if _, err := util.Shell("git checkout " + *baseBranch); err != nil {
+		return err
+	}
 	deps, err := deserializeDeps(istioDepsFile)
 	if err != nil {
 		return err
@@ -195,13 +202,13 @@ func updateDependenciesOf(repo string) error {
 		log.Printf("Branch already exists")
 	}
 	// if branch exists, stop here and do not create another PR of identical delta
-	if err = githubClnt.closeFailedPullRequests(repo); exists || err != nil {
+	if err = githubClnt.closeFailedPullRequests(repo, *baseBranch); exists || err != nil {
 		return err
 	}
 	if _, err := util.Shell("git checkout -b " + branch); err != nil {
 		return err
 	}
-	if err := updateDeps(repo, deps); err != nil {
+	if err := updateDeps(repo, &deps); err != nil {
 		return err
 	}
 	if err := serializeDeps(istioDepsFile, &deps); err != nil {
@@ -213,7 +220,7 @@ func updateDependenciesOf(repo string) error {
 	if _, err := util.Shell("git push --set-upstream origin " + branch); err != nil {
 		return err
 	}
-	if err := githubClnt.createPullRequest(branch, repo); err != nil {
+	if err := githubClnt.createPullRequest(branch, *baseBranch, repo); err != nil {
 		return err
 	}
 	return nil
