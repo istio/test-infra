@@ -26,7 +26,7 @@ Mungegithub waits for 4 labels:
 
   >  Note: Do not comment "/approve" or add "approved" label unless you are 100% sure you want this change, because after you say that, the pr will be merge any minutes.
   
-  >  Note: The PR will be self-approved if the PR creator is in OWNERS file and this PR is associated with at lease one issue.
+  >  Note: The PR will be self-approved if the PR creator is in OWNERS file and this PR is associated with at least one issue.
   
 * **Release-note** Release note enforcement is another feather we are seeking from Mungegithub. With template, when prs are create, people should add release note (can be "None") in the pr description. Depended on the release message left, Mungegithub will add "release-note", "release-note-none". If you leave it empty, "release-note-needed" will be added and is going to block merging.
 
