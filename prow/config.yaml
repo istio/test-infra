@@ -348,11 +348,6 @@ periodics:
         readOnly: true
       - name: e2e-testing-kubeconfig
         mountPath: /home/bootstrap/.kube
-      - name: cache-ssd
-        mountPath: /home/bootstrap/.cache
-      ports:
-      - containerPort: 9999
-        hostPort: 9998
     volumes:
     - name: service
       secret:
@@ -360,6 +355,3 @@ periodics:
     - name: e2e-testing-kubeconfig
       secret:
         secretName: e2e-testing-kubeconfig
-    - name: cache-ssd
-      hostPath:
-        path: /mnt/disks/ssd0
