@@ -20,7 +20,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
 	"strings"
 
 	"istio.io/test-infra/toolbox/util"
@@ -31,48 +30,38 @@ var (
 	owner      = flag.String("owner", "istio", "Github Owner or org")
 	tokenFile  = flag.String("token_file", "", "File containing Github API Access Token")
 	baseBranch = flag.String("base_branch", "master", "Branch from which the deps update commit is based")
-	caHub      = flag.String("ca_hub", "", "Optional. Where new CA image is hosted")
-	mixerHub   = flag.String("mixer_hub", "", "Optional. Where new mixer image is hosted")
-	pilotHub   = flag.String("pilot_hub", "", "Optional. Where new pilot image is hosted")
+	hub        = flag.String("hub", "", "Where the testing images are hosted")
 	githubClnt *githubClient
 )
 
 const (
 	istioDepsFile = "istio.deps"
-	istioVersion  = "istio.VERSION"
 )
 
-// Generates an MD5 digest of the version set of the repo dependencies
-// useful in avoiding making duplicate branches of the same code change
-// Also updates dependency objects deserialized from istio.deps
-func fingerPrintAndUpdateDepSHA(repo string, deps *[]dependency) (string, error) {
+// Updates dependency objects in :deps to the latest stable version.
+// Generates an MD5 digest of the latest dependencies, useful in avoiding making duplicate
+// branches of the same code change.
+// Returns a list of dependencies that were stale and have just been updated
+func updateDepSHAGetFingerPrint(repo string, deps *[]dependency) (string, []dependency, error) {
+	var depChangeList []dependency
 	digest, err := githubClnt.getHeadCommitSHA(repo, *baseBranch)
 	if err != nil {
-		return "", err
+		return "", depChangeList, err
 	}
-	digest += *baseBranch + *caHub + *mixerHub + *pilotHub
+	digest += *baseBranch + *hub
 	for i, dep := range *deps {
 		commitSHA, err := githubClnt.getHeadCommitSHA(dep.RepoName, dep.ProdBranch)
 		if err != nil {
-			return "", err
+			return "", depChangeList, err
 		}
 		digest += commitSHA
-		(*deps)[i].LastStableSHA = commitSHA
-	}
-	return util.GetMD5Hash(digest), nil
-}
+		if dep.LastStableSHA != commitSHA {
+			(*deps)[i].LastStableSHA = commitSHA
+			depChangeList = append(depChangeList, (*deps)[i])
+		}
 
-// Reads the exported environment variable named :key in istio.VERSION
-// and returns its value
-func istioVersionGet(key string) (string, error) {
-	// exec always forks a child process to execute the given command, which means
-	// istio.VERSION is sourced to a forked bash process and all exported values
-	// are gone once the child process exits.
-	// The following is a workaround to pass value back to the parent process,
-	// which is whoever executing this go script
-	cmd := fmt.Sprintf("source istio.VERSION ; echo $%s", key)
-	value, err := exec.Command("bash", "-c", cmd).CombinedOutput()
-	return strings.TrimSpace(string(value)), err
+	}
+	return util.GetMD5Hash(digest), depChangeList, nil
 }
 
 // Updates in the file all occurrences of the dependency identified by depName to
@@ -102,43 +91,9 @@ func updateDepFile(file, depName, ref string) error {
 	return ioutil.WriteFile(file, []byte(output), 0600)
 }
 
-// Assumes at the root of istio directory
-// Runs the updateVersion.sh script
-func updateIstioDeps(oldPilot, newPilot string) error {
-	update := func(depName string, newRef *string) error {
-		if *newRef != "" {
-			return updateDepFile(istioVersion, depName, *newRef)
-		}
-		return nil
-	}
-
-	if err := update("CA_HUB", caHub); err != nil {
-		return err
-	}
-	if err := update("PILOT_HUB", pilotHub); err != nil {
-		return err
-	}
-	if err := update("MIXER_HUB", mixerHub); err != nil {
-		return err
-	}
-	// ISTIOCTL_URL has an embedded reference to pilot that will not be
-	// updated by ./install/updateVersion.sh so must handle explicitly
-	istioctlURL, err := istioVersionGet("ISTIOCTL_URL")
-	if err != nil {
-		return err
-	}
-	istioctlURL = strings.Replace(istioctlURL, oldPilot, newPilot, 1)
-	if err = update("ISTIOCTL_URL", &istioctlURL); err != nil {
-		return err
-	}
-	cmd := fmt.Sprintf("./install/updateVersion.sh")
-	_, err = util.Shell(cmd)
-	return err
-}
-
 // Updates the list of dependencies in repo to the latest stable references
-func updateDeps(repo string, deps *[]dependency) error {
-	updateDepFiles := func() error {
+func updateDeps(repo string, deps *[]dependency, depChangeList *[]dependency) error {
+	if repo != "istio" {
 		for _, dep := range *deps {
 			if err := updateDepFile(dep.File, dep.Name, dep.LastStableSHA); err != nil {
 				return err
@@ -146,34 +101,25 @@ func updateDeps(repo string, deps *[]dependency) error {
 		}
 		return nil
 	}
-	getSHAByName := func(name string) (string, error) {
-		for _, d := range *deps {
-			if d.RepoName == name {
-				return d.LastStableSHA, nil
-			}
+	args := ""
+	for _, updatedDep := range *depChangeList {
+		switch updatedDep.RepoName {
+		case "mixer":
+			args += fmt.Sprintf("-x %s,%s ", *hub, updatedDep.LastStableSHA)
+		case "pilot":
+			istioctlURL := fmt.Sprintf(
+				"https://storage.googleapis.com/istio-artifacts/pilot/%s/artifacts/istioctl",
+				updatedDep.LastStableSHA)
+			args += fmt.Sprintf("-p %s,%s -i %s ", *hub, updatedDep.LastStableSHA, istioctlURL)
+		case "auth":
+			args += fmt.Sprintf("-c %s,%s ", *hub, updatedDep.LastStableSHA)
+		default:
+			return fmt.Errorf("unknown dependency: %s", updatedDep.Name)
 		}
-		return "", fmt.Errorf("unknown dependency: %s", name)
 	}
-
-	if repo != "istio" {
-		return updateDepFiles()
-	}
-	// read oldPilot before updateDepFiles changes it to newPilot
-	oldPilot, err := istioVersionGet("PILOT_TAG")
-	if err != nil {
-		return err
-	}
-	if err = updateDepFiles(); err != nil {
-		return err
-	}
-	newPilot, err := getSHAByName("pilot")
-	if err != nil {
-		return err
-	}
-	if err := updateIstioDeps(oldPilot, newPilot); err != nil {
-		return err
-	}
-	return nil
+	cmd := fmt.Sprintf("./install/updateVersion.sh %s", args)
+	_, err := util.Shell(cmd)
+	return err
 }
 
 // Deletes the local git repo just cloned
@@ -210,11 +156,15 @@ func updateDependenciesOf(repo string) error {
 	if err != nil {
 		return err
 	}
-	depVersions, err := fingerPrintAndUpdateDepSHA(repo, &deps)
+	fingerPrint, depChangeList, err := updateDepSHAGetFingerPrint(repo, &deps)
 	if err != nil {
 		return err
 	}
-	branch := "autoUpdateDeps_" + depVersions
+	if len(depChangeList) == 0 {
+		log.Printf("%s is up to date. No commits are made.", repo)
+		return nil
+	}
+	branch := "autoUpdateDeps_" + fingerPrint
 	exists, err := githubClnt.existBranch(repo, branch)
 	if err != nil {
 		return err
@@ -229,7 +179,7 @@ func updateDependenciesOf(repo string) error {
 	if _, err := util.Shell("git checkout -b " + branch); err != nil {
 		return err
 	}
-	if err := updateDeps(repo, &deps); err != nil {
+	if err := updateDeps(repo, &deps, &depChangeList); err != nil {
 		return err
 	}
 	if err := serializeDeps(istioDepsFile, &deps); err != nil {
@@ -262,8 +212,8 @@ func main() {
 		log.Panicf("Error when initializing github client: %v\n", err)
 	}
 	if *repo != "" { // only update dependencies of this repo
-		if *repo != "istio" && (*caHub != "" || *pilotHub != "" || *mixerHub != "") {
-			log.Printf("The optional hub flags only apply to istio/istio\n")
+		if (*repo == "istio") == (*hub == "") {
+			log.Printf("The hub flag hub must be set for istio/istio and must not for other repos\n")
 			return
 		}
 		if err := updateDependenciesOf(*repo); err != nil {
