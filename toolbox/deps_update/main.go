@@ -27,24 +27,20 @@ import (
 )
 
 var (
-	repo       = flag.String("repo", "", "Update dependencies of only this repository")
+	repo       = flag.String("repo", "", "Optional. Update dependencies of only this repository")
 	owner      = flag.String("owner", "istio", "Github Owner or org")
 	tokenFile  = flag.String("token_file", "", "File containing Github API Access Token")
 	baseBranch = flag.String("base_branch", "master", "Branch from which the deps update commit is based")
+	caHub      = flag.String("ca_hub", "", "Optional. Where new CA image is hosted")
+	mixerHub   = flag.String("mixer_hub", "", "Optional. Where new mixer image is hosted")
+	pilotHub   = flag.String("pilot_hub", "", "Optional. Where new pilot image is hosted")
 	githubClnt *githubClient
 )
 
 const (
 	istioDepsFile = "istio.deps"
+	istioVersion  = "istio.VERSION"
 )
-
-// Update the commit SHA reference in a given line from dependency file
-// to the latest stable version
-// Returns the updated line
-func replaceCommit(line string, dep dependency) string {
-	idx := strings.Index(line, "\"")
-	return line[:idx] + "\"" + dep.LastStableSHA + "\","
-}
 
 // Generates an MD5 digest of the version set of the repo dependencies
 // useful in avoiding making duplicate branches of the same code change
@@ -66,8 +62,8 @@ func fingerPrintAndUpdateDepSHA(repo string, deps *[]dependency) (string, error)
 	return util.GetMD5Hash(digest), nil
 }
 
-// Read the exported environment variable named :key in istio.VERSION
-// and return its value
+// Reads the exported environment variable named :key in istio.VERSION
+// and returns its value
 func istioVersionGet(key string) (string, error) {
 	// exec always forks a child process to execute the given command, which means
 	// istio.VERSION is sourced to a forked bash process and all exported values
@@ -79,83 +75,106 @@ func istioVersionGet(key string) (string, error) {
 	return strings.TrimSpace(string(value)), err
 }
 
-// Update the commit SHA reference in the dependency file of dep
-func updateDepFile(dep dependency) error {
-	input, err := ioutil.ReadFile(dep.File)
+// Updates in the file all occurrences of the dependency identified by depName to
+// a new reference ref. A reference could be a commit SHA, branch, or url.
+func updateDepFile(file, depName, ref string) error {
+	replaceReference := func(line *string, ref string) {
+		idx := strings.Index(*line, "\"")
+		*line = (*line)[:idx] + "\"" + ref + "\""
+	}
+
+	input, err := ioutil.ReadFile(file)
 	if err != nil {
 		return err
 	}
 	lines := strings.Split(string(input), "\n")
+	found := false
 	for i, line := range lines {
-		if strings.Contains(line, dep.Name+" = ") {
-			lines[i] = replaceCommit(line, dep)
+		if strings.Contains(line, depName+" = ") || strings.Contains(line, depName+"=") {
+			replaceReference(&lines[i], ref)
+			found = true
 		}
 	}
+	if !found {
+		return fmt.Errorf("no occurrence of %s found in %s", depName, file)
+	}
 	output := strings.Join(lines, "\n")
-	return ioutil.WriteFile(dep.File, []byte(output), 0600)
+	return ioutil.WriteFile(file, []byte(output), 0600)
 }
 
 // Assumes at the root of istio directory
 // Runs the updateVersion.sh script
-func updateIstioDeps(deps *[]dependency) error {
-	getSHAByName := func(name string) string {
-		for _, d := range *deps {
-			if d.RepoName == name {
-				return d.LastStableSHA
-			}
+func updateIstioDeps(oldPilot, newPilot string) error {
+	update := func(depName string, newRef *string) error {
+		if *newRef != "" {
+			return updateDepFile(istioVersion, depName, *newRef)
 		}
-		return ""
+		return nil
 	}
-	pilotSHA := getSHAByName("pilot")
-	mixerSHA := getSHAByName("mixer")
-	AuthSHA := getSHAByName("auth")
-	if pilotSHA == "" || mixerSHA == "" || AuthSHA == "" {
-		return fmt.Errorf("incomplete dependencies in %s", istioDepsFile)
-	}
-	caHub, err := istioVersionGet("CA_HUB")
-	if err != nil {
+
+	if err := update("CA_HUB", caHub); err != nil {
 		return err
 	}
-	phub, err := istioVersionGet("PILOT_HUB")
-	if err != nil {
+	if err := update("PILOT_HUB", pilotHub); err != nil {
 		return err
 	}
-	mhub, err := istioVersionGet("MIXER_HUB")
-	if err != nil {
+	if err := update("MIXER_HUB", mixerHub); err != nil {
 		return err
 	}
+	// ISTIOCTL_URL has an embedded reference to pilot that will not be
+	// updated by ./install/updateVersion.sh so must handle explicitly
 	istioctlURL, err := istioVersionGet("ISTIOCTL_URL")
 	if err != nil {
 		return err
 	}
-	oldPilotSHA, err := istioVersionGet("PILOT_TAG")
-	if err != nil {
-		return err
-	}
-	istioctlURL = strings.Replace(istioctlURL, oldPilotSHA, pilotSHA, 1)
-	cmd := fmt.Sprintf("./install/updateVersion.sh -p %s,%s -x %s,%s -i %s -c %s,%s",
-		phub, pilotSHA, mhub, mixerSHA, istioctlURL, caHub, AuthSHA)
+	istioctlURL = strings.Replace(istioctlURL, oldPilot, newPilot, 1)
+	cmd := fmt.Sprintf("./install/updateVersion.sh -i %s", istioctlURL)
 	_, err = util.Shell(cmd)
 	return err
 }
 
-// Update the commit SHA reference in the dependency file of dep
+// Updates the list of dependencies in repo to the latest stable references
 func updateDeps(repo string, deps *[]dependency) error {
-	if repo == "istio" {
-		if err := updateIstioDeps(deps); err != nil {
-			return err
-		}
-	} else {
+	updateDepFiles := func() error {
 		for _, dep := range *deps {
-			if err := updateDepFile(dep); err != nil {
+			if err := updateDepFile(dep.File, dep.Name, dep.LastStableSHA); err != nil {
 				return err
 			}
 		}
+		return nil
+	}
+	getSHAByName := func(name string) (string, error) {
+		for _, d := range *deps {
+			if d.RepoName == name {
+				return d.LastStableSHA, nil
+			}
+		}
+		return "", fmt.Errorf("unknown dependency: %s", name)
+	}
+
+	if repo != "istio" {
+		return updateDepFiles()
+	}
+	// read oldPilot before updateDepFiles changes it to newPilot
+	oldPilot, err := istioVersionGet("PILOT_TAG")
+	if err != nil {
+		return err
+	}
+	if err = updateDepFiles(); err != nil {
+		return err
+	}
+	newPilot, err := getSHAByName("pilot")
+	if err != nil {
+		return err
+	}
+	if err := updateIstioDeps(oldPilot, newPilot); err != nil {
+		return err
 	}
 	return nil
+	// TODO (chx) check outdated comments
 }
 
-// Delete the local git repo just cloned
+// Deletes the local git repo just cloned
 func cleanUp(repo string) error {
 	if err := os.Chdir(".."); err != nil {
 		return err
@@ -163,8 +182,8 @@ func cleanUp(repo string) error {
 	return os.RemoveAll(repo)
 }
 
-// Update the given repository so that it uses the latest dependency references
-// push new branch to remote, create pull request on master,
+// Updates the given repository so that it uses the latest dependency references
+// pushes new branch to remote, create pull request on master,
 // which is auto-merged after presumbit
 func updateDependenciesOf(repo string) error {
 	log.Printf("Updating dependencies of %s\n", repo)

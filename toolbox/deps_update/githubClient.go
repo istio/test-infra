@@ -133,15 +133,17 @@ func (g githubClient) closeFailedPullRequests(repo, baseBranch string) error {
 		}
 		combinedStatus, _, err := g.client.Repositories.GetCombinedStatus(
 			context.Background(), g.owner, repo, *pr.Head.SHA, nil)
-		multiErr = multierror.Append(multiErr, err)
+		if err != nil {
+			multiErr = multierror.Append(multiErr, err)
+		}
 		if util.GetCIState(combinedStatus, nil) == ci.Failure {
-			log.Printf("Closing PR %s/%s#%d and deleting branch %s",
-				g.owner, repo, *pr.Number, *pr.Head.Ref)
+			prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, *pr.Number)
+			log.Printf("Closing PR %s and deleting branch %s", prName, *pr.Head.Ref)
 			*pr.State = "closed"
 			if _, _, err := g.client.PullRequests.Edit(
 				context.Background(), g.owner, repo, *pr.Number, pr); err != nil {
 				multiErr = multierror.Append(multiErr, err)
-				log.Printf("Failed to delete branch %s in repo %s", *pr.Head.Ref, repo)
+				log.Printf("Failed to close %s", prName)
 			}
 			ref := fmt.Sprintf("refs/heads/%s", *pr.Head.Ref)
 			if _, err := g.client.Git.DeleteRef(context.Background(), g.owner, repo, ref); err != nil {
