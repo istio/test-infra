@@ -8,6 +8,7 @@ triggers:
 - repos:
   - istio/auth
   - istio/istio
+  - istio/mixer
   - istio/pilot
   - istio/test-infra
   trusted_org: istio
@@ -115,6 +116,90 @@ presubmits:
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
+
+  istio/mixer:
+  - name: mixer-presubmit
+    context: prow/mixer-presubmit.sh
+    skip_report: true
+    always_run: true
+    rerun_command: "@istio-testing bazel test this"
+    trigger: "((?m)^@istio-testing (bazel )?test this,?(\\s+|$)|(?m)^/test( all| bazel),?(\\s+|$))"
+    branches:
+    - master
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.1.7
+        args:
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+        - "--clean"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: mixer-codecov-token
+          mountPath: /etc/codecov
+          readOnly: true
+        - name: cache-ssd
+          mountPath: /home/bootstrap/.cache
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: mixer-codecov-token
+        secret:
+          secretName: mixer-codecov-token
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0
+    run_after_success:
+    - name: mixer-e2e-smoketest
+      context: prow/mixer-e2e-smoketest.sh
+      skip_report: true
+      always_run: true
+      rerun_command: "@istio-testing smoke test this"
+      trigger: "((?m)^@istio-testing (smoke )?test this,?(\\s+|$)|(?m)^/test( all| bazel),?(\\s+|$))"
+      spec:
+        containers:
+        - image: gcr.io/istio-testing/prowbazel:0.1.7
+          args:
+          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+          - "--clean"
+          # Bazel needs privileged mode in order to sandbox builds.
+          securityContext:
+            privileged: true
+          env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /etc/service-account/service-account.json
+          volumeMounts:
+          - name: service
+            mountPath: /etc/service-account
+            readOnly: true
+          - name: e2e-testing-kubeconfig
+            mountPath: /home/bootstrap/.kube
+          - name: cache-ssd
+            mountPath: /home/bootstrap/.cache
+          ports:
+          - containerPort: 9999
+            hostPort: 9998
+        volumes:
+        - name: service
+          secret:
+            secretName: service-account
+        - name: e2e-testing-kubeconfig
+          secret:
+            secretName: e2e-testing-kubeconfig
+        - name: cache-ssd
+          hostPath:
+            path: /mnt/disks/ssd0
 
   istio/pilot:
   - name: pilot-presubmit
@@ -282,6 +367,45 @@ postsubmits:
       - name: auth-codecov-token
         secret:
           secretName: auth-codecov-token
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0
+
+  istio/mixer:
+  - name: mixer-postsubmit
+    branches:
+    - master
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.1.7
+        args:
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+        - "--clean"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: mixer-codecov-token
+          mountPath: /etc/codecov
+          readOnly: true
+        - name: cache-ssd
+          mountPath: /home/bootstrap/.cache
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: mixer-codecov-token
+        secret:
+          secretName: mixer-codecov-token
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
