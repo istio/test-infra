@@ -50,7 +50,7 @@ func fingerPrintAndUpdateDepSHA(repo string, deps *[]dependency) (string, error)
 	if err != nil {
 		return "", err
 	}
-	digest += *baseBranch
+	digest += *baseBranch + *caHub + *mixerHub + *pilotHub
 	for i, dep := range *deps {
 		commitSHA, err := githubClnt.getHeadCommitSHA(dep.RepoName, dep.ProdBranch)
 		if err != nil {
@@ -260,6 +260,10 @@ func main() {
 		log.Panicf("Error when initializing github client: %v\n", err)
 	}
 	if *repo != "" { // only update dependencies of this repo
+		if *repo != "istio" && (*caHub != "" || *pilotHub != "" || *mixerHub != "") {
+			log.Printf("The optional hub flags only apply to istio/istio\n")
+			return
+		}
 		if err := updateDependenciesOf(*repo); err != nil {
 			log.Printf("Failed to udpate dependency: %v\n", err)
 		}
