@@ -163,6 +163,7 @@ presubmits:
     run_after_success:
     - name: mixer-e2e-smoketest
       context: prow/mixer-e2e-smoketest.sh
+      skip_reports: true
       always_run: true
       rerun_command: "@istio-testing smoke test this"
       trigger: "((?m)^@istio-testing (smoke )?test this,?(\\s+|$)|(?m)^/test( all| bazel),?(\\s+|$))"
