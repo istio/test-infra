@@ -120,6 +120,7 @@ presubmits:
   istio/mixer:
   - name: mixer-presubmit
     context: prow/mixer-presubmit.sh
+    skip_reports: true
     always_run: true
     rerun_command: "@istio-testing bazel test this"
     trigger: "((?m)^@istio-testing (bazel )?test this,?(\\s+|$)|(?m)^/test( all| bazel),?(\\s+|$))"
