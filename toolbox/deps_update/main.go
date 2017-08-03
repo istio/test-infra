@@ -128,7 +128,10 @@ func updateIstioDeps(oldPilot, newPilot string) error {
 		return err
 	}
 	istioctlURL = strings.Replace(istioctlURL, oldPilot, newPilot, 1)
-	cmd := fmt.Sprintf("./install/updateVersion.sh -i %s", istioctlURL)
+	if err = update("ISTIOCTL_URL", &istioctlURL); err != nil {
+		return err
+	}
+	cmd := fmt.Sprintf("./install/updateVersion.sh")
 	_, err = util.Shell(cmd)
 	return err
 }
@@ -171,7 +174,6 @@ func updateDeps(repo string, deps *[]dependency) error {
 		return err
 	}
 	return nil
-	// TODO (chx) check outdated comments
 }
 
 // Deletes the local git repo just cloned
