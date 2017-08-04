@@ -371,6 +371,81 @@ postsubmits:
         hostPath:
           path: /mnt/disks/ssd0
 
+  istio/istio:
+  - name: istio-e2e-suite-non-rbac
+    branches:
+    - master
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.1.7
+        args:
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+        - "--clean"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: e2e-testing-kubeconfig
+          mountPath: /home/bootstrap/.kube
+        - name: cache-ssd
+          mountPath: /home/bootstrap/.cache
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: e2e-testing-kubeconfig
+        secret:
+          secretName: e2e-testing-kubeconfig
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0
+  run_after_success:
+  - name: istio-e2e-suite-rbac
+    branches:
+    - master
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.1.7
+        args:
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+        - "--clean"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: e2e-testing-rbac-kubeconfig
+          mountPath: /home/bootstrap/.kube
+        - name: cache-ssd
+          mountPath: /home/bootstrap/.cache
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: e2e-testing-rbac-kubeconfig
+        secret:
+          secretName: e2e-testing-rbac-kubeconfig
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0
+
   istio/mixer:
   - name: mixer-postsubmit
     branches:
