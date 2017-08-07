@@ -9,11 +9,19 @@ fi
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 . ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
 
-DOCKER_VERSION='1.12.5'
+# EE
+#Version: 1.13.1-0~ubuntu-xenial
+#DOCKER_VERSION='1.13.1'
+# CE
+#Version: 17.05.0~ce-0~ubuntu-xenial
+DOCKER_VERSION=17.05.0
 
 # Ubuntu 16-04
 XENIAL_REPO='ubuntu-xenial'
-XENIAL_VERSION_SUFFIX="-0~${XENIAL_REPO}"
+# EE
+#XENIAL_VERSION_SUFFIX="-0~${XENIAL_REPO}"
+# CE
+XENIAL_VERSION_SUFFIX="~ce-0~${XENIAL_REPO}"
 # Default
 REPO="${XENIAL_REPO}"
 VERSION_SUFFIX="${XENIAL_VERSION_SUFFIX}"
