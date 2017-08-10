@@ -19,14 +19,14 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"regexp"
 	"strings"
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
+
+	"istio.io/test-infra/toolbox/util"
 )
 
 const (
@@ -68,21 +68,6 @@ type helper struct {
 	Client      *github.Client
 }
 
-// Get token from tokenFile is set, otherwise is anonymous.
-func getToken() (*http.Client, error) {
-	if *tokenFile == "" {
-		return nil, nil
-	}
-	b, err := ioutil.ReadFile(*tokenFile)
-	if err != nil {
-		return nil, err
-	}
-	token := strings.TrimSpace(string(b[:]))
-	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
-	tc := oauth2.NewClient(context.Background(), ts)
-	return tc, nil
-}
-
 // Creates a new ghConst
 func newGhConst() *ghConst {
 	return &ghConst{
@@ -98,13 +83,12 @@ func newGhConst() *ghConst {
 
 // Creates a new Github Helper from provided
 func newHelper(r *string) (*helper, error) {
-	tc, err := getToken()
+	token, err := util.GetAPITokenFromFile(*tokenFile)
 	if err != nil {
 		return nil, err
 	}
-	if *repos == "" {
-		return nil, errors.New("repo flag must be set")
-	}
+	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
+	tc := oauth2.NewClient(context.Background(), ts)
 	client := github.NewClient(tc)
 	return &helper{
 		Owner:       *owner,
@@ -310,37 +294,7 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 		return false
 	}
 
-	// Not trusting Combined output.
-	// Not counting successes as there could be no required checks.
-	var failures, pending, successes int
-	for _, status := range s.Statuses {
-		if *status.State == gh.error || *status.State == gh.failure {
-			if skipContext(*status.Context) {
-				continue
-			}
-			failures++
-		} else if *status.State == gh.pending {
-			pending++
-		} else if *status.State == gh.success {
-			successes++
-		} else {
-			log.Printf("Check Status %s is unknown", *status.State)
-		}
-	}
-
-	log.Printf(
-		"%s/%s#%d has %d check(s) pending, %d check(s) failed, %d check(s) successful",
-		h.Owner, h.Repo, *pr.Number, pending, failures, successes)
-
-	var state string
-	if pending > 0 {
-		state = gh.pending
-	} else if failures > 0 {
-		state = gh.failure
-	} else {
-		state = gh.success
-	}
-
+	state := util.GetCIState(s, skipContext)
 	switch state {
 	case gh.success:
 		if err := h.createStableTag(s.SHA); err != nil {
@@ -404,6 +358,9 @@ func (h helper) createComment(comment *string) error {
 
 func main() {
 	flag.Parse()
+	if *repos == "" {
+		log.Fatalf("repo flag must be set\n")
+	}
 	if *verify {
 		for _, r := range strings.Split(*repos, ",") {
 			h, err := newHelper(&r)
