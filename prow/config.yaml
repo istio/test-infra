@@ -214,8 +214,8 @@ presubmits:
     agent: kubernetes
     context: prow/pilot-presubmit.sh
     always_run: true
-    rerun_command: "@istio-testing bazel test this"
-    trigger: "((?m)^@istio-testing (bazel )?test this,?(\\s+|$)|(?m)^/test( all| bazel),?(\\s+|$))"
+    rerun_command: "/test pilot-presubmit"
+    trigger: "(?m)^/(retest|test (all|pilot-presubmit))?,?(\\s+|$)"
     branches:
     - master
     spec:
