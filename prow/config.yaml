@@ -303,8 +303,8 @@ presubmits:
     agent: kubernetes
     context: prow/test-infra-presubmit.sh
     always_run: true
-    rerun_command: "@istio-testing bazel test this"
-    trigger: "((?m)^@istio-testing (bazel )?test this,?(\\s+|$)|(?m)^/test( all| bazel),?(\\s+|$))"
+    rerun_command: "/test test-infra-presubmit"
+    trigger: "(?m)^/(retest|test all)?,?(\\s+|$)"
     branches:
     - master
     spec:
