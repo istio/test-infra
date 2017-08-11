@@ -18,6 +18,76 @@ The infrastructure runs on a k8s cluster. All of our tools make it easy to run o
 
 We run the k8s-prow images. These images are built from source [here](https://github.com/kubernetes/test-infra/tree/master/prow).
 
+#### Upgrading Prow
+
+It is a good idea to take a quick glance at the [Kubernetes Prow config](https://github.com/kubernetes/test-infra/blob/master/prow/config.yaml)
+if you see anything new that looks backward incompatible.
+There should be no breaking changes, but at the time of this writing (Aug. ‘17) the project is still somewhat in flux
+
+* Check the current versions of the Prow images [here](https://github.com/kubernetes/test-infra/tree/master/prow/cluster).
+Compare these with the version in our [deployment files](https://github.com/istio/test-infra/tree/master/prow/cluster) and update with more recent setting. Before updating a flag make sure it is required, and check the default.
+
+* Before starting upgrade Run the following command in another terminal
+
+```
+$ watch kubectl get pods
+
+Every 2.0s: kubectl get pods                                                                                                         Fri Aug 11 15:40:31 2017
+
+NAME                         READY     STATUS    RESTARTS   AGE
+deck-3621325446-00drl        1/1       Running   0          54m
+deck-3621325446-9pdqw        1/1       Running   0          55m
+deck-3621325446-njnwk        1/1       Running   0          54m
+hook-3348033068-2tdd3        1/1       Running   0          45m
+hook-3348033068-x99bf        1/1       Running   0          45m
+horologium-617344823-js4mk   1/1       Running   0          50m
+plank-302445171-92rfx        1/1       Running   0          41m
+sinker-799599164-z44wj       1/1       Running   0          34m
+tot-763621987-pktpj          1/1       Running   0          37m
+
+```
+
+* In case of deployment failure, check the logs by running
+
+```
+$ kubectl logs deck-3621325446-9pdqw
+```
+
+* You might notice some issues related to config error. In that case fix and redeploy the config
+
+```
+$ make update-config
+```
+
+* In some other case, flags or volume might be missing, make sure you update your config properly.
+Once done re-run the deployment issue that failed.
+
+
+* Start by updating deck. This deployment has multiple replicas, so you can resolve the issues as you see them.
+
+```
+$ make deck-deployment
+```
+
+* Deploy horologium.
+
+```
+$ make horologium-deployment
+```
+
+* Deploy hook. This deployment also has multiple replicas, so failure will not impact workflows.
+
+```
+$ make hook-deployment
+```
+
+Update to the following are asynchronous
+```
+$ make plank-deployment
+$ make tot-deployment
+$ make sinker-deployment
+```
+
 ### Creating a Job on Your Repo
 
 #### Github Trigger
