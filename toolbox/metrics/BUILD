@@ -3,9 +3,15 @@ load("@io_bazel_rules_docker//docker:docker.bzl", "docker_build")
 
 go_library(
     name = "go_default_library",
-    srcs = ["main.go"],
+    srcs = [
+        "main.go",
+        "buildFreshness.go",
+    ],
     visibility = ["//visibility:private"],
     deps = [
+        "//toolbox/util:go_default_library",
+        "@com_github_google_go_github//github:go_default_library",
+        "@com_github_hashicorp_go_multierror//:go_default_library",
         "@com_github_prometheus_client_golang//prometheus:go_default_library",
         "@com_github_prometheus_client_golang//prometheus/promhttp:go_default_library",
         "@com_google_cloud_go//storage:go_default_library",

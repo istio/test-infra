@@ -4,11 +4,9 @@ go_library(
     name = "go_default_library",
     srcs = [
     	"main.go",
-    	"dependency.go",
     ],
     deps = [
         "//toolbox/util:go_default_library",
-        "@com_github_google_go_github//github:go_default_library",
     ],
 )
 

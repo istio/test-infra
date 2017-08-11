@@ -4,6 +4,7 @@ go_library(
     name = "go_default_library",
     srcs = [
         "commonUtils.go",
+        "dependency.go",
         "githubUtils.go",
         "githubClient.go",
     ],
