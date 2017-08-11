@@ -2,7 +2,13 @@
 plank:
   job_url_template: 'https://k8s-gubernator.appspot.com/build/istio-prow/{{if eq .Spec.Type "presubmit"}}pull/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else}}.{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}/'
 
+sinker:
+  resync_period: 1h
+  max_prowjob_age: 48h
+  max_pod_age: 12h
+
 prowjob_namespace: default
+pod_namespace: test-pods
 
 triggers:
 - repos:
@@ -31,6 +37,7 @@ presubmits:
 
   istio/auth:
   - name: auth-presubmit
+    agent: kubernetes
     context: prow/auth-presubmit.sh
     always_run: true
     rerun_command: "@istio-testing bazel test this"
@@ -79,6 +86,7 @@ presubmits:
 
   istio/istio:
   - name: istio-presubmit
+    agent: kubernetes
     context: prow/istio-presubmit.sh
     always_run: true
     rerun_command: "@istio-testing bazel test this"
@@ -119,6 +127,7 @@ presubmits:
 
   istio/mixer:
   - name: mixer-presubmit
+    agent: kubernetes
     context: prow/mixer-presubmit.sh
     always_run: true
     rerun_command: "@istio-testing bazel test this"
@@ -161,6 +170,7 @@ presubmits:
           path: /mnt/disks/ssd0
     run_after_success:
     - name: mixer-e2e-smoketest
+      agent: kubernetes
       context: prow/mixer-e2e-smoketest.sh
       always_run: true
       rerun_command: "@istio-testing smoke test this"
@@ -201,6 +211,7 @@ presubmits:
 
   istio/pilot:
   - name: pilot-presubmit
+    agent: kubernetes
     context: prow/pilot-presubmit.sh
     always_run: true
     rerun_command: "@istio-testing bazel test this"
@@ -248,6 +259,7 @@ presubmits:
           path: /mnt/disks/ssd0
     run_after_success:
     - name: pilot-e2e-smoketest
+      agent: kubernetes
       context: prow/pilot-e2e-smoketest.sh
       always_run: true
       rerun_command: "@istio-testing smoke test this"
@@ -288,6 +300,7 @@ presubmits:
 
   istio/test-infra:
   - name: test-infra-presubmit
+    agent: kubernetes
     context: prow/test-infra-presubmit.sh
     always_run: true
     rerun_command: "@istio-testing bazel test this"
@@ -327,6 +340,7 @@ postsubmits:
 
   istio/auth:
   - name: auth-postsubmit
+    agent: kubernetes
     branches:
     - master
     spec:
@@ -371,6 +385,7 @@ postsubmits:
 
   istio/mixer:
   - name: mixer-postsubmit
+    agent: kubernetes
     branches:
     - master
     spec:
@@ -410,6 +425,7 @@ postsubmits:
 
   istio/pilot:
   - name: pilot-postsubmit
+    agent: kubernetes
     branches:
     - master
     spec:
@@ -454,6 +470,7 @@ postsubmits:
 
 periodics:
 - interval: 2h
+  agent: kubernetes
   name: test-infra-cleanup-cluster
   spec:
     containers:
