@@ -5,7 +5,7 @@ metadata:
   labels:
     app: hook
 spec:
-  replicas: 1
+  replicas: 2
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -19,7 +19,7 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
       - name: hook
-        image: gcr.io/k8s-prow/hook:0.119
+        image: gcr.io/k8s-prow/hook:0.140
         imagePullPolicy: Always
         args:
         - --dry-run=false
