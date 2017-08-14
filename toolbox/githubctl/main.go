@@ -27,7 +27,7 @@ var (
 	op         = flag.String("op", "", "Operation to be performed")
 	repo       = flag.String("repo", "", "Repository to which op is applied")
 	baseBranch = flag.String("base_branch", "", "Branch to which op is applied")
-	refBranch  = flag.String("ref_branch", "", "Reference Branch used to update base branch")
+	refSHA     = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
 	githubClnt *util.GithubClient
 )
 
@@ -38,18 +38,14 @@ func assertNotEmpty(name string, value *string) {
 	}
 }
 
-func fastForward(repo, baseBranch, refBranch *string) error {
+func fastForward(repo, baseBranch, refSHA *string) error {
 	assertNotEmpty("repo", repo)
-	assertNotEmpty("baseBranch", baseBranch)
-	assertNotEmpty("refBranch", refBranch)
-	sha, err := githubClnt.GetHeadCommitSHA(*repo, *refBranch)
-	if err != nil {
-		return err
-	}
-	return githubClnt.FastForward(*repo, *baseBranch, sha)
+	assertNotEmpty("base_branch", baseBranch)
+	assertNotEmpty("ref_sha", refSHA)
+	return githubClnt.FastForward(*repo, *baseBranch, *refSHA)
 }
 
-func initialize() {
+func init() {
 	flag.Parse()
 	assertNotEmpty("token_file", tokenFile)
 	token, err := util.GetAPITokenFromFile(*tokenFile)
@@ -63,10 +59,9 @@ func initialize() {
 }
 
 func main() {
-	initialize()
 	switch *op {
 	case "fastForward":
-		if err := fastForward(repo, baseBranch, refBranch); err != nil {
+		if err := fastForward(repo, baseBranch, refSHA); err != nil {
 			log.Printf("Error during fastForward: %v\n", err)
 		}
 	default:
