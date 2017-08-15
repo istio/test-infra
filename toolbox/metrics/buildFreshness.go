@@ -15,6 +15,8 @@
 package main
 
 import (
+	"fmt"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -60,15 +62,28 @@ func getStableBuildFreshness(owner, repo, branch string) ([]DepFreshness, error)
 	var wg sync.WaitGroup
 	var mutex = &sync.Mutex{} // used to synchronize access to stats and multiErr
 	var multiErr error
+	dockerImageRegex := regexp.MustCompile(
+		"^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$")
+	multiErrAppend := func(err error) {
+		// multierror not thread safe
+		mutex.Lock()
+		multiErr = multierror.Append(multiErr, err)
+		mutex.Unlock()
+	}
 	for _, dep := range deps {
 		wg.Add(1)
 		go func(dep u.Dependency) {
+			defer wg.Done()
+			if dockerImageRegex.MatchString(dep.LastStableSHA) {
+				err := fmt.Errorf(
+					"%s uses Docker image name as value: %s and please use SHA or github tag",
+					dep.Name, dep.LastStableSHA)
+				multiErrAppend(err)
+				return
+			}
 			latestTime, err := getBranchHeadTime(githubClnt, dep.RepoName, dep.ProdBranch)
 			if err != nil {
-				// multierror not thread safe
-				mutex.Lock()
-				multiErr = multierror.Append(multiErr, err)
-				mutex.Unlock()
+				multiErrAppend(err)
 				return
 			}
 			var stableTime *time.Time
@@ -79,16 +94,13 @@ func getStableBuildFreshness(owner, repo, branch string) ([]DepFreshness, error)
 				stableTime, err = githubClnt.GetSHATime(dep.RepoName, dep.LastStableSHA)
 			}
 			if err != nil {
-				mutex.Lock()
-				multiErr = multierror.Append(multiErr, err)
-				mutex.Unlock()
+				multiErrAppend(err)
 				return
 			}
 			lag := latestTime.Sub(*stableTime)
 			mutex.Lock()
 			stats = append(stats, DepFreshness{dep, lag})
 			mutex.Unlock()
-			wg.Done()
 		}(dep)
 	}
 	wg.Wait()
