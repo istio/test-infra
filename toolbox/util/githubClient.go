@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package util
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -24,47 +23,55 @@ import (
 	"github.com/google/go-github/github"
 	multierror "github.com/hashicorp/go-multierror"
 	"golang.org/x/oauth2"
-
-	"istio.io/test-infra/toolbox/util"
 )
 
-var (
-	ci = util.NewCIState()
-)
-
-const (
-	prTitlePrefix = "[DO NOT MERGE] Auto PR to update dependencies of "
-)
-
-type githubClient struct {
+// GithubClient masks RPCs to github as local procedures
+type GithubClient struct {
 	client *github.Client
 	owner  string
 	token  string
 }
 
-func newGithubClient(owner, token string) (*githubClient, error) {
+// NewGithubClient creates a new GithubClient with proper authentication
+func NewGithubClient(owner, token string) (*GithubClient, error) {
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
 	tc := oauth2.NewClient(context.Background(), ts)
 	client := github.NewClient(tc)
-	return &githubClient{client, owner, token}, nil
+	return &GithubClient{client, owner, token}, nil
 }
 
-// Generates the url to the remote repository on github
-// embedded with proper username and token
-func (g githubClient) remote(repo string) string {
+// FastForward moves :branch on :repo to the given sha
+func (g GithubClient) FastForward(repo, branch, sha string) error {
+	ref := fmt.Sprintf("refs/heads/%s", branch)
+	log.Printf("Updating ref %s to commit %s on repo %s", ref, sha, repo)
+	refType := "commit"
+	gho := github.GitObject{
+		SHA:  &sha,
+		Type: &refType,
+	}
+	r := github.Reference{
+		Ref:    &ref,
+		Object: &gho,
+	}
+	r.Ref = new(string)
+	*r.Ref = ref
+	_, _, err := g.client.Git.UpdateRef(
+		context.Background(), g.owner, repo, &r, false)
+	return err
+}
+
+// Remote generates the url to the remote repository on github
+// embedded with username and token
+func (g GithubClient) Remote(repo string) string {
 	return fmt.Sprintf(
 		"https://%s:%s@github.com/%s/%s.git",
 		g.owner, g.token, g.owner, repo,
 	)
 }
 
-// Create a pull request within repo from branch to master
-func (g githubClient) createPullRequest(branch, baseBranch, repo string) error {
-	if branch == "" {
-		return errors.New("branch cannot be empty")
-	}
-	title := prTitlePrefix + repo
-	body := "This PR will be merged automatically once checks are successful."
+// CreatePullRequest within :repo from :branch to :baseBranch
+func (g GithubClient) CreatePullRequest(
+	title, body, branch, baseBranch, repo string) error {
 	req := github.NewPullRequest{
 		Head:  &branch,
 		Base:  &baseBranch,
@@ -81,8 +88,8 @@ func (g githubClient) createPullRequest(branch, baseBranch, repo string) error {
 	return nil
 }
 
-// Returns a list of repos under the provided owner
-func (g githubClient) listRepos() ([]string, error) {
+// ListRepos returns a list of repos under the provided owner
+func (g GithubClient) ListRepos() ([]string, error) {
 	opt := &github.RepositoryListOptions{Type: "owner"}
 	repos, _, err := g.client.Repositories.List(context.Background(), g.owner, opt)
 	if err != nil {
@@ -95,10 +102,10 @@ func (g githubClient) listRepos() ([]string, error) {
 	return listRepoNames, nil
 }
 
-// Checks if a given branch name already exists on remote repo
+// ExistBranch checks if a given branch name has already existed on remote repo
 // Must get a full list of branches and iterate through since
 // fetching a nonexisting branch directly results in error
-func (g githubClient) existBranch(repo, branch string) (bool, error) {
+func (g GithubClient) ExistBranch(repo, branch string) (bool, error) {
 	branches, _, err := g.client.Repositories.ListBranches(
 		context.Background(), g.owner, repo, nil)
 	if err != nil {
@@ -112,10 +119,10 @@ func (g githubClient) existBranch(repo, branch string) (bool, error) {
 	return false, nil
 }
 
-// Checks all auto PRs to update dependencies
-// Close the ones that have failed the presubmit
-// Deletes the remote branches from which the PRs are made
-func (g githubClient) closeFailedPullRequests(repo, baseBranch string) error {
+// CloseFailedPullRequests checks all open PRs on baseBranch in repo,
+// closes the ones that have failed the presubmit, and deletes the
+// remote branches from which the PRs are made
+func (g GithubClient) CloseFailedPullRequests(prTitlePrefix, repo, baseBranch string) error {
 	log.Printf("Search for failed auto PRs to update dependencies in repo %s", repo)
 	options := github.PullRequestListOptions{
 		Base:  baseBranch,
@@ -136,7 +143,7 @@ func (g githubClient) closeFailedPullRequests(repo, baseBranch string) error {
 		if err != nil {
 			multiErr = multierror.Append(multiErr, err)
 		}
-		if util.GetCIState(combinedStatus, nil) == ci.Failure {
+		if GetCIState(combinedStatus, nil) == ci.Failure {
 			prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, *pr.Number)
 			log.Printf("Closing PR %s and deleting branch %s", prName, *pr.Head.Ref)
 			*pr.State = "closed"
@@ -155,8 +162,8 @@ func (g githubClient) closeFailedPullRequests(repo, baseBranch string) error {
 	return multiErr
 }
 
-// Returns the SHA of the commit to which the HEAD of branch points
-func (g githubClient) getHeadCommitSHA(repo, branch string) (string, error) {
+// GetHeadCommitSHA finds the SHA of the commit to which the HEAD of branch points
+func (g GithubClient) GetHeadCommitSHA(repo, branch string) (string, error) {
 	ref, _, err := g.client.Git.GetRef(
 		context.Background(), g.owner, repo, "refs/heads/"+branch)
 	if err != nil {

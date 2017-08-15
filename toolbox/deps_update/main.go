@@ -31,11 +31,13 @@ var (
 	tokenFile  = flag.String("token_file", "", "File containing Github API Access Token")
 	baseBranch = flag.String("base_branch", "master", "Branch from which the deps update commit is based")
 	hub        = flag.String("hub", "", "Where the testing images are hosted")
-	githubClnt *githubClient
+	githubClnt *util.GithubClient
 )
 
 const (
 	istioDepsFile = "istio.deps"
+	prTitlePrefix = "[DO NOT MERGE] Auto PR to update dependencies of "
+	prBody        = "This PR will be merged automatically once checks are successful."
 )
 
 // Updates dependency objects in :deps to the latest stable version.
@@ -44,13 +46,13 @@ const (
 // Returns a list of dependencies that were stale and have just been updated
 func updateDepSHAGetFingerPrint(repo string, deps *[]dependency) (string, []dependency, error) {
 	var depChangeList []dependency
-	digest, err := githubClnt.getHeadCommitSHA(repo, *baseBranch)
+	digest, err := githubClnt.GetHeadCommitSHA(repo, *baseBranch)
 	if err != nil {
 		return "", depChangeList, err
 	}
 	digest += *baseBranch + *hub
 	for i, dep := range *deps {
-		commitSHA, err := githubClnt.getHeadCommitSHA(dep.RepoName, dep.ProdBranch)
+		commitSHA, err := githubClnt.GetHeadCommitSHA(dep.RepoName, dep.ProdBranch)
 		if err != nil {
 			return "", depChangeList, err
 		}
@@ -138,7 +140,7 @@ func updateDependenciesOf(repo string) error {
 	if err := os.RemoveAll(repo); err != nil {
 		return err
 	}
-	if _, err := util.ShellSilent("git clone " + githubClnt.remote(repo)); err != nil {
+	if _, err := util.ShellSilent("git clone " + githubClnt.Remote(repo)); err != nil {
 		return err
 	}
 	if err := os.Chdir(repo); err != nil {
@@ -165,7 +167,7 @@ func updateDependenciesOf(repo string) error {
 		return nil
 	}
 	branch := "autoUpdateDeps_" + fingerPrint
-	exists, err := githubClnt.existBranch(repo, branch)
+	exists, err := githubClnt.ExistBranch(repo, branch)
 	if err != nil {
 		return err
 	}
@@ -173,7 +175,8 @@ func updateDependenciesOf(repo string) error {
 		log.Printf("Branch already exists")
 	}
 	// if branch exists, stop here and do not create another PR of identical delta
-	if err = githubClnt.closeFailedPullRequests(repo, *baseBranch); exists || err != nil {
+	if err = githubClnt.CloseFailedPullRequests(
+		prTitlePrefix, repo, *baseBranch); exists || err != nil {
 		return err
 	}
 	if _, err := util.Shell("git checkout -b " + branch); err != nil {
@@ -191,10 +194,8 @@ func updateDependenciesOf(repo string) error {
 	if _, err := util.Shell("git push --set-upstream origin " + branch); err != nil {
 		return err
 	}
-	if err := githubClnt.createPullRequest(branch, *baseBranch, repo); err != nil {
-		return err
-	}
-	return nil
+	prTitle := prTitlePrefix + repo
+	return githubClnt.CreatePullRequest(prTitle, prBody, branch, *baseBranch, repo)
 }
 
 func main() {
@@ -207,7 +208,7 @@ func main() {
 	if err != nil {
 		log.Panicf("Error accessing user supplied token_file: %v\n", err)
 	}
-	githubClnt, err = newGithubClient(*owner, token)
+	githubClnt, err = util.NewGithubClient(*owner, token)
 	if err != nil {
 		log.Panicf("Error when initializing github client: %v\n", err)
 	}
@@ -220,7 +221,7 @@ func main() {
 			log.Printf("Failed to udpate dependency: %v\n", err)
 		}
 	} else { // update dependencies of all repos in the istio project
-		repos, err := githubClnt.listRepos()
+		repos, err := githubClnt.ListRepos()
 		if err != nil {
 			log.Printf("Error when fetching list of repos: %v\n", err)
 			return
