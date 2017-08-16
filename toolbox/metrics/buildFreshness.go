@@ -16,8 +16,6 @@ package main
 
 import (
 	"fmt"
-	"regexp"
-	"strings"
 	"sync"
 	"time"
 
@@ -48,6 +46,17 @@ func getBranchHeadTime(ghClient *u.GithubClient, repo, branch string) (*time.Tim
 	return t, nil
 }
 
+func getCommitCreationTimeByRef(ghClient *u.GithubClient, repo, ref string) (*time.Time, error) {
+	if u.SHARegex.MatchString(ref) {
+		return ghClient.GetCommitCreationTime(repo, ref)
+	} else if u.ReleaseTagRegex.MatchString(ref) {
+		return ghClient.GetCommitCreationTimeByTag(repo, ref)
+	}
+	err := fmt.Errorf(
+		"reference must be a SHA or release tag to get creation time, but was instead %s", ref)
+	return nil, err
+}
+
 func getStableBuildFreshness(owner, repo, branch string) ([]DepFreshness, error) {
 	githubClnt := u.NewGithubClientNoAuth(owner)
 	var stats []DepFreshness
@@ -62,8 +71,6 @@ func getStableBuildFreshness(owner, repo, branch string) ([]DepFreshness, error)
 	var wg sync.WaitGroup
 	var mutex = &sync.Mutex{} // used to synchronize access to stats and multiErr
 	var multiErr error
-	dockerImageRegex := regexp.MustCompile(
-		"^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$")
 	multiErrAppend := func(err error) {
 		// multierror not thread safe
 		mutex.Lock()
@@ -74,11 +81,12 @@ func getStableBuildFreshness(owner, repo, branch string) ([]DepFreshness, error)
 		wg.Add(1)
 		go func(dep u.Dependency) {
 			defer wg.Done()
-			if dockerImageRegex.MatchString(dep.LastStableSHA) {
-				err := fmt.Errorf(
-					"%s uses Docker image name as value: %s and please use SHA or github tag",
-					dep.Name, dep.LastStableSHA)
-				multiErrAppend(err)
+			stableTime, err := getCommitCreationTimeByRef(githubClnt, dep.RepoName, dep.LastStableSHA)
+			if err != nil {
+				e := fmt.Errorf(
+					"failed to get the committed time of the stable dependency named %s: %v",
+					dep.Name, err)
+				multiErrAppend(e)
 				return
 			}
 			latestTime, err := getBranchHeadTime(githubClnt, dep.RepoName, dep.ProdBranch)
@@ -89,24 +97,10 @@ func getStableBuildFreshness(owner, repo, branch string) ([]DepFreshness, error)
 				multiErrAppend(e)
 				return
 			}
-			var stableTime *time.Time
-			if strings.Contains(dep.LastStableSHA, "-") || strings.Contains(dep.LastStableSHA, ".") {
-				// the reference is a tag
-				stableTime, err = githubClnt.GetCommitCreationTimeByTag(dep.RepoName, dep.LastStableSHA)
-			} else {
-				stableTime, err = githubClnt.GetCommitCreationTime(dep.RepoName, dep.LastStableSHA)
-			}
-			if err != nil {
-				e := fmt.Errorf(
-					"failed to get the publish time of the stable dependency named %s: %v",
-					dep.Name, err)
-				multiErrAppend(e)
-				return
-			}
 			lag := latestTime.Sub(*stableTime)
 			mutex.Lock()
+			defer mutex.Unlock()
 			stats = append(stats, DepFreshness{dep, lag})
-			mutex.Unlock()
 		}(dep)
 	}
 	wg.Wait()
