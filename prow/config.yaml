@@ -46,7 +46,7 @@ presubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.7
+      - image: gcr.io/istio-testing/prowbazel:0.2.1
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
@@ -124,6 +124,155 @@ presubmits:
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
+  run_after_success:
+  - name: prow/e2e-suite-no_rbac-no_auth.sh
+    branches:
+    - master
+    skip_report: true
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.2.1
+        args:
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+        - "--clean"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: e2e-testing-kubeconfig
+          mountPath: /home/bootstrap/.kube
+        - name: cache-ssd
+          mountPath: /home/bootstrap/.cache
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: e2e-testing-kubeconfig
+        secret:
+          secretName: e2e-testing-kubeconfig
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0
+  - name: prow/e2e-suite-no_rbac-auth.sh
+    branches:
+    - master
+    skip_report: true
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.2.1
+        args:
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+        - "--clean"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: e2e-testing-kubeconfig
+          mountPath: /home/bootstrap/.kube
+        - name: cache-ssd
+          mountPath: /home/bootstrap/.cache
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: e2e-testing-kubeconfig
+        secret:
+          secretName: e2e-testing-kubeconfig
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0
+  - name: prow/e2e-suite-rbac-no_auth.sh
+    branches:
+    - master
+    skip_report: true
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.2.1
+        args:
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+        - "--clean"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: e2e-testing-rbac-kubeconfig
+          mountPath: /home/bootstrap/.kube
+        - name: cache-ssd
+          mountPath: /home/bootstrap/.cache
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: e2e-testing-rbac-kubeconfig
+        secret:
+          secretName: e2e-testing-rbac-kubeconfig
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0
+  - name: prow/e2e-suite-rbac-auth.sh
+    branches:
+    - master
+    skip_report: true
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.2.1
+        args:
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+        - "--clean"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: e2e-testing-rbac-kubeconfig
+          mountPath: /home/bootstrap/.kube
+        - name: cache-ssd
+          mountPath: /home/bootstrap/.cache
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: e2e-testing-rbac-kubeconfig
+        secret:
+          secretName: e2e-testing-rbac-kubeconfig
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0
 
   istio/mixer:
   - name: mixer-presubmit
@@ -136,7 +285,7 @@ presubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.7
+      - image: gcr.io/istio-testing/prowbazel:0.2.1
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
@@ -177,7 +326,7 @@ presubmits:
       trigger: "(?m)^/(retest|test (all|mixer-e2e-smoketest))?,?(\\s+|$)"
       spec:
         containers:
-        - image: gcr.io/istio-testing/prowbazel:0.1.7
+        - image: gcr.io/istio-testing/prowbazel:0.2.1
           args:
           - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
           - "--clean"
@@ -220,7 +369,7 @@ presubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.7
+      - image: gcr.io/istio-testing/prowbazel:0.2.1
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
@@ -266,7 +415,7 @@ presubmits:
       trigger: "(?m)^/(retest|test (all|pilot-e2e-smoketest))?,?(\\s+|$)"
       spec:
         containers:
-        - image: gcr.io/istio-testing/prowbazel:0.1.7
+        - image: gcr.io/istio-testing/prowbazel:0.2.1
           args:
           - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
           - "--clean"
@@ -345,7 +494,7 @@ postsubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.7
+      - image: gcr.io/istio-testing/prowbazel:0.2.1
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
@@ -390,7 +539,7 @@ postsubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.7
+      - image: gcr.io/istio-testing/prowbazel:0.2.1
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
@@ -430,7 +579,7 @@ postsubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.7
+      - image: gcr.io/istio-testing/prowbazel:0.2.1
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
