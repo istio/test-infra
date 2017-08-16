@@ -36,12 +36,12 @@ type DepFreshness struct {
 	Freshness time.Duration
 }
 
-func getBranchHeadTime(gclient *u.GithubClient, repo, branch string) (*time.Time, error) {
-	sha, err := gclient.GetHeadCommitSHA(repo, branch)
+func getBranchHeadTime(ghClient *u.GithubClient, repo, branch string) (*time.Time, error) {
+	sha, err := ghClient.GetHeadCommitSHA(repo, branch)
 	if err != nil {
 		return nil, err
 	}
-	t, err := gclient.GetSHATime(repo, sha)
+	t, err := ghClient.GetCommitCreationTime(repo, sha)
 	if err != nil {
 		return nil, err
 	}
@@ -83,18 +83,24 @@ func getStableBuildFreshness(owner, repo, branch string) ([]DepFreshness, error)
 			}
 			latestTime, err := getBranchHeadTime(githubClnt, dep.RepoName, dep.ProdBranch)
 			if err != nil {
-				multiErrAppend(err)
+				e := fmt.Errorf(
+					"failed to get the committed time of HEAD of branch %s on repo %s: %v",
+					dep.ProdBranch, dep.RepoName, err)
+				multiErrAppend(e)
 				return
 			}
 			var stableTime *time.Time
 			if strings.Contains(dep.LastStableSHA, "-") || strings.Contains(dep.LastStableSHA, ".") {
 				// the reference is a tag
-				stableTime, err = githubClnt.GetTagPublishTime(dep.RepoName, dep.LastStableSHA)
+				stableTime, err = githubClnt.GetCommitCreationTimeByTag(dep.RepoName, dep.LastStableSHA)
 			} else {
-				stableTime, err = githubClnt.GetSHATime(dep.RepoName, dep.LastStableSHA)
+				stableTime, err = githubClnt.GetCommitCreationTime(dep.RepoName, dep.LastStableSHA)
 			}
 			if err != nil {
-				multiErrAppend(err)
+				e := fmt.Errorf(
+					"failed to get the publish time of the stable dependency named %s: %v",
+					dep.Name, err)
+				multiErrAppend(e)
 				return
 			}
 			lag := latestTime.Sub(*stableTime)

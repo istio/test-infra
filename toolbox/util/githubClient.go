@@ -175,8 +175,8 @@ func (g GithubClient) GetHeadCommitSHA(repo, branch string) (string, error) {
 	return g.getReferenceSHA(repo, "refs/heads/"+branch)
 }
 
-// GetSHATime gets the time when sha is made
-func (g GithubClient) GetSHATime(repo, sha string) (*time.Time, error) {
+// GetCommitCreationTime gets the time when the commit identified by sha is created
+func (g GithubClient) GetCommitCreationTime(repo, sha string) (*time.Time, error) {
 	commit, _, err := g.client.Git.GetCommit(
 		context.Background(), g.owner, repo, sha)
 	if err != nil {
@@ -185,8 +185,9 @@ func (g GithubClient) GetSHATime(repo, sha string) (*time.Time, error) {
 	return (*(*commit).Author).Date, nil
 }
 
-// GetTagPublishTime finds the time a tag is published
-func (g GithubClient) GetTagPublishTime(repo, tag string) (*time.Time, error) {
+// GetCommitCreationTimeByTag finds the time when the commit pointed by a tag is created
+// Note that SHA of the tag is different from the commit SHA
+func (g GithubClient) GetCommitCreationTimeByTag(repo, tag string) (*time.Time, error) {
 	sha, err := g.getReferenceSHA(repo, "refs/tags/"+tag)
 	if err != nil {
 		return nil, err
@@ -196,7 +197,8 @@ func (g GithubClient) GetTagPublishTime(repo, tag string) (*time.Time, error) {
 	if err != nil {
 		return nil, err
 	}
-	return (*(*tagObj).Tagger).Date, nil
+	commitSHA := *tagObj.Object.SHA
+	return g.GetCommitCreationTime(repo, commitSHA)
 }
 
 // GetFileContent retrieves the file content from the hosted repo
