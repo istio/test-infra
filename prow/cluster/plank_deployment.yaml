@@ -5,7 +5,7 @@ metadata:
   labels:
     app: plank
 spec:
-  replicas: 1
+  replicas: 1 # Do not scale up
   template:
     metadata:
       labels:
@@ -13,10 +13,10 @@ spec:
     spec:
       containers:
       - name: plank
-        image: gcr.io/k8s-prow/plank:0.26
+        image: gcr.io/k8s-prow/plank:0.36
         imagePullPolicy: Always
         args:
-        - "-jenkins-token-file=" # disable jenkins
+        - --jenkins-token-file= # disable jenkins
         - --dry-run=false
         - --github-bot-name=istio-testing
         - --tot-url=http://tot

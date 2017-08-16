@@ -1,0 +1,16 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "commonUtils.go",
+        "githubUtils.go",
+        "githubClient.go",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_github_google_go_github//github:go_default_library",
+        "@com_github_hashicorp_go_multierror//:go_default_library",
+        "@org_golang_x_oauth2//:go_default_library",
+    ],
+)
