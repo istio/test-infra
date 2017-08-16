@@ -27,37 +27,56 @@ const (
 	istioDepsFile = "istio.deps"
 )
 
-// DepFreshness stores how many days behind the dependency SHA used by the last
-// stable build is compared to the HEAD of the production branch of that dependency
+// DepFreshness stores how long the dependency SHA used by the last
+// stable build is behind the HEAD of the production branch of that dependency
 type DepFreshness struct {
-	Dep       u.Dependency
-	Freshness time.Duration
+	Dep u.Dependency
+	Age time.Duration
 }
 
-func getBranchHeadTime(ghClient *u.GithubClient, repo, branch string) (*time.Time, error) {
-	sha, err := ghClient.GetHeadCommitSHA(repo, branch)
+func getBranchHeadTime(githubClnt *u.GithubClient, repo, branch string) (*time.Time, error) {
+	sha, err := githubClnt.GetHeadCommitSHA(repo, branch)
 	if err != nil {
 		return nil, err
 	}
-	t, err := ghClient.GetCommitCreationTime(repo, sha)
+	t, err := githubClnt.GetCommitCreationTime(repo, sha)
 	if err != nil {
 		return nil, err
 	}
 	return t, nil
 }
 
-func getCommitCreationTimeByRef(ghClient *u.GithubClient, repo, ref string) (*time.Time, error) {
+func getCommitCreationTimeByRef(githubClnt *u.GithubClient, repo, ref string) (*time.Time, error) {
 	if u.SHARegex.MatchString(ref) {
-		return ghClient.GetCommitCreationTime(repo, ref)
+		return githubClnt.GetCommitCreationTime(repo, ref)
 	} else if u.ReleaseTagRegex.MatchString(ref) {
-		return ghClient.GetCommitCreationTimeByTag(repo, ref)
+		return githubClnt.GetCommitCreationTimeByTag(repo, ref)
 	}
 	err := fmt.Errorf(
 		"reference must be a SHA or release tag to get creation time, but was instead %s", ref)
 	return nil, err
 }
 
-func getStableBuildFreshness(owner, repo, branch string) ([]DepFreshness, error) {
+func getAgeMetric(githubClnt *u.GithubClient, dep *u.Dependency) (*DepFreshness, error) {
+	stableTime, err := getCommitCreationTimeByRef(githubClnt, dep.RepoName, dep.LastStableSHA)
+	if err != nil {
+		e := fmt.Errorf(
+			"failed to get the committed time of the stable dependency named %s: %v",
+			dep.Name, err)
+		return nil, e
+	}
+	latestTime, err := getBranchHeadTime(githubClnt, dep.RepoName, dep.ProdBranch)
+	if err != nil {
+		e := fmt.Errorf(
+			"failed to get the committed time of HEAD of branch %s on repo %s: %v",
+			dep.ProdBranch, dep.RepoName, err)
+		return nil, e
+	}
+	lag := latestTime.Sub(*stableTime)
+	return &DepFreshness{*dep, lag}, nil
+}
+
+func getAgeMetrics(owner, repo, branch string) ([]DepFreshness, error) {
 	githubClnt := u.NewGithubClientNoAuth(owner)
 	var stats []DepFreshness
 	pickledDeps, err := githubClnt.GetFileContent(repo, branch, istioDepsFile)
@@ -71,36 +90,18 @@ func getStableBuildFreshness(owner, repo, branch string) ([]DepFreshness, error)
 	var wg sync.WaitGroup
 	var mutex = &sync.Mutex{} // used to synchronize access to stats and multiErr
 	var multiErr error
-	multiErrAppend := func(err error) {
-		// multierror not thread safe
-		mutex.Lock()
-		multiErr = multierror.Append(multiErr, err)
-		mutex.Unlock()
-	}
 	for _, dep := range deps {
 		wg.Add(1)
 		go func(dep u.Dependency) {
 			defer wg.Done()
-			stableTime, err := getCommitCreationTimeByRef(githubClnt, dep.RepoName, dep.LastStableSHA)
-			if err != nil {
-				e := fmt.Errorf(
-					"failed to get the committed time of the stable dependency named %s: %v",
-					dep.Name, err)
-				multiErrAppend(e)
-				return
-			}
-			latestTime, err := getBranchHeadTime(githubClnt, dep.RepoName, dep.ProdBranch)
-			if err != nil {
-				e := fmt.Errorf(
-					"failed to get the committed time of HEAD of branch %s on repo %s: %v",
-					dep.ProdBranch, dep.RepoName, err)
-				multiErrAppend(e)
-				return
-			}
-			lag := latestTime.Sub(*stableTime)
+			ageMetric, err := getAgeMetric(githubClnt, &dep)
 			mutex.Lock()
 			defer mutex.Unlock()
-			stats = append(stats, DepFreshness{dep, lag})
+			if err != nil {
+				multiErr = multierror.Append(multiErr, err)
+				return
+			}
+			stats = append(stats, *ageMetric)
 		}(dep)
 	}
 	wg.Wait()
