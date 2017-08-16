@@ -17,13 +17,19 @@ package util
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/google/go-github/github"
 	multierror "github.com/hashicorp/go-multierror"
 	"golang.org/x/oauth2"
+)
+
+var (
+	commitType = "commit"
 )
 
 // GithubClient masks RPCs to github as local procedures
@@ -210,6 +216,77 @@ func (g GithubClient) GetFileContent(repo, branch, path string) (string, error) 
 		return "", err
 	}
 	return fileContent.GetContent()
+}
+
+// CreateAnnotatedTag retrieves the file content from the hosted repo
+func (g GithubClient) CreateAnnotatedTag(repo, tag, sha, msg string) error {
+	if !SHARegex.MatchString(sha) {
+		return fmt.Errorf(
+			"can only create a tag from a valid commit SHA but was given %s", sha)
+	}
+	tagObj := github.Tag{
+		Tag:     &tag,
+		Message: &msg,
+		Object: &github.GitObject{
+			Type: &commitType,
+			SHA:  &sha,
+		},
+	}
+	tagResponse, _, err := g.client.Git.CreateTag(
+		context.Background(), g.owner, repo, &tagObj)
+	if err != nil {
+		log.Printf("Failed to create tag %s on repo %s", tag, repo)
+		return err
+	}
+	refString := "refs/tags/" + tag
+	refObj := github.Reference{
+		Ref: &refString,
+		Object: &github.GitObject{
+			Type: &commitType,
+			SHA:  tagResponse.SHA,
+		},
+	}
+	_, _, err = g.client.Git.CreateRef(
+		context.Background(), g.owner, repo, &refObj)
+	if err != nil {
+		log.Printf("Failed to create reference with tag just created: %s", tag)
+	}
+	return err
+}
+
+// CreateReleaseUploadArchives creates a release given release tag and
+// upload all files in archiveDir as assets of this release
+func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, archiveDir string) error {
+	// create release
+	release := github.RepositoryRelease{TagName: &releaseTag}
+	res, _, err := g.client.Repositories.CreateRelease(
+		context.Background(), g.owner, repo, &release)
+	if err != nil {
+		log.Printf("Failed to create new release on repo %s with releaseTag: %s", repo, releaseTag)
+		return err
+	}
+	releaseID := *res.ID
+	// upload archives
+	files, err := ioutil.ReadDir(archiveDir)
+	if err != nil {
+		return err
+	}
+	for _, f := range files {
+		filePath := fmt.Sprintf("%s/%s", archiveDir, f.Name())
+		fd, err := os.Open(filePath)
+		if err != nil {
+			return err
+		}
+		opt := github.UploadOptions{f.Name()}
+		_, _, err = g.client.Repositories.UploadReleaseAsset(
+			context.Background(), g.owner, repo, releaseID, &opt, fd)
+		if err != nil {
+			log.Printf("Failed to upload asset %s to release %s on repo %s: %s",
+				f.Name(), releaseTag, repo)
+			return err
+		}
+	}
+	return nil
 }
 
 func (g GithubClient) getReferenceSHA(repo, ref string) (string, error) {
