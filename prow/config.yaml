@@ -303,6 +303,8 @@ presubmits:
         - name: service
           mountPath: /etc/service-account
           readOnly: true
+        - name: e2e-testing-kubeconfig
+          mountPath: /home/bootstrap/.kube 
         - name: mixer-codecov-token
           mountPath: /etc/codecov
           readOnly: true
@@ -315,6 +317,9 @@ presubmits:
       - name: service
         secret:
           secretName: service-account
+      - name: e2e-testing-kubeconfig
+        secret:
+          secretName: e2e-testing-kubeconfig          
       - name: mixer-codecov-token
         secret:
           secretName: mixer-codecov-token
