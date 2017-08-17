@@ -125,8 +125,9 @@ presubmits:
         hostPath:
           path: /mnt/disks/ssd0
     run_after_success:
-    - name: prow/e2e-suite-no_rbac-no_auth.sh
+    - name: e2e-suite-no_rbac-no_auth
       agent: kubernetes
+      context: prow/e2e-suite-no_rbac-no_auth.sh
       branches:
       - master
       skip_report: true
@@ -163,8 +164,9 @@ presubmits:
         - name: cache-ssd
           hostPath:
             path: /mnt/disks/ssd0
-    - name: prow/e2e-suite-no_rbac-auth.sh
+    - name: e2e-suite-no_rbac-auth
       agent: kubernetes
+      context: prow/e2e-suite-no_rbac-auth.sh
       branches:
       - master
       skip_report: true
@@ -201,8 +203,9 @@ presubmits:
         - name: cache-ssd
           hostPath:
             path: /mnt/disks/ssd0
-    - name: prow/e2e-suite-rbac-no_auth.sh
+    - name: e2e-suite-rbac-no_auth
       agent: kubernetes
+      context: prow/e2e-suite-rbac-no_auth.sh
       branches:
       - master
       skip_report: true
@@ -239,8 +242,9 @@ presubmits:
         - name: cache-ssd
           hostPath:
             path: /mnt/disks/ssd0
-    - name: prow/e2e-suite-rbac-auth.sh
+    - name: e2e-suite-rbac-auth
       agent: kubernetes
+      context: prow/e2e-suite-rbac-auth.sh
       branches:
       - master
       skip_report: true
