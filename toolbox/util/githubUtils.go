@@ -28,7 +28,7 @@ var (
 	// SHARegex matches commit SHA's
 	SHARegex = regexp.MustCompile("^[a-z0-9]{40}$")
 	// ReleaseTagRegex matches release tags
-	ReleaseTagRegex = regexp.MustCompile("^[0-9]*.[0-9]*.[0-9]*$")
+	ReleaseTagRegex = regexp.MustCompile("^[0-9]+.[0-9]+.[0-9]+$")
 )
 
 // CIState defines constants representing possible states of
