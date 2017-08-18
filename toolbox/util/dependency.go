@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package util
 
 import (
 	"encoding/json"
@@ -38,7 +38,8 @@ import (
 		)
 */
 
-type dependency struct {
+// Dependency records meta data
+type Dependency struct {
 	Name          string `json:"name"`
 	RepoName      string `json:"repoName"`
 	ProdBranch    string `json:"prodBranch"`    // either master or stable
@@ -46,9 +47,10 @@ type dependency struct {
 	LastStableSHA string `json:"lastStableSHA"` // sha used in the latest stable build of parent
 }
 
-// Get the list of dependencies of a repo by deserializing the file on depsFilePath
-func deserializeDeps(depsFilePath string) ([]dependency, error) {
-	var deps []dependency
+// DeserializeDeps get the list of dependencies of a repo by
+// deserializing the file on depsFilePath
+func DeserializeDeps(depsFilePath string) ([]Dependency, error) {
+	var deps []Dependency
 	raw, err := ioutil.ReadFile(depsFilePath)
 	if err != nil {
 		return deps, err
@@ -57,8 +59,15 @@ func deserializeDeps(depsFilePath string) ([]dependency, error) {
 	return deps, err
 }
 
-// Writes in-memory dependencies to file
-func serializeDeps(depsFilePath string, deps *[]dependency) error {
+// DeserializeDepsFromString inflates the list of dependencies from a string
+func DeserializeDepsFromString(pickled string) ([]Dependency, error) {
+	var deps []Dependency
+	err := json.Unmarshal([]byte(pickled), &deps)
+	return deps, err
+}
+
+// SerializeDeps writes in-memory dependencies to file
+func SerializeDeps(depsFilePath string, deps *[]Dependency) error {
 	pickled, err := json.MarshalIndent(*deps, "", "\t")
 	if err != nil {
 		return err

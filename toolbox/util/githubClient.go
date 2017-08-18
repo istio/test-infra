@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/google/go-github/github"
 	multierror "github.com/hashicorp/go-multierror"
@@ -33,11 +34,18 @@ type GithubClient struct {
 }
 
 // NewGithubClient creates a new GithubClient with proper authentication
-func NewGithubClient(owner, token string) (*GithubClient, error) {
+func NewGithubClient(owner, token string) *GithubClient {
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
 	tc := oauth2.NewClient(context.Background(), ts)
 	client := github.NewClient(tc)
-	return &GithubClient{client, owner, token}, nil
+	return &GithubClient{client, owner, token}
+}
+
+// NewGithubClientNoAuth creates a new GithubClient without authentication
+// useful when only making GET requests
+func NewGithubClientNoAuth(owner string) *GithubClient {
+	client := github.NewClient(nil)
+	return &GithubClient{client, owner, ""}
 }
 
 // FastForward moves :branch on :repo to the given sha
@@ -164,10 +172,51 @@ func (g GithubClient) CloseFailedPullRequests(prTitlePrefix, repo, baseBranch st
 
 // GetHeadCommitSHA finds the SHA of the commit to which the HEAD of branch points
 func (g GithubClient) GetHeadCommitSHA(repo, branch string) (string, error) {
-	ref, _, err := g.client.Git.GetRef(
-		context.Background(), g.owner, repo, "refs/heads/"+branch)
+	return g.getReferenceSHA(repo, "refs/heads/"+branch)
+}
+
+// GetCommitCreationTime gets the time when the commit identified by sha is created
+func (g GithubClient) GetCommitCreationTime(repo, sha string) (*time.Time, error) {
+	commit, _, err := g.client.Git.GetCommit(
+		context.Background(), g.owner, repo, sha)
+	if err != nil {
+		return nil, err
+	}
+	return (*(*commit).Author).Date, nil
+}
+
+// GetCommitCreationTimeByTag finds the time when the commit pointed by a tag is created
+// Note that SHA of the tag is different from the commit SHA
+func (g GithubClient) GetCommitCreationTimeByTag(repo, tag string) (*time.Time, error) {
+	sha, err := g.getReferenceSHA(repo, "refs/tags/"+tag)
+	if err != nil {
+		return nil, err
+	}
+	tagObj, _, err := g.client.Git.GetTag(
+		context.Background(), g.owner, repo, sha)
+	if err != nil {
+		return nil, err
+	}
+	commitSHA := *tagObj.Object.SHA
+	return g.GetCommitCreationTime(repo, commitSHA)
+}
+
+// GetFileContent retrieves the file content from the hosted repo
+func (g GithubClient) GetFileContent(repo, branch, path string) (string, error) {
+	opt := github.RepositoryContentGetOptions{branch}
+	fileContent, _, _, err := g.client.Repositories.GetContents(
+		context.Background(), g.owner, repo, path, &opt)
 	if err != nil {
 		return "", err
 	}
-	return *ref.Object.SHA, nil
+	return fileContent.GetContent()
+}
+
+func (g GithubClient) getReferenceSHA(repo, ref string) (string, error) {
+	githubRefObj, _, err := g.client.Git.GetRef(
+		context.Background(), g.owner, repo, ref)
+	if err != nil {
+		return "", err
+	}
+	return *githubRefObj.Object.SHA, nil
 }

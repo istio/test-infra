@@ -22,7 +22,7 @@ import (
 	"os"
 	"strings"
 
-	"istio.io/test-infra/toolbox/util"
+	u "istio.io/test-infra/toolbox/util"
 )
 
 var (
@@ -31,7 +31,7 @@ var (
 	tokenFile  = flag.String("token_file", "", "File containing Github API Access Token")
 	baseBranch = flag.String("base_branch", "master", "Branch from which the deps update commit is based")
 	hub        = flag.String("hub", "", "Where the testing images are hosted")
-	githubClnt *util.GithubClient
+	githubClnt *u.GithubClient
 )
 
 const (
@@ -44,8 +44,8 @@ const (
 // Generates an MD5 digest of the latest dependencies, useful in avoiding making duplicate
 // branches of the same code change.
 // Returns a list of dependencies that were stale and have just been updated
-func updateDepSHAGetFingerPrint(repo string, deps *[]dependency) (string, []dependency, error) {
-	var depChangeList []dependency
+func updateDepSHAGetFingerPrint(repo string, deps *[]u.Dependency) (string, []u.Dependency, error) {
+	var depChangeList []u.Dependency
 	digest, err := githubClnt.GetHeadCommitSHA(repo, *baseBranch)
 	if err != nil {
 		return "", depChangeList, err
@@ -63,7 +63,7 @@ func updateDepSHAGetFingerPrint(repo string, deps *[]dependency) (string, []depe
 		}
 
 	}
-	return util.GetMD5Hash(digest), depChangeList, nil
+	return u.GetMD5Hash(digest), depChangeList, nil
 }
 
 // Updates in the file all occurrences of the dependency identified by depName to
@@ -94,7 +94,7 @@ func updateDepFile(file, depName, ref string) error {
 }
 
 // Updates the list of dependencies in repo to the latest stable references
-func updateDeps(repo string, deps *[]dependency, depChangeList *[]dependency) error {
+func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency) error {
 	if repo != "istio" {
 		for _, dep := range *deps {
 			if err := updateDepFile(dep.File, dep.Name, dep.LastStableSHA); err != nil {
@@ -120,7 +120,7 @@ func updateDeps(repo string, deps *[]dependency, depChangeList *[]dependency) er
 		}
 	}
 	cmd := fmt.Sprintf("./install/updateVersion.sh %s", args)
-	_, err := util.Shell(cmd)
+	_, err := u.Shell(cmd)
 	return err
 }
 
@@ -140,7 +140,7 @@ func updateDependenciesOf(repo string) error {
 	if err := os.RemoveAll(repo); err != nil {
 		return err
 	}
-	if _, err := util.ShellSilent("git clone " + githubClnt.Remote(repo)); err != nil {
+	if _, err := u.ShellSilent("git clone " + githubClnt.Remote(repo)); err != nil {
 		return err
 	}
 	if err := os.Chdir(repo); err != nil {
@@ -151,10 +151,10 @@ func updateDependenciesOf(repo string) error {
 			log.Fatalf("Error during clean up: %v\n", err)
 		}
 	}()
-	if _, err := util.Shell("git checkout " + *baseBranch); err != nil {
+	if _, err := u.Shell("git checkout " + *baseBranch); err != nil {
 		return err
 	}
-	deps, err := deserializeDeps(istioDepsFile)
+	deps, err := u.DeserializeDeps(istioDepsFile)
 	if err != nil {
 		return err
 	}
@@ -179,19 +179,19 @@ func updateDependenciesOf(repo string) error {
 		prTitlePrefix, repo, *baseBranch); exists || err != nil {
 		return err
 	}
-	if _, err := util.Shell("git checkout -b " + branch); err != nil {
+	if _, err := u.Shell("git checkout -b " + branch); err != nil {
 		return err
 	}
 	if err := updateDeps(repo, &deps, &depChangeList); err != nil {
 		return err
 	}
-	if err := serializeDeps(istioDepsFile, &deps); err != nil {
+	if err := u.SerializeDeps(istioDepsFile, &deps); err != nil {
 		return err
 	}
-	if _, err := util.Shell("git commit -am Update_Dependencies"); err != nil {
+	if _, err := u.Shell("git commit -am Update_Dependencies"); err != nil {
 		return err
 	}
-	if _, err := util.Shell("git push --set-upstream origin " + branch); err != nil {
+	if _, err := u.Shell("git push --set-upstream origin " + branch); err != nil {
 		return err
 	}
 	prTitle := prTitlePrefix + repo
@@ -204,14 +204,11 @@ func main() {
 		log.Panicf("token_file not provided\n")
 		return
 	}
-	token, err := util.GetAPITokenFromFile(*tokenFile)
+	token, err := u.GetAPITokenFromFile(*tokenFile)
 	if err != nil {
 		log.Panicf("Error accessing user supplied token_file: %v\n", err)
 	}
-	githubClnt, err = util.NewGithubClient(*owner, token)
-	if err != nil {
-		log.Panicf("Error when initializing github client: %v\n", err)
-	}
+	githubClnt = u.NewGithubClient(*owner, token)
 	if *repo != "" { // only update dependencies of this repo
 		if (*repo == "istio") == (*hub == "") {
 			log.Printf("The hub flag hub must be set for istio/istio and must not for other repos\n")

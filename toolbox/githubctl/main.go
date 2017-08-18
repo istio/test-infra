@@ -52,10 +52,7 @@ func init() {
 	if err != nil {
 		log.Panicf("Error accessing user supplied token_file: %v\n", err)
 	}
-	githubClnt, err = util.NewGithubClient(*owner, token)
-	if err != nil {
-		log.Panicf("Error when initializing github client: %v\n", err)
-	}
+	githubClnt = util.NewGithubClient(*owner, token)
 }
 
 func main() {

@@ -17,6 +17,7 @@ package util
 import (
 	"io/ioutil"
 	"log"
+	"regexp"
 	"strings"
 
 	"github.com/google/go-github/github"
@@ -24,6 +25,10 @@ import (
 
 var (
 	ci = NewCIState()
+	// SHARegex matches commit SHA's
+	SHARegex = regexp.MustCompile("^[a-z0-9]{40}$")
+	// ReleaseTagRegex matches release tags
+	ReleaseTagRegex = regexp.MustCompile("^[0-9]+.[0-9]+.[0-9]+$")
 )
 
 // CIState defines constants representing possible states of
