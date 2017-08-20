@@ -129,6 +129,7 @@ presubmits:
       agent: kubernetes
       context: prow/e2e-suite-no_rbac-no_auth.sh
       rerun_command: "/test e2e-suite-no_rbac-no_auth"
+      trigger: "(?m)^/(retest|test (all|e2e-suite|e2e-suite-no_rbac-no_auth))?,?(\\s+|$)"
       branches:
       - master
       spec:
@@ -168,6 +169,7 @@ presubmits:
       agent: kubernetes
       context: prow/e2e-suite-no_rbac-auth.sh
       rerun_command: "/test e2e-suite-no_rbac-auth"
+      trigger: "(?m)^/(retest|test (all|e2e-suite|e2e-suite-no_rbac-auth))?,?(\\s+|$)"
       branches:
       - master
       spec:
@@ -207,6 +209,7 @@ presubmits:
       agent: kubernetes
       context: prow/e2e-suite-rbac-no_auth.sh
       rerun_command: "/test e2e-suite-rbac-no_auth"
+      trigger: "(?m)^/(retest|test (all|e2e-suite|e2e-suite-rbac-no_auth))?,?(\\s+|$)"
       branches:
       - master
       spec:
@@ -246,6 +249,7 @@ presubmits:
       agent: kubernetes
       context: prow/e2e-suite-rbac-auth.sh
       rerun_command: "/test e2e-suite-rbac-auth"
+      trigger: "(?m)^/(retest|test (all|e2e-suite|e2e-suite-rbac-auth))?,?(\\s+|$)"
       branches:
       - master
       spec:
