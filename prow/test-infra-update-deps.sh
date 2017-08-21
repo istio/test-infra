@@ -26,6 +26,9 @@ set -u
 # Print commands
 set -x
 
+echo "=== Building Binary that Updates Istio Dependency ==="
+bazel build //toolbox/deps_update:update_deps
+
 echo "=== Updating Dependency of Istio ==="
 ./bazel-bin/toolbox/deps_update/update_deps \
 --repo=istio \
