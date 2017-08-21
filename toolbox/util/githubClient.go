@@ -181,6 +181,20 @@ func (g GithubClient) GetHeadCommitSHA(repo, branch string) (string, error) {
 	return g.getReferenceSHA(repo, "refs/heads/"+branch)
 }
 
+// GetTagCommitSHA finds the SHA of the commit from which the tag was made
+func (g GithubClient) GetTagCommitSHA(repo, tag string) (string, error) {
+	sha, err := g.getReferenceSHA(repo, "refs/tags/"+tag)
+	if err != nil {
+		return "", err
+	}
+	tagObj, _, err := g.client.Git.GetTag(
+		context.Background(), g.owner, repo, sha)
+	if err != nil {
+		return "", err
+	}
+	return *tagObj.Object.SHA, nil
+}
+
 // GetCommitCreationTime gets the time when the commit identified by sha is created
 func (g GithubClient) GetCommitCreationTime(repo, sha string) (*time.Time, error) {
 	commit, _, err := g.client.Git.GetCommit(
@@ -194,16 +208,10 @@ func (g GithubClient) GetCommitCreationTime(repo, sha string) (*time.Time, error
 // GetCommitCreationTimeByTag finds the time when the commit pointed by a tag is created
 // Note that SHA of the tag is different from the commit SHA
 func (g GithubClient) GetCommitCreationTimeByTag(repo, tag string) (*time.Time, error) {
-	sha, err := g.getReferenceSHA(repo, "refs/tags/"+tag)
+	commitSHA, err := g.GetTagCommitSHA(repo, tag)
 	if err != nil {
 		return nil, err
 	}
-	tagObj, _, err := g.client.Git.GetTag(
-		context.Background(), g.owner, repo, sha)
-	if err != nil {
-		return nil, err
-	}
-	commitSHA := *tagObj.Object.SHA
 	return g.GetCommitCreationTime(repo, commitSHA)
 }
 
@@ -222,7 +230,8 @@ func (g GithubClient) GetFileContent(repo, branch, path string) (string, error) 
 func (g GithubClient) CreateAnnotatedTag(repo, tag, sha, msg string) error {
 	if !SHARegex.MatchString(sha) {
 		return fmt.Errorf(
-			"can only create a tag from a valid commit SHA but was given %s", sha)
+			"unable to create tag %s on repo %s: invalid commit SHA %s",
+			tag, repo, sha)
 	}
 	tagObj := github.Tag{
 		Tag:     &tag,

@@ -99,11 +99,12 @@ func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency
 // which is auto-merged after presumbit
 func updateDependenciesOf(repo string) error {
 	log.Printf("Updating dependencies of %s\n", repo)
-	if err := u.CloneRepoCheckoutBranch(githubClnt, repo, *baseBranch); err != nil {
+	repoDir, err := u.CloneRepoCheckoutBranch(githubClnt, repo, *baseBranch, *baseBranch)
+	if err != nil {
 		return err
 	}
 	defer func() {
-		if err := u.RemoveLocalRepo(repo); err != nil {
+		if err := u.RemoveLocalRepo(repoDir); err != nil {
 			log.Fatalf("Error during clean up: %v\n", err)
 		}
 	}()

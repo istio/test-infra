@@ -90,37 +90,31 @@ func GetAPITokenFromFile(tokenFile string) (string, error) {
 }
 
 // CloneRepoCheckoutBranch removes previous repo, clone to local machine,
-// change directory into the repo, and checkout the given branch
-func CloneRepoCheckoutBranch(gclient *GithubClient, repo, branch string) error {
+// change directory into the repo, and checkout the given branch.
+// Returns the absolute path to repo root
+func CloneRepoCheckoutBranch(gclient *GithubClient, repo, baseBranch, newBranch string) (string, error) {
 	if err := os.RemoveAll(repo); err != nil {
-		return err
+		return "", err
 	}
 	if _, err := ShellSilent(
 		"git clone " + gclient.Remote(repo)); err != nil {
-		return err
+		return "", err
 	}
 	if err := os.Chdir(repo); err != nil {
-		return err
+		return "", err
 	}
-	_, err := Shell("git checkout " + branch)
-	return err
+	if _, err := Shell("git checkout " + baseBranch); err != nil {
+		return "", err
+	}
+	if _, err := Shell("git checkout -b " + newBranch); err != nil {
+		return "", err
+	}
+	return os.Getwd()
 }
 
 // RemoveLocalRepo deletes the local git repo just cloned
-func RemoveLocalRepo(repo string) error {
-	if err := os.Chdir(".."); err != nil {
-		return err
-	}
-	return os.RemoveAll(repo)
-}
-
-// CheckoutNewBranchFromBaseBranch checks out a new branch from the base branch
-func CheckoutNewBranchFromBaseBranch(baseBranch, newBranch string) error {
-	if _, err := Shell("git checkout " + baseBranch); err != nil {
-		return err
-	}
-	_, err := Shell("git checkout -b " + newBranch)
-	return err
+func RemoveLocalRepo(absolutePathToRepo string) error {
+	return os.RemoveAll(absolutePathToRepo)
 }
 
 // CreateCommitPushToRemote stages call local changes, create a commit,
