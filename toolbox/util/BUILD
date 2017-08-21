@@ -5,8 +5,8 @@ go_library(
     srcs = [
         "commonUtils.go",
         "dependency.go",
-        "githubUtils.go",
         "githubClient.go",
+        "githubUtils.go",
     ],
     visibility = ["//visibility:public"],
     deps = [

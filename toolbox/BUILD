@@ -5,7 +5,7 @@ sh_binary(
     srcs = ["format.sh"],
     data = [
         "@com_github_bazelbuild_buildtools//buildifier",
-        "@io_bazel_rules_go_toolchain//:toolchain",
+        "@io_bazel_rules_go_toolchain//:go_toolchain",
         "@org_golang_x_tools//cmd/goimports",
     ],
 )

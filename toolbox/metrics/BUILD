@@ -4,8 +4,8 @@ load("@io_bazel_rules_docker//docker:docker.bzl", "docker_build")
 go_library(
     name = "go_default_library",
     srcs = [
-        "main.go",
         "buildFreshness.go",
+        "main.go",
     ],
     visibility = ["//visibility:private"],
     deps = [
