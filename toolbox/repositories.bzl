@@ -17,12 +17,6 @@ def toolbox_repositories():
   )
 
   go_repository(
-      name = "com_github_googleapis_gax_go",
-      commit = "9af46dd5a1713e8b5cd71106287eba3cefdde50b",
-      importpath = "github.com/googleapis/gax-go",
-  )
-
-  go_repository(
       name = "org_golang_google_genproto",
       commit = "411e09b969b1170a9f0c467558eb4c4c110d9c77",
       importpath = "google.golang.org/genproto",

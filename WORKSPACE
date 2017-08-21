@@ -15,6 +15,12 @@ load("//toolbox:repositories.bzl", "toolbox_repositories")
 toolbox_repositories()
 
 go_repository(
+    name = "com_github_googleapis_gax_go",
+    commit = "9af46dd5a1713e8b5cd71106287eba3cefdde50b",
+    importpath = "github.com/googleapis/gax-go",
+)
+
+go_repository(
     name = "com_github_google_go_github",
     commit = "9be6ce168fa69a3cc2db27a776950a42d18c2ae0",
     importpath = "github.com/google/go-github",
