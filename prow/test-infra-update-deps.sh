@@ -29,6 +29,9 @@ set -x
 echo "=== Building Binary that Updates Istio Dependency ==="
 bazel build //toolbox/deps_update:update_deps
 
+git config --global user.email "istio.testing@gmail.com"
+git config --global user.name "istio-bot"
+
 echo "=== Updating Dependency of Istio ==="
 ./bazel-bin/toolbox/deps_update/update_deps \
 --repo=istio \
