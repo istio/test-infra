@@ -44,6 +44,7 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|auth-presubmit))?,?(\\s+|$)"
     branches:
     - master
+    - release-0.1
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.2.1
@@ -91,6 +92,9 @@ presubmits:
     always_run: true
     rerun_command: "/test istio-presubmit"
     trigger: "(?m)^/(retest|test (all|istio-presubmit))?,?(\\s+|$)"
+    branches:
+    - master
+    - release-0.1
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.2.1
@@ -287,6 +291,7 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|mixer-presubmit))?,?(\\s+|$)"
     branches:
     - master
+    - release-0.1
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.2.1
@@ -376,6 +381,7 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|pilot-presubmit))?,?(\\s+|$)"
     branches:
     - master
+    - release-0.1
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.2.1
