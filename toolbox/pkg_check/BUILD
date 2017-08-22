@@ -6,7 +6,7 @@ go_library(
     visibility = ["//visibility:private"],
     deps = [
         "@com_google_cloud_go//storage:go_default_library",
-        "@org_golang_x_net//context:go_default_library",
+        "//vendor/golang.org.x/net/context:go_default_library",
     ],
 )
 

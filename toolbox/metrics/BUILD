@@ -14,7 +14,7 @@ go_library(
         "@com_github_prometheus_client_golang//prometheus:go_default_library",
         "@com_github_prometheus_client_golang//prometheus/promhttp:go_default_library",
         "@com_google_cloud_go//storage:go_default_library",
-        "@org_golang_x_net//context:go_default_library",
+        "//vendor/golang.org.x/net/context:go_default_library",
     ],
 )
 

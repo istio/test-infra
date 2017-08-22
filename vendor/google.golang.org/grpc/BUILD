@@ -1,0 +1,35 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "backoff.go",
+        "balancer.go",
+        "call.go",
+        "clientconn.go",
+        "doc.go",
+        "interceptor.go",
+        "rpc_util.go",
+        "server.go",
+        "stream.go",
+        "trace.go",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_github_golang_protobuf//proto:go_default_library",
+        "@org_golang_google_grpc//codes:go_default_library",
+        "@org_golang_google_grpc//credentials:go_default_library",
+        "@org_golang_google_grpc//grpclog:go_default_library",
+        "@org_golang_google_grpc//internal:go_default_library",
+        "@org_golang_google_grpc//keepalive:go_default_library",
+        "@org_golang_google_grpc//metadata:go_default_library",
+        "@org_golang_google_grpc//naming:go_default_library",
+        "@org_golang_google_grpc//peer:go_default_library",
+        "@org_golang_google_grpc//stats:go_default_library",
+        "@org_golang_google_grpc//tap:go_default_library",
+        "@org_golang_google_grpc//transport:go_default_library",
+        "//vendor/golang.org.x/net/context:go_default_library",
+        "//vendor/golang.org.x/net/http2:go_default_library",
+        "//vendor/golang.org.x/net/trace:go_default_library",
+    ],
+)
