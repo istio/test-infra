@@ -658,3 +658,24 @@ periodics:
     - name: e2e-testing-kubeconfig
       secret:
         secretName: e2e-testing-kubeconfig
+
+- interval: 10m
+  agent: kubernetes
+  name: test-infra-update-deps
+  spec:
+    containers:
+    - image: gcr.io/istio-testing/prowbazel:0.1.7
+      args:
+      - "--repo=github.com/istio/test-infra=master"
+      - "--clean"
+      env:
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/service-account/service-account.json
+      volumeMounts:
+      - name: oauth
+        mountPath: /etc/github
+        readOnly: true
+    volumes:
+    - name: oauth
+      secret:
+        secretName: oauth-token
