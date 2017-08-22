@@ -33,7 +33,7 @@ git config --global user.email "istio.testing@gmail.com"
 git config --global user.name "istio-bot"
 
 echo "=== Updating Dependency of Istio ==="
-./bazel-bin/toolbox/deps_update/update_deps \
+./bazel-bin/toolbox/deps_update/deps_update \
 --repo=istio \
 --token_file=/etc/github/oauth \
 --hub=gcr.io/istio-testing
