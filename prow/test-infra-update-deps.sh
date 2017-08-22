@@ -15,9 +15,9 @@
 #   limitations under the License.
 
 
-#############################################
-# Crontab cleanup script triggered by Prow. #
-#############################################
+#######################################################
+# Crontab dependency update script triggered by Prow. #
+#######################################################
 
 # Exit immediately for non zero status
 set -e
