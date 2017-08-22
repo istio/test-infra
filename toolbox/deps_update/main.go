@@ -104,7 +104,7 @@ func updateDependenciesOf(repo string) error {
 		return err
 	}
 	defer func() {
-		if err := u.RemoveLocalRepo(repoDir); err != nil {
+		if err = u.RemoveLocalRepo(repoDir); err != nil {
 			log.Fatalf("Error during clean up: %v\n", err)
 		}
 	}()
