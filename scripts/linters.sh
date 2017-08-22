@@ -29,7 +29,6 @@ prep_linters() {
     go get -u honnef.co/go/tools/cmd/megacheck
     gometalinter --install --vendored-linters >/dev/null
   fi
-  ${BIN_PATH}/bazel_to_go.py
 }
 
 go_metalinter() {
@@ -41,7 +40,8 @@ go_metalinter() {
   fi
 
   # default: lint everything. This runs on the main build
-  PKGS=($(bazel query 'kind("go_library", //...)' | cut -d ':' -f 1 | sort | uniq | sed -e 's,//,./,g')) \
+  PKGS=($(bazel query 'kind("go_library", //... except deps(//vendor/...))' \
+    | cut -d ':' -f 1 | sort | uniq | sed -e 's,//,./,g')) \
     || PKGS=()
 
   # convert LAST_GOOD_GITSHA to list of packages.

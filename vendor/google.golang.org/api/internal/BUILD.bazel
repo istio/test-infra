@@ -1,0 +1,15 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "pool.go",
+        "settings.go",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/golang.org/x/oauth2:go_default_library",
+        "//vendor/google.golang.org/grpc:go_default_library",
+        "//vendor/google.golang.org/grpc/naming:go_default_library",
+    ],
+)
