@@ -1,10 +1,9 @@
 #!/bin/bash
-SCRIPTPATH=$( cd "$(dirname "$0")" ; pwd -P )
-ROOTDIR=$SCRIPTPATH/..
-cd $ROOTDIR
+ROOT=$( cd "$(dirname "$0")/.." ; pwd -P )
+cd ${ROOT}
 
 ret=0
-for fn in $(find ${ROOTDIR} -name '*.go'); do
+for fn in $(find . -not -path './vendor/*' -name '*.go' ); do
   if [[ $fn == *.pb.go ]];then
     continue
   fi
