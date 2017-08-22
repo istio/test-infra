@@ -538,6 +538,9 @@ postsubmits:
           readOnly: true
         - name: cache-ssd
           mountPath: /home/bootstrap/.cache
+        - name: oauth
+          mountPath: /etc/github
+          readOnly: true
         ports:
         - containerPort: 9999
           hostPort: 9998
@@ -554,6 +557,9 @@ postsubmits:
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
+      - name: oauth
+        secret:
+          secretName: oauth-token
 
   istio/mixer:
   - name: mixer-postsubmit
@@ -581,6 +587,9 @@ postsubmits:
           readOnly: true
         - name: cache-ssd
           mountPath: /home/bootstrap/.cache
+        - name: oauth
+          mountPath: /etc/github
+          readOnly: true
         ports:
         - containerPort: 9999
           hostPort: 9998
@@ -594,6 +603,9 @@ postsubmits:
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
+      - name: oauth
+        secret:
+          secretName: oauth-token
 
   istio/pilot:
   - name: pilot-postsubmit
@@ -623,6 +635,9 @@ postsubmits:
           readOnly: true
         - name: cache-ssd
           mountPath: /home/bootstrap/.cache
+        - name: oauth
+          mountPath: /etc/github
+          readOnly: true
         ports:
         - containerPort: 9999
           hostPort: 9998
@@ -639,6 +654,9 @@ postsubmits:
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
+      - name: oauth
+        secret:
+          secretName: oauth-token
 
 periodics:
 - interval: 2h
