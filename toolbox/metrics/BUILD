@@ -10,7 +10,6 @@ go_library(
     visibility = ["//visibility:private"],
     deps = [
         "//toolbox/util:go_default_library",
-        "@com_github_google_go_github//github:go_default_library",
         "@com_github_hashicorp_go_multierror//:go_default_library",
         "@com_github_prometheus_client_golang//prometheus:go_default_library",
         "@com_github_prometheus_client_golang//prometheus/promhttp:go_default_library",
@@ -36,4 +35,10 @@ docker_build(
     base = "@distroless//image:image.tar",
     cmd = ["./fetcher"],
     files = [":fetcher"],
+)
+
+go_binary(
+    name = "metrics",
+    library = ":go_default_library",
+    visibility = ["//visibility:public"],
 )
