@@ -27,7 +27,7 @@ set -u
 set -x
 
 echo "=== Building Binary that Updates Istio Dependency ==="
-bazel build //toolbox/deps_update:update_deps
+bazel build //toolbox/deps_update:deps_update
 
 git config --global user.email "istio.testing@gmail.com"
 git config --global user.name "istio-bot"
