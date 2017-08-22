@@ -17,10 +17,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
-	"strings"
 
 	u "istio.io/test-infra/toolbox/util"
 )
@@ -66,38 +63,11 @@ func updateDepSHAGetFingerPrint(repo string, deps *[]u.Dependency) (string, []u.
 	return u.GetMD5Hash(digest), depChangeList, nil
 }
 
-// Updates in the file all occurrences of the dependency identified by depName to
-// a new reference ref. A reference could be a commit SHA, branch, or url.
-func updateDepFile(file, depName, ref string) error {
-	replaceReference := func(line *string, ref string) {
-		idx := strings.Index(*line, "\"")
-		*line = (*line)[:idx] + "\"" + ref + "\""
-	}
-
-	input, err := ioutil.ReadFile(file)
-	if err != nil {
-		return err
-	}
-	lines := strings.Split(string(input), "\n")
-	found := false
-	for i, line := range lines {
-		if strings.Contains(line, depName+" = ") || strings.Contains(line, depName+"=") {
-			replaceReference(&lines[i], ref)
-			found = true
-		}
-	}
-	if !found {
-		return fmt.Errorf("no occurrence of %s found in %s", depName, file)
-	}
-	output := strings.Join(lines, "\n")
-	return ioutil.WriteFile(file, []byte(output), 0600)
-}
-
 // Updates the list of dependencies in repo to the latest stable references
 func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency) error {
 	if repo != "istio" {
 		for _, dep := range *deps {
-			if err := updateDepFile(dep.File, dep.Name, dep.LastStableSHA); err != nil {
+			if err := u.UpdateKeyValueInFile(dep.File, dep.Name, dep.LastStableSHA); err != nil {
 				return err
 			}
 		}
@@ -124,36 +94,20 @@ func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency
 	return err
 }
 
-// Deletes the local git repo just cloned
-func cleanUp(repo string) error {
-	if err := os.Chdir(".."); err != nil {
-		return err
-	}
-	return os.RemoveAll(repo)
-}
-
 // Updates the given repository so that it uses the latest dependency references
 // pushes new branch to remote, create pull request on master,
 // which is auto-merged after presumbit
 func updateDependenciesOf(repo string) error {
 	log.Printf("Updating dependencies of %s\n", repo)
-	if err := os.RemoveAll(repo); err != nil {
-		return err
-	}
-	if _, err := u.ShellSilent("git clone " + githubClnt.Remote(repo)); err != nil {
-		return err
-	}
-	if err := os.Chdir(repo); err != nil {
+	repoDir, err := u.CloneRepoCheckoutBranch(githubClnt, repo, *baseBranch, *baseBranch)
+	if err != nil {
 		return err
 	}
 	defer func() {
-		if err := cleanUp(repo); err != nil {
+		if err = u.RemoveLocalRepo(repoDir); err != nil {
 			log.Fatalf("Error during clean up: %v\n", err)
 		}
 	}()
-	if _, err := u.Shell("git checkout " + *baseBranch); err != nil {
-		return err
-	}
 	deps, err := u.DeserializeDeps(istioDepsFile)
 	if err != nil {
 		return err
@@ -188,10 +142,7 @@ func updateDependenciesOf(repo string) error {
 	if err := u.SerializeDeps(istioDepsFile, &deps); err != nil {
 		return err
 	}
-	if _, err := u.Shell("git commit -am Update_Dependencies"); err != nil {
-		return err
-	}
-	if _, err := u.Shell("git push --set-upstream origin " + branch); err != nil {
+	if err := u.CreateCommitPushToRemote(branch, "Update_Dependencies"); err != nil {
 		return err
 	}
 	prTitle := prTitlePrefix + repo

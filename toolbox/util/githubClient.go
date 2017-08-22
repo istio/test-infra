@@ -17,13 +17,19 @@ package util
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/google/go-github/github"
 	multierror "github.com/hashicorp/go-multierror"
 	"golang.org/x/oauth2"
+)
+
+var (
+	commitType = "commit"
 )
 
 // GithubClient masks RPCs to github as local procedures
@@ -175,6 +181,20 @@ func (g GithubClient) GetHeadCommitSHA(repo, branch string) (string, error) {
 	return g.getReferenceSHA(repo, "refs/heads/"+branch)
 }
 
+// GetTagCommitSHA finds the SHA of the commit from which the tag was made
+func (g GithubClient) GetTagCommitSHA(repo, tag string) (string, error) {
+	sha, err := g.getReferenceSHA(repo, "refs/tags/"+tag)
+	if err != nil {
+		return "", err
+	}
+	tagObj, _, err := g.client.Git.GetTag(
+		context.Background(), g.owner, repo, sha)
+	if err != nil {
+		return "", err
+	}
+	return *tagObj.Object.SHA, nil
+}
+
 // GetCommitCreationTime gets the time when the commit identified by sha is created
 func (g GithubClient) GetCommitCreationTime(repo, sha string) (*time.Time, error) {
 	commit, _, err := g.client.Git.GetCommit(
@@ -188,16 +208,10 @@ func (g GithubClient) GetCommitCreationTime(repo, sha string) (*time.Time, error
 // GetCommitCreationTimeByTag finds the time when the commit pointed by a tag is created
 // Note that SHA of the tag is different from the commit SHA
 func (g GithubClient) GetCommitCreationTimeByTag(repo, tag string) (*time.Time, error) {
-	sha, err := g.getReferenceSHA(repo, "refs/tags/"+tag)
+	commitSHA, err := g.GetTagCommitSHA(repo, tag)
 	if err != nil {
 		return nil, err
 	}
-	tagObj, _, err := g.client.Git.GetTag(
-		context.Background(), g.owner, repo, sha)
-	if err != nil {
-		return nil, err
-	}
-	commitSHA := *tagObj.Object.SHA
 	return g.GetCommitCreationTime(repo, commitSHA)
 }
 
@@ -210,6 +224,78 @@ func (g GithubClient) GetFileContent(repo, branch, path string) (string, error) 
 		return "", err
 	}
 	return fileContent.GetContent()
+}
+
+// CreateAnnotatedTag retrieves the file content from the hosted repo
+func (g GithubClient) CreateAnnotatedTag(repo, tag, sha, msg string) error {
+	if !SHARegex.MatchString(sha) {
+		return fmt.Errorf(
+			"unable to create tag %s on repo %s: invalid commit SHA %s",
+			tag, repo, sha)
+	}
+	tagObj := github.Tag{
+		Tag:     &tag,
+		Message: &msg,
+		Object: &github.GitObject{
+			Type: &commitType,
+			SHA:  &sha,
+		},
+	}
+	tagResponse, _, err := g.client.Git.CreateTag(
+		context.Background(), g.owner, repo, &tagObj)
+	if err != nil {
+		log.Printf("Failed to create tag %s on repo %s", tag, repo)
+		return err
+	}
+	refString := "refs/tags/" + tag
+	refObj := github.Reference{
+		Ref: &refString,
+		Object: &github.GitObject{
+			Type: &commitType,
+			SHA:  tagResponse.SHA,
+		},
+	}
+	_, _, err = g.client.Git.CreateRef(
+		context.Background(), g.owner, repo, &refObj)
+	if err != nil {
+		log.Printf("Failed to create reference with tag just created: %s", tag)
+	}
+	return err
+}
+
+// CreateReleaseUploadArchives creates a release given release tag and
+// upload all files in archiveDir as assets of this release
+func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, archiveDir string) error {
+	// create release
+	release := github.RepositoryRelease{TagName: &releaseTag}
+	res, _, err := g.client.Repositories.CreateRelease(
+		context.Background(), g.owner, repo, &release)
+	if err != nil {
+		log.Printf("Failed to create new release on repo %s with releaseTag: %s", repo, releaseTag)
+		return err
+	}
+	releaseID := *res.ID
+	// upload archives
+	files, err := ioutil.ReadDir(archiveDir)
+	if err != nil {
+		return err
+	}
+	for _, f := range files {
+		filePath := fmt.Sprintf("%s/%s", archiveDir, f.Name())
+		fd, err := os.Open(filePath)
+		if err != nil {
+			return err
+		}
+		opt := github.UploadOptions{f.Name()}
+		_, _, err = g.client.Repositories.UploadReleaseAsset(
+			context.Background(), g.owner, repo, releaseID, &opt, fd)
+		if err != nil {
+			log.Printf("Failed to upload asset %s to release %s on repo %s: %s",
+				f.Name(), releaseTag, repo)
+			return err
+		}
+	}
+	return nil
 }
 
 func (g GithubClient) getReferenceSHA(repo, ref string) (string, error) {

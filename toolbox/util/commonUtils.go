@@ -18,10 +18,53 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os/exec"
 	"strings"
 )
+
+// ReadFile reads the file on the given path and
+// returns its content as a string
+func ReadFile(filePath string) (string, error) {
+	b, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
+
+// WriteFile overwrites the file on the given path with content
+func WriteFile(filePath, content string) error {
+	return ioutil.WriteFile(filePath, []byte(content), 0600)
+}
+
+// UpdateKeyValueInFile updates in the file all occurrences of key to
+// a new value. A key-value pair is defined as `key="value"` or `key = "value"`
+func UpdateKeyValueInFile(file, key, value string) error {
+	replaceValue := func(line *string, value string) {
+		idx := strings.Index(*line, "\"")
+		*line = (*line)[:idx] + "\"" + value + "\""
+	}
+
+	input, err := ReadFile(file)
+	if err != nil {
+		return err
+	}
+	lines := strings.Split(input, "\n")
+	found := false
+	for i, line := range lines {
+		if strings.Contains(line, key+" = ") || strings.Contains(line, key+"=") {
+			replaceValue(&lines[i], value)
+			found = true
+		}
+	}
+	if !found {
+		return fmt.Errorf("no occurrence of %s found in %s", key, file)
+	}
+	output := strings.Join(lines, "\n")
+	return WriteFile(file, output)
+}
 
 // GetMD5Hash generates an MD5 digest of the given string
 func GetMD5Hash(text string) string {

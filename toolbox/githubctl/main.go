@@ -16,19 +16,37 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
+	"strings"
 
-	"istio.io/test-infra/toolbox/util"
+	u "istio.io/test-infra/toolbox/util"
 )
 
 var (
-	owner      = flag.String("owner", "istio", "Github owner or org")
-	tokenFile  = flag.String("token_file", "", "File containing Github API Access Token")
-	op         = flag.String("op", "", "Operation to be performed")
-	repo       = flag.String("repo", "", "Repository to which op is applied")
-	baseBranch = flag.String("base_branch", "", "Branch to which op is applied")
-	refSHA     = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
-	githubClnt *util.GithubClient
+	owner       = flag.String("owner", "istio", "Github owner or org")
+	tokenFile   = flag.String("token_file", "", "File containing Github API Access Token")
+	op          = flag.String("op", "", "Operation to be performed")
+	repo        = flag.String("repo", "", "Repository to which op is applied")
+	baseBranch  = flag.String("base_branch", "", "Branch to which op is applied")
+	refSHA      = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
+	nextRelease = flag.String("next_release", "", "Tag of the next release")
+	githubClnt  *u.GithubClient
+)
+
+const (
+	istioVersionFile     = "istio.VERSION"
+	istioDepsFile        = "istio.deps"
+	releaseTagFile       = "istio.RELEASE"
+	downloadScript       = "downloadIstio.sh"
+	istioRepo            = "istio"
+	masterBranch         = "master"
+	export               = "export "
+	dockerHub            = "docker.io/istio"
+	releaseBaseDir       = "tmp/release"
+	releasePRTtilePrefix = "[Auto Release] "
+	releasePRBody        = "Update istio.VERSION and downloadIstio.sh"
+	releaseBucketFmtStr  = "https://storage.googleapis.com/istio-artifacts/pilot/%s/artifacts/istioctl"
 )
 
 // Panic if value not specified
@@ -45,14 +63,153 @@ func fastForward(repo, baseBranch, refSHA *string) error {
 	return githubClnt.FastForward(*repo, *baseBranch, *refSHA)
 }
 
+func processIstioVersion(content *string) map[string]string {
+	kv := make(map[string]string)
+	lines := strings.Split(*content, "\n")
+	for _, line := range lines {
+		if idx := strings.Index(line, "="); idx != -1 {
+			key := line[len(export):idx]
+			value := strings.Trim(line[idx+1:], "\"")
+			kv[key] = value
+		}
+	}
+	return kv
+}
+
+func getReleaseTag() (string, error) {
+	assertNotEmpty("base_branch", baseBranch)
+	releaseTag, err := githubClnt.GetFileContent(istioRepo, *baseBranch, releaseTagFile)
+	if err != nil {
+		return "", err
+	}
+	return strings.Trim(releaseTag, "\n"), nil
+}
+
+// TagIstioDepsForRelease creates release tag on each dependent repo of istio
+func TagIstioDepsForRelease() error {
+	assertNotEmpty("base_branch", baseBranch)
+	istioVersion, err := githubClnt.GetFileContent(istioRepo, *baseBranch, istioVersionFile)
+	if err != nil {
+		return err
+	}
+	kv := processIstioVersion(&istioVersion)
+	pickledDeps, err := githubClnt.GetFileContent(istioRepo, *baseBranch, istioDepsFile)
+	if err != nil {
+		return err
+	}
+	deps, err := u.DeserializeDepsFromString(pickledDeps)
+	if err != nil {
+		return err
+	}
+	releaseTag, err := getReleaseTag()
+	if err != nil {
+		return err
+	}
+	releaseMsg := "Istio Release " + releaseTag
+	for _, dep := range deps {
+		// use sha directly read from istio.VERSION in case updateVersion.sh was run
+		// manually without also updating istio.deps
+		ref, exists := kv[dep.Name]
+		if !exists {
+			return fmt.Errorf("ill-defined %s: unable to find %s", istioVersionFile, dep.Name)
+		}
+		if u.ReleaseTagRegex.MatchString(ref) {
+			ref, err = githubClnt.GetTagCommitSHA(dep.RepoName, ref)
+			if err != nil {
+				return err
+			}
+		}
+		if err := githubClnt.CreateAnnotatedTag(
+			dep.RepoName, releaseTag, ref, releaseMsg); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func cloneIstioMakePR(newBranch, prTitle, prBody string, edit func() error) error {
+	assertNotEmpty("base_branch", baseBranch)
+	repoDir, err := u.CloneRepoCheckoutBranch(githubClnt, istioRepo, *baseBranch, newBranch)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := u.RemoveLocalRepo(repoDir); err != nil {
+			log.Fatalf("Error during clean up: %v\n", err)
+		}
+	}()
+	if err := edit(); err != nil {
+		return err
+	}
+	if err := u.CreateCommitPushToRemote(
+		newBranch, newBranch); err != nil {
+		return err
+	}
+	return githubClnt.CreatePullRequest(
+		prTitle, prBody, newBranch, *baseBranch, istioRepo)
+}
+
+// UpdateIstioVersionAfterReleaseTagsMadeOnDeps runs updateVersion.sh to update
+// istio.VERSION and then create a PR on istio
+func UpdateIstioVersionAfterReleaseTagsMadeOnDeps() error {
+	assertNotEmpty("base_branch", baseBranch)
+	releaseTag, err := getReleaseTag()
+	if err != nil {
+		return err
+	}
+	edit := func() error {
+		hubCommaTag := fmt.Sprintf("%s,%s", dockerHub, releaseTag)
+		istioctl := fmt.Sprintf(releaseBucketFmtStr, releaseTag)
+		cmd := fmt.Sprintf("./install/updateVersion.sh -p %s -c %s -x %s -i %s",
+			hubCommaTag, hubCommaTag, hubCommaTag, istioctl)
+		_, err := u.Shell(cmd)
+		return err
+	}
+	releaseBranch := "Istio_Release_" + releaseTag
+	body := "Update istio.Version"
+	prTitle := releasePRTtilePrefix + body
+	return cloneIstioMakePR(releaseBranch, prTitle, body, edit)
+}
+
+// CreateIstioReleaseUploadArtifacts creates a release on istio and uploads dependent artifacts
+func CreateIstioReleaseUploadArtifacts() error {
+	assertNotEmpty("base_branch", baseBranch)
+	assertNotEmpty("next_release", nextRelease)
+	releaseTag, err := getReleaseTag()
+	if err != nil {
+		return err
+	}
+	releaseBranch := "finalizeRelease-" + releaseTag
+	edit := func() error {
+		if _, err := u.Shell(
+			"./release/create_release_archives.sh -d " + releaseBaseDir); err != nil {
+			return err
+		}
+		archiveDir := releaseBaseDir + "/archives"
+		if err := githubClnt.CreateReleaseUploadArchives(
+			istioRepo, releaseTag, archiveDir); err != nil {
+			return err
+		}
+		if err := u.WriteFile(releaseTagFile, *nextRelease); err != nil {
+			return err
+		}
+		return u.UpdateKeyValueInFile(
+			downloadScript, "ISTIO_VERSION", releaseTag)
+	}
+	body := fmt.Sprintf(
+		"Create release %s on istio, update next release tag and download scrpit", releaseTag)
+	prTitle := releasePRTtilePrefix + body
+	return cloneIstioMakePR(releaseBranch, prTitle, body, edit)
+}
+
 func init() {
 	flag.Parse()
 	assertNotEmpty("token_file", tokenFile)
-	token, err := util.GetAPITokenFromFile(*tokenFile)
+	token, err := u.GetAPITokenFromFile(*tokenFile)
 	if err != nil {
 		log.Panicf("Error accessing user supplied token_file: %v\n", err)
 	}
-	githubClnt = util.NewGithubClient(*owner, token)
+	githubClnt = u.NewGithubClient(*owner, token)
 }
 
 func main() {
@@ -60,6 +217,18 @@ func main() {
 	case "fastForward":
 		if err := fastForward(repo, baseBranch, refSHA); err != nil {
 			log.Printf("Error during fastForward: %v\n", err)
+		}
+	case "tagIstioDepsForRelease":
+		if err := TagIstioDepsForRelease(); err != nil {
+			log.Printf("Error during TagIstioDepsForRelease: %v\n", err)
+		}
+	case "updateIstioVersion":
+		if err := UpdateIstioVersionAfterReleaseTagsMadeOnDeps(); err != nil {
+			log.Printf("Error during UpdateIstioVersionAfterReleaseTagsMadeOnDeps: %v\n", err)
+		}
+	case "uploadArtifacts":
+		if err := CreateIstioReleaseUploadArtifacts(); err != nil {
+			log.Printf("Error during CreateIstioReleaseUploadArtifacts: %v\n", err)
 		}
 	default:
 		log.Printf("Unsupported operation: %s\n", *op)

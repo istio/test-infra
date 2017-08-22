@@ -17,6 +17,7 @@ package util
 import (
 	"io/ioutil"
 	"log"
+	"os"
 	"regexp"
 	"strings"
 
@@ -86,4 +87,42 @@ func GetAPITokenFromFile(tokenFile string) (string, error) {
 	}
 	token := strings.TrimSpace(string(b[:]))
 	return token, nil
+}
+
+// CloneRepoCheckoutBranch removes previous repo, clone to local machine,
+// change directory into the repo, and checkout the given branch.
+// Returns the absolute path to repo root
+func CloneRepoCheckoutBranch(gclient *GithubClient, repo, baseBranch, newBranch string) (string, error) {
+	if err := os.RemoveAll(repo); err != nil {
+		return "", err
+	}
+	if _, err := ShellSilent(
+		"git clone " + gclient.Remote(repo)); err != nil {
+		return "", err
+	}
+	if err := os.Chdir(repo); err != nil {
+		return "", err
+	}
+	if _, err := Shell("git checkout " + baseBranch); err != nil {
+		return "", err
+	}
+	if _, err := Shell("git checkout -b " + newBranch); err != nil {
+		return "", err
+	}
+	return os.Getwd()
+}
+
+// RemoveLocalRepo deletes the local git repo just cloned
+func RemoveLocalRepo(absolutePathToRepo string) error {
+	return os.RemoveAll(absolutePathToRepo)
+}
+
+// CreateCommitPushToRemote stages call local changes, create a commit,
+// and push to remote tracking branch
+func CreateCommitPushToRemote(branch, commitMsg string) error {
+	if _, err := Shell("git commit -am " + commitMsg); err != nil {
+		return err
+	}
+	_, err := Shell("git push --set-upstream origin " + branch)
+	return err
 }
