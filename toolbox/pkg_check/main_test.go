@@ -65,13 +65,11 @@ func TestSatisfiedRequirement(t *testing.T) {
 		requirement: requirementFile,
 	}
 
-	if err := c.checkRequirement(); err != nil {
-		t.Errorf("Failed to check requirement, %v", err)
-	} else {
-		if len(c.failedPackage) != 0 {
-			t.Error("Wrong result from checkRequirement()")
-		}
+	c.checkRequirement()
+	if len(c.failedPackage) != 0 {
+		t.Error("Wrong result from checkRequirement()")
 	}
+
 }
 
 func TestMissRequirement(t *testing.T) {
@@ -90,12 +88,9 @@ func TestMissRequirement(t *testing.T) {
 		requirement: requirementFile,
 	}
 
-	if err := c.checkRequirement(); err != nil {
-		t.Errorf("Failed to check requirement, %v", err)
-	} else {
-		if len(c.failedPackage) != 1 {
-			t.Error("Wrong result from checkRequirement()")
-		}
+	c.checkRequirement()
+	if len(c.failedPackage) != 1 {
+		t.Error("Wrong result from checkRequirement()")
 	}
 }
 

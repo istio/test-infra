@@ -41,11 +41,12 @@ var (
 )
 
 type codecovChecker struct {
-	codeCoverage  map[string]float64
-	report        string
-	requirement   string
-	failedPackage []string
-	bucket        string
+	codeCoverage    map[string]float64
+	codeRequirement map[string]float64
+	report          string
+	requirement     string
+	failedPackage   []string
+	bucket          string
 }
 
 func (c *codecovChecker) parseReport() error {
@@ -62,21 +63,23 @@ func (c *codecovChecker) parseReport() error {
 
 	scanner := bufio.NewScanner(f)
 
-	//Report example: "ok  	istio.io/mixer/adapter/denyChecker	0.023s	coverage: 100.0% of statements"
-	//Report example: "?   istio.io/mixer/adapter/denyChecker/config	[no test files]"
+	//Report example: "ok   istio.io/mixer/adapter/denyChecker      0.023s  coverage: 100.0% of statements"
 	//expected output: c.codeCoverage["istio.io/mixer/adapter/denyChecker"] = 100
+	//Report example: "?    istio.io/mixer/adapter/denyChecker/config       [no test files]"
+	//Report example: c.codeCoverage["istio.io/mixer/adapter/denyChecker/config"] = 0
 	regOK := regexp.MustCompile(`(ok  )\t(.*)\t(.*)\tcoverage: (.*) of statements`)
-	regQ := regexp.MustCompile(`(\\?   )\t(.*)\t(.*)`)
+	regNoTest := regexp.MustCompile(`(\?   )\t(.*)\t\[no test files\]`)
 	for scanner.Scan() {
 		if m := regOK.FindStringSubmatch(scanner.Text()); len(m) != 0 {
-			n, err := strconv.ParseFloat(strings.TrimSuffix(m[4], "%"), 64)
-			if err != nil {
+
+			if n, err := strconv.ParseFloat(strings.TrimSuffix(m[4], "%"), 64); err != nil {
 				log.Printf("Failed to parse coverage to float64 for package %s: %s", m[2], m[4])
 				return err
+			} else {
+				c.codeCoverage[m[2]] = n
 			}
-			c.codeCoverage[m[2]] = n
-		} else if m := regQ.FindStringSubmatch(scanner.Text()); len(m) != 0 {
-			log.Printf("No test file in this package: %s", m[2])
+		} else if m := regNoTest.FindStringSubmatch(scanner.Text()); len(m) != 0 {
+			c.codeCoverage[m[2]] = 0
 		} else {
 			log.Printf("Unclear line from report: %s", scanner.Text())
 		}
@@ -84,7 +87,7 @@ func (c *codecovChecker) parseReport() error {
 	return scanner.Err()
 }
 
-func (c *codecovChecker) checkRequirement() error {
+func (c *codecovChecker) parseRequirement() error {
 	f, err := os.Open(c.requirement)
 	if err != nil {
 		log.Printf("Failed to open requirement file, %s", c.requirement)
@@ -98,24 +101,19 @@ func (c *codecovChecker) checkRequirement() error {
 
 	scanner := bufio.NewScanner(f)
 
-	//Requirement example: "istio.io/mixer/adapter/denyChecker	99"
+	//Requirement example: "istio.io/mixer/adapter/denyChecker:99 [100]"
 	//Expected output: parts = {"istio.io/mixer/adapter/denyChecker", "99"}
-	reg := regexp.MustCompile(`(.*)\t(.*)`)
+	//Default requirement example: "Default:20"
+	//Expected output: c.codeRequirement["Default"] = 20
+	reg := regexp.MustCompile(`(.*):([0-9]{1,2}|100)( \[([0-9]{1,2}|100)\])?`)
 	for scanner.Scan() {
 		m := reg.FindStringSubmatch(scanner.Text())
-		if len(m) != 0 {
-			if cov, exist := c.codeCoverage[m[1]]; exist {
-				re, err := strconv.ParseFloat(m[2], 64)
-				if err != nil {
-					log.Printf("Failed to get requirement for package %s: %s", m[1], m[2])
-					return err
-				}
-				if cov < re {
-					c.failedPackage = append(c.failedPackage, fmt.Sprintf("%s\t%.2f\t%s", m[1], cov, m[2]))
-				}
-
+		if len(m) == 5 || len(m) == 3 {
+			if n, err := strconv.ParseFloat(m[2], 64); err != nil {
+				log.Printf("Failed to parse requirement to float64 for package %s: %s", m[1], m[2])
+				continue
 			} else {
-				c.failedPackage = append(c.failedPackage, fmt.Sprintf("%s\t%s\t%s", m[1], "0.0", m[2]))
+				c.codeRequirement[m[1]] = n
 			}
 		} else {
 			log.Printf("Unclear line from requirement: %s", scanner.Text())
@@ -123,6 +121,21 @@ func (c *codecovChecker) checkRequirement() error {
 	}
 
 	return scanner.Err()
+}
+
+func (c *codecovChecker) checkRequirement() {
+	for pkg, cov := range c.codeCoverage {
+		if req, exist := c.codeRequirement[pkg]; !exist {
+			//There is no entry for this package in requirement file, set default requirement
+			if cov < c.codeRequirement["Default"] {
+				c.failedPackage = append(c.failedPackage, fmt.Sprintf("%s\t%.2f\t%.2f(default)", pkg, cov, c.codeRequirement["Default"]))
+			}
+		} else {
+			if cov < req {
+				c.failedPackage = append(c.failedPackage, fmt.Sprintf("%s\t%.2f\t%.2f", pkg, cov, req))
+			}
+		}
+	}
 }
 
 func (c *codecovChecker) uploadCoverage() error {
@@ -136,7 +149,7 @@ func (c *codecovChecker) uploadCoverage() error {
 	jobName := os.Getenv(jobName)
 	buildID := os.Getenv(buildID)
 	if buildID == "" || jobName == "" {
-		log.Printf("Missing build info: buildID: \"%s\", jobName: \"%s\"\n", buildID, jobName)
+		log.Printf("Missing build info: BUILD_ID: \"%s\", JOB_NAME: \"%s\"\n", buildID, jobName)
 		return errors.New("missing build info")
 	}
 
@@ -178,10 +191,12 @@ func (c *codecovChecker) checkPackageCoverage() (code int) {
 		return 1 //Error code 1: Parse file failure
 	}
 
-	if err := c.checkRequirement(); err != nil {
-		log.Printf("Failed to check requirement, %v", err)
+	if err := c.parseRequirement(); err != nil {
+		log.Printf("Failed to parse requirement, %v", err)
 		return 1 //Error code 1: Parse file failure
 	}
+
+	c.checkRequirement()
 
 	if len(c.failedPackage) == 0 {
 		log.Println("All packages passed code coverage requirements!")
@@ -199,10 +214,11 @@ func main() {
 	flag.Parse()
 
 	c := &codecovChecker{
-		codeCoverage: make(map[string]float64),
-		report:       *reportFile,
-		requirement:  *requirementFile,
-		bucket:       *gcsBucket,
+		codeCoverage:    make(map[string]float64),
+		codeRequirement: make(map[string]float64),
+		report:          *reportFile,
+		requirement:     *requirementFile,
+		bucket:          *gcsBucket,
 	}
 
 	os.Exit(c.checkPackageCoverage())
