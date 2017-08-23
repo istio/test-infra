@@ -184,6 +184,7 @@ func (c *codecovChecker) checkPackageCoverage() (code int) {
 				code = 3 //If no other error code, Error code 3: Failed to upload coverage
 			}
 		}
+
 	}()
 
 	if err := c.parseReport(); err != nil {
