@@ -685,6 +685,32 @@ periodics:
       secret:
         secretName: e2e-testing-kubeconfig
 
+- interval: 2h
+  agent: kubernetes
+  name: test-infra-cleanup-cluster
+  spec:
+    containers:
+    - image: gcr.io/istio-testing/prowbazel:0.1.7
+      args:
+      - "--repo=github.com/istio/test-infra=master"
+      - "--clean"
+      env:
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/service-account/service-account.json
+      volumeMounts:
+      - name: service
+        mountPath: /etc/service-account
+        readOnly: true
+      - name: e2e-testing-rbac-kubeconfig
+        mountPath: /home/bootstrap/.kube
+    volumes:
+    - name: service
+      secret:
+        secretName: service-account
+    - name: e2e-testing-rbac-kubeconfig
+      secret:
+        secretName: e2e-testing-rbac-kubeconfig
+
 - interval: 12h
   agent: kubernetes
   name: test-infra-update-deps
