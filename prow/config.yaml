@@ -704,8 +704,6 @@ periodics:
       - mountPath: /etc/service-account
         name: service
         readOnly: true
-      - mountPath: /home/bootstrap/.kube
-        name: e2e-testing-kubeconfig
     volumes:
     - name: oauth
       secret:
@@ -713,6 +711,3 @@ periodics:
     - name: service
       secret:
         secretName: service-account
-    - name: e2e-testing-kubeconfig
-      secret:
-        secretName: e2e-testing-kubeconfig
