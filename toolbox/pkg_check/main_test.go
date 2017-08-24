@@ -19,6 +19,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 )
 
@@ -38,8 +39,9 @@ func TestParseReport(t *testing.T) {
 	}
 
 	c := &codecovChecker{
-		codeCoverage: make(map[string]float64),
-		report:       reportFile,
+		codeCoverage:    make(map[string]float64),
+		codeRequirement: make(map[string]float64),
+		report:          reportFile,
 	}
 
 	if err := c.parseReport(); err != nil {
@@ -51,8 +53,36 @@ func TestParseReport(t *testing.T) {
 	}
 }
 
+func TestParseRequirement(t *testing.T) {
+	exampleRequirement := "Default:20\npilot/cmd:60\npilot/model:70 [75]"
+	requirementFile := filepath.Join(tmpDir, "requirement")
+	if err := ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644); err != nil {
+		t.Errorf("Failed to write example requirement file, %v", err)
+	}
+
+	c := &codecovChecker{
+		codeCoverage:    make(map[string]float64),
+		codeRequirement: make(map[string]float64),
+		requirement:     requirementFile,
+	}
+
+	codeRequirementModel := map[string]float64{
+		"Default":     20,
+		"pilot/cmd":   60,
+		"pilot/model": 70,
+	}
+
+	if err := c.parseRequirement(); err != nil {
+		t.Errorf("Failed to parse requirement, %v", err)
+	} else {
+		if !reflect.DeepEqual(c.codeRequirement, codeRequirementModel) {
+			t.Error("Wrong result from parseReport()")
+		}
+	}
+}
+
 func TestSatisfiedRequirement(t *testing.T) {
-	exampleRequirement := "pilot/model\t90"
+	exampleRequirement := "pilot/model:90"
 	requirementFile := filepath.Join(tmpDir, "requirement2")
 	if err := ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644); err != nil {
 		t.Errorf("Failed to write example requirement file, %v", err)
@@ -62,20 +92,22 @@ func TestSatisfiedRequirement(t *testing.T) {
 		codeCoverage: map[string]float64{
 			"pilot/model": 90.2,
 		},
-		requirement: requirementFile,
+		codeRequirement: make(map[string]float64),
+		requirement:     requirementFile,
 	}
 
-	if err := c.checkRequirement(); err != nil {
-		t.Errorf("Failed to check requirement, %v", err)
-	} else {
-		if len(c.failedPackage) != 0 {
-			t.Error("Wrong result from checkRequirement()")
-		}
+	if err := c.parseRequirement(); err != nil {
+		t.Errorf("Failed to parse requirement, %v", err)
 	}
+	c.checkRequirement()
+	if len(c.failedPackage) != 0 {
+		t.Error("Wrong result from checkRequirement()")
+	}
+
 }
 
 func TestMissRequirement(t *testing.T) {
-	exampleRequirement := "pilot/model\t92.3"
+	exampleRequirement := "pilot/model:92.3 [92.3]"
 	requirementFile := filepath.Join(tmpDir, "requirement3")
 	if err := ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644); err != nil {
 		if err := ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644); err != nil {
@@ -87,26 +119,43 @@ func TestMissRequirement(t *testing.T) {
 		codeCoverage: map[string]float64{
 			"pilot/model": 90.2,
 		},
-		requirement: requirementFile,
+		codeRequirement: make(map[string]float64),
+		requirement:     requirementFile,
 	}
 
-	if err := c.checkRequirement(); err != nil {
-		t.Errorf("Failed to check requirement, %v", err)
-	} else {
-		if len(c.failedPackage) != 1 {
-			t.Error("Wrong result from checkRequirement()")
-		}
+	if err := c.parseRequirement(); err != nil {
+		t.Errorf("Failed to parse requirement, %v", err)
+	}
+	c.checkRequirement()
+	if len(c.failedPackage) != 1 {
+		t.Error("Wrong result from checkRequirement()")
+	}
+}
+
+func TestDefaultFailedCheck(t *testing.T) {
+	c := &codecovChecker{
+		codeCoverage: map[string]float64{
+			"pilot/model": 15,
+		},
+		codeRequirement: map[string]float64{
+			"Default": 20,
+		},
+	}
+
+	c.checkRequirement()
+	if len(c.failedPackage) != 1 {
+		t.Error("Wrong result from checkRequirement()")
 	}
 }
 
 func TestPassCheck(t *testing.T) {
-	exampleReport := "?   \tpilot/cmd\t[no test files]\nok  \tpilot/model\t1.3s\tcoverage: 90.2% of statements"
+	exampleReport := "ok  \tpilot/model\t1.3s\tcoverage: 90.2% of statements"
 	reportFile := filepath.Join(tmpDir, "report4")
 	if err := ioutil.WriteFile(reportFile, []byte(exampleReport), 0644); err != nil {
 		t.Errorf("Failed to write example report file, %v", err)
 	}
 
-	exampleRequirement := "pilot/model\t89"
+	exampleRequirement := "pilot/model:89"
 	requirementFile := filepath.Join(tmpDir, "requirement4")
 	if err := ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644); err != nil {
 		if err := ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644); err != nil {
@@ -115,9 +164,10 @@ func TestPassCheck(t *testing.T) {
 	}
 
 	c := &codecovChecker{
-		codeCoverage: make(map[string]float64),
-		report:       reportFile,
-		requirement:  requirementFile,
+		codeCoverage:    make(map[string]float64),
+		codeRequirement: make(map[string]float64),
+		report:          reportFile,
+		requirement:     requirementFile,
 	}
 
 	// No other error code, code only show gcs upload failed which is expected
@@ -133,7 +183,7 @@ func TestFailedCheck(t *testing.T) {
 		t.Errorf("Failed to write example report file, %v", err)
 	}
 
-	exampleRequirement := "pilot/model\t93"
+	exampleRequirement := "pilot/model:93 [93]"
 	requirementFile := filepath.Join(tmpDir, "requirement5")
 	if err := ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644); err != nil {
 		if err := ioutil.WriteFile(requirementFile, []byte(exampleRequirement), 0644); err != nil {
@@ -142,9 +192,10 @@ func TestFailedCheck(t *testing.T) {
 	}
 
 	c := &codecovChecker{
-		codeCoverage: make(map[string]float64),
-		report:       reportFile,
-		requirement:  requirementFile,
+		codeCoverage:    make(map[string]float64),
+		codeRequirement: make(map[string]float64),
+		report:          reportFile,
+		requirement:     requirementFile,
 	}
 
 	if code := c.checkPackageCoverage(); code != 2 {
