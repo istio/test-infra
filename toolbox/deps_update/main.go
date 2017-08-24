@@ -99,7 +99,7 @@ func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency
 // which is auto-merged after presumbit
 func updateDependenciesOf(repo string) error {
 	log.Printf("Updating dependencies of %s\n", repo)
-	repoDir, err := u.CloneRepoCheckoutBranch(githubClnt, repo, *baseBranch, *baseBranch)
+	repoDir, err := u.CloneRepoCheckoutBranch(githubClnt, repo, *baseBranch, "")
 	if err != nil {
 		return err
 	}
@@ -146,7 +146,11 @@ func updateDependenciesOf(repo string) error {
 		return err
 	}
 	prTitle := prTitlePrefix + repo
-	return githubClnt.CreatePullRequest(prTitle, prBody, branch, *baseBranch, repo)
+	pr, err := githubClnt.CreatePullRequest(prTitle, prBody, branch, *baseBranch, repo)
+	if err != nil {
+		return err
+	}
+	return githubClnt.MergePullRequestOnceCIGreen(repo, pr)
 }
 
 func main() {
