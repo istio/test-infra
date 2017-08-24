@@ -701,10 +701,18 @@ periodics:
       - name: oauth
         mountPath: /etc/github
         readOnly: true
+      - mountPath: /etc/service-account
+        name: service
+        readOnly: true
+      - mountPath: /home/bootstrap/.kube
+        name: e2e-testing-kubeconfig
     volumes:
-    - name: service
-      secret:
-        secretName: service-account
     - name: oauth
       secret:
         secretName: oauth-token
+    - name: service
+      secret:
+        secretName: service-account
+    - name: e2e-testing-kubeconfig
+      secret:
+        secretName: e2e-testing-kubeconfig
