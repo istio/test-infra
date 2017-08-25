@@ -9,7 +9,7 @@ source $SCRIPTPATH/use_bazel_go.sh
 ROOTDIR=$SCRIPTPATH/..
 cd $ROOTDIR
 
-PKGS="tools/github_helper/"
+PKGS="tools/ toolbox/"
 GO_FILES=$(find ${PKGS} -type f -name '*.go')
 UX=$(uname)
 

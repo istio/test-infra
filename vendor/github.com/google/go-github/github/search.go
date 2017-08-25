@@ -65,17 +65,17 @@ type CommitsSearchResult struct {
 
 // CommitResult represents a commit object as returned in commit search endpoint response.
 type CommitResult struct {
-	Hash           *string     `json:"hash,omitempty"`
-	Message        *string     `json:"message,omitempty"`
-	AuthorID       *int        `json:"author_id,omitempty"`
-	AuthorName     *string     `json:"author_name,omitempty"`
-	AuthorEmail    *string     `json:"author_email,omitempty"`
-	AuthorDate     *Timestamp  `json:"author_date,omitempty"`
-	CommitterID    *int        `json:"committer_id,omitempty"`
-	CommitterName  *string     `json:"committer_name,omitempty"`
-	CommitterEmail *string     `json:"committer_email,omitempty"`
-	CommitterDate  *Timestamp  `json:"committer_date,omitempty"`
-	Repository     *Repository `json:"repository,omitempty"`
+	SHA         *string   `json:"sha,omitempty"`
+	Commit      *Commit   `json:"commit,omitempty"`
+	Author      *User     `json:"author,omitempty"`
+	Committer   *User     `json:"committer,omitempty"`
+	Parents     []*Commit `json:"parents,omitempty"`
+	HTMLURL     *string   `json:"html_url,omitempty"`
+	URL         *string   `json:"url,omitempty"`
+	CommentsURL *string   `json:"comments_url,omitempty"`
+
+	Repository *Repository `json:"repository,omitempty"`
+	Score      *float64    `json:"score,omitempty"`
 }
 
 // Commits searches commits via various criteria.
@@ -175,7 +175,7 @@ func (s *SearchService) search(ctx context.Context, searchType string, query str
 	if err != nil {
 		return nil, err
 	}
-	params.Add("q", query)
+	params.Set("q", query)
 	u := fmt.Sprintf("search/%s?%s", searchType, params.Encode())
 
 	req, err := s.client.NewRequest("GET", u, nil)
@@ -188,6 +188,10 @@ func (s *SearchService) search(ctx context.Context, searchType string, query str
 		// Accept header for search commits preview endpoint
 		// TODO: remove custom Accept header when this API fully launches.
 		req.Header.Set("Accept", mediaTypeCommitSearchPreview)
+	case searchType == "repositories":
+		// Accept header for search repositories based on topics preview endpoint
+		// TODO: remove custom Accept header when this API fully launches.
+		req.Header.Set("Accept", mediaTypeTopicsPreview)
 	case opt != nil && opt.TextMatch:
 		// Accept header defaults to "application/vnd.github.v3+json"
 		// We change it here to fetch back text-match metadata
