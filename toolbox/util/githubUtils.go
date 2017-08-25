@@ -51,17 +51,12 @@ func NewCIState() *CIState {
 	}
 }
 
-// GetRequiredCheckStatuses does NOT trust the given combined output but instead walk
+// GetCIState does NOT trust the given combined output but instead walk
 // through the CI results, count states, and determine the final state
 // as either pending, failure, or success
-func GetRequiredCheckStatuses(combinedStatus *github.CombinedStatus,
-	requiredStatusCheckContexts []string, skipContext func(string) bool) string {
+func GetCIState(combinedStatus *github.CombinedStatus, skipContext func(string) bool) string {
 	var failures, pending, successes int
 	for _, status := range combinedStatus.Statuses {
-		if !ContainsString(requiredStatusCheckContexts, *status.Context) {
-			// This status check is not required for merging
-			continue
-		}
 		if *status.State == ci.Error || *status.State == ci.Failure {
 			if skipContext != nil && skipContext(*status.Context) {
 				continue

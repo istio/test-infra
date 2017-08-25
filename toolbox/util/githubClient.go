@@ -163,10 +163,10 @@ func (g GithubClient) ExistBranch(repo, branch string) (bool, error) {
 	return false, nil
 }
 
-// CloseFailedPullRequests checks all open PRs on baseBranch in repo,
-// closes the ones that have failed the presubmit, and deletes the
+// CloseIdlePullRequests checks all open PRs auto-created on baseBranch in repo,
+// closes the ones that have stayed open for a long time, and deletes the
 // remote branches from which the PRs are made
-func (g GithubClient) CloseFailedPullRequests(prTitlePrefix, repo, baseBranch string) error {
+func (g GithubClient) CloseIdlePullRequests(prTitlePrefix, repo, baseBranch string) error {
 	log.Printf("If any, close failed auto PRs to update dependencies in repo %s", repo)
 	options := github.PullRequestListOptions{
 		Base:  baseBranch,
@@ -182,23 +182,8 @@ func (g GithubClient) CloseFailedPullRequests(prTitlePrefix, repo, baseBranch st
 		if !strings.HasPrefix(*pr.Title, prTitlePrefix) {
 			continue
 		}
-		combinedStatus, _, err := g.client.Repositories.GetCombinedStatus(
-			context.Background(), g.owner, repo, *pr.Head.SHA, nil)
-		if err != nil {
+		if err := g.ClosePRDeleteBranch(repo, pr); err != nil {
 			multiErr = multierror.Append(multiErr, err)
-			continue
-		}
-		requiredStatusChecksCtxs, _, err :=
-			g.client.Repositories.ListRequiredStatusChecksContexts(
-				context.Background(), g.owner, repo, baseBranch)
-		if err != nil {
-			multiErr = multierror.Append(multiErr, err)
-			continue
-		}
-		if GetRequiredCheckStatuses(combinedStatus, requiredStatusChecksCtxs, nil) == ci.Failure {
-			if err := g.ClosePRDeleteBranch(repo, pr); err != nil {
-				multiErr = multierror.Append(multiErr, err)
-			}
 		}
 	}
 	return multiErr

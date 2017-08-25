@@ -129,7 +129,7 @@ func updateDependenciesOf(repo string) error {
 		log.Printf("Branch already exists")
 	}
 	// if branch exists, stop here and do not create another PR of identical delta
-	if err = githubClnt.CloseFailedPullRequests(
+	if err = githubClnt.CloseIdlePullRequests(
 		prTitlePrefix, repo, *baseBranch); exists || err != nil {
 		return err
 	}
