@@ -78,6 +78,8 @@ presubmits:
           limits:
             memory: "20Gi"
             cpu: "5000m"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: build-pool
       volumes:
       - name: service
         secret:
@@ -132,6 +134,8 @@ presubmits:
           limits:
             memory: "20Gi"
             cpu: "5000m"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: build-pool
       volumes:
       - name: service
         secret:
@@ -180,6 +184,8 @@ presubmits:
             limits:
               memory: "20Gi"
               cpu: "5000m"
+        nodeSelector:
+          cloud.google.com/gke-nodepool: build-pool
         volumes:
         - name: service
           secret:
@@ -227,6 +233,8 @@ presubmits:
             limits:
               memory: "20Gi"
               cpu: "5000m"
+        nodeSelector:
+          cloud.google.com/gke-nodepool: build-pool
         volumes:
         - name: service
           secret:
@@ -274,6 +282,8 @@ presubmits:
             limits:
               memory: "20Gi"
               cpu: "5000m"
+        nodeSelector:
+          cloud.google.com/gke-nodepool: build-pool
         volumes:
         - name: service
           secret:
@@ -321,6 +331,8 @@ presubmits:
             limits:
               memory: "20Gi"
               cpu: "5000m"
+        nodeSelector:
+          cloud.google.com/gke-nodepool: build-pool
         volumes:
         - name: service
           secret:
@@ -375,6 +387,8 @@ presubmits:
           limits:
             memory: "20Gi"
             cpu: "5000m"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: build-pool
       volumes:
       - name: service
         secret:
@@ -425,6 +439,8 @@ presubmits:
             limits:
               memory: "20Gi"
               cpu: "5000m"
+        nodeSelector:
+          cloud.google.com/gke-nodepool: build-pool
         volumes:
         - name: service
           secret:
@@ -479,6 +495,8 @@ presubmits:
           limits:
             memory: "20Gi"
             cpu: "5000m"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: build-pool
       volumes:
       - name: service
         secret:
@@ -529,6 +547,8 @@ presubmits:
             limits:
               memory: "20Gi"
               cpu: "5000m"
+        nodeSelector:
+          cloud.google.com/gke-nodepool: build-pool
         volumes:
         - name: service
           secret:
@@ -577,6 +597,8 @@ presubmits:
           limits:
             memory: "20Gi"
             cpu: "5000m"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: build-pool
       volumes:
       - name: service
         secret:
@@ -628,6 +650,8 @@ postsubmits:
           limits:
             memory: "20Gi"
             cpu: "5000m"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: build-pool
       volumes:
       - name: service
         secret:
@@ -684,6 +708,8 @@ postsubmits:
           limits:
             memory: "20Gi"
             cpu: "5000m"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: build-pool
       volumes:
       - name: service
         secret:
@@ -739,6 +765,8 @@ postsubmits:
           limits:
             memory: "20Gi"
             cpu: "5000m"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: build-pool
       volumes:
       - name: service
         secret:
@@ -775,6 +803,8 @@ periodics:
         readOnly: true
       - name: e2e-testing-kubeconfig
         mountPath: /home/bootstrap/.kube
+    nodeSelector:
+      cloud.google.com/gke-nodepool: build-pool
     volumes:
     - name: service
       secret:
@@ -801,6 +831,8 @@ periodics:
         readOnly: true
       - name: e2e-testing-rbac-kubeconfig
         mountPath: /home/bootstrap/.kube
+    nodeSelector:
+      cloud.google.com/gke-nodepool: build-pool
     volumes:
     - name: service
       secret:
@@ -828,6 +860,8 @@ periodics:
       - mountPath: /etc/service-account
         name: service
         readOnly: true
+    nodeSelector:
+      cloud.google.com/gke-nodepool: build-pool
     volumes:
     - name: oauth
       secret:
