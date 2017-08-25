@@ -133,16 +133,16 @@ func updateDependenciesOf(repo string) error {
 		prTitlePrefix, repo, *baseBranch); exists || err != nil {
 		return err
 	}
-	if _, err := u.Shell("git checkout -b " + branch); err != nil {
+	if _, err = u.Shell("git checkout -b " + branch); err != nil {
 		return err
 	}
-	if err := updateDeps(repo, &deps, &depChangeList); err != nil {
+	if err = updateDeps(repo, &deps, &depChangeList); err != nil {
 		return err
 	}
-	if err := u.SerializeDeps(istioDepsFile, &deps); err != nil {
+	if err = u.SerializeDeps(istioDepsFile, &deps); err != nil {
 		return err
 	}
-	if err := u.CreateCommitPushToRemote(branch, "Update_Dependencies"); err != nil {
+	if err = u.CreateCommitPushToRemote(branch, "Update_Dependencies"); err != nil {
 		return err
 	}
 	prTitle := prTitlePrefix + repo
@@ -150,37 +150,40 @@ func updateDependenciesOf(repo string) error {
 	if err != nil {
 		return err
 	}
-	return githubClnt.MergePullRequestOnceCIGreen(repo, pr)
+	return githubClnt.AddlLGMTandApprovedLabelsToPR(repo, pr)
 }
 
-func main() {
+func init() {
 	flag.Parse()
 	if *tokenFile == "" {
-		log.Panicf("token_file not provided\n")
+		log.Fatalf("token_file not provided\n")
 		return
 	}
 	token, err := u.GetAPITokenFromFile(*tokenFile)
 	if err != nil {
-		log.Panicf("Error accessing user supplied token_file: %v\n", err)
+		log.Fatalf("Error accessing user supplied token_file: %v\n", err)
 	}
 	githubClnt = u.NewGithubClient(*owner, token)
+}
+
+func main() {
 	if *repo != "" { // only update dependencies of this repo
 		if (*repo == "istio") == (*hub == "") {
-			log.Printf("The hub flag hub must be set for istio/istio and must not for other repos\n")
+			log.Fatalf("The hub flag hub must be set for istio/istio and must not for other repos\n")
 			return
 		}
 		if err := updateDependenciesOf(*repo); err != nil {
-			log.Printf("Failed to udpate dependency: %v\n", err)
+			log.Fatalf("Failed to udpate dependency: %v\n", err)
 		}
 	} else { // update dependencies of all repos in the istio project
 		repos, err := githubClnt.ListRepos()
 		if err != nil {
-			log.Printf("Error when fetching list of repos: %v\n", err)
+			log.Fatalf("Error when fetching list of repos: %v\n", err)
 			return
 		}
 		for _, r := range repos {
 			if err := updateDependenciesOf(r); err != nil {
-				log.Printf("Failed to udpate dependency: %v\n", err)
+				log.Fatalf("Failed to udpate dependency: %v\n", err)
 			}
 		}
 	}

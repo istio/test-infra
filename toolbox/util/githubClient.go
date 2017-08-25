@@ -102,49 +102,12 @@ func (g GithubClient) CreatePullRequest(
 	return pr, nil
 }
 
-// MergePullRequestOnceCIGreen polls CI status of a PR periodically
-// if success, merge the PR without review
-// if failure, close the PR and its branch
-// if CI still pending after timeout, return error
-func (g GithubClient) MergePullRequestOnceCIGreen(repo string, pr *github.PullRequest) error {
-	prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
-	timeoutMin := time.Minute * 30
-	intervalMin := time.Minute * 3
-	log.Printf("Waiting for CI results of PR %s\n", prName)
-	log.Printf("Time out in %s, polls every %s\n", timeoutMin, intervalMin)
-	timeStarted := time.Now()
-	for {
-		timeElapsedMin := time.Since(timeStarted)
-		log.Printf("Polling. time elapsed: %s\n", timeElapsedMin)
-		if timeElapsedMin.Nanoseconds() > timeoutMin.Nanoseconds() {
-			return fmt.Errorf("failed to get CI results before timeout")
-		}
-		combinedStatus, _, err := g.client.Repositories.GetCombinedStatus(
-			context.Background(), g.owner, repo, *pr.Head.SHA, nil)
-		if err != nil {
-			return err
-		}
-		switch GetCIState(combinedStatus, nil) {
-		case ci.Pending:
-			log.Printf("Still pending\n")
-			time.Sleep(intervalMin)
-		case ci.Failure:
-			log.Printf("CI has failed. Closing PR and its branch.\n")
-			return g.ClosePRDeleteBranch(repo, pr)
-		case ci.Success:
-			log.Printf("CI has passed! Merging PR automatically by adding /lgtm and /approve labels.\n")
-			return g.AddlLGMTandApproveLabelsToPR(repo, pr)
-		}
-	}
-	return nil
-}
-
-// AddlLGMTandApproveLabelsToPR adds /lgtm and /approve labels to a PR,
-// essentially automatically merges the PR without review
-func (g GithubClient) AddlLGMTandApproveLabelsToPR(repo string, pr *github.PullRequest) error {
+// AddlLGMTandApprovedLabelsToPR adds /lgtm and /approve labels to a PR,
+// essentially automatically merges the PR without review, if PR passes presubmit
+func (g GithubClient) AddlLGMTandApprovedLabelsToPR(repo string, pr *github.PullRequest) error {
 	labels := []string{
 		"lgtm",
-		"approve",
+		"approved",
 	}
 	_, _, err := g.client.Issues.AddLabelsToIssue(
 		context.Background(), g.owner, repo, pr.GetNumber(), labels)
@@ -223,8 +186,16 @@ func (g GithubClient) CloseFailedPullRequests(prTitlePrefix, repo, baseBranch st
 			context.Background(), g.owner, repo, *pr.Head.SHA, nil)
 		if err != nil {
 			multiErr = multierror.Append(multiErr, err)
+			continue
 		}
-		if GetCIState(combinedStatus, nil) == ci.Failure {
+		requiredStatusChecksCtxs, _, err :=
+			g.client.Repositories.ListRequiredStatusChecksContexts(
+				context.Background(), g.owner, repo, baseBranch)
+		if err != nil {
+			multiErr = multierror.Append(multiErr, err)
+			continue
+		}
+		if GetRequiredCheckStatuses(combinedStatus, requiredStatusChecksCtxs, nil) == ci.Failure {
 			if err := g.ClosePRDeleteBranch(repo, pr); err != nil {
 				multiErr = multierror.Append(multiErr, err)
 			}
