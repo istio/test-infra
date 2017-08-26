@@ -151,7 +151,7 @@ presubmits:
       agent: kubernetes
       context: prow/e2e-suite-no_rbac-no_auth.sh
       rerun_command: "/test e2e-suite-no_rbac-no_auth"
-      trigger: "(?m)^/(retest|test (all|e2e-suite|e2e-suite-no_rbac-no_auth))?,?(\\s+|$)"
+      trigger: "(?m)^/test (e2e-suite|e2e-suite-no_rbac-no_auth)?,?(\\s+|$)"
       branches:
       - master
       spec:
@@ -200,7 +200,7 @@ presubmits:
       agent: kubernetes
       context: prow/e2e-suite-no_rbac-auth.sh
       rerun_command: "/test e2e-suite-no_rbac-auth"
-      trigger: "(?m)^/(retest|test (all|e2e-suite|e2e-suite-no_rbac-auth))?,?(\\s+|$)"
+      trigger: "(?m)^/test (e2e-suite|e2e-suite-no_rbac-auth)?,?(\\s+|$)"
       branches:
       - master
       spec:
@@ -249,7 +249,7 @@ presubmits:
       agent: kubernetes
       context: prow/e2e-suite-rbac-no_auth.sh
       rerun_command: "/test e2e-suite-rbac-no_auth"
-      trigger: "(?m)^/(retest|test (all|e2e-suite|e2e-suite-rbac-no_auth))?,?(\\s+|$)"
+      trigger: "(?m)^/test (e2e-suite|e2e-suite-rbac-no_auth)?,?(\\s+|$)"
       branches:
       - master
       spec:
@@ -298,7 +298,7 @@ presubmits:
       agent: kubernetes
       context: prow/e2e-suite-rbac-auth.sh
       rerun_command: "/test e2e-suite-rbac-auth"
-      trigger: "(?m)^/(retest|test (all|e2e-suite|e2e-suite-rbac-auth))?,?(\\s+|$)"
+      trigger: "(?m)^/test (e2e-suite|e2e-suite-rbac-auth)?,?(\\s+|$)"
       branches:
       - master
       spec:
@@ -408,7 +408,7 @@ presubmits:
       context: prow/mixer-e2e-smoketest.sh
       always_run: true
       rerun_command: "/test mixer-e2e-smoketest"
-      trigger: "(?m)^/(retest|test (all|mixer-e2e-smoketest))?,?(\\s+|$)"
+      trigger: "(?m)^/test mixer-e2e-smoketest?,?(\\s+|$)"
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.2.1
@@ -516,7 +516,7 @@ presubmits:
       context: prow/pilot-e2e-smoketest.sh
       always_run: true
       rerun_command: "/test pilot-e2e-smoketest"
-      trigger: "(?m)^/(retest|test (all|pilot-e2e-smoketest))?,?(\\s+|$)"
+      trigger: "(?m)^/test pilot-e2e-smoketest?,?(\\s+|$)"
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.2.1
@@ -566,7 +566,7 @@ presubmits:
     context: prow/test-infra-presubmit.sh
     always_run: true
     rerun_command: "/test test-infra-presubmit"
-    trigger: "(?m)^/(retest|test (all|test-infra-presubmit))?,?(\\s+|$)"
+    trigger: "(?m)^/test test-infra-presubmit?,?(\\s+|$)"
     branches:
     - master
     spec:
