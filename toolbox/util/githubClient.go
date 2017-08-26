@@ -85,7 +85,7 @@ func (g GithubClient) Remote(repo string) string {
 
 // CreatePullRequest within :repo from :branch to :baseBranch
 func (g GithubClient) CreatePullRequest(
-	title, body, branch, baseBranch, repo string) error {
+	title, body, branch, baseBranch, repo string) (*github.PullRequest, error) {
 	req := github.NewPullRequest{
 		Head:  &branch,
 		Base:  &baseBranch,
@@ -96,9 +96,39 @@ func (g GithubClient) CreatePullRequest(
 	pr, _, err := g.client.PullRequests.Create(
 		context.Background(), g.owner, repo, &req)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	log.Printf("Created new PR at %s", *pr.HTMLURL)
+	return pr, nil
+}
+
+// AddlLGMTandApprovedLabelsToPR adds /lgtm and /approve labels to a PR,
+// essentially automatically merges the PR without review, if PR passes presubmit
+func (g GithubClient) AddlLGMTandApprovedLabelsToPR(repo string, pr *github.PullRequest) error {
+	labels := []string{
+		"lgtm",
+		"approved",
+	}
+	_, _, err := g.client.Issues.AddLabelsToIssue(
+		context.Background(), g.owner, repo, pr.GetNumber(), labels)
+	return err
+}
+
+// ClosePRDeleteBranch closes a PR and deletes the branch from which the PR is made
+func (g GithubClient) ClosePRDeleteBranch(repo string, pr *github.PullRequest) error {
+	prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
+	log.Printf("Closing PR %s and deleting branch %s", prName, *pr.Head.Ref)
+	*pr.State = "closed"
+	if _, _, err := g.client.PullRequests.Edit(
+		context.Background(), g.owner, repo, pr.GetNumber(), pr); err != nil {
+		log.Printf("Failed to close %s", prName)
+		return err
+	}
+	ref := fmt.Sprintf("refs/heads/%s", *pr.Head.Ref)
+	if _, err := g.client.Git.DeleteRef(context.Background(), g.owner, repo, ref); err != nil {
+		log.Printf("Failed to delete branch %s in repo %s", *pr.Head.Ref, repo)
+		return err
+	}
 	return nil
 }
 
@@ -133,11 +163,12 @@ func (g GithubClient) ExistBranch(repo, branch string) (bool, error) {
 	return false, nil
 }
 
-// CloseFailedPullRequests checks all open PRs on baseBranch in repo,
-// closes the ones that have failed the presubmit, and deletes the
+// CloseIdlePullRequests checks all open PRs auto-created on baseBranch in repo,
+// closes the ones that have stayed open for a long time, and deletes the
 // remote branches from which the PRs are made
-func (g GithubClient) CloseFailedPullRequests(prTitlePrefix, repo, baseBranch string) error {
-	log.Printf("Search for failed auto PRs to update dependencies in repo %s", repo)
+func (g GithubClient) CloseIdlePullRequests(prTitlePrefix, repo, baseBranch string) error {
+	log.Printf("If any, close failed auto PRs to update dependencies in repo %s", repo)
+	idleTimeout := time.Hour * 24
 	options := github.PullRequestListOptions{
 		Base:  baseBranch,
 		State: "open",
@@ -152,24 +183,9 @@ func (g GithubClient) CloseFailedPullRequests(prTitlePrefix, repo, baseBranch st
 		if !strings.HasPrefix(*pr.Title, prTitlePrefix) {
 			continue
 		}
-		combinedStatus, _, err := g.client.Repositories.GetCombinedStatus(
-			context.Background(), g.owner, repo, *pr.Head.SHA, nil)
-		if err != nil {
-			multiErr = multierror.Append(multiErr, err)
-		}
-		if GetCIState(combinedStatus, nil) == ci.Failure {
-			prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, *pr.Number)
-			log.Printf("Closing PR %s and deleting branch %s", prName, *pr.Head.Ref)
-			*pr.State = "closed"
-			if _, _, err := g.client.PullRequests.Edit(
-				context.Background(), g.owner, repo, *pr.Number, pr); err != nil {
+		if time.Since(*pr.CreatedAt).Nanoseconds() > idleTimeout.Nanoseconds() {
+			if err := g.ClosePRDeleteBranch(repo, pr); err != nil {
 				multiErr = multierror.Append(multiErr, err)
-				log.Printf("Failed to close %s", prName)
-			}
-			ref := fmt.Sprintf("refs/heads/%s", *pr.Head.Ref)
-			if _, err := g.client.Git.DeleteRef(context.Background(), g.owner, repo, ref); err != nil {
-				multiErr = multierror.Append(multiErr, err)
-				log.Printf("Failed to delete branch %s in repo %s", *pr.Head.Ref, repo)
 			}
 		}
 	}

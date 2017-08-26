@@ -106,8 +106,10 @@ func CloneRepoCheckoutBranch(gclient *GithubClient, repo, baseBranch, newBranch 
 	if _, err := Shell("git checkout " + baseBranch); err != nil {
 		return "", err
 	}
-	if _, err := Shell("git checkout -b " + newBranch); err != nil {
-		return "", err
+	if newBranch != "" {
+		if _, err := Shell("git checkout -b " + newBranch); err != nil {
+			return "", err
+		}
 	}
 	return os.Getwd()
 }

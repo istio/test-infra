@@ -20,6 +20,7 @@ import (
 	"time"
 
 	multierror "github.com/hashicorp/go-multierror"
+
 	u "istio.io/test-infra/toolbox/util"
 )
 

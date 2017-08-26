@@ -39,6 +39,16 @@ func WriteFile(filePath, content string) error {
 	return ioutil.WriteFile(filePath, []byte(content), 0600)
 }
 
+// ContainsString finds if target presents in the given slice
+func ContainsString(slice []string, target string) bool {
+	for _, element := range slice {
+		if element == target {
+			return true
+		}
+	}
+	return false
+}
+
 // UpdateKeyValueInFile updates in the file all occurrences of key to
 // a new value. A key-value pair is defined as `key="value"` or `key = "value"`
 func UpdateKeyValueInFile(file, key, value string) error {
