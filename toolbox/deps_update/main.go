@@ -150,7 +150,7 @@ func updateDependenciesOf(repo string) error {
 	if err != nil {
 		return err
 	}
-	return githubClnt.AddlLGMTandApprovedLabelsToPR(repo, pr)
+	return githubClnt.AddAutoMergeLabelsToPR(repo, pr)
 }
 
 func init() {
