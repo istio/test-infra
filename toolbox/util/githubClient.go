@@ -168,6 +168,7 @@ func (g GithubClient) ExistBranch(repo, branch string) (bool, error) {
 // remote branches from which the PRs are made
 func (g GithubClient) CloseIdlePullRequests(prTitlePrefix, repo, baseBranch string) error {
 	log.Printf("If any, close failed auto PRs to update dependencies in repo %s", repo)
+	idleTimeout := time.Hour * 24
 	options := github.PullRequestListOptions{
 		Base:  baseBranch,
 		State: "open",
@@ -182,8 +183,10 @@ func (g GithubClient) CloseIdlePullRequests(prTitlePrefix, repo, baseBranch stri
 		if !strings.HasPrefix(*pr.Title, prTitlePrefix) {
 			continue
 		}
-		if err := g.ClosePRDeleteBranch(repo, pr); err != nil {
-			multiErr = multierror.Append(multiErr, err)
+		if time.Since(*pr.CreatedAt).Nanoseconds() > idleTimeout.Nanoseconds() {
+			if err := g.ClosePRDeleteBranch(repo, pr); err != nil {
+				multiErr = multierror.Append(multiErr, err)
+			}
 		}
 	}
 	return multiErr
