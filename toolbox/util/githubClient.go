@@ -102,12 +102,13 @@ func (g GithubClient) CreatePullRequest(
 	return pr, nil
 }
 
-// AddlLGMTandApprovedLabelsToPR adds /lgtm and /approve labels to a PR,
+// AddAutoMergeLabelsToPR adds /lgtm and /approve labels to a PR,
 // essentially automatically merges the PR without review, if PR passes presubmit
-func (g GithubClient) AddlLGMTandApprovedLabelsToPR(repo string, pr *github.PullRequest) error {
+func (g GithubClient) AddAutoMergeLabelsToPR(repo string, pr *github.PullRequest) error {
 	labels := []string{
 		"lgtm",
 		"approved",
+		"release-note-none",
 	}
 	_, _, err := g.client.Issues.AddLabelsToIssue(
 		context.Background(), g.owner, repo, pr.GetNumber(), labels)
