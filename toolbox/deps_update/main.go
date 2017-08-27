@@ -29,6 +29,10 @@ var (
 	baseBranch = flag.String("base_branch", "master", "Branch from which the deps update commit is based")
 	hub        = flag.String("hub", "", "Where the testing images are hosted")
 	githubClnt *u.GithubClient
+	//Repos require review for admin (robots)
+	adminReviewRequired = map[string]bool{
+		"istio": true,
+	}
 )
 
 const (
@@ -150,7 +154,16 @@ func updateDependenciesOf(repo string) error {
 	if err != nil {
 		return err
 	}
-	return githubClnt.AddAutoMergeLabelsToPR(repo, pr)
+	if err := githubClnt.AddAutoMergeLabelsToPR(repo, pr); err != nil {
+		log.Printf("Failed to add auto-merge labels for pr %s %d", repo, pr.GetNumber())
+	}
+
+	if adminReviewRequired[repo] {
+		if err := githubClnt.ApproveAutoPR(repo, pr); err != nil {
+			log.Printf("Failed to github approve pr %s #%d", repo, pr.GetNumber())
+		}
+	}
+	return nil
 }
 
 func init() {

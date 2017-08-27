@@ -29,7 +29,12 @@ import (
 )
 
 var (
-	commitType = "commit"
+	commitType      = "commit"
+	autoMergeLabels = []string{
+		"lgtm",
+		"approved",
+		"release-note-none",
+	}
 )
 
 // GithubClient masks RPCs to github as local procedures
@@ -105,13 +110,31 @@ func (g GithubClient) CreatePullRequest(
 // AddAutoMergeLabelsToPR adds /lgtm and /approve labels to a PR,
 // essentially automatically merges the PR without review, if PR passes presubmit
 func (g GithubClient) AddAutoMergeLabelsToPR(repo string, pr *github.PullRequest) error {
-	labels := []string{
-		"lgtm",
-		"approved",
-		"release-note-none",
-	}
 	_, _, err := g.client.Issues.AddLabelsToIssue(
-		context.Background(), g.owner, repo, pr.GetNumber(), labels)
+		context.Background(), g.owner, repo, pr.GetNumber(), autoMergeLabels)
+	return err
+}
+
+func (g GithubClient) ApproveAutoPR(repo string, pr *github.PullRequest) error {
+	review, _, err := g.client.PullRequests.CreateReview(context.Background(), g.owner, repo, pr.GetNumber(),
+		&github.PullRequestReviewRequest{})
+	if err != nil {
+		log.Printf("Failed to create a pr review for %s #%d: %s", repo, pr.GetNumber(), err)
+		return err
+	}
+
+	e := "APPROVE"
+	b := "Self-approve for auto PR"
+	reviewRequest := &github.PullRequestReviewRequest{
+		Body:  &b,
+		Event: &e,
+	}
+
+	_, _, err = g.client.PullRequests.SubmitReview(context.Background(), g.owner, repo, pr.GetNumber(),
+		review.GetID(), reviewRequest)
+	if err != nil {
+		log.Printf("Failed to submit approve review for pr %s #%d: %s", repo, pr.GetNumber(), err)
+	}
 	return err
 }
 
@@ -120,8 +143,7 @@ func (g GithubClient) ClosePRDeleteBranch(repo string, pr *github.PullRequest) e
 	prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
 	log.Printf("Closing PR %s and deleting branch %s", prName, *pr.Head.Ref)
 	*pr.State = "closed"
-	if _, _, err := g.client.PullRequests.Edit(
-		context.Background(), g.owner, repo, pr.GetNumber(), pr); err != nil {
+	if _, _, err := g.client.PullRequests.Edit(context.Background(), g.owner, repo, pr.GetNumber(), pr); err != nil {
 		log.Printf("Failed to close %s", prName)
 		return err
 	}
