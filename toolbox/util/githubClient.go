@@ -119,7 +119,8 @@ func (g GithubClient) ApproveAutoPR(repo string, pr *github.PullRequest) error {
 	review, _, err := g.client.PullRequests.CreateReview(context.Background(), g.owner, repo, pr.GetNumber(),
 		&github.PullRequestReviewRequest{})
 	if err != nil {
-		log.Printf("Failed to create a pr review for %s #%d", repo, pr.GetNumber())
+		log.Printf("Failed to create a pr review for %s #%d: %s", repo, pr.GetNumber(), err)
+		return err
 	}
 
 	e := "APPROVE"
@@ -132,7 +133,7 @@ func (g GithubClient) ApproveAutoPR(repo string, pr *github.PullRequest) error {
 	_, _, err = g.client.PullRequests.SubmitReview(context.Background(), g.owner, repo, pr.GetNumber(),
 		review.GetID(), reviewRequest)
 	if err != nil {
-		log.Printf("Failed to submit approve review for pr %s #%d", repo, pr.GetNumber())
+		log.Printf("Failed to submit approve review for pr %s #%d: %s", repo, pr.GetNumber(), err)
 	}
 	return err
 }
