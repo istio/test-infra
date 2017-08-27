@@ -30,7 +30,7 @@ var (
 	hub        = flag.String("hub", "", "Where the testing images are hosted")
 	githubClnt *u.GithubClient
 	//Repos require review for admin (robots)
-	adminReviewRequired = map[string]bool {
+	adminReviewRequired = map[string]bool{
 		"istio": true,
 	}
 )

@@ -29,7 +29,7 @@ import (
 )
 
 var (
-	commitType = "commit"
+	commitType      = "commit"
 	autoMergeLabels = []string{
 		"lgtm",
 		"approved",
@@ -125,7 +125,7 @@ func (g GithubClient) ApproveAutoPR(repo string, pr *github.PullRequest) error {
 	e := "APPROVE"
 	b := "Self-approve for auto PR"
 	reviewRequest := &github.PullRequestReviewRequest{
-		Body: &b,
+		Body:  &b,
 		Event: &e,
 	}
 
