@@ -557,7 +557,8 @@ presubmits:
       agent: kubernetes
       context: prow/pilot-coverage.sh
       always_run: true
-     spec:
+      skip_report: true
+      spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.2.1
           args:
@@ -600,7 +601,6 @@ presubmits:
         - name: cache-ssd
           hostPath:
             path: /mnt/disks/ssd0
-
 
   istio/test-infra:
   - name: test-infra-presubmit
