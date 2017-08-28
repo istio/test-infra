@@ -20,7 +20,7 @@ Mungegithub waits for 4 labels:
 * **CLA** "cla-yes" label or "cla-no" label is set automatically. There is a hacker way "cla human-approved" to bypass cla check if it's necessary.
 * **LGTM** "lgtm" is the first level approve, it means "look good to me, but someone else may need to take a look and make final decision". "lgtm" is more like "review: approve" in github-way. Everyone assigned to this pr can say valid "/lgtm", people in github organization can also do it. With prow deployed, people should add "lgtm" label by comment "/lgtm". 
 
-  >  Note: Any code changes after "/lgtm" will automatically remote "lgtm" label
+  >  Note: Any code changes after "/lgtm" will automatically remove "lgtm" label
   
 * **Approve** "approved" is the second level approve, it's more like clicking the "merge" buttom in github-way. So when you are a repo admin or the owner of this part of code, when you actually want to get this pr into master, instead of clicking the merge buttom, simply comment "/approve" (We are getting rid of "/approve no-issue"), Mungegithub will add "approved" label on the pr and when other requirements are satisfied, this pr is going to the submit-queue.
 
