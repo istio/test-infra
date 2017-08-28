@@ -6,11 +6,23 @@ DIR="${ROOT}/scripts"
 . ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
 
 ARGS=()
+
 CLUSTER_NAME='jenkins-cluster'
+JOB_TEMPLATE="${ROOT}/k8s/jenkins/cleanup/cleanup.yaml.template"
 PROJECT_ID='istio-testing'
-ZONE='us-central1-f'
-JOB_TEMPLATE="${ROOT}//k8s/jenkins/cleanup/cleanup.yaml.template"
+SELECTOR='role=build'
 TMP_DIR="$(mktemp -d /tmp/bazel-cleanup.XXXXX)"
+ZONE='us-central1-f'
+
+while getopts :c:p:s:z: arg; do
+  case ${arg} in
+    c) CLUSTER_NAME="${OPTARG}";;
+    p) PROJECT_ID="${OPTARG}";;
+    s) SELECTOR="${OPTARG}";;
+    z) ZONE="${OPTARG}";;
+    *) error_exit "Unrecognized argument -${OPTARG}";;
+  esac
+done
 
 function generate_job_yaml() {
   local node="${1}"
@@ -25,14 +37,6 @@ function generate_job_yaml() {
   echo "Created ${yaml}"
 }
 
-while getopts :p:z: arg; do
-  case ${arg} in
-    p) PROJECT_ID="${OPTARG}";;
-    z) ZONE="${OPTARG}";;
-    *) error_exit "Unrecognized argument -${OPTARG}";;
-  esac
-done
-
 [[ -n "${PROJECT_ID}" ]] && ARGS+=(--project "${PROJECT_ID}")
 [[ -n "${ZONE}" ]] && ARGS+=(--zone "${ZONE}")
 
@@ -42,7 +46,7 @@ gcloud container clusters get-credentials ${CLUSTER_NAME} ${ARGS[@]}\
   || error_exit 'Could not get kubectl config for cluster'
 
 CLUSTER_NODES="$(kubectl get nodes \
-  --selector=role=build \
+  --selector=${SELECTOR} \
   -o jsonpath='{.items[*].metadata.name}')"
 
 [[ -z "${CLUSTER_NODES}" ]] && error_exit 'Could not find Jenkins nodes.'
