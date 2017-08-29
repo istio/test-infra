@@ -25,9 +25,7 @@ Mungegithub waits for 4 labels:
 * **Approve** "approved" is the second level approve, it's more like clicking the "merge" buttom in github-way. So when you are a repo admin or the owner of this part of code, when you actually want to get this pr into master, instead of clicking the merge buttom, simply comment "/approve" (We are getting rid of "/approve no-issue"), Mungegithub will add "approved" label on the pr and when other requirements are satisfied, this pr is going to the submit-queue.
 
   >  Note: Do not comment "/approve" or add "approved" label unless you are 100% sure you want this change, because after you say that, the pr will be merge any minutes.
-  
-  >  Note: The PR will be self-approved if the PR creator is in OWNERS file and this PR is associated with at least one issue.
-  
+    
 * **Release-note** Release note enforcement is another feather we are seeking from Mungegithub. With template, when prs are create, people should add release note (can be "None") in the pr description. Depended on the release message left, Mungegithub will add "release-note", "release-note-none". If you leave it empty, "release-note-needed" will be added and is going to block merging.
 
 * **do-not-merge** Even with all required parts, you can always have more time by add "do-not-merge" label. 
