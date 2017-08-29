@@ -56,6 +56,11 @@ func assertNotEmpty(name string, value *string) {
 	}
 }
 
+func approvePRsRequiringNoReview() error {
+	assertNotEmpty("repo", repo)
+	return githubClnt.ApprovePRsRequiringNoReview(*repo)
+}
+
 func fastForward(repo, baseBranch, refSHA *string) error {
 	assertNotEmpty("repo", repo)
 	assertNotEmpty("base_branch", baseBranch)
@@ -215,23 +220,27 @@ func init() {
 
 func main() {
 	switch *op {
+	case "approvePRs":
+		if err := approvePRsRequiringNoReview(); err != nil {
+			log.Fatalf("Error during approvePRsRequiringNoReview: %v\n", err)
+		}
 	case "fastForward":
 		if err := fastForward(repo, baseBranch, refSHA); err != nil {
-			log.Printf("Error during fastForward: %v\n", err)
+			log.Fatalf("Error during fastForward: %v\n", err)
 		}
 	case "tagIstioDepsForRelease":
 		if err := TagIstioDepsForRelease(); err != nil {
-			log.Printf("Error during TagIstioDepsForRelease: %v\n", err)
+			log.Fatalf("Error during TagIstioDepsForRelease: %v\n", err)
 		}
 	case "updateIstioVersion":
 		if err := UpdateIstioVersionAfterReleaseTagsMadeOnDeps(); err != nil {
-			log.Printf("Error during UpdateIstioVersionAfterReleaseTagsMadeOnDeps: %v\n", err)
+			log.Fatalf("Error during UpdateIstioVersionAfterReleaseTagsMadeOnDeps: %v\n", err)
 		}
 	case "uploadArtifacts":
 		if err := CreateIstioReleaseUploadArtifacts(); err != nil {
-			log.Printf("Error during CreateIstioReleaseUploadArtifacts: %v\n", err)
+			log.Fatalf("Error during CreateIstioReleaseUploadArtifacts: %v\n", err)
 		}
 	default:
-		log.Printf("Unsupported operation: %s\n", *op)
+		log.Fatalf("Unsupported operation: %s\n", *op)
 	}
 }
