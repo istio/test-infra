@@ -32,9 +32,10 @@ var (
 )
 
 const (
-	istioDepsFile = "istio.deps"
-	prTitlePrefix = "[DO NOT MERGE] Auto PR to update dependencies of "
-	prBody        = "This PR will be merged automatically once checks are successful."
+	istioDepsFile         = "istio.deps"
+	prTitlePrefix         = "[DO NOT MERGE] Auto PR to update dependencies of "
+	prBody                = "This PR will be merged automatically once checks are successful."
+	dependencyUpdateLabel = "dependency-update"
 )
 
 // Updates dependency objects in :deps to the latest stable version.
@@ -150,7 +151,10 @@ func updateDependenciesOf(repo string) error {
 	if err != nil {
 		return err
 	}
-	return githubClnt.AddAutoMergeLabelsToPR(repo, pr)
+	if err := githubClnt.AddAutoMergeLabelsToPR(repo, pr); err != nil {
+		return err
+	}
+	return githubClnt.AddlabelsToPR(repo, pr, dependencyUpdateLabel)
 }
 
 func init() {
