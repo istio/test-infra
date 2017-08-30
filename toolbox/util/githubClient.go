@@ -28,8 +28,16 @@ import (
 	"golang.org/x/oauth2"
 )
 
+const (
+	reviewNotRequired = "review-not-required"
+)
+
 var (
-	commitType = "commit"
+	commitType      = "commit"
+	autoMergeLabels = []string{
+		reviewNotRequired,
+		"release-note-none",
+	}
 )
 
 const (
@@ -139,17 +147,90 @@ func (g GithubClient) CreatePullRequest(
 	return pr, nil
 }
 
-// AddAutoMergeLabelsToPR adds /lgtm and /approve labels to a PR,
-// essentially automatically merges the PR without review, if PR passes presubmit
+// AddAutoMergeLabelsToPR adds appropriate labels to a PR,
+// indicating this PR can be merged without review, provided PR passes presubmit
 func (g GithubClient) AddAutoMergeLabelsToPR(repo string, pr *github.PullRequest) error {
-	labels := []string{
-		"lgtm",
-		"approved",
-		"release-note-none",
-	}
 	_, _, err := g.client.Issues.AddLabelsToIssue(
-		context.Background(), g.owner, repo, pr.GetNumber(), labels)
+		context.Background(), g.owner, repo, pr.GetNumber(), autoMergeLabels)
 	return err
+}
+
+func (g GithubClient) forEachOpenPR(repo string, fn func(pr *github.PullRequest) error) error {
+	options := github.PullRequestListOptions{
+		State: "open",
+	}
+	prs, _, err := g.client.PullRequests.List(
+		context.Background(), g.owner, repo, &options)
+	if err != nil {
+		return err
+	}
+	var multiErr error
+	for _, pr := range prs {
+		if err := fn(pr); err != nil {
+			multiErr = multierror.Append(multiErr, err)
+		}
+	}
+	return multiErr
+}
+
+// ApprovePRsRequiringNoReview approves all open pull requests that do not require reviews to be merged
+func (g GithubClient) ApprovePRsRequiringNoReview(repo string) error {
+	approvePR := func(pr *github.PullRequest) error {
+		prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
+		labelsOnPR, _, err := g.client.Issues.ListLabelsByIssue(
+			context.Background(), g.owner, repo, pr.GetNumber(), nil)
+		if err != nil {
+			log.Printf("Failed to read labels on pull request %s", prName)
+			return err
+		}
+		safeToApprove := false
+		for _, label := range labelsOnPR {
+			if label.GetName() == reviewNotRequired {
+				safeToApprove = true
+				break
+			}
+		}
+		if !safeToApprove {
+			return nil
+		}
+		log.Printf("Approving pull request %s", prName)
+		e := "APPROVE"
+		b := "Self-approve PR without review"
+		reviewRequest := &github.PullRequestReviewRequest{
+			Body:  &b,
+			Event: &e,
+		}
+		review, _, err := g.client.PullRequests.CreateReview(
+			context.Background(), g.owner, repo, pr.GetNumber(), reviewRequest)
+		if err != nil {
+			log.Printf("Failed to create a review on pull request %s", prName)
+			return err
+		}
+		_, _, err = g.client.PullRequests.SubmitReview(
+			context.Background(), g.owner, repo, pr.GetNumber(), review.GetID(), reviewRequest)
+		if err != nil {
+			log.Printf("Approval failed, unable to submit APPROVE review for pull request %s", prName)
+		}
+		return err
+	}
+	return g.forEachOpenPR(repo, approvePR)
+}
+
+// CloseIdlePullRequests checks all open PRs auto-created on baseBranch in repo,
+// closes the ones that have stayed open for a long time, and deletes the
+// remote branches from which the PRs are made
+func (g GithubClient) CloseIdlePullRequests(prTitlePrefix, repo string) error {
+	log.Printf("If any, close failed auto PRs to update dependencies in repo %s", repo)
+	idleTimeout := time.Hour * 24
+	closeIdlePRofPrefix := func(pr *github.PullRequest) error {
+		if strings.HasPrefix(*pr.Title, prTitlePrefix) {
+			if time.Since(*pr.CreatedAt).Nanoseconds() > idleTimeout.Nanoseconds() {
+				return g.ClosePRDeleteBranch(repo, pr)
+			}
+		}
+		return nil
+	}
+	return g.forEachOpenPR(repo, closeIdlePRofPrefix)
 }
 
 // ClosePRDeleteBranch closes a PR and deletes the branch from which the PR is made
@@ -157,8 +238,7 @@ func (g GithubClient) ClosePRDeleteBranch(repo string, pr *github.PullRequest) e
 	prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
 	log.Printf("Closing PR %s and deleting branch %s", prName, *pr.Head.Ref)
 	*pr.State = "closed"
-	if _, _, err := g.client.PullRequests.Edit(
-		context.Background(), g.owner, repo, pr.GetNumber(), pr); err != nil {
+	if _, _, err := g.client.PullRequests.Edit(context.Background(), g.owner, repo, pr.GetNumber(), pr); err != nil {
 		log.Printf("Failed to close %s", prName)
 		return err
 	}
@@ -199,35 +279,6 @@ func (g GithubClient) ExistBranch(repo, branch string) (bool, error) {
 		}
 	}
 	return false, nil
-}
-
-// CloseIdlePullRequests checks all open PRs auto-created on baseBranch in repo,
-// closes the ones that have stayed open for a long time, and deletes the
-// remote branches from which the PRs are made
-func (g GithubClient) CloseIdlePullRequests(prTitlePrefix, repo, baseBranch string) error {
-	log.Printf("If any, close failed auto PRs to update dependencies in repo %s", repo)
-	idleTimeout := time.Hour * 24
-	options := github.PullRequestListOptions{
-		Base:  baseBranch,
-		State: "open",
-	}
-	prs, _, err := g.client.PullRequests.List(
-		context.Background(), g.owner, repo, &options)
-	if err != nil {
-		return err
-	}
-	var multiErr error
-	for _, pr := range prs {
-		if !strings.HasPrefix(*pr.Title, prTitlePrefix) {
-			continue
-		}
-		if time.Since(*pr.CreatedAt).Nanoseconds() > idleTimeout.Nanoseconds() {
-			if err := g.ClosePRDeleteBranch(repo, pr); err != nil {
-				multiErr = multierror.Append(multiErr, err)
-			}
-		}
-	}
-	return multiErr
 }
 
 // GetHeadCommitSHA finds the SHA of the commit to which the HEAD of branch points

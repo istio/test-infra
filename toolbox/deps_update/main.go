@@ -129,8 +129,7 @@ func updateDependenciesOf(repo string) error {
 		log.Printf("Branch already exists")
 	}
 	// if branch exists, stop here and do not create another PR of identical delta
-	if err = githubClnt.CloseIdlePullRequests(
-		prTitlePrefix, repo, *baseBranch); exists || err != nil {
+	if err = githubClnt.CloseIdlePullRequests(prTitlePrefix, repo); exists || err != nil {
 		return err
 	}
 	if _, err = u.Shell("git checkout -b " + branch); err != nil {
@@ -150,7 +149,10 @@ func updateDependenciesOf(repo string) error {
 	if err != nil {
 		return err
 	}
-	return githubClnt.AddAutoMergeLabelsToPR(repo, pr)
+	if err := githubClnt.AddAutoMergeLabelsToPR(repo, pr); err != nil {
+		log.Printf("Failed to add auto-merge labels for pr %s %d", repo, pr.GetNumber())
+	}
+	return nil
 }
 
 func init() {
