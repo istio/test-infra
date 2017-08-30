@@ -46,7 +46,7 @@ const (
 	releaseBaseDir       = "tmp/release"
 	releasePRTtilePrefix = "[Auto Release] "
 	releasePRBody        = "Update istio.VERSION and downloadIstio.sh"
-	releaseBucketFmtStr  = "https://storage.googleapis.com/istio-artifacts/pilot/%s/artifacts/istioctl"
+	releaseBucketFmtStr  = "https://storage.googleapis.com/istio-release/releases/%s/istioctl"
 )
 
 // Panic if value not specified
