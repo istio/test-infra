@@ -41,7 +41,6 @@ const (
 	downloadScript       = "downloadIstio.sh"
 	istioRepo            = "istio"
 	masterBranch         = "master"
-	stableBranch         = "stable"
 	export               = "export "
 	dockerHub            = "docker.io/istio"
 	releaseBaseDir       = "tmp/release"
@@ -61,8 +60,12 @@ func fastForward(repo, baseBranch, refSHA *string) error {
 	assertNotEmpty("repo", repo)
 	assertNotEmpty("base_branch", baseBranch)
 	assertNotEmpty("ref_sha", refSHA)
-	if *baseBranch != stableBranch {
-		log.Printf("Fast forwarding branches other than %s resorts to a no-op\n", stableBranch)
+	isAncestor, err := githubClnt.SHAIsAncestorOfBranch(*repo, masterBranch, *refSHA)
+	if err != nil {
+		return err
+	}
+	if !isAncestor {
+		log.Printf("SHA %s is not an ancestor of branch %s, resorts to no-op\n", refSHA, masterBranch)
 		return nil
 	}
 	return githubClnt.FastForward(*repo, *baseBranch, *refSHA)
