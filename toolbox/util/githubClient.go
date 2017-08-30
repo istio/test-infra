@@ -32,6 +32,10 @@ var (
 	commitType = "commit"
 )
 
+const (
+	maxCommitDistance = 200
+)
+
 // GithubClient masks RPCs to github as local procedures
 type GithubClient struct {
 	client *github.Client
@@ -52,6 +56,39 @@ func NewGithubClient(owner, token string) *GithubClient {
 func NewGithubClientNoAuth(owner string) *GithubClient {
 	client := github.NewClient(nil)
 	return &GithubClient{client, owner, ""}
+}
+
+// SHAIsAncestorOfBranch checks if sha is ancestor of branch
+func (g GithubClient) SHAIsAncestorOfBranch(repo, branch, targetSHA string) (bool, error) {
+	log.Printf("Checking if %s is ancestor of branch %s", targetSHA, branch)
+	sha, err := g.GetHeadCommitSHA(repo, branch)
+	if err != nil {
+		return false, err
+	}
+	noEarlierThan, err := g.GetCommitCreationTime(repo, targetSHA)
+	if err != nil {
+		return false, err
+	}
+	for i := 0; i < maxCommitDistance; i++ {
+		if targetSHA == sha {
+			return true, nil
+		}
+		commit, _, err := g.client.Repositories.GetCommit(
+			context.Background(), g.owner, repo, sha)
+		if err != nil {
+			return false, err
+		}
+		creationTime, err := g.GetCommitCreationTime(repo, sha)
+		if err != nil {
+			return false, err
+		}
+		if creationTime.Before(*noEarlierThan) {
+			return false, nil
+		}
+		sha = *commit.Parents[0].SHA
+	}
+	err = fmt.Errorf("exceed max iterations %d", maxCommitDistance)
+	return false, err
 }
 
 // FastForward moves :branch on :repo to the given sha

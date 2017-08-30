@@ -60,6 +60,14 @@ func fastForward(repo, baseBranch, refSHA *string) error {
 	assertNotEmpty("repo", repo)
 	assertNotEmpty("base_branch", baseBranch)
 	assertNotEmpty("ref_sha", refSHA)
+	isAncestor, err := githubClnt.SHAIsAncestorOfBranch(*repo, masterBranch, *refSHA)
+	if err != nil {
+		return err
+	}
+	if !isAncestor {
+		log.Printf("SHA %s is not an ancestor of branch %s, resorts to no-op\n", refSHA, masterBranch)
+		return nil
+	}
 	return githubClnt.FastForward(*repo, *baseBranch, *refSHA)
 }
 
