@@ -29,3 +29,8 @@ RUN echo "deb https://packages.cloud.google.com/apt cloud-sdk-$(lsb_release -cs)
 # Install Repo tool
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo && \
     chmod a+x /usr/local/bin/repo
+
+# Install Go
+RUN wget https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz && \
+    tar -C /usr/local -xzf go1.8.3.linux-amd64.tar.gz
+ENV PATH="${PATH}:/usr/local/go/bin"
