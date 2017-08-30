@@ -88,6 +88,7 @@ func getReleaseTag() (string, error) {
 // TagIstioDepsForRelease creates release tag on each dependent repo of istio
 func TagIstioDepsForRelease() error {
 	assertNotEmpty("base_branch", baseBranch)
+	log.Printf("Fetching and processing istio.VERSION\n")
 	istioVersion, err := githubClnt.GetFileContent(istioRepo, *baseBranch, istioVersionFile)
 	if err != nil {
 		return err
@@ -101,6 +102,7 @@ func TagIstioDepsForRelease() error {
 	if err != nil {
 		return err
 	}
+	log.Printf("Fetching release tag\n")
 	releaseTag, err := getReleaseTag()
 	if err != nil {
 		return err
@@ -109,6 +111,7 @@ func TagIstioDepsForRelease() error {
 	for _, dep := range deps {
 		// use sha directly read from istio.VERSION in case updateVersion.sh was run
 		// manually without also updating istio.deps
+		log.Printf("Creating annotated tag [%s] on %s\n", releaseTag, dep.RepoName)
 		ref, exists := kv[dep.Name]
 		if !exists {
 			return fmt.Errorf("ill-defined %s: unable to find %s", istioVersionFile, dep.Name)
@@ -129,6 +132,7 @@ func TagIstioDepsForRelease() error {
 
 func cloneIstioMakePR(newBranch, prTitle, prBody string, edit func() error) error {
 	assertNotEmpty("base_branch", baseBranch)
+	log.Printf("Cloning istio to local and checkout %s\n", *baseBranch)
 	repoDir, err := u.CloneRepoCheckoutBranch(githubClnt, istioRepo, *baseBranch, newBranch)
 	if err != nil {
 		return err
@@ -141,6 +145,7 @@ func cloneIstioMakePR(newBranch, prTitle, prBody string, edit func() error) erro
 	if err := edit(); err != nil {
 		return err
 	}
+	log.Printf("Staging commit and creating pull request\n")
 	if err := u.CreateCommitPushToRemote(
 		newBranch, newBranch); err != nil {
 		return err
