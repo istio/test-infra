@@ -363,3 +363,21 @@ func (g GithubClient) getReferenceSHA(repo, ref string) (string, error) {
 	}
 	return *githubRefObj.Object.SHA, nil
 }
+
+// SearchIssues get issues/prs based on query
+func (g GithubClient) SearchIssues(queries []string, keyWord, sort, order string) (*github.IssuesSearchResult, error) {
+	q := strings.Join(queries, " ")
+
+	searchOption := &github.SearchOptions{
+		Sort:  sort,
+		Order: order,
+	}
+
+	issueResult, _, err := g.client.Search.Issues(context.Background(), q, searchOption)
+	if err != nil {
+		log.Printf("Failed to search issues")
+		return nil, err
+	}
+
+	return issueResult, nil
+}
