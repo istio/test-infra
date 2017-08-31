@@ -323,6 +323,7 @@ func (g GithubClient) CreateAnnotatedTag(repo, tag, sha, msg string) error {
 func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, archiveDir string) error {
 	// create release
 	release := github.RepositoryRelease{TagName: &releaseTag}
+	log.Printf("Creating on github new %s release [%s]\n", repo, releaseTag)
 	res, _, err := g.client.Repositories.CreateRelease(
 		context.Background(), g.owner, repo, &release)
 	if err != nil {
@@ -336,6 +337,7 @@ func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, archiveDir s
 		return err
 	}
 	for _, f := range files {
+		log.Printf("Uploading asset %s\n", f.Name())
 		filePath := fmt.Sprintf("%s/%s", archiveDir, f.Name())
 		fd, err := os.Open(filePath)
 		if err != nil {
