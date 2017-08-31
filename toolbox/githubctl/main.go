@@ -204,7 +204,7 @@ func CreateIstioReleaseUploadArtifacts() error {
 			istioRepo, releaseTag, archiveDir); err != nil {
 			return err
 		}
-		if err := u.WriteFile(releaseTagFile, *nextRelease); err != nil {
+		if err := u.WriteFile(releaseTagFile, *nextRelease+"\n"); err != nil {
 			return err
 		}
 		return u.UpdateKeyValueInFile(
