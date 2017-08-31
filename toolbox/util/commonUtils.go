@@ -36,6 +36,9 @@ func ReadFile(filePath string) (string, error) {
 
 // WriteFile overwrites the file on the given path with content
 func WriteFile(filePath, content string) error {
+	if len(content) == 0 || content[len(content)-1] != '\n' {
+		content += "\n"
+	}
 	return ioutil.WriteFile(filePath, []byte(content), 0600)
 }
 
