@@ -208,7 +208,7 @@ func CreateIstioReleaseUploadArtifacts() error {
 		if err := u.WriteFile(releaseTagFile, *nextRelease); err != nil {
 			return err
 		}
-		if skipEditDownloadScript {
+		if *skipEditDownloadScript {
 			return nil
 		}
 		return u.UpdateKeyValueInFile(
