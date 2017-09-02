@@ -31,7 +31,7 @@ var (
 	baseBranch           = flag.String("base_branch", "", "Branch to which op is applied")
 	refSHA               = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
 	nextRelease          = flag.String("next_release", "", "Tag of the next release")
-	udpateDownloadScript = flag.Bool("update_download_script", false, "Have download script point to latest version")
+	updateDownloadScript = flag.Bool("update_download_script", false, "Have download script point to latest version")
 	githubClnt           *u.GithubClient
 )
 
@@ -206,10 +206,10 @@ func CreateIstioReleaseUploadArtifacts() error {
 			istioRepo, releaseTag, archiveDir); err != nil {
 			return err
 		}
-		if err := u.WriteFile(releaseTagFile, *nextRelease); err != nil {
+		if err := u.WriteTextFile(releaseTagFile, *nextRelease); err != nil {
 			return err
 		}
-		if *udpateDownloadScript {
+		if *updateDownloadScript {
 			log.Printf("Updating download script with latest release")
 			return u.UpdateKeyValueInFile(
 				downloadScript, "ISTIO_VERSION", releaseTag)
