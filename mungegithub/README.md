@@ -48,13 +48,13 @@ OWNERS file is the way to organize code owners and write priviliage. There are t
 [labels.png]
 
 #### 2. Four kinds of Labels "cla: yes", "lgtm", "approve", "release-note"/"release-note-none"
-![ci-status](https://github.com/istio/test-infra/blob/mungegithub_doc/mungegithub/images/ci-status.png)
+![ci-status](https://github.com/istio/test-infra/blob/master/mungegithub/images/ci-status.png)
 
 * **cla** 
 
   - Google-bot will add cla label, if you get a "cla: no" label, follow the instruction offered by googlebot to signup cla. 
 
-![cla-label](https://github.com/istio/test-infra/blob/mungegithub_doc/mungegithub/images/cla-label.png)
+![cla-label](https://github.com/istio/test-infra/blob/master/mungegithub/images/cla-label.png)
 
 * **lgtm** 
 
@@ -63,7 +63,7 @@ OWNERS file is the way to organize code owners and write priviliage. There are t
   - When a valid approver says `/lgtm`, it implies `/approve` as well.  
   - You can cancel "lgtm" by commenting `/lgtm cancel`, if you `/lgtm` before.
 
-![lgtm](https://github.com/istio/test-infra/blob/mungegithub_doc/mungegithub/images/lgtm.png)
+![lgtm](https://github.com/istio/test-infra/blob/master/mungegithub/images/lgtm.png)
 
 * **approved**
 
@@ -73,30 +73,30 @@ A valid approver is able to say `/approve` and mungegithub will add "approved" l
   - A valid approver can say `/approve` to his/her own PR  
   - You can cancel "approved" by commenting "/approve cancel", if you `/approve` before.
 
-![approve](https://github.com/istio/test-infra/blob/mungegithub_doc/mungegithub/images/approve.png)
+![approve](https://github.com/istio/test-infra/blob/master/mungegithub/images/approve.png)
 
 * **release-note**
   - Use [PR template](https://github.com/istio/istio/blob/master/.github/PULL_REQUEST_TEMPLATE.md) to add release-note, make sure to add "none" if release-note isn't necessary for this PR.
   
-  ![release-note template](https://github.com/istio/test-infra/blob/mungegithub_doc/mungegithub/images/release-note-template.png)
+  ![release-note template](https://github.com/istio/test-infra/blob/master/mungegithub/images/release-note-template.png)
   
   - You can also leave a comment `/release-note-none` to set it NONE
   > When all requirements are satisfied except "release-note", mungegithub will add "do-not-merge" label to force you clear release-note. Please note, when you fix release-note, you have to manually remove that label after you make sure everything looks good.
-  ![do-not-merge due to release-note-needed](https://github.com/istio/test-infra/blob/mungegithub_doc/mungegithub/images/do-not-merge-release-note.png)
+  ![do-not-merge due to release-note-needed](https://github.com/istio/test-infra/blob/master/mungegithub/images/do-not-merge-release-note.png)
   
 * **do-not-merge**
   - "do-not-merge" label will block merge anytime. Add it if you want to temporarily block merge.
   
 ### Stage Two
   When a PR satisfies all requirements in stage one, it will be picked up by submit-queue. Submit-queue is going to sequentially retest each pr by asking prow to rerun all required tests.
-  ![retest](https://github.com/istio/test-infra/blob/mungegithub_doc/mungegithub/images/retest.png)
+  ![retest](https://github.com/istio/test-infra/blob/master/mungegithub/images/retest.png)
   - Idealy, you don't need to update branch (also called rebase/merge from master) before running tests because prow will merge your branch into master locally and run tests against this code. You will not see any changes happens on your branch but you can find some clue when you go to prow log.
-  ![auto-rebase-log](https://github.com/istio/test-infra/blob/mungegithub_doc/mungegithub/images/auto-rebase-log.png)
+  ![auto-rebase-log](https://github.com/istio/test-infra/blob/master/mungegithub/images/auto-rebase-log.png)
   - Use `/test all` or `/retest`, you can manually verify and retest everything.
   
  ### Stage Three
    If a PR passes all required tests in rerun, then this PR is good to go and will be auto merged by submit-queue, wohoo!
-   ![merge](https://github.com/istio/test-infra/blob/mungegithub_doc/mungegithub/images/merge.png)
+   ![merge](https://github.com/istio/test-infra/blob/master/mungegithub/images/merge.png)
  
  
  ## FAQ
