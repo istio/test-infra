@@ -34,8 +34,11 @@ func ReadFile(filePath string) (string, error) {
 	return string(b), nil
 }
 
-// WriteFile overwrites the file on the given path with content
-func WriteFile(filePath, content string) error {
+// WriteTextFile overwrites the file on the given path with content
+func WriteTextFile(filePath, content string) error {
+	if len(content) > 0 && content[len(content)-1] != '\n' {
+		content += "\n"
+	}
 	return ioutil.WriteFile(filePath, []byte(content), 0600)
 }
 
@@ -73,7 +76,7 @@ func UpdateKeyValueInFile(file, key, value string) error {
 		return fmt.Errorf("no occurrence of %s found in %s", key, file)
 	}
 	output := strings.Join(lines, "\n")
-	return WriteFile(file, output)
+	return WriteTextFile(file, output)
 }
 
 // GetMD5Hash generates an MD5 digest of the given string

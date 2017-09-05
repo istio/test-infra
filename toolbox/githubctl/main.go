@@ -24,14 +24,15 @@ import (
 )
 
 var (
-	owner       = flag.String("owner", "istio", "Github owner or org")
-	tokenFile   = flag.String("token_file", "", "File containing Github API Access Token")
-	op          = flag.String("op", "", "Operation to be performed")
-	repo        = flag.String("repo", "", "Repository to which op is applied")
-	baseBranch  = flag.String("base_branch", "", "Branch to which op is applied")
-	refSHA      = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
-	nextRelease = flag.String("next_release", "", "Tag of the next release")
-	githubClnt  *u.GithubClient
+	owner                = flag.String("owner", "istio", "Github owner or org")
+	tokenFile            = flag.String("token_file", "", "File containing Github API Access Token")
+	op                   = flag.String("op", "", "Operation to be performed")
+	repo                 = flag.String("repo", "", "Repository to which op is applied")
+	baseBranch           = flag.String("base_branch", "", "Branch to which op is applied")
+	refSHA               = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
+	nextRelease          = flag.String("next_release", "", "Tag of the next release")
+	updateDownloadScript = flag.Bool("update_download_script", false, "Have download script point to latest version")
+	githubClnt           *u.GithubClient
 )
 
 const (
@@ -194,6 +195,7 @@ func CreateIstioReleaseUploadArtifacts() error {
 		return err
 	}
 	releaseBranch := "finalizeRelease-" + releaseTag
+	prBody := fmt.Sprintf("Finalize release %s on istio", releaseTag)
 	edit := func() error {
 		if _, err := u.Shell(
 			"./release/create_release_archives.sh -d " + releaseBaseDir); err != nil {
@@ -204,16 +206,18 @@ func CreateIstioReleaseUploadArtifacts() error {
 			istioRepo, releaseTag, archiveDir); err != nil {
 			return err
 		}
-		if err := u.WriteFile(releaseTagFile, *nextRelease+"\n"); err != nil {
+		if err := u.WriteTextFile(releaseTagFile, *nextRelease); err != nil {
 			return err
 		}
-		return u.UpdateKeyValueInFile(
-			downloadScript, "ISTIO_VERSION", releaseTag)
+		if *updateDownloadScript {
+			log.Printf("Updating download script with latest release")
+			return u.UpdateKeyValueInFile(
+				downloadScript, "ISTIO_VERSION", releaseTag)
+		}
+		return nil
 	}
-	body := fmt.Sprintf(
-		"Create release %s on istio, update next release tag and download scrpit", releaseTag)
-	prTitle := releasePRTtilePrefix + body
-	return cloneIstioMakePR(releaseBranch, prTitle, body, edit)
+	prTitle := releasePRTtilePrefix + prBody
+	return cloneIstioMakePR(releaseBranch, prTitle, prBody, edit)
 }
 
 func init() {
