@@ -52,6 +52,7 @@ presubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
+        - "--timeout=20"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -110,6 +111,7 @@ presubmits:
          args:
          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
          - "--clean"
+         - "--timeout=10"
          # Bazel needs privileged mode in order to sandbox builds.
          securityContext:
            privileged: true
@@ -164,6 +166,7 @@ presubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
+        - "--timeout=15"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -214,6 +217,7 @@ presubmits:
           args:
           - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
           - "--clean"
+          - "--timeout=60"
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
@@ -263,6 +267,7 @@ presubmits:
           args:
           - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
           - "--clean"
+          - "--timeout=60"
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
@@ -316,6 +321,7 @@ presubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
+        - "--timeout=20"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -371,6 +377,7 @@ presubmits:
           args:
           - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
           - "--clean"
+          - "--timeout=60"
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
@@ -424,6 +431,7 @@ presubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
+        - "--timeout=20"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -473,6 +481,7 @@ presubmits:
           args:
           - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
           - "--clean"
+          - "--timeout=60"
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
@@ -520,6 +529,7 @@ presubmits:
           args:
           - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
           - "--clean"
+          - "--timeout=20"
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
@@ -578,6 +588,7 @@ presubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
+        - "--timeout=20"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -623,6 +634,7 @@ postsubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
+        - "--timeout=20"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -683,6 +695,7 @@ postsubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
+        - "--timeout=20"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -738,6 +751,7 @@ postsubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
+        - "--timeout=30"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -793,6 +807,7 @@ postsubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
+        - "--timeout=40"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -852,6 +867,7 @@ periodics:
       args:
       - "--repo=github.com/istio/test-infra=master"
       - "--clean"
+      - "--timeout=20"
       env:
       - name: GOOGLE_APPLICATION_CREDENTIALS
         value: /etc/service-account/service-account.json
@@ -880,6 +896,7 @@ periodics:
       args:
       - "--repo=github.com/istio/test-infra=master"
       - "--clean"
+      - "--timeout=20"
       env:
       - name: GOOGLE_APPLICATION_CREDENTIALS
         value: /etc/service-account/service-account.json
@@ -908,6 +925,7 @@ periodics:
       args:
       - "--repo=github.com/istio/test-infra=master"
       - "--clean"
+      - "--timeout=20"
       env:
       - name: GOOGLE_APPLICATION_CREDENTIALS
         value: /etc/service-account/service-account.json
