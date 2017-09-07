@@ -209,56 +209,6 @@ presubmits:
         hostPath:
           path: /mnt/disks/ssd0
     run_after_success:
-    - name: e2e-suite-no_rbac-no_auth
-      agent: kubernetes
-      context: prow/e2e-suite-no_rbac-no_auth.sh
-      rerun_command: "/test e2e-suite-no_rbac-no_auth"
-      trigger: "(?m)^/test (e2e-suite|e2e-suite-no_rbac-no_auth)?,?(\\s+|$)"
-      branches:
-      - master
-      spec:
-        containers:
-        - image: gcr.io/istio-testing/prowbazel:0.2.1
-          args:
-          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
-          - "--clean"
-          - "--timeout=60"
-          # Bazel needs privileged mode in order to sandbox builds.
-          securityContext:
-            privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-          - name: e2e-testing-kubeconfig
-            mountPath: /home/bootstrap/.kube
-          - name: cache-ssd
-            mountPath: /home/bootstrap/.cache
-          ports:
-          - containerPort: 9999
-            hostPort: 9998
-          resources:
-            requests:
-              memory: "512Mi"
-              cpu: "500m"
-            limits:
-              memory: "20Gi"
-              cpu: "5000m"
-        nodeSelector:
-          cloud.google.com/gke-nodepool: build-pool
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
-        - name: e2e-testing-kubeconfig
-          secret:
-            secretName: e2e-testing-kubeconfig
-        - name: cache-ssd
-          hostPath:
-            path: /mnt/disks/ssd0
     - name: e2e-suite-rbac-no_auth
       agent: kubernetes
       context: prow/e2e-suite-rbac-no_auth.sh
@@ -489,7 +439,7 @@ presubmits:
           - name: service
             mountPath: /etc/service-account
             readOnly: true
-          - name: e2e-testing-kubeconfig
+          - name: mixer-e2e-rbac-kubeconfig
             mountPath: /home/bootstrap/.kube
           - name: cache-ssd
             mountPath: /home/bootstrap/.cache
@@ -509,9 +459,9 @@ presubmits:
         - name: service
           secret:
             secretName: service-account
-        - name: e2e-testing-kubeconfig
+        - name: mixer-e2e-rbac-kubeconfig
           secret:
-            secretName: e2e-testing-kubeconfig
+            secretName: mixer-e2e-rbac-kubeconfig
         - name: cache-ssd
           hostPath:
             path: /mnt/disks/ssd0
