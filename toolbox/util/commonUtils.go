@@ -61,7 +61,7 @@ func ContainsString(slice []string, target string) bool {
 }
 
 // UpdateKeyValueInFile updates in the file all occurrences of key to
-// a new value. A key-value pair is defined as `key="value"` or `key = "value"`
+// a new value.
 func UpdateKeyValueInFile(file, key, value string) error {
 	replaceValue := func(line *string, splitter string) {
 		idx := len(key + splitter)
