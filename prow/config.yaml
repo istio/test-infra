@@ -543,7 +543,7 @@ presubmits:
           - name: service
             mountPath: /etc/service-account
             readOnly: true
-          - name: pilot-e2e-rbac-kubeconfig
+          - name: e2e-testing-kubeconfig
             mountPath: /home/bootstrap/.kube
           - name: cache-ssd
             mountPath: /home/bootstrap/.cache
@@ -563,9 +563,9 @@ presubmits:
         - name: service
           secret:
             secretName: service-account
-        - name: pilot-e2e-rbac-kubeconfig
+        - name: e2e-testing-kubeconfig
           secret:
-            secretName: pilot-e2e-rbac-kubeconfig
+            secretName: e2e-testing-kubeconfig
         - name: cache-ssd
           hostPath:
             path: /mnt/disks/ssd0
