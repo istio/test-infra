@@ -64,7 +64,7 @@ func ContainsString(slice []string, target string) bool {
 // a new value.
 func UpdateKeyValueInFile(file, key, value string) error {
 	replaceValue := func(line *string, splitter string) {
-		idx := len(key + splitter)
+		idx := strings.Index(*line, splitter) + len(splitter)
 		if (*line)[idx] == '"' {
 			*line = (*line)[:idx] + "\"" + value + "\""
 		} else {
