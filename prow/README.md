@@ -159,7 +159,7 @@ This repository (istio/test-infra) also provides Prow jobs.
 ### Manually Trigger a Prow Job
 
 
-> **Never do this unless necessary AND you are authorized by istio EngProd team (istio-engprod@google.com)**
+> **Never do this unless necessary AND you are authorized by istio EngProd team (istio.slack.com test-infra channel)**
 
 
 Connect to Prow cluster and then:
