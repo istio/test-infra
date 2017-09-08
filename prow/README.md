@@ -180,7 +180,3 @@ Prow should respone:
 ```
 prowjob "e810668f-9435-11e7-9a4d-784f43915c4d" created
 ```
-
-
-
-##
