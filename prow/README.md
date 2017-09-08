@@ -155,3 +155,32 @@ $ chmod +x prow/my-presubmit.sh
 This repository (istio/test-infra) also provides Prow jobs.
 
 - `test-infra-presubmit` - run the linting and testing
+
+### Manually Trigger a Prow Job
+
+
+> **Never do this unless necessary AND you are authorized by istio EngProd team (istio-engprod@google.com)**
+
+
+Connect to Prow cluster and then:
+```bash
+$ git clone https://github.com/kubernetes/test-infra
+$ bazel build //prow/cmd/mkpj   
+$ bazel-bin/prow/cmd/mkpj/mkpj --config-path ~/istio/test-infra/prow/config.yaml --job test-infra-presubmit | kubectl create -f -
+```
+And give the required information:
+```
+Base ref (e.g. master): master
+Base SHA (e.g. 72bcb5d80): 6419408170738a60cf04f963e4ae139028bf0b5b
+PR Number: 465                                     
+PR author: yutongz
+PR SHA (e.g. 72bcb5d80): d7e1ef38cf294de11062a6760d073827585af219
+```
+Prow should respone:
+```
+prowjob "e810668f-9435-11e7-9a4d-784f43915c4d" created
+```
+
+
+
+##
