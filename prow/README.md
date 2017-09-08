@@ -165,9 +165,13 @@ This repository (istio/test-infra) also provides Prow jobs.
 Connect to Prow cluster and then:
 ```bash
 $ git clone https://github.com/kubernetes/test-infra
-$ bazel build //prow/cmd/mkpj   
+$ bazel build //prow/cmd/mkpj
+```
+And then specify the script and the job you want to trigger:
+``` bash
 $ bazel-bin/prow/cmd/mkpj/mkpj --config-path ~/istio/test-infra/prow/config.yaml --job test-infra-presubmit | kubectl create -f -
 ```
+
 And give the required information:
 ```
 Base ref (e.g. master): master
