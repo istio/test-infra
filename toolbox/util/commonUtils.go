@@ -24,6 +24,14 @@ import (
 	"strings"
 )
 
+var (
+	kvSplitters = []string{
+		" = ",
+		"=",
+		":",
+	}
+)
+
 // ReadFile reads the file on the given path and
 // returns its content as a string
 func ReadFile(filePath string) (string, error) {
@@ -53,11 +61,15 @@ func ContainsString(slice []string, target string) bool {
 }
 
 // UpdateKeyValueInFile updates in the file all occurrences of key to
-// a new value. A key-value pair is defined as `key="value"` or `key = "value"`
+// a new value.
 func UpdateKeyValueInFile(file, key, value string) error {
-	replaceValue := func(line *string, value string) {
-		idx := strings.Index(*line, "\"")
-		*line = (*line)[:idx] + "\"" + value + "\""
+	replaceValue := func(line *string, splitter string) {
+		idx := strings.Index(*line, splitter) + len(splitter)
+		if (*line)[idx] == '"' {
+			*line = (*line)[:idx] + "\"" + value + "\""
+		} else {
+			*line = (*line)[:idx] + value
+		}
 	}
 
 	input, err := ReadFile(file)
@@ -67,9 +79,11 @@ func UpdateKeyValueInFile(file, key, value string) error {
 	lines := strings.Split(input, "\n")
 	found := false
 	for i, line := range lines {
-		if strings.Contains(line, key+" = ") || strings.Contains(line, key+"=") {
-			replaceValue(&lines[i], value)
-			found = true
+		for _, splitter := range kvSplitters {
+			if strings.Contains(line, key+splitter) {
+				replaceValue(&lines[i], splitter)
+				found = true
+			}
 		}
 	}
 	if !found {
