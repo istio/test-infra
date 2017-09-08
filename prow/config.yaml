@@ -309,6 +309,52 @@ presubmits:
         - name: cache-ssd
           hostPath:
             path: /mnt/disks/ssd0
+    - name: new-e2e-rbac_no_auth
+      agent: kubernetes
+      context: prow/new-e2e-rbac_no_auth.sh
+      rerun_command: "/test new-e2e-rbac_no_auth"
+      trigger: "(?m)^/test (e2e-suite|new-e2e-rbac_no_auth)?,?(\\s+|$)"
+      branches:
+      - master
+      skip_report: true
+      spec:
+        containers:
+        - image: gcr.io/istio-testing/prowbazel:0.2.1
+          args:
+          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+          - "--clean"
+          - "--timeout=60"
+          # Bazel needs privileged mode in order to sandbox builds.
+          securityContext:
+            privileged: true
+          env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /etc/service-account/service-account.json
+          volumeMounts:
+          - name: service
+            mountPath: /etc/service-account
+            readOnly: true
+          - name: cache-ssd
+            mountPath: /home/bootstrap/.cache
+          ports:
+          - containerPort: 9999
+            hostPort: 9998
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "20Gi"
+              cpu: "5000m"
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
+        volumes:
+        - name: service
+          secret:
+            secretName: service-account
+        - name: cache-ssd
+          hostPath:
+            path: /mnt/disks/ssd0            
 
   istio/mixer:
   - name: mixer-presubmit
