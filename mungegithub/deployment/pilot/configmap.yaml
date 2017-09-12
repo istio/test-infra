@@ -1,7 +1,7 @@
 # basic config options.
 http-cache-dir: /cache/httpcache
 organization: istio
-project: test-infra
+project: pilot
 pr-mungers: lgtm-after-commit,submit-queue,needs-rebase,release-note-label,approval-handler
 state: open
 token-file: /etc/secret-volume/token
@@ -10,9 +10,13 @@ repo-dir: /gitrepos
 github-key-file: /etc/hook-secret-volume/secret
 
 # status context options.
-required-contexts: "prow/test-infra-presubmit.sh"
+required-contexts: "\
+  prow/pilot-presubmit.sh,\
+  prow/pilot-e2e-smoketest.sh"
 protected-branches-extra-contexts: ""
-required-retest-contexts: "prow/test-infra-presubmit.sh"
+required-retest-contexts: "\
+  prow/pilot-presubmit.sh,\
+  prow/pilot-e2e-smoketest.sh"
 
 # submit-queue options.
 protected-branches: ""
