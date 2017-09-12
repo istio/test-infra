@@ -170,7 +170,7 @@ func (g GithubClient) ClosePRDeleteBranch(repo string, pr *github.PullRequest) e
 	}
 	if prBranchExists {
 		ref := fmt.Sprintf("refs/heads/%s", *pr.Head.Ref)
-		log.Printf("Deleting branch %s", prName, prBranch)
+		log.Printf("Deleting branch %s", prBranch)
 		if _, err := g.client.Git.DeleteRef(context.Background(), g.owner, repo, ref); err != nil {
 			log.Printf("Failed to delete branch %s in repo %s", *pr.Head.Ref, repo)
 			return err
