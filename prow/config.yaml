@@ -316,7 +316,6 @@ presubmits:
       trigger: "(?m)^/test (e2e-suite|new-e2e-rbac_no_auth)?,?(\\s+|$)"
       branches:
       - master
-      skip_report: true
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.2.1
@@ -916,7 +915,7 @@ postsubmits:
 periodics:
 - interval: 2h
   agent: kubernetes
-  name: test-infra-cleanup-cluster
+  name: pilot-e2e-cluster-cleanup
   spec:
     containers:
     - image: gcr.io/istio-testing/prowbazel:0.1.7
@@ -931,7 +930,7 @@ periodics:
       - name: service
         mountPath: /etc/service-account
         readOnly: true
-      - name: e2e-testing-kubeconfig
+      - name: pilot-e2e-rbac-kubeconfig
         mountPath: /home/bootstrap/.kube
     nodeSelector:
       cloud.google.com/gke-nodepool: build-pool
@@ -939,13 +938,43 @@ periodics:
     - name: service
       secret:
         secretName: service-account
-    - name: e2e-testing-kubeconfig
+    - name: pilot-e2e-rbac-kubeconfig
       secret:
-        secretName: e2e-testing-kubeconfig
+        secretName: pilot-e2e-rbac-kubeconfig
+
+periodics:
+- interval: 2h
+  agent: kubernetes
+  name: mixer-e2e-cluster-cleanup
+  spec:
+    containers:
+    - image: gcr.io/istio-testing/prowbazel:0.1.7
+      args:
+      - "--repo=github.com/istio/test-infra=master"
+      - "--clean"
+      - "--timeout=20"
+      env:
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/service-account/service-account.json
+      volumeMounts:
+      - name: service
+        mountPath: /etc/service-account
+        readOnly: true
+      - name: mixer-e2e-rbac-kubeconfig
+        mountPath: /home/bootstrap/.kube
+    nodeSelector:
+      cloud.google.com/gke-nodepool: build-pool
+    volumes:
+    - name: service
+      secret:
+        secretName: service-account
+    - name: mixer-e2e-rbac-kubeconfig
+      secret:
+        secretName: mixer-e2e-rbac-kubeconfig
 
 - interval: 2h
   agent: kubernetes
-  name: test-infra-cleanup-cluster
+  name: istio-e2e-cluster-cleanup
   spec:
     containers:
     - image: gcr.io/istio-testing/prowbazel:0.1.7
