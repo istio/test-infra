@@ -3,7 +3,7 @@
   
   Checkout kubernetes/test-infra repo. 
   
-  >Don't deploy directly from head unless you understand what major new features
+  >Don't build directly from kubernetes/test-infra master unless you understand what major new features
   are involved. Currently version is built from github.com/yutongz/k8s-test-infra/tree/master
   
   On repo root directory
@@ -24,7 +24,7 @@
   
 * Re-deploy Submit Queue instence
 
-  * In deployment.yaml, replace the `image` with the image we just uploaded.
+  * In deployment.yaml, replace the `image: xxxxx` with the image we just uploaded.
   
   * Replace "test-infra" with the repo you are trying to deploy
   
@@ -38,10 +38,10 @@
 
 We are using one basic load-balancer for each Submit Queue.
 
-Auth: http://35.197.10.29:8080
-Istio: http://35.197.104.17:8080
-Mixer: http://35.197.95.47:8080
-Pilot: http://35.199.174.118:8080 (Current disabled)
+* Auth: http://35.197.10.29:8080
+* Istio: http://35.197.104.17:8080
+* Mixer: http://35.197.95.47:8080
+* Pilot: http://35.199.174.118:8080 (Current disabled)
 
 
 ## Maintain Submit Queue
@@ -65,7 +65,7 @@ $ kubectl create configmap istio-sq-config --from-file=mungegithub/deployment/is
 $ kubectl delete deployment istio-submit-queue
 ```
 
-* "lgtm" is always required but "approve" is configurable
+* Enable/disable "approve" gating
 
   Change `gate-approved`.
 
