@@ -385,9 +385,6 @@ presubmits:
           readOnly: true
         - name: e2e-testing-kubeconfig
           mountPath: /home/bootstrap/.kube
-        - name: mixer-codecov-token
-          mountPath: /etc/codecov
-          readOnly: true
         - name: cache-ssd
           mountPath: /home/bootstrap/.cache
         ports:
@@ -409,13 +406,63 @@ presubmits:
       - name: e2e-testing-kubeconfig
         secret:
           secretName: e2e-testing-kubeconfig
-      - name: mixer-codecov-token
-        secret:
-          secretName: mixer-codecov-token
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
     run_after_success:
+    - name: mixer-presubmit
+      agent: kubernetes
+      context: prow/mixer-coverage.sh
+      always_run: true
+      rerun_command: "/test mixer-coverage"
+      trigger: "(?m)^/test mixer-coverage?,?(\\s+|$)"
+      branches:
+      - master
+      - release-0.1
+      spec:
+        containers:
+        - image: gcr.io/istio-testing/prowbazel:0.2.1
+          args:
+          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+          - "--clean"
+          - "--timeout=40"
+          # Bazel needs privileged mode in order to sandbox builds.
+          securityContext:
+            privileged: true
+          env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /etc/service-account/service-account.json
+          volumeMounts:
+          - name: service
+            mountPath: /etc/service-account
+            readOnly: true
+          - name: mixer-codecov-token
+            mountPath: /etc/codecov
+            readOnly: true
+          - name: cache-ssd
+            mountPath: /home/bootstrap/.cache
+          ports:
+          - containerPort: 9999
+            hostPort: 9998
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "20Gi"
+              cpu: "5000m"
+        nodeSelector:
+          cloud.google.com/gke-nodepool: build-pool
+        volumes:
+        - name: service
+          secret:
+            secretName: service-account
+        - name: mixer-codecov-token
+          secret:
+            secretName: mixer-codecov-token
+        - name: cache-ssd
+          hostPath:
+            path: /mnt/disks/ssd0
     - name: mixer-e2e-smoketest
       agent: kubernetes
       context: prow/mixer-e2e-smoketest.sh
