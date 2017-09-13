@@ -41,7 +41,7 @@ kubectl get ns -o json > "${NS_JSON}"
 kubectl get clusterrolebindings -o json > "${ROLE_JSON}"
 
 function filter_items() {
-python - <<EOF ${1} ${2} ${3} ${4}
+python - <<EOF "${@}"
 
 import sys
 import datetime
@@ -64,10 +64,8 @@ for i in result['items']:
   ts = i['metadata']['creationTimestamp']
   skip = False
 
-  for f in filters:
-    if item.startswith(f):
-      skip = True
-      break
+  if item in filters:
+    skip = True
 
   for s in startswith:
     if not item.startswith(s):
@@ -85,8 +83,8 @@ EOF
 
 }
 
-NAMESPACES=$(filter_items "${NS_JSON}" ${HOURS_OLD} "${PROTECTED_NS}" "''")
-ROLES=$(filter_items "${ROLE_JSON}" ${HOURS_OLD} "''" "${ROLE_STARTSWITH}")
+NAMESPACES=$(filter_items ${NS_JSON} ${HOURS_OLD} ${PROTECTED_NS} '')
+ROLES=$(filter_items ${ROLE_JSON} ${HOURS_OLD} '' ${ROLE_STARTSWITH})
 
 if [[ -n "${NAMESPACES}" ]]; then
   echo "${NAMESPACES}" | xargs kubectl delete ns
