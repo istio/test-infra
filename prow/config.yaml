@@ -695,8 +695,6 @@ postsubmits:
         - name: auth-codecov-token
           mountPath: /etc/codecov
           readOnly: true
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
         - name: oauth
           mountPath: /etc/github
           readOnly: true
@@ -722,9 +720,6 @@ postsubmits:
       - name: auth-codecov-token
         secret:
           secretName: auth-codecov-token
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
       - name: oauth
         secret:
           secretName: oauth-token
@@ -756,8 +751,6 @@ postsubmits:
           readOnly: true
         - name: e2e-testing-kubeconfig
           mountPath: /home/bootstrap/.kube
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
         - name: oauth
           mountPath: /etc/github
           readOnly: true
@@ -783,9 +776,6 @@ postsubmits:
       - name: e2e-testing-kubeconfig
         secret:
           secretName: e2e-testing-kubeconfig
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
       - name: oauth
         secret:
           secretName: oauth-token
@@ -815,8 +805,6 @@ postsubmits:
         - name: mixer-codecov-token
           mountPath: /etc/codecov
           readOnly: true
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
         - name: oauth
           mountPath: /etc/github
           readOnly: true
@@ -839,9 +827,6 @@ postsubmits:
       - name: mixer-codecov-token
         secret:
           secretName: mixer-codecov-token
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
       - name: oauth
         secret:
           secretName: oauth-token
@@ -873,8 +858,6 @@ postsubmits:
         - name: pilot-codecov-token
           mountPath: /etc/codecov
           readOnly: true
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
         - name: oauth
           mountPath: /etc/github
           readOnly: true
@@ -900,9 +883,6 @@ postsubmits:
       - name: pilot-codecov-token
         secret:
           secretName: pilot-codecov-token
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
       - name: oauth
         secret:
           secretName: oauth-token
