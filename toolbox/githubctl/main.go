@@ -44,7 +44,7 @@ const (
 	masterBranch         = "master"
 	export               = "export "
 	dockerHub            = "docker.io/istio"
-	releaseBaseDir       = "tmp/release"
+	releaseBaseDir       = "/tmp/release"
 	releasePRTtilePrefix = "[Auto Release] "
 	releasePRBody        = "Update istio.VERSION and downloadIstio.sh"
 	releaseBucketFmtStr  = "https://storage.googleapis.com/istio-release/releases/%s/istioctl"
