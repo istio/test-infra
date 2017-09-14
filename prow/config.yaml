@@ -638,6 +638,8 @@ presubmits:
           - name: service
             mountPath: /etc/service-account
             readOnly: true
+          - name: pilot-e2e-rbac-kubeconfig
+            mountPath: /home/bootstrap/.kube
           - name: pilot-codecov-token
             mountPath: /etc/codecov
             readOnly: true
@@ -659,6 +661,9 @@ presubmits:
         - name: service
           secret:
             secretName: service-account
+        - name: pilot-e2e-rbac-kubeconfig
+          secret:
+            secretName: pilot-e2e-rbac-kubeconfig
         - name: pilot-codecov-token
           secret:
             secretName: pilot-codecov-token
