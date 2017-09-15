@@ -20,6 +20,8 @@ We run the k8s-prow images. These images are built from source [here](https://gi
 
 #### Upgrading Prow
 
+Please check Prow cnnouncements before starting an upgrade (https://github.com/kubernetes/test-infra/tree/master/prow#announcements)
+
 It is a good idea to take a quick glance at the [Kubernetes Prow config](https://github.com/kubernetes/test-infra/blob/master/prow/config.yaml)
 if you see anything new that looks backward incompatible.
 There should be no breaking changes, but at the time of this writing (Aug. ‘17) the project is still somewhat in flux
