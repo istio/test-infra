@@ -38,7 +38,7 @@ const (
 	dependencyUpdateLabel = "dependency-update"
 
 	// CI Artifacts URLs
-	istioArtifcatsURl = "https://storage.googleapis.com/istio-artifacts/%s/%s/artifacts"
+	istioArtifcatsURL = "https://storage.googleapis.com/istio-artifacts/%s/%s/artifacts"
 	istioctlSuffix    = "istioctl"
 	debianSuffix      = "debs"
 
@@ -75,9 +75,9 @@ func updateDepSHAGetFingerPrint(repo string, deps *[]u.Dependency) (string, []u.
 	return u.GetMD5Hash(digest), depChangeList, nil
 }
 
-func generateArtifactURL(repo, ref, t string) string {
-	baseUrl := fmt.Sprintf(istioArtifcatsURl, repo, ref)
-	return fmt.Sprintf("%s/%s", baseUrl, t)
+func generateArtifactURL(repo, ref, suffix string) string {
+	baseUrl := fmt.Sprintf(istioArtifcatsURL, repo, ref)
+	return fmt.Sprintf("%s/%s", baseUrl, suffix)
 }
 
 // Updates the list of dependencies in repo to the latest stable references
@@ -98,13 +98,13 @@ func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency
 		case pilotRepo:
 			istioctlURL := generateArtifactURL(pilotRepo, updatedDep.LastStableSHA, istioctlSuffix)
 			debianUrl := generateArtifactURL(pilotRepo, updatedDep.LastStableSHA, debianSuffix)
-			args += fmt.Sprintf("-p %s,%s -i %s -P %s", *hub, updatedDep.LastStableSHA, istioctlURL, debianUrl)
+			args += fmt.Sprintf("-p %s,%s -i %s -P %s ", *hub, updatedDep.LastStableSHA, istioctlURL, debianUrl)
 		case authRepo:
 			debianUrl := generateArtifactURL(authRepo, updatedDep.LastStableSHA, debianSuffix)
-			args += fmt.Sprintf("-c %s,%s -A %s", *hub, updatedDep.LastStableSHA, debianUrl)
+			args += fmt.Sprintf("-c %s,%s -A %s ", *hub, updatedDep.LastStableSHA, debianUrl)
 		case proxyRepo:
 			debianUrl := generateArtifactURL(proxyRepo, updatedDep.LastStableSHA, debianSuffix)
-			args += fmt.Sprintf("-c %s,%s -E %s", *hub, updatedDep.LastStableSHA, debianUrl)
+			args += fmt.Sprintf("-c %s,%s -E %s ", *hub, updatedDep.LastStableSHA, debianUrl)
 		default:
 			return fmt.Errorf("unknown dependency: %s", updatedDep.Name)
 		}
