@@ -36,6 +36,17 @@ const (
 	prTitlePrefix         = "[DO NOT MERGE] Auto PR to update dependencies of "
 	prBody                = "This PR will be merged automatically once checks are successful."
 	dependencyUpdateLabel = "dependency-update"
+
+	// CI Artifacts URLs
+	istioArtifcatsURl = "https://storage.googleapis.com/istio-artifacts/%s/%s/artifacts"
+	istioctlSuffix    = "istioctl"
+	debianSuffix      = "debs"
+
+	// Repos
+	pilotRepo = "pilot"
+	authRepo  = "auth"
+	mixerRepo = "mixer"
+	proxyRepo = "proxy"
 )
 
 // Updates dependency objects in :deps to the latest stable version.
@@ -64,6 +75,11 @@ func updateDepSHAGetFingerPrint(repo string, deps *[]u.Dependency) (string, []u.
 	return u.GetMD5Hash(digest), depChangeList, nil
 }
 
+func generateArtifactURL(repo, ref, t string) string {
+	baseUrl := fmt.Sprintf(istioArtifcatsURl, repo, ref)
+	return fmt.Sprintf("%s/%s", baseUrl, t)
+}
+
 // Updates the list of dependencies in repo to the latest stable references
 func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency) error {
 	if repo != "istio" {
@@ -77,15 +93,18 @@ func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency
 	args := ""
 	for _, updatedDep := range *depChangeList {
 		switch updatedDep.RepoName {
-		case "mixer":
+		case mixerRepo:
 			args += fmt.Sprintf("-x %s,%s ", *hub, updatedDep.LastStableSHA)
-		case "pilot":
-			istioctlURL := fmt.Sprintf(
-				"https://storage.googleapis.com/istio-artifacts/pilot/%s/artifacts/istioctl",
-				updatedDep.LastStableSHA)
-			args += fmt.Sprintf("-p %s,%s -i %s ", *hub, updatedDep.LastStableSHA, istioctlURL)
-		case "auth":
-			args += fmt.Sprintf("-c %s,%s ", *hub, updatedDep.LastStableSHA)
+		case pilotRepo:
+			istioctlURL := generateArtifactURL(pilotRepo, updatedDep.LastStableSHA, istioctlSuffix)
+			debianUrl := generateArtifactURL(pilotRepo, updatedDep.LastStableSHA, debianSuffix)
+			args += fmt.Sprintf("-p %s,%s -i %s -P %s", *hub, updatedDep.LastStableSHA, istioctlURL, debianUrl)
+		case authRepo:
+			debianUrl := generateArtifactURL(authRepo, updatedDep.LastStableSHA, debianSuffix)
+			args += fmt.Sprintf("-c %s,%s -A %s", *hub, updatedDep.LastStableSHA, debianUrl)
+		case proxyRepo:
+			debianUrl := generateArtifactURL(proxyRepo, updatedDep.LastStableSHA, debianSuffix)
+			args += fmt.Sprintf("-c %s,%s -E %s", *hub, updatedDep.LastStableSHA, debianUrl)
 		default:
 			return fmt.Errorf("unknown dependency: %s", updatedDep.Name)
 		}
