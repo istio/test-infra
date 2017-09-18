@@ -76,8 +76,8 @@ func updateDepSHAGetFingerPrint(repo string, deps *[]u.Dependency) (string, []u.
 }
 
 func generateArtifactURL(repo, ref, suffix string) string {
-	baseUrl := fmt.Sprintf(istioArtifcatsURL, repo, ref)
-	return fmt.Sprintf("%s/%s", baseUrl, suffix)
+	baseURL := fmt.Sprintf(istioArtifcatsURL, repo, ref)
+	return fmt.Sprintf("%s/%s", baseURL, suffix)
 }
 
 // Updates the list of dependencies in repo to the latest stable references
@@ -97,14 +97,14 @@ func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency
 			args += fmt.Sprintf("-x %s,%s ", *hub, updatedDep.LastStableSHA)
 		case pilotRepo:
 			istioctlURL := generateArtifactURL(pilotRepo, updatedDep.LastStableSHA, istioctlSuffix)
-			debianUrl := generateArtifactURL(pilotRepo, updatedDep.LastStableSHA, debianSuffix)
-			args += fmt.Sprintf("-p %s,%s -i %s -P %s ", *hub, updatedDep.LastStableSHA, istioctlURL, debianUrl)
+			debianURL := generateArtifactURL(pilotRepo, updatedDep.LastStableSHA, debianSuffix)
+			args += fmt.Sprintf("-p %s,%s -i %s -P %s ", *hub, updatedDep.LastStableSHA, istioctlURL, debianURL)
 		case authRepo:
-			debianUrl := generateArtifactURL(authRepo, updatedDep.LastStableSHA, debianSuffix)
-			args += fmt.Sprintf("-c %s,%s -A %s ", *hub, updatedDep.LastStableSHA, debianUrl)
+			debianURL := generateArtifactURL(authRepo, updatedDep.LastStableSHA, debianSuffix)
+			args += fmt.Sprintf("-c %s,%s -A %s ", *hub, updatedDep.LastStableSHA, debianURL)
 		case proxyRepo:
-			debianUrl := generateArtifactURL(proxyRepo, updatedDep.LastStableSHA, debianSuffix)
-			args += fmt.Sprintf("-c %s,%s -E %s ", *hub, updatedDep.LastStableSHA, debianUrl)
+			debianURL := generateArtifactURL(proxyRepo, updatedDep.LastStableSHA, debianSuffix)
+			args += fmt.Sprintf("-c %s,%s -E %s ", *hub, updatedDep.LastStableSHA, debianURL)
 		default:
 			return fmt.Errorf("unknown dependency: %s", updatedDep.Name)
 		}
