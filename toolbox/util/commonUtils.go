@@ -15,6 +15,7 @@
 package util
 
 import (
+	"bytes"
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
@@ -22,6 +23,7 @@ import (
 	"log"
 	"os/exec"
 	"strings"
+	"text/template"
 )
 
 var (
@@ -124,4 +126,18 @@ func sh(format string, muted bool, args ...interface{}) (string, error) {
 		return "", fmt.Errorf("command failed: %q %v", string(bytes), err)
 	}
 	return string(bytes), nil
+}
+
+// FillUpTemplate fills up a template from the provided interface
+func FillUpTemplate(t string, i interface{}) (string, error) {
+	tmpl, err := template.New("tmpl").Parse(t)
+	if err != nil {
+		return "", err
+	}
+	wr := bytes.NewBufferString("")
+	if err := tmpl.Execute(wr, i); err != nil {
+		return "", err
+	} else {
+		return wr.String(), nil
+	}
 }
