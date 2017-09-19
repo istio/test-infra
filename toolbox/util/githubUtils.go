@@ -125,6 +125,6 @@ func CreateCommitPushToRemote(branch, commitMsg string) error {
 	if _, err := Shell("git commit -am " + commitMsg); err != nil {
 		return err
 	}
-	_, err := Shell("git push --set-upstream origin " + branch)
+	_, err := Shell("git push -f --set-upstream origin " + branch)
 	return err
 }
