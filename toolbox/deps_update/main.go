@@ -104,7 +104,7 @@ func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency
 			args += fmt.Sprintf("-c %s,%s -A %s ", *hub, updatedDep.LastStableSHA, debianURL)
 		case proxyRepo:
 			debianURL := generateArtifactURL(proxyRepo, updatedDep.LastStableSHA, debianSuffix)
-			args += fmt.Sprintf("-c %s,%s -E %s ", *hub, updatedDep.LastStableSHA, debianURL)
+			args += fmt.Sprintf("-E %s ", debianURL)
 		default:
 			return fmt.Errorf("unknown dependency: %s", updatedDep.Name)
 		}
