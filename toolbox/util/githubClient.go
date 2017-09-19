@@ -33,7 +33,11 @@ var (
 )
 
 const (
-	maxCommitDistance = 200
+	maxCommitDistance   = 200
+	releaseBodyTemplate = `
+[ARTIFACTS](http://gcsweb.istio.io/gcs/istio-release/releases/{{.ReleaseTag}}/)
+
+[RELEASE NOTES](https://github.com/istio/istio/wiki/({{.ReleaseTag}})`
 )
 
 // GithubClient masks RPCs to github as local procedures
@@ -330,6 +334,14 @@ func (g GithubClient) CreateAnnotatedTag(repo, tag, sha, msg string) error {
 func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, archiveDir string) error {
 	// create release
 	release := github.RepositoryRelease{TagName: &releaseTag}
+	// Setting release to pre release and draft such that it does not send an announcement.
+	*release.Draft = true
+	*release.Prerelease = true
+	if releaseBody, err := FillUpTemplate(releaseBodyTemplate, map[string]string{"ReleaseTag": releaseTag}); err != nil {
+		return err
+	} else {
+		*release.Body = releaseBody
+	}
 	log.Printf("Creating on github new %s release [%s]\n", repo, releaseTag)
 	res, _, err := g.client.Repositories.CreateRelease(
 		context.Background(), g.owner, repo, &release)
