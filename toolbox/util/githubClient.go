@@ -214,21 +214,6 @@ func (g GithubClient) ExistBranch(repo, branch string) (bool, error) {
 	return false, nil
 }
 
-// ExistTag checks if a given tag has already existed on remote repo
-func (g GithubClient) ExistTag(repo, tag string) (bool, error) {
-	tags, _, err := g.client.Repositories.ListTags(
-		context.Background(), g.owner, repo, nil)
-	if err != nil {
-		return false, err
-	}
-	for _, t := range tags {
-		if t.GetName() == tag {
-			return true, nil
-		}
-	}
-	return false, nil
-}
-
 // CloseIdlePullRequests checks all open PRs auto-created on baseBranch in repo,
 // closes the ones that have stayed open for a long time, and deletes the
 // remote branches from which the PRs are made
@@ -307,7 +292,7 @@ func (g GithubClient) GetFileContent(repo, branch, path string) (string, error) 
 	return fileContent.GetContent()
 }
 
-// CreateAnnotatedTag retrieves the file content from the hosted repo
+// CreateAnnotatedTag creates on the remote repo an annotated tag at given sha
 func (g GithubClient) CreateAnnotatedTag(repo, tag, sha, msg string) error {
 	if !SHARegex.MatchString(sha) {
 		return fmt.Errorf(
@@ -339,7 +324,19 @@ func (g GithubClient) CreateAnnotatedTag(repo, tag, sha, msg string) error {
 	_, _, err = g.client.Git.CreateRef(
 		context.Background(), g.owner, repo, &refObj)
 	if err != nil {
-		log.Printf("Failed to create reference with tag just created: %s", tag)
+		log.Printf("Failed to create reference with tag %s\n", tag)
+	}
+	return err
+}
+
+// DeleteAnnotatedTag deletes on the repo the annotated tag
+// assuming the tag already exists
+func (g GithubClient) DeleteAnnotatedTag(repo, tag string) error {
+	refString := "refs/tags/" + tag
+	_, err := g.client.Git.DeleteRef(
+		context.Background(), g.owner, repo, refString)
+	if err != nil {
+		log.Printf("Failed to delete the tag %s on repo %s\n", tag, repo)
 	}
 	return err
 }
@@ -361,7 +358,6 @@ func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, archiveDir s
 	} else {
 		release.Body = &releaseBody
 	}
-	*release.Body = releaseBody
 	log.Printf("Creating on github new %s release [%s]\n", repo, releaseTag)
 	res, _, err := g.client.Repositories.CreateRelease(
 		context.Background(), g.owner, repo, &release)
