@@ -214,6 +214,21 @@ func (g GithubClient) ExistBranch(repo, branch string) (bool, error) {
 	return false, nil
 }
 
+// ExistTag checks if a given tag has already existed on remote repo
+func (g GithubClient) ExistTag(repo, tag string) (bool, error) {
+	tags, _, err := g.client.Repositories.ListTags(
+		context.Background(), g.owner, repo, nil)
+	if err != nil {
+		return false, err
+	}
+	for _, t := range tags {
+		if t.GetName() == tag {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 // CloseIdlePullRequests checks all open PRs auto-created on baseBranch in repo,
 // closes the ones that have stayed open for a long time, and deletes the
 // remote branches from which the PRs are made
@@ -346,6 +361,7 @@ func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, archiveDir s
 	} else {
 		release.Body = &releaseBody
 	}
+	*release.Body = releaseBody
 	log.Printf("Creating on github new %s release [%s]\n", repo, releaseTag)
 	res, _, err := g.client.Repositories.CreateRelease(
 		context.Background(), g.owner, repo, &release)

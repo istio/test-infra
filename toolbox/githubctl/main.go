@@ -125,6 +125,13 @@ func TagIstioDepsForRelease() error {
 		if !exists {
 			return fmt.Errorf("ill-defined %s: unable to find %s", istioVersionFile, dep.Name)
 		}
+		if tagExists, err := g.ExistTag(dep.RepoName, releaseTag); err != nil {
+			log.Printf("Tailed to check if tag [%s] exists on repo %s\n", releaseTag, dep.RepoName)
+			return err
+		} else if tagExists {
+			log.Printf("Tag [%s] already exists on %s. Skipping.\n", releaseTag, dep.RepoName)
+			return nil
+		}
 		if u.ReleaseTagRegex.MatchString(ref) {
 			ref, err = githubClnt.GetTagCommitSHA(dep.RepoName, ref)
 			if err != nil {
