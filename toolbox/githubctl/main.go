@@ -125,7 +125,7 @@ func TagIstioDepsForRelease() error {
 		if !exists {
 			return fmt.Errorf("ill-defined %s: unable to find %s", istioVersionFile, dep.Name)
 		}
-		if tagExists, err := g.ExistTag(dep.RepoName, releaseTag); err != nil {
+		if tagExists, err := githubClnt.ExistTag(dep.RepoName, releaseTag); err != nil {
 			log.Printf("Tailed to check if tag [%s] exists on repo %s\n", releaseTag, dep.RepoName)
 			return err
 		} else if tagExists {
