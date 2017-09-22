@@ -49,18 +49,18 @@ func main() {
 		log.Printf("Error: You need to specfy a previous release")
 		os.Exit(1)
 	}
+	gh = u.NewGithubClientNoAuth(*org)
 
 	repoList := strings.Split(*repos, ",")
 	for _, repo := range repoList {
 		log.Printf("Start fetching release note from %s", repo)
 		queries, err := createQueryString(repo)
 		if err != nil {
-			log.Print("Failed to create query string for %s", repo)
+			log.Printf("Failed to create query string for %s", repo)
 			continue
 		}
 		log.Printf("Query: %s", queries)
 
-		gh = u.NewGithubClientNoAuth(*org)
 		issuesResult, err := gh.SearchIssues(queries, "", *sort, *order)
 		if err != nil {
 			log.Printf("Failed to fetch PR with release note for %s: %s", repo, err)
@@ -114,7 +114,7 @@ func createQueryString(repo string) ([]string, error) {
 
  	startTime, err := getReleaseTime(repo, *previousRelease)
 	if err != nil {
-		log.Printf("Failed to get create time of last release -- %s: %s", *previousRelease, err)
+		log.Printf("Failed to get create time of previous release -- %s: %s", *previousRelease, err)
 		return nil, err
 	}
 
@@ -159,6 +159,6 @@ func getReleaseTime(repo, release string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
+        log.Printf("Time: %s", time.String())
 	return time.Format("2017-07-08T07:13:35Z"), nil
 }

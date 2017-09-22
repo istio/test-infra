@@ -245,6 +245,7 @@ func (g GithubClient) GetTagCommitSHA(repo, tag string) (string, error) {
 	tagObj, _, err := g.client.Git.GetTag(
 		context.Background(), g.owner, repo, sha)
 	if err != nil {
+
 		return "", err
 	}
 	return *tagObj.Object.SHA, nil
@@ -359,6 +360,7 @@ func (g GithubClient) getReferenceSHA(repo, ref string) (string, error) {
 	githubRefObj, _, err := g.client.Git.GetRef(
 		context.Background(), g.owner, repo, ref)
 	if err != nil {
+		log.Printf("Failed to get reference SHA -- %s: %s", ref, err)
 		return "", err
 	}
 	return *githubRefObj.Object.SHA, nil
