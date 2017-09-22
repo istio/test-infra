@@ -37,7 +37,7 @@ const (
 	releaseBodyTemplate = `
 [ARTIFACTS](http://gcsweb.istio.io/gcs/istio-release/releases/{{.ReleaseTag}}/)
 
-[RELEASE NOTES](https://github.com/istio/istio/wiki/({{.ReleaseTag}})`
+[RELEASE NOTES](http://github.com/istio/istio/wiki/v{{.ReleaseTag}})`
 )
 
 // GithubClient masks RPCs to github as local procedures
@@ -335,12 +335,16 @@ func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, archiveDir s
 	// create release
 	release := github.RepositoryRelease{TagName: &releaseTag}
 	// Setting release to pre release and draft such that it does not send an announcement.
-	*release.Draft = true
-	*release.Prerelease = true
+	newBool := func(b bool) *bool {
+		bb := b
+		return &bb
+	}
+	release.Draft = newBool(true)
+	release.Prerelease = newBool(true)
 	if releaseBody, err := FillUpTemplate(releaseBodyTemplate, map[string]string{"ReleaseTag": releaseTag}); err != nil {
 		return err
 	} else {
-		*release.Body = releaseBody
+		release.Body = &releaseBody
 	}
 	log.Printf("Creating on github new %s release [%s]\n", repo, releaseTag)
 	res, _, err := g.client.Repositories.CreateRelease(
