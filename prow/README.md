@@ -1,13 +1,13 @@
-Infra
+# Infra
 -----
 
 This directory contains a Makefile and other resources for managing the Istio CI infrastructure. This infrastructure consists of a subset of the [k8s test-infra prow](https://github.com/kubernetes/test-infra/tree/master/prow) deployments.
 
-### Managing a Cluster
+## Managing a Cluster
 
 The infrastructure runs on a k8s cluster. All of our tools make it easy to run on GKE, although another k8s provider could be used. The variables for the GCP project/zone/cluster are in the Makefile. The Makefile also contains commands for common management tasks.
 
-#### Deployments
+### Deployments
 
 1. [hook](./cluster/hook_deployment.yaml)               - handle webhooks and create prow jobs
 2. [plank](./cluster/plank_deployment.yaml)             - poll for prow jobs and start them, mark completed, statuses to Github
@@ -18,7 +18,7 @@ The infrastructure runs on a k8s cluster. All of our tools make it easy to run o
 
 We run the k8s-prow images. These images are built from source [here](https://github.com/kubernetes/test-infra/tree/master/prow).
 
-#### Upgrading Prow
+### Upgrading Prow
 
 Please check Prow cnnouncements before starting an upgrade (https://github.com/kubernetes/test-infra/tree/master/prow#announcements)
 
@@ -90,9 +90,21 @@ $ make tot-deployment
 $ make sinker-deployment
 ```
 
-### Creating a Job on Your Repo
+### Clearing Up Prow State
 
-#### Github Trigger
+If prow is an unrecoverable state. We can reset Prow state by doing the
+following:
+
+```
+$ make stopd
+$ kubectl delete prowjobs --all
+$ kubectl delete pods -n test-pods --all
+$ make startd
+```
+
+## Creating a Job on Your Repo
+
+### Github Trigger
 
 The most common pattern is to trigger a job on some sort of Github event, esp. on PRs and on PR merges. Prow has concepts for these two specific stages. The first, running jobs on a PR, is called a presubmit job. The second, running jobs after the PR is merged, is called a postsubmit.
 
@@ -126,7 +138,7 @@ my-repo: # ADD THIS BLOCK
 - trigger
 ```
 
-##### Prow Bazel Build Image
+### Prow Bazel Build Image
 
 The prowbazel build image [here](../docker/prowbazel) is preferred. Its entrypoint is a test harness that checks out the code at the appropriate ref, captures the logs and exit code, and writes these logs to a GCS bucket in a location and manner the k8s-test-infra UI, gubernator, can read.
 
