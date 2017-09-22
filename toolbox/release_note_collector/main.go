@@ -37,23 +37,31 @@ var (
 	label     = flag.String("label", "release-note", "Release-note label")
 	sort      = flag.String("sort", "create", "The sort field. Can be comments, created, or updated.")
 	order     = flag.String("order", "desc", "The sort order if sort parameter is provided. One of asc or desc.")
-	version   = flag.String("version", "", "Release version")
 	output    = flag.String("output", "./", "Path to output file")
-	startDate = flag.String("start_date", "", "Start date")
-	endDate   = flag.String("end_date", "", "End date")
+	previousRelease = flag.String("previous_release", "", "Previous release")
+	currentRelease   = flag.String("current_release", "", "Current release")
+	gh *u.GithubClient
 )
 
 func main() {
 	flag.Parse()
+	if *previousRelease == "" {
+		log.Printf("Error: You need to specfy a previous release")
+		os.Exit(1)
+	}
 
 	repoList := strings.Split(*repos, ",")
 	for _, repo := range repoList {
 		log.Printf("Start fetching release note from %s", repo)
-		queries := createQueryString(repo)
+		queries, err := createQueryString(repo)
+		if err != nil {
+			log.Print("Failed to create query string for %s", repo)
+			continue
+		}
 		log.Printf("Query: %s", queries)
 
-		g := u.NewGithubClientNoAuth(*org)
-		issuesResult, err := g.SearchIssues(queries, "", *sort, *order)
+		gh = u.NewGithubClientNoAuth(*org)
+		issuesResult, err := gh.SearchIssues(queries, "", *sort, *order)
 		if err != nil {
 			log.Printf("Failed to fetch PR with release note for %s: %s", repo, err)
 			continue
@@ -79,15 +87,15 @@ func fetchRelaseNoteFromRepo(repo string, issuesResult *github.IssuesSearchResul
 		}
 	}()
 
-	f.WriteString(fmt.Sprintf("%s: %s -- %s release note\n", *org, repo, *version))
-	f.WriteString(fmt.Sprintf("Date: %s -- %s\n", *startDate, *endDate))
+	f.WriteString(fmt.Sprintf("%s: %s -- %s release note\n", *org, repo, *currentRelease))
+	f.WriteString(fmt.Sprintf("Previous release version: %s", *previousRelease))
 	f.WriteString(fmt.Sprintf("Total: %d\n", *issuesResult.Total))
 	for _, i := range issuesResult.Issues {
 		note := fetchReleaseNoteFromPR(i)
 		f.WriteString(note)
 	}
-	if *issuesResult.IncompleteResults {
-		f.WriteString("!!Warning: Some release notes missing due to incomplete search result from github.")
+	if issuesResult.GetIncompleteResults() {
+		f.WriteString("!!Warning: Some release notes missing due to incomplete search result from github!!")
 	}
 	return nil
 }
@@ -101,17 +109,35 @@ func fetchReleaseNoteFromPR(i github.Issue) (note string) {
 	return note
 }
 
-func createQueryString(repo string) []string {
+func createQueryString(repo string) ([]string, error) {
 	var queries []string
+
+ 	startTime, err := getReleaseTime(repo, *previousRelease)
+	if err != nil {
+		log.Printf("Failed to get create time of last release -- %s: %s", *previousRelease, err)
+		return nil, err
+	}
+
+	if *currentRelease == "" {
+		if *currentRelease, err = gh.GetLatestRelease(repo); err != nil {
+			log.Printf("Failed to get latest release version when current_release is missing: %s", err)
+			return nil, err
+		}
+	}
+	endTime, err := getReleaseTime(repo, *currentRelease)
+	if err != nil {
+		log.Printf("Failed to get create time of current release -- %s: %s", *currentRelease, err)
+		return nil, err
+	}
 
 	queries = addQuery(queries, "repo", *org, "/", repo)
 	queries = addQuery(queries, "label", *label)
 	queries = addQuery(queries, "is", "merged")
 	queries = addQuery(queries, "type", "pr")
-	queries = addQuery(queries, "merged", ">", *startDate)
-	queries = addQuery(queries, "merged", "<", *endDate)
+	queries = addQuery(queries, "merged", ">=", startTime)
+	queries = addQuery(queries, "merged", "<=", endTime)
 
-	return queries
+	return queries, nil
 }
 
 func addQuery(queries []string, queryParts ...string) []string {
@@ -126,4 +152,13 @@ func addQuery(queries []string, queryParts ...string) []string {
 	}
 
 	return append(queries, fmt.Sprintf("%s:%s", queryParts[0], strings.Join(queryParts[1:], "")))
+}
+
+func getReleaseTime(repo, release string) (string, error) {
+	time, err := gh.GetCommitCreationTimeByTag(repo, release)
+	if err != nil {
+		return "", err
+	}
+
+	return time.Format("2017-07-08T07:13:35Z"), nil
 }

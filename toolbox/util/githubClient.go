@@ -381,3 +381,12 @@ func (g GithubClient) SearchIssues(queries []string, keyWord, sort, order string
 
 	return issueResult, nil
 }
+
+// GetLatestRelease get the latest release version
+func (g GithubClient) GetLatestRelease(repo string) (string, error) {
+	release, _, err := g.client.Repositories.GetLatestRelease(context.Background(), g.owner, repo)
+	if err != nil {
+		return "", err
+	}
+	return *release.TagName, nil
+}
