@@ -21,5 +21,5 @@ RUN /tmp/istio_tmp/scripts/linux-install-software \
 ENV PATH /usr/local/go/bin:/usr/lib/google-cloud-sdk/bin:${PATH}
 RUN echo "PATH=\"${PATH}\"" > /etc/environment
 
-# Create bootstrap user
+# Create release user
 RUN useradd -c "Releaser" -d /home/releng -G docker,sudo -m releng -s /bin/bash
