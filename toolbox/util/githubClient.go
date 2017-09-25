@@ -233,22 +233,33 @@ func (g GithubClient) CloseIdlePullRequests(prTitlePrefix, repo, baseBranch stri
 
 // GetHeadCommitSHA finds the SHA of the commit to which the HEAD of branch points
 func (g GithubClient) GetHeadCommitSHA(repo, branch string) (string, error) {
-	return g.GetReferenceSHA(repo, "refs/heads/"+branch)
+	sha, _, err := g.GetReference(repo, "refs/heads/"+branch)
+	return sha, err
 }
 
 // GetTagCommitSHA finds the SHA of the commit from which the tag was made
 func (g GithubClient) GetTagCommitSHA(repo, tag string) (string, error) {
-	sha, err := g.GetReferenceSHA(repo, "refs/tags/"+tag)
+	sha, ty, err := g.GetReference(repo, "refs/tags/"+tag)
 	if err != nil {
 		return "", err
 	}
-	tagObj, _, err := g.client.Git.GetTag(
-		context.Background(), g.owner, repo, sha)
-	if err != nil {
-		log.Print("Failed to get tag object")
-		return "", err
+
+	if ty == "tag" {
+		tagObj, _, err := g.client.Git.GetTag(context.Background(), g.owner, repo, sha)
+		if err != nil {
+			log.Printf("Failed to get tag object %s", sha)
+			return "", err
+		}
+		return *tagObj.Object.SHA, nil
+	} else if ty == "commit" {
+		commitObj, _, err := g.client.Git.GetCommit(context.Background(), g.owner, repo, sha)
+		if err != nil {
+			log.Printf("Failed to get commit object %s", sha)
+			return "", err
+		}
+		return *commitObj.SHA, nil
 	}
-	return *tagObj.Object.SHA, nil
+	return "", fmt.Errorf("Unknown type of tag, %s", err)
 }
 
 // GetCommitCreationTime gets the time when the commit identified by sha is created
@@ -358,14 +369,14 @@ func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, archiveDir s
 }
 
 // GetReferenceSHA returns the sha of a reference
-func (g GithubClient) GetReferenceSHA(repo, ref string) (string, error) {
+func (g GithubClient) GetReference(repo, ref string) (string, string, error) {
 	githubRefObj, _, err := g.client.Git.GetRef(
 		context.Background(), g.owner, repo, ref)
 	if err != nil {
 		log.Printf("Failed to get reference SHA -- %s", ref)
-		return "", err
+		return "", "", err
 	}
-	return *githubRefObj.Object.SHA, nil
+	return *githubRefObj.Object.SHA, *githubRefObj.Object.Type, nil
 }
 
 // SearchIssues get issues/prs based on query

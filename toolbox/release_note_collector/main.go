@@ -114,7 +114,7 @@ func createQueryString(repo string) ([]string, error) {
 
  	startTime, err := getReleaseTime(repo, *previousRelease)
 	if err != nil {
-		log.Printf("Failed to get create time of previous release -- %s: %s", *previousRelease, err)
+		log.Printf("Failed to get created time of previous release -- %s: %s", *previousRelease, err)
 		return nil, err
 	}
 
@@ -126,7 +126,7 @@ func createQueryString(repo string) ([]string, error) {
 	}
 	endTime, err := getReleaseTime(repo, *currentRelease)
 	if err != nil {
-		log.Printf("Failed to get create time of current release -- %s: %s", *currentRelease, err)
+		log.Printf("Failed to get created time of current release -- %s: %s", *currentRelease, err)
 		return nil, err
 	}
 
@@ -154,15 +154,11 @@ func addQuery(queries []string, queryParts ...string) []string {
 }
 
 func getReleaseTime(repo, release string) (string, error) {
-	releaseSHA, err := gh.GetReferenceSHA(repo, "refs/tags/"+release)
+	time, err := gh.GetCommitCreationTimeByTag(repo, release)
 	if err != nil {
+		log.Println("Failed to get created time of this release tag")
 		return "", err
 	}
-	time, err := gh.GetCommitCreationTime(repo, releaseSHA)
-	if err != nil {
-		return "", err
-	}
-        log.Printf("Time: %s", time.String())
 	t := time.UTC()
 	log.Printf("Format time: %s", t.Format("2017-07-08T07:13:35Z"))
 	timeString := fmt.Sprintf("%d-%02d-%02dT%02d:%02d:%02dZ",
