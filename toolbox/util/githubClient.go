@@ -292,7 +292,7 @@ func (g GithubClient) GetFileContent(repo, branch, path string) (string, error) 
 	return fileContent.GetContent()
 }
 
-// CreateAnnotatedTag retrieves the file content from the hosted repo
+// CreateAnnotatedTag creates on the remote repo an annotated tag at given sha
 func (g GithubClient) CreateAnnotatedTag(repo, tag, sha, msg string) error {
 	if !SHARegex.MatchString(sha) {
 		return fmt.Errorf(
@@ -324,7 +324,7 @@ func (g GithubClient) CreateAnnotatedTag(repo, tag, sha, msg string) error {
 	_, _, err = g.client.Git.CreateRef(
 		context.Background(), g.owner, repo, &refObj)
 	if err != nil {
-		log.Printf("Failed to create reference with tag just created: %s", tag)
+		log.Printf("Failed to create reference with tag %s\n", tag)
 	}
 	return err
 }
