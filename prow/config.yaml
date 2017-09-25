@@ -1006,6 +1006,30 @@ periodics:
       secret:
         secretName: e2e-testing-rbac-kubeconfig
 
+- interval: 3h
+  agent: kubernetes
+  name: test-infra-cleanup-GKE
+  spec:
+    containers:
+    - image: gcr.io/istio-testing/prowbazel:0.1.7
+      args:
+      - "--repo=github.com/istio/test-infra=master"
+      - "--clean"
+      - "--timeout=30"
+      env:
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/service-account/service-account.json
+      volumeMounts:
+      - name: service
+        mountPath: /etc/service-account
+        readOnly: true
+    nodeSelector:
+      cloud.google.com/gke-nodepool: build-pool
+    volumes:
+    - name: service
+      secret:
+        secretName: service-account
+
 - interval: 2h
   agent: kubernetes
   name: test-infra-update-deps
