@@ -40,6 +40,7 @@ var (
 	output    = flag.String("output", "./", "Path to output file")
 	previousRelease = flag.String("previous_release", "", "Previous release")
 	currentRelease   = flag.String("current_release", "", "Current release")
+	PRLink = flag.Bool("pr_link", false, "Weather a link of the PR is added at the end of each release note")
 	gh *u.GithubClient
 )
 
@@ -88,11 +89,16 @@ func fetchRelaseNoteFromRepo(repo string, issuesResult *github.IssuesSearchResul
 	}()
 
 	f.WriteString(fmt.Sprintf("%s: %s -- %s release note\n", *org, repo, *currentRelease))
-	f.WriteString(fmt.Sprintf("Previous release version: %s", *previousRelease))
-	f.WriteString(fmt.Sprintf("Total: %d\n", *issuesResult.Total))
+	f.WriteString(fmt.Sprintf("Previous release version: %s\n", *previousRelease))
 	for _, i := range issuesResult.Issues {
 		note := fetchReleaseNoteFromPR(i)
-		f.WriteString(note)
+		if note == "" {
+			continue
+		}
+		if *PRLink {
+			note += fmt.Sprintf("  %s\n", i.GetHTMLURL())
+		}
+		f.WriteString("* " + note)
 	}
 	if issuesResult.GetIncompleteResults() {
 		f.WriteString("!!Warning: Some release notes missing due to incomplete search result from github!!")
@@ -101,10 +107,14 @@ func fetchRelaseNoteFromRepo(repo string, issuesResult *github.IssuesSearchResul
 }
 
 func fetchReleaseNoteFromPR(i github.Issue) (note string) {
-	reg := regexp.MustCompile("```release-note((?s).*)```")
+	reg := regexp.MustCompile("```release-note\r\n((?s).+)\r\n```")
 	m := reg.FindStringSubmatch(*i.Body)
 	if len(m) == 2 {
 		note = m[1]
+	}
+	note = strings.TrimSpace(note)
+	if strings.EqualFold(note, "none") {
+		return ""
 	}
 	return note
 }
