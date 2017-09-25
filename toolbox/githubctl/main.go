@@ -47,7 +47,9 @@ const (
 	releaseBaseDir       = "/tmp/release"
 	releasePRTtilePrefix = "[Auto Release] "
 	releasePRBody        = "Update istio.VERSION and downloadIstio.sh"
-	releaseBucketFmtStr  = "https://storage.googleapis.com/istio-release/releases/%s/istioctl"
+	releaseBucketFmtStr  = "https://storage.googleapis.com/istio-release/releases/%s/%s"
+	istioctlSuffix       = "istioctl"
+	debianSuffix         = "deb"
 )
 
 // Panic if value not specified
@@ -174,9 +176,17 @@ func UpdateIstioVersionAfterReleaseTagsMadeOnDeps() error {
 	}
 	edit := func() error {
 		hubCommaTag := fmt.Sprintf("%s,%s", dockerHub, releaseTag)
-		istioctl := fmt.Sprintf(releaseBucketFmtStr, releaseTag)
-		cmd := fmt.Sprintf("./install/updateVersion.sh -p %s -c %s -x %s -i %s",
-			hubCommaTag, hubCommaTag, hubCommaTag, istioctl)
+		istioctlURL := fmt.Sprintf(releaseBucketFmtStr, releaseTag, istioctlSuffix)
+		debianURL := fmt.Sprintf(releaseBucketFmtStr, releaseTag, debianSuffix)
+		cmd := fmt.Sprintf("./install/updateVersion.sh")
+		// Auth
+		cmd += fmt.Sprintf(" -c %s -A %s", hubCommaTag, debianURL)
+		// Mixer
+		cmd += fmt.Sprintf(" -x %s", hubCommaTag)
+		// Pilot
+		cmd += fmt.Sprintf(" -p %s -i %s -P %s", hubCommaTag, istioctlURL, debianURL)
+		// Proxy
+		cmd += fmt.Sprintf(" -r %s -E %s", hubCommaTag, debianURL)
 		_, err := u.Shell(cmd)
 		return err
 	}
