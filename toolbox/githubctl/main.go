@@ -125,7 +125,7 @@ func TagIstioDepsForRelease() error {
 		if !exists {
 			return fmt.Errorf("ill-defined %s: unable to find %s", istioVersionFile, dep.Name)
 		}
-		// make sure ref is a SHA
+		// make sure ref is a SHA, special case where previous release is used in this release
 		if u.ReleaseTagRegex.MatchString(ref) {
 			ref, err = githubClnt.GetTagCommitSHA(dep.RepoName, ref)
 			if err != nil {
@@ -135,15 +135,17 @@ func TagIstioDepsForRelease() error {
 		if err := githubClnt.CreateAnnotatedTag(
 			dep.RepoName, releaseTag, ref, releaseMsg); err != nil {
 			if strings.Contains(err.Error(), "Reference already exists") {
-				log.Printf("Tag [%s] already exists on %s. Deleting it and retagging.\n", releaseTag, dep.RepoName)
-				if err = githubClnt.DeleteAnnotatedTag(dep.RepoName, releaseTag); err != nil {
+				log.Printf("Tag [%s] already exists on %s\n", releaseTag, dep.RepoName)
+				prevTagSHA, err := githubClnt.GetTagCommitSHA(dep.RepoName, releaseTag)
+				if err != nil {
 					return err
 				}
-				if err := githubClnt.CreateAnnotatedTag(
-					dep.RepoName, releaseTag, ref, releaseMsg); err != nil {
-					return err
+				if prevTagSHA == ref {
+					log.Printf("Intended to tag [%s] at the same SHA, resort to no-op and continue\n")
+					continue
+				} else {
+					return fmt.Errorf("trying to tag [%s] at different SHA")
 				}
-				log.Printf("Retagging [%s] on %s succeeded\n", releaseTag, dep.RepoName)
 			}
 		}
 	}

@@ -329,18 +329,6 @@ func (g GithubClient) CreateAnnotatedTag(repo, tag, sha, msg string) error {
 	return err
 }
 
-// DeleteAnnotatedTag deletes on the repo the annotated tag
-// assuming the tag already exists
-func (g GithubClient) DeleteAnnotatedTag(repo, tag string) error {
-	refString := "refs/tags/" + tag
-	_, err := g.client.Git.DeleteRef(
-		context.Background(), g.owner, repo, refString)
-	if err != nil {
-		log.Printf("Failed to delete the tag %s on repo %s\n", tag, repo)
-	}
-	return err
-}
-
 // CreateReleaseUploadArchives creates a release given release tag and
 // upload all files in archiveDir as assets of this release
 func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, archiveDir string) error {
