@@ -233,19 +233,19 @@ func (g GithubClient) CloseIdlePullRequests(prTitlePrefix, repo, baseBranch stri
 
 // GetHeadCommitSHA finds the SHA of the commit to which the HEAD of branch points
 func (g GithubClient) GetHeadCommitSHA(repo, branch string) (string, error) {
-	return g.getReferenceSHA(repo, "refs/heads/"+branch)
+	return g.GetReferenceSHA(repo, "refs/heads/"+branch)
 }
 
 // GetTagCommitSHA finds the SHA of the commit from which the tag was made
 func (g GithubClient) GetTagCommitSHA(repo, tag string) (string, error) {
-	sha, err := g.getReferenceSHA(repo, "refs/tags/"+tag)
+	sha, err := g.GetReferenceSHA(repo, "refs/tags/"+tag)
 	if err != nil {
 		return "", err
 	}
 	tagObj, _, err := g.client.Git.GetTag(
 		context.Background(), g.owner, repo, sha)
 	if err != nil {
-
+		log.Print("Failed to get tag object")
 		return "", err
 	}
 	return *tagObj.Object.SHA, nil
@@ -256,6 +256,7 @@ func (g GithubClient) GetCommitCreationTime(repo, sha string) (*time.Time, error
 	commit, _, err := g.client.Git.GetCommit(
 		context.Background(), g.owner, repo, sha)
 	if err != nil {
+		log.Printf("Failed to get commit %s", sha)
 		return nil, err
 	}
 	return (*(*commit).Author).Date, nil
@@ -356,11 +357,12 @@ func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, archiveDir s
 	return nil
 }
 
-func (g GithubClient) getReferenceSHA(repo, ref string) (string, error) {
+// GetReferenceSHA returns the sha of a reference
+func (g GithubClient) GetReferenceSHA(repo, ref string) (string, error) {
 	githubRefObj, _, err := g.client.Git.GetRef(
 		context.Background(), g.owner, repo, ref)
 	if err != nil {
-		log.Printf("Failed to get reference SHA -- %s: %s", ref, err)
+		log.Printf("Failed to get reference SHA -- %s", ref)
 		return "", err
 	}
 	return *githubRefObj.Object.SHA, nil
@@ -369,7 +371,6 @@ func (g GithubClient) getReferenceSHA(repo, ref string) (string, error) {
 // SearchIssues get issues/prs based on query
 func (g GithubClient) SearchIssues(queries []string, keyWord, sort, order string) (*github.IssuesSearchResult, error) {
 	q := strings.Join(queries, " ")
-
 	searchOption := &github.SearchOptions{
 		Sort:  sort,
 		Order: order,

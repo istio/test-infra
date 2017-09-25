@@ -59,7 +59,7 @@ func main() {
 			log.Printf("Failed to create query string for %s", repo)
 			continue
 		}
-		log.Printf("Query: %s", queries)
+		log.Printf("Query: %v", queries)
 
 		issuesResult, err := gh.SearchIssues(queries, "", *sort, *order)
 		if err != nil {
@@ -134,8 +134,7 @@ func createQueryString(repo string) ([]string, error) {
 	queries = addQuery(queries, "label", *label)
 	queries = addQuery(queries, "is", "merged")
 	queries = addQuery(queries, "type", "pr")
-	queries = addQuery(queries, "merged", ">=", startTime)
-	queries = addQuery(queries, "merged", "<=", endTime)
+	queries = addQuery(queries, "merged", startTime, "..", endTime)
 
 	return queries, nil
 }
@@ -155,10 +154,19 @@ func addQuery(queries []string, queryParts ...string) []string {
 }
 
 func getReleaseTime(repo, release string) (string, error) {
-	time, err := gh.GetCommitCreationTimeByTag(repo, release)
+	releaseSHA, err := gh.GetReferenceSHA(repo, "refs/tags/"+release)
+	if err != nil {
+		return "", err
+	}
+	time, err := gh.GetCommitCreationTime(repo, releaseSHA)
 	if err != nil {
 		return "", err
 	}
         log.Printf("Time: %s", time.String())
-	return time.Format("2017-07-08T07:13:35Z"), nil
+	t := time.UTC()
+	log.Printf("Format time: %s", t.Format("2017-07-08T07:13:35Z"))
+	timeString := fmt.Sprintf("%d-%02d-%02dT%02d:%02d:%02dZ",
+		t.Year(), t.Month(), t.Day(),
+		t.Hour(), t.Minute(), t.Second())
+	return timeString, nil
 }
