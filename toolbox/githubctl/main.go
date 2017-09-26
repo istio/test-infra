@@ -234,7 +234,6 @@ func CreateIstioReleaseUploadArtifacts() error {
 		log.Printf("Updating download release candidate script with latest release")
 		return u.UpdateKeyValueInFile(
 			downloadScript, "ISTIO_VERSION", fmt.Sprintf("${ISTIO_VERSION:-%s}", releaseTag))
-		return nil
 	}
 	prTitle := releasePRTtilePrefix + prBody
 	return cloneIstioMakePR(releaseBranch, prTitle, prBody, edit)
