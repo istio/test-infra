@@ -63,7 +63,7 @@ func ContainsString(slice []string, target string) bool {
 }
 
 // UpdateKeyValueInFile updates in the file all occurrences of key to
-// a new value.
+// a new value, except comments started with # or //
 func UpdateKeyValueInFile(file, key, value string) error {
 	replaceValue := func(line *string, splitter string) {
 		idx := strings.Index(*line, splitter) + len(splitter)
@@ -81,10 +81,14 @@ func UpdateKeyValueInFile(file, key, value string) error {
 	lines := strings.Split(input, "\n")
 	found := false
 	for i, line := range lines {
+		if strings.HasPrefix(line, "#") || strings.HasPrefix(line, "//") {
+			continue
+		}
 		for _, splitter := range kvSplitters {
 			if strings.Contains(line, key+splitter) {
 				replaceValue(&lines[i], splitter)
 				found = true
+				break
 			}
 		}
 	}

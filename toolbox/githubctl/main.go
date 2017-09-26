@@ -24,29 +24,28 @@ import (
 )
 
 var (
-	owner                = flag.String("owner", "istio", "Github owner or org")
-	tokenFile            = flag.String("token_file", "", "File containing Github API Access Token")
-	op                   = flag.String("op", "", "Operation to be performed")
-	repo                 = flag.String("repo", "", "Repository to which op is applied")
-	baseBranch           = flag.String("base_branch", "", "Branch to which op is applied")
-	refSHA               = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
-	nextRelease          = flag.String("next_release", "", "Tag of the next release")
-	updateDownloadScript = flag.Bool("update_download_script", false, "Have download script point to latest version")
-	githubClnt           *u.GithubClient
+	owner       = flag.String("owner", "istio", "Github owner or org")
+	tokenFile   = flag.String("token_file", "", "File containing Github API Access Token")
+	op          = flag.String("op", "", "Operation to be performed")
+	repo        = flag.String("repo", "", "Repository to which op is applied")
+	baseBranch  = flag.String("base_branch", "", "Branch to which op is applied")
+	refSHA      = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
+	nextRelease = flag.String("next_release", "", "Tag of the next release")
+	githubClnt  *u.GithubClient
 )
 
 const (
 	istioVersionFile     = "istio.VERSION"
 	istioDepsFile        = "istio.deps"
 	releaseTagFile       = "istio.RELEASE"
-	downloadScript       = "downloadIstio.sh"
+	downloadScript       = "release/downloadIstioCandidate.sh"
 	istioRepo            = "istio"
 	masterBranch         = "master"
 	export               = "export "
 	dockerHub            = "docker.io/istio"
 	releaseBaseDir       = "/tmp/release"
 	releasePRTtilePrefix = "[Auto Release] "
-	releasePRBody        = "Update istio.VERSION and downloadIstio.sh"
+	releasePRBody        = "Update istio.VERSION and downloadIstioCandidate.sh"
 	releaseBucketFmtStr  = "https://storage.googleapis.com/istio-release/releases/%s/%s"
 	istioctlSuffix       = "istioctl"
 	debianSuffix         = "deb"
@@ -232,12 +231,9 @@ func CreateIstioReleaseUploadArtifacts() error {
 		if err := u.WriteTextFile(releaseTagFile, *nextRelease); err != nil {
 			return err
 		}
-		if *updateDownloadScript {
-			log.Printf("Updating download script with latest release")
-			return u.UpdateKeyValueInFile(
-				downloadScript, "ISTIO_VERSION", releaseTag)
-		}
-		return nil
+		log.Printf("Updating download release candidate script with latest release")
+		return u.UpdateKeyValueInFile(
+			downloadScript, "ISTIO_VERSION", fmt.Sprintf("${ISTIO_VERSION:-%s}", releaseTag))
 	}
 	prTitle := releasePRTtilePrefix + prBody
 	return cloneIstioMakePR(releaseBranch, prTitle, prBody, edit)
