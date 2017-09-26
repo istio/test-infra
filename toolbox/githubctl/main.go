@@ -38,7 +38,7 @@ const (
 	istioVersionFile     = "istio.VERSION"
 	istioDepsFile        = "istio.deps"
 	releaseTagFile       = "istio.RELEASE"
-	downloadScript       = "downloadIstioCandidate.sh"
+	downloadScript       = "release/downloadIstioCandidate.sh"
 	istioRepo            = "istio"
 	masterBranch         = "master"
 	export               = "export "
