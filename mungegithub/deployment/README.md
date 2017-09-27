@@ -41,7 +41,10 @@ We are using one basic load-balancer for each Submit Queue.
 * Auth: http://35.197.10.29:8080
 * Istio: http://35.197.104.17:8080
 * Mixer: http://35.197.95.47:8080
-* Pilot: http://35.199.174.118:8080 (Current disabled)
+* Pilot: http://35.199.174.118:8080
+* Test-Infra: http://104.196.250.254:8080
+* Mixerclient: http://35.199.147.28:8080
+* Proxy: http://35.197.99.161:8080
 
 
 ## Maintain Submit Queue
@@ -82,10 +85,12 @@ $ kubectl delete deployment istio-submit-queue
 
   Github webhook issue. Simply comment "/lgtm" again.
   
-* CI already finished successfully, but Submit Queue still complains one is not green
-
-  Believe it's the webhook issue too. CI status change will not trigger Submit Queue, you need to 
-  punch it by leaving any comment. [Example](https://github.com/istio/istio/pull/730)
+* ~~CI already finished successfully, but Submit Queue still complains one is not green~~
+  
+  ~~Believe it's the webhook issue too. CI status change will not trigger Submit Queue, you need to 
+  punch it by leaving any comment. [Example](https://github.com/istio/istio/pull/730)~~
+  
+  [FIXED]
   
 * Check log
 

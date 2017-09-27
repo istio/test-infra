@@ -2,9 +2,9 @@
 
   >  Note: This doc is for normal processes of Mungegithub in istio organization. Exceptions may apply to experimental environments.
 
-  Currently deployed: istio, mixer, auth, test-infra 
-
-  Currently paused: pilot 
+  Currently deployed: istio, mixer, auth, test-infra, pilot
+  
+  Limited functional (only merge auto-dependency-update PRs): mixerclient, proxy
 
 Mungegithub is a tool based on GitHub that offers a better way to review and approve PRs and automatically rebases and merges them without engineers' effort. Plus a two-level approval system controls codebase better by always having the right people to approve changes. 
 
@@ -21,8 +21,9 @@ Powered by prow plugins and mungegithub, people can add labels to PRs by comment
 
   >  Note: If not necessary, do not add or remove labels from GitHub UI which bypasses Mungegithub access control system.
 
-### Label
+### Labels
 Mungegithub waits for 4 labels:
+
 * **CLA** "cla-yes" label or "cla-no" label is set automatically. There is a hacker way "cla human-approved" to bypass cla check if it's necessary.
 * **LGTM** "lgtm" is the first level approve, it means "look good to me, but someone else may need to take a look and make final decision". "lgtm" is more like "review: approve" in github-way. Everyone assigned to this pr can say valid "/lgtm", people in GitHub organization can also do it. With prow deployed, people should add "lgtm" label by comment "/lgtm". 
 
@@ -33,9 +34,17 @@ As the repo admin or the directory owner, one may approve and merge this PR into
 
   >  Note: Do not comment "/approve" or add "approved" label unless you are 100% sure you want this change, because after you say that, the pr will be merge any minutes.
     
-* **Release-note** Release note enforcement is another feather we are seeking from Mungegithub. With template, when prs are create, people should add release note (can be "None") in the pr description. Depended on the release message left, Mungegithub will add "release-note", "release-note-none". If you leave it empty, "release-note-needed" will be added and is going to block merging.
+* **Release-note** Release note enforcement is another feather we are seeking from Mungegithub. With template, when prs are create, people should add release note (can be the word "none") in the pr description. Depended on the release message left, Mungegithub will add "release-note-none"(if you write string `none`) or "release-note-action-required"(if you write string `action required`), "release-note"(Any other message). If you leave it empty, **"do-not-merge/release-note-label-needed"** will be added and is going to block merging.
 
-* **do-not-merge** Even with all required parts, you can always have more time by add "do-not-merge" label. 
+  > __New change after [PR#531](https://github.com/istio/test-infra/pull/531):__ _Mungegithub is no longer handle adding/removing "release-note" labels, instead, Prow takes care of that. And good news is after you added "release-note" in PR description, Prow will automatically remove "do-not-merge/release-note-label-needed" and unblock merge processes._
+
+* **do-not-merge** Merge process will be blocked in any stage due to the existence of any kinds of "do-not-merge" labels.
+
+  * _"do-not-merge"_: normal label to stop merge, can be added for general reason by people with write access.
+  * _"do-not-merge/hold"_: It's a easy for everyone to hold merge, simply comment **"/hold"** or **"/hold cancel"**, robot will add or remove "do-not-merge/hold" and it blocks/unblocks merge process.
+  * _"do-not-merge/release-note-label-needed"_: This label is added by Prow due to the missing release-note part in PR description. 
+  As long as release-note message is filled, this label will be removed automatically.
+  
 
 ### OWNERS file
 OWNERS file is the way to organize code owners and write priviliage. There are two parts. Reviews are the people who are suggested to review the pr and approvers are the people who can actually say "/approve" to add the "approve" label. Each path can have its OWNERS file, and this file affects this directory and all subdirectories. More details can be found: [Reviewer and approver](https://github.com/kubernetes/test-infra/tree/master/mungegithub/mungers/approvers)
@@ -80,15 +89,21 @@ A valid approver is able to say `/approve` and mungegithub will add "approved" l
   
   ![release-note template](https://github.com/istio/test-infra/blob/master/mungegithub/images/release-note-template.png)
   
-  - You can also leave a comment `/release-note-none` to set it NONE
-  > When all requirements are satisfied except "release-note", mungegithub will add "do-not-merge" label to force you clear release-note. Please note, when you fix release-note, you have to manually remove that label after you make sure everything looks good.
-  ![do-not-merge due to release-note-needed](https://github.com/istio/test-infra/blob/master/mungegithub/images/do-not-merge-release-note.png)
+  ~~- You can also leave a comment `/release-note-none` to set it NONE~~
+  ~~> When all requirements are satisfied except "release-note", mungegithub will add "do-not-merge" label to force you clear release-note. Please note, when you fix release-note, you have to manually remove that label after you make sure everything looks good.~~
+  
+  - If you put nothing here, Prow is going to complain about it by adding "do-not-merge/release-note-label-needed" 
+  ![do-not-merge:release-note-label-needed](https://github.com/istio/test-infra/blob/master/mungegithub/images/do-not-merge:release-note-label-needed.png)
+  
+  - Additional if you put **"action required"**, robot will add "release-note-action-required". This is a valid merge label. But we need to make sure we come back and add actual release-note for PRs have this labels.
+  ![release-note-action-required](https://github.com/istio/test-infra/blob/master/mungegithub/images/release-note-action-required.png)
   
 * **do-not-merge**
-  - "do-not-merge" label will block merge anytime. Add it if you want to temporarily block merge.
+  - If you want to block merge, comment "/hold", and when you think it's ready, comment "/hold cancel"
+  ![do-not-merge:hold](https://github.com/istio/test-infra/blob/master/mungegithub/images/do-not-merge:hold.png)
   
 ### Stage Two
-  When a PR satisfies all requirements in stage one, it will be picked up by submit-queue. Submit-queue is going to sequentially retest each pr by asking prow to rerun all required tests.
+  When a PR satisfies all requirements in stage one, it will be picked up by submit-queue. Submit-queue is going to sequentially retest each pr by asking prow to rerun all required tests. If, during reruning tests, any required labels are removed or any kind of "do-not-merge" label is added, (e.g. someone comments "/hold"), the tests won't abort but the merge will be blocked for sure.
   ![retest](https://github.com/istio/test-infra/blob/master/mungegithub/images/retest.png)
   - Idealy, you don't need to update branch (also called rebase/merge from master) before running tests because prow will merge your branch into master locally and run tests against this code. You will not see any changes happens on your branch but you can find some clue when you go to prow log.
   ![auto-rebase-log](https://github.com/istio/test-infra/blob/master/mungegithub/images/auto-rebase-log.png)
