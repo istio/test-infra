@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -27,30 +26,43 @@ import (
 	u "istio.io/test-infra/toolbox/util"
 )
 
+type Order string
+type Sort string
+
 const (
-	releaseNoteSuffix = ".releasenote"
+	DESC     = Order("desc")
+	ASC      = Order("asc")
+	CREATED  = Sort("created")
+	COMMENTS = Sort("comments")
+	UPDATED  = Sort("updated")
 )
 
 var (
-	org       = flag.String("user", "istio", "Github owner or org")
-	repos     = flag.String("repos", "", "Github repos, separate using \",\"")
-	label     = flag.String("label", "release-note", "Release-note label")
-	sort      = flag.String("sort", "create", "The sort field. Can be comments, created, or updated.")
-	order     = flag.String("order", "desc", "The sort order if sort parameter is provided. One of asc or desc.")
-	output    = flag.String("output", "./", "Path to output file")
+	org             = flag.String("user", "istio", "Github owner or org")
+	repos           = flag.String("repos", "", "Github repos, separate using \",\"")
+	label           = flag.String("label", "release-note", "Release-note label")
+	sort            = flag.String("sort", string(CREATED), "The sort field. Can be comments, created, or updated.")
+	order           = flag.String("order", string(DESC), "The sort order if sort parameter is provided. One of asc or desc.")
+	outputFile      = flag.String("output", "./release-note", "Path to output file")
 	previousRelease = flag.String("previous_release", "", "Previous release")
-	currentRelease   = flag.String("current_release", "", "Current release")
-	PRLink = flag.Bool("pr_link", false, "Weather a link of the PR is added at the end of each release note")
-	gh *u.GithubClient
+	currentRelease  = flag.String("current_release", "", "Current release")
+	PRLink          = flag.Bool("pr_link", false, "Weather a link of the PR is added at the end of each release note")
+	gh              *u.GithubClient
 )
 
 func main() {
 	flag.Parse()
 	if *previousRelease == "" {
-		log.Printf("Error: You need to specfy a previous release")
+		log.Printf("Error: You need to specfy a previous release version")
 		os.Exit(1)
 	}
 	gh = u.NewGithubClientNoAuth(*org)
+
+	f, err := os.OpenFile(*outputFile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0600)
+	if err != nil {
+		log.Printf("Failed to open and/or create output file %s", *outputFile)
+		return
+	}
 
 	repoList := strings.Split(*repos, ",")
 	for _, repo := range repoList {
@@ -67,29 +79,21 @@ func main() {
 			log.Printf("Failed to fetch PR with release note for %s: %s", repo, err)
 			continue
 		}
-		if err = fetchRelaseNoteFromRepo(repo, issuesResult); err != nil {
+		if err = fetchRelaseNoteFromRepo(repo, issuesResult, f); err != nil {
 			log.Printf("Failed to get release note for %s: %s", repo, err)
 			continue
 		}
 	}
 
-}
-
-func fetchRelaseNoteFromRepo(repo string, issuesResult *github.IssuesSearchResult) error {
-	fileName := filepath.Join(*output, repo+releaseNoteSuffix)
-	f, err := os.OpenFile(fileName, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0600)
-	if err != nil {
-		log.Printf("Failed to create output file %s", fileName)
-		return err
-	}
 	defer func() {
 		if err := f.Close(); err != nil {
-			log.Printf("Error during closing file %s: %s\n", fileName, err)
+			log.Printf("Error during closing file %s: %s\n", *outputFile, err)
 		}
 	}()
+}
 
-	f.WriteString(fmt.Sprintf("%s: %s -- %s release note\n", *org, repo, *currentRelease))
-	f.WriteString(fmt.Sprintf("Previous release version: %s\n", *previousRelease))
+func fetchRelaseNoteFromRepo(repo string, issuesResult *github.IssuesSearchResult, f *os.File) error {
+	f.WriteString(fmt.Sprintf("\nistio/%s: %s -- %s\n", repo, *previousRelease, *currentRelease))
 	for _, i := range issuesResult.Issues {
 		note := fetchReleaseNoteFromPR(i)
 		if note == "" {
@@ -122,7 +126,7 @@ func fetchReleaseNoteFromPR(i github.Issue) (note string) {
 func createQueryString(repo string) ([]string, error) {
 	var queries []string
 
- 	startTime, err := getReleaseTime(repo, *previousRelease)
+	startTime, err := getReleaseTime(repo, *previousRelease)
 	if err != nil {
 		log.Printf("Failed to get created time of previous release -- %s: %s", *previousRelease, err)
 		return nil, err
@@ -133,6 +137,7 @@ func createQueryString(repo string) ([]string, error) {
 			log.Printf("Failed to get latest release version when current_release is missing: %s", err)
 			return nil, err
 		}
+		log.Printf("Last release version: %s", *currentRelease)
 	}
 	endTime, err := getReleaseTime(repo, *currentRelease)
 	if err != nil {
@@ -170,7 +175,6 @@ func getReleaseTime(repo, release string) (string, error) {
 		return "", err
 	}
 	t := time.UTC()
-	log.Printf("Format time: %s", t.Format("2017-07-08T07:13:35Z"))
 	timeString := fmt.Sprintf("%d-%02d-%02dT%02d:%02d:%02dZ",
 		t.Year(), t.Month(), t.Day(),
 		t.Hour(), t.Minute(), t.Second())
