@@ -1,46 +1,95 @@
-# Istio develop process under Mungegithub
-
-Mungegithub is a tool based on github offering a better way to review and approve PRs and automatically rebase and merge them without engineers' efforts. Plus a two-level approval system controls codebase better by always having the right people to approve changes. 
-
-Mungegithub requires a small behavior change to use new system while doesn't block you to keep the old way, which although is not recommended.
-
-Submit-queue is the core part of mungegithub. Its job is to automatically rebase, verify and merge PRs after proper human approvals.
-Submit-queue waits for all reuqired tests passed, 4 kinds of labels(cla, lgtm, approve, release-note) set until it puts this pr into the queue. When a mergable pr comes to the head of Submit-queue, required retest contexts will be triggered to make sure everything is well tested, after these second-round tests pass, Mungegithub will go and merge this pr for you!
-
-## Concept
-Mungegitgub uses github label and comment system to communicate with developers and other robots.
-
-### Comment
-Powered by prow plugins and mungegithub, people can add labels to PRs by directly write comment. 
-
-  >  Note: If not necessary, do not add or remove labels from github UI which will bypass Mungegithub access control system.
-
-### Label
-Mungegithub waits for 4 labels:
-* **CLA** "cla-yes" label or "cla-no" label is set automatically. There is a hacker way "cla human-approved" to bypass cla check if it's necessary.
-* **LGTM** "lgtm" is the first level approve, it means "look good to me, but someone else may need to take a look and make final decision". "lgtm" is more like "review: approve" in github-way. Everyone assigned to this pr can say valid "/lgtm", people in github organization can also do it. With prow deployed, people should add "lgtm" label by comment "/lgtm". 
-
-  >  Note: Any code changes after "/lgtm" will automatically remove "lgtm" label
+## Update Submit Queue
+* Build mungegithub binary
   
-* **Approve** "approved" is the second level approve, it's more like clicking the "merge" buttom in github-way. So when you are a repo admin or the owner of this part of code, when you actually want to get this pr into master, instead of clicking the merge buttom, simply comment "/approve" (We are getting rid of "/approve no-issue"), Mungegithub will add "approved" label on the pr and when other requirements are satisfied, this pr is going to the submit-queue.
+  Checkout kubernetes/test-infra repo. 
+  
+  >Don't build directly from kubernetes/test-infra master unless you understand what major new features
+  are involved. Currently version is built from github.com/yutongz/k8s-test-infra/tree/master
+  
+  On repo root directory
+  ```bash
+  $ bazel build //mungegithub:mungegithub
+  $ cp bazel-bin/mungegithub/mungegithub mungegithub/
+  ```
 
-  >  Note: Do not comment "/approve" or add "approved" label unless you are 100% sure you want this change, because after you say that, the pr will be merge any minutes.
-    
-* **Release-note** Release note enforcement is another feather we are seeking from Mungegithub. With template, when prs are create, people should add release note (can be "None") in the pr description. Depended on the release message left, Mungegithub will add "release-note", "release-note-none". If you leave it empty, "release-note-needed" will be added and is going to block merging.
+* Build and push docker image
 
-* **do-not-merge** Even with all required parts, you can always have more time by add "do-not-merge" label. 
+  Make sure you are authorized to push to that docker hub, here is the hub and tag we are using:
+  ```bash
+  $ cd mungegithub
+  $ CONTAINER=gcr.io/istio-testing/mungegithub/submit-queue:Sep-11-yutongz-a81300506273c9c27bc6fcd33a4b12cf0feace69
+  $ docker build --pull -t $(CONTAINER) -f Dockerfile-submit-queue .
+  $ gcloud docker -- push $(CONTAINER)
+  ```
+  
+* Re-deploy Submit Queue instence
 
-### OWNERS file
-OWNERS file is the way to organize code owners and write priviliage. There are two parts. Reviews are the people who are suggested to review the pr and approvers are the people who can actually say "/approve" to add the "approve" label. Each path can have its OWNERS file, and this file affects this directory and all subdirectories. More details can be found: [Reviewer and approver](https://github.com/kubernetes/test-infra/tree/master/mungegithub/mungers/approvers)
+  * In deployment.yaml, replace the `image: xxxxx` with the image we just uploaded.
+  
+  * Replace "test-infra" with the repo you are trying to deploy
+  
+  * And then:
+  
+  ```bash
+  $ kubectl apply -f deployment.yaml
+  ```
 
-## Walk Through
-### Create a PR
-When creating a PR, use template to add release-note, if release-note is not necessary for this pr, just add "None". Sign CLA if you haven't. 
+## Host Submit Queue
 
-### Review a PR
-For review, you can still do it with the old way, commentting or asking for change.
+We are using one basic load-balancer for each Submit Queue.
 
-Things get changed a little bit when you actually want to approve it. If you are a repo admin or the owner of this part of code (meaning, you are in the OWNERS file covering all changed code), you can comment "/lgtm" and "/approve". But if you are not in OWNERS file, you can only say "/lgtm", but the pr always need someone to comment "approve" to make it got pick up by submit-queue.
+* Auth: http://35.197.10.29:8080
+* Istio: http://35.197.104.17:8080
+* Mixer: http://35.197.95.47:8080
+* Pilot: http://35.199.174.118:8080 (Current disabled)
 
-### Ready to merge
-Idealy, if a pr passed all tests and has all four labels without "do-not-merge", it will be dealed by submit-queue with extra human operations. But if the pr cannot be auto rebase because of conflicts, somebody still need to be involved and solve it.
+
+## Maintain Submit Queue
+
+Most maintainance only involves changes in configmap. Since k8s currently doesn't support `kubectl replace configmap`,
+there is [a open issue](https://github.com/kubernetes/kubernetes/issues/30558). When you need to update configmap,
+you need to do:
+
+```bash
+$ kubectl delete configmap istio-sq-config
+$ kubectl create configmap istio-sq-config --from-file=mungegithub/deployment/istio/configmap.yaml
+```
+
+* Required CI tests change
+  
+  Change `required-contexts` and `required-retest-contexts`. Usually they should be the same.
+  
+* Emergency stop submit-queue
+
+```bash
+$ kubectl delete deployment istio-submit-queue
+```
+
+* Enable/disable "approve" gating
+
+  Change `gate-approved`.
+
+* Frequence change
+
+  Change `period`
+  
+
+## Troubleshooting
+
+> Make sure read [user manual](https://github.com/istio/test-infra/blob/master/mungegithub/README.md) first.
+
+* Someone comment "/lgtm", but istio-testing didn't add "lgtm" label
+
+  Github webhook issue. Simply comment "/lgtm" again.
+  
+* CI already finished successfully, but Submit Queue still complains one is not green
+
+  Believe it's the webhook issue too. CI status change will not trigger Submit Queue, you need to 
+  punch it by leaving any comment. [Example](https://github.com/istio/istio/pull/730)
+  
+* Check log
+
+  ```bash
+  $ kubectl logs istio-submit-queue-2564258885-qb09l
+  ```
+  

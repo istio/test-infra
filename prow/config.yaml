@@ -10,16 +10,6 @@ sinker:
 prowjob_namespace: default
 pod_namespace: test-pods
 
-triggers:
-- repos:
-  - istio/auth
-  - istio/broker
-  - istio/istio
-  - istio/mixer
-  - istio/pilot
-  - istio/test-infra
-  trusted_org: istio
-
 presubmits:
   # PR job triggering definitions.
   # Keys: Full repo name: "org/repo".
@@ -52,6 +42,7 @@ presubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
+        - "--timeout=20"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -96,57 +87,117 @@ presubmits:
           path: /mnt/disks/ssd0
 
   istio/broker:
-   - name: broker-presubmit
-     agent: kubernetes
-     context: prow/broker-presubmit.sh
-     always_run: true
-     rerun_command: "/test broker-presubmit"
-     trigger: "(?m)^/(retest|test (all|broker-presubmit))?,?(\\s+|$)"
-     branches:
-     - master
-     spec:
-       containers:
-       - image: gcr.io/istio-testing/prowbazel:0.2.1
-         args:
-         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
-         - "--clean"
-         # Bazel needs privileged mode in order to sandbox builds.
-         securityContext:
-           privileged: true
-         env:
-         - name: GOOGLE_APPLICATION_CREDENTIALS
-           value: /etc/service-account/service-account.json
-         volumeMounts:
-         - name: service
-           mountPath: /etc/service-account
-           readOnly: true
-         - name: broker-codecov-token
-           mountPath: /etc/codecov
-           readOnly: true
-         - name: cache-ssd
-           mountPath: /home/bootstrap/.cache
-         ports:
-         - containerPort: 9999
-           hostPort: 9998
-         resources:
-           requests:
-             memory: "512Mi"
-             cpu: "500m"
-           limits:
-             memory: "20Gi"
-             cpu: "5000m"
-       nodeSelector:
-         cloud.google.com/gke-nodepool: build-pool
-       volumes:
-       - name: service
-         secret:
-           secretName: service-account
-       - name: broker-codecov-token
-         secret:
-           secretName: broker-codecov-token
-       - name: cache-ssd
-         hostPath:
-           path: /mnt/disks/ssd0
+  - name: broker-presubmit
+    agent: kubernetes
+    context: prow/broker-presubmit.sh
+    always_run: true
+    rerun_command: "/test broker-presubmit"
+    trigger: "(?m)^/(retest|test (all|broker-presubmit))?,?(\\s+|$)"
+    branches:
+    - master
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.2.1
+        args:
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+        - "--clean"
+        - "--timeout=10"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: broker-codecov-token
+          mountPath: /etc/codecov
+          readOnly: true
+        - name: e2e-testing-kubeconfig
+          mountPath: /home/bootstrap/.kube
+        - name: cache-ssd
+          mountPath: /home/bootstrap/.cache
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "20Gi"
+            cpu: "5000m"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: build-pool
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: broker-codecov-token
+        secret:
+          secretName: broker-codecov-token
+      - name: e2e-testing-kubeconfig
+        secret:
+          secretName: e2e-testing-kubeconfig
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0
+  run_after_success:
+  - name: broker-coverage
+    agent: kubernetes
+    context: prow/broker-coverage.sh
+    always_run: true
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.2.1
+        args:
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+        - "--clean"
+        - "--timeout=20"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: broker-codecov-token
+          mountPath: /etc/codecov
+          readOnly: true
+        - name: e2e-testing-kubeconfig
+          mountPath: /home/bootstrap/.kube
+        - name: cache-ssd
+          mountPath: /home/bootstrap/.cache
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "20Gi"
+            cpu: "5000m"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: build-pool
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: broker-codecov-token
+        secret:
+          secretName: broker-codecov-token
+      - name: e2e-testing-kubeconfig
+        secret:
+          secretName: e2e-testing-kubeconfig
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0
 
   istio/istio:
   - name: istio-presubmit
@@ -164,6 +215,7 @@ presubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
+        - "--timeout=15"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -201,104 +253,6 @@ presubmits:
         hostPath:
           path: /mnt/disks/ssd0
     run_after_success:
-    - name: e2e-suite-no_rbac-no_auth
-      agent: kubernetes
-      context: prow/e2e-suite-no_rbac-no_auth.sh
-      rerun_command: "/test e2e-suite-no_rbac-no_auth"
-      trigger: "(?m)^/test (e2e-suite|e2e-suite-no_rbac-no_auth)?,?(\\s+|$)"
-      branches:
-      - master
-      spec:
-        containers:
-        - image: gcr.io/istio-testing/prowbazel:0.2.1
-          args:
-          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
-          - "--clean"
-          # Bazel needs privileged mode in order to sandbox builds.
-          securityContext:
-            privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-          - name: e2e-testing-kubeconfig
-            mountPath: /home/bootstrap/.kube
-          - name: cache-ssd
-            mountPath: /home/bootstrap/.cache
-          ports:
-          - containerPort: 9999
-            hostPort: 9998
-          resources:
-            requests:
-              memory: "512Mi"
-              cpu: "500m"
-            limits:
-              memory: "20Gi"
-              cpu: "5000m"
-        nodeSelector:
-          cloud.google.com/gke-nodepool: build-pool
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
-        - name: e2e-testing-kubeconfig
-          secret:
-            secretName: e2e-testing-kubeconfig
-        - name: cache-ssd
-          hostPath:
-            path: /mnt/disks/ssd0
-    - name: e2e-suite-no_rbac-auth
-      agent: kubernetes
-      context: prow/e2e-suite-no_rbac-auth.sh
-      rerun_command: "/test e2e-suite-no_rbac-auth"
-      trigger: "(?m)^/test (e2e-suite|e2e-suite-no_rbac-auth)?,?(\\s+|$)"
-      branches:
-      - master
-      spec:
-        containers:
-        - image: gcr.io/istio-testing/prowbazel:0.2.1
-          args:
-          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
-          - "--clean"
-          # Bazel needs privileged mode in order to sandbox builds.
-          securityContext:
-            privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-          - name: e2e-testing-kubeconfig
-            mountPath: /home/bootstrap/.kube
-          - name: cache-ssd
-            mountPath: /home/bootstrap/.cache
-          ports:
-          - containerPort: 9999
-            hostPort: 9998
-          resources:
-            requests:
-              memory: "512Mi"
-              cpu: "500m"
-            limits:
-              memory: "20Gi"
-              cpu: "5000m"
-        nodeSelector:
-          cloud.google.com/gke-nodepool: build-pool
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
-        - name: e2e-testing-kubeconfig
-          secret:
-            secretName: e2e-testing-kubeconfig
-        - name: cache-ssd
-          hostPath:
-            path: /mnt/disks/ssd0
     - name: e2e-suite-rbac-no_auth
       agent: kubernetes
       context: prow/e2e-suite-rbac-no_auth.sh
@@ -312,6 +266,7 @@ presubmits:
           args:
           - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
           - "--clean"
+          - "--timeout=60"
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
@@ -361,6 +316,7 @@ presubmits:
           args:
           - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
           - "--clean"
+          - "--timeout=60"
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
@@ -397,6 +353,51 @@ presubmits:
         - name: cache-ssd
           hostPath:
             path: /mnt/disks/ssd0
+    - name: e2e-cluster_wide-auth
+      agent: kubernetes
+      context: prow/e2e-cluster_wide-auth.sh
+      rerun_command: "/test e2e-cluster_wide-auth"
+      trigger: "(?m)^/test (e2e-suite|e2e-cluster_wide-auth)?,?(\\s+|$)"
+      branches:
+      - master
+      spec:
+        containers:
+        - image: gcr.io/istio-testing/prowbazel:0.2.1
+          args:
+          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+          - "--clean"
+          - "--timeout=60"
+          # Bazel needs privileged mode in order to sandbox builds.
+          securityContext:
+            privileged: true
+          env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /etc/service-account/service-account.json
+          volumeMounts:
+          - name: service
+            mountPath: /etc/service-account
+            readOnly: true
+          - name: cache-ssd
+            mountPath: /home/bootstrap/.cache
+          ports:
+          - containerPort: 9999
+            hostPort: 9998
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "20Gi"
+              cpu: "5000m"
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
+        volumes:
+        - name: service
+          secret:
+            secretName: service-account
+        - name: cache-ssd
+          hostPath:
+            path: /mnt/disks/ssd0
 
   istio/mixer:
   - name: mixer-presubmit
@@ -414,6 +415,7 @@ presubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
+        - "--timeout=40"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -426,9 +428,6 @@ presubmits:
           readOnly: true
         - name: e2e-testing-kubeconfig
           mountPath: /home/bootstrap/.kube
-        - name: mixer-codecov-token
-          mountPath: /etc/codecov
-          readOnly: true
         - name: cache-ssd
           mountPath: /home/bootstrap/.cache
         ports:
@@ -450,13 +449,63 @@ presubmits:
       - name: e2e-testing-kubeconfig
         secret:
           secretName: e2e-testing-kubeconfig
-      - name: mixer-codecov-token
-        secret:
-          secretName: mixer-codecov-token
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
     run_after_success:
+    - name: mixer-coverage
+      agent: kubernetes
+      context: prow/mixer-coverage.sh
+      always_run: true
+      rerun_command: "/test mixer-coverage"
+      trigger: "(?m)^/test mixer-coverage?,?(\\s+|$)"
+      branches:
+      - master
+      - release-0.1
+      spec:
+        containers:
+        - image: gcr.io/istio-testing/prowbazel:0.2.1
+          args:
+          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+          - "--clean"
+          - "--timeout=40"
+          # Bazel needs privileged mode in order to sandbox builds.
+          securityContext:
+            privileged: true
+          env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /etc/service-account/service-account.json
+          volumeMounts:
+          - name: service
+            mountPath: /etc/service-account
+            readOnly: true
+          - name: mixer-codecov-token
+            mountPath: /etc/codecov
+            readOnly: true
+          - name: cache-ssd
+            mountPath: /home/bootstrap/.cache
+          ports:
+          - containerPort: 9999
+            hostPort: 9998
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "20Gi"
+              cpu: "5000m"
+        nodeSelector:
+          cloud.google.com/gke-nodepool: build-pool
+        volumes:
+        - name: service
+          secret:
+            secretName: service-account
+        - name: mixer-codecov-token
+          secret:
+            secretName: mixer-codecov-token
+        - name: cache-ssd
+          hostPath:
+            path: /mnt/disks/ssd0
     - name: mixer-e2e-smoketest
       agent: kubernetes
       context: prow/mixer-e2e-smoketest.sh
@@ -469,6 +518,7 @@ presubmits:
           args:
           - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
           - "--clean"
+          - "--timeout=60"
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
@@ -479,7 +529,7 @@ presubmits:
           - name: service
             mountPath: /etc/service-account
             readOnly: true
-          - name: e2e-testing-kubeconfig
+          - name: mixer-e2e-rbac-kubeconfig
             mountPath: /home/bootstrap/.kube
           - name: cache-ssd
             mountPath: /home/bootstrap/.cache
@@ -499,9 +549,9 @@ presubmits:
         - name: service
           secret:
             secretName: service-account
-        - name: e2e-testing-kubeconfig
+        - name: mixer-e2e-rbac-kubeconfig
           secret:
-            secretName: e2e-testing-kubeconfig
+            secretName: mixer-e2e-rbac-kubeconfig
         - name: cache-ssd
           hostPath:
             path: /mnt/disks/ssd0
@@ -522,6 +572,7 @@ presubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
+        - "--timeout=20"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -532,7 +583,7 @@ presubmits:
         - name: service
           mountPath: /etc/service-account
           readOnly: true
-        - name: e2e-testing-kubeconfig
+        - name: pilot-e2e-rbac-kubeconfig
           mountPath: /home/bootstrap/.kube
         - name: cache-ssd
           mountPath: /home/bootstrap/.cache
@@ -552,9 +603,9 @@ presubmits:
       - name: service
         secret:
           secretName: service-account
-      - name: e2e-testing-kubeconfig
+      - name: pilot-e2e-rbac-kubeconfig
         secret:
-          secretName: e2e-testing-kubeconfig
+          secretName: pilot-e2e-rbac-kubeconfig
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
@@ -571,6 +622,7 @@ presubmits:
           args:
           - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
           - "--clean"
+          - "--timeout=60"
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
@@ -581,7 +633,7 @@ presubmits:
           - name: service
             mountPath: /etc/service-account
             readOnly: true
-          - name: e2e-testing-kubeconfig
+          - name: pilot-e2e-rbac-kubeconfig
             mountPath: /home/bootstrap/.kube
           - name: cache-ssd
             mountPath: /home/bootstrap/.cache
@@ -601,9 +653,9 @@ presubmits:
         - name: service
           secret:
             secretName: service-account
-        - name: e2e-testing-kubeconfig
+        - name: pilot-e2e-rbac-kubeconfig
           secret:
-            secretName: e2e-testing-kubeconfig
+            secretName: pilot-e2e-rbac-kubeconfig
         - name: cache-ssd
           hostPath:
             path: /mnt/disks/ssd0
@@ -618,6 +670,7 @@ presubmits:
           args:
           - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
           - "--clean"
+          - "--timeout=20"
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
@@ -628,6 +681,8 @@ presubmits:
           - name: service
             mountPath: /etc/service-account
             readOnly: true
+          - name: pilot-e2e-rbac-kubeconfig
+            mountPath: /home/bootstrap/.kube
           - name: pilot-codecov-token
             mountPath: /etc/codecov
             readOnly: true
@@ -649,6 +704,9 @@ presubmits:
         - name: service
           secret:
             secretName: service-account
+        - name: pilot-e2e-rbac-kubeconfig
+          secret:
+            secretName: pilot-e2e-rbac-kubeconfig
         - name: pilot-codecov-token
           secret:
             secretName: pilot-codecov-token
@@ -671,6 +729,7 @@ presubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
+        - "--timeout=20"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -716,6 +775,7 @@ postsubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
+        - "--timeout=20"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -731,14 +791,9 @@ postsubmits:
         - name: auth-codecov-token
           mountPath: /etc/codecov
           readOnly: true
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
         - name: oauth
           mountPath: /etc/github
           readOnly: true
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
         resources:
           requests:
             memory: "512Mi"
@@ -758,9 +813,6 @@ postsubmits:
       - name: auth-codecov-token
         secret:
           secretName: auth-codecov-token
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
       - name: oauth
         secret:
           secretName: oauth-token
@@ -776,6 +828,7 @@ postsubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
+        - "--timeout=20"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -789,14 +842,11 @@ postsubmits:
         - name: broker-codecov-token
           mountPath: /etc/codecov
           readOnly: true
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
+        - name: e2e-testing-kubeconfig
+          mountPath: /home/bootstrap/.kube
         - name: oauth
           mountPath: /etc/github
           readOnly: true
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
         resources:
           requests:
             memory: "512Mi"
@@ -813,9 +863,9 @@ postsubmits:
       - name: broker-codecov-token
         secret:
           secretName: broker-codecov-token
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
+      - name: e2e-testing-kubeconfig
+        secret:
+          secretName: e2e-testing-kubeconfig
       - name: oauth
         secret:
           secretName: oauth-token
@@ -831,6 +881,7 @@ postsubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
+        - "--timeout=30"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -844,14 +895,9 @@ postsubmits:
         - name: mixer-codecov-token
           mountPath: /etc/codecov
           readOnly: true
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
         - name: oauth
           mountPath: /etc/github
           readOnly: true
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
         resources:
           requests:
             memory: "512Mi"
@@ -868,9 +914,6 @@ postsubmits:
       - name: mixer-codecov-token
         secret:
           secretName: mixer-codecov-token
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
       - name: oauth
         secret:
           secretName: oauth-token
@@ -886,6 +929,7 @@ postsubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
+        - "--timeout=60"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -901,14 +945,9 @@ postsubmits:
         - name: pilot-codecov-token
           mountPath: /etc/codecov
           readOnly: true
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
         - name: oauth
           mountPath: /etc/github
           readOnly: true
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
         resources:
           requests:
             memory: "512Mi"
@@ -928,9 +967,6 @@ postsubmits:
       - name: pilot-codecov-token
         secret:
           secretName: pilot-codecov-token
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
       - name: oauth
         secret:
           secretName: oauth-token
@@ -945,6 +981,7 @@ periodics:
       args:
       - "--repo=github.com/istio/test-infra=master"
       - "--clean"
+      - "--timeout=20"
       env:
       - name: GOOGLE_APPLICATION_CREDENTIALS
         value: /etc/service-account/service-account.json
@@ -952,7 +989,7 @@ periodics:
       - name: service
         mountPath: /etc/service-account
         readOnly: true
-      - name: e2e-testing-kubeconfig
+      - name: pilot-e2e-rbac-kubeconfig
         mountPath: /home/bootstrap/.kube
     nodeSelector:
       cloud.google.com/gke-nodepool: build-pool
@@ -960,9 +997,9 @@ periodics:
     - name: service
       secret:
         secretName: service-account
-    - name: e2e-testing-kubeconfig
+    - name: pilot-e2e-rbac-kubeconfig
       secret:
-        secretName: e2e-testing-kubeconfig
+        secretName: pilot-e2e-rbac-kubeconfig
 
 - interval: 2h
   agent: kubernetes
@@ -973,6 +1010,36 @@ periodics:
       args:
       - "--repo=github.com/istio/test-infra=master"
       - "--clean"
+      - "--timeout=20"
+      env:
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/service-account/service-account.json
+      volumeMounts:
+      - name: service
+        mountPath: /etc/service-account
+        readOnly: true
+      - name: mixer-e2e-rbac-kubeconfig
+        mountPath: /home/bootstrap/.kube
+    nodeSelector:
+      cloud.google.com/gke-nodepool: build-pool
+    volumes:
+    - name: service
+      secret:
+        secretName: service-account
+    - name: mixer-e2e-rbac-kubeconfig
+      secret:
+        secretName: mixer-e2e-rbac-kubeconfig
+
+- interval: 2h
+  agent: kubernetes
+  name: test-infra-cleanup-cluster
+  spec:
+    containers:
+    - image: gcr.io/istio-testing/prowbazel:0.1.7
+      args:
+      - "--repo=github.com/istio/test-infra=master"
+      - "--clean"
+      - "--timeout=20"
       env:
       - name: GOOGLE_APPLICATION_CREDENTIALS
         value: /etc/service-account/service-account.json
@@ -992,7 +1059,31 @@ periodics:
       secret:
         secretName: e2e-testing-rbac-kubeconfig
 
-- interval: 12h
+- interval: 3h
+  agent: kubernetes
+  name: test-infra-cleanup-GKE
+  spec:
+    containers:
+    - image: gcr.io/istio-testing/prowbazel:0.1.7
+      args:
+      - "--repo=github.com/istio/test-infra=master"
+      - "--clean"
+      - "--timeout=30"
+      env:
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/service-account/service-account.json
+      volumeMounts:
+      - name: service
+        mountPath: /etc/service-account
+        readOnly: true
+    nodeSelector:
+      cloud.google.com/gke-nodepool: build-pool
+    volumes:
+    - name: service
+      secret:
+        secretName: service-account
+
+- interval: 2h
   agent: kubernetes
   name: test-infra-update-deps
   spec:
@@ -1001,6 +1092,7 @@ periodics:
       args:
       - "--repo=github.com/istio/test-infra=master"
       - "--clean"
+      - "--timeout=20"
       env:
       - name: GOOGLE_APPLICATION_CREDENTIALS
         value: /etc/service-account/service-account.json

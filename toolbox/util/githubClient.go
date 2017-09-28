@@ -33,7 +33,11 @@ var (
 )
 
 const (
-	maxCommitDistance = 200
+	maxCommitDistance   = 200
+	releaseBodyTemplate = `
+[ARTIFACTS](http://gcsweb.istio.io/gcs/istio-release/releases/{{.ReleaseTag}}/)
+
+[RELEASE NOTES](http://github.com/istio/istio/wiki/v{{.ReleaseTag}})`
 )
 
 // GithubClient masks RPCs to github as local procedures
@@ -156,17 +160,25 @@ func (g GithubClient) AddlabelsToPR(
 // ClosePRDeleteBranch closes a PR and deletes the branch from which the PR is made
 func (g GithubClient) ClosePRDeleteBranch(repo string, pr *github.PullRequest) error {
 	prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
-	log.Printf("Closing PR %s and deleting branch %s", prName, *pr.Head.Ref)
+	prBranch := *pr.Head.Ref
+	log.Printf("Closing PR %s", prName)
 	*pr.State = "closed"
 	if _, _, err := g.client.PullRequests.Edit(
 		context.Background(), g.owner, repo, pr.GetNumber(), pr); err != nil {
 		log.Printf("Failed to close %s", prName)
 		return err
 	}
-	ref := fmt.Sprintf("refs/heads/%s", *pr.Head.Ref)
-	if _, err := g.client.Git.DeleteRef(context.Background(), g.owner, repo, ref); err != nil {
-		log.Printf("Failed to delete branch %s in repo %s", *pr.Head.Ref, repo)
+	prBranchExists, err := g.ExistBranch(repo, prBranch)
+	if err != nil {
 		return err
+	}
+	if prBranchExists {
+		ref := fmt.Sprintf("refs/heads/%s", *pr.Head.Ref)
+		log.Printf("Deleting branch %s", prBranch)
+		if _, err := g.client.Git.DeleteRef(context.Background(), g.owner, repo, ref); err != nil {
+			log.Printf("Failed to delete branch %s in repo %s", *pr.Head.Ref, repo)
+			return err
+		}
 	}
 	return nil
 }
@@ -207,27 +219,31 @@ func (g GithubClient) ExistBranch(repo, branch string) (bool, error) {
 // remote branches from which the PRs are made
 func (g GithubClient) CloseIdlePullRequests(prTitlePrefix, repo, baseBranch string) error {
 	log.Printf("If any, close failed auto PRs to update dependencies in repo %s", repo)
-	idleTimeout := time.Hour * 24
-	options := github.PullRequestListOptions{
-		Base:  baseBranch,
-		State: "open",
-	}
-	prs, _, err := g.client.PullRequests.List(
-		context.Background(), g.owner, repo, &options)
-	if err != nil {
-		return err
-	}
+	idleTimeout := time.Hour * 6
 	var multiErr error
-	for _, pr := range prs {
-		if !strings.HasPrefix(*pr.Title, prTitlePrefix) {
-			continue
+	checkPR := func(prState string) {
+		options := github.PullRequestListOptions{
+			State: prState,
 		}
-		if time.Since(*pr.CreatedAt).Nanoseconds() > idleTimeout.Nanoseconds() {
-			if err := g.ClosePRDeleteBranch(repo, pr); err != nil {
-				multiErr = multierror.Append(multiErr, err)
+		prs, _, err := g.client.PullRequests.List(
+			context.Background(), g.owner, repo, &options)
+		if err != nil {
+			multiErr = multierror.Append(multiErr, err)
+			return
+		}
+		for _, pr := range prs {
+			if !strings.HasPrefix(*pr.Title, prTitlePrefix) {
+				continue
+			}
+			if time.Since(*pr.CreatedAt).Nanoseconds() > idleTimeout.Nanoseconds() {
+				if err := g.ClosePRDeleteBranch(repo, pr); err != nil {
+					multiErr = multierror.Append(multiErr, err)
+				}
 			}
 		}
 	}
+	checkPR("open")
+	checkPR("closed")
 	return multiErr
 }
 
@@ -294,7 +310,7 @@ func (g GithubClient) GetFileContent(repo, branch, path string) (string, error) 
 	return fileContent.GetContent()
 }
 
-// CreateAnnotatedTag retrieves the file content from the hosted repo
+// CreateAnnotatedTag creates on the remote repo an annotated tag at given sha
 func (g GithubClient) CreateAnnotatedTag(repo, tag, sha, msg string) error {
 	if !SHARegex.MatchString(sha) {
 		return fmt.Errorf(
@@ -326,7 +342,7 @@ func (g GithubClient) CreateAnnotatedTag(repo, tag, sha, msg string) error {
 	_, _, err = g.client.Git.CreateRef(
 		context.Background(), g.owner, repo, &refObj)
 	if err != nil {
-		log.Printf("Failed to create reference with tag just created: %s", tag)
+		log.Printf("Failed to create reference with tag %s\n", tag)
 	}
 	return err
 }
@@ -336,6 +352,18 @@ func (g GithubClient) CreateAnnotatedTag(repo, tag, sha, msg string) error {
 func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, archiveDir string) error {
 	// create release
 	release := github.RepositoryRelease{TagName: &releaseTag}
+	// Setting release to pre release and draft such that it does not send an announcement.
+	newBool := func(b bool) *bool {
+		bb := b
+		return &bb
+	}
+	release.Draft = newBool(true)
+	release.Prerelease = newBool(true)
+	releaseBody, err := FillUpTemplate(releaseBodyTemplate, map[string]string{"ReleaseTag": releaseTag})
+	if err != nil {
+		return err
+	}
+	release.Body = &releaseBody
 	log.Printf("Creating on github new %s release [%s]\n", repo, releaseTag)
 	res, _, err := g.client.Repositories.CreateRelease(
 		context.Background(), g.owner, repo, &release)

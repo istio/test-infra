@@ -15,6 +15,7 @@
 package util
 
 import (
+	"bytes"
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
@@ -22,6 +23,15 @@ import (
 	"log"
 	"os/exec"
 	"strings"
+	"text/template"
+)
+
+var (
+	kvSplitters = []string{
+		" = ",
+		"=",
+		":",
+	}
 )
 
 // ReadFile reads the file on the given path and
@@ -34,8 +44,11 @@ func ReadFile(filePath string) (string, error) {
 	return string(b), nil
 }
 
-// WriteFile overwrites the file on the given path with content
-func WriteFile(filePath, content string) error {
+// WriteTextFile overwrites the file on the given path with content
+func WriteTextFile(filePath, content string) error {
+	if len(content) > 0 && content[len(content)-1] != '\n' {
+		content += "\n"
+	}
 	return ioutil.WriteFile(filePath, []byte(content), 0600)
 }
 
@@ -50,11 +63,15 @@ func ContainsString(slice []string, target string) bool {
 }
 
 // UpdateKeyValueInFile updates in the file all occurrences of key to
-// a new value. A key-value pair is defined as `key="value"` or `key = "value"`
+// a new value, except comments started with # or //
 func UpdateKeyValueInFile(file, key, value string) error {
-	replaceValue := func(line *string, value string) {
-		idx := strings.Index(*line, "\"")
-		*line = (*line)[:idx] + "\"" + value + "\""
+	replaceValue := func(line *string, splitter string) {
+		idx := strings.Index(*line, splitter) + len(splitter)
+		if (*line)[idx] == '"' {
+			*line = (*line)[:idx] + "\"" + value + "\""
+		} else {
+			*line = (*line)[:idx] + value
+		}
 	}
 
 	input, err := ReadFile(file)
@@ -64,16 +81,22 @@ func UpdateKeyValueInFile(file, key, value string) error {
 	lines := strings.Split(input, "\n")
 	found := false
 	for i, line := range lines {
-		if strings.Contains(line, key+" = ") || strings.Contains(line, key+"=") {
-			replaceValue(&lines[i], value)
-			found = true
+		if strings.HasPrefix(line, "#") || strings.HasPrefix(line, "//") {
+			continue
+		}
+		for _, splitter := range kvSplitters {
+			if strings.Contains(line, key+splitter) {
+				replaceValue(&lines[i], splitter)
+				found = true
+				break
+			}
 		}
 	}
 	if !found {
 		return fmt.Errorf("no occurrence of %s found in %s", key, file)
 	}
 	output := strings.Join(lines, "\n")
-	return WriteFile(file, output)
+	return WriteTextFile(file, output)
 }
 
 // GetMD5Hash generates an MD5 digest of the given string
@@ -107,4 +130,18 @@ func sh(format string, muted bool, args ...interface{}) (string, error) {
 		return "", fmt.Errorf("command failed: %q %v", string(bytes), err)
 	}
 	return string(bytes), nil
+}
+
+// FillUpTemplate fills up a template from the provided interface
+func FillUpTemplate(t string, i interface{}) (string, error) {
+	tmpl, err := template.New("tmpl").Parse(t)
+	if err != nil {
+		return "", err
+	}
+	wr := bytes.NewBufferString("")
+	if err := tmpl.Execute(wr, i); err != nil {
+		return "", err
+	} else {
+		return wr.String(), nil
+	}
 }

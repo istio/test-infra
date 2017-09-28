@@ -38,15 +38,17 @@ const (
 	istioVersionFile     = "istio.VERSION"
 	istioDepsFile        = "istio.deps"
 	releaseTagFile       = "istio.RELEASE"
-	downloadScript       = "downloadIstio.sh"
+	downloadScript       = "release/downloadIstioCandidate.sh"
 	istioRepo            = "istio"
 	masterBranch         = "master"
 	export               = "export "
 	dockerHub            = "docker.io/istio"
-	releaseBaseDir       = "tmp/release"
+	releaseBaseDir       = "/tmp/release"
 	releasePRTtilePrefix = "[Auto Release] "
-	releasePRBody        = "Update istio.VERSION and downloadIstio.sh"
-	releaseBucketFmtStr  = "https://storage.googleapis.com/istio-release/releases/%s/istioctl"
+	releasePRBody        = "Update istio.VERSION and downloadIstioCandidate.sh"
+	releaseBucketFmtStr  = "https://storage.googleapis.com/istio-release/releases/%s/%s"
+	istioctlSuffix       = "istioctl"
+	debianSuffix         = "deb"
 )
 
 // Panic if value not specified
@@ -124,6 +126,7 @@ func TagIstioDepsForRelease() error {
 		if !exists {
 			return fmt.Errorf("ill-defined %s: unable to find %s", istioVersionFile, dep.Name)
 		}
+		// make sure ref is a SHA, special case where previous release is used in this release
 		if u.ReleaseTagRegex.MatchString(ref) {
 			ref, err = githubClnt.GetTagCommitSHA(dep.RepoName, ref)
 			if err != nil {
@@ -132,7 +135,19 @@ func TagIstioDepsForRelease() error {
 		}
 		if err := githubClnt.CreateAnnotatedTag(
 			dep.RepoName, releaseTag, ref, releaseMsg); err != nil {
-			return err
+			if strings.Contains(err.Error(), "Reference already exists") {
+				log.Printf("Tag [%s] already exists on %s\n", releaseTag, dep.RepoName)
+				prevTagSHA, err := githubClnt.GetTagCommitSHA(dep.RepoName, releaseTag)
+				if err != nil {
+					return err
+				}
+				if prevTagSHA == ref {
+					log.Printf("Intended to tag [%s] at the same SHA, resort to no-op and continue\n")
+					continue
+				} else {
+					return fmt.Errorf("trying to tag [%s] at different SHA")
+				}
+			}
 		}
 	}
 	return nil
@@ -173,9 +188,17 @@ func UpdateIstioVersionAfterReleaseTagsMadeOnDeps() error {
 	}
 	edit := func() error {
 		hubCommaTag := fmt.Sprintf("%s,%s", dockerHub, releaseTag)
-		istioctl := fmt.Sprintf(releaseBucketFmtStr, releaseTag)
-		cmd := fmt.Sprintf("./install/updateVersion.sh -p %s -c %s -x %s -i %s",
-			hubCommaTag, hubCommaTag, hubCommaTag, istioctl)
+		istioctlURL := fmt.Sprintf(releaseBucketFmtStr, releaseTag, istioctlSuffix)
+		debianURL := fmt.Sprintf(releaseBucketFmtStr, releaseTag, debianSuffix)
+		cmd := fmt.Sprintf("./install/updateVersion.sh")
+		// Auth
+		cmd += fmt.Sprintf(" -c %s -A %s", hubCommaTag, debianURL)
+		// Mixer
+		cmd += fmt.Sprintf(" -x %s", hubCommaTag)
+		// Pilot
+		cmd += fmt.Sprintf(" -p %s -i %s -P %s", hubCommaTag, istioctlURL, debianURL)
+		// Proxy
+		cmd += fmt.Sprintf(" -r %s -E %s", hubCommaTag, debianURL)
 		_, err := u.Shell(cmd)
 		return err
 	}
@@ -194,6 +217,7 @@ func CreateIstioReleaseUploadArtifacts() error {
 		return err
 	}
 	releaseBranch := "finalizeRelease-" + releaseTag
+	prBody := fmt.Sprintf("Finalize release %s on istio", releaseTag)
 	edit := func() error {
 		if _, err := u.Shell(
 			"./release/create_release_archives.sh -d " + releaseBaseDir); err != nil {
@@ -204,16 +228,15 @@ func CreateIstioReleaseUploadArtifacts() error {
 			istioRepo, releaseTag, archiveDir); err != nil {
 			return err
 		}
-		if err := u.WriteFile(releaseTagFile, *nextRelease); err != nil {
+		if err := u.WriteTextFile(releaseTagFile, *nextRelease); err != nil {
 			return err
 		}
+		log.Printf("Updating download release candidate script with latest release")
 		return u.UpdateKeyValueInFile(
-			downloadScript, "ISTIO_VERSION", releaseTag)
+			downloadScript, "ISTIO_VERSION", fmt.Sprintf("${ISTIO_VERSION:-%s}", releaseTag))
 	}
-	body := fmt.Sprintf(
-		"Create release %s on istio, update next release tag and download scrpit", releaseTag)
-	prTitle := releasePRTtilePrefix + body
-	return cloneIstioMakePR(releaseBranch, prTitle, body, edit)
+	prTitle := releasePRTtilePrefix + prBody
+	return cloneIstioMakePR(releaseBranch, prTitle, prBody, edit)
 }
 
 func init() {

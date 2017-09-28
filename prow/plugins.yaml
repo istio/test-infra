@@ -2,49 +2,61 @@
 # Keys: Full repo name: "org/repo".
 # Values: List of plugins to run against the repo.
 ---
-istio/auth:
-- assign
-- trigger
-- close
-- release-note
-- reopen
-- lgtm
+triggers:
+- repos:
+  - istio/auth
+  - istio/broker
+  - istio/istio
+  - istio/mixer
+  - istio/pilot
+  - istio/test-infra
+  trusted_org: istio
 
-istio/broker:
-- assign
-- trigger
-- close
+plugins:
+  istio/auth:
+  - assign
+  - trigger
+  - close
+  - release-note
+  - reopen
+  - lgtm
 
-istio/istio:
-- assign
-- trigger
-- release-note
-- close
-- reopen
-- lgtm
+  istio/broker:
+  - assign
+  - trigger
+  - close
 
-istio/mixer:
-- assign
-- trigger
-- release-note
-- close
-- reopen
-- lgtm
+  istio/istio:
+  - assign
+  - trigger
+  - release-note
+  - close
+  - reopen
+  - lgtm
 
-istio/pilot:
-- assign
-- trigger
-- release-note
-- close
-- reopen
-- lgtm
+  istio/mixer:
+  - assign
+  - trigger
+  - release-note
+  - close
+  - reopen
+  - lgtm
 
-istio/test-infra:
-- assign
-- trigger
-- config-updater
-- release-note
-- close
-- reopen
-- lgtm
-- yuks
+  istio/pilot:
+  - assign
+  - trigger
+  - release-note
+  - close
+  - reopen
+  - lgtm
+
+  istio/test-infra:
+  - assign
+  - trigger
+  - config-updater
+  - release-note
+  - close
+  - reopen
+  - lgtm
+  - hold
+  - yuks

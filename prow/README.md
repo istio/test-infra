@@ -1,13 +1,13 @@
-Infra
+# Infra
 -----
 
 This directory contains a Makefile and other resources for managing the Istio CI infrastructure. This infrastructure consists of a subset of the [k8s test-infra prow](https://github.com/kubernetes/test-infra/tree/master/prow) deployments.
 
-### Managing a Cluster
+## Managing a Cluster
 
 The infrastructure runs on a k8s cluster. All of our tools make it easy to run on GKE, although another k8s provider could be used. The variables for the GCP project/zone/cluster are in the Makefile. The Makefile also contains commands for common management tasks.
 
-#### Deployments
+### Deployments
 
 1. [hook](./cluster/hook_deployment.yaml)               - handle webhooks and create prow jobs
 2. [plank](./cluster/plank_deployment.yaml)             - poll for prow jobs and start them, mark completed, statuses to Github
@@ -18,7 +18,9 @@ The infrastructure runs on a k8s cluster. All of our tools make it easy to run o
 
 We run the k8s-prow images. These images are built from source [here](https://github.com/kubernetes/test-infra/tree/master/prow).
 
-#### Upgrading Prow
+### Upgrading Prow
+
+Please check Prow cnnouncements before starting an upgrade (https://github.com/kubernetes/test-infra/tree/master/prow#announcements)
 
 It is a good idea to take a quick glance at the [Kubernetes Prow config](https://github.com/kubernetes/test-infra/blob/master/prow/config.yaml)
 if you see anything new that looks backward incompatible.
@@ -88,9 +90,21 @@ $ make tot-deployment
 $ make sinker-deployment
 ```
 
-### Creating a Job on Your Repo
+### Clearing Up Prow State
 
-#### Github Trigger
+If prow is an unrecoverable state. We can reset Prow state by doing the
+following:
+
+```
+$ make stopd
+$ kubectl delete prowjobs --all
+$ kubectl delete pods -n test-pods --all
+$ make startd
+```
+
+## Creating a Job on Your Repo
+
+### Github Trigger
 
 The most common pattern is to trigger a job on some sort of Github event, esp. on PRs and on PR merges. Prow has concepts for these two specific stages. The first, running jobs on a PR, is called a presubmit job. The second, running jobs after the PR is merged, is called a postsubmit.
 
@@ -124,7 +138,7 @@ my-repo: # ADD THIS BLOCK
 - trigger
 ```
 
-##### Prow Bazel Build Image
+### Prow Bazel Build Image
 
 The prowbazel build image [here](../docker/prowbazel) is preferred. Its entrypoint is a test harness that checks out the code at the appropriate ref, captures the logs and exit code, and writes these logs to a GCS bucket in a location and manner the k8s-test-infra UI, gubernator, can read.
 
@@ -155,3 +169,32 @@ $ chmod +x prow/my-presubmit.sh
 This repository (istio/test-infra) also provides Prow jobs.
 
 - `test-infra-presubmit` - run the linting and testing
+
+### Manually Trigger a Prow Job
+
+
+> **Never do this unless necessary AND you are authorized by istio EngProd team (istio.slack.com test-infra channel)**
+
+
+Connect to Prow cluster and then:
+```bash
+$ git clone https://github.com/kubernetes/test-infra
+$ bazel build //prow/cmd/mkpj
+```
+And then specify the script and the job you want to trigger:
+``` bash
+$ bazel-bin/prow/cmd/mkpj/mkpj --config-path ~/istio/test-infra/prow/config.yaml --job test-infra-presubmit | kubectl create -f -
+```
+
+And give the required information:
+```
+Base ref (e.g. master): master
+Base SHA (e.g. 72bcb5d80): 6419408170738a60cf04f963e4ae139028bf0b5b
+PR Number: 465                                     
+PR author: yutongz
+PR SHA (e.g. 72bcb5d80): d7e1ef38cf294de11062a6760d073827585af219
+```
+Prow should respone:
+```
+prowjob "e810668f-9435-11e7-9a4d-784f43915c4d" created
+```

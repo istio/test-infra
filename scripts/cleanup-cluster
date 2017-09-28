@@ -12,6 +12,9 @@ PROJECT_ID='istio-testing'
 ZONE='us-west1-a'
 HOURS_OLD=2
 
+PROTECTED_NS='default,kube-public,kube-system'
+ROLE_STARTSWITH='istio-'
+
 while getopts :c:h:p:z: arg; do
   case ${arg} in
     c) CLUSTER_NAME="${OPTARG}";;
@@ -31,47 +34,64 @@ if [[ ${CLUSTER_NAME} != '' ]]; then
     || error_exit 'Could not get kubectl config for cluster'
 fi
 
-JSON_FILE="$(mktemp /tmp/cluster.cleanup.XXXXX.json)"
+NS_JSON="$(mktemp /tmp/cluster.cleanup.XXXXX.json)"
+ROLE_JSON="$(mktemp /tmp/cluster.cleanup.XXXXX.json)"
 
-kubectl get ns -o json > "${JSON_FILE}"
+kubectl get ns -o json > "${NS_JSON}"
+kubectl get clusterrolebindings -o json > "${ROLE_JSON}"
 
-function filter_ns() {
-  local json_file=${1}
-  local hours_old=${2}
-python - <<EOF ${json_file} ${hours_old}
+function filter_items() {
+python - <<EOF "${@}"
 
 import sys
 import datetime
 import json
 
-PROTECTED_NS = ['default', 'kube-public', 'kube-system']
-
 json_file = sys.argv[1]
 hours_old = int(sys.argv[2])
+filters = str(sys.argv[3]).strip().split(',')
+startswith = str(sys.argv[4]).strip().split(',')
 
 with open(json_file, 'r') as f:
   result = json.load(f)
 
-ns = {}
+items = {}
 
 date_format = '%Y-%m-%dT%H:%M:%SZ'
 
 for i in result['items']:
-  namespace = i['metadata']['name']
+  item = i['metadata']['name']
   ts = i['metadata']['creationTimestamp']
-  if namespace not in PROTECTED_NS:
-    ns[namespace] = datetime.datetime.strptime(ts, date_format)
+  skip = False
+
+  if item in filters:
+    skip = True
+
+  for s in startswith:
+    if not item.startswith(s):
+      skip = True
+      break
+
+  if not skip:
+    items[item] = datetime.datetime.strptime(ts, date_format)
 
 min_time = datetime.datetime.utcnow() - datetime.timedelta(hours=hours_old)
 
-for k, v in ns.iteritems():
+for k, v in items.iteritems():
   if v < min_time: print k
 EOF
 
 }
 
-NAMESPACES=$(filter_ns "${JSON_FILE}" ${HOURS_OLD})
+NAMESPACES=$(filter_items ${NS_JSON} ${HOURS_OLD} ${PROTECTED_NS} '')
+ROLES=$(filter_items ${ROLE_JSON} ${HOURS_OLD} '' ${ROLE_STARTSWITH})
 
-if [[ -n "${NAMESPACES}" ]]; then 
+if [[ -n "${NAMESPACES}" ]]; then
   echo "${NAMESPACES}" | xargs kubectl delete ns
 fi
+
+if [[ -n "${ROLES}" ]]; then
+  echo "${ROLES}" | xargs kubectl delete clusterrolebindings
+fi
+
+

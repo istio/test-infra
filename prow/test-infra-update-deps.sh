@@ -32,8 +32,20 @@ bazel build //toolbox/deps_update:deps_update
 git config --global user.email "istio.testing@gmail.com"
 git config --global user.name "istio-bot"
 
+TOKEN_PATH="/etc/github/oauth"
+# List of repo where auto dependency update has been enabled
+# excluding istio/istio
+repos=( mixer mixerclient pilot proxy )
+
 echo "=== Updating Dependency of Istio ==="
 ./bazel-bin/toolbox/deps_update/deps_update \
 --repo=istio \
---token_file=/etc/github/oauth \
+--token_file=${TOKEN_PATH} \
 --hub=gcr.io/istio-testing
+
+for r in "${repos[@]}"; do
+  echo "=== Updating Dependency of ${r} ==="
+  ./bazel-bin/toolbox/deps_update/deps_update \
+    --repo=${r} \
+    --token_file=${TOKEN_PATH}
+done
