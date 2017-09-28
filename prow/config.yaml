@@ -353,14 +353,13 @@ presubmits:
         - name: cache-ssd
           hostPath:
             path: /mnt/disks/ssd0
-    - name: new-e2e-rbac_no_auth
+    - name: e2e-cluster_wide-auth
       agent: kubernetes
-      context: prow/new-e2e-rbac_no_auth.sh
-      rerun_command: "/test new-e2e-rbac_no_auth"
-      trigger: "(?m)^/test (e2e-suite|new-e2e-rbac_no_auth)?,?(\\s+|$)"
+      context: prow/e2e-cluster_wide-auth.sh
+      rerun_command: "/test e2e-cluster_wide-auth"
+      trigger: "(?m)^/test (e2e-suite|e2e-cluster_wide-auth)?,?(\\s+|$)"
       branches:
       - master
-      skip_report: true
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.2.1
