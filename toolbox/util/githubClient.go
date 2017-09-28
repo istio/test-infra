@@ -220,25 +220,30 @@ func (g GithubClient) ExistBranch(repo, branch string) (bool, error) {
 func (g GithubClient) CloseIdlePullRequests(prTitlePrefix, repo, baseBranch string) error {
 	log.Printf("If any, close failed auto PRs to update dependencies in repo %s", repo)
 	idleTimeout := time.Hour * 6
-	options := github.PullRequestListOptions{
-		Base: baseBranch,
-	}
-	prs, _, err := g.client.PullRequests.List(
-		context.Background(), g.owner, repo, &options)
-	if err != nil {
-		return err
-	}
 	var multiErr error
-	for _, pr := range prs {
-		if !strings.HasPrefix(*pr.Title, prTitlePrefix) {
-			continue
+	checkPR := func(prState string) {
+		options := github.PullRequestListOptions{
+			State: prState,
 		}
-		if time.Since(*pr.CreatedAt).Nanoseconds() > idleTimeout.Nanoseconds() {
-			if err := g.ClosePRDeleteBranch(repo, pr); err != nil {
-				multiErr = multierror.Append(multiErr, err)
+		prs, _, err := g.client.PullRequests.List(
+			context.Background(), g.owner, repo, &options)
+		if err != nil {
+			multiErr = multierror.Append(multiErr, err)
+			return
+		}
+		for _, pr := range prs {
+			if !strings.HasPrefix(*pr.Title, prTitlePrefix) {
+				continue
+			}
+			if time.Since(*pr.CreatedAt).Nanoseconds() > idleTimeout.Nanoseconds() {
+				if err := g.ClosePRDeleteBranch(repo, pr); err != nil {
+					multiErr = multierror.Append(multiErr, err)
+				}
 			}
 		}
 	}
+	checkPR("open")
+	checkPR("closed")
 	return multiErr
 }
 
@@ -341,11 +346,11 @@ func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, archiveDir s
 	}
 	release.Draft = newBool(true)
 	release.Prerelease = newBool(true)
-	if releaseBody, err := FillUpTemplate(releaseBodyTemplate, map[string]string{"ReleaseTag": releaseTag}); err != nil {
+	releaseBody, err := FillUpTemplate(releaseBodyTemplate, map[string]string{"ReleaseTag": releaseTag})
+	if err != nil {
 		return err
-	} else {
-		release.Body = &releaseBody
 	}
+	release.Body = &releaseBody
 	log.Printf("Creating on github new %s release [%s]\n", repo, releaseTag)
 	res, _, err := g.client.Repositories.CreateRelease(
 		context.Background(), g.owner, repo, &release)
