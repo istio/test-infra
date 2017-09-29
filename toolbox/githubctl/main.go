@@ -173,9 +173,12 @@ func cloneIstioMakePR(newBranch, prTitle, prBody string, edit func() error) erro
 		newBranch, newBranch); err != nil {
 		return err
 	}
-	_, err = githubClnt.CreatePullRequest(
+	pr, err := githubClnt.CreatePullRequest(
 		prTitle, prBody, newBranch, *baseBranch, istioRepo)
-	return err
+	if err != nil {
+		return err
+	}
+	return githubClnt.AddlabelsToPR(istioRepo, pr, "release-note-none")
 }
 
 // UpdateIstioVersionAfterReleaseTagsMadeOnDeps runs updateVersion.sh to update
