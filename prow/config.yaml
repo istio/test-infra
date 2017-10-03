@@ -277,7 +277,7 @@ presubmits:
           - name: service
             mountPath: /etc/service-account
             readOnly: true
-          - name: e2e-testing-rbac-kubeconfig
+          - name: istio-e2e-rbac-kubeconfig
             mountPath: /home/bootstrap/.kube
           - name: cache-ssd
             mountPath: /home/bootstrap/.cache
@@ -297,9 +297,9 @@ presubmits:
         - name: service
           secret:
             secretName: service-account
-        - name: e2e-testing-rbac-kubeconfig
+        - name: istio-e2e-rbac-kubeconfig
           secret:
-            secretName: e2e-testing-rbac-kubeconfig
+            secretName: istio-e2e-rbac-kubeconfig
         - name: cache-ssd
           hostPath:
             path: /mnt/disks/ssd0
@@ -327,7 +327,7 @@ presubmits:
           - name: service
             mountPath: /etc/service-account
             readOnly: true
-          - name: e2e-testing-rbac-kubeconfig
+          - name: istio-e2e-rbac-kubeconfig
             mountPath: /home/bootstrap/.kube
           - name: cache-ssd
             mountPath: /home/bootstrap/.cache
@@ -347,9 +347,9 @@ presubmits:
         - name: service
           secret:
             secretName: service-account
-        - name: e2e-testing-rbac-kubeconfig
+        - name: istio-e2e-rbac-kubeconfig
           secret:
-            secretName: e2e-testing-rbac-kubeconfig
+            secretName: istio-e2e-rbac-kubeconfig
         - name: cache-ssd
           hostPath:
             path: /mnt/disks/ssd0
@@ -1047,7 +1047,7 @@ periodics:
       - name: service
         mountPath: /etc/service-account
         readOnly: true
-      - name: e2e-testing-rbac-kubeconfig
+      - name: istio-e2e-rbac-kubeconfig
         mountPath: /home/bootstrap/.kube
     nodeSelector:
       cloud.google.com/gke-nodepool: build-pool
@@ -1055,9 +1055,9 @@ periodics:
     - name: service
       secret:
         secretName: service-account
-    - name: e2e-testing-rbac-kubeconfig
+    - name: istio-e2e-rbac-kubeconfig
       secret:
-        secretName: e2e-testing-rbac-kubeconfig
+        secretName: istio-e2e-rbac-kubeconfig
 
 - interval: 3h
   agent: kubernetes
