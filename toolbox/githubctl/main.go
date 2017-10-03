@@ -211,13 +211,14 @@ func UpdateIstioVersionAfterReleaseTagsMadeOnDeps() error {
 	return cloneIstioMakePR(releaseBranch, prTitle, body, edit)
 }
 
-// CreateIstioReleaseUploadArtifacts creates a release on istio and uploads dependent artifacts
+// CreateIstioReleaseUploadArtifacts creates a release on istio from the sha provided and uploads dependent artifacts
 func CreateIstioReleaseUploadArtifacts(refSHA string) error {
+	assertNotEmpty("ref_sha", refSHA)
 	assertNotEmpty("base_branch", baseBranch)
 	assertNotEmpty("next_release", nextRelease)
 	releaseTag, err := getReleaseTag()
 	if releaseTag == *nextRelease {
-		return fmt.Errorf("Next Release tag needs to be greater than the current release.")
+		return fmt.Errorf("next_release should be greater than the current release")
 	}
 	if err != nil {
 		return err
@@ -270,7 +271,6 @@ func main() {
 			log.Printf("Error during UpdateIstioVersionAfterReleaseTagsMadeOnDeps: %v\n", err)
 		}
 	case "uploadArtifacts":
-		assertNotEmpty("ref_sha", refSHA)
 		if err := CreateIstioReleaseUploadArtifacts(*refSHA); err != nil {
 			log.Printf("Error during CreateIstioReleaseUploadArtifacts: %v\n", err)
 		}
