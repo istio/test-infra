@@ -51,10 +51,10 @@ const (
 	debianSuffix         = "deb"
 )
 
-// Panic if value not specified
+// Exit if value not specified
 func assertNotEmpty(name string, value *string) {
 	if value == nil || *value == "" {
-		log.Panicf("%s must be specified\n", name)
+		log.Fatalf("%s must be specified\n", name)
 	}
 }
 
@@ -212,10 +212,13 @@ func UpdateIstioVersionAfterReleaseTagsMadeOnDeps() error {
 }
 
 // CreateIstioReleaseUploadArtifacts creates a release on istio and uploads dependent artifacts
-func CreateIstioReleaseUploadArtifacts() error {
+func CreateIstioReleaseUploadArtifacts(refSHA string) error {
 	assertNotEmpty("base_branch", baseBranch)
 	assertNotEmpty("next_release", nextRelease)
 	releaseTag, err := getReleaseTag()
+	if releaseTag == *nextRelease {
+		return fmt.Errorf("Next Release tag needs to be greater than the current release.")
+	}
 	if err != nil {
 		return err
 	}
@@ -228,7 +231,7 @@ func CreateIstioReleaseUploadArtifacts() error {
 		}
 		archiveDir := releaseBaseDir + "/archives"
 		if err := githubClnt.CreateReleaseUploadArchives(
-			istioRepo, releaseTag, archiveDir); err != nil {
+			istioRepo, releaseTag, refSHA, archiveDir); err != nil {
 			return err
 		}
 		if err := u.WriteTextFile(releaseTagFile, *nextRelease); err != nil {
@@ -247,7 +250,7 @@ func init() {
 	assertNotEmpty("token_file", tokenFile)
 	token, err := u.GetAPITokenFromFile(*tokenFile)
 	if err != nil {
-		log.Panicf("Error accessing user supplied token_file: %v\n", err)
+		log.Fatalf("Error accessing user supplied token_file: %v\n", err)
 	}
 	githubClnt = u.NewGithubClient(*owner, token)
 }
@@ -267,7 +270,8 @@ func main() {
 			log.Printf("Error during UpdateIstioVersionAfterReleaseTagsMadeOnDeps: %v\n", err)
 		}
 	case "uploadArtifacts":
-		if err := CreateIstioReleaseUploadArtifacts(); err != nil {
+		assertNotEmpty("ref_sha", refSHA)
+		if err := CreateIstioReleaseUploadArtifacts(*refSHA); err != nil {
 			log.Printf("Error during CreateIstioReleaseUploadArtifacts: %v\n", err)
 		}
 	default:

@@ -336,9 +336,12 @@ func (g GithubClient) CreateAnnotatedTag(repo, tag, sha, msg string) error {
 
 // CreateReleaseUploadArchives creates a release given release tag and
 // upload all files in archiveDir as assets of this release
-func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, archiveDir string) error {
+func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, sha, archiveDir string) error {
 	// create release
-	release := github.RepositoryRelease{TagName: &releaseTag}
+	release := github.RepositoryRelease{
+		TagName: &releaseTag,
+		TargetCommitish: &sha,
+	}
 	// Setting release to pre release and draft such that it does not send an announcement.
 	newBool := func(b bool) *bool {
 		bb := b
