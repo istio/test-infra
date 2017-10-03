@@ -211,8 +211,8 @@ func UpdateIstioVersionAfterReleaseTagsMadeOnDeps() error {
 	return cloneIstioMakePR(releaseBranch, prTitle, body, edit)
 }
 
-// CreateIstioReleaseUploadArtifacts creates a release on istio from the sha provided and uploads dependent artifacts
-func CreateIstioReleaseUploadArtifacts(refSHA string) error {
+// CreateIstioReleaseUploadArtifacts creates a release on istio from the refSHA provided and uploads dependent artifacts
+func CreateIstioReleaseUploadArtifacts() error {
 	assertNotEmpty("ref_sha", refSHA)
 	assertNotEmpty("base_branch", baseBranch)
 	assertNotEmpty("next_release", nextRelease)
@@ -232,7 +232,7 @@ func CreateIstioReleaseUploadArtifacts(refSHA string) error {
 		}
 		archiveDir := releaseBaseDir + "/archives"
 		if err := githubClnt.CreateReleaseUploadArchives(
-			istioRepo, releaseTag, refSHA, archiveDir); err != nil {
+			istioRepo, releaseTag, *refSHA, archiveDir); err != nil {
 			return err
 		}
 		if err := u.WriteTextFile(releaseTagFile, *nextRelease); err != nil {
@@ -271,7 +271,7 @@ func main() {
 			log.Printf("Error during UpdateIstioVersionAfterReleaseTagsMadeOnDeps: %v\n", err)
 		}
 	case "uploadArtifacts":
-		if err := CreateIstioReleaseUploadArtifacts(*refSHA); err != nil {
+		if err := CreateIstioReleaseUploadArtifacts(); err != nil {
 			log.Printf("Error during CreateIstioReleaseUploadArtifacts: %v\n", err)
 		}
 	default:
