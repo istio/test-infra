@@ -53,7 +53,7 @@ presubmits:
         - name: service
           mountPath: /etc/service-account
           readOnly: true
-        - name: e2e-testing-kubeconfig
+        - name: auth-e2e-rbac-kubeconfig
           mountPath: /home/bootstrap/.kube
         - name: auth-codecov-token
           mountPath: /etc/codecov
@@ -76,9 +76,9 @@ presubmits:
       - name: service
         secret:
           secretName: service-account
-      - name: e2e-testing-kubeconfig
+      - name: auth-e2e-rbac-kubeconfig
         secret:
-          secretName: e2e-testing-kubeconfig
+          secretName: auth-e2e-rbac-kubeconfig
       - name: auth-codecov-token
         secret:
           secretName: auth-codecov-token
@@ -115,7 +115,7 @@ presubmits:
         - name: broker-codecov-token
           mountPath: /etc/codecov
           readOnly: true
-        - name: e2e-testing-kubeconfig
+        - name: broker-e2e-rbac-kubeconfig
           mountPath: /home/bootstrap/.kube
         - name: cache-ssd
           mountPath: /home/bootstrap/.cache
@@ -138,9 +138,9 @@ presubmits:
       - name: broker-codecov-token
         secret:
           secretName: broker-codecov-token
-      - name: e2e-testing-kubeconfig
+      - name: broker-e2e-rbac-kubeconfig
         secret:
-          secretName: e2e-testing-kubeconfig
+          secretName: broker-e2e-rbac-kubeconfig
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
@@ -169,7 +169,7 @@ presubmits:
         - name: broker-codecov-token
           mountPath: /etc/codecov
           readOnly: true
-        - name: e2e-testing-kubeconfig
+        - name: broker-e2e-rbac-kubeconfig
           mountPath: /home/bootstrap/.kube
         - name: cache-ssd
           mountPath: /home/bootstrap/.cache
@@ -192,9 +192,9 @@ presubmits:
       - name: broker-codecov-token
         secret:
           secretName: broker-codecov-token
-      - name: e2e-testing-kubeconfig
+      - name: broker-e2e-rbac-kubeconfig
         secret:
-          secretName: e2e-testing-kubeconfig
+          secretName: broker-e2e-rbac-kubeconfig
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
@@ -226,7 +226,7 @@ presubmits:
         - name: service
           mountPath: /etc/service-account
           readOnly: true
-        - name: e2e-testing-kubeconfig
+        - name: istio-e2e-rbac-kubeconfig
           mountPath: /home/bootstrap/.kube
         - name: cache-ssd
           mountPath: /home/bootstrap/.cache
@@ -246,9 +246,9 @@ presubmits:
       - name: service
         secret:
           secretName: service-account
-      - name: e2e-testing-kubeconfig
+      - name: istio-e2e-rbac-kubeconfig
         secret:
-          secretName: e2e-testing-kubeconfig
+          secretName: istio-e2e-rbac-kubeconfig
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
@@ -426,7 +426,7 @@ presubmits:
         - name: service
           mountPath: /etc/service-account
           readOnly: true
-        - name: e2e-testing-kubeconfig
+        - name: mixer-e2e-rbac-kubeconfig
           mountPath: /home/bootstrap/.kube
         - name: cache-ssd
           mountPath: /home/bootstrap/.cache
@@ -446,9 +446,9 @@ presubmits:
       - name: service
         secret:
           secretName: service-account
-      - name: e2e-testing-kubeconfig
+      - name: mixer-e2e-rbac-kubeconfig
         secret:
-          secretName: e2e-testing-kubeconfig
+          secretName: mixer-e2e-rbac-kubeconfig
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
@@ -786,7 +786,7 @@ postsubmits:
         - name: service
           mountPath: /etc/service-account
           readOnly: true
-        - name: e2e-testing-kubeconfig
+        - name: auth-e2e-rbac-kubeconfig
           mountPath: /home/bootstrap/.kube
         - name: auth-codecov-token
           mountPath: /etc/codecov
@@ -807,9 +807,9 @@ postsubmits:
       - name: service
         secret:
           secretName: service-account
-      - name: e2e-testing-kubeconfig
+      - name: auth-e2e-rbac-kubeconfig
         secret:
-          secretName: e2e-testing-kubeconfig
+          secretName: auth-e2e-rbac-kubeconfig
       - name: auth-codecov-token
         secret:
           secretName: auth-codecov-token
@@ -842,7 +842,7 @@ postsubmits:
         - name: broker-codecov-token
           mountPath: /etc/codecov
           readOnly: true
-        - name: e2e-testing-kubeconfig
+        - name: broker-e2e-rbac-kubeconfig
           mountPath: /home/bootstrap/.kube
         - name: oauth
           mountPath: /etc/github
@@ -863,9 +863,9 @@ postsubmits:
       - name: broker-codecov-token
         secret:
           secretName: broker-codecov-token
-      - name: e2e-testing-kubeconfig
+      - name: broker-e2e-rbac-kubeconfig
         secret:
-          secretName: e2e-testing-kubeconfig
+          secretName: broker-e2e-rbac-kubeconfig
       - name: oauth
         secret:
           secretName: oauth-token
@@ -940,7 +940,7 @@ postsubmits:
         - name: service
           mountPath: /etc/service-account
           readOnly: true
-        - name: e2e-testing-kubeconfig
+        - name: pilot-e2e-rbac-kubeconfig
           mountPath: /home/bootstrap/.kube
         - name: pilot-codecov-token
           mountPath: /etc/codecov
@@ -961,9 +961,9 @@ postsubmits:
       - name: service
         secret:
           secretName: service-account
-      - name: e2e-testing-kubeconfig
+      - name: pilot-e2e-rbac-kubeconfig
         secret:
-          secretName: e2e-testing-kubeconfig
+          secretName: pilot-e2e-rbac-kubeconfig
       - name: pilot-codecov-token
         secret:
           secretName: pilot-codecov-token
@@ -972,6 +972,64 @@ postsubmits:
           secretName: oauth-token
 
 periodics:
+- interval: 2h
+  agent: kubernetes
+  name: test-infra-cleanup-cluster
+  spec:
+    containers:
+    - image: gcr.io/istio-testing/prowbazel:0.1.7
+      args:
+      - "--repo=github.com/istio/test-infra=master"
+      - "--clean"
+      - "--timeout=20"
+      env:
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/service-account/service-account.json
+      volumeMounts:
+      - name: service
+        mountPath: /etc/service-account
+        readOnly: true
+      - name: auth-e2e-rbac-kubeconfig
+        mountPath: /home/bootstrap/.kube
+    nodeSelector:
+      cloud.google.com/gke-nodepool: build-pool
+    volumes:
+    - name: service
+      secret:
+        secretName: service-account
+    - name: auth-e2e-rbac-kubeconfig
+      secret:
+        secretName: auth-e2e-rbac-kubeconfig
+
+- interval: 2h
+  agent: kubernetes
+  name: test-infra-cleanup-cluster
+  spec:
+    containers:
+    - image: gcr.io/istio-testing/prowbazel:0.1.7
+      args:
+      - "--repo=github.com/istio/test-infra=master"
+      - "--clean"
+      - "--timeout=20"
+      env:
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/service-account/service-account.json
+      volumeMounts:
+      - name: service
+        mountPath: /etc/service-account
+        readOnly: true
+      - name: broker-e2e-rbac-kubeconfig
+        mountPath: /home/bootstrap/.kube
+    nodeSelector:
+      cloud.google.com/gke-nodepool: build-pool
+    volumes:
+    - name: service
+      secret:
+        secretName: service-account
+    - name: broker-e2e-rbac-kubeconfig
+      secret:
+        secretName: broker-e2e-rbac-kubeconfig
+
 - interval: 2h
   agent: kubernetes
   name: test-infra-cleanup-cluster
