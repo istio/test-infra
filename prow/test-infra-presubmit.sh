@@ -41,3 +41,5 @@ bazel test --test_output=all //...
 
 echo "=== Linting ==="
 ./scripts/linters.sh
+
+sleep 400
