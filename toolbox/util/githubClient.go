@@ -339,7 +339,7 @@ func (g GithubClient) CreateAnnotatedTag(repo, tag, sha, msg string) error {
 func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, sha, archiveDir string) error {
 	// create release
 	release := github.RepositoryRelease{
-		TagName: &releaseTag,
+		TagName:         &releaseTag,
 		TargetCommitish: &sha,
 	}
 	// Setting release to pre release and draft such that it does not send an announcement.

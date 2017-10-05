@@ -10,7 +10,7 @@ ROOTDIR=$SCRIPTPATH/..
 cd $ROOTDIR
 
 PKGS="tools/ toolbox/"
-GO_FILES=$(find ${PKGS} -type f -name '*.go')
+GO_FILES=$(git ls-files | grep -e '.*\.go'  | grep -v vendor)
 UX=$(uname)
 
 #remove blank lines so gofmt / goimports can do their job
@@ -23,6 +23,4 @@ fi
 done
 gofmt -s -w ${GO_FILES}
 goimports -w -local istio.io ${GO_FILES}
-buildifier -showlog -mode=fix $(find . -type f \( -name 'BUILD' -or \
-  -name 'WORKSPACE' -or \
-  -wholename '.*\.bazel' -or -wholename '.*bzl' \) -print )
+buildifier -showlog -mode=fix $(git ls-files| grep -e BUILD -e WORKSPACE | grep -v vendor)
