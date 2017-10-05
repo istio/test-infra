@@ -138,6 +138,21 @@ my-repo: # ADD THIS BLOCK
 - trigger
 ```
 
+### Upload artifacts after job finishes
+
+Since the pod is gone as soon as the test finishes, it's hard to track back to see what happened. Prow is able to upload temp files, logs amd any other artifacts to cloud storage. What you need to do is put aritifact into `_artifacts` directory.
+
+`_artifacts` is created by Prow in root directory of current project. Take istio/istio as a example:
+
+Test harness will checkout code to directory `$GOPATH/src/github.com/istio/istio`
+
+But in most of our tests we create a soft link between `$GOPATH/src/github.com/istio/<repo>` and `$GOPATH/src/istio.io/<repo>` since we import from `istio.io`
+
+So `_artifacts` dir will be generated before running tests and accessable at both `$GOPATH/src/github.com/istio/istio/_artifacts` and `${GOPATH}/src/istio.io/istio/_artifacts`
+
+Then you can access to the artifact through "artifacts" at [gubernator](https://k8s-gubernator.appspot.com/build/istio-prow/pull/istio_istio/1025/e2e-suite-rbac-no_auth/1006/)
+
+
 ### Prow Bazel Build Image
 
 The prowbazel build image [here](../docker/prowbazel) is preferred. Its entrypoint is a test harness that checks out the code at the appropriate ref, captures the logs and exit code, and writes these logs to a GCS bucket in a location and manner the k8s-test-infra UI, gubernator, can read.
@@ -168,7 +183,10 @@ $ chmod +x prow/my-presubmit.sh
 
 This repository (istio/test-infra) also provides Prow jobs.
 
-- `test-infra-presubmit` - run the linting and testing
+- `test-infra-presubmit` - Run the linting and testing
+- `test-infra-update-deps` - Create automatically dependency update PRs in target repos.
+- `test-infra-cleanup-GKE` - Delete GKE clusters left behind in test environment due to jobs being killed inproperly.
+- `test-infra-cleanup-cluster` - Delete k8s namespace left behind in testing cluster due to tests finishing inproperly. 
 
 ### Manually Trigger a Prow Job
 
