@@ -5,11 +5,15 @@ set -x
 
 PROJECT_ID='istio-testing'
 HOURS_OLD=3
+CLUSTER_PREFIX='cluster-wide-auth'
+ALPHA_ENABLED='true'
 
-while getopts :h:p arg; do
+while getopts :h:p:n:a: arg; do
   case ${arg} in
     h) HOURS_OLD=${OPTARG};;
     p) PROJECT_ID="${OPTARG}";;
+    c) CLUSTER_PREFIX="${OPTARG}";;
+    a) ALPHA_ENABLED="${OPTARG}";;
     *) error_exit "Unrecognized argument -${OPTARG}";;
   esac
 done
@@ -37,8 +41,8 @@ date -u '+%Y-%m-%dT%H:%M:%S UTC'
 
 # Print out the list of clusters should be clean
 # Filter out clusters match name pattern, with alpha enabled and live longer than expected.
-gcloud container clusters list --project istio-testing --format="table(name,createTime,locations[0])" --filter="enableKubernetesAlpha=true AND name:rbac-n-auth-* AND createTime<-p${HOURS_OLD}h"
+gcloud container clusters list --project ${PROJECT_ID} --format="table(name,createTime,locations[0])" --filter="enableKubernetesAlpha=${ALPHA_ENABLED} AND name:${CLUSTER_PREFIX}-* AND createTime<-p${HOURS_OLD}h"
 
 # Get the same list and call delete_cluster
-gcloud container clusters list --project istio-testing --format="table(name,locations[0])" --filter="enableKubernetesAlpha=true AND name:rbac-n-auth-* AND createTime<-p${HOURS_OLD}h" \
+gcloud container clusters list --project ${PROJECT_ID} --format="table(name,locations[0])" --filter="enableKubernetesAlpha=${ALPHA_ENABLED} AND name:${CLUSTER_PREFIX}-* AND createTime<-p${HOURS_OLD}h" \
   | xargs -L2 -I {} bash -c 'delete_cluster "${@}"' _ {},"istio-testing"

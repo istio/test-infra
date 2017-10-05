@@ -45,16 +45,15 @@ const (
 	dockerHub            = "docker.io/istio"
 	releaseBaseDir       = "/tmp/release"
 	releasePRTtilePrefix = "[Auto Release] "
-	releasePRBody        = "Update istio.VERSION and downloadIstioCandidate.sh"
 	releaseBucketFmtStr  = "https://storage.googleapis.com/istio-release/releases/%s/%s"
 	istioctlSuffix       = "istioctl"
 	debianSuffix         = "deb"
 )
 
-// Panic if value not specified
+// Exit if value not specified
 func assertNotEmpty(name string, value *string) {
 	if value == nil || *value == "" {
-		log.Panicf("%s must be specified\n", name)
+		log.Fatalf("%s must be specified\n", name)
 	}
 }
 
@@ -67,7 +66,7 @@ func fastForward(repo, baseBranch, refSHA *string) error {
 		return err
 	}
 	if !isAncestor {
-		log.Printf("SHA %s is not an ancestor of branch %s, resorts to no-op\n", refSHA, masterBranch)
+		log.Printf("SHA %s is not an ancestor of branch %s, resorts to no-op\n", *refSHA, masterBranch)
 		return nil
 	}
 	return githubClnt.FastForward(*repo, *baseBranch, *refSHA)
@@ -142,10 +141,10 @@ func TagIstioDepsForRelease() error {
 					return err
 				}
 				if prevTagSHA == ref {
-					log.Printf("Intended to tag [%s] at the same SHA, resort to no-op and continue\n")
+					log.Printf("Intended to tag [%s] at the same SHA, resort to no-op and continue\n", ref)
 					continue
 				} else {
-					return fmt.Errorf("trying to tag [%s] at different SHA")
+					return fmt.Errorf("trying to tag [%s] at different SHA", ref)
 				}
 			}
 		}
@@ -161,7 +160,7 @@ func cloneIstioMakePR(newBranch, prTitle, prBody string, edit func() error) erro
 		return err
 	}
 	defer func() {
-		if err := u.RemoveLocalRepo(repoDir); err != nil {
+		if err = u.RemoveLocalRepo(repoDir); err != nil {
 			log.Fatalf("Error during clean up: %v\n", err)
 		}
 	}()
@@ -169,13 +168,16 @@ func cloneIstioMakePR(newBranch, prTitle, prBody string, edit func() error) erro
 		return err
 	}
 	log.Printf("Staging commit and creating pull request\n")
-	if err := u.CreateCommitPushToRemote(
+	if err = u.CreateCommitPushToRemote(
 		newBranch, newBranch); err != nil {
 		return err
 	}
-	_, err = githubClnt.CreatePullRequest(
+	pr, err := githubClnt.CreatePullRequest(
 		prTitle, prBody, newBranch, *baseBranch, istioRepo)
-	return err
+	if err != nil {
+		return err
+	}
+	return githubClnt.AddlabelsToPR(istioRepo, pr, "release-note-none")
 }
 
 // UpdateIstioVersionAfterReleaseTagsMadeOnDeps runs updateVersion.sh to update
@@ -208,11 +210,15 @@ func UpdateIstioVersionAfterReleaseTagsMadeOnDeps() error {
 	return cloneIstioMakePR(releaseBranch, prTitle, body, edit)
 }
 
-// CreateIstioReleaseUploadArtifacts creates a release on istio and uploads dependent artifacts
+// CreateIstioReleaseUploadArtifacts creates a release on istio from the refSHA provided and uploads dependent artifacts
 func CreateIstioReleaseUploadArtifacts() error {
+	assertNotEmpty("ref_sha", refSHA)
 	assertNotEmpty("base_branch", baseBranch)
 	assertNotEmpty("next_release", nextRelease)
 	releaseTag, err := getReleaseTag()
+	if releaseTag == *nextRelease {
+		return fmt.Errorf("next_release should be greater than the current release")
+	}
 	if err != nil {
 		return err
 	}
@@ -225,7 +231,7 @@ func CreateIstioReleaseUploadArtifacts() error {
 		}
 		archiveDir := releaseBaseDir + "/archives"
 		if err := githubClnt.CreateReleaseUploadArchives(
-			istioRepo, releaseTag, archiveDir); err != nil {
+			istioRepo, releaseTag, *refSHA, archiveDir); err != nil {
 			return err
 		}
 		if err := u.WriteTextFile(releaseTagFile, *nextRelease); err != nil {
@@ -244,7 +250,7 @@ func init() {
 	assertNotEmpty("token_file", tokenFile)
 	token, err := u.GetAPITokenFromFile(*tokenFile)
 	if err != nil {
-		log.Panicf("Error accessing user supplied token_file: %v\n", err)
+		log.Fatalf("Error accessing user supplied token_file: %v\n", err)
 	}
 	githubClnt = u.NewGithubClient(*owner, token)
 }

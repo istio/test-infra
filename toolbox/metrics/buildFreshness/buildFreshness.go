@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package buildFreshness
 
 import (
 	"fmt"
@@ -77,7 +77,8 @@ func getAgeMetric(githubClnt *u.GithubClient, dep *u.Dependency) (*DepFreshness,
 	return &DepFreshness{*dep, lag}, nil
 }
 
-func getAgeMetrics(owner, repo, branch string) ([]DepFreshness, error) {
+// GetAgeMetrics gives each dependency ages.
+func GetAgeMetrics(owner, repo, branch string) ([]DepFreshness, error) {
 	githubClnt := u.NewGithubClientNoAuth(owner)
 	var stats []DepFreshness
 	pickledDeps, err := githubClnt.GetFileContent(repo, branch, istioDepsFile)
