@@ -34,7 +34,8 @@ var (
 const (
 	istioDepsFile         = "istio.deps"
 	prTitlePrefix         = "[DO NOT MERGE] Auto PR to update dependencies of "
-	prBody                = "This PR will be merged automatically once checks are successful."
+	prBody                = "This PR will be merged automatically once checks are successful." +
+		"\r\n```release-note\r\nNONE\r\n```"
 	dependencyUpdateLabel = "dependency-update"
 
 	// CI Artifacts URLs
