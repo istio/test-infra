@@ -31,9 +31,9 @@ import (
 )
 
 const (
-	jobName = "JOB_NAME"
-	buildID = "BUILD_ID"
-	DEFAULT = "Default"
+	jobName      = "JOB_NAME"
+	buildID      = "BUILD_ID"
+	defaultValue = "Default"
 )
 
 var (
@@ -62,17 +62,17 @@ func parseReportLine(line string) (string, float64, error) {
 	numPos := 4
 
 	if m := regOK.FindStringSubmatch(line); len(m) != 0 {
-		if n, err := strconv.ParseFloat(strings.TrimSuffix(m[numPos], "%"), 64); err != nil {
+		n, err := strconv.ParseFloat(strings.TrimSuffix(m[numPos], "%"), 64)
+		if err != nil {
 			log.Printf("Failed to parse coverage to float64 for package %s: %s, %v",
 				m[pkgPos], m[numPos], err)
 			return "", 0, err
-		} else {
-			return m[pkgPos], n, nil
 		}
+		return m[pkgPos], n, nil
 	} else if m := regNoTest.FindStringSubmatch(line); len(m) != 0 {
 		return m[pkgPos], 0, nil
 	}
-	return "", 0, fmt.Errorf("Unclear line from report: %s", line)
+	return "", 0, fmt.Errorf("unclear line from report: %s", line)
 }
 
 func (c *codecovChecker) parseReport() error {
@@ -111,14 +111,14 @@ func parseRequirementLine(line string) (string, float64, error) {
 
 	m := reg.FindStringSubmatch(line)
 	if len(m) == lenWithCov || len(m) == lenWithoutCov {
-		if n, err := strconv.ParseFloat(m[reqPos], 64); err != nil {
-			return "", math.MaxFloat64, fmt.Errorf("Failed to parse requirement to float64 for package %s: %s, %v",
+		n, err := strconv.ParseFloat(m[reqPos], 64)
+		if err != nil {
+			return "", math.MaxFloat64, fmt.Errorf("failed to parse requirement to float64 for package %s: %s, %v",
 				m[pkgPos], m[reqPos], err)
-		} else {
-			return m[pkgPos], n, nil
 		}
+		return m[pkgPos], n, nil
 	}
-	return "", math.MaxFloat64, fmt.Errorf("Unclear line from requirement: %s", line)
+	return "", math.MaxFloat64, fmt.Errorf("unclear line from requirement: %s", line)
 }
 
 func (c *codecovChecker) parseRequirement() error {
@@ -136,11 +136,11 @@ func (c *codecovChecker) parseRequirement() error {
 	scanner := bufio.NewScanner(f)
 
 	for scanner.Scan() {
-		if pkg, req, err := parseRequirementLine(scanner.Text()); err != nil {
+		pkg, req, err := parseRequirementLine(scanner.Text())
+		if err != nil {
 			log.Printf("Failed to parse this line from requirement file: %s, %v", scanner.Text(), err)
-		} else {
-			c.codeRequirement[pkg] = req
 		}
+		c.codeRequirement[pkg] = req
 	}
 	return scanner.Err()
 }
@@ -149,7 +149,7 @@ func (c *codecovChecker) checkRequirement() {
 	for pkg, cov := range c.codeCoverage {
 		if req, exist := c.codeRequirement[pkg]; !exist {
 			//There is no entry for this package in requirement file, set default requirement
-			if defaultReq, exist := c.codeRequirement[DEFAULT]; !exist {
+			if defaultReq, exist := c.codeRequirement[defaultValue]; !exist {
 				c.failedPackage = append(c.failedPackage, fmt.Sprintf("%s\t%.2f\tNo pkg or default requirement", pkg, cov))
 			} else {
 				if cov < defaultReq {
