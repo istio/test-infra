@@ -45,7 +45,6 @@ const (
 	dockerHub            = "docker.io/istio"
 	releaseBaseDir       = "/tmp/release"
 	releasePRTtilePrefix = "[Auto Release] "
-	releasePRBody        = "Update istio.VERSION and downloadIstioCandidate.sh"
 	releaseBucketFmtStr  = "https://storage.googleapis.com/istio-release/releases/%s/%s"
 	istioctlSuffix       = "istioctl"
 	debianSuffix         = "deb"
@@ -67,7 +66,7 @@ func fastForward(repo, baseBranch, refSHA *string) error {
 		return err
 	}
 	if !isAncestor {
-		log.Printf("SHA %s is not an ancestor of branch %s, resorts to no-op\n", refSHA, masterBranch)
+		log.Printf("SHA %s is not an ancestor of branch %s, resorts to no-op\n", *refSHA, masterBranch)
 		return nil
 	}
 	return githubClnt.FastForward(*repo, *baseBranch, *refSHA)
@@ -142,10 +141,10 @@ func TagIstioDepsForRelease() error {
 					return err
 				}
 				if prevTagSHA == ref {
-					log.Printf("Intended to tag [%s] at the same SHA, resort to no-op and continue\n")
+					log.Printf("Intended to tag [%s] at the same SHA, resort to no-op and continue\n", ref)
 					continue
 				} else {
-					return fmt.Errorf("trying to tag [%s] at different SHA")
+					return fmt.Errorf("trying to tag [%s] at different SHA", ref)
 				}
 			}
 		}
@@ -161,7 +160,7 @@ func cloneIstioMakePR(newBranch, prTitle, prBody string, edit func() error) erro
 		return err
 	}
 	defer func() {
-		if err := u.RemoveLocalRepo(repoDir); err != nil {
+		if err = u.RemoveLocalRepo(repoDir); err != nil {
 			log.Fatalf("Error during clean up: %v\n", err)
 		}
 	}()
@@ -169,7 +168,7 @@ func cloneIstioMakePR(newBranch, prTitle, prBody string, edit func() error) erro
 		return err
 	}
 	log.Printf("Staging commit and creating pull request\n")
-	if err := u.CreateCommitPushToRemote(
+	if err = u.CreateCommitPushToRemote(
 		newBranch, newBranch); err != nil {
 		return err
 	}

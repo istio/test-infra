@@ -139,9 +139,9 @@ func FillUpTemplate(t string, i interface{}) (string, error) {
 		return "", err
 	}
 	wr := bytes.NewBufferString("")
-	if err := tmpl.Execute(wr, i); err != nil {
+	err = tmpl.Execute(wr, i)
+	if err != nil {
 		return "", err
-	} else {
-		return wr.String(), nil
 	}
+	return wr.String(), nil
 }

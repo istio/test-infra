@@ -379,7 +379,7 @@ func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, sha, archive
 			context.Background(), g.owner, repo, releaseID, &opt, fd)
 		if err != nil {
 			log.Printf("Failed to upload asset %s to release %s on repo %s: %s",
-				f.Name(), releaseTag, repo)
+				f.Name(), releaseTag, g.owner, repo)
 			return err
 		}
 	}
