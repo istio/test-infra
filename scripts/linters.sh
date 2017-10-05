@@ -46,5 +46,6 @@ ${BIN_PATH}/check_license.sh
 echo 'licences OK'
 
 echo 'Running buildifier ...'
+go get github.com/bazelbuild/buildtools/buildifier
 buildifier -showlog -mode=check $(git ls-files| grep -e BUILD -e WORKSPACE | grep -v vendor)
 echo 'buildifier OK'
