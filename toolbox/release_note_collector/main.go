@@ -26,27 +26,25 @@ import (
 	u "istio.io/test-infra/toolbox/util"
 )
 
-type Order string
-type Sort string
+type orderV string
+type sortV string
 
 const (
-	DESC     = Order("desc")
-	ASC      = Order("asc")
-	CREATED  = Sort("created")
-	COMMENTS = Sort("comments")
-	UPDATED  = Sort("updated")
+	// Allowed field values can be found at https://developer.github.com/v3/search/#search-repositories
+	desc    = orderV("desc")
+	created = sortV("created")
 )
 
 var (
 	org             = flag.String("user", "istio", "Github owner or org")
 	repos           = flag.String("repos", "", "Github repos, separate using \",\"")
 	label           = flag.String("label", "release-note", "Release-note label")
-	sort            = flag.String("sort", string(CREATED), "The sort field. Can be comments, created, or updated.")
-	order           = flag.String("order", string(DESC), "The sort order if sort parameter is provided. One of asc or desc.")
+	sort            = flag.String("sort", string(created), "The sort field. Can be comments, created, or updated.")
+	order           = flag.String("order", string(desc), "The sort order if sort parameter is provided. One of asc or desc.")
 	outputFile      = flag.String("output", "./release-note", "Path to output file")
 	previousRelease = flag.String("previous_release", "", "Previous release")
 	currentRelease  = flag.String("current_release", "", "Current release")
-	PRLink          = flag.Bool("pr_link", false, "Weather a link of the PR is added at the end of each release note")
+	prLink          = flag.Bool("pr_link", false, "Weather a link of the PR is added at the end of each release note")
 	gh              *u.GithubClient
 )
 
@@ -93,19 +91,27 @@ func main() {
 }
 
 func fetchRelaseNoteFromRepo(repo string, issuesResult *github.IssuesSearchResult, f *os.File) error {
-	f.WriteString(fmt.Sprintf("\nistio/%s: %s -- %s\n", repo, *previousRelease, *currentRelease))
+	title := fmt.Sprintf("\nistio/%s: %s -- %s\n", repo, *previousRelease, *currentRelease)
+	if _, err := f.WriteString(title); err != nil {
+		log.Printf("Failed to write title into output file: %s. Err: %s", title, err)
+	}
+
 	for _, i := range issuesResult.Issues {
 		note := fetchReleaseNoteFromPR(i)
 		if note == "" {
 			continue
 		}
-		if *PRLink {
+		if *prLink {
 			note += fmt.Sprintf("  %s\n", i.GetHTMLURL())
 		}
-		f.WriteString("* " + note)
+		if _, err := f.WriteString("* " + note); err != nil {
+			log.Printf("Failed to write a note into output file: %s. Err: %s", note, err)
+		}
 	}
 	if issuesResult.GetIncompleteResults() {
-		f.WriteString("!!Warning: Some release notes missing due to incomplete search result from github!!")
+		if _, err := f.WriteString("!!Warning: Some release notes missing due to incomplete search result from github!!"); err != nil {
+			log.Printf("Error: Release note is incomplete due to github search!")
+		}
 	}
 	return nil
 }

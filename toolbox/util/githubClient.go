@@ -275,7 +275,7 @@ func (g GithubClient) GetTagCommitSHA(repo, tag string) (string, error) {
 		}
 		return *commitObj.SHA, nil
 	}
-	return "", fmt.Errorf("Unknown type of tag, %s", err)
+	return "", fmt.Errorf("unknown type of tag, %s", err)
 }
 
 // GetCommitCreationTime gets the time when the commit identified by sha is created
@@ -399,7 +399,7 @@ func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, sha, archive
 	return nil
 }
 
-// GetReferenceSHA returns the sha of a reference
+// GetReference returns the sha of a reference
 func (g GithubClient) GetReference(repo, ref string) (string, string, error) {
 	githubRefObj, _, err := g.client.Git.GetRef(
 		context.Background(), g.owner, repo, ref)
