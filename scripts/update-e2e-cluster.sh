@@ -83,7 +83,7 @@ do
 done
 
 # Keep new config into temp dir and put original config back
-TEMP_DIR="${HOME}/.kube/${REPO}_TEMP"
+TEMP_DIR="$(mktemp -d)"
 mkdir ${TEMP_DIR}
 mv "${CONFIG_FILE}" "${TEMP_DIR}/config"
 mv "${CONFIG_BACKUP}" "${CONFIG_FILE}"
@@ -96,6 +96,5 @@ gcloud container clusters get-credentials ${PROW_CLUSTER} --zone ${PROW_ZONE} --
 SECRET_NAME="${REPO}-e2e-rbac-kubeconfig"
 kubectl delete secret ${SECRET_NAME} -n ${PROW_TEST_NS}
 sleep 5
-kubectl -n test-pods create secret generic ${SECRET_NAME} --from-file=${TEMP_DIR}
-kubectl get secret -n test-pods
-
+kubectl -n ${PROW_TEST_NS} create secret generic ${SECRET_NAME} --from-file=${TEMP_DIR}
+kubectl get secret -n ${PROW_TEST_NS}
