@@ -125,6 +125,7 @@ func (g GithubClient) Remote(repo string) string {
 }
 
 // CreatePullRequest within :repo from :branch to :baseBranch
+// releaseNote is a necessary part and will automatically set to "none" if caller leaves it empty.
 func (g GithubClient) CreatePullRequest(
 	title, body, releaseNote, branch, baseBranch, repo string) (*github.PullRequest, error) {
 	if releaseNote == "" {
