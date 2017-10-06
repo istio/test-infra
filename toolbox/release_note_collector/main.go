@@ -123,7 +123,7 @@ func fetchReleaseNoteFromPR(i github.Issue) (note string) {
 		note = m[1]
 	}
 	note = strings.TrimSpace(note)
-	if strings.EqualFold(note, "none") {
+	if strings.EqualFold(note, u.ReleaseNoteNone) {
 		return ""
 	}
 	return note

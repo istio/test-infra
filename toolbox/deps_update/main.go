@@ -34,8 +34,7 @@ var (
 const (
 	istioDepsFile         = "istio.deps"
 	prTitlePrefix         = "[DO NOT MERGE] Auto PR to update dependencies of "
-	prBody                = "This PR will be merged automatically once checks are successful." +
-		"\r\n```release-note\r\nNONE\r\n```"
+	prBody                = "This PR will be merged automatically once checks are successful."
 	dependencyUpdateLabel = "dependency-update"
 
 	// CI Artifacts URLs
@@ -167,7 +166,7 @@ func updateDependenciesOf(repo string) error {
 		return err
 	}
 	prTitle := prTitlePrefix + repo
-	pr, err := githubClnt.CreatePullRequest(prTitle, prBody, branch, *baseBranch, repo)
+	pr, err := githubClnt.CreatePullRequest(prTitle, prBody, "", branch, *baseBranch, repo)
 	if err != nil {
 		return err
 	}
