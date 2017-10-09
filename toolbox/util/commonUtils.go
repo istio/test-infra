@@ -26,6 +26,11 @@ import (
 	"text/template"
 )
 
+const (
+	// ReleaseNoteNone is "none" string to indicate release-note is none
+	ReleaseNoteNone = "none"
+)
+
 var (
 	kvSplitters = []string{
 		" = ",

@@ -166,7 +166,7 @@ func updateDependenciesOf(repo string) error {
 		return err
 	}
 	prTitle := prTitlePrefix + repo
-	pr, err := githubClnt.CreatePullRequest(prTitle, prBody, branch, *baseBranch, repo)
+	pr, err := githubClnt.CreatePullRequest(prTitle, prBody, "", branch, *baseBranch, repo)
 	if err != nil {
 		return err
 	}

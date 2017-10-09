@@ -173,7 +173,7 @@ func cloneIstioMakePR(newBranch, prTitle, prBody string, edit func() error) erro
 		return err
 	}
 	pr, err := githubClnt.CreatePullRequest(
-		prTitle, prBody, newBranch, *baseBranch, istioRepo)
+		prTitle, prBody, "", newBranch, *baseBranch, istioRepo)
 	if err != nil {
 		return err
 	}
