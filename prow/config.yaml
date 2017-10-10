@@ -53,11 +53,6 @@ presubmits:
         - name: service
           mountPath: /etc/service-account
           readOnly: true
-        - name: api-e2e-rbac-kubeconfig
-          mountPath: /home/bootstrap/.kube
-        - name: api-codecov-token
-          mountPath: /etc/codecov
-          readOnly: true
         - name: cache-ssd
           mountPath: /home/bootstrap/.cache
         ports:
@@ -76,12 +71,6 @@ presubmits:
       - name: service
         secret:
           secretName: service-account
-      - name: api-e2e-rbac-kubeconfig
-        secret:
-          secretName: api-e2e-rbac-kubeconfig
-      - name: api-codecov-token
-        secret:
-          secretName: api-codecov-token
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
