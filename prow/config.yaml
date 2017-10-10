@@ -851,11 +851,6 @@ postsubmits:
         - name: service
           mountPath: /etc/service-account
           readOnly: true
-        - name: api-e2e-rbac-kubeconfig
-          mountPath: /home/bootstrap/.kube
-        - name: api-codecov-token
-          mountPath: /etc/codecov
-          readOnly: true
         - name: oauth
           mountPath: /etc/github
           readOnly: true
@@ -872,12 +867,6 @@ postsubmits:
       - name: service
         secret:
           secretName: service-account
-      - name: api-e2e-rbac-kubeconfig
-        secret:
-          secretName: api-e2e-rbac-kubeconfig
-      - name: api-codecov-token
-        secret:
-          secretName: api-codecov-token
       - name: oauth
         secret:
           secretName: oauth-token
