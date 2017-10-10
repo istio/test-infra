@@ -4,6 +4,7 @@
 ---
 triggers:
 - repos:
+  - istio/api
   - istio/auth
   - istio/broker
   - istio/istio
@@ -13,6 +14,11 @@ triggers:
   trusted_org: istio
 
 plugins:
+  istio/api:
+  - assign
+  - trigger
+  - close
+  
   istio/auth:
   - assign
   - trigger
