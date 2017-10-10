@@ -39,13 +39,15 @@ repos=( mixer mixerclient pilot proxy )
 
 echo "=== Updating Dependency of Istio ==="
 ./bazel-bin/toolbox/deps_update/deps_update \
---repo=istio \
---token_file=${TOKEN_PATH} \
---hub=gcr.io/istio-testing
+  --repo=istio \
+  --token_file=${TOKEN_PATH} \
+  --base_branch=${GIT_BRANCH} \
+  --hub=gcr.io/istio-testing
 
 for r in "${repos[@]}"; do
   echo "=== Updating Dependency of ${r} ==="
   ./bazel-bin/toolbox/deps_update/deps_update \
     --repo=${r} \
+    --base_branch=${GIT_BRANCH} \
     --token_file=${TOKEN_PATH}
 done
