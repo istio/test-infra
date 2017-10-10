@@ -81,9 +81,10 @@ $ kubectl delete deployment istio-submit-queue
 
 > Make sure read [user manual](https://github.com/istio/test-infra/blob/master/mungegithub/README.md) first.
 
-* Someone comment "/lgtm", but istio-testing didn't add "lgtm" label
+* ~~Someone comment "/lgtm", but istio-testing didn't add "lgtm" label~~
 
-  Github webhook issue. Simply comment "/lgtm" again.
+  ~~Github webhook issue. Simply comment "/lgtm" again.~~
+  [FIXED]
   
 * ~~CI already finished successfully, but Submit Queue still complains one is not green~~
   
