@@ -90,7 +90,8 @@ A valid approver is able to say `/approve` and mungegithub will add "approved" l
   ![release-note template](https://github.com/istio/test-infra/blob/master/mungegithub/images/release-note-template.png)
   
   ~~- You can also leave a comment `/release-note-none` to set it NONE~~
-  ~~> When all requirements are satisfied except "release-note", mungegithub will add "do-not-merge" label to force you clear release-note. Please note, when you fix release-note, you have to manually remove that label after you make sure everything looks good.~~
+  
+  > ~~When all requirements are satisfied except "release-note", mungegithub will add "do-not-merge" label to force you clear release-note. Please note, when you fix release-note, you have to manually remove that label after you make sure everything looks good.~~
   
   - If you put nothing here, Prow is going to complain about it by adding "do-not-merge/release-note-label-needed" 
   ![do-not-merge:release-note-label-needed](https://github.com/istio/test-infra/blob/master/mungegithub/images/do-not-merge:release-note-label-needed.png)
