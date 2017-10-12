@@ -1,0 +1,28 @@
+# basic config options.
+http-cache-dir: /cache/httpcache
+organization: istio
+project: mixerclient
+pr-mungers: submit-queue
+state: open
+token-file: /etc/secret-volume/token
+period: 1m
+repo-dir: /gitrepos
+github-key-file: /etc/hook-secret-volume/secret
+
+# status context options.
+required-contexts: "mixerclient/presubmit"
+protected-branches-extra-contexts: ""
+required-retest-contexts: "mixerclient/presubmit"
+
+# submit-queue options.
+protected-branches: ""
+nonblocking-jenkins-jobs: ""
+do-not-merge-milestones: ""
+admin-port: "9999"
+prow-url: "https://prow.istio.io"
+context-url: ""
+merge-method: "squash"
+
+# Temporary gate approval process
+gate-cla: true
+gate-approved: true
