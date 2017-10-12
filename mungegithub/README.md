@@ -10,8 +10,8 @@ Mungegithub is a tool based on GitHub that offers a better way to review and app
 
 Mungegithub requires a behavior change to use new system while doesn't block you to keep the old way, which although is not recommended.
 
-The core part of mungegithub, submit-queue automatically rebases, verities and merges PRs once they are approved.
-It waits for all reuqired tests passed, 4 kinds of labels(cla, lgtm, approve, release-note) before putting this PR into the queue. When a mergable PR comes to the head of Submit-queue, required retest contexts will be triggered to make sure everything is well tested. After these second-round tests pass, Mungegithub will go and merge this PR for you!
+The core part of mungegithub, submit-queue automatically rebases, verifies and merges PRs once they are approved.
+It waits for all required tests to pass, and ensure PR has these four labels added - cla, lgtm, approve, release-note - before putting this PR into the queue. When a mergeable PR comes to the head of Submit-queue, it will trigger required retest contexts, to make sure everything is well tested. After these second-round tests pass, Mungegithub will go and merge this PR for you!
 
 ## Concept
 Mungegitgub uses GitHub label and comment system to communicate with developers and other robots.
@@ -117,11 +117,12 @@ A valid approver is able to say `/approve` and mungegithub will add "approved" l
  
  ## FAQ
  
-* Why my PR hasn't been retest
+* Why my PR hasn't been re-tested/merged
    - Four kinds of labels
    - No "do-not-merge" label
    - All required checks pass
    - Maybe another PR is being retested, yours are waiting in the queue
+    - You can find it out in [Submit Queue front-end](https://github.com/istio/test-infra/blob/master/mungegithub/deployment/README.md#host-submit-queue)
 
 * Why does my `/lgtm`, adds both "lgtm" and "approved" labels
    - If you are a valid approvor, your `/lgtm` implies `/approve`
