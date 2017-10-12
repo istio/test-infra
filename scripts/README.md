@@ -19,3 +19,17 @@ Example:
 $ ./scripts/update-e2e-cluster.sh -r pilot -n 10
 $ ./scripts/update-e2e-cluster.sh -r auth -n 4
 ```
+
+## cleanup-cache
+
+This script is used to clean up bazel cache in CI cluster.
+
+- Cleanup Jenkins cluster:
+```Bash
+$ ./scripts/cleanup-cache
+```
+
+- Cleanup Prow cluster:
+```Bash
+$ scripts/cleanup-cache -c prow -z us-west1-a -s cloud.google.com/gke-nodepool=build-pool
+```
