@@ -24,6 +24,8 @@ $ ./scripts/update-e2e-cluster.sh -r auth -n 4
 
 This script is used to clean up bazel cache in CI cluster.
 
+Example based on current clusters (cluster name, zone etc.):
+
 - Cleanup Jenkins cluster:
 ```Bash
 $ ./scripts/cleanup-cache
