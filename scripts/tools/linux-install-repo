@@ -1,0 +1,31 @@
+#!/bin/bash
+
+if [[ "$(uname)" != "Linux" ]]; then
+  echo "Run on Linux only."
+  exit 1
+fi
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+
+REPO_URL="https://storage.googleapis.com/git-repo-downloads/repo"
+REPO_BINARY='repo'
+REPO_DIRECTORY="${TOOLS_DIR}/repo"
+
+function update_repo() {
+  local repo_current="$(repo --version | grep -oh '[0-9]*\.[0-9]*\.[0-9]*')" \
+    || repo_current='none'
+
+  if [[ -d "${REPO_DIRECTORY}" ]]; then
+    mkdir -p "${REPO_DIRECTORY}"
+  fi
+  retry -n 3 wget -q -nc -P "${REPO_DIRECTORY}" "${REPO_URL}" \
+    || error_exit 'Could not download repo.'
+  ${SUDO} cp -f "${REPO_DIRECTORY}/${REPO_BINARY}" /usr/local/bin/repo \
+    || error_exit 'Could not install repo.'
+  ${SUDO} chmod +x /usr/local/bin/repo \
+    || error_exit 'Could not change permission on repo'
+  export PATH=${PATH}:/usr/local/bin
+  echo 'repo up-to-date.'
+}
+
