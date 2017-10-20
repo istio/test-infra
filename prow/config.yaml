@@ -325,13 +325,15 @@ presubmits:
       containers:
       - image: gcr.io/istio-testing/prowbuilder:0.1.0
         args:
-        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
-        - "--clean"
         - "--timeout=15"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
         env:
+        - name: MANIFEST_URL
+          value: https://github.com/istio/manifest
+        - name: REPO_PATH
+          value: go/src/istio.io/core
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /etc/service-account/service-account.json
         volumeMounts:

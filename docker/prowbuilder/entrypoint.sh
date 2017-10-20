@@ -40,12 +40,12 @@
 
 # The prow job should specify the following ENV
 # MANIFEST_URL: Repo Manifest URL
-# PATCH_PATH: Path to patch, this should be where the acual repo is checked out
+# REPO_PATH: Path to patch, this should be where the acual repo is checked out
 
 function apply_patches() {
   # In order to be compatible with batch mode we need to apply all the refs one at
   # a time, and fail in case of conflict.
-  pushd ${PATCH_PATH}
+  pushd ${REPO_PATH}
   # repo should be setting a remote
   local remote=$(git remote | head)
   [[ -n ${remote} ]] || { echo 'Could not find a remote'; exit 1; }
@@ -110,4 +110,5 @@ fi
     --service-account=${GOOGLE_APPLICATION_CREDENTIALS} \
     --upload="gs://istio-prow/" \
     --no-magic-env \
+    --jobs-dir="${REPO_PATH}/prow"
     "$@"
