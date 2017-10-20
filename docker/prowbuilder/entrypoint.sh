@@ -42,6 +42,11 @@
 # MANIFEST_URL: Repo Manifest URL
 # REPO_PATH: Path to patch, this should be where the acual repo is checked out
 
+function set_git() {
+  git config --global user.name 'Testing User'
+  git config --global user.email 'istio.testing@gmail.com'
+}
+
 function apply_patches() {
   # In order to be compatible with batch mode we need to apply all the refs one at
   # a time, and fail in case of conflict.
@@ -49,24 +54,27 @@ function apply_patches() {
   # repo should be setting a remote
   local remote=$(git remote | head)
   [[ -n ${remote} ]] || { echo 'Could not find a remote'; exit 1; }
-  IFS=',' read -r -a REFS <<< "" ${PULL_REFS}
+  IFS=',' read -r -a REFS <<< "${PULL_REFS}"
   for r in ${REFS[@]}; do
-    IFS=':' read pr sha  <<< "" ${r}
+    IFS=':' read pr sha  <<< "${r}"
     if [[ ${pr} =~ "${PULL_BASE_REF}" ]]; then
       # The first element of the list is the origin branch where the PR would be
       # merged to, or where the postsubmit should start.
-      git checkout -B test "${remote}" "${sha}"
+      git fetch "${remote}" "${sha}:test" -f
+      git checkout test
+    else
+      echo "Patching ${pr} with SHA: ${sha}"
+      # Fetching PR refspec
+      git fetch "${remote}" "+refs/pull/${pr}/head:refs/remotes/origin/pr/${pr}" \
+        || { echo "Could not fetch refspec for pr ${pr}"; exit 1; }
+      # Merging PR to local checkout
+      git merge --no-ff -m "Merge PR ${pr}" "${sha}" \
+        || { echo "Could not apply PR ${pr}"; exit 1; }
+      echo "Successfully patched ${pr}"
     fi
-    echo "Patching ${pr} with SHA: ${sha}"
-    # Fetching PR refspec
-    git fetch "${remote}" "+refs/pull/${pr}/head:refs/remotes/origin/pr/${pr}" \
-      || { echo "Could not fetch refspec for pr ${pr}"; exit 1; }
-    # Merging PR to local checkout
-    git merge --no-ff -m "Merge PR ${pr}" "${remote}" "${sha}" \
-      || { echo "Could not apply PR ${pr}"; exit 1; }
-    echo "Successfully patched ${pr}"
   done
   echo "Patches applied successfully"
+  popd
 }
 
 if [[ ${UID} -eq 0 ]]; then
@@ -94,21 +102,22 @@ mkdir -p ${REPO_NAME}
 cd ${REPO_NAME}
 
 # Checking out code with repo
-repo init -U ${MANIFEST_URL} -b ${PULL_BASE_REF}
+repo init -u ${MANIFEST_URL} -b ${PULL_BASE_REF}
 repo sync -c
 
 # For postsubmit and periodic we can just have repo do all the work
 # However for presubmit we need to apply the pull request.
 if [[ -n ${PULL_NUMBER} ]]; then
+  set_git
   apply_patches
 fi
 
 # start harness (checkout code/run job/upload logs)
-./bootstrap.py \
+${HOME}/bootstrap.py \
     --job=${JOB_NAME} \
     --bare \
     --service-account=${GOOGLE_APPLICATION_CREDENTIALS} \
     --upload="gs://istio-prow/" \
     --no-magic-env \
-    --jobs-dir="${REPO_PATH}/prow"
+    --jobs-dir="${REPO_PATH}/prow" \
     "$@"
