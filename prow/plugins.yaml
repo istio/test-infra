@@ -7,6 +7,7 @@ triggers:
   - istio/api
   - istio/auth
   - istio/broker
+  - sebastienvas/core
   - istio/istio
   - istio/mixer
   - istio/pilot
@@ -32,6 +33,15 @@ plugins:
   - assign
   - trigger
   - close
+  - hold
+
+  sebastienvas/core:
+  - assign
+  - trigger
+  - release-note
+  - close
+  - reopen
+  - lgtm
   - hold
 
   istio/istio:
