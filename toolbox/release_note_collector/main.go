@@ -45,6 +45,7 @@ var (
 	previousRelease = flag.String("previous_release", "", "Previous release")
 	currentRelease  = flag.String("current_release", "", "Current release")
 	prLink          = flag.Bool("pr_link", false, "Weather a link of the PR is added at the end of each release note")
+	branch          = flag.String("branch", "master", "Commit branch, master or release branch")
 	gh              *u.GithubClient
 )
 
@@ -156,6 +157,7 @@ func createQueryString(repo string) ([]string, error) {
 	queries = addQuery(queries, "is", "merged")
 	queries = addQuery(queries, "type", "pr")
 	queries = addQuery(queries, "merged", startTime, "..", endTime)
+	queries = addQuery(queries, "base", *branch)
 
 	return queries, nil
 }
