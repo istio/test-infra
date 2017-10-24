@@ -227,11 +227,13 @@ def checkout(call, repo, checkout_info, ssh='', git_cache='', clean=False):
 
     if checkout_info.manifest:
         m = checkout_info.manifest
-        if not os.path.exists(repo):
-          os.makedirs(repo)
+        if not os.path.exists(os.path.join(repo, ARTIFACTS_DIR)):
+          os.makedirs(os.path.join(repo, ARTIFACTS_DIR))
         os.chdir(repo)
         call(['repo', 'init', '-u', m.url, '-b', m.branch])
         call(['repo', 'sync', '-c'])
+        # Storing build manifest as part of artifacts
+        call(['repo', 'manifest', '-r', '-o', '%s/build.xml' % ARTIFACTS_DIR])
         repo_prefix = ['repo', 'forall', '-c' ]
         # In order to apply the patches in the right directory
         os.chdir(m.patch_path)
@@ -608,7 +610,7 @@ def pr_paths(base, repos, job, build):
     )
 
 
-
+ARTIFACTS_DIR = '_artifacts'
 BUILD_ENV = 'BUILD_NUMBER'
 BOOTSTRAP_ENV = 'BOOTSTRAP_MIGRATION'
 CLOUDSDK_ENV = 'CLOUDSDK_CONFIG'
@@ -931,6 +933,7 @@ def bootstrap(args):
         success = False
         try:
             script = job_script(job, use_json, args.jobs_dir)
+            os.environ['ARTIFACTS_DIR'] = os.path.join(os.getcwd(), ARTIFACTS_DIR)
             logging.info('Calling %s from %s', script, os.getcwd())
             call(script)
             logging.info('PASS: %s', job)
@@ -947,7 +950,7 @@ def bootstrap(args):
         logging.info('Upload result and artifacts...')
         logging.info('Gubernator results at %s', gubernator_uri(paths))
         try:
-            finish(gsutil, paths, success, '_artifacts', build, version, repos, call)
+            finish(gsutil, paths, success, ARTIFACTS_DIR, build, version, repos, call)
         except subprocess.CalledProcessError:  # Still try to upload build log
             success = False
     logging.getLogger('').removeHandler(build_log)
