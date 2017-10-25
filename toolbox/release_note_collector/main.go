@@ -37,6 +37,7 @@ const (
 
 var (
 	org             = flag.String("user", "istio", "Github owner or org")
+	tokenFile       = flag.String("token_file", "", "Github token file (optional)")
 	repos           = flag.String("repos", "", "Github repos, separate using \",\"")
 	label           = flag.String("label", "release-note", "Release-note label")
 	sort            = flag.String("sort", string(created), "The sort field. Can be comments, created, or updated.")
@@ -49,14 +50,23 @@ var (
 	gh              *u.GithubClient
 )
 
-func main() {
+func init() {
 	flag.Parse()
-	if *previousRelease == "" {
-		log.Printf("Error: You need to specfy a previous release version")
-		os.Exit(1)
-	}
-	gh = u.NewGithubClientNoAuth(*org)
+	u.AssertNotEmpty("previous_release", previousRelease)
 
+	if *tokenFile != "" {
+		token, err := u.GetAPITokenFromFile(*tokenFile)
+		if err != nil {
+			log.Fatalf("Error accessing user supplied token_file: %v\n", err)
+		}
+		gh = u.NewGithubClient(*org, token)
+	} else {
+		gh = u.NewGithubClientNoAuth(*org)
+	}
+
+}
+
+func main() {
 	f, err := os.OpenFile(*outputFile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0600)
 	if err != nil {
 		log.Printf("Failed to open and/or create output file %s", *outputFile)
@@ -177,7 +187,7 @@ func addQuery(queries []string, queryParts ...string) []string {
 }
 
 func getReleaseTime(repo, release string) (string, error) {
-	time, err := gh.GetCommitCreationTimeByTag(repo, release)
+	time, err := gh.GetReleaseCreationTime(repo, release)
 	if err != nil {
 		log.Println("Failed to get created time of this release tag")
 		return "", err

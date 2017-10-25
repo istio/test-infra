@@ -50,17 +50,10 @@ const (
 	debianSuffix         = "deb"
 )
 
-// Exit if value not specified
-func assertNotEmpty(name string, value *string) {
-	if value == nil || *value == "" {
-		log.Fatalf("%s must be specified\n", name)
-	}
-}
-
 func fastForward(repo, baseBranch, refSHA *string) error {
-	assertNotEmpty("repo", repo)
-	assertNotEmpty("base_branch", baseBranch)
-	assertNotEmpty("ref_sha", refSHA)
+	u.AssertNotEmpty("repo", repo)
+	u.AssertNotEmpty("base_branch", baseBranch)
+	u.AssertNotEmpty("ref_sha", refSHA)
 	isAncestor, err := githubClnt.SHAIsAncestorOfBranch(*repo, masterBranch, *refSHA)
 	if err != nil {
 		return err
@@ -86,7 +79,7 @@ func processIstioVersion(content *string) map[string]string {
 }
 
 func getReleaseTag() (string, error) {
-	assertNotEmpty("base_branch", baseBranch)
+	u.AssertNotEmpty("base_branch", baseBranch)
 	releaseTag, err := githubClnt.GetFileContent(istioRepo, *baseBranch, releaseTagFile)
 	if err != nil {
 		return "", err
@@ -96,7 +89,7 @@ func getReleaseTag() (string, error) {
 
 // TagIstioDepsForRelease creates release tag on each dependent repo of istio
 func TagIstioDepsForRelease() error {
-	assertNotEmpty("base_branch", baseBranch)
+	u.AssertNotEmpty("base_branch", baseBranch)
 	log.Printf("Fetching and processing istio.VERSION\n")
 	istioVersion, err := githubClnt.GetFileContent(istioRepo, *baseBranch, istioVersionFile)
 	if err != nil {
@@ -153,7 +146,7 @@ func TagIstioDepsForRelease() error {
 }
 
 func cloneIstioMakePR(newBranch, prTitle, prBody string, edit func() error) error {
-	assertNotEmpty("base_branch", baseBranch)
+	u.AssertNotEmpty("base_branch", baseBranch)
 	log.Printf("Cloning istio to local and checkout %s\n", *baseBranch)
 	repoDir, err := u.CloneRepoCheckoutBranch(githubClnt, istioRepo, *baseBranch, newBranch)
 	if err != nil {
@@ -183,7 +176,7 @@ func cloneIstioMakePR(newBranch, prTitle, prBody string, edit func() error) erro
 // UpdateIstioVersionAfterReleaseTagsMadeOnDeps runs updateVersion.sh to update
 // istio.VERSION and then create a PR on istio
 func UpdateIstioVersionAfterReleaseTagsMadeOnDeps() error {
-	assertNotEmpty("base_branch", baseBranch)
+	u.AssertNotEmpty("base_branch", baseBranch)
 	releaseTag, err := getReleaseTag()
 	if err != nil {
 		return err
@@ -212,9 +205,9 @@ func UpdateIstioVersionAfterReleaseTagsMadeOnDeps() error {
 
 // CreateIstioReleaseUploadArtifacts creates a release on istio from the refSHA provided and uploads dependent artifacts
 func CreateIstioReleaseUploadArtifacts() error {
-	assertNotEmpty("ref_sha", refSHA)
-	assertNotEmpty("base_branch", baseBranch)
-	assertNotEmpty("next_release", nextRelease)
+	u.AssertNotEmpty("ref_sha", refSHA)
+	u.AssertNotEmpty("base_branch", baseBranch)
+	u.AssertNotEmpty("next_release", nextRelease)
 	releaseTag, err := getReleaseTag()
 	if releaseTag == *nextRelease {
 		return fmt.Errorf("next_release should be greater than the current release")
@@ -247,7 +240,7 @@ func CreateIstioReleaseUploadArtifacts() error {
 
 func init() {
 	flag.Parse()
-	assertNotEmpty("token_file", tokenFile)
+	u.AssertNotEmpty("token_file", tokenFile)
 	token, err := u.GetAPITokenFromFile(*tokenFile)
 	if err != nil {
 		log.Fatalf("Error accessing user supplied token_file: %v\n", err)

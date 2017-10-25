@@ -86,7 +86,7 @@ func (g GithubClient) SHAIsAncestorOfBranch(repo, branch, targetSHA string) (boo
 		if err != nil {
 			return false, err
 		}
-		if creationTime.Before(*noEarlierThan) {
+		if creationTime.Before(noEarlierThan) {
 			return false, nil
 		}
 		sha = *commit.Parents[0].SHA
@@ -284,24 +284,67 @@ func (g GithubClient) GetTagCommitSHA(repo, tag string) (string, error) {
 }
 
 // GetCommitCreationTime gets the time when the commit identified by sha is created
-func (g GithubClient) GetCommitCreationTime(repo, sha string) (*time.Time, error) {
+func (g GithubClient) GetCommitCreationTime(repo, sha string) (time.Time, error) {
 	commit, _, err := g.client.Git.GetCommit(
 		context.Background(), g.owner, repo, sha)
 	if err != nil {
 		log.Printf("Failed to get commit %s", sha)
-		return nil, err
+		return time.Time{}, err
 	}
-	return (*(*commit).Author).Date, nil
+	return commit.Author.GetDate(), nil
 }
 
 // GetCommitCreationTimeByTag finds the time when the commit pointed by a tag is created
 // Note that SHA of the tag is different from the commit SHA
-func (g GithubClient) GetCommitCreationTimeByTag(repo, tag string) (*time.Time, error) {
+func (g GithubClient) GetCommitCreationTimeByTag(repo, tag string) (time.Time, error) {
 	commitSHA, err := g.GetTagCommitSHA(repo, tag)
 	if err != nil {
-		return nil, err
+		return time.Time{}, err
 	}
 	return g.GetCommitCreationTime(repo, commitSHA)
+}
+
+// GetReleaseCreationTime gets the creation time of a release tag (0.1.6, 0.2.7)
+func (g GithubClient) GetReleaseCreationTime(repo, tag string) (createTime time.Time, err error) {
+	if repo == "istio" {
+		createTime, err = g.getReleaseTagCreationTime(repo, tag)
+	} else {
+		createTime, err = g.getannotatedTagCreationTime(repo, tag)
+	}
+	if err != nil {
+		log.Printf("Cannot get the creation time of %s/%s", repo, tag)
+		return time.Time{}, err
+	}
+	return createTime, nil
+}
+
+// getReleaseTagCreationTime gets the creation time of a lightweight tag created by release
+// Release tags from istio/istio are this kind of tag.
+func (g GithubClient) getReleaseTagCreationTime(repo, tag string) (time.Time, error) {
+	release, _, err := g.client.Repositories.GetReleaseByTag(context.Background(), g.owner, repo, tag)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("failed to to get release tag: %s", err)
+	}
+	return release.GetCreatedAt().Time, nil
+}
+
+// getannotatedTagCreationTime gets the creation time of an annotated Tag
+// Release tags except those from istio/istio are annotated tag.
+func (g GithubClient) getannotatedTagCreationTime(repo, tag string) (time.Time, error) {
+	sha, ty, err := g.GetReference(repo, "refs/tags/"+tag)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	if ty != "tag" {
+		return time.Time{}, fmt.Errorf("refs/tags/%s is not pointing to a tag object", tag)
+	}
+
+	tagObject, _, err := g.client.Git.GetTag(context.Background(), g.owner, repo, sha)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("failed to get tag object: %s", err)
+	}
+	return tagObject.Tagger.GetDate(), nil
 }
 
 // GetFileContent retrieves the file content from the hosted repo
