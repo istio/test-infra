@@ -252,7 +252,7 @@ func (g GithubClient) CloseIdlePullRequests(prTitlePrefix, repo, baseBranch stri
 	return multiErr
 }
 
-// GetReferenceSHAAndType finds the SHA of the commit to which the HEAD of branch points
+// GetHeadCommitSHA finds the SHA of the commit to which the HEAD of branch points
 func (g GithubClient) GetHeadCommitSHA(repo, branch string) (string, error) {
 	sha, _, err := g.GetReferenceSHAAndType(repo, "refs/heads/"+branch)
 	return sha, err
@@ -433,7 +433,7 @@ func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, sha, archive
 	return nil
 }
 
-// GetReference returns the sha of a reference
+// GetReferenceSHAAndType returns the sha of a reference
 func (g GithubClient) GetReferenceSHAAndType(repo, ref string) (string, string, error) {
 	githubRefObj, _, err := g.client.Git.GetRef(
 		context.Background(), g.owner, repo, ref)
