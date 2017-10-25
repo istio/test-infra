@@ -21,6 +21,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/google/go-github/github"
 	u "istio.io/test-infra/toolbox/util"
@@ -187,7 +188,7 @@ func addQuery(queries []string, queryParts ...string) []string {
 }
 
 func getReleaseTime(repo, release string) (string, error) {
-	time, err := gh.GetReleaseCreationTime(repo, release)
+	time, err := getReleaseTagCreationTime(repo, release)
 	if err != nil {
 		log.Println("Failed to get created time of this release tag")
 		return "", err
@@ -197,4 +198,18 @@ func getReleaseTime(repo, release string) (string, error) {
 		t.Year(), t.Month(), t.Day(),
 		t.Hour(), t.Minute(), t.Second())
 	return timeString, nil
+}
+
+// getReleaseCreationTime gets the creation time of a release tag (0.1.6, 0.2.7)
+func getReleaseTagCreationTime(repo, tag string) (createTime time.Time, err error) {
+	if repo == "istio" {
+		createTime, err = gh.GetReleaseTagCreationTime(repo, tag)
+	} else {
+		createTime, err = gh.GetannotatedTagCreationTime(repo, tag)
+	}
+	if err != nil {
+		log.Printf("Cannot get the creation time of %s/%s", repo, tag)
+		return time.Time{}, err
+	}
+	return createTime, nil
 }

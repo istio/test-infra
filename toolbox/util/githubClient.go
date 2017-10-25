@@ -252,15 +252,15 @@ func (g GithubClient) CloseIdlePullRequests(prTitlePrefix, repo, baseBranch stri
 	return multiErr
 }
 
-// GetHeadCommitSHA finds the SHA of the commit to which the HEAD of branch points
+// GetReferenceSHAAndType finds the SHA of the commit to which the HEAD of branch points
 func (g GithubClient) GetHeadCommitSHA(repo, branch string) (string, error) {
-	sha, _, err := g.GetReference(repo, "refs/heads/"+branch)
+	sha, _, err := g.GetReferenceSHAAndType(repo, "refs/heads/"+branch)
 	return sha, err
 }
 
 // GetTagCommitSHA finds the SHA of the commit from which the tag was made
 func (g GithubClient) GetTagCommitSHA(repo, tag string) (string, error) {
-	sha, ty, err := g.GetReference(repo, "refs/tags/"+tag)
+	sha, ty, err := g.GetReferenceSHAAndType(repo, "refs/tags/"+tag)
 	if err != nil {
 		return "", err
 	}
@@ -304,23 +304,9 @@ func (g GithubClient) GetCommitCreationTimeByTag(repo, tag string) (time.Time, e
 	return g.GetCommitCreationTime(repo, commitSHA)
 }
 
-// GetReleaseCreationTime gets the creation time of a release tag (0.1.6, 0.2.7)
-func (g GithubClient) GetReleaseCreationTime(repo, tag string) (createTime time.Time, err error) {
-	if repo == "istio" {
-		createTime, err = g.getReleaseTagCreationTime(repo, tag)
-	} else {
-		createTime, err = g.getannotatedTagCreationTime(repo, tag)
-	}
-	if err != nil {
-		log.Printf("Cannot get the creation time of %s/%s", repo, tag)
-		return time.Time{}, err
-	}
-	return createTime, nil
-}
-
-// getReleaseTagCreationTime gets the creation time of a lightweight tag created by release
+// GetReleaseTagCreationTime gets the creation time of a lightweight tag created by release
 // Release tags from istio/istio are this kind of tag.
-func (g GithubClient) getReleaseTagCreationTime(repo, tag string) (time.Time, error) {
+func (g GithubClient) GetReleaseTagCreationTime(repo, tag string) (time.Time, error) {
 	release, _, err := g.client.Repositories.GetReleaseByTag(context.Background(), g.owner, repo, tag)
 	if err != nil {
 		return time.Time{}, fmt.Errorf("failed to to get release tag: %s", err)
@@ -328,10 +314,10 @@ func (g GithubClient) getReleaseTagCreationTime(repo, tag string) (time.Time, er
 	return release.GetCreatedAt().Time, nil
 }
 
-// getannotatedTagCreationTime gets the creation time of an annotated Tag
+// GetannotatedTagCreationTime gets the creation time of an annotated Tag
 // Release tags except those from istio/istio are annotated tag.
-func (g GithubClient) getannotatedTagCreationTime(repo, tag string) (time.Time, error) {
-	sha, ty, err := g.GetReference(repo, "refs/tags/"+tag)
+func (g GithubClient) GetannotatedTagCreationTime(repo, tag string) (time.Time, error) {
+	sha, ty, err := g.GetReferenceSHAAndType(repo, "refs/tags/"+tag)
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -448,7 +434,7 @@ func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, sha, archive
 }
 
 // GetReference returns the sha of a reference
-func (g GithubClient) GetReference(repo, ref string) (string, string, error) {
+func (g GithubClient) GetReferenceSHAAndType(repo, ref string) (string, string, error) {
 	githubRefObj, _, err := g.client.Git.GetRef(
 		context.Background(), g.owner, repo, ref)
 	if err != nil {
