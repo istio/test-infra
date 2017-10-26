@@ -35,19 +35,19 @@ type DepFreshness struct {
 	Age time.Duration
 }
 
-func getBranchHeadTime(githubClnt *u.GithubClient, repo, branch string) (*time.Time, error) {
+func getBranchHeadTime(githubClnt *u.GithubClient, repo, branch string) (time.Time, error) {
 	sha, err := githubClnt.GetHeadCommitSHA(repo, branch)
 	if err != nil {
-		return nil, err
+		return time.Time{}, err
 	}
 	t, err := githubClnt.GetCommitCreationTime(repo, sha)
 	if err != nil {
-		return nil, err
+		return time.Time{}, err
 	}
 	return t, nil
 }
 
-func getCommitCreationTimeByRef(githubClnt *u.GithubClient, repo, ref string) (*time.Time, error) {
+func getCommitCreationTimeByRef(githubClnt *u.GithubClient, repo, ref string) (time.Time, error) {
 	if u.SHARegex.MatchString(ref) {
 		return githubClnt.GetCommitCreationTime(repo, ref)
 	} else if u.ReleaseTagRegex.MatchString(ref) {
@@ -55,7 +55,7 @@ func getCommitCreationTimeByRef(githubClnt *u.GithubClient, repo, ref string) (*
 	}
 	err := fmt.Errorf(
 		"reference must be a SHA or release tag to get creation time, but was instead %s", ref)
-	return nil, err
+	return time.Time{}, err
 }
 
 func getAgeMetric(githubClnt *u.GithubClient, dep *u.Dependency) (*DepFreshness, error) {
@@ -73,7 +73,7 @@ func getAgeMetric(githubClnt *u.GithubClient, dep *u.Dependency) (*DepFreshness,
 			dep.ProdBranch, dep.RepoName, err)
 		return nil, e
 	}
-	lag := latestTime.Sub(*stableTime)
+	lag := latestTime.Sub(stableTime)
 	return &DepFreshness{*dep, lag}, nil
 }
 
