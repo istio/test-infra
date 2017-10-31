@@ -150,3 +150,10 @@ func FillUpTemplate(t string, i interface{}) (string, error) {
 	}
 	return wr.String(), nil
 }
+
+// AssertNotEmpty check if a value is empty, exit if value not specified
+func AssertNotEmpty(name string, value *string) {
+	if value == nil || *value == "" {
+		log.Fatalf("%s must be specified\n", name)
+	}
+}

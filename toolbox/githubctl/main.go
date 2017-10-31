@@ -24,14 +24,16 @@ import (
 )
 
 var (
-	owner       = flag.String("owner", "istio", "Github owner or org")
-	tokenFile   = flag.String("token_file", "", "File containing Github API Access Token")
-	op          = flag.String("op", "", "Operation to be performed")
-	repo        = flag.String("repo", "", "Repository to which op is applied")
-	baseBranch  = flag.String("base_branch", "", "Branch to which op is applied")
-	refSHA      = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
-	nextRelease = flag.String("next_release", "", "Tag of the next release")
-	githubClnt  *u.GithubClient
+	owner                              = flag.String("owner", "istio", "Github owner or org")
+	tokenFile                          = flag.String("token_file", "", "File containing Github API Access Token")
+	op                                 = flag.String("op", "", "Operation to be performed")
+	repo                               = flag.String("repo", "", "Repository to which op is applied")
+	baseBranch                         = flag.String("base_branch", "", "Branch to which op is applied")
+	refSHA                             = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
+	nextRelease                        = flag.String("next_release", "", "Tag of the next release")
+	extraBranchesUpdateDownloadVersion = flag.String("update_rel_branches", "",
+		"Extra branches where you want to update downloadIstioCandidate.sh, separated by comma")
+	githubClnt *u.GithubClient
 )
 
 const (
@@ -50,17 +52,10 @@ const (
 	debianSuffix         = "deb"
 )
 
-// Exit if value not specified
-func assertNotEmpty(name string, value *string) {
-	if value == nil || *value == "" {
-		log.Fatalf("%s must be specified\n", name)
-	}
-}
-
 func fastForward(repo, baseBranch, refSHA *string) error {
-	assertNotEmpty("repo", repo)
-	assertNotEmpty("base_branch", baseBranch)
-	assertNotEmpty("ref_sha", refSHA)
+	u.AssertNotEmpty("repo", repo)
+	u.AssertNotEmpty("base_branch", baseBranch)
+	u.AssertNotEmpty("ref_sha", refSHA)
 	isAncestor, err := githubClnt.SHAIsAncestorOfBranch(*repo, masterBranch, *refSHA)
 	if err != nil {
 		return err
@@ -86,7 +81,7 @@ func processIstioVersion(content *string) map[string]string {
 }
 
 func getReleaseTag() (string, error) {
-	assertNotEmpty("base_branch", baseBranch)
+	u.AssertNotEmpty("base_branch", baseBranch)
 	releaseTag, err := githubClnt.GetFileContent(istioRepo, *baseBranch, releaseTagFile)
 	if err != nil {
 		return "", err
@@ -96,7 +91,7 @@ func getReleaseTag() (string, error) {
 
 // TagIstioDepsForRelease creates release tag on each dependent repo of istio
 func TagIstioDepsForRelease() error {
-	assertNotEmpty("base_branch", baseBranch)
+	u.AssertNotEmpty("base_branch", baseBranch)
 	log.Printf("Fetching and processing istio.VERSION\n")
 	istioVersion, err := githubClnt.GetFileContent(istioRepo, *baseBranch, istioVersionFile)
 	if err != nil {
@@ -152,38 +147,10 @@ func TagIstioDepsForRelease() error {
 	return nil
 }
 
-func cloneIstioMakePR(newBranch, prTitle, prBody string, edit func() error) error {
-	assertNotEmpty("base_branch", baseBranch)
-	log.Printf("Cloning istio to local and checkout %s\n", *baseBranch)
-	repoDir, err := u.CloneRepoCheckoutBranch(githubClnt, istioRepo, *baseBranch, newBranch)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		if err = u.RemoveLocalRepo(repoDir); err != nil {
-			log.Fatalf("Error during clean up: %v\n", err)
-		}
-	}()
-	if err := edit(); err != nil {
-		return err
-	}
-	log.Printf("Staging commit and creating pull request\n")
-	if err = u.CreateCommitPushToRemote(
-		newBranch, newBranch); err != nil {
-		return err
-	}
-	pr, err := githubClnt.CreatePullRequest(
-		prTitle, prBody, "", newBranch, *baseBranch, istioRepo)
-	if err != nil {
-		return err
-	}
-	return githubClnt.AddlabelsToPR(istioRepo, pr, "release-note-none")
-}
-
 // UpdateIstioVersionAfterReleaseTagsMadeOnDeps runs updateVersion.sh to update
 // istio.VERSION and then create a PR on istio
 func UpdateIstioVersionAfterReleaseTagsMadeOnDeps() error {
-	assertNotEmpty("base_branch", baseBranch)
+	u.AssertNotEmpty("base_branch", baseBranch)
 	releaseTag, err := getReleaseTag()
 	if err != nil {
 		return err
@@ -207,14 +174,14 @@ func UpdateIstioVersionAfterReleaseTagsMadeOnDeps() error {
 	releaseBranch := "Istio_Release_" + releaseTag
 	body := "Update istio.Version"
 	prTitle := releasePRTtilePrefix + body
-	return cloneIstioMakePR(releaseBranch, prTitle, body, edit)
+	return githubClnt.CreatePRUpdateRepo(releaseBranch, *baseBranch, istioRepo, prTitle, body, edit)
 }
 
 // CreateIstioReleaseUploadArtifacts creates a release on istio from the refSHA provided and uploads dependent artifacts
 func CreateIstioReleaseUploadArtifacts() error {
-	assertNotEmpty("ref_sha", refSHA)
-	assertNotEmpty("base_branch", baseBranch)
-	assertNotEmpty("next_release", nextRelease)
+	u.AssertNotEmpty("ref_sha", refSHA)
+	u.AssertNotEmpty("base_branch", baseBranch)
+	u.AssertNotEmpty("next_release", nextRelease)
 	releaseTag, err := getReleaseTag()
 	if releaseTag == *nextRelease {
 		return fmt.Errorf("next_release should be greater than the current release")
@@ -224,6 +191,11 @@ func CreateIstioReleaseUploadArtifacts() error {
 	}
 	releaseBranch := "finalizeRelease-" + releaseTag
 	prBody := fmt.Sprintf("Finalize release %s on istio", releaseTag)
+	updateVersion := func() error {
+		log.Printf("Updating downloadIstioCandidate.sh with latest release")
+		return u.UpdateKeyValueInFile(
+			downloadScript, "ISTIO_VERSION", fmt.Sprintf("${ISTIO_VERSION:-%s}", releaseTag))
+	}
 	edit := func() error {
 		if _, err := u.Shell(
 			"./release/create_release_archives.sh -d " + releaseBaseDir); err != nil {
@@ -237,17 +209,28 @@ func CreateIstioReleaseUploadArtifacts() error {
 		if err := u.WriteTextFile(releaseTagFile, *nextRelease); err != nil {
 			return err
 		}
-		log.Printf("Updating download release candidate script with latest release")
-		return u.UpdateKeyValueInFile(
-			downloadScript, "ISTIO_VERSION", fmt.Sprintf("${ISTIO_VERSION:-%s}", releaseTag))
+		return updateVersion()
 	}
 	prTitle := releasePRTtilePrefix + prBody
-	return cloneIstioMakePR(releaseBranch, prTitle, prBody, edit)
+	err = githubClnt.CreatePRUpdateRepo(releaseBranch, *baseBranch, istioRepo, prTitle, prBody, edit)
+	if err != nil {
+		return err
+	}
+
+	extraBranches := strings.Split(*extraBranchesUpdateDownloadVersion, ",")
+	for _, branch := range extraBranches {
+		localBranch := fmt.Sprintf("%s-local", branch)
+		if err := githubClnt.CreatePRUpdateRepo(localBranch, branch, istioRepo, prTitle, prBody, updateVersion); err != nil {
+			// Only log out errors if failing update extra branches
+			log.Printf("Warning! Failed to update downloadIstioCandidate.sh in branch %s", branch)
+		}
+	}
+	return nil
 }
 
 func init() {
 	flag.Parse()
-	assertNotEmpty("token_file", tokenFile)
+	u.AssertNotEmpty("token_file", tokenFile)
 	token, err := u.GetAPITokenFromFile(*tokenFile)
 	if err != nil {
 		log.Fatalf("Error accessing user supplied token_file: %v\n", err)

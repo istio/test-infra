@@ -255,60 +255,60 @@ presubmits:
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
-  run_after_success:
-  - name: broker-coverage
-    agent: kubernetes
-    context: prow/broker-coverage.sh
-    always_run: true
-    spec:
-      containers:
-      - image: gcr.io/istio-testing/prowbazel:0.3.1
-        args:
-        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
-        - "--clean"
-        - "--timeout=20"
-        # Bazel needs privileged mode in order to sandbox builds.
-        securityContext:
-          privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
+    run_after_success:
+    - name: broker-coverage
+      agent: kubernetes
+      context: prow/broker-coverage.sh
+      always_run: true
+      spec:
+        containers:
+        - image: gcr.io/istio-testing/prowbazel:0.3.1
+          args:
+          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+          - "--clean"
+          - "--timeout=20"
+          # Bazel needs privileged mode in order to sandbox builds.
+          securityContext:
+            privileged: true
+          env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /etc/service-account/service-account.json
+          volumeMounts:
+          - name: service
+            mountPath: /etc/service-account
+            readOnly: true
+          - name: broker-codecov-token
+            mountPath: /etc/codecov
+            readOnly: true
+          - name: broker-e2e-rbac-kubeconfig
+            mountPath: /home/bootstrap/.kube
+          - name: cache-ssd
+            mountPath: /home/bootstrap/.cache
+          ports:
+          - containerPort: 9999
+            hostPort: 9998
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "20Gi"
+              cpu: "5000m"
+        nodeSelector:
+          cloud.google.com/gke-nodepool: build-pool
+        volumes:
         - name: service
-          mountPath: /etc/service-account
-          readOnly: true
+          secret:
+            secretName: service-account
         - name: broker-codecov-token
-          mountPath: /etc/codecov
-          readOnly: true
+          secret:
+            secretName: broker-codecov-token
         - name: broker-e2e-rbac-kubeconfig
-          mountPath: /home/bootstrap/.kube
+          secret:
+            secretName: broker-e2e-rbac-kubeconfig
         - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "20Gi"
-            cpu: "5000m"
-      nodeSelector:
-        cloud.google.com/gke-nodepool: build-pool
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
-      - name: broker-codecov-token
-        secret:
-          secretName: broker-codecov-token
-      - name: broker-e2e-rbac-kubeconfig
-        secret:
-          secretName: broker-e2e-rbac-kubeconfig
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
+          hostPath:
+            path: /mnt/disks/ssd0
 
 
   sebastienvas/core:
@@ -2005,40 +2005,6 @@ periodics:
     nodeSelector:
       cloud.google.com/gke-nodepool: build-pool
     volumes:
-    - name: service
-      secret:
-        secretName: service-account
-
-- interval: 2h
-  agent: kubernetes
-  name: test-infra-update-deps
-  spec:
-    containers:
-    - image: gcr.io/istio-testing/prowbazel:0.3.1
-      args:
-      - "--repo=github.com/istio/test-infra=master"
-      - "--clean"
-      - "--timeout=20"
-      securityContext:
-        privileged: true
-      env:
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/service-account.json
-      - name: GIT_BRANCH
-        value: master
-      volumeMounts:
-      - name: oauth
-        mountPath: /etc/github
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: service
-        readOnly: true
-    nodeSelector:
-      cloud.google.com/gke-nodepool: build-pool
-    volumes:
-    - name: oauth
-      secret:
-        secretName: oauth-token
     - name: service
       secret:
         secretName: service-account
