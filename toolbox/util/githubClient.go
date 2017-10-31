@@ -469,3 +469,36 @@ func (g GithubClient) GetLatestRelease(repo string) (string, error) {
 	}
 	return *release.TagName, nil
 }
+
+// CreatePRUpdateRepo checkout repo:baseBranch to local
+// create newBranch, do edit(), push newBranch
+// and create a PR again baseBranch with prTitle and prBody
+func (g GithubClient) CreatePRUpdateRepo(newBranch, baseBranch, repo, prTitle, prBody string, edit func() error) error {
+	workDir, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("failed to get current working dir: %s", err)
+	}
+	log.Printf("Cloning %s to local and checkout %s\n", repo, baseBranch)
+	repoDir, err := CloneRepoCheckoutBranch(&g, repo, baseBranch, newBranch)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err = RemoveLocalRepo(repoDir); err != nil {
+			log.Fatalf("Error during clean up: %v\n", err)
+		}
+		if err = os.Chdir(workDir); err != nil {
+			log.Printf("Failed to go back to workDir %s: %s", workDir, err)
+		}
+	}()
+	if err = edit(); err != nil {
+		return err
+	}
+	log.Printf("Staging commit and creating pull request\n")
+	if err = CreateCommitPushToRemote(
+		newBranch, newBranch); err != nil {
+		return err
+	}
+	_, err = g.CreatePullRequest(prTitle, prBody, "", newBranch, baseBranch, repo)
+	return err
+}
