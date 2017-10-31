@@ -32,11 +32,11 @@ ENV TEST_TMPDIR /home/bootstrap/.cache/bazel
 
 # Add bootstrap, the test harness (checks out code, captures log and status)
 # Add entrypoint that runs bootstrap with appropriate arguments
-ADD ./docker/prowbuilder/bootstrap.py ${HOME}/
+ADD docker/prowbuilder/bootstrap/bootstrap.py ${HOME}
 RUN sudo chmod +rx ${HOME}/bootstrap.py
 
 # Add entrypoint that runs bootstrap with appropriate arguments
-ADD ./docker/prowbuilder/entrypoint.sh /usr/local/bin/entrypoint
+ADD docker/prowbuilder/entrypoint.sh /usr/local/bin/entrypoint
 RUN sudo chmod +rx /usr/local/bin/entrypoint
 
 # Set CI variable which can be checked by test scripts to verify

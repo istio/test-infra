@@ -40,6 +40,7 @@ The contract with the runner is as follows:
 
 
 import argparse
+import collections
 import contextlib
 import json
 import logging
@@ -211,33 +212,49 @@ def random_sleep(attempt):
     time.sleep(random.random() + attempt ** 2)
 
 
-def checkout(call, repo, branch, pull, ssh='', git_cache='', clean=False):
+def checkout(call, repo, checkout_info, ssh='', git_cache='', clean=False):
     """Fetch and checkout the repository at the specified branch/pull."""
     # pylint: disable=too-many-locals
-    if bool(branch) == bool(pull):
+    if bool(checkout_info.branch) == bool(checkout_info.pull):
         raise ValueError('Must specify one of --branch or --pull')
 
-    if pull:
-        refs, checkouts = pull_ref(pull)
+    if checkout_info.pull:
+        refs, checkouts = pull_ref(checkout_info.pull)
     else:
-        refs, checkouts = branch_ref(branch)
+        refs, checkouts = branch_ref(checkout_info.branch)
 
     git = 'git'
-    if git_cache:
-        cache_dir = '%s/%s' % (git_cache, repo)
-        try:
-            os.makedirs(cache_dir)
-        except OSError:
-            pass
-        call([git, 'init', repo, '--separate-git-dir=%s' % cache_dir])
-        call(['rm', '-f', '%s/index.lock' % cache_dir])
+
+    if checkout_info.manifest:
+        m = checkout_info.manifest
+        if not os.path.exists(os.path.join(repo, ARTIFACTS_DIR)):
+          os.makedirs(os.path.join(repo, ARTIFACTS_DIR))
+        os.chdir(repo)
+        call(['repo', 'init', '-u', m.url, '-b', m.branch])
+        call(['repo', 'sync', '-c'])
+        # Storing build manifest as part of artifacts
+        call(['repo', 'manifest', '-r', '-o', '%s/build.xml' % ARTIFACTS_DIR])
+        repo_prefix = ['repo', 'forall', '-c' ]
+        # In order to apply the patches in the right directory
+        os.chdir(m.patch_path)
     else:
-        call([git, 'init', repo])
-    os.chdir(repo)
+        repo_prefix = []
+        if git_cache:
+            cache_dir = '%s/%s' % (git_cache, repo)
+            try:
+                os.makedirs(cache_dir)
+            except OSError:
+                pass
+            call([git, 'init', repo, '--separate-git-dir=%s' % cache_dir])
+            call(['rm', '-f', '%s/index.lock' % cache_dir])
+        else:
+            call([git, 'init', repo])
+
+        os.chdir(repo)
 
     if clean:
-        call([git, 'clean', '-dfx'])
-        call([git, 'reset', '--hard'])
+        call(repo_prefix + [git, 'clean', '-dfx'])
+        call(repo_prefix + [git, 'reset', '--hard'])
 
     # To make a merge commit, a user needs to be set. It's okay to use a dummy
     # user here, since we're not exporting the history.
@@ -255,14 +272,16 @@ def checkout(call, repo, branch, pull, ssh='', git_cache='', clean=False):
                 raise
             logging.warning('git fetch failed')
             random_sleep(attempt)
+
     call([git, 'checkout', '-B', 'test', checkouts[0]])
     for ref, head in zip(refs, checkouts)[1:]:
         call(['git', 'merge', '--no-ff', '-m', 'Merge %s' % ref, head])
 
 
+
 def repos_dict(repos):
     """Returns {"repo1": "branch", "repo2": "pull"}."""
-    return {r: b or p for (r, (b, p)) in repos.items()}
+    return {r: c.branch or c.pull for (r, c) in repos.items()}
 
 
 def start(gsutil, paths, stamp, node_name, version, repos):
@@ -276,9 +295,9 @@ def start(gsutil, paths, stamp, node_name, version, repos):
         data['repo-version'] = version
         data['version'] = version  # TODO(fejta): retire
     if repos:
-        pull = repos[repos.main]
-        if ref_has_shas(pull[1]):
-            data['pull'] = pull[1]
+        ci = repos[repos.main]
+        if ref_has_shas(ci.pull):
+            data['pull'] = ci.pull
         data['repos'] = repos_dict(repos)
 
     gsutil.upload_json(paths.started, data)
@@ -533,7 +552,6 @@ class Paths(object):  # pylint: disable=too-many-instance-attributes,too-few-pub
         self.started = started
 
 
-
 def ci_paths(base, job, build):
     """Return a Paths() instance for a continuous build."""
     latest = os.path.join(base, job, 'latest-build.txt')
@@ -551,13 +569,12 @@ def ci_paths(base, job, build):
     )
 
 
-
 def pr_paths(base, repos, job, build):
     """Return a Paths() instance for a PR."""
     if not repos:
         raise ValueError('repos is empty')
     repo = repos.main
-    pull = str(repos[repo][1])
+
     if repo in ['k8s.io/kubernetes', 'kubernetes/kubernetes']:
         prefix = ''
     elif repo.startswith('k8s.io/'):
@@ -569,7 +586,7 @@ def pr_paths(base, repos, job, build):
     else:
         prefix = repo.replace('/', '_')
     # Batch merges are those with more than one PR specified.
-    pr_nums = pull_numbers(pull)
+    pr_nums = pull_numbers(repos[repo].pull)
     if len(pr_nums) > 1:
         pull = os.path.join(prefix, 'batch')
     else:
@@ -593,7 +610,7 @@ def pr_paths(base, repos, job, build):
     )
 
 
-
+ARTIFACTS_DIR = '_artifacts'
 BUILD_ENV = 'BUILD_NUMBER'
 BOOTSTRAP_ENV = 'BOOTSTRAP_MIGRATION'
 CLOUDSDK_ENV = 'CLOUDSDK_CONFIG'
@@ -740,8 +757,6 @@ def job_script(job, use_json, jobs_dir):
     return [cmd] + job_args(job_config.get('args', []))
 
 
-
-
 def gubernator_uri(paths):
     """Return a gubernator link for this build."""
     job = os.path.dirname(paths.build_log)
@@ -784,16 +799,17 @@ def setup_root(call, root, repos, ssh, git_cache, clean):
     root_dir = os.path.realpath(root)
     logging.info('Root: %s', root_dir)
     with choose_ssh_key(ssh):
-        for repo, (branch, pull) in repos.items():
+        for repo, checkout_info in repos.items():
             os.chdir(root_dir)
             logging.info(
                 'Checkout: %s %s',
                 os.path.join(root_dir, repo),
-                pull and pull or branch)
-            checkout(call, repo, branch, pull, ssh, git_cache, clean)
-    if len(repos) > 1:  # cd back into the primary repo
-        os.chdir(root_dir)
-        os.chdir(repos.main)
+                checkout_info.pull and
+                (checkout_info.pull or checkout_info.branch))
+            checkout(call, repo, checkout_info, ssh, git_cache, clean)
+    # cd back into the primary repo
+    os.chdir(root_dir)
+    os.chdir(repos.main)
 
 
 class Repos(dict):
@@ -804,6 +820,14 @@ class Repos(dict):
         if not self:
             self.main = k
         return super(Repos, self).__setitem__(k, v)
+
+
+RepoManifest = collections.namedtuple('RepoManifest', ['url', 'branch', 'patch_path'])
+
+
+
+CheckoutInfo = collections.namedtuple('CheckoutInfo', ['branch', 'pull', 'manifest'])
+
 
 
 def parse_repos(args):
@@ -821,23 +845,42 @@ def parse_repos(args):
         repo = repos[0]
         if '=' in repo or ':' in repo:
             raise ValueError('--repo cannot contain = or : with --branch or --pull')
-        ret[repo] = (args.branch, args.pull)
+        ret[repo] = CheckoutInfo(branch=args.branch, pull=args.pull, manifest=None)
         return ret
+
+    if args.repo_manifest:
+        manifest_url = args.repo_manifest
+        manifest_branch = 'master'
+        if ',' in args.repo_manifest:
+            manifest_url, manifest_branch = manifest_url.split(',')
+
     for repo in repos:
+        manifest = None
+
         mat = re.match(r'([^=]+)(=([^:,~^\s]+(:[0-9a-fA-F]+)?(,|$))+)?$', repo)
         if not mat:
             raise ValueError('bad repo', repo, repos)
+
         this_repo = mat.group(1)
+        if ':' in this_repo:
+            this_repo, patch_path = this_repo.split(':')
+            manifest =  RepoManifest(
+                url=manifest_url, branch=manifest_branch, patch_path=patch_path)
+
         if not mat.group(2):
-            ret[this_repo] = ('master', '')
+            ret[this_repo] = CheckoutInfo(
+                branch='master', pull='', manifest=manifest)
             continue
         commits = mat.group(2)[1:].split(',')
         if len(commits) == 1:
             # Checking out a branch, possibly at a specific commit
-            ret[this_repo] = (commits[0], '')
+            ret[this_repo] = CheckoutInfo(
+                branch=commits[0], pull='', manifest=manifest)
             continue
         # Checking out one or more PRs
-        ret[this_repo] = ('', ','.join(commits))
+        ret[this_repo] = CheckoutInfo(
+            branch='', pull=','.join(commits), manifest=manifest)
+
     return ret
 
 
@@ -848,7 +891,6 @@ def bootstrap(args):
     repos = parse_repos(args)
     upload = args.upload
     use_json = args.json
-
 
     build_log_path = os.path.abspath('build-log.txt')
     build_log = setup_logging(build_log_path)
@@ -864,7 +906,7 @@ def bootstrap(args):
     build = build_name(started)
 
     if upload:
-        if repos and repos[repos.main][1]:  # merging commits, a pr
+        if repos and repos[repos.main].pull:  # merging commits, a pr
             paths = pr_paths(upload, repos, job, build)
         else:
             paths = ci_paths(upload, job, build)
@@ -890,7 +932,10 @@ def bootstrap(args):
             start(gsutil, paths, started, node(), version, repos)
         success = False
         try:
-            call(job_script(job, use_json, args.jobs_dir))
+            script = job_script(job, use_json, args.jobs_dir)
+            os.environ['ARTIFACTS_DIR'] = os.path.join(os.getcwd(), ARTIFACTS_DIR)
+            logging.info('Calling %s from %s', script, os.getcwd())
+            call(script)
             logging.info('PASS: %s', job)
             success = True
         except subprocess.CalledProcessError:
@@ -905,7 +950,7 @@ def bootstrap(args):
         logging.info('Upload result and artifacts...')
         logging.info('Gubernator results at %s', gubernator_uri(paths))
         try:
-            finish(gsutil, paths, success, '_artifacts', build, version, repos, call)
+            finish(gsutil, paths, success, ARTIFACTS_DIR, build, version, repos, call)
         except subprocess.CalledProcessError:  # Still try to upload build log
             success = False
     logging.getLogger('').removeHandler(build_log)
@@ -939,6 +984,10 @@ def parse_args(arguments=None):
         '--repo',
         action='append',
         help='Fetch the specified repositories, with the first one considered primary')
+    parser.add_argument(
+        '--repo-manifest',
+        help='Use Android repo manifest to check out code ' +
+        '--repo-manifest=https://github.com/istio/manifest(,branch)')
     parser.add_argument(
         '--bare',
         action='store_true',
