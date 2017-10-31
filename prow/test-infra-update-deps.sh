@@ -26,28 +26,30 @@ set -u
 # Print commands
 set -x
 
-echo "=== Building Binary that Updates Istio Dependency ==="
-bazel build //toolbox/deps_update:deps_update
+echo "Skip auto dependency update until migration to mono repo is done"
 
-git config --global user.email "istio.testing@gmail.com"
-git config --global user.name "istio-bot"
+# echo "=== Building Binary that Updates Istio Dependency ==="
+# bazel build //toolbox/deps_update:deps_update
 
-TOKEN_PATH="/etc/github/oauth"
-# List of repo where auto dependency update has been enabled
-# excluding istio/istio
-repos=( mixer mixerclient pilot proxy )
+# git config --global user.email "istio.testing@gmail.com"
+# git config --global user.name "istio-bot"
 
-echo "=== Updating Dependency of Istio ==="
-./bazel-bin/toolbox/deps_update/deps_update \
-  --repo=istio \
-  --token_file=${TOKEN_PATH} \
-  --base_branch=${GIT_BRANCH} \
-  --hub=gcr.io/istio-testing
+# TOKEN_PATH="/etc/github/oauth"
+# # List of repo where auto dependency update has been enabled
+# # excluding istio/istio
+# repos=( mixer mixerclient pilot proxy )
 
-for r in "${repos[@]}"; do
-  echo "=== Updating Dependency of ${r} ==="
-  ./bazel-bin/toolbox/deps_update/deps_update \
-    --repo=${r} \
-    --base_branch=${GIT_BRANCH} \
-    --token_file=${TOKEN_PATH}
-done
+# echo "=== Updating Dependency of Istio ==="
+# ./bazel-bin/toolbox/deps_update/deps_update \
+#   --repo=istio \
+#   --token_file=${TOKEN_PATH} \
+#   --base_branch=${GIT_BRANCH} \
+#   --hub=gcr.io/istio-testing
+
+# for r in "${repos[@]}"; do
+#   echo "=== Updating Dependency of ${r} ==="
+#   ./bazel-bin/toolbox/deps_update/deps_update \
+#     --repo=${r} \
+#     --base_branch=${GIT_BRANCH} \
+#     --token_file=${TOKEN_PATH}
+# done
