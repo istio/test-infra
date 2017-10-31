@@ -31,7 +31,7 @@ var (
 	baseBranch                         = flag.String("base_branch", "", "Branch to which op is applied")
 	refSHA                             = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
 	nextRelease                        = flag.String("next_release", "", "Tag of the next release")
-	extraBranchesUpdateDownloadVersion = flag.String("extra_branches", "",
+	extraBranchesUpdateDownloadVersion = flag.String("update_rel_branches", "",
 		"Extra branches where you want to update downloadIstioCandidate.sh, separated by comma")
 	githubClnt *u.GithubClient
 )
@@ -147,11 +147,6 @@ func TagIstioDepsForRelease() error {
 	return nil
 }
 
-func cloneIstioMakePR(newBranch, prTitle, prBody string, edit func() error) error {
-	u.AssertNotEmpty("base_branch", baseBranch)
-	return githubClnt.CreatePRUpdateRepo(newBranch, *baseBranch, istioRepo, prTitle, prBody, edit)
-}
-
 // UpdateIstioVersionAfterReleaseTagsMadeOnDeps runs updateVersion.sh to update
 // istio.VERSION and then create a PR on istio
 func UpdateIstioVersionAfterReleaseTagsMadeOnDeps() error {
@@ -179,7 +174,7 @@ func UpdateIstioVersionAfterReleaseTagsMadeOnDeps() error {
 	releaseBranch := "Istio_Release_" + releaseTag
 	body := "Update istio.Version"
 	prTitle := releasePRTtilePrefix + body
-	return cloneIstioMakePR(releaseBranch, prTitle, body, edit)
+	return githubClnt.CreatePRUpdateRepo(releaseBranch, *baseBranch, istioRepo, prTitle, body, edit)
 }
 
 // CreateIstioReleaseUploadArtifacts creates a release on istio from the refSHA provided and uploads dependent artifacts
@@ -217,7 +212,7 @@ func CreateIstioReleaseUploadArtifacts() error {
 		return updateVersion()
 	}
 	prTitle := releasePRTtilePrefix + prBody
-	err = cloneIstioMakePR(releaseBranch, prTitle, prBody, edit)
+	err = githubClnt.CreatePRUpdateRepo(releaseBranch, *baseBranch, istioRepo, prTitle, prBody, edit)
 	if err != nil {
 		return err
 	}
