@@ -18,8 +18,13 @@ RUN chmod +x /tmp/istio_tmp/scripts/linux-install-software
 RUN /tmp/istio_tmp/scripts/linux-install-software \
     && rm -rf /tmp/istio_tmp
 
-ENV PATH /usr/local/go/bin:/usr/lib/google-cloud-sdk/bin:${PATH}
+ENV PATH /usr/local/go/bin:/usr/lib/google-cloud-sdk/bin:/opt/go/bin:${PATH}
 RUN echo "PATH=\"${PATH}\"" > /etc/environment
 
-# Create release user
-RUN useradd -c "Releaser" -d /home/releng -G docker,sudo -m releng -s /bin/bash
+# Add entrypoint that runs bootstrap with appropriate arguments
+ADD docker/istio_builders/istio_builder/entrypoint.sh /usr/local/bin/entrypoint
+RUN sudo chmod +rx /usr/local/bin/entrypoint
+
+RUN touch /etc/passwd && chmod a+rw /etc/passwd
+
+ENTRYPOINT ["entrypoint"]
