@@ -2061,6 +2061,9 @@ periodics:
       securityContext:
         privileged: true
       volumeMounts:
+      - name: oauth
+        mountPath: /etc/github
+        readOnly: true
       - name: service
         mountPath: /etc/service-account
         readOnly: true
@@ -2090,3 +2093,6 @@ periodics:
     - name: cache-ssd
       hostPath:
         path: /mnt/disks/ssd0
+    - name: oauth
+      secret:
+        secretName: oauth-token
