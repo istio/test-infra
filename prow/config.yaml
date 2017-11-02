@@ -2042,3 +2042,51 @@ periodics:
     - name: service
       secret:
         secretName: service-account
+
+- interval: 1h
+  agent: kubernetes
+  name: master-green-build
+  spec:
+    containers:
+    - image: gcr.io/istio-testing/prow-builder:0.3.2
+      args:
+      - --job=green-build
+      - --jobs-dir=build/prow
+      - --service-account=/etc/service-account/service-account.json
+      - --upload=gs://istio-prow/
+      - --repo-manifest=https://github.com/sebastienvas/manifest,master
+      - --clean
+      - --timeout=15
+      # Bazel needs privileged mode in order to sandbox builds.
+      securityContext:
+        privileged: true
+      volumeMounts:
+      - name: service
+        mountPath: /etc/service-account
+        readOnly: true
+      - name: istio-e2e-rbac-kubeconfig
+        mountPath: /home/bootstrap/.kube
+      - name: cache-ssd
+        mountPath: /home/bootstrap/.cache
+      ports:
+      - containerPort: 9999
+        hostPort: 9998
+      resources:
+        requests:
+          memory: "512Mi"
+          cpu: "500m"
+        limits:
+          memory: "20Gi"
+          cpu: "5000m"
+    nodeSelector:
+      cloud.google.com/gke-nodepool: build-pool
+    volumes:
+    - name: service
+      secret:
+        secretName: service-account
+    - name: istio-e2e-rbac-kubeconfig
+      secret:
+        secretName: istio-e2e-rbac-kubeconfig
+    - name: cache-ssd
+      hostPath:
+        path: /mnt/disks/ssd0
