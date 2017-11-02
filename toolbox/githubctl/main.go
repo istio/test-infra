@@ -167,7 +167,7 @@ func UpdateIstioVersionAfterReleaseTagsMadeOnDeps() error {
 		// Pilot
 		cmd += fmt.Sprintf(" -p %s -i %s -P %s", hubCommaTag, istioctlURL, debianURL)
 		// Proxy
-		cmd += fmt.Sprintf(" -r %s -E %s", hubCommaTag, debianURL)
+		cmd += fmt.Sprintf(" -r %s -E %s", releaseTag, debianURL)
 		_, err := u.Shell(cmd)
 		return err
 	}
