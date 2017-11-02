@@ -2048,13 +2048,14 @@ periodics:
   name: master-green-build
   spec:
     containers:
-    - image: gcr.io/istio-testing/prow-builder:0.3.2
+    - image: gcr.io/istio-testing/prow-builder:0.4.0
       args:
       - --job=green-build
       - --jobs-dir=build/prow
       - --service-account=/etc/service-account/service-account.json
       - --upload=gs://istio-prow/
       - --repo-manifest=https://github.com/sebastienvas/manifest,master
+      - --repo=green-build
       - --clean
       - --timeout=15
       # Bazel needs privileged mode in order to sandbox builds.
