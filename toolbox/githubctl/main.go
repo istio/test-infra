@@ -18,7 +18,9 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"strings"
+	"time"
 
 	u "istio.io/test-infra/toolbox/util"
 )
@@ -34,9 +36,11 @@ var (
 	extraBranchesUpdateDownloadVersion = flag.String("update_rel_branches", "",
 		"Extra branches where you want to update downloadIstioCandidate.sh, separated by comma")
 	githubClnt *u.GithubClient
+	ghClntRel  *u.GithubClient
 )
 
 const (
+	// 0.2 release tooling
 	istioVersionFile     = "istio.VERSION"
 	istioDepsFile        = "istio.deps"
 	releaseTagFile       = "istio.RELEASE"
@@ -50,6 +54,9 @@ const (
 	releaseBucketFmtStr  = "https://storage.googleapis.com/istio-release/releases/%s/%s"
 	istioctlSuffix       = "istioctl"
 	debianSuffix         = "deb"
+	// release qualification trigger
+	relQualificationPRTtilePrefix = "Release Qualification"
+	dailyRepo                     = "daily-release"
 )
 
 func fastForward(repo, baseBranch, refSHA *string) error {
@@ -174,7 +181,8 @@ func UpdateIstioVersionAfterReleaseTagsMadeOnDeps() error {
 	releaseBranch := "Istio_Release_" + releaseTag
 	body := "Update istio.Version"
 	prTitle := releasePRTtilePrefix + body
-	return githubClnt.CreatePRUpdateRepo(releaseBranch, *baseBranch, istioRepo, prTitle, body, edit)
+	_, err = githubClnt.CreatePRUpdateRepo(releaseBranch, *baseBranch, istioRepo, prTitle, body, edit)
+	return err
 }
 
 // CreateIstioReleaseUploadArtifacts creates a release on istio from the refSHA provided and uploads dependent artifacts
@@ -212,7 +220,7 @@ func CreateIstioReleaseUploadArtifacts() error {
 		return updateVersion()
 	}
 	prTitle := releasePRTtilePrefix + prBody
-	err = githubClnt.CreatePRUpdateRepo(releaseBranch, *baseBranch, istioRepo, prTitle, prBody, edit)
+	_, err = githubClnt.CreatePRUpdateRepo(releaseBranch, *baseBranch, istioRepo, prTitle, prBody, edit)
 	if err != nil {
 		return err
 	}
@@ -220,13 +228,63 @@ func CreateIstioReleaseUploadArtifacts() error {
 		extraBranches := strings.Split(*extraBranchesUpdateDownloadVersion, ",")
 		for _, branch := range extraBranches {
 			localBranch := fmt.Sprintf("%s-local", branch)
-			if err := githubClnt.CreatePRUpdateRepo(localBranch, branch, istioRepo, prTitle, prBody, updateVersion); err != nil {
+			if _, err := githubClnt.CreatePRUpdateRepo(localBranch, branch, istioRepo, prTitle, prBody, updateVersion); err != nil {
 				// Only log out errors if failing update extra branches
 				log.Printf("Warning! Failed to update downloadIstioCandidate.sh in branch %s", branch)
 			}
 		}
 	}
 	return nil
+}
+
+// DailyReleaseQualification triggers test jobs buy creating a PR that generates
+// a GitHub notification. It blocks until PR status is known and returns nonzero
+// value if failure. Links to test logs will also be logged to console.
+func DailyReleaseQualification() error {
+	log.Printf("Creating PR to trigger release qualifications\n")
+	prTitle := "[DO NOT MERGE, TESTING ONLY] " + relQualificationPRTtilePrefix + *refSHA
+	prBody := fmt.Sprintf("Trigger release qualification jobs")
+	edit := func() error {
+		sha, err := githubClnt.GetHeadCommitSHA("green-builds", masterBranch)
+		if err != nil {
+			return err
+		}
+		if err := u.WriteTextFile("chosenGreenBuild", sha); err != nil {
+			return err
+		}
+		return nil
+	}
+	newBranch := fmt.Sprintf("relQual_%d", time.Now().UnixNano())
+	pr, err := ghClntRel.CreatePRUpdateRepo(newBranch, masterBranch, dailyRepo, prTitle, prBody, edit)
+	if err != nil {
+		return err
+	}
+	log.Printf("Waiting for all jobs starting. Results Polling starts soon.\n")
+	time.Sleep(5 * time.Second)
+	verbose := true
+	ci := u.NewCIState()
+	retryDelay := 1 * time.Minute
+	totalRetries := 60
+	return u.Poll(retryDelay, totalRetries, func() (bool, error) {
+		status, err := ghClntRel.GetPRTestResults(dailyRepo, pr, verbose)
+		verbose = false
+		if err != nil {
+			return false, err
+		}
+		exitPolling := false
+		switch status {
+		case ci.Success:
+			log.Printf("Release qualification passed\n")
+			exitPolling = true
+		case ci.Failure:
+			// All failures have been logged by GetPRTestResults()
+			exitPolling = true
+			err = fmt.Errorf("release qualification failed")
+		case ci.Pending:
+			log.Printf("Results still pending. Will check again in %v.\n", retryDelay)
+		}
+		return exitPolling, err
+	})
 }
 
 func init() {
@@ -237,6 +295,8 @@ func init() {
 		log.Fatalf("Error accessing user supplied token_file: %v\n", err)
 	}
 	githubClnt = u.NewGithubClient(*owner, token)
+	// a new github client is created for istio-releases org
+	ghClntRel = u.NewGithubClient("istio-releases", token)
 }
 
 func main() {
@@ -256,6 +316,11 @@ func main() {
 	case "uploadArtifacts":
 		if err := CreateIstioReleaseUploadArtifacts(); err != nil {
 			log.Printf("Error during CreateIstioReleaseUploadArtifacts: %v\n", err)
+		}
+	case "dailyRelQual":
+		if err := DailyReleaseQualification(); err != nil {
+			log.Printf("Error during DailyReleaseQualification: %v\n", err)
+			os.Exit(1)
 		}
 	default:
 		log.Printf("Unsupported operation: %s\n", *op)

@@ -219,6 +219,33 @@ func (g GithubClient) ExistBranch(repo, branch string) (bool, error) {
 	return false, nil
 }
 
+// GetPRTestResults return `success` if all *required* tests have passed
+func (g GithubClient) GetPRTestResults(repo string, pr *github.PullRequest, verbose bool) (string, error) {
+	combinedStatus, _, err := g.client.Repositories.GetCombinedStatus(
+		context.Background(), g.owner, repo, pr.Head.GetSHA(), nil)
+	if err != nil {
+		return "", err
+	}
+	if verbose {
+		log.Printf("---------- The following jobs are triggered ----------\n")
+		for _, status := range combinedStatus.Statuses {
+			log.Printf("> %s\t%s\n", status.GetContext(), status.GetTargetURL())
+		}
+	}
+	requiredChecks, _, err := g.client.Repositories.GetRequiredStatusChecks(
+		context.Background(), g.owner, repo, pr.Base.GetRef())
+	if err != nil {
+		return "", err
+	}
+	if verbose {
+		log.Printf("---------- The following jobs are required to pass ----------\n")
+		for _, ctx := range requiredChecks.Contexts {
+			log.Printf("> %s\n", ctx)
+		}
+	}
+	return GetReqquiredCIState(combinedStatus, requiredChecks, nil), nil
+}
+
 // CloseIdlePullRequests checks all open PRs auto-created on baseBranch in repo,
 // closes the ones that have stayed open for a long time, and deletes the
 // remote branches from which the PRs are made
@@ -473,15 +500,16 @@ func (g GithubClient) GetLatestRelease(repo string) (string, error) {
 // CreatePRUpdateRepo checkout repo:baseBranch to local
 // create newBranch, do edit(), push newBranch
 // and create a PR again baseBranch with prTitle and prBody
-func (g GithubClient) CreatePRUpdateRepo(newBranch, baseBranch, repo, prTitle, prBody string, edit func() error) error {
+func (g GithubClient) CreatePRUpdateRepo(
+	newBranch, baseBranch, repo, prTitle, prBody string, edit func() error) (*github.PullRequest, error) {
 	workDir, err := os.Getwd()
 	if err != nil {
-		return fmt.Errorf("failed to get current working dir: %s", err)
+		return nil, fmt.Errorf("failed to get current working dir: %s", err)
 	}
 	log.Printf("Cloning %s to local and checkout %s\n", repo, baseBranch)
 	repoDir, err := CloneRepoCheckoutBranch(&g, repo, baseBranch, newBranch)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer func() {
 		if err = RemoveLocalRepo(repoDir); err != nil {
@@ -492,13 +520,12 @@ func (g GithubClient) CreatePRUpdateRepo(newBranch, baseBranch, repo, prTitle, p
 		}
 	}()
 	if err = edit(); err != nil {
-		return err
+		return nil, err
 	}
 	log.Printf("Staging commit and creating pull request\n")
 	if err = CreateCommitPushToRemote(
 		newBranch, newBranch); err != nil {
-		return err
+		return nil, err
 	}
-	_, err = g.CreatePullRequest(prTitle, prBody, "", newBranch, baseBranch, repo)
-	return err
+	return g.CreatePullRequest(prTitle, prBody, "", newBranch, baseBranch, repo)
 }
