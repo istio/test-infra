@@ -258,14 +258,15 @@ def checkout(call, repo, checkout_info, ssh='', git_cache='', clean=False):
         call(repo_prefix + [git, 'clean', '-dfx'])
         call(repo_prefix + [git, 'reset', '--hard'])
 
+    # To make a merge commit, a user needs to be set. It's okay to use a dummy
+    # user here, since we're not exporting the history.
+    call([git, 'config', '--global', 'user.name', 'Istio Testing'])
+    call([git, 'config', '--global', 'user.email', 'istio.testing@gmail.com'])
+
     if checkout_info.manifest and checkout_info.manifest.patch_path == '':
         # Nothing to patch
         return
 
-    # To make a merge commit, a user needs to be set. It's okay to use a dummy
-    # user here, since we're not exporting the history.
-    call([git, 'config', '--local', 'user.name', 'K8S Bootstrap'])
-    call([git, 'config', '--local', 'user.email', 'k8s_bootstrap@localhost'])
     retries = 3
     for attempt in range(retries):
         try:

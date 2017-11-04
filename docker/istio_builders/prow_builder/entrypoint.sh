@@ -59,4 +59,4 @@ pwd
 env
 
 # start harness (checkout code/run job/upload logs)
-${HOME}/bootstrap.py --no-magic-env "$@"
+bootstrap.py --no-magic-env "$@"

@@ -12,8 +12,8 @@ ENV TEST_TMPDIR /home/bootstrap/.cache/bazel
 
 # Add bootstrap, the test harness (checks out code, captures log and status)
 # Add entrypoint that runs bootstrap with appropriate arguments
-ADD docker/istio_builders/prow_builder/bootstrap/bootstrap.py ${HOME}
-RUN sudo chmod +rx ${HOME}/bootstrap.py
+ADD docker/istio_builders/prow_builder/bootstrap/bootstrap.py /usr/local/bin/
+RUN sudo chmod +rx /usr/local/bin/bootstrap.py
 
 # Add entrypoint that runs bootstrap with appropriate arguments
 ADD docker/istio_builders/prow_builder/entrypoint.sh /usr/local/bin/entrypoint
