@@ -77,7 +77,7 @@ presubmits:
           path: /mnt/disks/ssd0
 
 
-  istio/auth:
+  istio/old_auth_repo:
 
   - name: auth-presubmit
     agent: kubernetes
@@ -196,7 +196,7 @@ presubmits:
           path: /mnt/disks/ssd0
 
 
-  istio/broker:
+  istio/old_broker_repo:
 
   - name: broker-presubmit
     agent: kubernetes
@@ -384,7 +384,7 @@ presubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
-        - "--timeout=15"
+        - "--timeout=60"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -576,7 +576,7 @@ presubmits:
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
-        - "--timeout=15"
+        - "--timeout=60"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -755,7 +755,7 @@ presubmits:
             path: /mnt/disks/ssd0
 
 
-  istio/mixer:
+  istio/old_mixer_repo:
 
   - name: mixer-presubmit
     agent: kubernetes
@@ -1062,7 +1062,7 @@ presubmits:
             path: /mnt/disks/ssd0
 
 
-  istio/pilot:
+  istio/old_pilot_repo:
 
   - name: pilot-presubmit
     agent: kubernetes
@@ -1473,7 +1473,7 @@ postsubmits:
           secretName: oauth-token
 
 
-  istio/auth:
+  istio/old_auth_repo:
 
   - name: auth-postsubmit
     agent: kubernetes
@@ -1580,7 +1580,7 @@ postsubmits:
           secretName: oauth-token
 
 
-  istio/broker:
+  istio/old_broker_repo:
 
   - name: broker-postsubmit
     agent: kubernetes
@@ -1635,7 +1635,7 @@ postsubmits:
           secretName: oauth-token
 
 
-  istio/mixer:
+  istio/old_mixer_repo:
 
   - name: mixer-postsubmit
     agent: kubernetes
@@ -1732,7 +1732,7 @@ postsubmits:
           secretName: oauth-token
 
 
-  istio/pilot:
+  istio/old_pilot_repo:
 
   - name: pilot-postsubmit
     agent: kubernetes

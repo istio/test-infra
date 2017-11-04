@@ -84,7 +84,6 @@ done
 
 # Keep new config into temp dir and put original config back
 TEMP_DIR="$(mktemp -d)"
-mkdir ${TEMP_DIR}
 mv "${CONFIG_FILE}" "${TEMP_DIR}/config"
 mv "${CONFIG_BACKUP}" "${CONFIG_FILE}"
 CONFIG_BACKUPED=false
@@ -98,3 +97,6 @@ kubectl delete secret ${SECRET_NAME} -n ${PROW_TEST_NS}
 sleep 5
 kubectl -n ${PROW_TEST_NS} create secret generic ${SECRET_NAME} --from-file=${TEMP_DIR}
 kubectl get secret -n ${PROW_TEST_NS}
+
+echo "--------------------------------------"
+echo "Successfully update cluster for ${REPO}"
