@@ -262,6 +262,11 @@ def checkout(call, repo, checkout_info, ssh='', git_cache='', clean=False):
         # Nothing to patch
         return
 
+    # To make a merge commit, a user needs to be set. It's okay to use a dummy
+    # user here, since we're not exporting the history.
+    call([git, 'config', '--local', 'user.name', 'Istio Testing'])
+    call([git, 'config', '--local', 'user.email', 'istio.testing@gmail.com'])
+
     retries = 3
     for attempt in range(retries):
         try:
