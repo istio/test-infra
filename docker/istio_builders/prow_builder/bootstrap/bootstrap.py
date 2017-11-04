@@ -57,6 +57,7 @@ import tempfile
 import time
 
 ORIG_CWD = os.getcwd()  # Checkout changes cwd
+REPO_MANIFEST_ONLY = '__repo__manifest__'
 
 
 def read_all(end, stream, append):
@@ -228,7 +229,7 @@ def checkout(call, repo, checkout_info, ssh='', git_cache='', clean=False):
     if checkout_info.manifest:
         m = checkout_info.manifest
         if not os.path.exists(os.path.join(repo, ARTIFACTS_DIR)):
-          os.makedirs(os.path.join(repo, ARTIFACTS_DIR))
+            os.makedirs(os.path.join(repo, ARTIFACTS_DIR))
         os.chdir(repo)
         call(['repo', 'init', '-u', m.url, '-b', m.branch])
         call(['repo', 'sync', '-c'])
@@ -236,7 +237,8 @@ def checkout(call, repo, checkout_info, ssh='', git_cache='', clean=False):
         call(['repo', 'manifest', '-r', '-o', '%s/build.xml' % ARTIFACTS_DIR])
         repo_prefix = ['repo', 'forall', '-c' ]
         # In order to apply the patches in the right directory
-        os.chdir(m.patch_path)
+        if m.patch_path:
+            os.chdir(m.patch_path)
     else:
         repo_prefix = []
         if git_cache:
@@ -256,10 +258,15 @@ def checkout(call, repo, checkout_info, ssh='', git_cache='', clean=False):
         call(repo_prefix + [git, 'clean', '-dfx'])
         call(repo_prefix + [git, 'reset', '--hard'])
 
+    if checkout_info.manifest and checkout_info.manifest.patch_path == '':
+        # Nothing to patch
+        return
+
     # To make a merge commit, a user needs to be set. It's okay to use a dummy
     # user here, since we're not exporting the history.
-    call([git, 'config', '--local', 'user.name', 'K8S Bootstrap'])
-    call([git, 'config', '--local', 'user.email', 'k8s_bootstrap@localhost'])
+    call([git, 'config', '--local', 'user.name', 'Istio Testing'])
+    call([git, 'config', '--local', 'user.email', 'istio.testing@gmail.com'])
+
     retries = 3
     for attempt in range(retries):
         try:
@@ -814,7 +821,7 @@ def setup_root(call, root, repos, ssh, git_cache, clean):
 
 class Repos(dict):
     """{"repo": (branch, pull)} dict with a .main attribute."""
-    main = ''
+    main = '.'
 
     def __setitem__(self, k, v):
         if not self:
@@ -848,38 +855,35 @@ def parse_repos(args):
         ret[repo] = CheckoutInfo(branch=args.branch, pull=args.pull, manifest=None)
         return ret
 
+    manifest = None
     if args.repo_manifest:
         manifest_url = args.repo_manifest
         manifest_branch = 'master'
         if ',' in args.repo_manifest:
             manifest_url, manifest_branch = manifest_url.split(',')
+        manifest = RepoManifest(manifest_url, manifest_branch, '')
 
     for repo in repos:
-        manifest = None
 
         mat = re.match(r'([^=]+)(=([^:,~^\s]+(:[0-9a-fA-F]+)?(,|$))+)?$', repo)
         if not mat:
             raise ValueError('bad repo', repo, repos)
 
         this_repo = mat.group(1)
-        if ':' in this_repo:
+        if manifest and ':' in this_repo:
             this_repo, patch_path = this_repo.split(':')
-            manifest =  RepoManifest(
-                url=manifest_url, branch=manifest_branch, patch_path=patch_path)
+            manifest.patch_path = patch_path
 
         if not mat.group(2):
-            ret[this_repo] = CheckoutInfo(
-                branch='master', pull='', manifest=manifest)
+            ret[this_repo] = CheckoutInfo('master', '', manifest)
             continue
         commits = mat.group(2)[1:].split(',')
         if len(commits) == 1:
             # Checking out a branch, possibly at a specific commit
-            ret[this_repo] = CheckoutInfo(
-                branch=commits[0], pull='', manifest=manifest)
+            ret[this_repo] = CheckoutInfo(commits[0], '', manifest)
             continue
         # Checking out one or more PRs
-        ret[this_repo] = CheckoutInfo(
-            branch='', pull=','.join(commits), manifest=manifest)
+        ret[this_repo] = CheckoutInfo('', ','.join(commits), manifest)
 
     return ret
 
