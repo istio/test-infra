@@ -19,6 +19,9 @@ RUN sudo chmod +rx /usr/local/bin/bootstrap.py
 ADD docker/istio_builders/prow_builder/entrypoint.sh /usr/local/bin/entrypoint
 RUN sudo chmod +rx /usr/local/bin/entrypoint
 
+# Add gitconfig
+ADD docker/istio_builders/prow_builder/gitconfig ${HOME}/.gitconfig
+
 # Set CI variable which can be checked by test scripts to verify
 # if running in the continuous integration environment.
 ENV CI bootstrap
