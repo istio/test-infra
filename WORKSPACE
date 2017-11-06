@@ -2,13 +2,15 @@ workspace(name = "com_github_istio_test_infra")
 
 git_repository(
     name = "io_bazel_rules_go",
+    commit = "9cf23e2aab101f86e4f51d8c5e0f14c012c2161c",  # Oct 12, 2017
     remote = "https://github.com/bazelbuild/rules_go.git",
-    tag = "0.5.3",
 )
 
-load("@io_bazel_rules_go//go:def.bzl", "go_repositories", "go_repository")
+load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies",
+     "go_repository", "go_register_toolchains")
 
-go_repositories()
+go_rules_dependencies()
+go_register_toolchains(go_version="1.8.3")
 
 ##
 ## docker
@@ -17,7 +19,7 @@ go_repositories()
 git_repository(
     name = "io_bazel_rules_docker",
     remote = "https://github.com/bazelbuild/rules_docker.git",
-    tag = "v0.0.1",  # May 5 2017 (0.0.1)
+    commit = "9dd92c73e7c8cf07ad5e0dca89a3c3c422a3ab7d",  # Sep 27, 2017
 )
 
 go_repository(
