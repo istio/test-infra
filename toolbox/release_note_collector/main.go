@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/google/go-github/github"
+
 	u "istio.io/test-infra/toolbox/util"
 )
 
