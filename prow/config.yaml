@@ -428,8 +428,7 @@ presubmits:
       always_run: true
       rerun_command: "/test auto-merge_master"
       trigger: "(?m)^/(retest|test (all|auto-merge_master))?,?(\\s+|$)"
-      branches:
-      - master
+      skip_report: true
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.3.1
