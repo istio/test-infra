@@ -6,11 +6,16 @@ git_repository(
     remote = "https://github.com/bazelbuild/rules_go.git",
 )
 
-load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies",
-     "go_repository", "go_register_toolchains")
+load(
+    "@io_bazel_rules_go//go:def.bzl",
+    "go_rules_dependencies",
+    "go_repository",
+    "go_register_toolchains",
+)
 
 go_rules_dependencies()
-go_register_toolchains(go_version="1.8.3")
+
+go_register_toolchains(go_version = "1.8.3")
 
 ##
 ## docker
@@ -18,8 +23,8 @@ go_register_toolchains(go_version="1.8.3")
 
 git_repository(
     name = "io_bazel_rules_docker",
-    remote = "https://github.com/bazelbuild/rules_docker.git",
     commit = "9dd92c73e7c8cf07ad5e0dca89a3c3c422a3ab7d",  # Sep 27, 2017
+    remote = "https://github.com/bazelbuild/rules_docker.git",
 )
 
 go_repository(
