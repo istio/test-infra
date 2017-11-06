@@ -216,13 +216,14 @@ func CreateIstioReleaseUploadArtifacts() error {
 	if err != nil {
 		return err
 	}
-
-	extraBranches := strings.Split(*extraBranchesUpdateDownloadVersion, ",")
-	for _, branch := range extraBranches {
-		localBranch := fmt.Sprintf("%s-local", branch)
-		if err := githubClnt.CreatePRUpdateRepo(localBranch, branch, istioRepo, prTitle, prBody, updateVersion); err != nil {
-			// Only log out errors if failing update extra branches
-			log.Printf("Warning! Failed to update downloadIstioCandidate.sh in branch %s", branch)
+	if *extraBranchesUpdateDownloadVersion != "" {
+		extraBranches := strings.Split(*extraBranchesUpdateDownloadVersion, ",")
+		for _, branch := range extraBranches {
+			localBranch := fmt.Sprintf("%s-local", branch)
+			if err := githubClnt.CreatePRUpdateRepo(localBranch, branch, istioRepo, prTitle, prBody, updateVersion); err != nil {
+				// Only log out errors if failing update extra branches
+				log.Printf("Warning! Failed to update downloadIstioCandidate.sh in branch %s", branch)
+			}
 		}
 	}
 	return nil
