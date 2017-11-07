@@ -6,14 +6,14 @@ The istio-builder can be added to your ```${PATH}``` to get you started. It incl
 
 ```
 
-wget https://raw.githubusercontent.com/istio/test-infra/master/docker/istio_builders/istio_builder/istio-builder\
+$ wget https://raw.githubusercontent.com/istio/test-infra/master/docker/istio_builders/istio_builder/istio-builder\
   -O ${HOME}/bin/istio-builder
-chmod a+x ${HOME}/bin/istio-builder
+$ chmod a+x ${HOME}/bin/istio-builder
 
 ```
 
-From your checkout
+From your istio checkout
 
 ```
-istio-builder make build
+$ istio-builder make build
 ```
