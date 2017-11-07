@@ -1,25 +1,19 @@
 # istio-builder
 
-This config rebuilds the Docker container used to perform Istio builds and
-uploads to GCR.  This build should be run any time the dependencies defined in
-the Dockerfile are updated.
+Istio builder is used to build release artifacts from Cloud Builder.
 
-To update run:
-```
-gcloud container builds submit --config update_build_container.yaml .
+The istio-builder can be added to your ```${PATH}``` to get you started. It includes all the tools you need to build istio
+
 ```
 
-## Dependencies
+wget https://raw.githubusercontent.com/istio/test-infra/master/docker/istio_builders/istio_builder/istio-builder\
+  -O ${HOME}/bin/istio-builder
+chmod a+x ${HOME}/bin/istio-builder
 
-Packages installed on the build container are documented here.
+```
 
-- **curl** - Used for fetching build dependencies as part of the container
-  build.
-- **wget** - Used for fetching dependencies as part of the Istio build.
-- **gnupg2** - Used for adding public keys for apt repositories.
+From your checkout
 
-- **git** - Used to fetch source code from Git repositories.
-- **openjdk-8-jdk** - Required by Bazel.
-- **python** - Required by Istio build and various dependencies.
-- **repo** - Used for fetching multiple source repositories into a single
-  workspace.
+```
+istio-builder make build
+```
