@@ -1422,7 +1422,7 @@ periodics:
 
 - interval: 1h
   agent: kubernetes
-  name: master-green-build
+  name: green-build
   spec:
     containers:
     - args:
@@ -1434,7 +1434,7 @@ periodics:
       - --repo=green-build
       - --clean
       - --timeout=60
-      image: gcr.io/istio-testing/prow-builder:0.4.3
+      image: gcr.io/istio-testing/prow-builder:0.4.4
       ports:
       - containerPort: 9999
         hostPort: 9998
