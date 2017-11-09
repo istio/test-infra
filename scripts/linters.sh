@@ -7,6 +7,8 @@ BIN_PATH="${ROOT}/scripts"
 bazel ${BAZEL_STARTUP_ARGS} build ${BAZEL_RUN_ARGS} \
   //... $(bazel query 'tests(//...)')
 
+${BIN_PATH}/bazel_to_go.py
+
 source ${BIN_PATH}/use_bazel_go.sh
 
 cd ${ROOT}
