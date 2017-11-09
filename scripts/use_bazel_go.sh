@@ -3,10 +3,7 @@
 
 BAZEL_DIR="$(bazel info execution_root)"
 
-GOROOT="$(find ${BAZEL_DIR}/external -type d -name 'go_sdk')"
-if [[ -z $GOROOT ]];then
-  GOROOT="$(find ${BAZEL_DIR}/external -type d -name 'go1_*')"
-fi
+export GOROOT="${BAZEL_DIR}/external/go_sdk"
 
 export PATH=$GOROOT/bin:$PATH
 
