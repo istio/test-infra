@@ -254,12 +254,11 @@ presubmits:
         hostPath:
           path: /mnt/disks/ssd0
     run_after_success:
-    - name: auto-merge_master
+    - name: e2e-smoke
       agent: kubernetes
-      context: prow/auto-merge_master.sh
-      always_run: true
-      rerun_command: "/test auto-merge_master"
-      trigger: "(?m)^/(retest|test (all|auto-merge_master))?,?(\\s+|$)"
+      context: e2e-smoke.sh
+      rerun_command: "/test e2e-smoke"
+      trigger: "(?m)^/test (e2e-smoke)?,?(\\s+|$)"
       skip_report: true
       spec:
         containers:
@@ -267,7 +266,7 @@ presubmits:
           args:
           - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
           - "--clean"
-          - "--timeout=5"
+          - "--timeout=60"
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
@@ -278,6 +277,8 @@ presubmits:
           - name: service
             mountPath: /etc/service-account
             readOnly: true
+          - name: istio-e2e-rbac-kubeconfig
+            mountPath: /home/bootstrap/.kube
           - name: cache-ssd
             mountPath: /home/bootstrap/.cache
           ports:
@@ -296,9 +297,13 @@ presubmits:
         - name: service
           secret:
             secretName: service-account
+        - name: istio-e2e-rbac-kubeconfig
+          secret:
+            secretName: istio-e2e-rbac-kubeconfig
         - name: cache-ssd
           hostPath:
             path: /mnt/disks/ssd0
+
 
   - name: istio-presubmit
     agent: kubernetes
