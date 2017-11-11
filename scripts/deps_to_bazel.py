@@ -4,7 +4,6 @@
 """
 import collections
 
-
 NAME = "name"
 IMPORTPATH = "importpath"
 REVISION = "revision"
@@ -60,7 +59,6 @@ def parse_godep_lock():
         name = convert_importpath_to_name(value)
       elif key == REVISION:
         commit = value
-
 
   return go_reps
 
