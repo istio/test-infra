@@ -151,7 +151,7 @@ func updateDependenciesOf(repo string) error {
 	// if branch exists, stop here and do not create another PR of identical delta
 	if err = githubClnt.CloseIdlePullRequests(
 		prTitlePrefix, repo, *baseBranch); exists || err != nil {
-		return err
+		log.Printf("error while closing idle PRs: %v\n", err)
 	}
 	if _, err = u.Shell("git checkout -b " + branch); err != nil {
 		return err

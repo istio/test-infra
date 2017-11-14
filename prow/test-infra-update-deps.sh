@@ -35,7 +35,7 @@ git config --global user.name "istio-bot"
 TOKEN_PATH="/etc/github/oauth"
 # List of repo where auto dependency update has been enabled
 # excluding istio/istio
-repos=( mixer mixerclient pilot proxy )
+repos=( old_mixer_repo mixerclient old_pilot_repo proxy )
 
 echo "=== Updating Dependency of Istio ==="
 ./bazel-bin/toolbox/deps_update/deps_update \

@@ -21,8 +21,10 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/google/go-github/github"
+
 	u "istio.io/test-infra/toolbox/util"
 )
 
@@ -37,6 +39,7 @@ const (
 
 var (
 	org             = flag.String("user", "istio", "Github owner or org")
+	tokenFile       = flag.String("token_file", "", "Github token file (optional)")
 	repos           = flag.String("repos", "", "Github repos, separate using \",\"")
 	label           = flag.String("label", "release-note", "Release-note label")
 	sort            = flag.String("sort", string(created), "The sort field. Can be comments, created, or updated.")
@@ -49,14 +52,23 @@ var (
 	gh              *u.GithubClient
 )
 
-func main() {
+func init() {
 	flag.Parse()
-	if *previousRelease == "" {
-		log.Printf("Error: You need to specfy a previous release version")
-		os.Exit(1)
-	}
-	gh = u.NewGithubClientNoAuth(*org)
+	u.AssertNotEmpty("previous_release", previousRelease)
 
+	if *tokenFile != "" {
+		token, err := u.GetAPITokenFromFile(*tokenFile)
+		if err != nil {
+			log.Fatalf("Error accessing user supplied token_file: %v\n", err)
+		}
+		gh = u.NewGithubClient(*org, token)
+	} else {
+		gh = u.NewGithubClientNoAuth(*org)
+	}
+
+}
+
+func main() {
 	f, err := os.OpenFile(*outputFile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0600)
 	if err != nil {
 		log.Printf("Failed to open and/or create output file %s", *outputFile)
@@ -177,7 +189,7 @@ func addQuery(queries []string, queryParts ...string) []string {
 }
 
 func getReleaseTime(repo, release string) (string, error) {
-	time, err := gh.GetCommitCreationTimeByTag(repo, release)
+	time, err := getReleaseTagCreationTime(repo, release)
 	if err != nil {
 		log.Println("Failed to get created time of this release tag")
 		return "", err
@@ -187,4 +199,18 @@ func getReleaseTime(repo, release string) (string, error) {
 		t.Year(), t.Month(), t.Day(),
 		t.Hour(), t.Minute(), t.Second())
 	return timeString, nil
+}
+
+// getReleaseCreationTime gets the creation time of a release tag (0.1.6, 0.2.7)
+func getReleaseTagCreationTime(repo, tag string) (createTime time.Time, err error) {
+	if repo == "istio" {
+		createTime, err = gh.GetReleaseTagCreationTime(repo, tag)
+	} else {
+		createTime, err = gh.GetannotatedTagCreationTime(repo, tag)
+	}
+	if err != nil {
+		log.Printf("Cannot get the creation time of %s/%s", repo, tag)
+		return time.Time{}, err
+	}
+	return createTime, nil
 }

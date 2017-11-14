@@ -1,0 +1,15 @@
+filegroup(
+    name = "test_jobs",
+    srcs = glob([
+        "test_jobs/**",
+    ]),
+)
+
+py_test(
+    name = "bootstrap_test",
+    srcs = [
+        "bootstrap.py",
+        "bootstrap_test.py",
+    ],
+    data = [":test_jobs"],
+)
