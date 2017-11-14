@@ -1,0 +1,78 @@
+# Copyright 2017 Istio Authors
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
+##################################################################################################
+# httpbin service
+##################################################################################################
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: istio-test
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpbin-raw
+  namespace: istio-test
+  labels:
+    app: httpbin-raw
+spec:
+  ports:
+  - name: http
+    port: 8000
+  selector:
+    app: httpbin-raw
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: httpbin-raw
+  namespace: istio-test
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: httpbin-raw
+    spec:
+      containers:
+      - image: docker.io/citizenstig/httpbin
+        imagePullPolicy: IfNotPresent
+        name: httpbin-raw
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: 1000m
+            memory: "1G"
+          limits:
+            cpu: 1000m
+            memory: "2G"
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: httpbin-raw
+  namespace: istio-test
+  annotations:
+    kubernetes.io/ingress.class: "istio"
+spec:
+  rules:
+  - host: httpbin-raw.weekly.istio.webinf.info
+    http:
+      paths:
+      - path: /.*
+        backend:
+          serviceName: httpbin-raw
+          servicePort: 8000

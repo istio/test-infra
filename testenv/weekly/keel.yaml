@@ -24,8 +24,19 @@ spec:
               value: "debug"
             - name: POLL
               value: "1"
+            - name: PUBSUB
+              value: "1"
+            - name: PROJECT_ID
+              value: "istio-testing"
+            - name: GCLOUD_KEY_FILE
+              value: "/var/keel/keel-secret.json"
+            - name: "GOOGLE_APPLICATION_CREDENTIALS"
+              value: "/var/keel/keel-secret.json"
           name: keel
           command: ["/bin/keel"]
+          volumeMounts:
+          - mountPath: /var/keel
+            name: keel-secret
           ports:
             - containerPort: 9300
           livenessProbe:
@@ -34,3 +45,8 @@ spec:
               port: 9300
             initialDelaySeconds: 30
             timeoutSeconds: 10
+      volumes:
+      - name: keel-secret
+        secret:
+          optional: true
+          secretName: keel-secret
