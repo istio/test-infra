@@ -33,6 +33,8 @@ var (
 	baseBranch                         = flag.String("base_branch", "", "Branch to which op is applied")
 	refSHA                             = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
 	nextRelease                        = flag.String("next_release", "", "Tag of the next release")
+	hub                                = flag.String("hub", "", "Hub of the docker images")
+	tag                                = flag.String("tag", "", "Tag of the release candidate")
 	extraBranchesUpdateDownloadVersion = flag.String("update_rel_branches", "",
 		"Extra branches where you want to update downloadIstioCandidate.sh, separated by comma")
 	githubClnt *u.GithubClient
@@ -56,6 +58,7 @@ const (
 	debianSuffix         = "deb"
 	// release qualification trigger
 	relQualificationPRTtilePrefix = "Release Qualification"
+	greenBuildVersionFile         = "greenBuild.VERSION"
 	dailyRepo                     = "daily-release"
 )
 
@@ -241,15 +244,16 @@ func CreateIstioReleaseUploadArtifacts() error {
 // a GitHub notification. It blocks until PR status is known and returns nonzero
 // value if failure. Links to test logs will also be logged to console.
 func DailyReleaseQualification() error {
+	u.AssertNotEmpty("hub", hub) // TODO (chx) default value of hub
+	u.AssertNotEmpty("tag", tag)
 	log.Printf("Creating PR to trigger release qualifications\n")
 	prTitle := "[DO NOT MERGE, TESTING ONLY] " + relQualificationPRTtilePrefix + *refSHA
 	prBody := fmt.Sprintf("Trigger release qualification jobs")
 	edit := func() error {
-		sha, err := githubClnt.GetHeadCommitSHA("green-builds", masterBranch)
-		if err != nil {
+		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "HUB", *hub); err != nil {
 			return err
 		}
-		if err := u.WriteTextFile("chosenGreenBuild", sha); err != nil {
+		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "TAG", *tag); err != nil {
 			return err
 		}
 		return nil
