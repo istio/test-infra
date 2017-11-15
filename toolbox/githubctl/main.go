@@ -289,6 +289,7 @@ func DailyReleaseQualification() error {
 		}
 		return exitPolling, err
 	})
+	// TODO (chx) merge the PR directly if passing
 }
 
 func init() {
