@@ -40,7 +40,7 @@ type ProwResult struct {
 
 const (
 	sender          = "istio.testing@gmail.com"
-	oncallMaillist  = "wowrocket59@gmail.com"
+	oncallMaillist  = "istio-oncall@googlegroups.com"
 	messageSubject  = "[EMERGENCY] istio post-submit failed!"
 	messagePrologue = "Hi istio-oncall,\n\n" +
 		"Post-Submit is failing in istio/istio, please take a look at following failure(s) and fix ASAP\n\n"
@@ -83,8 +83,11 @@ func main() {
 	for {
 		failures := getPostSubmitStatus()
 		if len(failures) > 0 {
+			log.Printf("%d tests failed in last circle", len(failures))
 			message := FormatMessage(failures)
 			sendMessage(message)
+		} else {
+			log.Printf("No new tests failed in last circle.")
 		}
 		time.Sleep(time.Duration(*interval) * time.Minute)
 	}
@@ -98,7 +101,7 @@ func FormatMessage(failures map[string]bool) (mess string) {
 }
 
 func sendMessage(body string) {
-	appPass := ""
+	appPass := "fnmhrqpnwlmpblfg"
 
 	msg := fmt.Sprintf("From: %s\n", sender) +
 		fmt.Sprintf("To: %s\n", oncallMaillist) +
