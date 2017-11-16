@@ -33,11 +33,11 @@ import (
 )
 
 type ProwResult struct {
-	TimeStamp  uint32                 `json:"timestamp"`
-	Version    string                 `json:"version"`
-	Result     string                 `json:"result"`
-	Passed     bool                   `json:"passed"`
-	JobVersion string                 `json:"job-version"`
+	TimeStamp  uint32       `json:"timestamp"`
+	Version    string       `json:"version"`
+	Result     string       `json:"result"`
+	Passed     bool         `json:"passed"`
+	JobVersion string       `json:"job-version"`
 	Metadata   ProwMetadata `json:"metadata"`
 }
 
@@ -49,9 +49,9 @@ type ProwMetadata struct {
 
 const (
 	// TODO: Read from config file
-	sender          = "istio.testing@gmail.com"
+	sender = "istio.testing@gmail.com"
 	//oncallMaillist  = "istio-oncall@googlegroups.com"
-	adminMaillist = "yutongz@google.com"
+	adminMaillist   = "yutongz@google.com"
 	messageSubject  = "[EMERGENCY] istio Post Submit failed!"
 	messagePrologue = "Hi istio-oncall,\n\n" +
 		"Post-Submit is failing in istio/istio, please take a look at following failure(s) and fix ASAP\n\n"
@@ -68,23 +68,22 @@ const (
 )
 
 var (
-	gcsClient *storage.Client
+	gcsClient  *storage.Client
 	githubClnt *u.GithubClient
 
 	gcsBucket = flag.String("bucket", "istio-prow", "Prow artifact GCS bucket name.")
 	interval  = flag.Int("interval", 5, "Check and report interval(minute)")
 	debug     = flag.Bool("debug", false, "Optional to log debug message")
-	owner                              = flag.String("owner", "istio", "Github owner or org")
-	tokenFile                          = flag.String("token_file", "", "File containing Github API Access Token")
-
+	owner     = flag.String("owner", "istio", "Github owner or org")
+	tokenFile = flag.String("token_file", "", "File containing Github API Access Token")
 
 	bookkeeper map[string]int
 
 	// TODO: Read from config file
 	protectedPostsubmits = []string{"istio-postsubmit", "e2e-suite-rbac-auth", "e2e-suite-rbac-no_auth"}
 	protectedRepo        = "istio"
-	protectedBranch	     = "master"
-	receiver = []string{adminMaillist}
+	protectedBranch      = "master"
+	receiver             = []string{adminMaillist}
 )
 
 func init() {
@@ -108,17 +107,31 @@ func init() {
 }
 
 func main() {
-	for {
-		failures := getPostSubmitStatus()
-		if len(failures) > 0 {
-			log.Printf("%d tests failed in last circle", len(failures))
-			message := FormatMessage(failures)
-			sendMessage(message)
-		} else {
-			log.Printf("No new tests failed in last circle.")
-		}
-		time.Sleep(time.Duration(*interval) * time.Minute)
+
+	options := github.PullRequestListOptions{
+		State: "open",
+		Base:  "master",
 	}
+
+	err := githubClnt.RemoveLabelFromPRs(options, "test-infra", doNotMergeLabel)
+	if err != nil {
+		log.Printf("ERR: %v", err)
+	}
+
+	/*
+		for {
+			failures := getPostSubmitStatus()
+			if len(failures) > 0 {
+				log.Printf("%d tests failed in last circle", len(failures))
+				message := FormatMessage(failures)
+				sendMessage(message)
+				blockPRs()
+			} else {
+				log.Printf("No new tests failed in last circle.")
+				unBlockPRs()
+			}
+			time.Sleep(time.Duration(*interval) * time.Minute)
+		}*/
 }
 
 func FormatMessage(failures map[string]bool) (mess string) {
@@ -247,22 +260,26 @@ func getFileFromGCSString(bucket, obj string) (string, error) {
 	return buf.String(), nil
 }
 
-
 func blockPRs() {
 	options := github.PullRequestListOptions{
 		State: "open",
-		Base: protectedBranch,
+		Base:  protectedBranch,
 	}
 
-	githubClnt.AddLabelToPRs(options, protectedRepo, doNotMergeLabel)
+	log.Printf("Adding [%s] to PRs in %s", doNotMergeLabel, protectedRepo)
+	if err := githubClnt.AddLabelToPRs(options, protectedRepo, doNotMergeLabel); err != nil {
+		log.Printf("Failed to add label to PRs: %v", err)
+	}
 }
 
 func unBlockPRs() {
 	options := github.PullRequestListOptions{
 		State: "open",
-		Base: protectedBranch,
+		Base:  protectedBranch,
 	}
 
-	githubClnt.AddLabelToPRs(options, protectedRepo, doNotMergeLabel)
+	log.Printf("Removing [%s] from PRs in %s", doNotMergeLabel, protectedRepo)
+	if err := githubClnt.RemoveLabelFromPRs(options, protectedRepo, doNotMergeLabel); err != nil {
+		log.Printf("Failed to remove label to PRs: %v", err)
+	}
 }
-
