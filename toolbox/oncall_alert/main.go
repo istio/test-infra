@@ -35,13 +35,21 @@ type ProwResult struct {
 	Result     string                 `json:"result"`
 	Passed     bool                   `json:"passed"`
 	JobVersion string                 `json:"job-version"`
-	Metadata   map[string]interface{} `json:"metadata"`
+	Metadata   ProwMetadata `json:"metadata"`
+}
+
+type ProwMetadata struct {
+	Repo       string                 `json:"repo"`
+	Repos      map[string]interface{} `json:"repos"`
+	RepoCommit string                 `json:"repo-commit"`
 }
 
 const (
+	// TODO: Read from config file
 	sender          = "istio.testing@gmail.com"
-	oncallMaillist  = "istio-oncall@googlegroups.com"
-	messageSubject  = "[EMERGENCY] istio post-submit failed!"
+	//oncallMaillist  = "istio-oncall@googlegroups.com"
+	adminMaillist = "yutongz@google.com"
+	messageSubject  = "[EMERGENCY] istio Post Submit failed!"
 	messagePrologue = "Hi istio-oncall,\n\n" +
 		"Post-Submit is failing in istio/istio, please take a look at following failure(s) and fix ASAP\n\n"
 	messageEnding = "\nIf you have any questions about this message or notice inaccuracy, please contact istio-engprod@google.com."
@@ -63,7 +71,10 @@ var (
 
 	bookkeeper map[string]int
 
-	trackedPostsubmits = []string{"istio-postsubmit", "e2e-suite-rbac-auth", "e2e-suite-rbac-no_auth"}
+	// TODO: Read from config file
+	protectedPostsubmits = []string{"istio-postsubmit", "e2e-suite-rbac-auth", "e2e-suite-rbac-no_auth"}
+	blockRepo            = []string{"istio"}
+	receiver = []string{adminMaillist}
 )
 
 func init() {
@@ -104,13 +115,13 @@ func sendMessage(body string) {
 	appPass := "fnmhrqpnwlmpblfg"
 
 	msg := fmt.Sprintf("From: %s\n", sender) +
-		fmt.Sprintf("To: %s\n", oncallMaillist) +
+		fmt.Sprintf("To: %s\n", receiver) +
 		fmt.Sprintf("Subject: %s\n\n", messageSubject) +
 		messagePrologue + body + messageEnding
 
 	gmailSMTPAddr := fmt.Sprintf("%s:%d", gmailSMTPSERVER, gmailSMTPPORT)
 	err := smtp.SendMail(gmailSMTPAddr, smtp.PlainAuth("istio-bot", sender, appPass, gmailSMTPSERVER),
-		sender, []string{oncallMaillist}, []byte(msg))
+		sender, receiver, []byte(msg))
 
 	if err != nil {
 		log.Printf("smtp error: %s", err)
@@ -139,7 +150,7 @@ func getPostSubmitStatus() map[string]bool {
 	// So if no tracked job failed, this map should be empty
 	failures := make(map[string]bool)
 
-	for _, job := range trackedPostsubmits {
+	for _, job := range protectedPostsubmits {
 		latestRunNo, err := getLatestRun(job)
 		if err != nil {
 			log.Printf("Failed to get last run number of %s: %v", job, err)
