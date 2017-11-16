@@ -309,7 +309,7 @@ metadata:
     keel.sh/pollSchedule: "@every 10m"
   labels:
     # Will auto-update on gcr.io pushes
-    keel.sh/policy: force
+    keel.sh/policy: patch
     keel.sh/trigger: poll
 
 spec:
@@ -324,8 +324,7 @@ spec:
       - name: istio-ingress
         # Manually start envoy, without using manager, so we can override the config.
         command: ["/usr/local/bin/envoy"]
-        image: gcr.io/costin-istio/proxy_debug:latest
-        #image: docker.io/istio/envoy
+        image: docker.io/istio/proxy_debug:0.2.12
         #  "-l", "debug",
         args: ["-c", "/etc/envoy/envoy.conf", "--service-cluster", "istio-proxy", "--service-node" , "ingress~~istio-ingress-4019532693-q4g32.istio-system~istio-system.svc.cluster.local"]
         imagePullPolicy: Always
