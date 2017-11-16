@@ -254,6 +254,51 @@ presubmits:
         hostPath:
           path: /mnt/disks/ssd0
     run_after_success:
+    - name: istio-pilot-e2e
+      agent: kubernetes
+      context: e2e-smoke.sh
+      rerun_command: "/test istio-pilot-e2e"
+      trigger: "(?m)^/test (istio-pilot-e2e)?,?(\\s+|$)"
+      skip_report: true
+      max_concurrency: 8
+      spec:
+        containers:
+        - image: gcr.io/istio-testing/prowbazel:0.3.2
+          args:
+          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+          - "--clean"
+          - "--timeout=60"
+          # Bazel needs privileged mode in order to sandbox builds.
+          securityContext:
+            privileged: true
+          env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /etc/service-account/service-account.json
+          volumeMounts:
+          - name: service
+            mountPath: /etc/service-account
+            readOnly: true
+          - name: cache-ssd
+            mountPath: /home/bootstrap/.cache
+          ports:
+          - containerPort: 9999
+            hostPort: 9998
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "20Gi"
+              cpu: "5000m"
+        nodeSelector:
+          cloud.google.com/gke-nodepool: build-pool
+        volumes:
+        - name: service
+          secret:
+            secretName: service-account
+        - name: cache-ssd
+          hostPath:
+            path: /mnt/disks/ssd0
     - name: e2e-smoke
       agent: kubernetes
       context: e2e-smoke.sh
