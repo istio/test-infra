@@ -162,6 +162,14 @@ func (g GithubClient) AddlabelsToPR(
 	return err
 }
 
+// RemoveLabelToPR removes "one" label from the pull request
+func (g GithubClient) RemoveLabelToPR(
+	repo string, pr *github.PullRequest, label string) error {
+	_, err := g.client.Issues.RemoveLabelForIssue(
+		context.Background(), g.owner, repo, pr.GetNumber(), label)
+		return err
+}
+
 // ClosePRDeleteBranch closes a PR and deletes the branch from which the PR is made
 func (g GithubClient) ClosePRDeleteBranch(repo string, pr *github.PullRequest) error {
 	prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
@@ -501,4 +509,29 @@ func (g GithubClient) CreatePRUpdateRepo(newBranch, baseBranch, repo, prTitle, p
 	}
 	_, err = g.CreatePullRequest(prTitle, prBody, "", newBranch, baseBranch, repo)
 	return err
+}
+
+func (g GithubClient) ListPRs(options github.PullRequestListOptions, repo string) ([]*github.PullRequest, error) {
+	prs, _, err := g.client.PullRequests.List(
+		context.Background(), g.owner, repo, &options)
+	if err != nil {
+		return nil, err
+	}
+	return prs, nil
+}
+
+
+func (g GithubClient) AddLabelToPRs(options github.PullRequestListOptions, repo string, label string) error {
+	prs, err := g.ListPRs(options, repo)
+	if err != nil {
+		log.Printf("Failed to list open PRs in %s", repo)
+		return err
+	}
+
+	for _, pr := range prs {
+		if err = g.AddlabelsToPR(repo, pr, label); err != nil {
+			log.Printf("Failed to add %s to PR %d: %v", label, pr.Number, err)
+		}
+	}
+	return nil
 }

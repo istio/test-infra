@@ -27,6 +27,9 @@ import (
 	"time"
 
 	"cloud.google.com/go/storage"
+	"github.com/google/go-github/github"
+
+	u "istio.io/test-infra/toolbox/util"
 )
 
 type ProwResult struct {
@@ -60,20 +63,27 @@ const (
 	lastBuildTXT  = "latest-build.txt"
 	finishedJson  = "finished.json"
 	gubernatorURL = "https://k8s-gubernator.appspot.com/build/istio-prow"
+
+	doNotMergeLabel = "do-not-merge/post-submit"
 )
 
 var (
 	gcsClient *storage.Client
+	githubClnt *u.GithubClient
 
 	gcsBucket = flag.String("bucket", "istio-prow", "Prow artifact GCS bucket name.")
 	interval  = flag.Int("interval", 5, "Check and report interval(minute)")
 	debug     = flag.Bool("debug", false, "Optional to log debug message")
+	owner                              = flag.String("owner", "istio", "Github owner or org")
+	tokenFile                          = flag.String("token_file", "", "File containing Github API Access Token")
+
 
 	bookkeeper map[string]int
 
 	// TODO: Read from config file
 	protectedPostsubmits = []string{"istio-postsubmit", "e2e-suite-rbac-auth", "e2e-suite-rbac-no_auth"}
-	blockRepo            = []string{"istio"}
+	protectedRepo        = "istio"
+	protectedBranch	     = "master"
 	receiver = []string{adminMaillist}
 )
 
@@ -86,6 +96,13 @@ func init() {
 	if err != nil {
 		log.Fatalf("Failed to create a gcs client, %v", err)
 	}
+
+	u.AssertNotEmpty("token_file", tokenFile)
+	token, err := u.GetAPITokenFromFile(*tokenFile)
+	if err != nil {
+		log.Fatalf("Error accessing user supplied token_file: %v\n", err)
+	}
+	githubClnt = u.NewGithubClient(*owner, token)
 
 	bookkeeper = make(map[string]int)
 }
@@ -116,7 +133,7 @@ func sendMessage(body string) {
 
 	msg := fmt.Sprintf("From: %s\n", sender) +
 		fmt.Sprintf("To: %s\n", receiver) +
-		fmt.Sprintf("Subject: %s\n\n", messageSubject) +
+		fmt.Sprintf("Subject: %s [%s]\n\n", messageSubject, time.Now().String()) +
 		messagePrologue + body + messageEnding
 
 	gmailSMTPAddr := fmt.Sprintf("%s:%d", gmailSMTPSERVER, gmailSMTPPORT)
@@ -229,3 +246,23 @@ func getFileFromGCSString(bucket, obj string) (string, error) {
 
 	return buf.String(), nil
 }
+
+
+func blockPRs() {
+	options := github.PullRequestListOptions{
+		State: "open",
+		Base: protectedBranch,
+	}
+
+	githubClnt.AddLabelToPRs(options, protectedRepo, doNotMergeLabel)
+}
+
+func unBlockPRs() {
+	options := github.PullRequestListOptions{
+		State: "open",
+		Base: protectedBranch,
+	}
+
+	githubClnt.AddLabelToPRs(options, protectedRepo, doNotMergeLabel)
+}
+
