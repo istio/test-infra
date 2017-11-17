@@ -46,12 +46,17 @@ type ProwMetadata struct {
 	RepoCommit string                 `json:"repo-commit"`
 }
 
+type postSubmitJob struct {
+	name          string
+	latestRun     int
+	latestRunPass bool
+}
+
 const (
 	// TODO: Read from config file
 	// Message Info
 	sender          = "istio.testing@gmail.com"
 	oncallMaillist  = "istio-oncall@googlegroups.com"
-	adminMaillist   = "yutongz@google.com"
 	messageSubject  = "[EMERGENCY] istio Post Submit failed!"
 	messagePrologue = "Hi istio-oncall,\n\n" +
 		"Post-Submit is failing in istio/istio, please take a look at following failure(s) and fix ASAP\n\n"
@@ -83,14 +88,12 @@ var (
 	owner            = flag.String("owner", "istio", "Github owner or org")
 	tokenFile        = flag.String("github_token", tokenFileDocker, "Path to github token")
 	gmailAppPassFile = flag.String("gmail__app_password", gmailAppPassFileDocker, "Path to gmail application password")
+	protectedRepo    = flag.String("protected_repo", "istio", "Protected repo")
+	protectedBranch  = flag.String("protected_branch", "master", "Protected branch")
 
-	// Record which test run we already checked, avoid sending multiple email for the same test failure.
-	bookkeeper map[string]int
+	postSubmitJobs []*postSubmitJob
 
-	// TODO: Read from config file
 	protectedPostsubmits = []string{"istio-postsubmit", "e2e-suite-rbac-auth", "e2e-suite-rbac-no_auth"}
-	protectedRepo        = "istio"
-	protectedBranch      = "master"
 	receivers            = []string{oncallMaillist}
 	gmailAppPass         string
 )
@@ -111,37 +114,47 @@ func init() {
 		log.Fatalf("Error accessing gmail app password: %v", err)
 	}
 
-	bookkeeper = make(map[string]int)
+	for _, t := range protectedPostsubmits {
+		postSubmitJobs = append(postSubmitJobs,
+			&postSubmitJob{
+				name: t,
+				// init to be true to avoid false negative
+				latestRunPass: true,
+			})
+	}
 }
 
 func main() {
 	for {
-		failures := getPostSubmitStatus()
-		if len(failures) > 0 {
-			log.Printf("%d tests failed in last circle", len(failures))
-			sendMessage(formatMessage(failures))
-			blockPRs()
+		newFailures, failedCount := updatePostSubmitStatus()
+		if len(newFailures) > 0 {
+			log.Printf("%d tests failed in last circle", len(newFailures))
+			sendMessage(formatMessage(newFailures))
 		} else {
 			log.Printf("No new tests failed in last circle.")
+		}
+
+		// If any test is in failed status, trying to block, else trying to unblock
+		if failedCount > 0 {
+			blockPRs()
+		} else {
 			unBlockPRs()
 		}
+
 		log.Printf("Sleeping for %d minutes", *interval)
 		time.Sleep(time.Duration(*interval) * time.Minute)
 	}
 }
 
-func formatMessage(failures map[string]bool) (mess string) {
+func formatMessage(failures map[*postSubmitJob]bool) (mess string) {
 	for job := range failures {
-		mess += fmt.Sprintf("%s failed: %s/%s/%d\n\n", job, gubernatorURL, job, bookkeeper[job])
+		mess += fmt.Sprintf("%s failed: %s/%s/%d\n\n", job.name, gubernatorURL, job.name, job.latestRun)
 	}
 	return
 }
 
 // Use gmail smtp server to send out email.
 func sendMessage(body string) {
-	if *debug {
-		receivers = append(receivers, adminMaillist)
-	}
 	msg := fmt.Sprintf("From: %s\n", sender) +
 		fmt.Sprintf("To: %s\n", receivers) +
 		fmt.Sprintf("Subject: %s [%s]\n\n", messageSubject, time.Now().String()) +
@@ -176,41 +189,48 @@ func getLatestRun(job string) (int, error) {
 }
 
 // Check the latest run of each protected Post-Submit tests.
-// Record failure if it hasn't been recorded and update bookkeeper if necessary
-func getPostSubmitStatus() map[string]bool {
-	// Use this as a set, if a job failed, set true, otherwise not put in
-	// So if no tracked job failed, this map should be empty
-	failures := make(map[string]bool)
+// Record failure if it hasn't been recorded and update latestRun if necessary
+func updatePostSubmitStatus() (map[*postSubmitJob]bool, int) {
+	// If a "new" failure appears in this circle, put it in and with value true
+	// So if no new failure, this map should be empty --> no new notification
+	newFailures := make(map[*postSubmitJob]bool)
 
-	for _, job := range protectedPostsubmits {
-		latestRunNo, err := getLatestRun(job)
+	// Total count of jobs which is in failing status right now.
+	// Including jobs failed in circles before.
+	// If 0 --> unblock auto-merge
+	failedCount := 0
+
+	for _, job := range postSubmitJobs {
+		latestRunNo, err := getLatestRun(job.name)
 		if err != nil {
-			log.Printf("Failed to get last run number of %s: %v", job, err)
+			log.Printf("Failed to get last run number of %s: %v", job.name, err)
 			continue
 		}
 
 		if *debug {
-			log.Printf("Job: %s -- Latest Run No: %d -- Recorded Run No: %d", job, latestRunNo, bookkeeper[job])
+			log.Printf("Job: %s -- Latest Run No: %d -- Recorded Run No: %d", job, latestRunNo, job.latestRun)
 		}
-		// No new test finished for this job
-		if latestRunNo <= bookkeeper[job] {
-			continue
+		// New test finished for this job in this circle
+		if latestRunNo > job.latestRun {
+			prowResult, err := getProwResult(filepath.Join(job.name, strconv.Itoa(latestRunNo)))
+			if err != nil {
+				log.Printf("Failed to get prowResult %s/%d", job, latestRunNo)
+				continue
+			}
+			job.latestRun = latestRunNo
+			if *debug {
+				log.Printf("Job: %s -- Latest Run No: %d -- Passed? %t", job, latestRunNo, prowResult.Passed)
+			}
+			if !prowResult.Passed {
+				newFailures[job] = true
+			}
 		}
 
-		prowResult, err := getProwResult(filepath.Join(job, strconv.Itoa(latestRunNo)))
-		if err != nil {
-			log.Printf("Failed to get prowResult %s/%d", job, latestRunNo)
-			continue
-		}
-		bookkeeper[job] = latestRunNo
-		if *debug {
-			log.Printf("Job: %s -- Latest Run No: %d -- Passed? %t", job, latestRunNo, prowResult.Passed)
-		}
-		if !prowResult.Passed {
-			failures[job] = true
+		if !job.latestRunPass {
+			failedCount++
 		}
 	}
-	return failures
+	return newFailures, failedCount
 }
 
 func getProwResult(target string) (*ProwResult, error) {
@@ -233,11 +253,11 @@ func getProwResult(target string) (*ProwResult, error) {
 func blockPRs() {
 	options := github.PullRequestListOptions{
 		State: "open",
-		Base:  protectedBranch,
+		Base:  *protectedBranch,
 	}
 
 	log.Printf("Adding [%s] to PRs in %s", doNotMergeLabel, protectedRepo)
-	if err := githubClnt.AddLabelToPRs(options, protectedRepo, doNotMergeLabel); err != nil {
+	if err := githubClnt.AddLabelToPRs(options, *protectedRepo, doNotMergeLabel); err != nil {
 		log.Printf("Failed to add label to PRs: %v", err)
 		return
 	}
@@ -248,11 +268,11 @@ func blockPRs() {
 func unBlockPRs() {
 	options := github.PullRequestListOptions{
 		State: "open",
-		Base:  protectedBranch,
+		Base:  *protectedBranch,
 	}
 
 	log.Printf("Removing any [%s] from PRs in %s, base: %s", doNotMergeLabel, protectedRepo, protectedBranch)
-	if err := githubClnt.RemoveLabelFromPRs(options, protectedRepo, doNotMergeLabel); err != nil {
+	if err := githubClnt.RemoveLabelFromPRs(options, *protectedRepo, doNotMergeLabel); err != nil {
 		log.Printf("Failed to remove label to PRs: %v", err)
 		return
 	}

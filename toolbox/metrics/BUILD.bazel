@@ -24,6 +24,7 @@ go_binary(
         "-extldflags",
         "-static",
     ],
+    tags = ["manual"],
     library = ":go_default_library",
     visibility = ["//visibility:public"],
 )
@@ -33,6 +34,7 @@ docker_build(
     base = "@distroless//image:image.tar",
     cmd = ["./fetcher"],
     files = [":fetcher"],
+    tags = ["manual"],
 )
 
 go_binary(
