@@ -1567,6 +1567,40 @@ periodics:
       secret:
         secretName: service-account
 
+- interval: 2h
+  agent: kubernetes
+  name: test-infra-update-deps
+  spec:
+    containers:
+    - image: gcr.io/istio-testing/prowbazel:0.3.2
+      args:
+      - "--repo=github.com/istio/test-infra=master"
+      - "--clean"
+      - "--timeout=20"
+      securityContext:
+        privileged: true
+      env:
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/service-account/service-account.json
+      - name: GIT_BRANCH
+        value: master
+      volumeMounts:
+      - name: oauth
+        mountPath: /etc/github
+        readOnly: true
+      - mountPath: /etc/service-account
+        name: service
+        readOnly: true
+    nodeSelector:
+      cloud.google.com/gke-nodepool: build-pool
+    volumes:
+    - name: oauth
+      secret:
+        secretName: oauth-token
+    - name: service
+      secret:
+        secretName: service-account
+
 - interval: 1h
   agent: kubernetes
   name: green-build
