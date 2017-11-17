@@ -84,6 +84,7 @@ func GetAPITokenFromFile(tokenFile string) (string, error) {
 	return GetPasswordFromFile(tokenFile)
 }
 
+// GetPasswordFromFile get a string usually is a password or token from a local file
 func GetPasswordFromFile(file string) (string, error) {
 	b, err := ioutil.ReadFile(file)
 	if err != nil {

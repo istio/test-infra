@@ -162,7 +162,7 @@ func (g GithubClient) AddlabelsToPR(
 	return err
 }
 
-// RemoveLabelToPR removes "one" label from the pull request
+// RemoveLabelFromPR removes "one" label from the pull request
 func (g GithubClient) RemoveLabelFromPR(
 	repo string, pr *github.PullRequest, removeLabel string) error {
 	labels, _, err := g.client.Issues.ListLabelsByIssue(context.Background(), g.owner, repo, *pr.Number, &github.ListOptions{})
@@ -521,6 +521,7 @@ func (g GithubClient) CreatePRUpdateRepo(newBranch, baseBranch, repo, prTitle, p
 	return err
 }
 
+// ListPRs list PRs in a repo match the listOptions
 func (g GithubClient) ListPRs(options github.PullRequestListOptions, repo string) ([]*github.PullRequest, error) {
 	prs, _, err := g.client.PullRequests.List(
 		context.Background(), g.owner, repo, &options)
@@ -531,6 +532,7 @@ func (g GithubClient) ListPRs(options github.PullRequestListOptions, repo string
 	return prs, nil
 }
 
+// AddLabelToPRs add one label to PRs in a repo match the listOptions
 func (g GithubClient) AddLabelToPRs(options github.PullRequestListOptions, repo string, label string) error {
 	prs, err := g.ListPRs(options, repo)
 	if err != nil {
@@ -547,6 +549,7 @@ func (g GithubClient) AddLabelToPRs(options github.PullRequestListOptions, repo 
 	return nil
 }
 
+// RemoveLabelFromPRs remove one label to PRs in a repo match the listOptions
 func (g GithubClient) RemoveLabelFromPRs(options github.PullRequestListOptions, repo string, label string) error {
 	prs, err := g.ListPRs(options, repo)
 	if err != nil {

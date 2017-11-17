@@ -15,8 +15,6 @@
 package main
 
 import (
-	"bytes"
-	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -26,12 +24,12 @@ import (
 	"strconv"
 	"time"
 
-	"cloud.google.com/go/storage"
 	"github.com/google/go-github/github"
 
 	u "istio.io/test-infra/toolbox/util"
 )
 
+// ProwResult matches the structure published in finished.json
 type ProwResult struct {
 	TimeStamp  uint32       `json:"timestamp"`
 	Version    string       `json:"version"`
@@ -41,6 +39,7 @@ type ProwResult struct {
 	Metadata   ProwMetadata `json:"metadata"`
 }
 
+// ProwMetadata matches the structure published in finished.json
 type ProwMetadata struct {
 	Repo       string                 `json:"repo"`
 	Repos      map[string]interface{} `json:"repos"`
@@ -49,7 +48,8 @@ type ProwMetadata struct {
 
 const (
 	// TODO: Read from config file
-	sender = "istio.testing@gmail.com"
+	// Message Info
+	sender          = "istio.testing@gmail.com"
 	oncallMaillist  = "istio-oncall@googlegroups.com"
 	adminMaillist   = "yutongz@google.com"
 	messageSubject  = "[EMERGENCY] istio Post Submit failed!"
@@ -57,55 +57,57 @@ const (
 		"Post-Submit is failing in istio/istio, please take a look at following failure(s) and fix ASAP\n\n"
 	messageEnding = "\nIf you have any questions about this message or notice inaccuracy, please contact istio-engprod@google.com."
 
+	// Gmail setting
 	gmailSMTPSERVER = "smtp.gmail.com"
 	gmailSMTPPORT   = 587
 
+	// Prow result GCS
 	lastBuildTXT  = "latest-build.txt"
-	finishedJson  = "finished.json"
+	finishedJSON  = "finished.json"
 	gubernatorURL = "https://k8s-gubernator.appspot.com/build/istio-prow"
 
 	doNotMergeLabel = "do-not-merge/post-submit"
 
-	tokenFile = "/etc/github/git-token"
-	gmailAppPassFile = "/etc/gmail/gmail-app-pass"
+	// Token and password file
+	tokenFileDocker        = "/etc/github/git-token"
+	gmailAppPassFileDocker = "/etc/gmail/gmail-app-pass"
 )
 
 var (
-	gcsClient  *storage.Client
+	gcsClient  *u.GCSClient
 	githubClnt *u.GithubClient
 
-	gcsBucket = flag.String("bucket", "istio-prow", "Prow artifact GCS bucket name.")
-	interval  = flag.Int("interval", 5, "Check and report interval(minute)")
-	debug     = flag.Bool("debug", false, "Optional to log debug message")
-	owner     = flag.String("owner", "istio", "Github owner or org")
+	gcsBucket        = flag.String("bucket", "istio-prow", "Prow artifact GCS bucket name.")
+	interval         = flag.Int("interval", 5, "Check and report interval(minute)")
+	debug            = flag.Bool("debug", false, "Optional to log debug message")
+	owner            = flag.String("owner", "istio", "Github owner or org")
+	tokenFile        = flag.String("github_token", tokenFileDocker, "Path to github token")
+	gmailAppPassFile = flag.String("gmail__app_password", gmailAppPassFileDocker, "Path to gmail application password")
 
+	// Record which test run we already checked, avoid sending multiple email for the same test failure.
 	bookkeeper map[string]int
 
 	// TODO: Read from config file
 	protectedPostsubmits = []string{"istio-postsubmit", "e2e-suite-rbac-auth", "e2e-suite-rbac-no_auth"}
 	protectedRepo        = "istio"
 	protectedBranch      = "master"
-	receiver             = []string{oncallMaillist, adminMaillist}
-	gmailAppPass string
+	receivers            = []string{oncallMaillist}
+	gmailAppPass         string
 )
 
 func init() {
 	flag.Parse()
-	ctx := context.Background()
 
 	var err error
-	gcsClient, err = storage.NewClient(ctx)
-	if err != nil {
-		log.Fatalf("Failed to create a gcs client, %v", err)
-	}
+	gcsClient = u.NewGCSClient()
 
-	token, err := u.GetAPITokenFromFile(tokenFile)
+	token, err := u.GetAPITokenFromFile(*tokenFile)
 	if err != nil {
 		log.Fatalf("Error accessing user supplied token_file: %v\n", err)
 	}
 	githubClnt = u.NewGithubClient(*owner, token)
 
-	if gmailAppPass, err = u.GetPasswordFromFile(gmailAppPassFile); err != nil {
+	if gmailAppPass, err = u.GetPasswordFromFile(*gmailAppPassFile); err != nil {
 		log.Fatalf("Error accessing gmail app password: %v", err)
 	}
 
@@ -117,8 +119,7 @@ func main() {
 		failures := getPostSubmitStatus()
 		if len(failures) > 0 {
 			log.Printf("%d tests failed in last circle", len(failures))
-			message := FormatMessage(failures)
-			sendMessage(message)
+			sendMessage(formatMessage(failures))
 			blockPRs()
 		} else {
 			log.Printf("No new tests failed in last circle.")
@@ -129,22 +130,26 @@ func main() {
 	}
 }
 
-func FormatMessage(failures map[string]bool) (mess string) {
+func formatMessage(failures map[string]bool) (mess string) {
 	for job := range failures {
 		mess += fmt.Sprintf("%s failed: %s/%s/%d\n\n", job, gubernatorURL, job, bookkeeper[job])
 	}
 	return
 }
 
+// Use gmail smtp server to send out email.
 func sendMessage(body string) {
+	if *debug {
+		receivers = append(receivers, adminMaillist)
+	}
 	msg := fmt.Sprintf("From: %s\n", sender) +
-		fmt.Sprintf("To: %s\n", receiver) +
+		fmt.Sprintf("To: %s\n", receivers) +
 		fmt.Sprintf("Subject: %s [%s]\n\n", messageSubject, time.Now().String()) +
 		messagePrologue + body + messageEnding
 
 	gmailSMTPAddr := fmt.Sprintf("%s:%d", gmailSMTPSERVER, gmailSMTPPORT)
 	err := smtp.SendMail(gmailSMTPAddr, smtp.PlainAuth("istio-bot", sender, gmailAppPass, gmailSMTPSERVER),
-		sender, receiver, []byte(msg))
+		sender, receivers, []byte(msg))
 
 	if err != nil {
 		log.Printf("smtp error: %s", err)
@@ -154,9 +159,11 @@ func sendMessage(body string) {
 	log.Print("Alert message sent!")
 }
 
+// Read latest run from "latest-build.txt" of a job under gcs "istio-prow" bucket
+// Example: istio-prow/istio-postsubmit/latest-build.txt
 func getLatestRun(job string) (int, error) {
 	lastBuildFile := filepath.Join(job, lastBuildTXT)
-	latestBuildString, err := getFileFromGCSString(*gcsBucket, lastBuildFile)
+	latestBuildString, err := gcsClient.GetFileFromGCSString(*gcsBucket, lastBuildFile)
 	if err != nil {
 		return 0, err
 	}
@@ -168,6 +175,8 @@ func getLatestRun(job string) (int, error) {
 	return latestBuildInt, nil
 }
 
+// Check the latest run of each protected Post-Submit tests.
+// Record failure if it hasn't been recorded and update bookkeeper if necessary
 func getPostSubmitStatus() map[string]bool {
 	// Use this as a set, if a job failed, set true, otherwise not put in
 	// So if no tracked job failed, this map should be empty
@@ -205,8 +214,8 @@ func getPostSubmitStatus() map[string]bool {
 }
 
 func getProwResult(target string) (*ProwResult, error) {
-	jobFinishedFile := filepath.Join(target, finishedJson)
-	prowResultString, err := getFileFromGCSString(*gcsBucket, jobFinishedFile)
+	jobFinishedFile := filepath.Join(target, finishedJSON)
+	prowResultString, err := gcsClient.GetFileFromGCSString(*gcsBucket, jobFinishedFile)
 	if err != nil {
 		log.Printf("Failed to get prow job result %s: %v", target, err)
 		return nil, err
@@ -220,39 +229,7 @@ func getProwResult(target string) (*ProwResult, error) {
 	return &prowResult, nil
 }
 
-// Caller is responsible to close reader afterwards.
-func getFileFromGCSReader(bucket, obj string) (*storage.Reader, error) {
-	ctx := context.Background()
-	r, err := gcsClient.Bucket(bucket).Object(obj).NewReader(ctx)
-
-	if err != nil {
-		log.Printf("Failed to download file %s/%s from gcs, %v", bucket, obj, err)
-		return nil, err
-	}
-
-	return r, nil
-}
-
-func getFileFromGCSString(bucket, obj string) (string, error) {
-	r, err := getFileFromGCSReader(bucket, obj)
-	if err != nil {
-		return "", err
-	}
-	defer func() {
-		if err = r.Close(); err != nil {
-			log.Printf("Failed to close gcs file reader, %v", err)
-		}
-	}()
-
-	buf := new(bytes.Buffer)
-	if _, err = buf.ReadFrom(r); err != nil {
-		log.Printf("Failed to read from gcs reader, %v", err)
-		return "", err
-	}
-
-	return buf.String(), nil
-}
-
+// Add "do-not-merge/post-submit" labels to all PRs in protected repo towards protected branch
 func blockPRs() {
 	options := github.PullRequestListOptions{
 		State: "open",
@@ -262,9 +239,12 @@ func blockPRs() {
 	log.Printf("Adding [%s] to PRs in %s", doNotMergeLabel, protectedRepo)
 	if err := githubClnt.AddLabelToPRs(options, protectedRepo, doNotMergeLabel); err != nil {
 		log.Printf("Failed to add label to PRs: %v", err)
+		return
 	}
+	log.Printf("Blocked auto-merge in %s, base: %s", protectedRepo, protectedBranch)
 }
 
+// remove "do-not-merge/post-submit" labels to all PRs in protected repo towards protected branch
 func unBlockPRs() {
 	options := github.PullRequestListOptions{
 		State: "open",
@@ -274,6 +254,7 @@ func unBlockPRs() {
 	log.Printf("Removing any [%s] from PRs in %s, base: %s", doNotMergeLabel, protectedRepo, protectedBranch)
 	if err := githubClnt.RemoveLabelFromPRs(options, protectedRepo, doNotMergeLabel); err != nil {
 		log.Printf("Failed to remove label to PRs: %v", err)
+		return
 	}
 	log.Printf("PRs are clear to be auto-merged in %s, base: %s", protectedRepo, protectedBranch)
 }
