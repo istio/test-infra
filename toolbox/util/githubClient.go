@@ -188,6 +188,21 @@ func (g GithubClient) ClosePRDeleteBranch(repo string, pr *github.PullRequest) e
 	return nil
 }
 
+// MergePR force merges a PR
+func (g GithubClient) MergePR(repo string, pr *github.PullRequest) error {
+	prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
+	if _, _, err := g.client.Repositories.Merge(
+		context.Background(), g.owner, repo, &github.RepositoryMergeRequest{
+			Base:          pr.Base.Ref,
+			Head:          pr.Head.Ref,
+			CommitMessage: nil,
+		}); err != nil {
+		log.Printf("Failed to merge %s", prName)
+		return err
+	}
+	return nil
+}
+
 // ListRepos returns a list of repos under the provided owner
 func (g GithubClient) ListRepos() ([]string, error) {
 	opt := &github.RepositoryListOptions{Type: "owner"}

@@ -263,13 +263,14 @@ func DailyReleaseQualification() error {
 	if err != nil {
 		return err
 	}
-	log.Printf("Waiting for all jobs starting. Results Polling starts soon.\n")
-	time.Sleep(5 * time.Second)
+
 	verbose := true
 	ci := u.NewCIState()
 	retryDelay := 1 * time.Minute
 	totalRetries := 60
-	return u.Poll(retryDelay, totalRetries, func() (bool, error) {
+	log.Printf("Waiting for all jobs starting. Results Polling starts in %v.\n", retryDelay)
+	time.Sleep(retryDelay)
+	err = u.Poll(retryDelay, totalRetries, func() (bool, error) {
 		status, err := ghClntRel.GetPRTestResults(dailyRepo, pr, verbose)
 		verbose = false
 		if err != nil {
@@ -289,7 +290,17 @@ func DailyReleaseQualification() error {
 		}
 		return exitPolling, err
 	})
-	// TODO (chx) merge the PR directly if passing
+	defer func() {
+		log.Printf("Close the PR and delete its branch\n")
+		if e := ghClntRel.ClosePRDeleteBranch(dailyRepo, pr); e != nil {
+			log.Printf("Error in ClosePRDeleteBranch: %v\n", e)
+		}
+	}()
+	if err != nil { // qualification failed
+		return err
+	}
+	log.Printf("Auto merging this PR to update daily release\n")
+	return ghClntRel.MergePR(dailyRepo, pr)
 }
 
 func init() {
