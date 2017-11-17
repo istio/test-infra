@@ -17,4 +17,18 @@ spec:
       containers:
       - name: oncall-alert
         image: gcr.io/istio-testing/oncall_alert:0.0.2
-        imagePullPolicy: Always 
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: git-token
+          mountPath: /etc/github
+          readOnly: true
+        - name: gmail-app-pass
+          mountPath: /etc/gmail
+          readOnly: true
+      volumes:
+      - name: git-token
+        secret:
+          secretName: github-token
+      - name: gmail-app-pass
+        secret:
+          secretName: gmail-app-password

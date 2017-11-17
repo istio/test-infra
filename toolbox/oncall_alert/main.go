@@ -65,6 +65,11 @@ const (
 	gubernatorURL = "https://k8s-gubernator.appspot.com/build/istio-prow"
 
 	doNotMergeLabel = "do-not-merge/post-submit"
+
+	//tokenFile = "/etc/github/git-token"
+	tokenFile = "/usr/local/google/home/yutongz/git-token"
+	//gmailAppPassFile = "/etc/gmail/gmail-app-pass"
+	gmailAppPassFile = "/usr/local/google/home/yutongz/gmail-app-pass"
 )
 
 var (
@@ -75,7 +80,6 @@ var (
 	interval  = flag.Int("interval", 5, "Check and report interval(minute)")
 	debug     = flag.Bool("debug", false, "Optional to log debug message")
 	owner     = flag.String("owner", "istio", "Github owner or org")
-	tokenFile = flag.String("token_file", "", "File containing Github API Access Token")
 
 	bookkeeper map[string]int
 
@@ -84,6 +88,7 @@ var (
 	protectedRepo        = "istio"
 	protectedBranch      = "master"
 	receiver             = []string{adminMaillist}
+	gmailAppPass string
 )
 
 func init() {
@@ -96,42 +101,34 @@ func init() {
 		log.Fatalf("Failed to create a gcs client, %v", err)
 	}
 
-	u.AssertNotEmpty("token_file", tokenFile)
-	token, err := u.GetAPITokenFromFile(*tokenFile)
+	token, err := u.GetAPITokenFromFile(tokenFile)
 	if err != nil {
 		log.Fatalf("Error accessing user supplied token_file: %v\n", err)
 	}
 	githubClnt = u.NewGithubClient(*owner, token)
 
+	if gmailAppPass, err = u.GetPasswordFromFile(gmailAppPassFile); err != nil {
+		log.Fatalf("Error accessing gmail app password: %v", err)
+	}
+
 	bookkeeper = make(map[string]int)
 }
 
 func main() {
-
-	options := github.PullRequestListOptions{
-		State: "open",
-		Base:  "master",
+	for {
+		failures := getPostSubmitStatus()
+		if len(failures) > 0 {
+			log.Printf("%d tests failed in last circle", len(failures))
+			message := FormatMessage(failures)
+			sendMessage(message)
+			blockPRs()
+		} else {
+			log.Printf("No new tests failed in last circle.")
+			unBlockPRs()
+		}
+		log.Printf("Sleeping for %d minutes", *interval)
+		time.Sleep(time.Duration(*interval) * time.Minute)
 	}
-
-	err := githubClnt.RemoveLabelFromPRs(options, "test-infra", doNotMergeLabel)
-	if err != nil {
-		log.Printf("ERR: %v", err)
-	}
-
-	/*
-		for {
-			failures := getPostSubmitStatus()
-			if len(failures) > 0 {
-				log.Printf("%d tests failed in last circle", len(failures))
-				message := FormatMessage(failures)
-				sendMessage(message)
-				blockPRs()
-			} else {
-				log.Printf("No new tests failed in last circle.")
-				unBlockPRs()
-			}
-			time.Sleep(time.Duration(*interval) * time.Minute)
-		}*/
 }
 
 func FormatMessage(failures map[string]bool) (mess string) {
@@ -142,15 +139,13 @@ func FormatMessage(failures map[string]bool) (mess string) {
 }
 
 func sendMessage(body string) {
-	appPass := "fnmhrqpnwlmpblfg"
-
 	msg := fmt.Sprintf("From: %s\n", sender) +
 		fmt.Sprintf("To: %s\n", receiver) +
 		fmt.Sprintf("Subject: %s [%s]\n\n", messageSubject, time.Now().String()) +
 		messagePrologue + body + messageEnding
 
 	gmailSMTPAddr := fmt.Sprintf("%s:%d", gmailSMTPSERVER, gmailSMTPPORT)
-	err := smtp.SendMail(gmailSMTPAddr, smtp.PlainAuth("istio-bot", sender, appPass, gmailSMTPSERVER),
+	err := smtp.SendMail(gmailSMTPAddr, smtp.PlainAuth("istio-bot", sender, gmailAppPass, gmailSMTPSERVER),
 		sender, receiver, []byte(msg))
 
 	if err != nil {
@@ -158,7 +153,7 @@ func sendMessage(body string) {
 		return
 	}
 
-	log.Print("Message sent!")
+	log.Print("Alert message sent!")
 }
 
 func getLatestRun(job string) (int, error) {
@@ -278,8 +273,9 @@ func unBlockPRs() {
 		Base:  protectedBranch,
 	}
 
-	log.Printf("Removing [%s] from PRs in %s", doNotMergeLabel, protectedRepo)
+	log.Printf("Removing any [%s] from PRs in %s, base: %s", doNotMergeLabel, protectedRepo, protectedBranch)
 	if err := githubClnt.RemoveLabelFromPRs(options, protectedRepo, doNotMergeLabel); err != nil {
 		log.Printf("Failed to remove label to PRs: %v", err)
 	}
+	log.Printf("PRs are clear to be auto-merged in %s, base: %s", protectedRepo, protectedBranch)
 }

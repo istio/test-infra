@@ -164,10 +164,20 @@ func (g GithubClient) AddlabelsToPR(
 
 // RemoveLabelToPR removes "one" label from the pull request
 func (g GithubClient) RemoveLabelFromPR(
-	repo string, pr *github.PullRequest, label string) error {
-	_, err := g.client.Issues.RemoveLabelForIssue(
-		context.Background(), g.owner, repo, pr.GetNumber(), label)
-	return err
+	repo string, pr *github.PullRequest, removeLabel string) error {
+	labels, _, err := g.client.Issues.ListLabelsByIssue(context.Background(), g.owner, repo, *pr.Number, &github.ListOptions{})
+	if err != nil {
+		return err
+	}
+
+	for _, label := range labels {
+		if *label.Name == removeLabel {
+			_, err := g.client.Issues.RemoveLabelForIssue(
+				context.Background(), g.owner, repo, pr.GetNumber(), removeLabel)
+			return err
+		}
+	}
+	return nil
 }
 
 // ClosePRDeleteBranch closes a PR and deletes the branch from which the PR is made
@@ -531,7 +541,7 @@ func (g GithubClient) AddLabelToPRs(options github.PullRequestListOptions, repo 
 	for _, pr := range prs {
 		log.Printf("No. %d", pr.Number)
 		if err = g.AddlabelsToPR(repo, pr, label); err != nil {
-			log.Printf("Failed to add %s to PR %d: %v", label, pr.Number, err)
+			log.Printf("Failed to add %s to PR %d: %v", label, pr.ID, err)
 		}
 	}
 	return nil
@@ -545,7 +555,7 @@ func (g GithubClient) RemoveLabelFromPRs(options github.PullRequestListOptions, 
 
 	for _, pr := range prs {
 		if err = g.RemoveLabelFromPR(repo, pr, label); err != nil {
-			log.Printf("Failed to remove %s to PR %d: %v", label, pr.Number, err)
+			log.Printf("Failed to remove %s to PR %d: %v", label, pr.ID, err)
 		}
 	}
 	return nil

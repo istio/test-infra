@@ -81,7 +81,11 @@ func GetCIState(combinedStatus *github.CombinedStatus, skipContext func(string) 
 
 // GetAPITokenFromFile returns the github api token from tokenFile
 func GetAPITokenFromFile(tokenFile string) (string, error) {
-	b, err := ioutil.ReadFile(tokenFile)
+	return GetPasswordFromFile(tokenFile)
+}
+
+func GetPasswordFromFile(file string) (string, error) {
+	b, err := ioutil.ReadFile(file)
 	if err != nil {
 		return "", err
 	}
