@@ -61,7 +61,7 @@ const (
 	messagePrologue = "Hi istio-oncall,\n\n" +
 		"Post-Submit is failing in istio/istio, please take a look at following failure(s) and fix ASAP\n\n"
 	messageEnding = "\nIf you have any questions about this message or notice inaccuracy, please contact istio-engprod@google.com."
-
+	LosAngeles    = "America/Los_Angeles"
 	// Gmail setting
 	gmailSMTPSERVER = "smtp.gmail.com"
 	gmailSMTPPORT   = 587
@@ -96,6 +96,7 @@ var (
 	protectedPostsubmits = []string{"istio-postsubmit", "e2e-suite-rbac-auth", "e2e-suite-rbac-no_auth"}
 	receivers            = []string{oncallMaillist}
 	gmailAppPass         string
+	location             *time.Location
 )
 
 func init() {
@@ -121,6 +122,11 @@ func init() {
 				// init to be true to avoid false negative
 				latestRunPass: true,
 			})
+	}
+
+	location, err = time.LoadLocation(LosAngeles)
+	if err != nil {
+		log.Fatalf("Error loading time location")
 	}
 }
 
@@ -157,7 +163,7 @@ func formatMessage(failures map[*postSubmitJob]bool) (mess string) {
 func sendMessage(body string) {
 	msg := fmt.Sprintf("From: %s\n", sender) +
 		fmt.Sprintf("To: %s\n", receivers) +
-		fmt.Sprintf("Subject: %s [%s]\n\n", messageSubject, time.Now().String()) +
+		fmt.Sprintf("Subject: %s [%s]\n\n", messageSubject, time.Now().In(location).String()) +
 		messagePrologue + body + messageEnding
 
 	gmailSMTPAddr := fmt.Sprintf("%s:%d", gmailSMTPSERVER, gmailSMTPPORT)
