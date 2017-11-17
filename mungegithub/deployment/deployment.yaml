@@ -1,14 +1,14 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: test-infra-submit-queue
+  name: @@-submit-queue
 spec:
   replicas: 1
   template:
     metadata:
       labels:
         app: submit-queue
-        target-repo: test-infra
+        target-repo: @@
     spec:
       containers:
       - name: submit-queue
@@ -40,15 +40,15 @@ spec:
       volumes:
       - name: munge-config
         configMap:
-          name: test-infra-sq-config
+          name: @@-sq-config
       - name: secret-volume
         secret:
-          secretName: test-infra-github-token
+          secretName: @@-github-token
       - name: hook-secret-volume
         secret:
-          secretName: test-infra-github-secret
+          secretName: @@-github-secret
       - name: repo
         emptyDir: {}
       - name: cache-volume
         persistentVolumeClaim:
-          claimName: mungegithub-test-infra-cache
+          claimName: mungegithub-@@-cache
