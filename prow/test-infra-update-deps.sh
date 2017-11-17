@@ -35,14 +35,20 @@ git config --global user.name "istio-bot"
 TOKEN_PATH="/etc/github/oauth"
 # List of repo where auto dependency update has been enabled
 # excluding istio/istio
-repos=( old_mixer_repo mixerclient old_pilot_repo proxy )
-
-echo "=== Updating Dependency of Istio ==="
-./bazel-bin/toolbox/deps_update/deps_update \
-  --repo=istio \
-  --token_file=${TOKEN_PATH} \
-  --base_branch=${GIT_BRANCH} \
-  --hub=gcr.io/istio-testing
+case ${GIT_BRANCH} in
+  master)
+    repos=( mixerclient proxy );;
+  release-0.2)
+    repos=( old_mixer_repo mixerclient old_pilot_repo proxy )
+    echo "=== Updating Dependency of Istio ==="
+    ./bazel-bin/toolbox/deps_update/deps_update \
+      --repo=istio \
+      --token_file=${TOKEN_PATH} \
+      --base_branch=${GIT_BRANCH} \
+      --hub=gcr.io/istio-testing
+  *)
+    echo error GIT_BRANCH set incorrectly; exit 1;;
+esac
 
 for r in "${repos[@]}"; do
   echo "=== Updating Dependency of ${r} ==="
