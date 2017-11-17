@@ -50,7 +50,7 @@ type ProwMetadata struct {
 const (
 	// TODO: Read from config file
 	sender = "istio.testing@gmail.com"
-	//oncallMaillist  = "istio-oncall@googlegroups.com"
+	oncallMaillist  = "istio-oncall@googlegroups.com"
 	adminMaillist   = "yutongz@google.com"
 	messageSubject  = "[EMERGENCY] istio Post Submit failed!"
 	messagePrologue = "Hi istio-oncall,\n\n" +
@@ -66,10 +66,8 @@ const (
 
 	doNotMergeLabel = "do-not-merge/post-submit"
 
-	//tokenFile = "/etc/github/git-token"
-	tokenFile = "/usr/local/google/home/yutongz/git-token"
-	//gmailAppPassFile = "/etc/gmail/gmail-app-pass"
-	gmailAppPassFile = "/usr/local/google/home/yutongz/gmail-app-pass"
+	tokenFile = "/etc/github/git-token"
+	gmailAppPassFile = "/etc/gmail/gmail-app-pass"
 )
 
 var (
@@ -87,7 +85,7 @@ var (
 	protectedPostsubmits = []string{"istio-postsubmit", "e2e-suite-rbac-auth", "e2e-suite-rbac-no_auth"}
 	protectedRepo        = "istio"
 	protectedBranch      = "master"
-	receiver             = []string{adminMaillist}
+	receiver             = []string{oncallMaillist, adminMaillist}
 	gmailAppPass string
 )
 

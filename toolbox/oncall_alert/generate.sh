@@ -14,4 +14,4 @@ sed 's/image: gcr.io\/istio-testing\/oncall_alert:.*/image: gcr.io\/istio-testin
 
 cat toolbox/oncall_alert/local.alert-deployment.yaml
 
-echo "To replace: kubectl replace -f toolbox/oncall_alert/local.alert-deployment.yaml -n oncall-alert"
+echo "To replace: 1. connect to \"istio-toolbox\" cluster and 2. kubectl replace -f toolbox/oncall_alert/local.alert-deployment.yaml -n oncall-alert"
