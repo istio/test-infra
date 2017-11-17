@@ -38,7 +38,3 @@ startd:
 
 stopd:
 	kubectl delete deployment $(REPO)-submit-queue
-
-
-echo:
-	echo $(REPO)
