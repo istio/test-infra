@@ -12,6 +12,7 @@ triggers:
   - istio/old_mixer_repo
   - istio/old_pilot_repo
   - istio/test-infra
+  - istio-releases/daily-release
   trusted_org: istio
 
 plugins:
@@ -72,7 +73,6 @@ plugins:
   - hold
 
   istio/test-infra:
-  - approve
   - assign
   - trigger
   - config-updater
@@ -82,3 +82,6 @@ plugins:
   - lgtm
   - hold
   - yuks
+
+  istio-releases/daily-release:
+  - trigger
