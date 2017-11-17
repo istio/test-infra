@@ -256,12 +256,12 @@ func blockPRs() {
 		Base:  *protectedBranch,
 	}
 
-	log.Printf("Adding [%s] to PRs in %s", doNotMergeLabel, protectedRepo)
+	log.Printf("Adding [%s] to PRs in %s", doNotMergeLabel, *protectedRepo)
 	if err := githubClnt.AddLabelToPRs(options, *protectedRepo, doNotMergeLabel); err != nil {
 		log.Printf("Failed to add label to PRs: %v", err)
 		return
 	}
-	log.Printf("Blocked auto-merge in %s, base: %s", protectedRepo, protectedBranch)
+	log.Printf("Blocked auto-merge in %s, base: %s", *protectedRepo, *protectedBranch)
 }
 
 // remove "do-not-merge/post-submit" labels to all PRs in protected repo towards protected branch
@@ -271,10 +271,10 @@ func unBlockPRs() {
 		Base:  *protectedBranch,
 	}
 
-	log.Printf("Removing any [%s] from PRs in %s, base: %s", doNotMergeLabel, protectedRepo, protectedBranch)
+	log.Printf("Removing any [%s] from PRs in %s, base: %s", doNotMergeLabel, *protectedRepo, *protectedBranch)
 	if err := githubClnt.RemoveLabelFromPRs(options, *protectedRepo, doNotMergeLabel); err != nil {
 		log.Printf("Failed to remove label to PRs: %v", err)
 		return
 	}
-	log.Printf("PRs are clear to be auto-merged in %s, base: %s", protectedRepo, protectedBranch)
+	log.Printf("PRs are clear to be auto-merged in %s, base: %s", *protectedRepo, *protectedBranch)
 }
