@@ -37,7 +37,8 @@ TOKEN_PATH="/etc/github/oauth"
 # excluding istio/istio
 case ${GIT_BRANCH} in
   master)
-    repos=( mixerclient proxy );;
+    repos=( mixerclient proxy )
+    ;;
   release-0.2)
     repos=( old_mixer_repo mixerclient old_pilot_repo proxy )
     echo "=== Updating Dependency of Istio ==="
@@ -46,8 +47,10 @@ case ${GIT_BRANCH} in
       --token_file=${TOKEN_PATH} \
       --base_branch=${GIT_BRANCH} \
       --hub=gcr.io/istio-testing
+    ;;
   *)
-    echo error GIT_BRANCH set incorrectly; exit 1;;
+    echo error GIT_BRANCH set incorrectly; exit 1
+    ;;
 esac
 
 for r in "${repos[@]}"; do
