@@ -123,7 +123,7 @@ type NFSEventsStats struct {
 	VFSFlush uint64
 	// Number of times fsync() has been called on directories and files.
 	VFSFsync uint64
-	// Number of times locking has been attemped on a file.
+	// Number of times locking has been attempted on a file.
 	VFSLock uint64
 	// Number of times files have been closed and released.
 	VFSFileRelease uint64
@@ -356,7 +356,7 @@ func parseMountStatsNFS(s *bufio.Scanner, statVersion string) (*MountStatsNFS, e
 		}
 
 		// When encountering "per-operation statistics", we must break this
-		// loop and parse them seperately to ensure we can terminate parsing
+		// loop and parse them separately to ensure we can terminate parsing
 		// before reaching another device entry; hence why this 'if' statement
 		// is not just another switch case
 		if ss[0] == fieldPerOpStats {
@@ -523,15 +523,19 @@ func parseNFSTransportStats(ss []string, statVersion string) (*NFSTransportStats
 	}
 
 	// Allocate enough for v1.1 stats since zero value for v1.1 stats will be okay
-	// in a v1.0 response
-	ns := make([]uint64, 0, fieldTransport11Len)
-	for _, s := range ss {
+	// in a v1.0 response.
+	//
+	// Note: slice length must be set to length of v1.1 stats to avoid a panic when
+	// only v1.0 stats are present.
+	// See: https://github.com/prometheus/node_exporter/issues/571.
+	ns := make([]uint64, fieldTransport11Len)
+	for i, s := range ss {
 		n, err := strconv.ParseUint(s, 10, 64)
 		if err != nil {
 			return nil, err
 		}
 
-		ns = append(ns, n)
+		ns[i] = n
 	}
 
 	return &NFSTransportStats{

@@ -8,10 +8,11 @@ go_library(
         "githubClient.go",
         "githubUtils.go",
     ],
+    importpath = "istio.io/test-infra/toolbox/util",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/google/go-github/github:go_default_library",
-        "//vendor/github.com/hashicorp/go-multierror:go_default_library",
-        "//vendor/golang.org/x/oauth2:go_default_library",
+        "@com_github_google_go_github//github:go_default_library",
+        "@com_github_hashicorp_go_multierror//:go_default_library",
+        "@org_golang_x_oauth2//:go_default_library",
     ],
 )
