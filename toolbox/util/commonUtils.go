@@ -24,6 +24,7 @@ import (
 	"os/exec"
 	"strings"
 	"text/template"
+	"time"
 )
 
 const (
@@ -38,6 +39,24 @@ var (
 		":",
 	}
 )
+
+// Poll executes do() after time interval for a max of numTrials times.
+// The bool returned by do() indicates if polling succeeds in that trial
+func Poll(interval time.Duration, numTrials int, do func() (bool, error)) error {
+	if numTrials < 0 {
+		return fmt.Errorf("numTrials cannot be negative")
+	}
+	for i := 0; i < numTrials; i++ {
+		if success, err := do(); err != nil {
+			return fmt.Errorf("error during trial %d: %v", i, err)
+		} else if success {
+			return nil
+		} else {
+			time.Sleep(interval)
+		}
+	}
+	return fmt.Errorf("max polling iteration reached")
+}
 
 // ReadFile reads the file on the given path and
 // returns its content as a string
