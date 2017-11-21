@@ -271,10 +271,10 @@ func DailyReleaseQualification() error {
 	log.Printf("Waiting for all jobs starting. Results Polling starts in %v.\n", retryDelay)
 	time.Sleep(retryDelay)
 	err = u.Poll(retryDelay, totalRetries, func() (bool, error) {
-		status, err := ghClntRel.GetPRTestResults(dailyRepo, pr, verbose)
+		status, errPoll := ghClntRel.GetPRTestResults(dailyRepo, pr, verbose)
 		verbose = false
-		if err != nil {
-			return false, err
+		if errPoll != nil {
+			return false, errPoll
 		}
 		exitPolling := false
 		switch status {
@@ -284,11 +284,11 @@ func DailyReleaseQualification() error {
 		case ci.Failure:
 			// All failures have been logged by GetPRTestResults()
 			exitPolling = true
-			err = fmt.Errorf("release qualification failed")
+			errPoll = fmt.Errorf("release qualification failed")
 		case ci.Pending:
 			log.Printf("Results still pending. Will check again in %v.\n", retryDelay)
 		}
-		return exitPolling, err
+		return exitPolling, errPoll
 	})
 	defer func() {
 		log.Printf("Close the PR and delete its branch\n")
