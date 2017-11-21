@@ -17,6 +17,10 @@ go_rules_dependencies()
 
 go_register_toolchains(go_version = "1.8.3")
 
+load("@io_bazel_rules_go//proto:def.bzl", "proto_register_toolchains")
+
+proto_register_toolchains()
+
 ##
 ## docker
 ##
@@ -43,3 +47,10 @@ docker_pull(
     repository = "distroless/base",
     tag = "latest",
 )
+
+# Vendors
+#
+
+load("//:go_vendor_repositories.bzl", "go_vendor_repositories")
+
+go_vendor_repositories()
