@@ -1,5 +1,4 @@
 # Istio Test Infra #
-[![Build Status](https://testing.istio.io/buildStatus/icon?job=test-infra/postsubmit)](https://testing.istio.io/job/test-infra/)
 
 [Istio Test Infra](#istio-test-infra)
 * [Testing Infrastructure](#testing-infrastructure)
@@ -117,7 +116,6 @@ In that case follow this procedure
 ## Build Cop Responsibilities ##
 
 1. Look at unassigned PRs.
-1. Checks build status at https://testing.istio.io/.
 1. Investigate postsubmit issues and assign issues to Admins.
 
 
