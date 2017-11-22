@@ -129,17 +129,13 @@ In that case follow this procedure
 Are you part of the istio Github Organization? If not, you might need an Istio member to run tests for you,
 after they have reviewed the submitted code.
 
-If you are part of the istio org, you can start tests by:
-
-1. Going to the Jenkins job page, clicking on GitHub PR link and click rebuild on your PR.
-2. Drop a comment on the PR: "jenkins build manager/presubmit" if manager/presubmit is the required check that you want to start
+Org member can comment /ok-to-test on your PR to start testing.
 
 ### How can I retest my PR ? ###
 
 If you are part of the istio Github Organization, you can start a test by:
 
-1. Going to the Jenkins job page, clicking on GitHub PR link and click rebuild on your PR.
-2. Drop a comment on your PR: "jenkins build manager/presubmit" if manager/presubmit is the required check that you want to start
+1. Drop a comment on your PR: "test istio-presubmit" if prow/istio-presubmit is the required check that you want to start
 
 ### I have a breaking change. How can I go about it ? ###
 
