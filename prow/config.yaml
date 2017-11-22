@@ -156,8 +156,6 @@ presubmits:
         - name: service
           mountPath: /etc/service-account
           readOnly: true
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
         ports:
         - containerPort: 9999
           hostPort: 9998
@@ -174,9 +172,6 @@ presubmits:
       - name: service
         secret:
           secretName: service-account
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
 
 
   istio/old_auth_repo:
