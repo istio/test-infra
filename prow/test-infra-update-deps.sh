@@ -38,9 +38,7 @@ TOKEN_PATH="/etc/github/oauth"
 case ${GIT_BRANCH} in
   master)
     repos=( mixerclient proxy )
-    # disable for now until prow/jenkins for mixerclient and proxy is fixed as per request from wayne
     # TODO need to enable for istio/istio
-    exit 0
     ;;
   release-0.2)
     repos=( old_mixer_repo mixerclient old_pilot_repo proxy )
