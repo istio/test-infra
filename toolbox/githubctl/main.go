@@ -35,6 +35,8 @@ var (
 	nextRelease                        = flag.String("next_release", "", "Tag of the next release")
 	hub                                = flag.String("hub", "", "Hub of the docker images")
 	tag                                = flag.String("tag", "", "Tag of the release candidate")
+	releaseOrg                         = flag.String("rel_org", "istio-releases", "GitHub Release Org")
+	project                            = flag.String("project", "", "The GCP project id")
 	extraBranchesUpdateDownloadVersion = flag.String("update_rel_branches", "",
 		"Extra branches where you want to update downloadIstioCandidate.sh, separated by comma")
 	githubClnt *u.GithubClient
@@ -246,9 +248,12 @@ func CreateIstioReleaseUploadArtifacts() error {
 func DailyReleaseQualification() error {
 	u.AssertNotEmpty("hub", hub) // TODO (chx) default value of hub
 	u.AssertNotEmpty("tag", tag)
+	u.AssertNotEmpty("project", project)
 	log.Printf("Creating PR to trigger release qualifications\n")
-	prTitle := "[DO NOT MERGE, TESTING ONLY] " + relQualificationPRTtilePrefix + *refSHA
+	prTitle := "[DO NOT MANUAL MERGE] " + relQualificationPRTtilePrefix + *refSHA
 	prBody := fmt.Sprintf("Trigger release qualification jobs")
+	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
+	newBranch := "relQual_" + timestamp
 	edit := func() error {
 		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "HUB", *hub); err != nil {
 			return err
@@ -256,13 +261,24 @@ func DailyReleaseQualification() error {
 		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "TAG", *tag); err != nil {
 			return err
 		}
+		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "TIME", timestamp); err != nil {
+			return err
+		}
+		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "PROJECT", *project); err != nil {
+			return err
+		}
 		return nil
 	}
-	newBranch := fmt.Sprintf("relQual_%d", time.Now().UnixNano())
 	pr, err := ghClntRel.CreatePRUpdateRepo(newBranch, masterBranch, dailyRepo, prTitle, prBody, edit)
 	if err != nil {
 		return err
 	}
+	defer func() {
+		log.Printf("Close the PR and delete its branch\n")
+		if e := ghClntRel.ClosePRDeleteBranch(dailyRepo, pr); e != nil {
+			log.Printf("Error in ClosePRDeleteBranch: %v\n", e)
+		}
+	}()
 
 	verbose := true
 	ci := u.NewCIState()
@@ -271,10 +287,10 @@ func DailyReleaseQualification() error {
 	log.Printf("Waiting for all jobs starting. Results Polling starts in %v.\n", retryDelay)
 	time.Sleep(retryDelay)
 	err = u.Poll(retryDelay, totalRetries, func() (bool, error) {
-		status, err := ghClntRel.GetPRTestResults(dailyRepo, pr, verbose)
+		status, errPoll := ghClntRel.GetPRTestResults(dailyRepo, pr, verbose)
 		verbose = false
-		if err != nil {
-			return false, err
+		if errPoll != nil {
+			return false, errPoll
 		}
 		exitPolling := false
 		switch status {
@@ -284,18 +300,12 @@ func DailyReleaseQualification() error {
 		case ci.Failure:
 			// All failures have been logged by GetPRTestResults()
 			exitPolling = true
-			err = fmt.Errorf("release qualification failed")
+			errPoll = fmt.Errorf("release qualification failed")
 		case ci.Pending:
 			log.Printf("Results still pending. Will check again in %v.\n", retryDelay)
 		}
-		return exitPolling, err
+		return exitPolling, errPoll
 	})
-	defer func() {
-		log.Printf("Close the PR and delete its branch\n")
-		if e := ghClntRel.ClosePRDeleteBranch(dailyRepo, pr); e != nil {
-			log.Printf("Error in ClosePRDeleteBranch: %v\n", e)
-		}
-	}()
 	if err != nil { // qualification failed
 		return err
 	}
@@ -312,7 +322,7 @@ func init() {
 	}
 	githubClnt = u.NewGithubClient(*owner, token)
 	// a new github client is created for istio-releases org
-	ghClntRel = u.NewGithubClient("istio-releases", token)
+	ghClntRel = u.NewGithubClient(*releaseOrg, token)
 }
 
 func main() {
