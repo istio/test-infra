@@ -57,7 +57,7 @@ const (
 	// Message Info
 	sender          = "istio.testing@gmail.com"
 	oncallMaillist  = "istio-oncall@googlegroups.com"
-	messageSubject  = "[EMERGENCY] istio Post Submit failed!"
+	messageSubject  = "ATTENTION - Istio Post-Submit Test Failed"
 	messagePrologue = "Hi istio-oncall,\n\n" +
 		"Post-Submit is failing in istio/istio, please take a look at following failure(s) and fix ASAP\n\n"
 	messageEnding = "\nIf you have any questions about this message or notice inaccuracy, please contact istio-engprod@google.com."
@@ -163,7 +163,7 @@ func formatMessage(failures map[*postSubmitJob]bool) (mess string) {
 func sendMessage(body string) {
 	msg := fmt.Sprintf("From: %s\n", sender) +
 		fmt.Sprintf("To: %s\n", receivers) +
-		fmt.Sprintf("Subject: %s [%s]\n\n", messageSubject, time.Now().In(location).String()) +
+		fmt.Sprintf("Subject: %s [%s]\n\n", messageSubject, time.Now().In(location).Format("2006-01-02 15:04:05 PST")) +
 		messagePrologue + body + messageEnding
 
 	gmailSMTPAddr := fmt.Sprintf("%s:%d", gmailSMTPSERVER, gmailSMTPPORT)
@@ -224,6 +224,7 @@ func updatePostSubmitStatus() (map[*postSubmitJob]bool, int) {
 				continue
 			}
 			job.latestRun = latestRunNo
+			job.latestRunPass = prowResult.Passed
 			if *debug {
 				log.Printf("Job: %s -- Latest Run No: %d -- Passed? %t", job, latestRunNo, prowResult.Passed)
 			}
@@ -277,7 +278,6 @@ func unBlockPRs() {
 		Base:  *protectedBranch,
 	}
 
-	log.Printf("Removing any [%s] from PRs in %s, base: %s", doNotMergeLabel, *protectedRepo, *protectedBranch)
 	if err := githubClnt.RemoveLabelFromPRs(options, *protectedRepo, doNotMergeLabel); err != nil {
 		log.Printf("Failed to remove label to PRs: %v", err)
 		return
