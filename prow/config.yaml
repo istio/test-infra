@@ -30,24 +30,23 @@ presubmits:
   #   spec:          If this exists then run a kubernetes pod with this spec.
   #                  Otherwise, run a Jenkins job.
 
-  istio/api:
+  istio/mixerclient:
 
-  - name: api-presubmit
+  - name: mixerclient-presubmit
     agent: kubernetes
-    context: prow/api-presubmit.sh
+    context: prow/mixerclient-presubmit.sh
     always_run: true
-    rerun_command: "/test api-presubmit"
-    trigger: "(?m)^/(retest|test (all|api-presubmit))?,?(\\s+|$)"
+    rerun_command: "/test mixerclient-presubmit"
+    trigger: "(?m)^/(retest|test (all|mixerclient-presubmit))?,?(\\s+|$)"
     branches:
     - master
-    - release-0.2
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.3.1
+      - image: gcr.io/istio-testing/prowbazel:0.3.2
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
-        - "--timeout=20"
+        - "--timeout=60"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -79,6 +78,100 @@ presubmits:
       - name: cache-ssd
         hostPath:
           path: /mnt/disks/ssd0
+
+  istio/proxy:
+
+  - name: proxy-presubmit
+    agent: kubernetes
+    context: prow/proxy-presubmit.sh
+    always_run: true
+    rerun_command: "/test proxy-presubmit"
+    trigger: "(?m)^/(retest|test (all|proxy-presubmit))?,?(\\s+|$)"
+    branches:
+    - master
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.3.2
+        args:
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+        - "--clean"
+        - "--timeout=60"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: cache-ssd
+          mountPath: /home/bootstrap/.cache
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "20Gi"
+            cpu: "5000m"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: build-pool
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0
+
+  istio/api:
+
+  - name: api-presubmit
+    agent: kubernetes
+    context: prow/api-presubmit.sh
+    always_run: true
+    rerun_command: "/test api-presubmit"
+    trigger: "(?m)^/(retest|test (all|api-presubmit))?,?(\\s+|$)"
+    branches:
+    - master
+    - release-0.2
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.3.2
+        args:
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+        - "--clean"
+        - "--timeout=20"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "20Gi"
+            cpu: "5000m"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: build-pool
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
 
 
   istio/old_auth_repo:
@@ -867,7 +960,7 @@ presubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.3.1
+      - image: gcr.io/istio-testing/prowbazel:0.3.2
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
@@ -969,7 +1062,7 @@ postsubmits:
     - release-0.2
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.3.1
+      - image: gcr.io/istio-testing/prowbazel:0.3.2
         args:
         - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
         - "--clean"
@@ -1344,6 +1437,55 @@ postsubmits:
         secret:
           secretName: oauth-token
 
+  istio/proxy:
+
+  - name: proxy-postsubmit
+    agent: kubernetes
+    context: prow/proxy-postsubmit.sh
+    always_run: true
+    rerun_command: "/test proxy-postsubmit"
+    trigger: "(?m)^/(retest|test (all|proxy-postsubmit))?,?(\\s+|$)"
+    branches:
+    - master
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.3.2
+        args:
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+        - "--clean"
+        - "--timeout=60"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: cache-ssd
+          mountPath: /home/bootstrap/.cache
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "20Gi"
+            cpu: "5000m"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: build-pool
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0
+
 periodics:
 
 - interval: 2h
@@ -1550,6 +1692,40 @@ periodics:
         value: /etc/service-account/service-account.json
       - name: GIT_BRANCH
         value: release-0.2
+      volumeMounts:
+      - name: oauth
+        mountPath: /etc/github
+        readOnly: true
+      - mountPath: /etc/service-account
+        name: service
+        readOnly: true
+    nodeSelector:
+      cloud.google.com/gke-nodepool: build-pool
+    volumes:
+    - name: oauth
+      secret:
+        secretName: oauth-token
+    - name: service
+      secret:
+        secretName: service-account
+
+- interval: 2h
+  agent: kubernetes
+  name: test-infra-update-deps
+  spec:
+    containers:
+    - image: gcr.io/istio-testing/prowbazel:0.3.2
+      args:
+      - "--repo=github.com/istio/test-infra=master"
+      - "--clean"
+      - "--timeout=20"
+      securityContext:
+        privileged: true
+      env:
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/service-account/service-account.json
+      - name: GIT_BRANCH
+        value: master
       volumeMounts:
       - name: oauth
         mountPath: /etc/github
