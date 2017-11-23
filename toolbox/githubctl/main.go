@@ -37,6 +37,7 @@ var (
 	tag                                = flag.String("tag", "", "Tag of the release candidate")
 	releaseOrg                         = flag.String("rel_org", "istio-releases", "GitHub Release Org")
 	project                            = flag.String("project", "", "The GCP project id")
+	gcsPath                            = flag.String("gcs_path", "", "The path to the GCS bucket")
 	extraBranchesUpdateDownloadVersion = flag.String("update_rel_branches", "",
 		"Extra branches where you want to update downloadIstioCandidate.sh, separated by comma")
 	githubClnt *u.GithubClient
@@ -249,6 +250,7 @@ func DailyReleaseQualification() error {
 	u.AssertNotEmpty("hub", hub) // TODO (chx) default value of hub
 	u.AssertNotEmpty("tag", tag)
 	u.AssertNotEmpty("project", project)
+	u.AssertNotEmpty("gcs_path", gcsPath)
 	log.Printf("Creating PR to trigger release qualifications\n")
 	prTitle := "[DO NOT MANUAL MERGE] " + relQualificationPRTtilePrefix + *refSHA
 	prBody := fmt.Sprintf("Trigger release qualification jobs")
@@ -265,6 +267,10 @@ func DailyReleaseQualification() error {
 			return err
 		}
 		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "PROJECT", *project); err != nil {
+			return err
+		}
+		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "GCS_PATH",
+			fmt.Sprintf("https://storage.googleapis.com/%s", *gcsPath)); err != nil {
 			return err
 		}
 		return nil
