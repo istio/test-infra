@@ -24,15 +24,21 @@
   
 * Re-deploy Submit Queue instence
 
-  * In deployment.yaml, replace the `image: xxxxx` with the image we just uploaded.
-  
-  * Replace "test-infra" with the repo you are trying to deploy
-  
-  * And then:
-  
+  For example, if you want to deploy for proxy:
+
   ```bash
-  $ kubectl apply -f deployment.yaml
+  $ REPO=proxy make deploy
   ```
+  
+## Change config file
+
+  Pull the latest istio/test-infra, change the configmap.yaml under your target repo directory and go back to `test-infra/mungegithub`
+ 
+ ```bash
+ $ REPO=proxy make update-config 
+ ```
+  It will restart the Submit Queue for that repo to make sure it syncs with the new config.
+ 
 
 ## Host Submit Queue
 
