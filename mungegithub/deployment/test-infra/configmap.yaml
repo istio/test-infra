@@ -5,7 +5,7 @@ project: test-infra
 pr-mungers: lgtm-after-commit,submit-queue,needs-rebase,approval-handler
 state: open
 token-file: /etc/secret-volume/token
-period: 1m
+period: 30s
 repo-dir: /gitrepos
 github-key-file: /etc/hook-secret-volume/secret
 
@@ -29,3 +29,5 @@ gate-approved: true
 
 # Acceptable CLA label(s)
 cla-yes-labels: "cla: yes,cla: human-approved"
+
+blocking-labels: "do-not-merge/post-submit"

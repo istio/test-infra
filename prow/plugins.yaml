@@ -12,6 +12,8 @@ triggers:
   - istio/old_mixer_repo
   - istio/old_pilot_repo
   - istio/test-infra
+  - istio/mixerclient
+  - istio/proxy
   - istio-releases/daily-release
   trusted_org: istio
 
@@ -46,6 +48,24 @@ plugins:
   - hold
 
   istio/istio:
+  - assign
+  - trigger
+  - release-note
+  - close
+  - reopen
+  - lgtm
+  - hold
+
+  istio/mixerclient:
+  - assign
+  - trigger
+  - release-note
+  - close
+  - reopen
+  - lgtm
+  - hold
+
+  istio/proxy:
   - assign
   - trigger
   - release-note
