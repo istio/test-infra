@@ -264,7 +264,7 @@ func DailyReleaseQualification() error {
 		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "TIME", timestamp); err != nil {
 			return err
 		}
-		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "GCS_PATH",
+		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "ISTIOCTL_URL",
 			fmt.Sprintf("https://storage.googleapis.com/%s", *gcsPath)); err != nil {
 			return err
 		}
