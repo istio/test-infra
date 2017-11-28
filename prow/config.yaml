@@ -999,12 +999,12 @@ presubmits:
 
   istio-releases/daily-release:
 
-  - name: daily-release-qualification
+  - name: daily-e2e-rbac-no_auth
     agent: kubernetes
-    context: prow/daily-release-qualification.sh
+    context: prow/daily-e2e-rbac-no_auth.sh
     always_run: true
-    rerun_command: "/test daily-release-qualification"
-    trigger: "(?m)^/(retest|test (all|daily-release-qualification))?,?(\\s+|$)"
+    rerun_command: "/test daily-e2e-rbac-no_auth"
+    trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-no_auth))?,?(\\s+|$)"
     branches:
     - master
     spec:
@@ -1055,7 +1055,7 @@ presubmits:
     context: prow/daily-e2e-rbac-no_auth-default.sh
     always_run: true
     rerun_command: "/test daily-e2e-rbac-no_auth-default"
-    trigger: "(?m)^/(retest|test (all|daily-release-qualification))?,?(\\s+|$)"
+    trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-no_auth-default))?,?(\\s+|$)"
     branches:
     - master
     spec:
