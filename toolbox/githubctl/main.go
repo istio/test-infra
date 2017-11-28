@@ -36,7 +36,6 @@ var (
 	hub                                = flag.String("hub", "", "Hub of the docker images")
 	tag                                = flag.String("tag", "", "Tag of the release candidate")
 	releaseOrg                         = flag.String("rel_org", "istio-releases", "GitHub Release Org")
-	project                            = flag.String("project", "", "The GCP project id")
 	gcsPath                            = flag.String("gcs_path", "", "The path to the GCS bucket")
 	extraBranchesUpdateDownloadVersion = flag.String("update_rel_branches", "",
 		"Extra branches where you want to update downloadIstioCandidate.sh, separated by comma")
@@ -249,7 +248,6 @@ func CreateIstioReleaseUploadArtifacts() error {
 func DailyReleaseQualification() error {
 	u.AssertNotEmpty("hub", hub) // TODO (chx) default value of hub
 	u.AssertNotEmpty("tag", tag)
-	u.AssertNotEmpty("project", project)
 	u.AssertNotEmpty("gcs_path", gcsPath)
 	log.Printf("Creating PR to trigger release qualifications\n")
 	prTitle := "[DO NOT MANUAL MERGE] " + relQualificationPRTtilePrefix + *refSHA
@@ -266,10 +264,7 @@ func DailyReleaseQualification() error {
 		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "TIME", timestamp); err != nil {
 			return err
 		}
-		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "PROJECT", *project); err != nil {
-			return err
-		}
-		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "GCS_PATH",
+		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "ISTIOCTL_URL",
 			fmt.Sprintf("https://storage.googleapis.com/%s", *gcsPath)); err != nil {
 			return err
 		}

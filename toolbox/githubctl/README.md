@@ -27,5 +27,5 @@ githubctl --token_file=<github token file> \
 	--op=dailyRelQual \
 	--hub=<hub of remote docker image registry> \
 	--tag=<tag of the release candidate> \
-	--project=<GCP porject id where GCS bucket is under>
+	--gcsPath=<GCS path where istioctl is stored>
 ```
