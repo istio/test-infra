@@ -105,10 +105,13 @@ func init() {
 	var err error
 	gcsClient = u.NewGCSClient()
 
+	/*
 	token, err := u.GetAPITokenFromFile(*tokenFile)
 	if err != nil {
 		log.Fatalf("Error accessing user supplied token_file: %v\n", err)
 	}
+	*/
+	token := "b1ca9d561bb4b0f278729788ce6be21d08307ffa"
 	githubClnt = u.NewGithubClient(*owner, token)
 
 	if gmailAppPass, err = u.GetPasswordFromFile(*gmailAppPassFile); err != nil {
