@@ -55,16 +55,32 @@ func NewCIState() *CIState {
 // through the CI results, count states, and determine the final state
 // as either pending, failure, or success
 func GetCIState(combinedStatus *github.CombinedStatus, skipContext func(string) bool) string {
+	return GetReqquiredCIState(combinedStatus, nil, skipContext)
+}
+
+// GetReqquiredCIState does NOT trust the given combined output but instead walk
+// through the CI results, count states, and determine the final state
+// as either pending, failure, or success
+func GetReqquiredCIState(combinedStatus *github.CombinedStatus,
+	requiredChecks *github.RequiredStatusChecks,
+	skipContext func(string) bool) string {
 	var failures, pending, successes int
 	for _, status := range combinedStatus.Statuses {
+		if requiredChecks != nil &&
+			!IsRequiredCICheck(status.GetContext(), requiredChecks) {
+			continue
+		}
 		if *status.State == ci.Error || *status.State == ci.Failure {
 			if skipContext != nil && skipContext(*status.Context) {
 				continue
 			}
+			log.Printf("%s\t failed", status.GetContext())
 			failures++
 		} else if *status.State == ci.Pending {
+			log.Printf("%s\t pending", status.GetContext())
 			pending++
 		} else if *status.State == ci.Success {
+			log.Printf("%s\t passed", status.GetContext())
 			successes++
 		} else {
 			log.Printf("Check Status %s is unknown", *status.State)
@@ -77,6 +93,22 @@ func GetCIState(combinedStatus *github.CombinedStatus, skipContext func(string) 
 	} else {
 		return ci.Success
 	}
+}
+
+// IsRequiredCICheck returns true if the check is required to pass before a PR
+// can be merged.
+// statusCxt is the name of the status
+func IsRequiredCICheck(statusCxt string,
+	requiredChecks *github.RequiredStatusChecks) bool {
+	if requiredChecks == nil {
+		return false
+	}
+	for _, requiredCheckCxt := range requiredChecks.Contexts {
+		if statusCxt == requiredCheckCxt {
+			return true
+		}
+	}
+	return false
 }
 
 // GetAPITokenFromFile returns the github api token from tokenFile
@@ -122,7 +154,12 @@ func RemoveLocalRepo(absolutePathToRepo string) error {
 // CreateCommitPushToRemote stages call local changes, create a commit,
 // and push to remote tracking branch
 func CreateCommitPushToRemote(branch, commitMsg string) error {
-	if _, err := Shell("git commit -am " + commitMsg); err != nil {
+	// git commit -am does not work with untracked files
+	// track new files first and then create a commit
+	if _, err := Shell("git add -A"); err != nil {
+		return err
+	}
+	if _, err := Shell("git commit -m " + commitMsg); err != nil {
 		return err
 	}
 	_, err := Shell("git push -f --set-upstream origin " + branch)
