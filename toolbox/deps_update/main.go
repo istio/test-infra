@@ -82,12 +82,12 @@ func generateArtifactURL(repo, ref, suffix string) string {
 
 // Updates the list of dependencies in repo to the latest stable references
 func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency) error {
-	if repo != "istio" {
-		for _, dep := range *deps {
-			if err := u.UpdateKeyValueInFile(dep.File, dep.Name, dep.LastStableSHA); err != nil {
-				return err
-			}
+	for _, dep := range *deps {
+		if err := u.UpdateKeyValueInFile(dep.File, dep.Name, dep.LastStableSHA); err != nil {
+			return err
 		}
+	}
+	if repo != "istio" || len(*hub) == 0 {
 		return nil
 	}
 	args := ""
@@ -191,10 +191,6 @@ func init() {
 
 func main() {
 	if *repo != "" { // only update dependencies of this repo
-		if (*repo == "istio") == (*hub == "") {
-			log.Fatalf("The hub flag hub must be set for istio/istio and must not for other repos\n")
-			return
-		}
 		if err := updateDependenciesOf(*repo); err != nil {
 			log.Fatalf("Failed to udpate dependency: %v\n", err)
 		}
