@@ -1205,6 +1205,11 @@ presubmits:
           path: /mnt/disks/ssd0
   - name: daily-e2e-cluster_wide-auth
     agent: kubernetes
+    context: prow/daily-e2e-cluster_wide-auth.sh
+    always_run: true
+    trigger: "(?m)^/(retest|test (all|daily-e2e-cluster_wide-auth))?,?(\\s+|$)"
+    branches:
+    - master
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.3.2
@@ -1245,6 +1250,11 @@ presubmits:
           path: /mnt/disks/ssd0
   - name: daily-e2e-cluster_wide-auth-default
     agent: kubernetes
+    context: prow/daily-e2e-cluster_wide-auth-default.sh
+    always_run: true
+    trigger: "(?m)^/(retest|test (all|daily-e2e-cluster_wide-auth-default))?,?(\\s+|$)"
+    branches:
+    - master
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.3.2
