@@ -74,6 +74,11 @@ func main() {
 		log.Printf("Failed to open and/or create output file %s", *outputFile)
 		return
 	}
+	defer func() {
+		if err := f.Close(); err != nil {
+			log.Printf("Error during closing file %s: %s\n", *outputFile, err)
+		}
+	}()
 
 	repoList := strings.Split(*repos, ",")
 	for _, repo := range repoList {
@@ -95,12 +100,6 @@ func main() {
 			continue
 		}
 	}
-
-	defer func() {
-		if err := f.Close(); err != nil {
-			log.Printf("Error during closing file %s: %s\n", *outputFile, err)
-		}
-	}()
 }
 
 func fetchRelaseNoteFromRepo(repo string, issuesResult *github.IssuesSearchResult, f *os.File) error {
