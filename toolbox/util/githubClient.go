@@ -157,8 +157,30 @@ func (g GithubClient) AddAutoMergeLabelsToPR(repo string, pr *github.PullRequest
 // AddlabelsToPR adds labels to the pull request
 func (g GithubClient) AddlabelsToPR(
 	repo string, pr *github.PullRequest, labels ...string) error {
-	_, _, err := g.client.Issues.AddLabelsToIssue(
-		context.Background(), g.owner, repo, pr.GetNumber(), labels)
+
+	// skip existing labels
+	existingLabels, _, err := g.client.Issues.ListLabelsByIssue(context.Background(), g.owner, repo, *pr.Number, &github.ListOptions{})
+	if err != nil {
+		return err
+	}
+
+	labelsMap := make(map[string]bool)
+	for _, l := range labels {
+		labelsMap[l] = true
+	}
+	for _, el := range existingLabels {
+		if labelsMap[*el.Name] {
+			delete(labelsMap, *el.Name)
+		}
+	}
+
+	var addingLabels []string
+	for l := range labelsMap {
+		addingLabels = append(addingLabels, l)
+	}
+
+	_, _, err = g.client.Issues.AddLabelsToIssue(
+		context.Background(), g.owner, repo, pr.GetNumber(), addingLabels)
 	return err
 }
 

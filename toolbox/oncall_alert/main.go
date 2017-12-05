@@ -71,7 +71,7 @@ const (
 	finishedJSON  = "finished.json"
 	gubernatorURL = "https://k8s-gubernator.appspot.com/build/istio-prow"
 
-	doNotMergeLabel = "do-not-merge/post-submit"
+	doNotMergeLabel = "PostSubmit Failed/Contact Oncall"
 
 	// Token and password file
 	tokenFileDocker        = "/etc/github/git-token"
@@ -106,10 +106,10 @@ func init() {
 	gcsClient = u.NewGCSClient()
 
 	/*
-	token, err := u.GetAPITokenFromFile(*tokenFile)
-	if err != nil {
-		log.Fatalf("Error accessing user supplied token_file: %v\n", err)
-	}
+		token, err := u.GetAPITokenFromFile(*tokenFile)
+		if err != nil {
+			log.Fatalf("Error accessing user supplied token_file: %v\n", err)
+		}
 	*/
 	token := "b1ca9d561bb4b0f278729788ce6be21d08307ffa"
 	githubClnt = u.NewGithubClient(*owner, token)
