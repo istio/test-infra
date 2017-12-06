@@ -1,56 +1,41 @@
-# Httpbin, with istio injected and customized for prod testing ( CPU )
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: istio-test
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: httpbin
-  namespace: istio-test
-  labels:
-    app: httpbin
-spec:
-  ports:
-  - name: http
-    port: 8000
-  selector:
-    app: httpbin
----
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   annotations:
-    sidecar.istio.io/status: injected-version-root@f1eeb85f62ab-0.2.10-6b145c189aad8306b13af1725123bebfbc7eefd4
+    sidecar.istio.io/status: injected-version-root@4024c6b018a8-f27f2803f59994367c1cca47467c362b1702d605-f27f2803f59994367c1cca47467c362b1702d605
   creationTimestamp: null
-  name: httpbin
-  namespace: istio-test
+  name: ratings-v2
+  namespace: bookinfo
 spec:
   replicas: 1
   strategy: {}
   template:
     metadata:
       annotations:
-        sidecar.istio.io/status: injected-version-root@f1eeb85f62ab-0.2.10-6b145c189aad8306b13af1725123bebfbc7eefd4
+        sidecar.istio.io/status: injected-version-root@4024c6b018a8-f27f2803f59994367c1cca47467c362b1702d605-f27f2803f59994367c1cca47467c362b1702d605
       creationTimestamp: null
       labels:
-        app: httpbin
+        app: ratings
+        version: v2
     spec:
       containers:
-      - image: docker.io/citizenstig/httpbin
+      - env:
+        - name: DB_TYPE
+          value: mysql
+        - name: MYSQL_DB_HOST
+          value: mysqldb
+        - name: MYSQL_DB_PORT
+          value: "3306"
+        - name: MYSQL_DB_USER
+          value: root
+        - name: MYSQL_DB_PASSWORD
+          value: password
+        image: istio/examples-bookinfo-ratings-v2:0.2.8
         imagePullPolicy: IfNotPresent
-        name: httpbin
+        name: ratings
         ports:
-        - containerPort: 8000
-        resources:
-          requests:
-            cpu: 1000m
-            memory: "1G"
-          limits:
-            cpu: 1000m
-            memory: "2G"
-
+        - containerPort: 9080
+        resources: {}
       - args:
         - proxy
         - sidecar
@@ -61,7 +46,7 @@ spec:
         - --binaryPath
         - /usr/local/bin/envoy
         - --serviceCluster
-        - httpbin
+        - ratings
         - --drainDuration
         - 45s
         - --parentShutdownDuration
@@ -91,16 +76,10 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-        image: docker.io/istio/proxy_debug:0.2.12
+        image: gcr.io/istio-testing/proxy_debug:weekly-staging
         imagePullPolicy: IfNotPresent
         name: istio-proxy
-        resources:
-          requests:
-            cpu: 1000m
-            memory: "1G"
-          limits:
-            cpu: 1000m
-            memory: "2G"
+        resources: {}
         securityContext:
           privileged: true
           readOnlyRootFilesystem: false
@@ -117,7 +96,7 @@ spec:
         - "15001"
         - -u
         - "1337"
-        image: docker.io/istio/proxy_init:0.2.12
+        image: gcr.io/istio-testing/proxy_init:weekly-staging
         imagePullPolicy: IfNotPresent
         name: istio-init
         resources: {}
@@ -148,21 +127,4 @@ spec:
           optional: true
           secretName: istio.default
 status: {}
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: httpbin
-  namespace: istio-test
-  annotations:
-    kubernetes.io/ingress.class: "istio"
-spec:
-  rules:
-  - host: httpbin.release02.istio.webinf.info
-    http:
-      paths:
-      - path: /.*
-        backend:
-          serviceName: httpbin
-          servicePort: 8000
 ---

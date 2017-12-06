@@ -1,0 +1,23 @@
+#
+apiVersion: config.istio.io/v1alpha2
+kind: RouteRule
+metadata:
+  name: byon-default
+  namespace: bookinfo
+spec:
+  destination:
+    # My own name
+    service: ratings.istio.webinf.info
+  precedence: 2
+  route:
+  - destination:
+      service: v1_ratings.bookinfo.svc.cluster.local
+    weight: 50
+  - destination:
+      service: onprem_ratings.bookinfo.svc.cluster.local
+    weight: 50
+  # Service without labels
+  - destination:
+      service: ratings.bookinfo.svc.cluster.local
+    weight: 0
+---

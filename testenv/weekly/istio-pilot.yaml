@@ -14,8 +14,10 @@ metadata:
     istio: pilot
 spec:
   ports:
-  - port: 8080
+  - port: 15003
     name: http-discovery
+  - port: 8080
+    name: http-discovery-insecure
   - port: 443
     name: http-admission-webhook
   selector:
@@ -44,8 +46,8 @@ spec:
       serviceAccountName: istio-pilot-service-account
       containers:
       - name: discovery
-        image: docker.io/istio/pilot:0.2.12
-        imagePullPolicy: IfNotPresent
+        image: gcr.io/istio-testing/pilot:weekly-staging
+        imagePullPolicy: Always
         args: ["discovery", "-v", "2", "--admission-service", "istio-pilot-external"]
         ports:
         - containerPort: 8080
@@ -64,7 +66,31 @@ spec:
         volumeMounts:
         - name: config-volume
           mountPath: /etc/istio/config
+      - name: istio-proxy
+        image: gcr.io/istio-testing/proxy_debug:weekly-staging
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 15003
+        args:
+        - proxy
+        - pilot
+        - -v
+        - "2"
+        - --discoveryAddress
+        - istio-pilot:15003
+        - --controlPlaneAuthPolicy
+        - NONE #--controlPlaneAuthPolicy
+        - --customConfigFile
+        - /etc/istio/proxy/envoy_pilot.json
+        volumeMounts:
+        - name: istio-certs
+          mountPath: /etc/certs
+          readOnly: true
       volumes:
       - name: config-volume
         configMap:
           name: istio
+      - name: istio-certs
+        secret:
+          secretName: istio.istio-pilot-service-account
+          optional: true
