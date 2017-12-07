@@ -135,7 +135,8 @@ func init() {
 
 func main() {
 	for {
-		newFailures, failedCount := updatePostSubmitStatus()
+		//newFailures, failedCount := updatePostSubmitStatus()
+		newFailures, _ := updatePostSubmitStatus()
 		if len(newFailures) > 0 {
 			log.Printf("%d tests failed in last circle", len(newFailures))
 			sendMessage(formatMessage(newFailures))
@@ -143,12 +144,14 @@ func main() {
 			log.Printf("No new tests failed in last circle.")
 		}
 
+		/*
 		// If any test is in failed status, trying to block, else trying to unblock
 		if failedCount > 0 {
 			blockPRs()
 		} else {
 			unBlockPRs()
 		}
+		*/
 
 		log.Printf("Sleeping for %d minutes", *interval)
 		time.Sleep(time.Duration(*interval) * time.Minute)
