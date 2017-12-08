@@ -1207,6 +1207,7 @@ presubmits:
     agent: kubernetes
     context: prow/daily-e2e-cluster_wide-auth.sh
     always_run: true
+    rerun_command: "/test daily-e2e-cluster_wide-auth"
     trigger: "(?m)^/(retest|test (all|daily-e2e-cluster_wide-auth))?,?(\\s+|$)"
     branches:
     - master
@@ -1252,6 +1253,7 @@ presubmits:
     agent: kubernetes
     context: prow/daily-e2e-cluster_wide-auth-default.sh
     always_run: true
+    rerun_command: "/test daily-e2e-cluster_wide-auth-default"
     trigger: "(?m)^/(retest|test (all|daily-e2e-cluster_wide-auth-default))?,?(\\s+|$)"
     branches:
     - master
