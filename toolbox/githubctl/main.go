@@ -265,7 +265,7 @@ func DailyReleaseQualification() error {
 			return err
 		}
 		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "ISTIOCTL_URL",
-			fmt.Sprintf("https://storage.googleapis.com/%s", *gcsPath)); err != nil {
+			fmt.Sprintf("https://storage.googleapis.com/%s/istioctl", *gcsPath)); err != nil {
 			return err
 		}
 		return nil
