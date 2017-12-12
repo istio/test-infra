@@ -1,0 +1,18 @@
+apiVersion: config.istio.io/v1alpha2
+kind: RouteRule
+metadata:
+  name: byon-default
+  namespace: bookinfo
+spec:
+  destination:
+    name: byon_test
+    service: rev.istio.webinf.info
+  precedence: 2
+  route:
+  - destination:
+      service: v1_ratings.bookinfo.svc.cluster.local
+    weight: 50
+  - destination:
+      service: onprem_ratings.bookinfo.svc.cluster.local
+    weight: 50
+

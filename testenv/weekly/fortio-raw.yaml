@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: istio-test
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fortio-raw
+  namespace: istio-test
+spec:
+  ports:
+  - port: 8080
+    name: http-echo
+  - port: 8079
+    name: grpc-ping
+  selector:
+    app: fortio-raw
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: fortio-raw
+  namespace: istio-test
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: fortio-raw
+    spec:
+      containers:
+      - name: fortio-raw
+        image: docker.io/istio/fortio
+        imagePullPolicy: Always
+        ports:
+         - containerPort: 8080
+         - containerPort: 8079
+        args:
+          - server
+        resources:
+          requests:
+            cpu: 1000m
+            memory: "1G"
+          limits:
+            cpu: 1000m
+            memory: "1G"
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: istio
+  name: fortio-raw-ingress
+  namespace: istio-test
+spec:
+  rules:
+    - host: fortio-raw.weekly.istio.webinf.info
+      http:
+        paths:
+          - path: /.*
+            backend:
+              serviceName: fortio-raw
+              servicePort: http-echo

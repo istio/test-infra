@@ -44,7 +44,7 @@ metadata:
     keel.sh/pollSchedule: "@every 30m"
   labels:
     # Will auto-update on gcr.io pushes
-    keel.sh/policy: patch
+    keel.sh/policy: force
     keel.sh/trigger: poll
 spec:
   replicas: 2
@@ -68,8 +68,8 @@ spec:
         - name: config-volume
           mountPath: /etc/statsd
       - name: mixer
-        image: docker.io/istio/mixer:0.2.12
-        imagePullPolicy: IfNotPresent
+        image: gcr.io/istio-testing/mixer:weekly-staging
+        imagePullPolicy: Always
         ports:
         - containerPort: 9091
         - containerPort: 9094
@@ -81,7 +81,7 @@ spec:
           - --traceOutput=http://zipkin:9411/api/v1/spans
           - --logtostderr
           - -v
-          - "2"
+          - "0"
         resources:
           requests:
             cpu: 2000m

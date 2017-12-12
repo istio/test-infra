@@ -91,7 +91,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-        image: docker.io/istio/proxy_debug:0.2.12
+        image: gcr.io/istio-testing/proxy_debug:weekly-staging
         imagePullPolicy: IfNotPresent
         name: istio-proxy
         resources:
@@ -117,7 +117,7 @@ spec:
         - "15001"
         - -u
         - "1337"
-        image: docker.io/istio/proxy_init:0.2.12
+        image: gcr.io/istio-testing/proxy_init:weekly-staging
         imagePullPolicy: IfNotPresent
         name: istio-init
         resources: {}
@@ -158,7 +158,7 @@ metadata:
     kubernetes.io/ingress.class: "istio"
 spec:
   rules:
-  - host: httpbin.release02.istio.webinf.info
+  - host: httpbin.weekly.istio.webinf.info
     http:
       paths:
       - path: /.*

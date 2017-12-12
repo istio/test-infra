@@ -1,4 +1,3 @@
-# Httpbin, with istio injected and customized for prod testing ( CPU )
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -7,24 +6,24 @@ metadata:
 apiVersion: v1
 kind: Service
 metadata:
-  name: httpbin
+  name: fortio
   namespace: istio-test
-  labels:
-    app: httpbin
 spec:
   ports:
-  - name: http
-    port: 8000
+  - port: 8080
+    name: http-echo
+  - port: 8079
+    name: grpc-ping
   selector:
-    app: httpbin
+    app: fortio
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   annotations:
-    sidecar.istio.io/status: injected-version-root@f1eeb85f62ab-0.2.10-6b145c189aad8306b13af1725123bebfbc7eefd4
+    sidecar.istio.io/status: injected-version-root@4024c6b018a8-f27f2803f59994367c1cca47467c362b1702d605-f27f2803f59994367c1cca47467c362b1702d605
   creationTimestamp: null
-  name: httpbin
+  name: fortio
   namespace: istio-test
 spec:
   replicas: 1
@@ -32,25 +31,27 @@ spec:
   template:
     metadata:
       annotations:
-        sidecar.istio.io/status: injected-version-root@f1eeb85f62ab-0.2.10-6b145c189aad8306b13af1725123bebfbc7eefd4
+        sidecar.istio.io/status: injected-version-root@4024c6b018a8-f27f2803f59994367c1cca47467c362b1702d605-f27f2803f59994367c1cca47467c362b1702d605
       creationTimestamp: null
       labels:
-        app: httpbin
+        app: fortio
     spec:
       containers:
-      - image: docker.io/citizenstig/httpbin
-        imagePullPolicy: IfNotPresent
-        name: httpbin
+      - args:
+        - server
+        image: docker.io/istio/fortio
+        imagePullPolicy: Always
+        name: fortio
         ports:
-        - containerPort: 8000
+        - containerPort: 8080
+        - containerPort: 8079
         resources:
           requests:
             cpu: 1000m
             memory: "1G"
           limits:
             cpu: 1000m
-            memory: "2G"
-
+            memory: "1G"
       - args:
         - proxy
         - sidecar
@@ -61,7 +62,7 @@ spec:
         - --binaryPath
         - /usr/local/bin/envoy
         - --serviceCluster
-        - httpbin
+        - fortio
         - --drainDuration
         - 45s
         - --parentShutdownDuration
@@ -91,7 +92,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-        image: docker.io/istio/proxy_debug:0.2.12
+        image: gcr.io/istio-testing/proxy_debug:weekly-staging
         imagePullPolicy: IfNotPresent
         name: istio-proxy
         resources:
@@ -100,7 +101,7 @@ spec:
             memory: "1G"
           limits:
             cpu: 1000m
-            memory: "2G"
+            memory: "1G"
         securityContext:
           privileged: true
           readOnlyRootFilesystem: false
@@ -117,7 +118,7 @@ spec:
         - "15001"
         - -u
         - "1337"
-        image: docker.io/istio/proxy_init:0.2.12
+        image: gcr.io/istio-testing/proxy_init:weekly-staging
         imagePullPolicy: IfNotPresent
         name: istio-init
         resources: {}
@@ -152,17 +153,17 @@ status: {}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: httpbin
-  namespace: istio-test
   annotations:
-    kubernetes.io/ingress.class: "istio"
+    kubernetes.io/ingress.class: istio
+  name: fortio-ingress
+  namespace: istio-test
 spec:
   rules:
-  - host: httpbin.release02.istio.webinf.info
-    http:
-      paths:
-      - path: /.*
-        backend:
-          serviceName: httpbin
-          servicePort: 8000
+    - host: fortio.weekly.istio.webinf.info
+      http:
+        paths:
+          - path: /.*
+            backend:
+              serviceName: fortio
+              servicePort: http-echo
 ---
