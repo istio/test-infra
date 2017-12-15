@@ -24,21 +24,27 @@ Powered by prow plugins and mungegithub, people can add labels to PRs by comment
 ### Labels
 Mungegithub waits for 4 labels:
 
-* **CLA** "cla-yes" label or "cla-no" label is set automatically. There is a hacker way "cla human-approved" to bypass cla check if it's necessary.
-* **LGTM** "lgtm" is the first level approve, it means "look good to me, but someone else may need to take a look and make final decision". "lgtm" is more like "review: approve" in github-way. Everyone assigned to this PR can say valid "/lgtm", people in GitHub organization can also do it. With prow deployed, people should add "lgtm" label by comment "/lgtm". 
+#### **CLA** 
+"cla-yes" label or "cla-no" label is set automatically. There is a hacker way "cla human-approved" to bypass cla check if it's necessary.
+
+#### **LGTM** 
+"lgtm" is the first level approve, it means "look good to me, but someone else may need to take a look and make final decision". "lgtm" is more like "review: approve" in github-way. Everyone assigned to this PR can say valid "/lgtm", people in GitHub organization can also do it. With prow deployed, people should add "lgtm" label by comment "/lgtm". 
 
   >  Note: Any code changes after "/lgtm" will automatically remove "lgtm" label
   
-* **Approve** "approved" is the second level approve, it's like "merge" button in GitHub-way. 
+#### **Approve** 
+"approved" is the second level approve, it's like "merge" button in GitHub-way. 
 As the repo admin or the directory owner, one may approve and merge this PR into master by simply commenting "/approve", after which Mungegithub will add an "approved" label on the PR. Permitted all other merging requirements are satisfied, this PR is put on the submit-queue.
 
   >  Note: Do not comment "/approve" or add "approved" label unless you are 100% sure you want this change, because after you say that, the PR will be merge any minutes.
     
-* **Release-note** Release note enforcement is another feature we are seeking from Mungegithub. With template, when PRs are created, people should add release note (can be the word "none") in the PR description. Depended on the release message left, Mungegithub will add label "release-note-none"(if you write string `none`) or "release-note-action-required"(if you write string `action required`) or "release-note"(Any other message). If you leave it empty, **"do-not-merge/release-note-label-needed"** will be added and will block merging. At release point, a tool will gather release-note messages from PRs with "release-note" label.
+#### **Release-note** 
+Release note enforcement is another feature we are seeking from Mungegithub. With template, when PRs are created, people should add release note (can be the word "none") in the PR description. Depended on the release message left, Mungegithub will add label "release-note-none"(if you write string `none`) or "release-note-action-required"(if you write string `action required`) or "release-note"(Any other message). If you leave it empty, **"do-not-merge/release-note-label-needed"** will be added and will block merging. At release point, a tool will gather release-note messages from PRs with "release-note" label.
 
   > __New change after [PR#531](https://github.com/istio/test-infra/pull/531):__ _Mungegithub is no longer handling "release-note" labels, instead, Prow takes care of that. And good news is after you added "release-note" in PR description, Prow will automatically remove "do-not-merge/release-note-label-needed" and will unblock merge processes._
 
-* **do-not-merge** Merge process will be blocked in any stage due to the existence of any kinds of "do-not-merge" labels.
+#### **do-not-merge** 
+Merge process will be blocked in any stage due to the existence of any kinds of "do-not-merge" labels.
 
   * _"do-not-merge"_: normal label to stop merge, can be added for general reason by people with write access.
   * _"do-not-merge/hold"_: It's a easy way for everyone to hold merge, if you simply comment **"/hold"** or **"/hold cancel"**, robot will add or remove "do-not-merge/hold" and it will block/unblock merge process.
