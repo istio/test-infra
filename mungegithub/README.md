@@ -65,13 +65,13 @@ OWNERS file is the way to organize code owners and write priviliage. There are t
 #### 2. Four kinds of Labels "cla: yes", "lgtm", "approve", "release-note"/"release-note-none"
 ![ci-status](https://github.com/istio/test-infra/blob/master/mungegithub/images/ci-status.png)
 
-* **cla** 
+##### **cla** 
 
   - Google-bot will add cla label, if you get a "cla: no" label, follow the instruction offered by googlebot to signup cla. 
 
 ![cla-label](https://github.com/istio/test-infra/blob/master/mungegithub/images/cla-label.png)
 
-* **lgtm** 
+##### **lgtm** 
 
   - Anyone in the organization can say `/lgtm` to add "lgtm" label.  
   - No one can say `/lgtm` to his/her own PR.  
@@ -80,7 +80,7 @@ OWNERS file is the way to organize code owners and write priviliage. There are t
 
 ![lgtm](https://github.com/istio/test-infra/blob/master/mungegithub/images/lgtm.png)
 
-* **approved**
+##### **approved**
 
   - When a person's name is in all OWNERS file(s) which is/are able to cover all changed files, he/she is a valid approver.
 A valid approver is able to say `/approve` and mungegithub will add "approved" label.  
@@ -90,7 +90,7 @@ A valid approver is able to say `/approve` and mungegithub will add "approved" l
 
 ![approve](https://github.com/istio/test-infra/blob/master/mungegithub/images/approve.png)
 
-* **release-note**
+##### **release-note**
   - Use [PR template](https://github.com/istio/istio/blob/master/.github/PULL_REQUEST_TEMPLATE.md) to add release-note, make sure to add "none" if release-note isn't necessary for this PR.
   
   ![release-note template](https://github.com/istio/test-infra/blob/master/mungegithub/images/release-note-template.png)
@@ -105,7 +105,7 @@ A valid approver is able to say `/approve` and mungegithub will add "approved" l
   - Additional if you put **"action required"**, robot will add "release-note-action-required". This is a **valid merge label**. But we need to make sure we come back and add actual release-note for PRs have this label later on (before next release).
   ![release-note-action-required](https://github.com/istio/test-infra/blob/master/mungegithub/images/release-note-action-required.png)
   
-* **do-not-merge**
+##### **do-not-merge**
   - If you want to block merge, comment "/hold", and when you think it's ready, comment "/hold cancel"
   ![do-not-merge:hold](https://github.com/istio/test-infra/blob/master/mungegithub/images/do-not-merge:hold.png)
   
