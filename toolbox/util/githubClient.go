@@ -351,7 +351,7 @@ func (g GithubClient) GetCommitCreationTimeByTag(repo, tag string) (time.Time, e
 func (g GithubClient) GetReleaseTagCreationTime(repo, tag string) (time.Time, error) {
 	release, _, err := g.client.Repositories.GetReleaseByTag(context.Background(), g.owner, repo, tag)
 	if err != nil {
-		return time.Time{}, fmt.Errorf("failed to to get release tag: %s", err)
+		return time.Time{}, fmt.Errorf("failed to get release tag: %s", err)
 	}
 	return release.GetCreatedAt().Time, nil
 }
