@@ -33,6 +33,8 @@ if [ "${CI:-}" == 'bootstrap' ]; then
     cd ${GOPATH}/src/istio.io/test-infra/
 fi
 
+go version
+
 echo "=== Building ==="
 bazel build //...
 
