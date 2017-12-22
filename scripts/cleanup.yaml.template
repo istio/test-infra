@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cache-cleanup-{UUID}
+spec:
+  template:
+    metadata:
+      name: cache-cleanup-{UUID}
+    spec:
+      containers:
+      - name: cache-cleanup
+        image: ubuntu:xenial
+        command: ["bash", "-c", "rm -rf /root/.cache/*"]
+        volumeMounts:
+        - name: cache-ssd
+          mountPath: /root/.cache
+      restartPolicy: Never
+      nodeSelector:
+        kubernetes.io/hostname: {CLUSTER_NODE}
+      volumes:
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0
