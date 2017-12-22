@@ -9,7 +9,7 @@ Use `make image` to build the docker image. Run `make push` to send it to the is
 
 ### Running Image Locally
 
-Use `./run.sh` to start the docker image locally.
+Use `make run` to start the docker image locally.
 
 ### Dependency on `bootstrap.py`
 
