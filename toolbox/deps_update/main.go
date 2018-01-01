@@ -141,18 +141,22 @@ func updateDependenciesOf(repo string) error {
 		return nil
 	}
 	branch := "autoUpdateDeps_" + fingerPrint
+
+	// First try to cleanup old PRs
+	if err = githubClnt.CloseIdlePullRequests(
+		prTitlePrefix, repo, *baseBranch); err != nil {
+		log.Printf("error while closing idle PRs: %v\n", err)
+	}
+	// If the same branch still exists (which means it's not old enough), leave it there and don't do anything in this cycle
 	exists, err := githubClnt.ExistBranch(repo, branch)
 	if err != nil {
 		return err
 	}
 	if exists {
-		log.Printf("Branch already exists")
+		log.Printf("Branch %s exists", branch)
+		return nil
 	}
-	// if branch exists, stop here and do not create another PR of identical delta
-	if err = githubClnt.CloseIdlePullRequests(
-		prTitlePrefix, repo, *baseBranch); exists || err != nil {
-		log.Printf("error while closing idle PRs: %v\n", err)
-	}
+
 	if _, err = u.Shell("git checkout -b " + branch); err != nil {
 		return err
 	}

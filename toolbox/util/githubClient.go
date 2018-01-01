@@ -266,7 +266,7 @@ func (g GithubClient) GetPRTestResults(repo string, pr *github.PullRequest, verb
 // remote branches from which the PRs are made
 func (g GithubClient) CloseIdlePullRequests(prTitlePrefix, repo, baseBranch string) error {
 	log.Printf("If any, close failed auto PRs to update dependencies in repo %s", repo)
-	idleTimeout := time.Hour * 6
+	idleTimeout := time.Hour * 3
 	var multiErr error
 	checkPR := func(prState string) {
 		options := github.PullRequestListOptions{

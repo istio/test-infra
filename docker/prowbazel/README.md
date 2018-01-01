@@ -9,7 +9,7 @@ Use `make image` to build the docker image. Run `make push` to send it to the is
 
 ### Running Image Locally
 
-Use `./run.sh` to start the docker image locally.
+Use `make run` to start the docker image locally.
 
 ### Dependency on `bootstrap.py`
 
@@ -24,3 +24,6 @@ Long term, if we use `bootstrap.py`, it would be prudent to push these changes u
 
 Our dependency on this script is because it appropariately writes test job results to a GCS bucket in such a way that gubernator (a basic UI k8s test-infra run to view job results) understands. The specification of this structure is inherent in bootstrap.py and the gubernator front-end.
 
+### Upgrade log
+
+* 0.3.3: golang 1.8 -> 1.9
