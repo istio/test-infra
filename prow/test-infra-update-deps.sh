@@ -37,8 +37,7 @@ TOKEN_PATH="/etc/github/oauth"
 # excluding istio/istio
 case ${GIT_BRANCH} in
   master)
-    #repos=( istio mixerclient proxy ) TODO put this back and enable istio
-    repos=( mixerclient )
+    repos=( istio mixerclient proxy )
     ;;
   release-0.2)
     repos=( old_mixer_repo mixerclient old_pilot_repo proxy )
