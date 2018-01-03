@@ -37,7 +37,13 @@ TOKEN_PATH="/etc/github/oauth"
 # excluding istio/istio
 case ${GIT_BRANCH} in
   master)
-    repos=( istio mixerclient proxy )
+    hour=`date "+%H"`
+    even_hour=`expr $hour % 2`
+    if [ $even_hour -eq 0 ]; then
+      repos=( istio mixerclient proxy )
+    else
+      repos=( mixerclient proxy )
+    fi
     ;;
   release-0.2)
     repos=( old_mixer_repo mixerclient old_pilot_repo proxy )
