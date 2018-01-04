@@ -162,13 +162,13 @@ func GetMD5Hash(text string) string {
 }
 
 // Shell runs command on shell and get back output and error if get one,
-// it takes a set of enviroment vaiables that are appended to existing environment
+// it takes a set of environment vaiables that are appended to existing environment
 func Shell(env []string, format string, args ...interface{}) (string, error) {
 	return sh(env, format, false, args...)
 }
 
 // ShellSilent runs command on shell without logging the exact command
-// it takes a set of enviroment vaiables that are appended to existing environment
+// it takes a set of environment vaiables that are appended to existing environment
 // useful when command involves secrets
 func ShellSilent(env []string, format string, args ...interface{}) (string, error) {
 	return sh(env, format, true, args...)
