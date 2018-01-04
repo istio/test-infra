@@ -155,7 +155,7 @@ func updateDependenciesOf(repo string) error {
 		return nil
 	}
 
-	if _, err = u.Shell(nil, "git checkout -b " + branch); err != nil {
+	if _, err = u.Shell(nil, "git checkout -b "+branch); err != nil {
 		return err
 	}
 	if err = updateDeps(repo, &deps, &depChangeList); err != nil {
@@ -166,7 +166,7 @@ func updateDependenciesOf(repo string) error {
 	}
 	if repo == istioRepo {
 		goPath := path.Join(repoDir, "../../..")
-		env := []string{"GOPATH="+goPath}
+		env := []string{"GOPATH=" + goPath}
 		if _, err = u.Shell(env, "make depend"); err != nil {
 			return err
 		}
@@ -175,7 +175,7 @@ func updateDependenciesOf(repo string) error {
 		// it exited without error, nothing to commit
 		log.Printf("%s is up to date. No commits are made.", repo)
 		return nil
-        }
+	}
 	// git is dirty so commit
 	if err = u.CreateCommitPushToRemote(branch, "Update_Dependencies"); err != nil {
 		return err

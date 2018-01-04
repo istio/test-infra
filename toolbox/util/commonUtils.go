@@ -89,9 +89,9 @@ func ContainsString(slice []string, target string) bool {
 
 // updateKeyValueInTomlLines updates all occurrences of key to a new value
 func updateKeyValueInTomlLines(lines []string, key, value string) ([]string, bool) {
-// toml dependecies are of the form
-//  name = "istio.io/api"
-//  revision = "b08011c721e03edd61c721e4943607c97b7a9879"
+	// toml dependecies are of the form
+	//  name = "istio.io/api"
+	//  revision = "b08011c721e03edd61c721e4943607c97b7a9879"
 
 	found := false
 	keySearch := fmt.Sprintf("name = %q", key)

@@ -126,9 +126,9 @@ func GetAPITokenFromFile(tokenFile string) (string, error) {
 // change directory into the repo, and checkout the given branch.
 // Returns the absolute path to repo root
 func CloneRepoCheckoutBranch(gclient *GithubClient, repo, baseBranch, newBranch, pathPrefix string) (string, error) {
-        if err := os.MkdirAll(pathPrefix, os.FileMode(0755)); err != nil {
-                return "", err
-        }
+	if err := os.MkdirAll(pathPrefix, os.FileMode(0755)); err != nil {
+		return "", err
+	}
 	repoPath := path.Join(pathPrefix, repo)
 	if err := os.RemoveAll(repoPath); err != nil {
 		return "", err
@@ -138,17 +138,17 @@ func CloneRepoCheckoutBranch(gclient *GithubClient, repo, baseBranch, newBranch,
 	}
 	var additionalEnv []string //no additional environment variables
 	if _, err := ShellSilent(additionalEnv,
-		"git clone " + gclient.Remote(repo)); err != nil {
+		"git clone "+gclient.Remote(repo)); err != nil {
 		return "", err
 	}
 	if err := os.Chdir(repo); err != nil {
 		return "", err
 	}
-	if _, err := Shell(additionalEnv, "git checkout " + baseBranch); err != nil {
+	if _, err := Shell(additionalEnv, "git checkout "+baseBranch); err != nil {
 		return "", err
 	}
 	if newBranch != "" {
-		if _, err := Shell(additionalEnv, "git checkout -b " + newBranch); err != nil {
+		if _, err := Shell(additionalEnv, "git checkout -b "+newBranch); err != nil {
 			return "", err
 		}
 	}
@@ -168,9 +168,9 @@ func CreateCommitPushToRemote(branch, commitMsg string) error {
 	if _, err := Shell(nil, "git add -A"); err != nil {
 		return err
 	}
-	if _, err := Shell(nil, "git commit -m " + commitMsg); err != nil {
+	if _, err := Shell(nil, "git commit -m "+commitMsg); err != nil {
 		return err
 	}
-	_, err := Shell(nil, "git push -f --set-upstream origin " + branch)
+	_, err := Shell(nil, "git push -f --set-upstream origin "+branch)
 	return err
 }
