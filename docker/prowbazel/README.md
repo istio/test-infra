@@ -27,3 +27,4 @@ Our dependency on this script is because it appropariately writes test job resul
 ### Upgrade log
 
 * 0.3.3: golang 1.8 -> 1.9
+* 0.3.4: add protoc 3.5.0
