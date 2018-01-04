@@ -136,19 +136,18 @@ func CloneRepoCheckoutBranch(gclient *GithubClient, repo, baseBranch, newBranch,
 	if err := os.Chdir(pathPrefix); err != nil {
 		return "", err
 	}
-	var additionalEnv []string //no additional environment variables
-	if _, err := ShellSilent(additionalEnv,
+	if _, err := ShellSilent(nil,
 		"git clone "+gclient.Remote(repo)); err != nil {
 		return "", err
 	}
 	if err := os.Chdir(repo); err != nil {
 		return "", err
 	}
-	if _, err := Shell(additionalEnv, "git checkout "+baseBranch); err != nil {
+	if _, err := Shell(nil, "git checkout "+baseBranch); err != nil {
 		return "", err
 	}
 	if newBranch != "" {
-		if _, err := Shell(additionalEnv, "git checkout -b "+newBranch); err != nil {
+		if _, err := Shell(nil, "git checkout -b "+newBranch); err != nil {
 			return "", err
 		}
 	}
