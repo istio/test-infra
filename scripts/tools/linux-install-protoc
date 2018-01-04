@@ -18,6 +18,9 @@ PROTOC_DIRECTORY="${TOOLS_DIR}/protoc"
 function update_protoc() {
   local protoc_current="$(protoc --version | grep -oh '[0-9]*\.[0-9]*\.[0-9]*')" \
     || protoc_current='none'
+  if [[ "${PROTOC_VERSION}" == "${protoc_current}" ]]; then
+	return
+  fi
 
   if [[ -d "${PROTOC_DIRECTORY}" ]]; then
     mkdir -p "${PROTOC_DIRECTORY}"
