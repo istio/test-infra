@@ -100,8 +100,12 @@ func updateKeyValueInTomlLines(lines []string, key, value string) ([]string, boo
 			continue
 		}
 		if strings.Contains(line, keySearch) {
-			lines[i+1] = fmt.Sprintf("  revision = %q", value)
-			found = true
+			if strings.Contains(lines[i+1], "revision =") {
+				lines[i+1] = fmt.Sprintf("  revision = %q", value)
+				found = true
+			} else {
+				log.Fatalf("revision not found as expected for key %s", key)
+			}
 		}
 	}
 	return lines, found
