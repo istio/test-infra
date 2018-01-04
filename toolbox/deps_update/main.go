@@ -18,6 +18,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"path"
 
 	u "istio.io/test-infra/toolbox/util"
@@ -121,11 +122,18 @@ func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency
 // which is auto-merged after presumbit
 func updateDependenciesOf(repo string) error {
 	log.Printf("Updating dependencies of %s\n", repo)
+	saveDir, err := os.Getwd()
+	if err != nil {
+		return err
+	}
 	repoDir, err := u.CloneRepoCheckoutBranch(githubClnt, repo, *baseBranch, "", "src/istio.io")
 	if err != nil {
 		return err
 	}
 	defer func() {
+		if err = os.Chdir(saveDir); err != nil {
+			log.Fatalf("Error during chdir: %v\n", err)
+		}
 		if err = u.RemoveLocalRepo("src"); err != nil {
 			log.Fatalf("Error during clean up: %v\n", err)
 		}
