@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"os/exec"
 	"strings"
 	"text/template"
@@ -86,9 +87,29 @@ func ContainsString(slice []string, target string) bool {
 	return false
 }
 
-// UpdateKeyValueInFile updates in the file all occurrences of key to
+// updateKeyValueInTomlLines updates all occurrences of key to a new value
+func updateKeyValueInTomlLines(lines []string, key, value string) ([]string, bool) {
+// toml dependecies are of the form
+//  name = "istio.io/api"
+//  revision = "b08011c721e03edd61c721e4943607c97b7a9879"
+
+	found := false
+	keySearch := fmt.Sprintf("name = %q", key)
+	for i, line := range lines {
+		if strings.HasPrefix(line, "#") || strings.HasPrefix(line, "//") {
+			continue
+		}
+		if strings.Contains(line, keySearch) {
+			lines[i+1] = fmt.Sprintf("  revision = %q", value)
+			found = true
+		}
+	}
+	return lines, found
+}
+
+// updateKeyValueInLines updates all occurrences of key to
 // a new value, except comments started with # or //
-func UpdateKeyValueInFile(file, key, value string) error {
+func updateKeyValueInLines(lines []string, key, value string) ([]string, bool) {
 	replaceValue := func(line *string, splitter string) {
 		idx := strings.Index(*line, splitter) + len(splitter)
 		if (*line)[idx] == '"' {
@@ -98,11 +119,6 @@ func UpdateKeyValueInFile(file, key, value string) error {
 		}
 	}
 
-	input, err := ReadFile(file)
-	if err != nil {
-		return err
-	}
-	lines := strings.Split(input, "\n")
 	found := false
 	for i, line := range lines {
 		if strings.HasPrefix(line, "#") || strings.HasPrefix(line, "//") {
@@ -116,8 +132,24 @@ func UpdateKeyValueInFile(file, key, value string) error {
 			}
 		}
 	}
-	if !found {
-		return fmt.Errorf("no occurrence of %s found in %s", key, file)
+	return lines, found
+}
+
+// UpdateKeyValueInFile updates in the file all occurrences of key to
+// a new value, except comments started with # or //
+func UpdateKeyValueInFile(file, key, value string) error {
+	input, err := ReadFile(file)
+	if err != nil {
+		return err
+	}
+	var found, foundToml bool
+	lines := strings.Split(input, "\n")
+	lines, found = updateKeyValueInLines(lines, key, value)
+	if file == "Gopkg.toml" {
+		lines, foundToml = updateKeyValueInTomlLines(lines, key, value)
+	}
+	if !found && !foundToml {
+		return fmt.Errorf("no occurrence of %s found in file %s", key, file)
 	}
 	output := strings.Join(lines, "\n")
 	return WriteTextFile(file, output)
@@ -129,25 +161,28 @@ func GetMD5Hash(text string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-// Shell runs command on shell and get back output and error if get one
-func Shell(format string, args ...interface{}) (string, error) {
-	return sh(format, false, args...)
+// Shell runs command on shell and get back output and error if get one,
+// it takes a set of enviroment vaiables that are appended to existing environment
+func Shell(env []string, format string, args ...interface{}) (string, error) {
+	return sh(env, format, false, args...)
 }
 
 // ShellSilent runs command on shell without logging the exact command
+// it takes a set of enviroment vaiables that are appended to existing environment
 // useful when command involves secrets
-func ShellSilent(format string, args ...interface{}) (string, error) {
-	return sh(format, true, args...)
+func ShellSilent(env []string, format string, args ...interface{}) (string, error) {
+	return sh(env, format, true, args...)
 }
 
 // Runs command on shell and get back output and error if get one
-func sh(format string, muted bool, args ...interface{}) (string, error) {
+func sh(env []string, format string, muted bool, args ...interface{}) (string, error) {
 	command := fmt.Sprintf(format, args...)
 	parts := strings.Split(command, " ")
 	if !muted {
 		log.Printf("Running command %s", command)
 	}
 	c := exec.Command(parts[0], parts[1:]...) // #nosec
+	c.Env = append(os.Environ(), env...)
 	bytes, err := c.CombinedOutput()
 	log.Printf("Command output: \n%s", string(bytes[:]))
 	if err != nil {

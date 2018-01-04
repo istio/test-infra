@@ -522,7 +522,7 @@ func (g GithubClient) CreatePRUpdateRepo(
 		return nil, fmt.Errorf("failed to get current working dir: %s", err)
 	}
 	log.Printf("Cloning %s to local and checkout %s\n", repo, baseBranch)
-	repoDir, err := CloneRepoCheckoutBranch(&g, repo, baseBranch, newBranch)
+	repoDir, err := CloneRepoCheckoutBranch(&g, repo, baseBranch, newBranch, "")
 	if err != nil {
 		return nil, err
 	}

@@ -18,6 +18,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"regexp"
 	"strings"
 
@@ -124,22 +125,30 @@ func GetAPITokenFromFile(tokenFile string) (string, error) {
 // CloneRepoCheckoutBranch removes previous repo, clone to local machine,
 // change directory into the repo, and checkout the given branch.
 // Returns the absolute path to repo root
-func CloneRepoCheckoutBranch(gclient *GithubClient, repo, baseBranch, newBranch string) (string, error) {
-	if err := os.RemoveAll(repo); err != nil {
+func CloneRepoCheckoutBranch(gclient *GithubClient, repo, baseBranch, newBranch, pathPrefix string) (string, error) {
+        if err := os.MkdirAll(pathPrefix, os.FileMode(0755)); err != nil {
+                return "", err
+        }
+	repoPath := path.Join(pathPrefix, repo)
+	if err := os.RemoveAll(repoPath); err != nil {
 		return "", err
 	}
-	if _, err := ShellSilent(
+	if err := os.Chdir(pathPrefix); err != nil {
+		return "", err
+	}
+	var additionalEnv []string //no additional environment variables
+	if _, err := ShellSilent(additionalEnv,
 		"git clone " + gclient.Remote(repo)); err != nil {
 		return "", err
 	}
 	if err := os.Chdir(repo); err != nil {
 		return "", err
 	}
-	if _, err := Shell("git checkout " + baseBranch); err != nil {
+	if _, err := Shell(additionalEnv, "git checkout " + baseBranch); err != nil {
 		return "", err
 	}
 	if newBranch != "" {
-		if _, err := Shell("git checkout -b " + newBranch); err != nil {
+		if _, err := Shell(additionalEnv, "git checkout -b " + newBranch); err != nil {
 			return "", err
 		}
 	}
@@ -156,12 +165,12 @@ func RemoveLocalRepo(absolutePathToRepo string) error {
 func CreateCommitPushToRemote(branch, commitMsg string) error {
 	// git commit -am does not work with untracked files
 	// track new files first and then create a commit
-	if _, err := Shell("git add -A"); err != nil {
+	if _, err := Shell(nil, "git add -A"); err != nil {
 		return err
 	}
-	if _, err := Shell("git commit -m " + commitMsg); err != nil {
+	if _, err := Shell(nil, "git commit -m " + commitMsg); err != nil {
 		return err
 	}
-	_, err := Shell("git push -f --set-upstream origin " + branch)
+	_, err := Shell(nil, "git push -f --set-upstream origin " + branch)
 	return err
 }

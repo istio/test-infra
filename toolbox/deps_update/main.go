@@ -18,6 +18,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"path"
 
 	u "istio.io/test-infra/toolbox/util"
 )
@@ -43,6 +44,7 @@ const (
 	debianSuffix      = "debs"
 
 	// Repos
+	istioRepo = "istio"
 	pilotRepo = "pilot"
 	authRepo  = "auth"
 	mixerRepo = "mixer"
@@ -87,7 +89,7 @@ func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency
 			return err
 		}
 	}
-	if repo != "istio" || len(*hub) == 0 {
+	if repo != istioRepo || len(*hub) == 0 {
 		return nil
 	}
 	args := ""
@@ -110,7 +112,7 @@ func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency
 		}
 	}
 	cmd := fmt.Sprintf("./install/updateVersion.sh %s", args)
-	_, err := u.Shell(cmd)
+	_, err := u.Shell(nil, cmd)
 	return err
 }
 
@@ -119,12 +121,12 @@ func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency
 // which is auto-merged after presumbit
 func updateDependenciesOf(repo string) error {
 	log.Printf("Updating dependencies of %s\n", repo)
-	repoDir, err := u.CloneRepoCheckoutBranch(githubClnt, repo, *baseBranch, "")
+	repoDir, err := u.CloneRepoCheckoutBranch(githubClnt, repo, *baseBranch, "", "src/istio.io")
 	if err != nil {
 		return err
 	}
 	defer func() {
-		if err = u.RemoveLocalRepo(repoDir); err != nil {
+		if err = u.RemoveLocalRepo("src"); err != nil {
 			log.Fatalf("Error during clean up: %v\n", err)
 		}
 	}()
@@ -135,10 +137,6 @@ func updateDependenciesOf(repo string) error {
 	fingerPrint, depChangeList, err := updateDepSHAGetFingerPrint(repo, &deps)
 	if err != nil {
 		return err
-	}
-	if len(depChangeList) == 0 {
-		log.Printf("%s is up to date. No commits are made.", repo)
-		return nil
 	}
 	branch := "autoUpdateDeps_" + fingerPrint
 
@@ -157,7 +155,7 @@ func updateDependenciesOf(repo string) error {
 		return nil
 	}
 
-	if _, err = u.Shell("git checkout -b " + branch); err != nil {
+	if _, err = u.Shell(nil, "git checkout -b " + branch); err != nil {
 		return err
 	}
 	if err = updateDeps(repo, &deps, &depChangeList); err != nil {
@@ -166,6 +164,19 @@ func updateDependenciesOf(repo string) error {
 	if err = u.SerializeDeps(istioDepsFile, &deps); err != nil {
 		return err
 	}
+	if repo == istioRepo {
+		goPath := path.Join(repoDir, "../../..")
+		env := []string{"GOPATH="+goPath}
+		if _, err = u.Shell(env, "make depend"); err != nil {
+			return err
+		}
+	}
+	if _, err = u.Shell(nil, "git diff --quiet HEAD"); err == nil {
+		// it exited without error, nothing to commit
+		log.Printf("%s is up to date. No commits are made.", repo)
+		return nil
+        }
+	// git is dirty so commit
 	if err = u.CreateCommitPushToRemote(branch, "Update_Dependencies"); err != nil {
 		return err
 	}
