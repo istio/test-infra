@@ -32,7 +32,10 @@ function update_protoc() {
     || error_exit 'Could not install protoc.'
   ${SUDO} chmod +x /usr/local/bin/protoc \
     || error_exit 'Could not change permission on protoc'
+  ${SUDO} cp -fr ${PROTOC_DIRECTORY}/include/* /usr/local/include/ \
+    || error_exit 'Could not copy protoc include files'
+  ${SUDO} chmod -R 755  /usr/local/include/google/ \
+    || error_exit 'Could not change permission on protoc include files'
   export PATH=${PATH}:/usr/local/bin
   echo 'protoc up-to-date.'
 }
-
