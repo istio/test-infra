@@ -211,7 +211,7 @@ func CreateIstioReleaseUploadArtifacts() error {
 	}
 	edit := func() error {
 		if _, err := u.Shell(
-			"./release/create_release_archives.sh -d "+releaseBaseDir); err != nil {
+			"./release/create_release_archives.sh -d " + releaseBaseDir); err != nil {
 			return err
 		}
 		archiveDir := releaseBaseDir + "/archives"

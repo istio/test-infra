@@ -137,17 +137,17 @@ func CloneRepoCheckoutBranch(gclient *GithubClient, repo, baseBranch, newBranch,
 		return "", err
 	}
 	if _, err := ShellSilent(
-		"git clone "+gclient.Remote(repo)); err != nil {
+		"git clone " + gclient.Remote(repo)); err != nil {
 		return "", err
 	}
 	if err := os.Chdir(repo); err != nil {
 		return "", err
 	}
-	if _, err := Shell("git checkout "+baseBranch); err != nil {
+	if _, err := Shell("git checkout " + baseBranch); err != nil {
 		return "", err
 	}
 	if newBranch != "" {
-		if _, err := Shell("git checkout -b "+newBranch); err != nil {
+		if _, err := Shell("git checkout -b " + newBranch); err != nil {
 			return "", err
 		}
 	}
@@ -167,9 +167,9 @@ func CreateCommitPushToRemote(branch, commitMsg string) error {
 	if _, err := Shell("git add -A"); err != nil {
 		return err
 	}
-	if _, err := Shell("git commit -m "+commitMsg); err != nil {
+	if _, err := Shell("git commit -m " + commitMsg); err != nil {
 		return err
 	}
-	_, err := Shell("git push -f --set-upstream origin "+branch)
+	_, err := Shell("git push -f --set-upstream origin " + branch)
 	return err
 }
