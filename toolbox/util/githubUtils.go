@@ -18,6 +18,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"regexp"
 	"strings"
 
@@ -124,8 +125,15 @@ func GetAPITokenFromFile(tokenFile string) (string, error) {
 // CloneRepoCheckoutBranch removes previous repo, clone to local machine,
 // change directory into the repo, and checkout the given branch.
 // Returns the absolute path to repo root
-func CloneRepoCheckoutBranch(gclient *GithubClient, repo, baseBranch, newBranch string) (string, error) {
-	if err := os.RemoveAll(repo); err != nil {
+func CloneRepoCheckoutBranch(gclient *GithubClient, repo, baseBranch, newBranch, pathPrefix string) (string, error) {
+	if err := os.MkdirAll(pathPrefix, os.FileMode(0755)); err != nil {
+		return "", err
+	}
+	repoPath := path.Join(pathPrefix, repo)
+	if err := os.RemoveAll(repoPath); err != nil {
+		return "", err
+	}
+	if err := os.Chdir(pathPrefix); err != nil {
 		return "", err
 	}
 	if _, err := ShellSilent(
@@ -147,8 +155,8 @@ func CloneRepoCheckoutBranch(gclient *GithubClient, repo, baseBranch, newBranch 
 }
 
 // RemoveLocalRepo deletes the local git repo just cloned
-func RemoveLocalRepo(absolutePathToRepo string) error {
-	return os.RemoveAll(absolutePathToRepo)
+func RemoveLocalRepo(pathToRepo string) error {
+	return os.RemoveAll(pathToRepo)
 }
 
 // CreateCommitPushToRemote stages call local changes, create a commit,

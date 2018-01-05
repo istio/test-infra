@@ -39,20 +39,14 @@ case ${GIT_BRANCH} in
   master)
     hour=`date "+%H"`
     even_hour=`expr $hour % 2`
-    if [ $even_hour -eq 0 ]; then
-      repos=( istio mixerclient proxy )
-    else
-      repos=( mixerclient proxy )
-    fi
-    ;;
-  release-0.2)
-    repos=( old_mixer_repo mixerclient old_pilot_repo proxy )
-    echo "=== Updating Dependency of Istio ==="
-    ./bazel-bin/toolbox/deps_update/deps_update \
-      --repo=istio \
-      --token_file=${TOKEN_PATH} \
-      --base_branch=${GIT_BRANCH} \
-      --hub=gcr.io/istio-testing
+    case ${even_hour} in
+      2)
+        repos=( istio mixerclient proxy )
+        ;;
+      *)
+        repos=( mixerclient proxy )
+        ;;
+    esac
     ;;
   *)
     echo error GIT_BRANCH set incorrectly; exit 1
