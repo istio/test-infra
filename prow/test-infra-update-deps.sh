@@ -40,7 +40,7 @@ case ${GIT_BRANCH} in
     hour=`date "+%H"`
     even_hour=`expr $hour % 2`
     case ${even_hour} in
-      0)
+      2)
         repos=( istio mixerclient proxy )
         ;;
       *)
