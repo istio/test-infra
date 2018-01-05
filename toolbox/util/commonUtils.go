@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"os/exec"
 	"strings"
 	"text/template"
@@ -165,28 +164,24 @@ func GetMD5Hash(text string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-// Shell runs command on shell and get back output and error if get one,
-// it takes a set of environment vaiables that are appended to existing environment
-func Shell(env []string, format string, args ...interface{}) (string, error) {
-	return sh(env, format, false, args...)
+// Shell runs command on shell and get back output and error if get one
+func Shell(format string, args ...interface{}) (string, error) {
+	return sh(format, false, args...)
 }
 
 // ShellSilent runs command on shell without logging the exact command
-// it takes a set of environment vaiables that are appended to existing environment
 // useful when command involves secrets
-func ShellSilent(env []string, format string, args ...interface{}) (string, error) {
-	return sh(env, format, true, args...)
+func ShellSilent(format string, args ...interface{}) (string, error) {
+	return sh(format, true, args...)
 }
 
 // Runs command on shell and get back output and error if get one
-func sh(env []string, format string, muted bool, args ...interface{}) (string, error) {
+func sh(format string, muted bool, args ...interface{}) (string, error) {
 	command := fmt.Sprintf(format, args...)
-	parts := strings.Split(command, " ")
 	if !muted {
 		log.Printf("Running command %s", command)
 	}
-	c := exec.Command(parts[0], parts[1:]...) // #nosec
-	c.Env = append(os.Environ(), env...)
+	c := exec.Command("sh", "-c", command) // #nosec
 	bytes, err := c.CombinedOutput()
 	log.Printf("Command output: \n%s", string(bytes[:]))
 	if err != nil {

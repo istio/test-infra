@@ -113,7 +113,7 @@ func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency
 		}
 	}
 	cmd := fmt.Sprintf("./install/updateVersion.sh %s", args)
-	_, err := u.Shell(nil, cmd)
+	_, err := u.Shell(cmd)
 	return err
 }
 
@@ -163,7 +163,7 @@ func updateDependenciesOf(repo string) error {
 		return nil
 	}
 
-	if _, err = u.Shell(nil, "git checkout -b "+branch); err != nil {
+	if _, err = u.Shell("git checkout -b " + branch); err != nil {
 		return err
 	}
 	if err = updateDeps(repo, &deps, &depChangeList); err != nil {
@@ -174,12 +174,12 @@ func updateDependenciesOf(repo string) error {
 	}
 	if repo == istioRepo {
 		goPath := path.Join(repoDir, "../../..")
-		env := []string{"GOPATH=" + goPath}
-		if _, err = u.Shell(env, "make depend"); err != nil {
+		env := "GOPATH=" + goPath
+		if _, err = u.Shell(env + " make depend"); err != nil {
 			return err
 		}
 	}
-	if _, err = u.Shell(nil, "git diff --quiet HEAD"); err == nil {
+	if _, err = u.Shell("git diff --quiet HEAD"); err == nil {
 		// it exited without error, nothing to commit
 		log.Printf("%s is up to date. No commits are made.", repo)
 		return nil

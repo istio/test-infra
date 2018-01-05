@@ -136,18 +136,18 @@ func CloneRepoCheckoutBranch(gclient *GithubClient, repo, baseBranch, newBranch,
 	if err := os.Chdir(pathPrefix); err != nil {
 		return "", err
 	}
-	if _, err := ShellSilent(nil,
+	if _, err := ShellSilent(
 		"git clone "+gclient.Remote(repo)); err != nil {
 		return "", err
 	}
 	if err := os.Chdir(repo); err != nil {
 		return "", err
 	}
-	if _, err := Shell(nil, "git checkout "+baseBranch); err != nil {
+	if _, err := Shell("git checkout "+baseBranch); err != nil {
 		return "", err
 	}
 	if newBranch != "" {
-		if _, err := Shell(nil, "git checkout -b "+newBranch); err != nil {
+		if _, err := Shell("git checkout -b "+newBranch); err != nil {
 			return "", err
 		}
 	}
@@ -155,8 +155,8 @@ func CloneRepoCheckoutBranch(gclient *GithubClient, repo, baseBranch, newBranch,
 }
 
 // RemoveLocalRepo deletes the local git repo just cloned
-func RemoveLocalRepo(absolutePathToRepo string) error {
-	return os.RemoveAll(absolutePathToRepo)
+func RemoveLocalRepo(pathToRepo string) error {
+	return os.RemoveAll(pathToRepo)
 }
 
 // CreateCommitPushToRemote stages call local changes, create a commit,
@@ -164,12 +164,12 @@ func RemoveLocalRepo(absolutePathToRepo string) error {
 func CreateCommitPushToRemote(branch, commitMsg string) error {
 	// git commit -am does not work with untracked files
 	// track new files first and then create a commit
-	if _, err := Shell(nil, "git add -A"); err != nil {
+	if _, err := Shell("git add -A"); err != nil {
 		return err
 	}
-	if _, err := Shell(nil, "git commit -m "+commitMsg); err != nil {
+	if _, err := Shell("git commit -m "+commitMsg); err != nil {
 		return err
 	}
-	_, err := Shell(nil, "git push -f --set-upstream origin "+branch)
+	_, err := Shell("git push -f --set-upstream origin "+branch)
 	return err
 }
