@@ -126,7 +126,7 @@ func updateDependenciesOf(repo string) error {
 	if err != nil {
 		return err
 	}
-	repoDir, err := u.CloneRepoCheckoutBranch(githubClnt, repo, *baseBranch, "", "code/src/istio.io")
+	repoDir, err := u.CloneRepoCheckoutBranch(githubClnt, repo, *baseBranch, "", "go/src/istio.io")
 	if err != nil {
 		return err
 	}
@@ -134,7 +134,7 @@ func updateDependenciesOf(repo string) error {
 		if err = os.Chdir(saveDir); err != nil {
 			log.Fatalf("Error during chdir: %v\n", err)
 		}
-		if err = u.RemoveLocalRepo("code"); err != nil {
+		if err = u.RemoveLocalRepo("go"); err != nil {
 			log.Fatalf("Error during clean up: %v\n", err)
 		}
 	}()
@@ -174,13 +174,6 @@ func updateDependenciesOf(repo string) error {
 	}
 	if repo == istioRepo {
 		goPath := path.Join(repoDir, "../../..")
-		goPathBin := path.Join(goPath, "bin")
-		if _, err = os.Stat(goPathBin); os.IsNotExist(err) {
-			err = os.Mkdir(goPathBin, 0755)
-			if err != nil {
-				return err
-			}
-		}
 		env := "GOPATH=" + goPath
 		if _, err = u.Shell(env + " make depend.update"); err != nil {
 			return err
