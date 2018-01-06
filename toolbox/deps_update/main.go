@@ -175,7 +175,7 @@ func updateDependenciesOf(repo string) error {
 	if repo == istioRepo {
 		goPath := path.Join(repoDir, "../../..")
 		goPathBin := path.Join(goPath, "bin")
-		if _, err := os.Stat(goPathBin); os.IsNotExist(err) {
+		if _, err = os.Stat(goPathBin); os.IsNotExist(err) {
 			err = os.Mkdir(goPathBin, 0755)
 			if err != nil {
 				return err
