@@ -37,10 +37,9 @@ TOKEN_PATH="/etc/github/oauth"
 # excluding istio/istio
 case ${GIT_BRANCH} in
   master)
-    hour=`date "+%H"`
-    even_hour=`expr $hour % 2`
-    case ${even_hour} in
-      0)
+    hour=`date "+%I"`
+    case ${hour} in
+      02|04|06|08|10|12)
         repos=( istio mixerclient proxy )
         ;;
       *)
