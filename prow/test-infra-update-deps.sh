@@ -37,17 +37,15 @@ TOKEN_PATH="/etc/github/oauth"
 # excluding istio/istio
 case ${GIT_BRANCH} in
   master)
-    #repos=( istio mixerclient proxy ) TODO put this back and enable istio
-    repos=(        mixerclient proxy )
-    ;;
-  release-0.2)
-    repos=( old_mixer_repo mixerclient old_pilot_repo proxy )
-    echo "=== Updating Dependency of Istio ==="
-    ./bazel-bin/toolbox/deps_update/deps_update \
-      --repo=istio \
-      --token_file=${TOKEN_PATH} \
-      --base_branch=${GIT_BRANCH} \
-      --hub=gcr.io/istio-testing
+    hour=`date "+%I"`
+    case ${hour} in
+      02|04|06|08|10|12)
+        repos=( istio mixerclient proxy )
+        ;;
+      *)
+        repos=( mixerclient proxy )
+        ;;
+    esac
     ;;
   *)
     echo error GIT_BRANCH set incorrectly; exit 1
