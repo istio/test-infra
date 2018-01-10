@@ -61,7 +61,7 @@ const (
 	messagePrologue = "Hi istio-oncall,\n\n" +
 		"Post-Submit is failing in istio/istio, please take a look at following failure(s) and fix ASAP\n\n"
 	messageEnding = "\nIf you have any questions about this message or notice inaccuracy, please contact istio-engprod@google.com."
-	LosAngeles    = "America/Los_Angeles"
+	losAngeles    = "America/Los_Angeles"
 	// Gmail setting
 	gmailSMTPSERVER = "smtp.gmail.com"
 	gmailSMTPPORT   = 587
@@ -90,6 +90,8 @@ var (
 	gmailAppPassFile = flag.String("gmail__app_password", gmailAppPassFileDocker, "Path to gmail application password")
 	protectedRepo    = flag.String("protected_repo", "istio", "Protected repo")
 	protectedBranch  = flag.String("protected_branch", "master", "Protected branch")
+	autoBlocking     = flag.Bool("auto_blocking", true, "Blocking auto-merge if tests are failing")
+	emailSending     = flag.Bool("email_sending", true, "Sending alert email")
 
 	postSubmitJobs []*postSubmitJob
 
@@ -105,13 +107,11 @@ func init() {
 	var err error
 	gcsClient = u.NewGCSClient()
 
-	/*
-		token, err := u.GetAPITokenFromFile(*tokenFile)
-		if err != nil {
-			log.Fatalf("Error accessing user supplied token_file: %v\n", err)
-		}
-	*/
-	token := "b1ca9d561bb4b0f278729788ce6be21d08307ffa"
+	token, err := u.GetAPITokenFromFile(*tokenFile)
+	if err != nil || token == "" {
+		log.Fatalf("Error accessing user supplied token_file: %v\n", err)
+	}
+
 	githubClnt = u.NewGithubClient(*owner, token)
 
 	if gmailAppPass, err = u.GetPasswordFromFile(*gmailAppPassFile); err != nil {
@@ -127,31 +127,34 @@ func init() {
 			})
 	}
 
-	location, err = time.LoadLocation(LosAngeles)
+	location, err = time.LoadLocation(losAngeles)
 	if err != nil {
 		log.Fatalf("Error loading time location")
 	}
+	*autoBlocking = false
 }
 
 func main() {
 	for {
-		//newFailures, failedCount := updatePostSubmitStatus()
-		newFailures, _ := updatePostSubmitStatus()
-		if len(newFailures) > 0 {
-			log.Printf("%d tests failed in last circle", len(newFailures))
-			sendMessage(formatMessage(newFailures))
-		} else {
-			log.Printf("No new tests failed in last circle.")
+		newFailures, failedCount := updatePostSubmitStatus()
+
+		if *emailSending {
+			if len(newFailures) > 0 {
+				log.Printf("%d tests failed in last circle", len(newFailures))
+				sendMessage(formatMessage(newFailures))
+			} else {
+				log.Printf("No new tests failed in last circle.")
+			}
 		}
 
-		/*
-		// If any test is in failed status, trying to block, else trying to unblock
-		if failedCount > 0 {
-			blockPRs()
-		} else {
-			unBlockPRs()
+		if *autoBlocking {
+			// If any test is in failed status, trying to block, else trying to unblock
+			if failedCount > 0 {
+				blockPRs()
+			} else {
+				unBlockPRs()
+			}
 		}
-		*/
 
 		log.Printf("Sleeping for %d minutes", *interval)
 		time.Sleep(time.Duration(*interval) * time.Minute)
@@ -220,19 +223,19 @@ func updatePostSubmitStatus() (map[*postSubmitJob]bool, int) {
 		}
 
 		if *debug {
-			log.Printf("Job: %s -- Latest Run No: %d -- Recorded Run No: %d", job, latestRunNo, job.latestRun)
+			log.Printf("Job: %s -- Latest Run No: %d -- Recorded Run No: %d", job.name, latestRunNo, job.latestRun)
 		}
 		// New test finished for this job in this circle
 		if latestRunNo > job.latestRun {
 			prowResult, err := getProwResult(filepath.Join(job.name, strconv.Itoa(latestRunNo)))
 			if err != nil {
-				log.Printf("Failed to get prowResult %s/%d", job, latestRunNo)
+				log.Printf("Failed to get prowResult %s/%d", job.name, latestRunNo)
 				continue
 			}
 			job.latestRun = latestRunNo
 			job.latestRunPass = prowResult.Passed
 			if *debug {
-				log.Printf("Job: %s -- Latest Run No: %d -- Passed? %t", job, latestRunNo, prowResult.Passed)
+				log.Printf("Job: %s -- Latest Run No: %d -- Passed? %t", job.name, latestRunNo, prowResult.Passed)
 			}
 			if !prowResult.Passed {
 				newFailures[job] = true
