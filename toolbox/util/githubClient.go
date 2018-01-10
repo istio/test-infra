@@ -157,9 +157,49 @@ func (g GithubClient) AddAutoMergeLabelsToPR(repo string, pr *github.PullRequest
 // AddlabelsToPR adds labels to the pull request
 func (g GithubClient) AddlabelsToPR(
 	repo string, pr *github.PullRequest, labels ...string) error {
-	_, _, err := g.client.Issues.AddLabelsToIssue(
-		context.Background(), g.owner, repo, pr.GetNumber(), labels)
+
+	// skip existing labels
+	existingLabels, _, err := g.client.Issues.ListLabelsByIssue(context.Background(), g.owner, repo, *pr.Number, &github.ListOptions{})
+	if err != nil {
+		return err
+	}
+
+	labelsMap := make(map[string]bool)
+	for _, l := range labels {
+		labelsMap[l] = true
+	}
+	for _, el := range existingLabels {
+		if labelsMap[*el.Name] {
+			delete(labelsMap, *el.Name)
+		}
+	}
+
+	var addingLabels []string
+	for l := range labelsMap {
+		addingLabels = append(addingLabels, l)
+	}
+
+	_, _, err = g.client.Issues.AddLabelsToIssue(
+		context.Background(), g.owner, repo, pr.GetNumber(), addingLabels)
 	return err
+}
+
+// RemoveLabelFromPR removes "one" label from the pull request
+func (g GithubClient) RemoveLabelFromPR(
+	repo string, pr *github.PullRequest, removeLabel string) error {
+	labels, _, err := g.client.Issues.ListLabelsByIssue(context.Background(), g.owner, repo, *pr.Number, &github.ListOptions{})
+	if err != nil {
+		return err
+	}
+
+	for _, label := range labels {
+		if *label.Name == removeLabel {
+			_, err := g.client.Issues.RemoveLabelForIssue(
+				context.Background(), g.owner, repo, pr.GetNumber(), removeLabel)
+			return err
+		}
+	}
+	return nil
 }
 
 // ClosePRDeleteBranch closes a PR and deletes the branch from which the PR is made
@@ -543,4 +583,47 @@ func (g GithubClient) CreatePRUpdateRepo(
 		return nil, err
 	}
 	return g.CreatePullRequest(prTitle, prBody, "", newBranch, baseBranch, repo)
+}
+
+// ListPRs list PRs in a repo match the listOptions
+func (g GithubClient) ListPRs(options github.PullRequestListOptions, repo string) ([]*github.PullRequest, error) {
+	prs, _, err := g.client.PullRequests.List(
+		context.Background(), g.owner, repo, &options)
+	if err != nil {
+		log.Printf("Failed to list PRs in %s: %v", repo, err)
+		return nil, err
+	}
+	return prs, nil
+}
+
+// AddLabelToPRs add one label to PRs in a repo match the listOptions
+func (g GithubClient) AddLabelToPRs(options github.PullRequestListOptions, repo string, label string) error {
+	prs, err := g.ListPRs(options, repo)
+	if err != nil {
+		log.Printf("Failed to list open PRs in %s", repo)
+		return err
+	}
+	log.Printf("num: %d", len(prs))
+	for _, pr := range prs {
+		log.Printf("No. %d", pr.Number)
+		if err = g.AddlabelsToPR(repo, pr, label); err != nil {
+			log.Printf("Failed to add %s to PR %d: %v", label, pr.ID, err)
+		}
+	}
+	return nil
+}
+
+// RemoveLabelFromPRs remove one label to PRs in a repo match the listOptions
+func (g GithubClient) RemoveLabelFromPRs(options github.PullRequestListOptions, repo string, label string) error {
+	prs, err := g.ListPRs(options, repo)
+	if err != nil {
+		return err
+	}
+
+	for _, pr := range prs {
+		if err = g.RemoveLabelFromPR(repo, pr, label); err != nil {
+			log.Printf("Failed to remove %s to PR %d: %v", label, pr.ID, err)
+		}
+	}
+	return nil
 }

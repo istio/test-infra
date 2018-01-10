@@ -114,7 +114,12 @@ func IsRequiredCICheck(statusCxt string,
 
 // GetAPITokenFromFile returns the github api token from tokenFile
 func GetAPITokenFromFile(tokenFile string) (string, error) {
-	b, err := ioutil.ReadFile(tokenFile)
+	return GetPasswordFromFile(tokenFile)
+}
+
+// GetPasswordFromFile get a string usually is a password or token from a local file
+func GetPasswordFromFile(file string) (string, error) {
+	b, err := ioutil.ReadFile(file)
 	if err != nil {
 		return "", err
 	}
