@@ -439,7 +439,148 @@ presubmits:
         - name: cache-ssd
           hostPath:
             path: /mnt/disks/ssd0
-
+    - name: e2e-suite-rbac-no_auth
+      context: prow/e2e-suite-rbac-no_auth.sh
+      always_run: false
+      rerun_command: "/test e2e-suite-rbac-no_auth"
+      trigger: "(?m)^/(test e2e-suite-rbac-no_auth)?,?(\\s+|$)"
+      agent: kubernetes
+      spec:
+        containers:
+        - image: gcr.io/istio-testing/prowbazel:0.3.5
+          args:
+          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+          - "--clean"
+          - "--timeout=60"
+          # Bazel needs privileged mode in order to sandbox builds.
+          securityContext:
+            privileged: true
+          env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /etc/service-account/service-account.json
+          volumeMounts:
+          - name: service
+            mountPath: /etc/service-account
+            readOnly: true
+          - name: istio-e2e-rbac-kubeconfig
+            mountPath: /home/bootstrap/.kube
+          - name: cache-ssd
+            mountPath: /home/bootstrap/.cache
+          ports:
+          - containerPort: 9999
+            hostPort: 9998
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "20Gi"
+              cpu: "5000m"
+        nodeSelector:
+          cloud.google.com/gke-nodepool: build-pool
+        volumes:
+        - name: service
+          secret:
+            secretName: service-account
+        - name: istio-e2e-rbac-kubeconfig
+          secret:
+            secretName: istio-e2e-rbac-kubeconfig
+        - name: cache-ssd
+          hostPath:
+            path: /mnt/disks/ssd0
+    - name: e2e-suite-rbac-auth
+      context: prow/e2e-suite-rbac-auth.sh
+      always_run: false
+      rerun_command: "/test e2e-suite-rbac-auth"
+      trigger: "(?m)^/(test e2e-suite-rbac-auth)?,?(\\s+|$)"
+      agent: kubernetes
+      spec:
+        containers:
+        - image: gcr.io/istio-testing/prowbazel:0.3.5
+          args:
+          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+          - "--clean"
+          - "--timeout=60"
+          # Bazel needs privileged mode in order to sandbox builds.
+          securityContext:
+            privileged: true
+          env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /etc/service-account/service-account.json
+          volumeMounts:
+          - name: service
+            mountPath: /etc/service-account
+            readOnly: true
+          - name: istio-e2e-rbac-kubeconfig
+            mountPath: /home/bootstrap/.kube
+          - name: cache-ssd
+            mountPath: /home/bootstrap/.cache
+          ports:
+          - containerPort: 9999
+            hostPort: 9998
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "20Gi"
+              cpu: "5000m"
+        nodeSelector:
+          cloud.google.com/gke-nodepool: build-pool
+        volumes:
+        - name: service
+          secret:
+            secretName: service-account
+        - name: istio-e2e-rbac-kubeconfig
+          secret:
+            secretName: istio-e2e-rbac-kubeconfig
+        - name: cache-ssd
+          hostPath:
+            path: /mnt/disks/ssd0
+    - name: e2e-cluster_wide-auth
+      context: prow/e2e-cluster_wide-auth.sh
+      always_run: false
+      rerun_command: "/test e2e-cluster_wide-auth"
+      trigger: "(?m)^/(test e2e-cluster_wide-auth)?,?(\\s+|$)"
+      agent: kubernetes
+      spec:
+        containers:
+        - image: gcr.io/istio-testing/prowbazel:0.3.5
+          args:
+          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+          - "--clean"
+          - "--timeout=60"
+          # Bazel needs privileged mode in order to sandbox builds.
+          securityContext:
+            privileged: true
+          env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /etc/service-account/service-account.json
+          volumeMounts:
+          - name: service
+            mountPath: /etc/service-account
+            readOnly: true
+          - name: cache-ssd
+            mountPath: /home/bootstrap/.cache
+          ports:
+          - containerPort: 9999
+            hostPort: 9998
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "20Gi"
+              cpu: "5000m"
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
+        volumes:
+        - name: service
+          secret:
+            secretName: service-account
+        - name: cache-ssd
+          hostPath:
+            path: /mnt/disks/ssd0
 
   - name: istio-presubmit
     agent: kubernetes
