@@ -17,6 +17,7 @@ package util
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"log"
 
 	"cloud.google.com/go/storage"
@@ -31,7 +32,7 @@ type GCSClient struct {
 func NewGCSClient() *GCSClient {
 	gcsClient, err := storage.NewClient(context.Background())
 	if err != nil {
-		log.Fatalf("Failed to create a gcs client, %v", err)
+		log.Fatalf("Failed to create a gcs client, %v\n", err)
 		return nil
 	}
 	return &GCSClient{
@@ -44,12 +45,10 @@ func NewGCSClient() *GCSClient {
 func (gcs *GCSClient) GetFileFromGCSReader(bucket, obj string) (*storage.Reader, error) {
 	ctx := context.Background()
 	r, err := gcs.client.Bucket(bucket).Object(obj).NewReader(ctx)
-
 	if err != nil {
-		log.Printf("Failed to download file %s/%s from gcs, %v", bucket, obj, err)
+		log.Printf("Failed to download file %s/%s from gcs, %v\n", bucket, obj, err)
 		return nil, err
 	}
-
 	return r, nil
 }
 
@@ -61,15 +60,23 @@ func (gcs *GCSClient) GetFileFromGCSString(bucket, obj string) (string, error) {
 	}
 	defer func() {
 		if err = r.Close(); err != nil {
-			log.Printf("Failed to close gcs file reader, %v", err)
+			log.Printf("Failed to close gcs file reader, %v\n", err)
 		}
 	}()
-
 	buf := new(bytes.Buffer)
 	if _, err = buf.ReadFrom(r); err != nil {
-		log.Printf("Failed to read from gcs reader, %v", err)
+		log.Printf("Failed to read from gcs reader, %v\n", err)
 		return "", err
 	}
-
 	return buf.String(), nil
+}
+
+// WriteTextToFileOnGCS writes text to file on gcs
+func (gcs *GCSClient) WriteTextToFileOnGCS(bucket, gcsObj, txt string) error {
+	ctx := context.Background()
+	w := gcs.client.Bucket(bucket).Object(gcsObj).NewWriter(ctx)
+	if _, err := fmt.Fprintf(w, txt); err != nil {
+		log.Printf("Failed to write to gcs: %v\n", err)
+	}
+	return w.Close()
 }

@@ -15,6 +15,7 @@
 package util
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -23,6 +24,10 @@ import (
 	"strings"
 
 	"github.com/google/go-github/github"
+)
+
+const (
+	doNotMergeLabel = "PostSubmit Failed/Contact Oncall"
 )
 
 var (
@@ -124,6 +129,9 @@ func GetPasswordFromFile(file string) (string, error) {
 		return "", err
 	}
 	token := strings.TrimSpace(string(b[:]))
+	if token == "" {
+		return "", fmt.Errorf("%s is empty", file)
+	}
 	return token, nil
 }
 
@@ -179,4 +187,24 @@ func CreateCommitPushToRemote(branch, commitMsg string) error {
 	}
 	_, err := Shell("git push -f --set-upstream origin " + branch)
 	return err
+}
+
+// BlockMergingOnBranch adds "do-not-merge/post-submit" labels to all PRs
+// in :branch on the repo which the :githubClnt connects to
+func BlockMergingOnBranch(githubClnt *GithubClient, repo, branch string) error {
+	log.Printf("Adding [%s] label to PRs agaist %s in repo %s", doNotMergeLabel, branch, repo)
+	return githubClnt.AddLabelToPRs(github.PullRequestListOptions{
+		State: "open",
+		Base:  branch,
+	}, repo, doNotMergeLabel)
+}
+
+// UnBlockMergingOnBranch removes "do-not-merge/post-submit" labels to all PRs
+// in :branch on the repo which the :githubClnt connects to
+func UnBlockMergingOnBranch(githubClnt *GithubClient, repo, branch string) error {
+	log.Printf("Removing [%s] label to PRs agaist %s in repo %s", doNotMergeLabel, branch, repo)
+	return githubClnt.RemoveLabelFromPRs(github.PullRequestListOptions{
+		State: "open",
+		Base:  branch,
+	}, repo, doNotMergeLabel)
 }

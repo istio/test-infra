@@ -24,120 +24,88 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/google/go-github/github"
-
 	u "istio.io/test-infra/toolbox/util"
 )
 
-// ProwResult matches the structure published in finished.json
-type ProwResult struct {
-	TimeStamp  uint32       `json:"timestamp"`
-	Version    string       `json:"version"`
-	Result     string       `json:"result"`
-	Passed     bool         `json:"passed"`
-	JobVersion string       `json:"job-version"`
-	Metadata   ProwMetadata `json:"metadata"`
+// TODO fix all job.lastCheckedRunNo to runNo
+// TODO reorder functions
+// TODO count retry
+// TODO test if upload to gcs works
+// TODO include in email about the flakeStats
+
+type jobStatus struct {
+	// Assume job name unique
+	name string
+	// Monotonically increasing, the run number identifies a particular run of the job
+	// lastCheckedRunNo is the latest run number we have checked in most recent poll
+	// Used to ensure we check each run exactly once
+	lastCheckedRunNo int
+	// Jobs may finish in different order in which they start
+	// Key: run number whose result still pending
+	// Value: time when the first attemp to fetch result was made
+	pendingFirstRuns map[int]time.Time
+	// Key: Commit SHA from which reruns are triggered
+	// Value: FlakeStat
+	rerunJobStats map[string]*FlakeStat
 }
 
-// ProwMetadata matches the structure published in finished.json
-type ProwMetadata struct {
-	Repo       string                 `json:"repo"`
-	Repos      map[string]interface{} `json:"repos"`
-	RepoCommit string                 `json:"repo-commit"`
+type failure struct {
+	jobName string
+	runNo   int
 }
-
-type postSubmitJob struct {
-	name          string
-	latestRun     int
-	latestRunPass bool
-}
-
-const (
-	// TODO: Read from config file
-	// Message Info
-	sender          = "istio.testing@gmail.com"
-	oncallMaillist  = "istio-oncall@googlegroups.com"
-	messageSubject  = "ATTENTION - Istio Post-Submit Test Failed"
-	messagePrologue = "Hi istio-oncall,\n\n" +
-		"Post-Submit is failing in istio/istio, please take a look at following failure(s) and fix ASAP\n\n"
-	messageEnding = "\nIf you have any questions about this message or notice inaccuracy, please contact istio-engprod@google.com."
-	losAngeles    = "America/Los_Angeles"
-	// Gmail setting
-	gmailSMTPSERVER = "smtp.gmail.com"
-	gmailSMTPPORT   = 587
-
-	// Prow result GCS
-	lastBuildTXT  = "latest-build.txt"
-	finishedJSON  = "finished.json"
-	gubernatorURL = "https://k8s-gubernator.appspot.com/build/istio-prow"
-
-	doNotMergeLabel = "PostSubmit Failed/Contact Oncall"
-
-	// Token and password file
-	tokenFileDocker        = "/etc/github/git-token"
-	gmailAppPassFileDocker = "/etc/gmail/gmail-app-pass"
-)
 
 var (
 	gcsClient  *u.GCSClient
 	githubClnt *u.GithubClient
 
-	gcsBucket        = flag.String("bucket", "istio-prow", "Prow artifact GCS bucket name.")
-	interval         = flag.Int("interval", 5, "Check and report interval(minute)")
-	debug            = flag.Bool("debug", false, "Optional to log debug message")
-	owner            = flag.String("owner", "istio", "Github owner or org")
-	tokenFile        = flag.String("github_token", tokenFileDocker, "Path to github token")
-	gmailAppPassFile = flag.String("gmail__app_password", gmailAppPassFileDocker, "Path to gmail application password")
-	protectedRepo    = flag.String("protected_repo", "istio", "Protected repo")
-	protectedBranch  = flag.String("protected_branch", "master", "Protected branch")
-	autoBlocking     = flag.Bool("auto_blocking", true, "Blocking auto-merge if tests are failing")
-	emailSending     = flag.Bool("email_sending", true, "Sending alert email")
-
-	postSubmitJobs []*postSubmitJob
-
-	protectedPostsubmits = []string{"istio-postsubmit", "e2e-suite-rbac-auth", "e2e-suite-rbac-no_auth"}
-	receivers            = []string{oncallMaillist}
-	gmailAppPass         string
-	location             *time.Location
+	jobsWatched []*jobStatus
+	// protectedJobs = []string{"istio-postsubmit", "e2e-suite-rbac-auth", "e2e-suite-rbac-no_auth"}
+	protectedJobs     = []string{"istio-postsubmit"}
+	receivers         = []string{oncallMaillist}
+	gmailAppPass      string
+	location          *time.Location
+	pendingJobTimeout = 60 * time.Minute
+	onStart           = true
 )
 
 func init() {
 	flag.Parse()
-
-	var err error
 	gcsClient = u.NewGCSClient()
-
-	token, err := u.GetAPITokenFromFile(*tokenFile)
-	if err != nil || token == "" {
-		log.Fatalf("Error accessing user supplied token_file: %v\n", err)
+	var err error
+	if *guardMaster {
+		token, err := u.GetAPITokenFromFile(*tokenFile)
+		if err != nil {
+			log.Fatalf("Error accessing user supplied token_file: %v\n", err)
+		}
+		githubClnt = u.NewGithubClient(*owner, token)
 	}
-
-	githubClnt = u.NewGithubClient(*owner, token)
-
-	if gmailAppPass, err = u.GetPasswordFromFile(*gmailAppPassFile); err != nil {
-		log.Fatalf("Error accessing gmail app password: %v", err)
+	// TODO set to true
+	if *emailSending {
+		if gmailAppPass, err = u.GetPasswordFromFile(*gmailAppPassFile); err != nil {
+			log.Fatalf("Error accessing gmail app password: %v", err)
+		}
 	}
-
-	for _, t := range protectedPostsubmits {
-		postSubmitJobs = append(postSubmitJobs,
-			&postSubmitJob{
-				name: t,
-				// init to be true to avoid false negative
-				latestRunPass: true,
-			})
+	// Ensure all reruns commands are issued to Prow
+	if _, err := u.Shell(`gcloud container clusters get-credentials prow \
+		--project=istio-testing --zone=us-west1-a`); err != nil {
+		log.Fatalf("Unable to switch to prow cluster: %v\n", err)
 	}
-
-	location, err = time.LoadLocation(losAngeles)
-	if err != nil {
+	for _, jobName := range protectedJobs {
+		jobsWatched = append(jobsWatched, &jobStatus{
+			name:             jobName,
+			lastCheckedRunNo: 0,
+			pendingFirstRuns: make(map[int][]time.Time),
+			rerunJobStats:    make(map[string]*FlakeStat),
+		})
+	}
+	if location, err = time.LoadLocation(losAngeles); err != nil {
 		log.Fatalf("Error loading time location")
 	}
-	*autoBlocking = false
 }
 
 func main() {
 	for {
-		newFailures, failedCount := updatePostSubmitStatus()
-
+		newFailures := checkOnJobsWatched()
 		if *emailSending {
 			if len(newFailures) > 0 {
 				log.Printf("%d tests failed in last circle", len(newFailures))
@@ -146,24 +114,64 @@ func main() {
 				log.Printf("No new tests failed in last circle.")
 			}
 		}
-
-		if *autoBlocking {
-			// If any test is in failed status, trying to block, else trying to unblock
-			if failedCount > 0 {
-				blockPRs()
+		if *guardMaster {
+			if len(newFailures) > 0 {
+				u.BlockMergingOnBranch(githubClnt, *protectedRepo, *protectedBranch)
 			} else {
-				unBlockPRs()
+				u.UnBlockMergingOnBranch(githubClnt, *protectedRepo, *protectedBranch)
 			}
 		}
-
-		log.Printf("Sleeping for %d minutes", *interval)
-		time.Sleep(time.Duration(*interval) * time.Minute)
+		log.Printf("Sleeping for %d seconds", *interval)
+		time.Sleep(time.Duration(*interval) * time.Second)
 	}
 }
 
-func formatMessage(failures map[*postSubmitJob]bool) (mess string) {
-	for job := range failures {
-		mess += fmt.Sprintf("%s failed: %s/%s/%d\n\n", job.name, gubernatorURL, job.name, job.latestRun)
+func rerun(job *jobStatus, runNo int) error {
+	cfg, err := getProwJobConfig(job, runNo)
+	if err != nil {
+		return err
+	}
+	if err = triggerConcurrentReruns(job, cfg); err != nil {
+		return err
+	}
+	return nil
+}
+
+// TODO (chx) maxConcurrentJobs control and make it a util
+// Only log this error and continue. Should never exit process.
+func triggerConcurrentReruns(job *jobStatus, cfg ProwJobConfig) error {
+	log.Printf("Rerunning %s\n", job.name)
+	recess := 1 * time.Minute
+	maxRetry := 3
+	for i := 0; i < *numRerun; i++ {
+		if err := u.Retry(recess, maxRetry, func() error {
+			_, e := u.Shell(
+				"kubectl create -f \"https://prow.istio.io/rerun?prowjob=%s\"", cfg.Node)
+			return e
+		}); err != nil {
+			log.Printf("Unable to trigger the %d-th rerun of job %v", i, job.name)
+		}
+	}
+	return nil
+}
+
+func getProwJobConfig(job *jobStatus, runNo int) (ProwJobConfig, error) {
+	cfg := ProwJobConfig{}
+	jobStartedFile := filepath.Join(job.name, strconv.Itoa(runNo), startedJSON)
+	StartedFileString, err := gcsClient.GetFileFromGCSString(*gcsBucket, jobStartedFile)
+	if err != nil {
+		return cfg, err
+	}
+	if err = json.Unmarshal([]byte(StartedFileString), &cfg); err != nil {
+		log.Printf("Failed to unmarshal started prow job %s, %v\n", StartedFileString, err)
+		return cfg, err
+	}
+	return cfg, nil
+}
+
+func formatMessage(failures []postSubmitJob) (mess string) {
+	for _, job := range failures {
+		mess += fmt.Sprintf("%s failed: %s/%s/%d\n\n", job.name, gubernatorURL, job.name, job.lastCheckedRunNo)
 	}
 	return
 }
@@ -172,91 +180,91 @@ func formatMessage(failures map[*postSubmitJob]bool) (mess string) {
 func sendMessage(body string) {
 	msg := fmt.Sprintf("From: %s\n", sender) +
 		fmt.Sprintf("To: %s\n", receivers) +
-		fmt.Sprintf("Subject: %s [%s]\n\n", messageSubject, time.Now().In(location).Format("2006-01-02 15:04:05 PST")) +
+		fmt.Sprintf("Subject: %s [%s]\n\n", messageSubject,
+			time.Now().In(location).Format("2006-01-02 15:04:05 PST")) +
 		messagePrologue + body + messageEnding
 
 	gmailSMTPAddr := fmt.Sprintf("%s:%d", gmailSMTPSERVER, gmailSMTPPORT)
 	err := smtp.SendMail(gmailSMTPAddr, smtp.PlainAuth("istio-bot", sender, gmailAppPass, gmailSMTPSERVER),
 		sender, receivers, []byte(msg))
-
 	if err != nil {
-		log.Printf("smtp error: %s", err)
+		log.Printf("smtp error: %s\n", err)
 		return
 	}
-
-	log.Print("Alert message sent!")
+	log.Printf("Alert message sent!\n")
 }
 
 // Read latest run from "latest-build.txt" of a job under gcs "istio-prow" bucket
 // Example: istio-prow/istio-postsubmit/latest-build.txt
-func getLatestRun(job string) (int, error) {
-	lastBuildFile := filepath.Join(job, lastBuildTXT)
+func getLatestRun(jobName string) (int, error) {
+	lastBuildFile := filepath.Join(jobName, lastBuildTXT)
 	latestBuildString, err := gcsClient.GetFileFromGCSString(*gcsBucket, lastBuildFile)
 	if err != nil {
 		return 0, err
 	}
 	latestBuildInt, err := strconv.Atoi(latestBuildString)
 	if err != nil {
-		log.Printf("Failed to convert %s to int: %v", latestBuildString, err)
+		log.Printf("Failed to convert %s to int: %v\n", latestBuildString, err)
 		return 0, err
 	}
 	return latestBuildInt, nil
 }
 
-// Check the latest run of each protected Post-Submit tests.
+// From last check onward, check all the runs of protected Post-Submit tests.
 // Record failure if it hasn't been recorded and update latestRun if necessary
-func updatePostSubmitStatus() (map[*postSubmitJob]bool, int) {
-	// If a "new" failure appears in this circle, put it in and with value true
-	// So if no new failure, this map should be empty --> no new notification
-	newFailures := make(map[*postSubmitJob]bool)
-
-	// Total count of jobs which is in failing status right now.
-	// Including jobs failed in circles before.
-	// If 0 --> unblock auto-merge
-	failedCount := 0
-
-	for _, job := range postSubmitJobs {
-		latestRunNo, err := getLatestRun(job.name)
+// Returns an array of postSubmitJob since the same job might fail at multiple runs
+func checkOnJobsWatched() []failure {
+	newFailures := []failure{}
+	for _, job := range jobsWatched {
+		CurrentRunNo, err := getLatestRun(job.name)
 		if err != nil {
-			log.Printf("Failed to get last run number of %s: %v", job.name, err)
+			log.Printf("Failed to get last run number of %s: %v\n", job.name, err)
 			continue
 		}
-
-		if *debug {
-			log.Printf("Job: %s -- Latest Run No: %d -- Recorded Run No: %d", job.name, latestRunNo, job.latestRun)
+		if onStart {
+			onStart = false
+			CurrentRunNo = 808 // TODO revert
 		}
-		// New test finished for this job in this circle
-		if latestRunNo > job.latestRun {
-			prowResult, err := getProwResult(filepath.Join(job.name, strconv.Itoa(latestRunNo)))
+		log.Printf("Job: [%s] \t Current Run No: [%d] \t Previously Checked: [%d]\n",
+			job.name, CurrentRunNo, job.lastCheckedRunNo)
+		// Avoid pulling entire history when the daemon has just started
+		if job.lastCheckedRunNo == 0 {
+			job.lastCheckedRunNo = CurrentRunNo - 1
+		}
+		// There may be more than one job in between checks
+		// The invariant is that each run of the job is checked exactly once
+		for runNo := job.lastCheckedRunNo + 1; runNo <= CurrentRunNo; runNo++ {
+			prowResult, err := getProwResult(job.name, runNo)
 			if err != nil {
-				log.Printf("Failed to get prowResult %s/%d", job.name, latestRunNo)
+				log.Printf("Prow result still pending for %s/%d\n", job.name, runNo)
+				if firstTryTime, exists := job.pendingFirstRuns[runNo]; exists {
+					if u.IsLongerThan(time.Since(firstTryTime), pendingJobTimeout) {
+						log.Printf("Give up polling %s/%d\n", job.name, runNo)
+						delete(job.pendingFirstRuns, runNo)
+					}
+				} else {
+					job.pendingFirstRuns[runNo] = time.Now()
+				}
 				continue
 			}
-			job.latestRun = latestRunNo
-			job.latestRunPass = prowResult.Passed
-			if *debug {
-				log.Printf("Job: %s -- Latest Run No: %d -- Passed? %t", job.name, latestRunNo, prowResult.Passed)
-			}
-			if !prowResult.Passed {
-				newFailures[job] = true
+			log.Printf("%s/%d -- Passed? [%t]\n", job.name, runNo, prowResult.Passed)
+			if f := processProwResult(job, prowResult); f != nil {
+				newFailures = append(newFailures, *f)
 			}
 		}
-
-		if !job.latestRunPass {
-			failedCount++
-		}
+		job.lastCheckedRunNo = CurrentRunNo
 	}
-	return newFailures, failedCount
+	return newFailures
 }
 
-func getProwResult(target string) (*ProwResult, error) {
+func getProwResult(jobName string, runNo int) (*ProwResult, error) {
+	target := filepath.Join(jobName, strconv.Itoa(runNo))
 	jobFinishedFile := filepath.Join(target, finishedJSON)
 	prowResultString, err := gcsClient.GetFileFromGCSString(*gcsBucket, jobFinishedFile)
 	if err != nil {
 		log.Printf("Failed to get prow job result %s: %v", target, err)
 		return nil, err
 	}
-
 	prowResult := ProwResult{}
 	if err = json.Unmarshal([]byte(prowResultString), &prowResult); err != nil {
 		log.Printf("Failed to unmarshal prow result %s, %v", prowResultString, err)
@@ -265,31 +273,57 @@ func getProwResult(target string) (*ProwResult, error) {
 	return &prowResult, nil
 }
 
-// Add "do-not-merge/post-submit" labels to all PRs in protected repo towards protected branch
-func blockPRs() {
-	options := github.PullRequestListOptions{
-		State: "open",
-		Base:  *protectedBranch,
-	}
-
-	log.Printf("Adding [%s] to PRs in %s", doNotMergeLabel, *protectedRepo)
-	if err := githubClnt.AddLabelToPRs(options, *protectedRepo, doNotMergeLabel); err != nil {
-		log.Printf("Failed to add label to PRs: %v", err)
-		return
-	}
-	log.Printf("Blocked auto-merge in %s, base: %s", *protectedRepo, *protectedBranch)
+func getAndProcessProwResult(
+	job *postSubmitJob, runNo int, pushPendingList bool) []postSubmitJob {
+	// TODO also poll previously pending jobs
 }
 
-// remove "do-not-merge/post-submit" labels to all PRs in protected repo towards protected branch
-func unBlockPRs() {
-	options := github.PullRequestListOptions{
-		State: "open",
-		Base:  *protectedBranch,
+func processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failure {
+	if *catchFlakesByRun {
+		resultSHA := prowResult.Metadata.RepoCommit
+		if flakeStatPtr, exists := job.rerunJobStats[resultSHA]; exists {
+			flakeStatPtr.TotalRerun++
+			if !prowResult.Passed {
+				flakeStatPtr.Failures++
+			}
+			if flakeStatPtr.TotalRerun == *numRerun {
+				log.Printf("All reruns on job [%s] at sha [%s] have finished\n", job.name, resultSHA)
+				if err := recordFlakeStatToGCS(job, flakeStatPtr); err != nil {
+					log.Printf("Failed to write flakeStat to GCS: %v\n", err)
+				}
+				// delete resultSHA from job.rerunJobStats since all reruns have finished
+				delete(job.rerunJobStats, resultSHA)
+			}
+		} else { // no reruns exist on this SHA
+			if !prowResult.Passed {
+				log.Printf("Starting new rerun task on job [%s] at sha [%s]\n", job.name, resultSHA)
+				job.rerunJobStats[resultSHA] = &FlakeStat{
+					TestName:           job.name,
+					SHA:                resultSHA,
+					ParentJobTimeStamp: prowResult.TimeStamp,
+				}
+				if err := rerun(job, runNo); err != nil {
+					log.Printf("failed when starting reruns on [%s]: %v\n", job.name, err)
+				}
+			}
+		}
 	}
+	if !prowResult.Passed {
+		return &failure{
+			jobName: job.name,
+			runNo:   runNo,
+		}
+	}
+	return nil
+}
 
-	if err := githubClnt.RemoveLabelFromPRs(options, *protectedRepo, doNotMergeLabel); err != nil {
-		log.Printf("Failed to remove label to PRs: %v", err)
-		return
+func recordFlakeStatToGCS(job *jobStatus, runNo int, flakeStat *FlakeStat) error {
+	target := filepath.Join(job.name, strconv.Itoa(runNo))
+	flakeStatFile := filepath.Join(target, flakeStatJSON)
+	flakeStatStr, err := SerializeFlakeStat(flakeStat)
+	if err != nil {
+		return err
 	}
-	log.Printf("PRs are clear to be auto-merged in %s, base: %s", *protectedRepo, *protectedBranch)
+	log.Printf("Writing to GCS flakeStat = %v\n", flakeStatStr)
+	return gcsClient.WriteTextToFileOnGCS(*gcsBucket, flakeStatFile, flakeStatStr)
 }
