@@ -20,17 +20,19 @@ import (
 	"log"
 	"os"
 	"path"
+	"time"
 
 	u "istio.io/test-infra/toolbox/util"
 )
 
 var (
-	repo       = flag.String("repo", "", "Optional. Update dependencies of only this repository")
-	owner      = flag.String("owner", "istio", "Github Owner or org")
-	tokenFile  = flag.String("token_file", "", "File containing Github API Access Token")
-	baseBranch = flag.String("base_branch", "master", "Branch from which the deps update commit is based")
-	hub        = flag.String("hub", "", "Where the testing images are hosted")
-	githubClnt *u.GithubClient
+	repo            = flag.String("repo", "", "Optional. Update dependencies of only this repository")
+	owner           = flag.String("owner", "istio", "Github Owner or org")
+	tokenFile       = flag.String("token_file", "", "File containing Github API Access Token")
+	baseBranch      = flag.String("base_branch", "master", "Branch from which the deps update commit is based")
+	hub             = flag.String("hub", "", "Where the testing images are hosted")
+	githubClnt      *u.GithubClient
+	githubEnvoyClnt *u.GithubClient
 )
 
 const (
@@ -44,7 +46,12 @@ const (
 	istioctlSuffix    = "istioctl"
 	debianSuffix      = "debs"
 
-	// Repos
+	// envoy
+	envoyOwner    = "envoyproxy"
+	envoyRepo     = "envoy"
+	envoyRepoPath = envoyOwner + "/" + envoyRepo
+
+	// Istio Repos
 	istioRepo = "istio"
 	pilotRepo = "pilot"
 	authRepo  = "auth"
@@ -64,7 +71,19 @@ func updateDepSHAGetFingerPrint(repo string, deps *[]u.Dependency) (string, []u.
 	}
 	digest += *baseBranch + *hub
 	for i, dep := range *deps {
-		commitSHA, err := githubClnt.GetHeadCommitSHA(dep.RepoName, dep.ProdBranch)
+		var commitSHA string
+		if dep.RepoName == envoyRepoPath {
+			t := time.Now()
+			if t.Hour() >= 20 && t.Weekday() == time.Monday {
+				// update envoy only on Mondays
+				commitSHA, err = githubEnvoyClnt.GetHeadCommitSHA(envoyRepo, dep.ProdBranch)
+			} else {
+				// other days skip update
+				commitSHA = dep.LastStableSHA
+			}
+		} else {
+			commitSHA, err = githubClnt.GetHeadCommitSHA(dep.RepoName, dep.ProdBranch)
+		}
 		if err != nil {
 			return "", depChangeList, err
 		}
@@ -212,6 +231,7 @@ func init() {
 		log.Fatalf("Error accessing user supplied token_file: %v\n", err)
 	}
 	githubClnt = u.NewGithubClient(*owner, token)
+	githubEnvoyClnt = u.NewGithubClient(envoyOwner, token)
 }
 
 func main() {
