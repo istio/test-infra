@@ -30,7 +30,7 @@ var (
 	tokenFile       = flag.String("token_file", "", "File containing Github API Access Token")
 	baseBranch      = flag.String("base_branch", "master", "Branch from which the deps update commit is based")
 	hub             = flag.String("hub", "", "Where the testing images are hosted")
-	update_ext_dep  = flag.Bool("update_ext_dep", false, "Updates external dependences")
+	updateExtDep    = flag.Bool("update_ext_dep", false, "Updates external dependences")
 	githubClnt      *u.GithubClient
 	githubEnvoyClnt *u.GithubClient
 )
@@ -73,7 +73,7 @@ func updateDepSHAGetFingerPrint(repo string, deps *[]u.Dependency) (string, []u.
 	for i, dep := range *deps {
 		var commitSHA string
 		if dep.RepoName == envoyRepoPath {
-			if *update_ext_dep {
+			if *updateExtDep {
 				// update envoy sha only when specified 
 				commitSHA, err = githubEnvoyClnt.GetHeadCommitSHA(envoyRepo, dep.ProdBranch)
 				log.Printf("new envoy proxy sha is %s\n", commitSHA)
