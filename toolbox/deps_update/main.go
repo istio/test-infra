@@ -74,7 +74,7 @@ func updateDepSHAGetFingerPrint(repo string, deps *[]u.Dependency) (string, []u.
 		var commitSHA string
 		if dep.RepoName == envoyRepoPath {
 			if *updateExtDep {
-				// update envoy sha only when specified 
+				// update envoy sha only when specified
 				commitSHA, err = githubEnvoyClnt.GetHeadCommitSHA(envoyRepo, dep.ProdBranch)
 				log.Printf("new envoy proxy sha is %s\n", commitSHA)
 			} else {
