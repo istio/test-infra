@@ -20,7 +20,6 @@ import (
 	"log"
 	"os"
 	"path"
-	"time"
 
 	u "istio.io/test-infra/toolbox/util"
 )
@@ -31,6 +30,7 @@ var (
 	tokenFile       = flag.String("token_file", "", "File containing Github API Access Token")
 	baseBranch      = flag.String("base_branch", "master", "Branch from which the deps update commit is based")
 	hub             = flag.String("hub", "", "Where the testing images are hosted")
+	update_ext_dep  = flag.Bool("update_ext_dep", false, "Updates external dependences")
 	githubClnt      *u.GithubClient
 	githubEnvoyClnt *u.GithubClient
 )
@@ -73,13 +73,14 @@ func updateDepSHAGetFingerPrint(repo string, deps *[]u.Dependency) (string, []u.
 	for i, dep := range *deps {
 		var commitSHA string
 		if dep.RepoName == envoyRepoPath {
-			t := time.Now()
-			if t.Hour() >= 20 && t.Weekday() == time.Monday {
-				// update envoy only on Mondays
+			if *update_ext_dep {
+				// update envoy sha only when specified 
 				commitSHA, err = githubEnvoyClnt.GetHeadCommitSHA(envoyRepo, dep.ProdBranch)
+				log.Printf("new envoy proxy sha is %s\n", commitSHA)
 			} else {
-				// other days skip update
+				// otherwise skip update
 				commitSHA = dep.LastStableSHA
+				log.Printf("skipping update of envoy proxy sha is %s\n", commitSHA)
 			}
 		} else {
 			commitSHA, err = githubClnt.GetHeadCommitSHA(dep.RepoName, dep.ProdBranch)
