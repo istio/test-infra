@@ -25,12 +25,14 @@ import (
 )
 
 var (
-	repo       = flag.String("repo", "", "Optional. Update dependencies of only this repository")
-	owner      = flag.String("owner", "istio", "Github Owner or org")
-	tokenFile  = flag.String("token_file", "", "File containing Github API Access Token")
-	baseBranch = flag.String("base_branch", "master", "Branch from which the deps update commit is based")
-	hub        = flag.String("hub", "", "Where the testing images are hosted")
-	githubClnt *u.GithubClient
+	repo            = flag.String("repo", "", "Optional. Update dependencies of only this repository")
+	owner           = flag.String("owner", "istio", "Github Owner or org")
+	tokenFile       = flag.String("token_file", "", "File containing Github API Access Token")
+	baseBranch      = flag.String("base_branch", "master", "Branch from which the deps update commit is based")
+	hub             = flag.String("hub", "", "Where the testing images are hosted")
+	updateExtDep    = flag.Bool("update_ext_dep", false, "Updates external dependences")
+	githubClnt      *u.GithubClient
+	githubEnvoyClnt *u.GithubClient
 )
 
 const (
@@ -44,7 +46,12 @@ const (
 	istioctlSuffix    = "istioctl"
 	debianSuffix      = "debs"
 
-	// Repos
+	// envoy
+	envoyOwner    = "envoyproxy"
+	envoyRepo     = "envoy"
+	envoyRepoPath = envoyOwner + "/" + envoyRepo
+
+	// Istio Repos
 	istioRepo = "istio"
 	pilotRepo = "pilot"
 	authRepo  = "auth"
@@ -64,7 +71,20 @@ func updateDepSHAGetFingerPrint(repo string, deps *[]u.Dependency) (string, []u.
 	}
 	digest += *baseBranch + *hub
 	for i, dep := range *deps {
-		commitSHA, err := githubClnt.GetHeadCommitSHA(dep.RepoName, dep.ProdBranch)
+		var commitSHA string
+		if dep.RepoName == envoyRepoPath {
+			if *updateExtDep {
+				// update envoy sha only when specified
+				commitSHA, err = githubEnvoyClnt.GetHeadCommitSHA(envoyRepo, dep.ProdBranch)
+				log.Printf("new envoy proxy sha is %s\n", commitSHA)
+			} else {
+				// otherwise skip update
+				commitSHA = dep.LastStableSHA
+				log.Printf("skipping update of envoy proxy sha is %s\n", commitSHA)
+			}
+		} else {
+			commitSHA, err = githubClnt.GetHeadCommitSHA(dep.RepoName, dep.ProdBranch)
+		}
 		if err != nil {
 			return "", depChangeList, err
 		}
@@ -212,6 +232,7 @@ func init() {
 		log.Fatalf("Error accessing user supplied token_file: %v\n", err)
 	}
 	githubClnt = u.NewGithubClient(*owner, token)
+	githubEnvoyClnt = u.NewGithubClient(envoyOwner, token)
 }
 
 func main() {

@@ -33,11 +33,14 @@ git config --global user.email "istio.testing@gmail.com"
 git config --global user.name "istio-bot"
 
 TOKEN_PATH="/etc/github/oauth"
+UPDATE_EXT_DEP="false"
+
 # List of repo where auto dependency update has been enabled
 # excluding istio/istio
 case ${GIT_BRANCH} in
   master)
-    hour=`date "+%I"`
+    hour=`date "+%I"` #( 1..12)
+    day_of_week=`date "+%u"` #( 1..7)
     case ${hour} in
       02|04|06|08|10|12)
         repos=( istio mixerclient proxy )
@@ -46,6 +49,10 @@ case ${GIT_BRANCH} in
         repos=( mixerclient proxy )
         ;;
     esac
+    if [ "${hour}" -ge 20 ] && [ "${day_of_week}" -eq 2 ]; then
+	# external deps (envoyproxy for now) to be updated only one day a week
+        UPDATE_EXT_DEP="true"
+    fi
     ;;
   *)
     echo error GIT_BRANCH set incorrectly; exit 1
@@ -57,5 +64,6 @@ for r in "${repos[@]}"; do
   ./bazel-bin/toolbox/deps_update/deps_update \
     --repo=${r} \
     --base_branch=${GIT_BRANCH} \
-    --token_file=${TOKEN_PATH}
+    --token_file=${TOKEN_PATH} \
+    --update_ext_dep=${UPDATE_EXT_DEP}
 done
