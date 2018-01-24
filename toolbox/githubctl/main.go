@@ -283,7 +283,7 @@ func DailyReleaseQualification() error {
 
 	verbose := true
 	ci := u.NewCIState()
-	retryDelay := 1 * time.Minute
+	retryDelay := 5 * time.Minute
 	totalRetries := 60
 	log.Printf("Waiting for all jobs starting. Results Polling starts in %v.\n", retryDelay)
 	time.Sleep(retryDelay)
