@@ -298,6 +298,9 @@ func (g GithubClient) GetPRTestResults(repo string, pr *github.PullRequest, verb
 			log.Printf("> %s\n", ctx)
 		}
 	}
+	if len(combinedStatus.Statuses) < len(requiredChecks.Contexts) {
+		return "", fmt.Errorf("some required tests are not successfully triggered")
+	}
 	return GetReqquiredCIState(combinedStatus, requiredChecks, nil), nil
 }
 
