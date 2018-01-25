@@ -131,15 +131,17 @@ func GetPasswordFromFile(file string) (string, error) {
 // change directory into the repo, and checkout the given branch.
 // Returns the absolute path to repo root
 func CloneRepoCheckoutBranch(gclient *GithubClient, repo, baseBranch, newBranch, pathPrefix string) (string, error) {
-	if err := os.MkdirAll(pathPrefix, os.FileMode(0755)); err != nil {
-		return "", err
-	}
 	repoPath := path.Join(pathPrefix, repo)
 	if err := os.RemoveAll(repoPath); err != nil {
 		return "", err
 	}
-	if err := os.Chdir(pathPrefix); err != nil {
-		return "", err
+	if pathPrefix != "" {
+		if err := os.MkdirAll(pathPrefix, os.FileMode(0755)); err != nil {
+			return "", err
+		}
+		if err := os.Chdir(pathPrefix); err != nil {
+			return "", err
+		}
 	}
 	if _, err := ShellSilent(
 		"git clone " + gclient.Remote(repo)); err != nil {
