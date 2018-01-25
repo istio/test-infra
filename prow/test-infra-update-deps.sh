@@ -49,7 +49,8 @@ case ${GIT_BRANCH} in
         repos=( mixerclient proxy )
         ;;
     esac
-    if [ "${hour}" -ge 20 ] && [ "${day_of_week}" -eq 2 ]; then
+    hour24=`date "+%k"` #( 0..23)
+    if [ "${hour24}" -ge 20 ] && [ "${day_of_week}" -eq 2 ]; then
 	# external deps (envoyproxy for now) to be updated only one day a week
         UPDATE_EXT_DEP="true"
     fi
