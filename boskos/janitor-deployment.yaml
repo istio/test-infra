@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: boskos-janitor
+  labels:
+    app: boskos-janitor
+  namespace: boskos
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: boskos-janitor
+    spec:
+      terminationGracePeriodSeconds: 300
+      containers:
+      - name: boskos-janitor
+        image: gcr.io/istio-testing/janitor:v20180214-ea0601591
+        args:
+        - --service-account=/etc/service-account/service-account.json
+        - --resource-type=gcp-project
+        - --pool-size=20
+        volumeMounts:
+        - mountPath: /etc/service-account
+          name: boskos-service-account
+          readOnly: true
+      volumes:
+      - name: boskos-service-account
+        secret:
+          secretName: boskos-service-account
