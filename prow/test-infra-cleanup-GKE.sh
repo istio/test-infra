@@ -27,4 +27,4 @@ set -u
 set -x
 
 echo "=== Cleaning up GKE clusters ==="
-./scripts/cleanup-GKE "$@"
+./scripts/cleanup-GKE -h 1
