@@ -1091,103 +1091,7 @@ postsubmits:
 
 periodics:
 
-- interval: 2h
-  agent: kubernetes
-  name: test-infra-cleanup-cluster
-  spec:
-    containers:
-    - image: gcr.io/istio-testing/prowbazel:0.3.5
-      args:
-      - "--repo=github.com/istio/test-infra=master"
-      - "--clean"
-      - "--timeout=20"
-      # Docker needs privileged mode in order to sandbox builds.
-      securityContext:
-        privileged: true
-      env:
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/service-account.json
-      volumeMounts:
-      - name: service
-        mountPath: /etc/service-account
-        readOnly: true
-      - name: kubeconfig
-        mountPath: /home/bootstrap/.kube
-    nodeSelector:
-      cloud.google.com/gke-nodepool: build-pool
-    volumes:
-    - name: service
-      secret:
-        secretName: service-account
-    - name: kubeconfig
-      secret:
-        secretName: auth-e2e-rbac-kubeconfig
-
-- interval: 2h
-  agent: kubernetes
-  name: test-infra-cleanup-cluster
-  spec:
-    containers:
-    - image: gcr.io/istio-testing/prowbazel:0.3.5
-      args:
-      - "--repo=github.com/istio/test-infra=master"
-      - "--clean"
-      - "--timeout=20"
-      # Docker needs privileged mode in order to sandbox builds.
-      securityContext:
-        privileged: true
-      env:
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/service-account.json
-      volumeMounts:
-      - name: service
-        mountPath: /etc/service-account
-        readOnly: true
-      - name: kubeconfig
-        mountPath: /home/bootstrap/.kube
-    nodeSelector:
-      cloud.google.com/gke-nodepool: build-pool
-    volumes:
-    - name: service
-      secret:
-        secretName: service-account
-    - name: kubeconfig
-      secret:
-        secretName: pilot-e2e-rbac-kubeconfig
-
-- interval: 2h
-  agent: kubernetes
-  name: test-infra-cleanup-cluster
-  spec:
-    containers:
-    - image: gcr.io/istio-testing/prowbazel:0.3.5
-      args:
-      - "--repo=github.com/istio/test-infra=master"
-      - "--clean"
-      - "--timeout=20"
-      # Docker needs privileged mode in order to sandbox builds.
-      securityContext:
-        privileged: true
-      env:
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/service-account.json
-      volumeMounts:
-      - name: service
-        mountPath: /etc/service-account
-        readOnly: true
-      - name: kubeconfig
-        mountPath: /home/bootstrap/.kube
-    nodeSelector:
-      cloud.google.com/gke-nodepool: build-pool
-    volumes:
-    - name: service
-      secret:
-        secretName: service-account
-    - name: kubeconfig
-      secret:
-        secretName: mixer-e2e-rbac-kubeconfig
-
-- interval: 2h
+- interval: 10m
   agent: kubernetes
   name: test-infra-cleanup-cluster
   spec:
@@ -1219,7 +1123,7 @@ periodics:
       secret:
         secretName: istio-e2e-rbac-kubeconfig
 
-- interval: 2h
+- interval: 10m
   agent: kubernetes
   name: test-infra-cleanup-cluster
   spec:
@@ -1251,7 +1155,7 @@ periodics:
       secret:
         secretName: daily-release-e2e-rbac-kubeconfig
 
-- interval: 2h
+- interval: 10m
   agent: kubernetes
   name: test-infra-cleanup-GKE
   spec:
