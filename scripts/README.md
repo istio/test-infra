@@ -13,11 +13,11 @@ tries to create `<repo>-e2e-rbac-rotation-2`. It always assumes there is only on
   -z  cluster zone
 ```
 
-We need to update cluster for: auth, broker, pilot, mixer, istio
+We need to update cluster for: `istio` or `daily-release`
 Example:
 ```Bash
-$ ./scripts/update-e2e-cluster.sh -r pilot -n 10
-$ ./scripts/update-e2e-cluster.sh -r auth -n 4
+$ ./scripts/update-e2e-cluster.sh -r istio -n 10
+$ ./scripts/update-e2e-cluster.sh -r daily-release -n 10
 ```
 
 ## cleanup-cache
