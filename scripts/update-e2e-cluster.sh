@@ -53,9 +53,8 @@ while getopts :r:z:n: arg; do
   esac
 done
 
-if [ "${REPO}" != 'auth' ] && [ "${REPO}" != 'broker' ] && [ "${REPO}" != 'istio' ] \
-  && [ "${REPO}" != 'mixer' ] && [ "${REPO}" != 'pilot' ] && [ "${REPO}" != 'daily-release' ]; then
-  echo 'Must specific a repo and it must be auth/broker/istio/pilot/mixer/daily-release'
+if [ "${REPO}" != 'istio' ] && [ "${REPO}" != 'daily-release' ]; then
+  echo 'Must specific a repo and it must be istio/daily-release'
   exit 1
 fi
 
