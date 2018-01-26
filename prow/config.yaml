@@ -155,18 +155,6 @@ presubmits:
         - name: service
           mountPath: /etc/service-account
           readOnly: true
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "20Gi"
-            cpu: "5000m"
-      nodeSelector:
-        cloud.google.com/gke-nodepool: build-pool
       volumes:
       - name: service
         secret:
@@ -202,20 +190,6 @@ presubmits:
           readOnly: true
         - name: kubeconfig
           mountPath: /home/bootstrap/.kube
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "20Gi"
-            cpu: "5000m"
-      nodeSelector:
-        cloud.google.com/gke-nodepool: build-pool
       volumes:
       - name: service
         secret:
@@ -223,9 +197,6 @@ presubmits:
       - name: kubeconfig
         secret:
           secretName: istio-e2e-rbac-kubeconfig
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
     run_after_success:
     - name: istio-pilot-e2e
       agent: kubernetes
@@ -250,27 +221,10 @@ presubmits:
           - name: service
             mountPath: /etc/service-account
             readOnly: true
-          - name: cache-ssd
-            mountPath: /home/bootstrap/.cache
-          ports:
-          - containerPort: 9999
-            hostPort: 9998
-          resources:
-            requests:
-              memory: "512Mi"
-              cpu: "500m"
-            limits:
-              memory: "20Gi"
-              cpu: "5000m"
-        nodeSelector:
-          cloud.google.com/gke-nodepool: build-pool
         volumes:
         - name: service
           secret:
             secretName: service-account
-        - name: cache-ssd
-          hostPath:
-            path: /mnt/disks/ssd0
     - name: e2e-smoke
       agent: kubernetes
       context: prow/e2e-smoke.sh
@@ -295,20 +249,6 @@ presubmits:
             readOnly: true
           - name: kubeconfig
             mountPath: /home/bootstrap/.kube
-          - name: cache-ssd
-            mountPath: /home/bootstrap/.cache
-          ports:
-          - containerPort: 9999
-            hostPort: 9998
-          resources:
-            requests:
-              memory: "512Mi"
-              cpu: "500m"
-            limits:
-              memory: "20Gi"
-              cpu: "5000m"
-        nodeSelector:
-          cloud.google.com/gke-nodepool: build-pool
         volumes:
         - name: service
           secret:
@@ -316,9 +256,6 @@ presubmits:
         - name: kubeconfig
           secret:
             secretName: istio-e2e-rbac-kubeconfig
-        - name: cache-ssd
-          hostPath:
-            path: /mnt/disks/ssd0
 
   - name: e2e-suite-rbac-no_auth
     context: prow/e2e-suite-rbac-no_auth.sh
@@ -345,20 +282,6 @@ presubmits:
           readOnly: true
         - name: kubeconfig
           mountPath: /home/bootstrap/.kube
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "20Gi"
-            cpu: "5000m"
-      nodeSelector:
-        cloud.google.com/gke-nodepool: build-pool
       volumes:
       - name: service
         secret:
@@ -366,9 +289,6 @@ presubmits:
       - name: kubeconfig
         secret:
           secretName: istio-e2e-rbac-kubeconfig
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
   - name: e2e-suite-rbac-auth
     context: prow/e2e-suite-rbac-auth.sh
     always_run: false
@@ -394,20 +314,6 @@ presubmits:
           readOnly: true
         - name: kubeconfig
           mountPath: /home/bootstrap/.kube
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "20Gi"
-            cpu: "5000m"
-      nodeSelector:
-        cloud.google.com/gke-nodepool: build-pool
       volumes:
       - name: service
         secret:
@@ -415,9 +321,6 @@ presubmits:
       - name: kubeconfig
         secret:
           secretName: istio-e2e-rbac-kubeconfig
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
   - name: e2e-cluster_wide-auth
     context: prow/e2e-cluster_wide-auth.sh
     always_run: false
@@ -441,27 +344,10 @@ presubmits:
         - name: service
           mountPath: /etc/service-account
           readOnly: true
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "20Gi"
-            cpu: "5000m"
-      nodeSelector:
-        cloud.google.com/gke-nodepool: new-cluster-pool
       volumes:
       - name: service
         secret:
           secretName: service-account
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
 
 
   istio/test-infra:
@@ -542,20 +428,6 @@ presubmits:
           readOnly: true
         - name: kubeconfig
           mountPath: /home/bootstrap/.kube
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "20Gi"
-            cpu: "5000m"
-      nodeSelector:
-        cloud.google.com/gke-nodepool: build-pool
       volumes:
       - name: service
         secret:
@@ -563,9 +435,6 @@ presubmits:
       - name: kubeconfig
         secret:
           secretName: daily-release-e2e-rbac-kubeconfig
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
   - name: daily-e2e-rbac-no_auth-default
     agent: kubernetes
     context: prow/daily-e2e-rbac-no_auth-default.sh
@@ -593,20 +462,6 @@ presubmits:
           readOnly: true
         - name: kubeconfig
           mountPath: /home/bootstrap/.kube
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "20Gi"
-            cpu: "5000m"
-      nodeSelector:
-        cloud.google.com/gke-nodepool: build-pool
       volumes:
       - name: service
         secret:
@@ -614,9 +469,6 @@ presubmits:
       - name: kubeconfig
         secret:
           secretName: daily-release-e2e-rbac-kubeconfig
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
   - name: daily-e2e-rbac-auth
     agent: kubernetes
     context: prow/daily-e2e-rbac-auth.sh
@@ -644,20 +496,6 @@ presubmits:
           readOnly: true
         - name: kubeconfig
           mountPath: /home/bootstrap/.kube
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "20Gi"
-            cpu: "5000m"
-      nodeSelector:
-        cloud.google.com/gke-nodepool: build-pool
       volumes:
       - name: service
         secret:
@@ -665,9 +503,6 @@ presubmits:
       - name: kubeconfig
         secret:
           secretName: daily-release-e2e-rbac-kubeconfig
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
   - name: daily-e2e-rbac-auth-default
     agent: kubernetes
     context: prow/daily-e2e-rbac-auth-default.sh
@@ -695,20 +530,6 @@ presubmits:
           readOnly: true
         - name: kubeconfig
           mountPath: /home/bootstrap/.kube
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "20Gi"
-            cpu: "5000m"
-      nodeSelector:
-        cloud.google.com/gke-nodepool: build-pool
       volumes:
       - name: service
         secret:
@@ -716,9 +537,6 @@ presubmits:
       - name: kubeconfig
         secret:
           secretName: daily-release-e2e-rbac-kubeconfig
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
   - name: daily-e2e-cluster_wide-auth
     agent: kubernetes
     context: prow/daily-e2e-cluster_wide-auth.sh
@@ -744,27 +562,10 @@ presubmits:
         - name: service
           mountPath: /etc/service-account
           readOnly: true
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "20Gi"
-            cpu: "5000m"
-      nodeSelector:
-        cloud.google.com/gke-nodepool: new-cluster-pool
       volumes:
       - name: service
         secret:
           secretName: service-account
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
   - name: daily-e2e-cluster_wide-auth-default
     agent: kubernetes
     context: prow/daily-e2e-cluster_wide-auth-default.sh
@@ -790,27 +591,10 @@ presubmits:
         - name: service
           mountPath: /etc/service-account
           readOnly: true
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "20Gi"
-            cpu: "5000m"
-      nodeSelector:
-        cloud.google.com/gke-nodepool: new-cluster-pool
       volumes:
       - name: service
         secret:
           secretName: service-account
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
 
 postsubmits:
 
@@ -841,15 +625,6 @@ postsubmits:
         - name: oauth
           mountPath: /etc/github
           readOnly: true
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "20Gi"
-            cpu: "5000m"
-      nodeSelector:
-        cloud.google.com/gke-nodepool: build-pool
       volumes:
       - name: service
         secret:
@@ -883,20 +658,6 @@ postsubmits:
           readOnly: true
         - name: kubeconfig
           mountPath: /home/bootstrap/.kube
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "20Gi"
-            cpu: "5000m"
-      nodeSelector:
-        cloud.google.com/gke-nodepool: build-pool
       volumes:
       - name: service
         secret:
@@ -904,9 +665,6 @@ postsubmits:
       - name: kubeconfig
         secret:
           secretName: istio-e2e-rbac-kubeconfig
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
     run_after_success:
     - name: e2e-suite-rbac-no_auth
       agent: kubernetes
@@ -929,20 +687,6 @@ postsubmits:
             readOnly: true
           - name: kubeconfig
             mountPath: /home/bootstrap/.kube
-          - name: cache-ssd
-            mountPath: /home/bootstrap/.cache
-          ports:
-          - containerPort: 9999
-            hostPort: 9998
-          resources:
-            requests:
-              memory: "512Mi"
-              cpu: "500m"
-            limits:
-              memory: "20Gi"
-              cpu: "5000m"
-        nodeSelector:
-          cloud.google.com/gke-nodepool: build-pool
         volumes:
         - name: service
           secret:
@@ -950,9 +694,6 @@ postsubmits:
         - name: kubeconfig
           secret:
             secretName: istio-e2e-rbac-kubeconfig
-        - name: cache-ssd
-          hostPath:
-            path: /mnt/disks/ssd0
     - name: e2e-suite-rbac-auth
       agent: kubernetes
       spec:
@@ -974,20 +715,6 @@ postsubmits:
             readOnly: true
           - name: kubeconfig
             mountPath: /home/bootstrap/.kube
-          - name: cache-ssd
-            mountPath: /home/bootstrap/.cache
-          ports:
-          - containerPort: 9999
-            hostPort: 9998
-          resources:
-            requests:
-              memory: "512Mi"
-              cpu: "500m"
-            limits:
-              memory: "20Gi"
-              cpu: "5000m"
-        nodeSelector:
-          cloud.google.com/gke-nodepool: build-pool
         volumes:
         - name: service
           secret:
@@ -995,9 +722,6 @@ postsubmits:
         - name: kubeconfig
           secret:
             secretName: istio-e2e-rbac-kubeconfig
-        - name: cache-ssd
-          hostPath:
-            path: /mnt/disks/ssd0
     - name: e2e-cluster_wide-auth
       agent: kubernetes
       spec:
@@ -1017,27 +741,10 @@ postsubmits:
           - name: service
             mountPath: /etc/service-account
             readOnly: true
-          - name: cache-ssd
-            mountPath: /home/bootstrap/.cache
-          ports:
-          - containerPort: 9999
-            hostPort: 9998
-          resources:
-            requests:
-              memory: "512Mi"
-              cpu: "500m"
-            limits:
-              memory: "20Gi"
-              cpu: "5000m"
-        nodeSelector:
-          cloud.google.com/gke-nodepool: new-cluster-pool
         volumes:
         - name: service
           secret:
             secretName: service-account
-        - name: cache-ssd
-          hostPath:
-            path: /mnt/disks/ssd0
 
 
   istio/proxy:
@@ -1113,8 +820,6 @@ periodics:
         readOnly: true
       - name: kubeconfig
         mountPath: /home/bootstrap/.kube
-    nodeSelector:
-      cloud.google.com/gke-nodepool: build-pool
     volumes:
     - name: service
       secret:
@@ -1145,8 +850,6 @@ periodics:
         readOnly: true
       - name: kubeconfig
         mountPath: /home/bootstrap/.kube
-    nodeSelector:
-      cloud.google.com/gke-nodepool: build-pool
     volumes:
     - name: service
       secret:
@@ -1175,8 +878,6 @@ periodics:
       - name: service
         mountPath: /etc/service-account
         readOnly: true
-    nodeSelector:
-      cloud.google.com/gke-nodepool: build-pool
     volumes:
     - name: service
       secret:
@@ -1206,8 +907,6 @@ periodics:
       - mountPath: /etc/service-account
         name: service
         readOnly: true
-    nodeSelector:
-      cloud.google.com/gke-nodepool: build-pool
     volumes:
     - name: oauth
       secret:
@@ -1231,16 +930,6 @@ periodics:
       - --clean
       - --timeout=120
       image: gcr.io/istio-testing/prow-builder:0.4.5
-      ports:
-      - containerPort: 9999
-        hostPort: 9998
-      resources:
-        limits:
-          cpu: 5000m
-          memory: 20Gi
-        requests:
-          cpu: 500m
-          memory: 512Mi
       securityContext:
         privileged: true
       env:
@@ -1257,10 +946,6 @@ periodics:
         readOnly: true
       - mountPath: /home/bootstrap/.kube
         name: kubeconfig
-      - mountPath: /home/bootstrap/.cache
-        name: cache-ssd
-    nodeSelector:
-      cloud.google.com/gke-nodepool: build-pool
     volumes:
     - name: service
       secret:
@@ -1268,9 +953,6 @@ periodics:
     - name: kubeconfig
       secret:
         secretName: istio-e2e-rbac-kubeconfig
-    - name: cache-ssd
-      hostPath:
-        path: /mnt/disks/ssd0
     - name: netrc
       secret:
         secretName: istio-testing-netrc
