@@ -51,7 +51,7 @@ case ${GIT_BRANCH} in
     esac
     hour24=`date "+%k"` #( 0..23)
     if [ "${hour24}" -ge 20 ] && [ "${day_of_week}" -eq 2 ]; then
-	# external deps (envoyproxy for now) to be updated only one day a week
+	# external deps (envoyproxy in proxy and depend.update in istio) updated only once a week
         UPDATE_EXT_DEP="true"
     fi
     ;;

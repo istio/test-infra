@@ -192,19 +192,19 @@ func updateDependenciesOf(repo string) error {
 	if err = u.SerializeDeps(istioDepsFile, &deps); err != nil {
 		return err
 	}
-	if _, err = u.Shell("git diff --quiet HEAD"); err == nil {
-		// it exited without error, nothing to commit
-		log.Printf("%s is up to date. No commits are made.", repo)
-		return nil
-	}
-	if repo == istioRepo {
-		// while depend update can introduce new changes, bundle them
-		// with istio related changes to reduce noise
+	if repo == istioRepo && *updateExtDep {
+		// while depend update can introduce new changes,
+		// introduce them only when requested
 		goPath := path.Join(repoDir, "../../..")
 		env := "GOPATH=" + goPath
 		if _, err = u.Shell(env + " make depend.update"); err != nil {
 			return err
 		}
+	}
+	if _, err = u.Shell("git diff --quiet HEAD"); err == nil {
+		// it exited without error, nothing to commit
+		log.Printf("%s is up to date. No commits are made.", repo)
+		return nil
 	}
 	// git is dirty so commit
 	if err = u.CreateCommitPushToRemote(branch, "Update_Dependencies"); err != nil {
