@@ -221,15 +221,10 @@ presubmits:
           - name: service
             mountPath: /etc/service-account
             readOnly: true
-          - name: kubeconfig
-            mountPath: /home/bootstrap/.kube
         volumes:
         - name: service
           secret:
             secretName: service-account
-        - name: kubeconfig
-          secret:
-            secretName: istio-e2e-rbac-kubeconfig
     - name: istio-pilot-e2e
       agent: kubernetes
       context: prow/istio-pilot-e2e.sh
