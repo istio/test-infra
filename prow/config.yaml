@@ -163,12 +163,12 @@ presubmits:
 
   istio/istio:
 
-  - name: istio-unit-test
+  - name: istio-unit-tests
     agent: kubernetes
-    context: prow/istio-unit-test.sh
+    context: prow/istio-unit-tests.sh
     always_run: true
-    rerun_command: "/test istio-unit-test"
-    trigger: "(?m)^/test (istio-unit-test)?,?(\\s+|$)"
+    rerun_command: "/test istio-unit-tests"
+    trigger: "(?m)^/test (istio-unit-tests)?,?(\\s+|$)"
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.3.5
