@@ -475,6 +475,40 @@ presubmits:
       - name: kubeconfig
         secret:
           secretName: daily-release-e2e-rbac-kubeconfig
+  - name: daily-e2e-rbac-no_auth-skew
+    agent: kubernetes
+    context: prow/daily-e2e-rbac-no_auth-skew.sh
+    always_run: true
+    rerun_command: "/test daily-e2e-rbac-no_auth-skew"
+    trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-no_auth-skew))?,?(\\s+|$)"
+    branches:
+    - master
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.3.5
+        args:
+        - "--repo=github.com/istio-releases/daily-release=$(PULL_REFS)"
+        - "--clean"
+        - "--timeout=120"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: kubeconfig
+          mountPath: /home/bootstrap/.kube
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: kubeconfig
+        secret:
+          secretName: daily-release-e2e-rbac-kubeconfig
   - name: daily-e2e-rbac-no_auth-default
     agent: kubernetes
     context: prow/daily-e2e-rbac-no_auth-default.sh
@@ -490,6 +524,40 @@ presubmits:
         - "--repo=github.com/istio-releases/daily-release=$(PULL_REFS)"
         - "--clean"
         - "--timeout=60"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: kubeconfig
+          mountPath: /home/bootstrap/.kube
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: kubeconfig
+        secret:
+          secretName: daily-release-e2e-rbac-kubeconfig
+  - name: daily-e2e-rbac-auth-skew
+    agent: kubernetes
+    context: prow/daily-e2e-rbac-auth-skew.sh
+    always_run: true
+    rerun_command: "/test daily-e2e-rbac-auth-skew"
+    trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-auth-skew))?,?(\\s+|$)"
+    branches:
+    - master
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.3.5
+        args:
+        - "--repo=github.com/istio-releases/daily-release=$(PULL_REFS)"
+        - "--clean"
+        - "--timeout=120"
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
@@ -583,6 +651,35 @@ presubmits:
     always_run: true
     rerun_command: "/test daily-e2e-cluster_wide-auth"
     trigger: "(?m)^/(retest|test (all|daily-e2e-cluster_wide-auth))?,?(\\s+|$)"
+    branches:
+    - master
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.3.5
+        args:
+        - "--repo=github.com/istio-releases/daily-release=$(PULL_REFS)"
+        - "--clean"
+        - "--timeout=60"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+  - name: daily-e2e-cluster_wide-auth-skew
+    agent: kubernetes
+    context: prow/daily-e2e-cluster_wide-auth-skew.sh
+    always_run: true
+    rerun_command: "/test daily-e2e-cluster_wide-auth-skew"
+    trigger: "(?m)^/(retest|test (all|daily-e2e-cluster_wide-auth-skew))?,?(\\s+|$)"
     branches:
     - master
     spec:
