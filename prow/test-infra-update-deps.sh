@@ -41,12 +41,16 @@ case ${GIT_BRANCH} in
   master)
     hour=`date "+%I"` #( 1..12)
     day_of_week=`date "+%u"` #( 1..7)
+    repos=( mixerclient proxy )
     case ${hour} in
       02|04|06|08|10|12)
-        repos=( istio mixerclient proxy )
+	./bazel-bin/toolbox/deps_update/deps_update \
+		--repo="istio" \
+		--base_branch=${GIT_BRANCH} \
+		--token_file=${TOKEN_PATH} \
+		--update_ext_dep="false"
         ;;
       *)
-        repos=( mixerclient proxy )
         ;;
     esac
     hour24=`date "+%k"` #( 0..23)
