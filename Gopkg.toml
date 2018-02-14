@@ -22,45 +22,16 @@
 
 
 [[constraint]]
-  name = "cloud.google.com/go"
-  version = "0.16.0"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/golang/glog"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/google/go-github"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/hashicorp/go-multierror"
-
-[[constraint]]
   name = "github.com/prometheus/client_golang"
   version = "0.8.0"
 
+# TODO: Remove this once https://github.com/kubernetes/test-infra/pull/6676 is in
 [[constraint]]
+  name = "k8s.io/test-infra"
   branch = "master"
-  name = "golang.org/x/net"
+  source = "github.com/sebastienvas/k8s-test-infra"
 
-[[constraint]]
-  branch = "master"
-  name = "golang.org/x/oauth2"
-
-[[constraint]]
-  branch = "master"
-  name = "k8s.io/api"
-
-[[constraint]]
-  branch = "master"
-  name = "k8s.io/apiextensions-apiserver"
-
-[[constraint]]
-  branch = "master"
-  name = "k8s.io/apimachinery"
-
-[[constraint]]
-  name = "k8s.io/client-go"
-  version = "5.0.1"
+[prune]
+  unused-packages = true
+  non-go = true
+  go-tests = true
