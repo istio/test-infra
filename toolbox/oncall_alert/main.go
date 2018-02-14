@@ -28,7 +28,8 @@ import (
 )
 
 // TODO reorder functions for better readability
-// TODO test if upload to gcs works
+// TODO recordFlakeStatToGCS to write to one level above
+// and use a single file to record a list so stats are not scattered in different folders
 // TODO include in email about the flakeStats
 
 type jobStatus struct {
@@ -221,7 +222,7 @@ func checkOnJobsWatched() []failure {
 		}
 		if onStart {
 			onStart = false
-			CurrentRunNo = 808 // TODO revert
+			// CurrentRunNo = 849 // TODO revert
 		}
 		log.Printf("Job: [%s] \t Current Run No: [%d] \t Previously Checked: [%d]\n",
 			job.name, CurrentRunNo, job.lastCheckedRunNo)
@@ -235,7 +236,7 @@ func checkOnJobsWatched() []failure {
 		for runNo := range job.pendingFirstRuns {
 			pendingRuns = append(pendingRuns, runNo)
 		}
-		log.Printf("Checking previously pending run numbers: [%v]\n", pendingRuns)
+		log.Printf("Checking previously pending run numbers: %v\n", pendingRuns)
 		for _, runNo := range pendingRuns {
 			if f := fetchAndProcessProwResult(job, runNo); f != nil {
 				newFailures = append(newFailures, *f)
@@ -248,6 +249,7 @@ func checkOnJobsWatched() []failure {
 				newFailures = append(newFailures, *f)
 			}
 		}
+		log.Printf("Finished checking [%s]\n", job.name)
 		job.lastCheckedRunNo = CurrentRunNo
 	}
 	return newFailures
