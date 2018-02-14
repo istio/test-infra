@@ -27,9 +27,7 @@ import (
 	u "istio.io/test-infra/toolbox/util"
 )
 
-// TODO fix all job.lastCheckedRunNo to runNo
-// TODO reorder functions
-// TODO count retry
+// TODO reorder functions for better readability
 // TODO test if upload to gcs works
 // TODO include in email about the flakeStats
 
@@ -94,7 +92,7 @@ func init() {
 		jobsWatched = append(jobsWatched, &jobStatus{
 			name:             jobName,
 			lastCheckedRunNo: 0,
-			pendingFirstRuns: make(map[int][]time.Time),
+			pendingFirstRuns: make(map[int]time.Time),
 			rerunJobStats:    make(map[string]*FlakeStat),
 		})
 	}
@@ -169,9 +167,9 @@ func getProwJobConfig(job *jobStatus, runNo int) (ProwJobConfig, error) {
 	return cfg, nil
 }
 
-func formatMessage(failures []postSubmitJob) (mess string) {
-	for _, job := range failures {
-		mess += fmt.Sprintf("%s failed: %s/%s/%d\n\n", job.name, gubernatorURL, job.name, job.lastCheckedRunNo)
+func formatMessage(failures []failure) (mess string) {
+	for _, f := range failures {
+		mess += fmt.Sprintf("%s failed: %s/%s/%d\n\n", f.jobName, gubernatorURL, f.jobName, f.runNo)
 	}
 	return
 }
@@ -231,24 +229,22 @@ func checkOnJobsWatched() []failure {
 		if job.lastCheckedRunNo == 0 {
 			job.lastCheckedRunNo = CurrentRunNo - 1
 		}
-		// There may be more than one job in between checks
-		// The invariant is that each run of the job is checked exactly once
-		for runNo := job.lastCheckedRunNo + 1; runNo <= CurrentRunNo; runNo++ {
-			prowResult, err := getProwResult(job.name, runNo)
-			if err != nil {
-				log.Printf("Prow result still pending for %s/%d\n", job.name, runNo)
-				if firstTryTime, exists := job.pendingFirstRuns[runNo]; exists {
-					if u.IsLongerThan(time.Since(firstTryTime), pendingJobTimeout) {
-						log.Printf("Give up polling %s/%d\n", job.name, runNo)
-						delete(job.pendingFirstRuns, runNo)
-					}
-				} else {
-					job.pendingFirstRuns[runNo] = time.Now()
-				}
-				continue
+		// Clone a slice of keys in map to avoid editing while iterating
+		// Then check previously pending runs to see if results are ready
+		pendingRuns := make([]int, 0, len(job.pendingFirstRuns))
+		for runNo := range job.pendingFirstRuns {
+			pendingRuns = append(pendingRuns, runNo)
+		}
+		log.Printf("Checking previously pending run numbers: [%v]\n", pendingRuns)
+		for _, runNo := range pendingRuns {
+			if f := fetchAndProcessProwResult(job, runNo); f != nil {
+				newFailures = append(newFailures, *f)
 			}
-			log.Printf("%s/%d -- Passed? [%t]\n", job.name, runNo, prowResult.Passed)
-			if f := processProwResult(job, prowResult); f != nil {
+		}
+		// Check new runs since last check
+		log.Printf("Checking new run numbers since last check\n")
+		for runNo := job.lastCheckedRunNo + 1; runNo <= CurrentRunNo; runNo++ {
+			if f := fetchAndProcessProwResult(job, runNo); f != nil {
 				newFailures = append(newFailures, *f)
 			}
 		}
@@ -257,7 +253,29 @@ func checkOnJobsWatched() []failure {
 	return newFailures
 }
 
-func getProwResult(jobName string, runNo int) (*ProwResult, error) {
+func fetchAndProcessProwResult(job *jobStatus, runNo int) *failure {
+	prowResult, err := fetchProwResult(job.name, runNo)
+	if err != nil {
+		log.Printf("Prow result still pending for %s/%d\n", job.name, runNo)
+		if firstTryTime, exists := job.pendingFirstRuns[runNo]; exists {
+			if u.IsLongerThan(time.Since(firstTryTime), pendingJobTimeout) {
+				log.Printf("Give up polling %s/%d\n", job.name, runNo)
+				delete(job.pendingFirstRuns, runNo)
+			}
+		} else {
+			job.pendingFirstRuns[runNo] = time.Now()
+		}
+		return nil
+	}
+	if _, exists := job.pendingFirstRuns[runNo]; exists {
+		log.Printf("Former pending prow result is available for %s/%d\n", job.name, runNo)
+		delete(job.pendingFirstRuns, runNo)
+	}
+	log.Printf("%s/%d -- Passed? [%t]\n", job.name, runNo, prowResult.Passed)
+	return processProwResult(job, runNo, prowResult)
+}
+
+func fetchProwResult(jobName string, runNo int) (*ProwResult, error) {
 	target := filepath.Join(jobName, strconv.Itoa(runNo))
 	jobFinishedFile := filepath.Join(target, finishedJSON)
 	prowResultString, err := gcsClient.GetFileFromGCSString(*gcsBucket, jobFinishedFile)
@@ -273,11 +291,6 @@ func getProwResult(jobName string, runNo int) (*ProwResult, error) {
 	return &prowResult, nil
 }
 
-func getAndProcessProwResult(
-	job *postSubmitJob, runNo int, pushPendingList bool) []postSubmitJob {
-	// TODO also poll previously pending jobs
-}
-
 func processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failure {
 	if *catchFlakesByRun {
 		resultSHA := prowResult.Metadata.RepoCommit
@@ -288,7 +301,7 @@ func processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failu
 			}
 			if flakeStatPtr.TotalRerun == *numRerun {
 				log.Printf("All reruns on job [%s] at sha [%s] have finished\n", job.name, resultSHA)
-				if err := recordFlakeStatToGCS(job, flakeStatPtr); err != nil {
+				if err := recordFlakeStatToGCS(job, runNo, flakeStatPtr); err != nil {
 					log.Printf("Failed to write flakeStat to GCS: %v\n", err)
 				}
 				// delete resultSHA from job.rerunJobStats since all reruns have finished
