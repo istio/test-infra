@@ -303,7 +303,7 @@ func processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failu
 			}
 			if flakeStatPtr.TotalRerun == *numRerun {
 				log.Printf("All reruns on job [%s] at sha [%s] have finished\n", job.name, resultSHA)
-				if err := recordFlakeStatToGCS(job, runNo, flakeStatPtr); err != nil {
+				if err := recordFlakeStatToGCS(job, flakeStatPtr); err != nil {
 					log.Printf("Failed to write flakeStat to GCS: %v\n", err)
 				}
 				// delete resultSHA from job.rerunJobStats since all reruns have finished
@@ -332,13 +332,22 @@ func processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failu
 	return nil
 }
 
-func recordFlakeStatToGCS(job *jobStatus, runNo int, flakeStat *FlakeStat) error {
-	target := filepath.Join(job.name, strconv.Itoa(runNo))
-	flakeStatFile := filepath.Join(target, flakeStatJSON)
-	flakeStatStr, err := SerializeFlakeStat(flakeStat)
+func recordFlakeStatToGCS(job *jobStatus, newFlakeStat *FlakeStat) error {
+	flakeStatsFile := filepath.Join(job.name, flakeStatsJSON)
+	flakeStatsString, err := gcsClient.GetFileFromGCSString(*gcsBucket, flakeStatsFile)
+	flakeStats, err := DeserializeFlakeStats(flakeStatsString)
 	if err != nil {
 		return err
 	}
-	log.Printf("Writing to GCS flakeStat = %v\n", flakeStatStr)
-	return gcsClient.WriteTextToFileOnGCS(*gcsBucket, flakeStatFile, flakeStatStr)
+	flakeStats = append(flakeStats, newFlakeStat)
+	updatedflakeStatsString, err := SerializeFlakeStats(flakeStats)
+	if err != nil {
+		return err
+	}
+	newflakeStatString, err := SerializeFlakeStats(newFlakeStat)
+	if err != nil {
+		return err
+	}
+	log.Printf("Writing to GCS newFlakeStat = %s\n", newflakeStatString)
+	return gcsClient.WriteTextToFileOnGCS(*gcsBucket, flakeStatsFile, updatedflakeStatsString)
 }

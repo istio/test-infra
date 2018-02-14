@@ -58,3 +58,16 @@ func SerializeFlakeStat(flakeStat *FlakeStat) (string, error) {
 	pickled, err := json.MarshalIndent(*flakeStat, "", "\t")
 	return string(pickled), err
 }
+
+// SerializeFlakeStats flatten in-memory []FlakeStat to string
+func SerializeFlakeStats(flakeStats []*FlakeStat) (string, error) {
+	pickled, err := json.MarshalIndent(*flakeStats, "", "\t")
+	return string(pickled), err
+}
+
+// DeserializeFlakeStats inflate the list of FlakeStat from string
+func DeserializeFlakeStats(pickled string) ([]FlakeStat, error) {
+	var flakeStats []FlakeStat
+	err := json.Unmarshal([]byte(pickled), &flakeStats)
+	return flakeStats, err
+}
