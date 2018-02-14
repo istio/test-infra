@@ -41,7 +41,7 @@ type jobStatus struct {
 	lastCheckedRunNo int
 	// Jobs may finish in different order in which they start
 	// Key: run number whose result still pending
-	// Value: time when the first attemp to fetch result was made
+	// Value: time when the first attempt to fetch result was made
 	pendingFirstRuns map[int]time.Time
 	// Key: Commit SHA from which reruns are triggered
 	// Value: FlakeStat
