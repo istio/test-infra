@@ -30,3 +30,4 @@ Our dependency on this script is because it appropariately writes test job resul
 * 0.3.4: add protoc 3.5.0
 * 0.3.5: add protoc 3.5.0 include files
 * 0.3.6: add fpm and its ruby dependencies
+* 0.4.0: update bazel to 0.10.0
