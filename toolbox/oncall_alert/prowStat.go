@@ -54,14 +54,14 @@ type FlakeStat struct {
 }
 
 // SerializeFlakeStat flattens in-memory FlakeStat to string
-func SerializeFlakeStat(flakeStat *FlakeStat) (string, error) {
-	pickled, err := json.MarshalIndent(*flakeStat, "", "\t")
+func SerializeFlakeStat(flakeStat FlakeStat) (string, error) {
+	pickled, err := json.MarshalIndent(flakeStat, "", "\t")
 	return string(pickled), err
 }
 
 // SerializeFlakeStats flatten in-memory []FlakeStat to string
-func SerializeFlakeStats(flakeStats []*FlakeStat) (string, error) {
-	pickled, err := json.MarshalIndent(*flakeStats, "", "\t")
+func SerializeFlakeStats(flakeStats []FlakeStat) (string, error) {
+	pickled, err := json.MarshalIndent(flakeStats, "", "\t")
 	return string(pickled), err
 }
 

@@ -54,6 +54,6 @@ var (
 	protectedRepo    = flag.String("protected_repo", "istio", "Protected repo")
 	protectedBranch  = flag.String("protected_branch", "master", "Protected branch")
 	guardMaster      = flag.Bool("guard_master", false, "Suspend merge bot if postsubmit fails")
-	emailSending     = flag.Bool("email_sending", false, "Sending alert email")
+	emailSending     = flag.Bool("email_sending", true, "Sending alert email")
 	catchFlakesByRun = flag.Bool("catch_flakes_by_rerun", true, "whether to rerun failed jobs to detect flakyness")
 )

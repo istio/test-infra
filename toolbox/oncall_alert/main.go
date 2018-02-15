@@ -28,9 +28,8 @@ import (
 )
 
 // TODO reorder functions for better readability
-// TODO recordFlakeStatToGCS to write to one level above
-// and use a single file to record a list so stats are not scattered in different folders
 // TODO include in email about the flakeStats
+// TODO generate JUnit XML and get testcase level results
 
 type jobStatus struct {
 	// Assume job name unique
@@ -57,14 +56,12 @@ var (
 	gcsClient  *u.GCSClient
 	githubClnt *u.GithubClient
 
-	jobsWatched []*jobStatus
-	// protectedJobs = []string{"istio-postsubmit", "e2e-suite-rbac-auth", "e2e-suite-rbac-no_auth"}
-	protectedJobs     = []string{"istio-postsubmit"}
+	jobsWatched       []*jobStatus
+	protectedJobs     = []string{"istio-postsubmit", "e2e-suite-rbac-auth", "e2e-suite-rbac-no_auth"}
 	receivers         = []string{oncallMaillist}
 	gmailAppPass      string
 	location          *time.Location
 	pendingJobTimeout = 60 * time.Minute
-	onStart           = true
 )
 
 func init() {
@@ -220,10 +217,6 @@ func checkOnJobsWatched() []failure {
 			log.Printf("Failed to get last run number of %s: %v\n", job.name, err)
 			continue
 		}
-		if onStart {
-			onStart = false
-			// CurrentRunNo = 849 // TODO revert
-		}
 		log.Printf("Job: [%s] \t Current Run No: [%d] \t Previously Checked: [%d]\n",
 			job.name, CurrentRunNo, job.lastCheckedRunNo)
 		// Avoid pulling entire history when the daemon has just started
@@ -303,7 +296,7 @@ func processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failu
 			}
 			if flakeStatPtr.TotalRerun == *numRerun {
 				log.Printf("All reruns on job [%s] at sha [%s] have finished\n", job.name, resultSHA)
-				if err := recordFlakeStatToGCS(job, flakeStatPtr); err != nil {
+				if err := recordFlakeStatToGCS(job, *flakeStatPtr); err != nil {
 					log.Printf("Failed to write flakeStat to GCS: %v\n", err)
 				}
 				// delete resultSHA from job.rerunJobStats since all reruns have finished
@@ -332,7 +325,7 @@ func processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failu
 	return nil
 }
 
-func recordFlakeStatToGCS(job *jobStatus, newFlakeStat *FlakeStat) error {
+func recordFlakeStatToGCS(job *jobStatus, newFlakeStat FlakeStat) error {
 	flakeStatsFile := filepath.Join(job.name, flakeStatsJSON)
 	flakeStatsString, err := gcsClient.GetFileFromGCSString(*gcsBucket, flakeStatsFile)
 	flakeStats, err := DeserializeFlakeStats(flakeStatsString)
@@ -344,7 +337,7 @@ func recordFlakeStatToGCS(job *jobStatus, newFlakeStat *FlakeStat) error {
 	if err != nil {
 		return err
 	}
-	newflakeStatString, err := SerializeFlakeStats(newFlakeStat)
+	newflakeStatString, err := SerializeFlakeStat(newFlakeStat)
 	if err != nil {
 		return err
 	}
