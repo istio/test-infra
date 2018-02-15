@@ -265,11 +265,42 @@ presubmits:
         - name: service
           secret:
             secretName: service-account
-    - name: e2e-smoke
+    - name: e2e-bookInfoTests
       agent: kubernetes
-      context: prow/e2e-smoke.sh
-      rerun_command: "/test e2e-smoke"
-      trigger: "(?m)^/test (e2e-smoke)?,?(\\s+|$)"
+      context: prow/e2e-bookInfoTests.sh
+      rerun_command: "/test e2e-bookInfo"
+      trigger: "(?m)^/test (e2e-bookInfo)?,?(\\s+|$)"
+      spec:
+        containers:
+        - image: gcr.io/istio-testing/prowbazel:0.3.6
+          args:
+          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+          - "--clean"
+          - "--timeout=60"
+          # Bazel needs privileged mode in order to sandbox builds.
+          securityContext:
+            privileged: true
+          env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /etc/service-account/service-account.json
+          volumeMounts:
+          - name: service
+            mountPath: /etc/service-account
+            readOnly: true
+          - name: kubeconfig
+            mountPath: /home/bootstrap/.kube
+        volumes:
+        - name: service
+          secret:
+            secretName: service-account
+        - name: kubeconfig
+          secret:
+            secretName: istio-e2e-rbac-kubeconfig
+    - name: e2e-simpleTests
+      agent: kubernetes
+      context: prow/e2e-simpleTests.sh
+      rerun_command: "/test e2e-simple"
+      trigger: "(?m)^/test (e2e-simple)?,?(\\s+|$)"
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.3.6
