@@ -328,6 +328,9 @@ func processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failu
 func recordFlakeStatToGCS(job *jobStatus, newFlakeStat FlakeStat) error {
 	flakeStatsFile := filepath.Join(job.name, flakeStatsJSON)
 	flakeStatsString, err := gcsClient.GetFileFromGCSString(*gcsBucket, flakeStatsFile)
+	if err != nil {
+		return err
+	}
 	flakeStats, err := DeserializeFlakeStats(flakeStatsString)
 	if err != nil {
 		return err
