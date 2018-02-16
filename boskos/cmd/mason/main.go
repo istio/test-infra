@@ -27,7 +27,6 @@ import (
 	"k8s.io/test-infra/boskos/mason"
 )
 
-
 const (
 	defaultUpdatePeriod = time.Minute * 1
 )
@@ -35,7 +34,6 @@ const (
 var (
 	configPath = flag.String("config", "", "Path to persistent volume to load configs")
 )
-
 
 func main() {
 	flag.Parse()
