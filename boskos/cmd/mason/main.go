@@ -27,7 +27,15 @@ import (
 	"k8s.io/test-infra/boskos/mason"
 )
 
-var configPath = flag.String("config", "", "Path to persistent volume to load configs")
+
+const (
+	defaultUpdatePeriod = time.Minute * 1
+)
+
+var (
+	configPath = flag.String("config", "", "Path to persistent volume to load configs")
+)
+
 
 func main() {
 	flag.Parse()
@@ -47,7 +55,7 @@ func main() {
 		logrus.WithError(err).Panicf("failed to update mason config")
 	}
 	go func() {
-		for range time.NewTicker(time.Minute * 10).C {
+		for range time.NewTicker(defaultUpdatePeriod).C {
 			if err := mason.UpdateConfigs(*configPath); err != nil {
 				logrus.WithError(err).Warning("failed to update mason config")
 			}
