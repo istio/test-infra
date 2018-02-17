@@ -1,5 +1,4 @@
 # Infra
------
 
 This directory contains a Makefile and other resources for managing the Istio CI infrastructure. This infrastructure consists of a subset of the [k8s test-infra prow](https://github.com/kubernetes/test-infra/tree/master/prow) deployments.
 
@@ -20,7 +19,7 @@ We run the k8s-prow images. These images are built from source [here](https://gi
 
 ### Upgrading Prow
 
-Please check Prow cnnouncements before starting an upgrade (https://github.com/kubernetes/test-infra/tree/master/prow#announcements)
+Please check Prow announcements before starting an upgrade (https://github.com/kubernetes/test-infra/tree/master/prow#announcements)
 
 It is a good idea to take a quick glance at the [Kubernetes Prow config](https://github.com/kubernetes/test-infra/blob/master/prow/config.yaml)
 if you see anything new that looks backward incompatible.
@@ -212,7 +211,7 @@ PR Number: 465
 PR author: yutongz
 PR SHA (e.g. 72bcb5d80): d7e1ef38cf294de11062a6760d073827585af219
 ```
-Prow should respone:
+Prow should respond:
 ```
 prowjob "e810668f-9435-11e7-9a4d-784f43915c4d" created
 ```
