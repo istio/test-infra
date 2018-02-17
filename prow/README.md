@@ -211,7 +211,7 @@ PR Number: 465
 PR author: yutongz
 PR SHA (e.g. 72bcb5d80): d7e1ef38cf294de11062a6760d073827585af219
 ```
-Prow should respone:
+Prow should respond:
 ```
 prowjob "e810668f-9435-11e7-9a4d-784f43915c4d" created
 ```
