@@ -1,5 +1,4 @@
 # Infra
------
 
 This directory contains a Makefile and other resources for managing the Istio CI infrastructure. This infrastructure consists of a subset of the [k8s test-infra prow](https://github.com/kubernetes/test-infra/tree/master/prow) deployments.
 
