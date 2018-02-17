@@ -5,7 +5,7 @@
 * [Tests Types](#tests-types)
 * [Life of a PR](#life-of-a-pr)
 * [Breaking Change](#breaking-change)
-* [Admin Responsabilities](#admin-responsabilities)
+* [Admin Responsibilities](#admin-responsibilities)
 * [Build Cop Responsibilities](#build-cop-responsibilities)
 * [FAQ](#faq)
   + [My PR has required check but they did not start. Why ?](#my-pr-has-required-check-but-they-did-not-start-why-)
@@ -105,7 +105,7 @@ In that case follow this procedure
 
 ![Breaking Change](doc/breaking_change.png)
 
-## Admin Responsabilities ##
+## Admin Responsibilities ##
 
 1. Force push the breaking change after checking that testing artifacts created by the PR are passing the smoke test.
 1. Working with the breaking change's author until the situation is resolved.
