@@ -18,7 +18,7 @@ RUN chmod +x /tmp/istio_tmp/scripts/linux-install-software
 RUN /tmp/istio_tmp/scripts/linux-install-software \
     && rm -rf /tmp/istio_tmp
 
-ENV PATH /usr/local/go/bin:/usr/lib/google-cloud-sdk/bin:${PATH}
+ENV PATH /usr/local/go/bin:/usr/lib/google-cloud-sdk/bin:/opt/go/bin:${PATH}
 
 # Create bootstrap user
 ENV HOME /home/bootstrap
