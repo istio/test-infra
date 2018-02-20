@@ -815,15 +815,10 @@ postsubmits:
           - name: service
             mountPath: /etc/service-account
             readOnly: true
-          - name: kubeconfig
-            mountPath: /home/bootstrap/.kube
         volumes:
         - name: service
           secret:
             secretName: service-account
-        - name: kubeconfig
-          secret:
-            secretName: istio-e2e-rbac-kubeconfig
     - name: e2e-suite-rbac-auth
       agent: kubernetes
       spec:
