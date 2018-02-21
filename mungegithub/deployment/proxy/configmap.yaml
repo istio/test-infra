@@ -10,9 +10,15 @@ repo-dir: /gitrepos
 github-key-file: /etc/hook-secret-volume/secret
 
 # status context options.
-required-contexts: "prow/proxy-presubmit.sh"
+required-contexts: "\
+  prow/proxy-presubmit.sh,\
+  prow/proxy-presubmit-asan.sh,\
+  prow/proxy-presubmit-tsan.sh"
 protected-branches-extra-contexts: ""
-required-retest-contexts: "prow/proxy-presubmit.sh"
+required-retest-contexts: "\
+  prow/proxy-presubmit.sh,\
+  prow/proxy-presubmit-asan.sh,\
+  prow/proxy-presubmit-tsan.sh"
 
 # submit-queue options.
 protected-branches: ""

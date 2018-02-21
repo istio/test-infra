@@ -79,6 +79,100 @@ presubmits:
         hostPath:
           path: /mnt/disks/ssd0
 
+  - name: proxy-presubmit-asan
+    agent: kubernetes
+    context: prow/proxy-presubmit-asan.sh
+    always_run: true
+    rerun_command: "/test proxy-presubmit-asan"
+    trigger: "(?m)^/(retest|test (all|proxy-presubmit-asan))?,?(\\s+|$)"
+    branches:
+    - master
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.3.6
+        args:
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+        - "--clean"
+        - "--timeout=60"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: cache-ssd
+          mountPath: /home/bootstrap/.cache
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "20Gi"
+            cpu: "5000m"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: build-pool
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0
+
+  - name: proxy-presubmit-tsan
+    agent: kubernetes
+    context: prow/proxy-presubmit-tsan.sh
+    always_run: true
+    rerun_command: "/test proxy-presubmit-tsan"
+    trigger: "(?m)^/(retest|test (all|proxy-presubmit-tsan))?,?(\\s+|$)"
+    branches:
+    - master
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.3.6
+        args:
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+        - "--clean"
+        - "--timeout=60"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+        - name: cache-ssd
+          mountPath: /home/bootstrap/.cache
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "20Gi"
+            cpu: "5000m"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: build-pool
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0
+
   istio/api:
 
   - name: api-presubmit
