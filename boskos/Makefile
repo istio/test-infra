@@ -12,7 +12,7 @@ mason-image:
 	rm cmd/mason/mason
 
 mason-client:
-	go build -o cmd/client/client istio.io/test-infra/boskos/cmd/client
+	go build -o cmd/mason_client/mason_client istio.io/test-infra/boskos/cmd/mason_client
 
 deploy: boskos-deployment reaper-deployment janitor-deployment mason-deployment boskos-service
 

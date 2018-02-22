@@ -31,7 +31,6 @@ import (
 	"k8s.io/test-infra/boskos/common"
 	"k8s.io/test-infra/boskos/mason"
 
-	"gopkg.in/yaml.v2"
 	"istio.io/test-infra/boskos/gcp"
 )
 
@@ -112,15 +111,7 @@ func saveUserdataToFile(ud common.UserData, key, path string) error {
 	if !ok {
 		return nil
 	}
-	typedContent := common.ConfigType{
-		Type:    key,
-		Content: v,
-	}
-	data, err := yaml.Marshal(&typedContent)
-	if err != nil {
-		return err
-	}
-	return ioutil.WriteFile(path, data, 0644)
+	return ioutil.WriteFile(path, []byte(v), 0644)
 }
 
 func wait() {
