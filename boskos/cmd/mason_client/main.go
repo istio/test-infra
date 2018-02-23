@@ -36,7 +36,6 @@ import (
 
 const (
 	defaultSleepTime = 10 * time.Second
-	defaultState     = "used"
 	defaultTimeout   = "10m"
 )
 
@@ -51,7 +50,6 @@ func defaultKubeconfig() string {
 var (
 	owner       = flag.String("owner", "", "")
 	rType       = flag.String("type", "", "Type of resource to acquire")
-	state       = flag.String("state", defaultState, "State to put the resource as")
 	timeoutStr  = flag.String("timeout", defaultTimeout, "Timeout ")
 	kubecfgPath = flag.String("kubeconfig-save", defaultKubeconfig(), "Path to write kubeconfig file to")
 	infoSave    = flag.String("info-save", "", "Path to save info")
@@ -146,12 +144,12 @@ func main() {
 	c2, updateCancel := context.WithCancel(context.Background())
 	defer acquireCancel()
 	defer updateCancel()
-	res, err := client.acquire(c1, *rType, *state)
+	res, err := client.acquire(c1, *rType, common.Busy)
 	if err != nil {
 		logrus.WithError(err).Panicf("unable to find a resource")
 	}
 	defer client.release(*res)
-	client.update(c2, *state)
+	client.update(c2, common.Busy)
 
 	for cType := range res.UserData {
 		switch cType {
