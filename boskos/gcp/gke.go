@@ -27,6 +27,9 @@ import (
 const (
 	operationTimeout = 15 * time.Minute
 	defaultSleepTime = 10 * time.Second
+	// Defined in https://godoc.org/google.golang.org/api/container/v1#Operation
+	operationDone     = "DONE"
+	operationAborting = "ABORTING"
 )
 
 type clusterConfig struct {
@@ -61,9 +64,9 @@ func (cc *containerEngine) waitForOperation(ctx context.Context, op *container.O
 				return err
 			}
 			switch newOp.Status {
-			case "DONE":
+			case operationDone:
 				return nil
-			case "ABORTING":
+			case operationAborting:
 				return fmt.Errorf(newOp.StatusMessage)
 			}
 		}

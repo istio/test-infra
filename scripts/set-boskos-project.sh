@@ -12,14 +12,16 @@ set -u
 # Print commands
 set -x
 
-USERS=()
-USERS+=('serviceAccount:boskos@istio-testing.iam.gserviceaccount.com')
-USERS+=('serviceAccount:istio-prow-test-job@istio-testing.iam.gserviceaccount.com')
-USERS+=('group:mdb.istio-testing@google.com')
+USERS=(
+  'serviceAccount:boskos@istio-testing.iam.gserviceaccount.com'
+  'serviceAccount:istio-prow-test-job@istio-testing.iam.gserviceaccount.com'
+  'group:mdb.istio-testing@google.com'
+)
 
-SERVICES=()
-SERVICES+=(compute.googleapis.com)
-SERVICES+=(container.googleapis.com)
+SERVICES=(
+  'compute.googleapis.com'
+  'container.googleapis.com'
+)
 
 while getopts :p:c arg; do
   case ${arg} in

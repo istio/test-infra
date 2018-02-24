@@ -141,14 +141,14 @@ func main() {
 		logrus.Panic("flag --type must be set")
 	}
 	c1, acquireCancel := context.WithTimeout(context.Background(), timeout)
-	c2, updateCancel := context.WithCancel(context.Background())
 	defer acquireCancel()
-	defer updateCancel()
 	res, err := client.acquire(c1, *rType, common.Busy)
 	if err != nil {
 		logrus.WithError(err).Panicf("unable to find a resource")
 	}
 	defer client.release(*res)
+	c2, updateCancel := context.WithCancel(context.Background())
+	defer updateCancel()
 	client.update(c2, common.Busy)
 
 	for cType := range res.UserData {

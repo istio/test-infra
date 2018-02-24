@@ -16,27 +16,16 @@ package gcp
 
 import (
 	"os"
-	"os/exec"
-	"strings"
 
-	"github.com/sirupsen/logrus"
+	"istio.io/test-infra/toolbox/util"
 )
-
-func runCommand(name string, args ...string) error {
-	logrus.Infof("running command %s %s", name, strings.Join(args, " "))
-	cmd := exec.Command(name, args...)
-	if err := cmd.Start(); err != nil {
-		logrus.Infof("failed to start command %s %s", name, strings.Join(args, " "))
-		return err
-	}
-	return cmd.Wait()
-}
 
 // SetKubeConfig saves kube config from a given cluster to the given location
 func SetKubeConfig(project, zone, cluster, kubeconfig string) error {
 	if err := os.Setenv("KUBECONFIG", kubeconfig); err != nil {
 		return err
 	}
-	return runCommand("gcloud", "container", "clusters", "get-credentials", cluster,
+	_, err := util.Shell("gcloud", "container", "clusters", "get-credentials", cluster,
 		"--project", project, "--zone", zone)
+	return err
 }

@@ -52,9 +52,9 @@ func (cc *computeEngine) waitForOperation(ctx context.Context, op *compute.Opera
 				return err
 			}
 			switch newOp.Status {
-			case "DONE":
+			case operationDone:
 				return nil
-			case "ABORTING":
+			case operationAborting:
 				return fmt.Errorf(newOp.StatusMessage)
 			}
 		}

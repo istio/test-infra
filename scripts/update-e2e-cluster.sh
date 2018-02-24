@@ -67,7 +67,7 @@ KUBECONFIG_FILE="$(mktemp)"
 gcloud config set container/use_client_certificate True
 for i in {1..2}; do
   CLUSTER_NAME="${REPO}-e2e-rbac-rotation-${i}"
-  // Passing KUBECONFIG as an env will override default ~/.kube/config
+  # Passing KUBECONFIG as an env will override default ~/.kube/config
   result=$(KUBECONFIG="${KUBECONFIG_FILE}" gcloud container clusters create ${CLUSTER_NAME} \
     --zone ${ZONE} \
     --project ${PROJECT_NAME} \
