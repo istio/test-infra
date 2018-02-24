@@ -41,11 +41,6 @@ var (
 	}
 )
 
-// IsLongerThan compares two duration
-func IsLongerThan(durA time.Duration, durB time.Duration) bool {
-	return durA.Nanoseconds() > durB.Nanoseconds()
-}
-
 // Retry executes do() until no error was returned or numTrials has reached
 func Retry(interval time.Duration, numTrials int, do func() error) error {
 	if numTrials < 0 {

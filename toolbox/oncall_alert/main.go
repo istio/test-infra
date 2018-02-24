@@ -68,7 +68,7 @@ func init() {
 	flag.Parse()
 	gcsClient = u.NewGCSClient()
 	var err error
-	if *guardMaster {
+	if *guardProtectedBranch {
 		token, err := u.GetAPITokenFromFile(*tokenFile)
 		if err != nil {
 			log.Fatalf("Error accessing user supplied token_file: %v\n", err)
@@ -83,7 +83,7 @@ func init() {
 	}
 	// Ensure all reruns commands are issued to Prow
 	if _, err := u.Shell(`gcloud container clusters get-credentials prow \
-		--project=istio-testing --zone=us-west1-a`); err != nil {
+		--project=%s --zone=%s`, *gcpProject, *prowZone); err != nil {
 		log.Fatalf("Unable to switch to prow cluster: %v\n", err)
 	}
 	for _, jobName := range protectedJobs {
@@ -110,7 +110,7 @@ func main() {
 				log.Printf("No new tests failed in last circle.")
 			}
 		}
-		if *guardMaster {
+		if *guardProtectedBranch {
 			if len(newFailures) > 0 {
 				u.BlockMergingOnBranch(githubClnt, *protectedRepo, *protectedBranch)
 			} else {
@@ -154,7 +154,7 @@ func triggerConcurrentReruns(job *jobStatus, cfg ProwJobConfig) error {
 func getProwJobConfig(job *jobStatus, runNo int) (ProwJobConfig, error) {
 	cfg := ProwJobConfig{}
 	jobStartedFile := filepath.Join(job.name, strconv.Itoa(runNo), startedJSON)
-	StartedFileString, err := gcsClient.GetFileFromGCSString(*gcsBucket, jobStartedFile)
+	StartedFileString, err := gcsClient.Read(*gcsBucket, jobStartedFile)
 	if err != nil {
 		return cfg, err
 	}
@@ -194,7 +194,7 @@ func sendMessage(body string) {
 // Example: istio-prow/istio-postsubmit/latest-build.txt
 func getLatestRun(jobName string) (int, error) {
 	lastBuildFile := filepath.Join(jobName, lastBuildTXT)
-	latestBuildString, err := gcsClient.GetFileFromGCSString(*gcsBucket, lastBuildFile)
+	latestBuildString, err := gcsClient.Read(*gcsBucket, lastBuildFile)
 	if err != nil {
 		return 0, err
 	}
@@ -253,7 +253,7 @@ func fetchAndProcessProwResult(job *jobStatus, runNo int) *failure {
 	if err != nil {
 		log.Printf("Prow result still pending for %s/%d\n", job.name, runNo)
 		if firstTryTime, exists := job.pendingFirstRuns[runNo]; exists {
-			if u.IsLongerThan(time.Since(firstTryTime), pendingJobTimeout) {
+			if time.Since(firstTryTime).Nanoseconds() > pendingJobTimeout.Nanoseconds() {
 				log.Printf("Give up polling %s/%d\n", job.name, runNo)
 				delete(job.pendingFirstRuns, runNo)
 			}
@@ -273,7 +273,7 @@ func fetchAndProcessProwResult(job *jobStatus, runNo int) *failure {
 func fetchProwResult(jobName string, runNo int) (*ProwResult, error) {
 	target := filepath.Join(jobName, strconv.Itoa(runNo))
 	jobFinishedFile := filepath.Join(target, finishedJSON)
-	prowResultString, err := gcsClient.GetFileFromGCSString(*gcsBucket, jobFinishedFile)
+	prowResultString, err := gcsClient.Read(*gcsBucket, jobFinishedFile)
 	if err != nil {
 		log.Printf("Failed to get prow job result %s: %v", target, err)
 		return nil, err
@@ -327,7 +327,7 @@ func processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failu
 
 func recordFlakeStatToGCS(job *jobStatus, newFlakeStat FlakeStat) error {
 	flakeStatsFile := filepath.Join(job.name, flakeStatsJSON)
-	flakeStatsString, err := gcsClient.GetFileFromGCSString(*gcsBucket, flakeStatsFile)
+	flakeStatsString, err := gcsClient.Read(*gcsBucket, flakeStatsFile)
 	if err != nil {
 		return err
 	}
@@ -345,5 +345,5 @@ func recordFlakeStatToGCS(job *jobStatus, newFlakeStat FlakeStat) error {
 		return err
 	}
 	log.Printf("Writing to GCS newFlakeStat = %s\n", newflakeStatString)
-	return gcsClient.WriteTextToFileOnGCS(*gcsBucket, flakeStatsFile, updatedflakeStatsString)
+	return gcsClient.Write(*gcsBucket, flakeStatsFile, updatedflakeStatsString)
 }

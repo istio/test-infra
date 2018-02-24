@@ -40,9 +40,9 @@ func NewGCSClient() *GCSClient {
 	}
 }
 
-// GetFileFromGCSReader gets a file and return a reader
+// GetReaderOnFile return a GCS reader on the requested obj
 // Caller is responsible to close reader afterwards.
-func (gcs *GCSClient) GetFileFromGCSReader(bucket, obj string) (*storage.Reader, error) {
+func (gcs *GCSClient) GetReaderOnFile(bucket, obj string) (*storage.Reader, error) {
 	ctx := context.Background()
 	r, err := gcs.client.Bucket(bucket).Object(obj).NewReader(ctx)
 	if err != nil {
@@ -52,9 +52,9 @@ func (gcs *GCSClient) GetFileFromGCSReader(bucket, obj string) (*storage.Reader,
 	return r, nil
 }
 
-// GetFileFromGCSString gets a file and return a string
-func (gcs *GCSClient) GetFileFromGCSString(bucket, obj string) (string, error) {
-	r, err := gcs.GetFileFromGCSReader(bucket, obj)
+// Read gets a file and return a string
+func (gcs *GCSClient) Read(bucket, obj string) (string, error) {
+	r, err := gcs.GetReaderOnFile(bucket, obj)
 	if err != nil {
 		return "", err
 	}
@@ -71,8 +71,8 @@ func (gcs *GCSClient) GetFileFromGCSString(bucket, obj string) (string, error) {
 	return buf.String(), nil
 }
 
-// WriteTextToFileOnGCS writes text to file on gcs
-func (gcs *GCSClient) WriteTextToFileOnGCS(bucket, gcsObj, txt string) error {
+// Write writes text to file on gcs
+func (gcs *GCSClient) Write(bucket, gcsObj, txt string) error {
 	ctx := context.Background()
 	w := gcs.client.Bucket(bucket).Object(gcsObj).NewWriter(ctx)
 	if _, err := fmt.Fprintf(w, txt); err != nil {
