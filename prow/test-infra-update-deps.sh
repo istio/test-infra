@@ -42,6 +42,8 @@ case ${GIT_BRANCH} in
     hour=`date "+%I"` #( 1..12)
     day_of_week=`date "+%u"` #( 1..7)
     repos=( proxy )
+    hour=25 #disable bot for istio repo, its broken now
+    # TODO need to update the bot for istio after fixing it
     case ${hour} in
       02|04|06|08|10|12)
 	./bazel-bin/toolbox/deps_update/deps_update \
