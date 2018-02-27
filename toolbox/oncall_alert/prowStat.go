@@ -46,11 +46,18 @@ type ProwJobConfig struct {
 
 // FlakeStat records the stats from flakiness detection by multiple reruns
 type FlakeStat struct {
-	TestName           string `json:"testName"`
-	SHA                string `json:"sha"`
-	TotalRerun         int    `json:"totalRerun"`
-	Failures           int    `json:"failures"`
-	ParentJobTimeStamp uint32 `json:"parentJobTimeStamp"`
+	TestName           string           `json:"testName"`
+	SHA                string           `json:"sha"`
+	TotalRerun         int              `json:"totalRerun"`
+	Failures           int              `json:"failures"`
+	ParentJobTimeStamp uint32           `json:"parentJobTimeStamp"`
+	failedTestCases    []FailedTestCase `json:"failedTestCases"`
+}
+
+type FailedTestCase struct {
+	Name       string `json:"name"`
+	TotalRerun int    `json:"totalRerun"`
+	Failures   int    `json:"failures"`
 }
 
 // SerializeFlakeStat flattens in-memory FlakeStat to string
