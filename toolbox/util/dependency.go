@@ -40,12 +40,12 @@ import (
 
 // Dependency records meta data
 type Dependency struct {
+	Comment       string `json:"_comment"` // hack comment into json file
 	Name          string `json:"name"`
 	RepoName      string `json:"repoName"`
 	ProdBranch    string `json:"prodBranch"`    // either master or stable
 	File          string `json:"file"`          // where in the *parent* repo such dependecy is recorded
 	LastStableSHA string `json:"lastStableSHA"` // sha used in the latest stable build of parent
-	Comment       string `json:"_comment"`      // hack comment into json file
 }
 
 // DeserializeDeps get the list of dependencies of a repo by
