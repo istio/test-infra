@@ -13,7 +13,7 @@ functionality was added with the Mason module.
 
 Boskos runs on a kubernetes cluster. Initially only Prow jobs will be using
 Boskos. Since Boskos service is only available intra cluster, it is important
-that Boskos runs in the same cluster were test jobs are running.
+that Boskos runs in the same cluster where test jobs are running.
 
 ### Deployments
 
@@ -51,7 +51,7 @@ make mason-deployment
 ## Mason
 
 Mason is used for resources that have resources dependency. Mason resource are
-virtual, they only exist inside other resources. An example is a mason resource
+virtual, they only exist inside other resources. An example of a mason resource
 can be a cluster, which needs to exist in a GCP project. In order to create a
 cluster you need a GCP project first.
 
