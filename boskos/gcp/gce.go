@@ -1,4 +1,4 @@
-// Copyright 2017 Istio Authors
+// Copyright 2018 Istio Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,7 +56,10 @@ func (cc *computeEngine) waitForOperation(ctx context.Context, op *compute.Opera
 				return nil
 			case operationAborting:
 				return fmt.Errorf(newOp.StatusMessage)
+			default:
+				logrus.Infof("operation %s status is %s", newOp.Name, newOp.Status)
 			}
+
 		}
 	}
 }
