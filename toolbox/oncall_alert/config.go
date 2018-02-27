@@ -1,4 +1,4 @@
-// Copyright 2017 Istio Authors
+// Copyright 2018 Istio Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ const (
 var (
 	gcsBucket            = flag.String("bucket", "istio-prow", "Prow artifact GCS bucket name.")
 	interval             = flag.Int("interval", 60, "Check and report interval(seconds)")
-	numRerun             = flag.Int("num_rerun", 1, "Number of reruns to detect flakyness")
+	numRerun             = flag.Int("num_rerun", 3, "Number of reruns to detect flakyness")
 	owner                = flag.String("owner", "istio", "Github owner or org")
 	tokenFile            = flag.String("github_token", tokenFileDocker, "Path to github token")
 	gmailAppPassFile     = flag.String("gmail_app_password", gmailAppPassFileDocker, "Path to gmail application password")

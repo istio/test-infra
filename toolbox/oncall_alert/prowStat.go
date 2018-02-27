@@ -54,6 +54,7 @@ type FlakeStat struct {
 	failedTestCases    []FailedTestCase `json:"failedTestCases"`
 }
 
+// FailedTestCase is the per test case rerun results
 type FailedTestCase struct {
 	Name       string `json:"name"`
 	TotalRerun int    `json:"totalRerun"`
@@ -64,17 +65,4 @@ type FailedTestCase struct {
 func SerializeFlakeStat(flakeStat FlakeStat) (string, error) {
 	pickled, err := json.MarshalIndent(flakeStat, "", "\t")
 	return string(pickled), err
-}
-
-// SerializeFlakeStats flatten in-memory []FlakeStat to string
-func SerializeFlakeStats(flakeStats []FlakeStat) (string, error) {
-	pickled, err := json.MarshalIndent(flakeStats, "", "\t")
-	return string(pickled), err
-}
-
-// DeserializeFlakeStats inflate the list of FlakeStat from string
-func DeserializeFlakeStats(pickled string) ([]FlakeStat, error) {
-	var flakeStats []FlakeStat
-	err := json.Unmarshal([]byte(pickled), &flakeStats)
-	return flakeStats, err
 }

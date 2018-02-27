@@ -296,8 +296,8 @@ func processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failu
 			}
 			if flakeStatPtr.TotalRerun == *numRerun {
 				log.Printf("All reruns on job [%s] at sha [%s] have finished\n", job.name, resultSHA)
-				if err := recordFlakeStatToGCS(job, *flakeStatPtr); err != nil {
-					log.Printf("Failed to write flakeStat to GCS: %v\n", err)
+				if err := storeFlakeStat(job, *flakeStatPtr); err != nil {
+					log.Printf("Failed to store flakeStat: %v\n", err)
 				}
 				// delete resultSHA from job.rerunJobStats since all reruns have finished
 				delete(job.rerunJobStats, resultSHA)
@@ -325,25 +325,7 @@ func processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failu
 	return nil
 }
 
-func recordFlakeStatToGCS(job *jobStatus, newFlakeStat FlakeStat) error {
-	flakeStatsFile := filepath.Join(job.name, flakeStatsJSON)
-	flakeStatsString, err := gcsClient.Read(*gcsBucket, flakeStatsFile)
-	if err != nil {
-		return err
-	}
-	flakeStats, err := DeserializeFlakeStats(flakeStatsString)
-	if err != nil {
-		return err
-	}
-	flakeStats = append(flakeStats, newFlakeStat)
-	updatedflakeStatsString, err := SerializeFlakeStats(flakeStats)
-	if err != nil {
-		return err
-	}
-	newflakeStatString, err := SerializeFlakeStat(newFlakeStat)
-	if err != nil {
-		return err
-	}
-	log.Printf("Writing to GCS newFlakeStat = %s\n", newflakeStatString)
-	return gcsClient.Write(*gcsBucket, flakeStatsFile, updatedflakeStatsString)
+func storeFlakeStat(job *jobStatus, newFlakeStat FlakeStat) error {
+	// TODO
+	return nil
 }
