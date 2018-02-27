@@ -13,14 +13,14 @@ go_library(
 
 go_binary(
     name = "pkg_check",
+    embed = [":go_default_library"],
     importpath = "istio.io/test-infra/toolbox/pkg_check",
-    library = ":go_default_library",
     visibility = ["//visibility:public"],
 )
 
 go_test(
     name = "go_default_test",
     srcs = ["main_test.go"],
+    embed = [":go_default_library"],
     importpath = "istio.io/test-infra/toolbox/pkg_check",
-    library = ":go_default_library",
 )

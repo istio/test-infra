@@ -1,0 +1,32 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: boskos
+  namespace: boskos
+spec:
+  serviceName: "boskos"
+  replicas: 1  # one canonical source of resources
+  template:
+    metadata:
+      labels:
+        app: boskos
+      namespace: boskos
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: boskos
+        image: gcr.io/istio-testing/boskos:v20180214-ea0601591
+        args:
+        - --config=/etc/config/config
+        - --namespace=boskos
+        ports:
+          - containerPort: 8080
+            protocol: TCP
+        volumeMounts:
+        - name: config
+          mountPath: /etc/config
+          readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: boskos-config

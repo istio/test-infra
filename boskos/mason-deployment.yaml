@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: boskos-mason
+  labels:
+    app: boskos-mason
+  namespace: boskos
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: boskos-mason
+    spec:
+      terminationGracePeriodSeconds: 300
+      containers:
+      - name: boskos-mason
+        image: gcr.io/istio-testing/mason:v20180216-stable-3191e68-288-g0f2e9cb
+        args:
+        - --config=/etc/config/config
+        - --service-account=/etc/service-account/service-account.json
+        - --resource-types=gke-e2e-test
+        - --channel-buffer-size=10
+        volumeMounts:
+        - mountPath: /etc/service-account
+          name: service-account
+          readOnly: true
+        - mountPath: /etc/config
+          name: config
+          readOnly: true
+      volumes:
+      - name: service-account
+        secret:
+          secretName: boskos-service-account
+      - name: config
+        configMap:
+          name: mason-config
+

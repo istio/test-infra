@@ -32,14 +32,10 @@ PROW_CLUSTER='prow'
 PROW_ZONE='us-west1-a'
 PROW_PROJECT='istio-testing'
 PROW_TEST_NS='test-pods'
-CONFIG_BACKUPED=false
 
 cleanup () {
-  if [ "${CONFIG_BACKUPED}" = true ]; then
-    mv "${CONFIG_BACKUP}" "${CONFIG_FILE}"
-  fi
-  if [ ! -z "${TEMP_DIR}" ] && [ -d "${TEMP_DIR}" ]; then
-    rm -r ${TEMP_DIR}
+  if [ ! -z "${KUBECONFIG_FILE}" ] && [ -d "${KUBECONFIG_FILE}" ]; then
+    rm -rf ${KUBECONFIG_FILE}
   fi
 }
 trap cleanup EXIT
@@ -59,22 +55,28 @@ if [ "${REPO}" != 'istio' ] && [ "${REPO}" != 'daily-release' ]; then
 fi
 
 # Generate cluster version and name
-CLUSTER_VERSION=$(gcloud container get-server-config --project="${PROJECT_NAME}" --zone="${ZONE}" --format='value(defaultClusterVersion)')
+CLUSTER_VERSION=$(gcloud container get-server-config \
+  --project="${PROJECT_NAME}" \
+  --zone="${ZONE}" \
+  --format='value(defaultClusterVersion)')
 echo "Default cluster version: ${CLUSTER_VERSION}"
 
-# Backup original config on your machine
-CONFIG_FILE="${HOME}/.kube/config"
-CONFIG_BACKUP="${HOME}/.kube/config.backup"
-mv ${CONFIG_FILE} ${CONFIG_BACKUP}
-CONFIG_BACKUPED=true
+KUBECONFIG_FILE="$(mktemp)"
 
 # Try to create a rotation cluster, named $REPO-e2e-rbac-rotation-<suffix>, suffix can be 1 or 2
 gcloud config set container/use_client_certificate True
-for i in {1..2}
-do
+for i in {1..2}; do
   CLUSTER_NAME="${REPO}-e2e-rbac-rotation-${i}"
-  result=$(gcloud container clusters create ${CLUSTER_NAME} --zone ${ZONE} --project ${PROJECT_NAME} --cluster-version ${CLUSTER_VERSION} \
-  --machine-type ${MACHINE_TYPE} --num-nodes ${NUM_NODES} --no-enable-legacy-authorization --enable-kubernetes-alpha --quiet \
+  # Passing KUBECONFIG as an env will override default ~/.kube/config
+  result=$(KUBECONFIG="${KUBECONFIG_FILE}" gcloud container clusters create ${CLUSTER_NAME} \
+    --zone ${ZONE} \
+    --project ${PROJECT_NAME} \
+    --cluster-version ${CLUSTER_VERSION} \
+    --machine-type ${MACHINE_TYPE} \
+    --num-nodes ${NUM_NODES} \
+    --no-enable-legacy-authorization \
+    --enable-kubernetes-alpha \
+    --quiet \
   ||  echo 'Failed')
   [[ ${result} == 'Failed' ]] || break
   if [ ${i} -eq 2 ]; then
@@ -82,20 +84,16 @@ do
   fi
 done
 
-# Keep new config into temp dir and put original config back
-TEMP_DIR="$(mktemp -d)"
-mv "${CONFIG_FILE}" "${TEMP_DIR}/config"
-mv "${CONFIG_BACKUP}" "${CONFIG_FILE}"
-CONFIG_BACKUPED=false
-
 # Switch to prow cluster
-gcloud container clusters get-credentials ${PROW_CLUSTER} --zone ${PROW_ZONE} --project ${PROW_PROJECT}
+gcloud container clusters get-credentials ${PROW_CLUSTER} \
+  --zone ${PROW_ZONE} \
+  --project ${PROW_PROJECT}
 
 # Update kubeconfig
 SECRET_NAME="${REPO}-e2e-rbac-kubeconfig"
-kubectl delete secret ${SECRET_NAME} -n ${PROW_TEST_NS}
-sleep 5
-kubectl -n ${PROW_TEST_NS} create secret generic ${SECRET_NAME} --from-file=${TEMP_DIR}
+kubectl -n ${PROW_TEST_NS} create secret generic ${SECRET_NAME} \
+  --from-file=config=${KUBECONFIG_FILE} --dry-run -o yaml \
+ | kubeconfig apply -f -
 kubectl get secret -n ${PROW_TEST_NS}
 
 echo "--------------------------------------"
