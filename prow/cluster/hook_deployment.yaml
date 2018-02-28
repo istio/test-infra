@@ -19,11 +19,10 @@ spec:
       terminationGracePeriodSeconds: 180
       containers:
       - name: hook
-        image: gcr.io/k8s-prow/hook:0.170
+        image: gcr.io/k8s-prow/hook:v20180223-28212fe21
         imagePullPolicy: Always
         args:
         - --dry-run=false
-        - --github-bot-name=istio-testing
         ports:
           - name: http
             containerPort: 8888
