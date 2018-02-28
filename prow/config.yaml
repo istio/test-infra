@@ -10,10 +10,6 @@ sinker:
 prowjob_namespace: default
 pod_namespace: test-pods
 
-tide:
-  queries:
-  - "type:pr state:open repo:istio/test-infra label:lgtm label:approved -label:needs-ok-to-test -label:do-not-merge -label:do-not-merge/release-note-label-needed -label:do-not-merge/hold label:\"cla: yes\""
-
 presubmits:
   # PR job triggering definitions.
   # Keys: Full repo name: "org/repo".
@@ -286,6 +282,12 @@ presubmits:
       context: prow/istio-pilot-e2e.sh
       rerun_command: "/test istio-pilot-e2e"
       trigger: "(?m)^/test (istio-pilot-e2e)?,?(\\s+|$)"
+      branches:
+      - master
+      - release-0.7
+      - release-0.8
+      - release-0.9
+      - release-1.0
       max_concurrency: 8
       spec:
         containers:
@@ -313,6 +315,12 @@ presubmits:
       context: prow/e2e-bookInfoTests.sh
       rerun_command: "/test e2e-bookInfo"
       trigger: "(?m)^/test (e2e-bookInfo)?,?(\\s+|$)"
+      branches:
+      - master
+      - release-0.7
+      - release-0.8
+      - release-0.9
+      - release-1.0
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.2
@@ -339,6 +347,12 @@ presubmits:
       context: prow/e2e-simpleTests.sh
       rerun_command: "/test e2e-simple"
       trigger: "(?m)^/test (e2e-simple)?,?(\\s+|$)"
+      branches:
+      - master
+      - release-0.7
+      - release-0.8
+      - release-0.9
+      - release-1.0
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.2
@@ -402,6 +416,9 @@ presubmits:
       context: prow/istio-pilot-e2e.sh
       rerun_command: "/test istio-pilot-e2e"
       trigger: "(?m)^/test (istio-pilot-e2e)?,?(\\s+|$)"
+      branches:
+      - release-0.5
+      - release-0.6
       max_concurrency: 8
       spec:
         containers:
@@ -429,6 +446,9 @@ presubmits:
       context: prow/e2e-bookInfoTests.sh
       rerun_command: "/test e2e-bookInfo"
       trigger: "(?m)^/test (e2e-bookInfo)?,?(\\s+|$)"
+      branches:
+      - release-0.5
+      - release-0.6
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.2
@@ -460,6 +480,9 @@ presubmits:
       context: prow/e2e-simpleTests.sh
       rerun_command: "/test e2e-simple"
       trigger: "(?m)^/test (e2e-simple)?,?(\\s+|$)"
+      branches:
+      - release-0.5
+      - release-0.6
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.2
@@ -514,6 +537,7 @@ presubmits:
       - name: service
         secret:
           secretName: service-account
+
   - name: e2e-suite-rbac-auth
     context: prow/e2e-suite-rbac-auth.sh
     always_run: false
@@ -541,6 +565,7 @@ presubmits:
       - name: service
         secret:
           secretName: service-account
+
   - name: e2e-cluster_wide-auth
     context: prow/e2e-cluster_wide-auth.sh
     always_run: false
@@ -680,6 +705,7 @@ presubmits:
         - name: service
           secret:
             secretName: service-account
+
   - name: daily-e2e-rbac-no_auth-default
     agent: kubernetes
     context: prow/daily-e2e-rbac-no_auth-default.sh
@@ -769,6 +795,7 @@ presubmits:
         - name: service
           secret:
             secretName: service-account
+
   - name: daily-e2e-rbac-auth-default
     agent: kubernetes
     context: prow/daily-e2e-rbac-auth-default.sh
@@ -858,6 +885,7 @@ presubmits:
         - name: service
           secret:
             secretName: service-account
+
   - name: daily-e2e-cluster_wide-auth-default
     agent: kubernetes
     context: prow/daily-e2e-cluster_wide-auth-default.sh

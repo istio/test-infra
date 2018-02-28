@@ -1,0 +1,22 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["main.go"],
+    importpath = "istio.io/test-infra/boskos/cmd/mason_client",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//boskos/gcp:go_default_library",
+        "@com_github_sirupsen_logrus//:go_default_library",
+        "@io_k8s_test_infra//boskos/client:go_default_library",
+        "@io_k8s_test_infra//boskos/common:go_default_library",
+        "@io_k8s_test_infra//boskos/mason:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "mason_client",
+    embed = [":go_default_library"],
+    importpath = "istio.io/test-infra/boskos/cmd/mason_client",
+    visibility = ["//visibility:public"],
+)

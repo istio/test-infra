@@ -22,6 +22,7 @@ import yaml
 NAME = "name"
 IMPORTPATH = "importpath"
 REVISION = "revision"
+SOURCE = "source"
 COMMIT = "commit"
 OPTIONS = "options"
 VENDOR_FILE = "go_vendor_repositories.bzl"
@@ -74,24 +75,24 @@ class GoVendors(object):
     with open(VENDOR_OPTIONS) as f:
       self._vendor_options = yaml.load(f)
 
-  def _add_repo(self, importpath, commit):
+  def _add_repo(self, importpath, commit, source):
     name = convert_importpath_to_name(importpath)
     repo = self._get_options(name)
     repo[NAME] = name
-    repo[IMPORTPATH] = importpath
+    repo[IMPORTPATH] = source or importpath
     repo[COMMIT] = commit
     self._go_repos.append(repo)
 
   def parse_godep_lock(self):
     with open(GODEP_LOCK, "r") as f:
-      name, importpath, commit = "", "", ""
+      name, importpath, commit, source = "", "", "", ""
       line = "start"
       while line:
         line = f.readline()
         if line.startswith("["):
           if importpath and commit:
-            self._add_repo(importpath, commit)
-          name, importpath, commit = "", "", ""
+            self._add_repo(importpath, commit, source)
+          name, importpath, commit, source = "", "", "", ""
 
         if " = " not in line:
           continue
@@ -102,6 +103,8 @@ class GoVendors(object):
           importpath = value
         elif key == REVISION:
           commit = value
+        elif key == SOURCE:
+          source = value
 
   def write_bzl_file(self):
     with open(VENDOR_FILE, "w") as f:

@@ -14,6 +14,12 @@ def go_vendor_repositories():
   )
 
   go_repository(
+    name = "com_github_deckarep_golang_set",
+    commit = "1d4478f51bed434f1dadf96dcd9b43aabac66795",
+    importpath = "github.com/deckarep/golang-set",
+  )
+
+  go_repository(
     name = "com_github_golang_protobuf",
     commit = "1643683e1b54a9e88ad26d98f81400c8c9d9f4f9",
     importpath = "github.com/golang/protobuf",
@@ -80,6 +86,18 @@ def go_vendor_repositories():
   )
 
   go_repository(
+    name = "com_github_sirupsen_logrus",
+    commit = "d682213848ed68c0a260ca37d6dd5ace8423f5ba",
+    importpath = "github.com/sirupsen/logrus",
+  )
+
+  go_repository(
+    name = "org_golang_x_crypto",
+    commit = "650f4a345ab4e5b245a3034b110ebc7299e68186",
+    importpath = "golang.org/x/crypto",
+  )
+
+  go_repository(
     name = "org_golang_x_net",
     commit = "a337091b0525af65de94df2eb7e98bd9962dcbe2",
     importpath = "golang.org/x/net",
@@ -89,6 +107,12 @@ def go_vendor_repositories():
     name = "org_golang_x_oauth2",
     commit = "9ff8ebcc8e241d46f52ecc5bff0e5a2f2dbef402",
     importpath = "golang.org/x/oauth2",
+  )
+
+  go_repository(
+    name = "org_golang_x_sys",
+    commit = "37707fdb30a5b38865cfb95e5aab41707daec7fd",
+    importpath = "golang.org/x/sys",
   )
 
   go_repository(
@@ -119,4 +143,16 @@ def go_vendor_repositories():
     name = "org_golang_google_grpc",
     commit = "5ffe3083946d5603a0578721101dc8165b1d5b5f",
     importpath = "google.golang.org/grpc",
+  )
+
+  go_repository(
+    name = "in_gopkg_yaml_v2",
+    commit = "d670f9405373e636a5a2765eea47fac0c9bc91a4",
+    importpath = "gopkg.in/yaml.v2",
+  )
+
+  go_repository(
+    name = "io_k8s_test_infra",
+    commit = "85b96b6207178813c0e914c735d9c7ecb0db1ef4",
+    importpath = "github.com/sebastienvas/k8s-test-infra",
   )
