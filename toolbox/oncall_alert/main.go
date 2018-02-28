@@ -133,7 +133,6 @@ func rerun(job *jobStatus, runNo int) error {
 	return nil
 }
 
-// TODO (chx) maxConcurrentJobs control and make it a util
 // Only log this error and continue. Should never exit process.
 func triggerConcurrentReruns(job *jobStatus, cfg ProwJobConfig) error {
 	log.Printf("Rerunning %s\n", job.name)

@@ -33,11 +33,10 @@ const (
 	gmailSMTPPORT   = 587
 
 	// Prow result GCS
-	lastBuildTXT   = "latest-build.txt"
-	flakeStatsJSON = "flakeStats.json"
-	finishedJSON   = "finished.json"
-	startedJSON    = "started.json"
-	gubernatorURL  = "https://k8s-gubernator.appspot.com/build/istio-prow"
+	lastBuildTXT  = "latest-build.txt"
+	finishedJSON  = "finished.json"
+	startedJSON   = "started.json"
+	gubernatorURL = "https://k8s-gubernator.appspot.com/build/istio-prow"
 
 	// Token and password file
 	tokenFileDocker        = "/etc/github/git-token"

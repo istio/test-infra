@@ -14,10 +14,6 @@
 
 package main
 
-import (
-	"encoding/json"
-)
-
 // ProwResult matches the structure published in finished.json
 type ProwResult struct {
 	TimeStamp  uint32       `json:"timestamp"`
@@ -51,7 +47,7 @@ type FlakeStat struct {
 	TotalRerun         int              `json:"totalRerun"`
 	Failures           int              `json:"failures"`
 	ParentJobTimeStamp uint32           `json:"parentJobTimeStamp"`
-	failedTestCases    []FailedTestCase `json:"failedTestCases"`
+	FailedTestCases    []FailedTestCase `json:"failedTestCases"`
 }
 
 // FailedTestCase is the per test case rerun results
@@ -59,10 +55,4 @@ type FailedTestCase struct {
 	Name       string `json:"name"`
 	TotalRerun int    `json:"totalRerun"`
 	Failures   int    `json:"failures"`
-}
-
-// SerializeFlakeStat flattens in-memory FlakeStat to string
-func SerializeFlakeStat(flakeStat FlakeStat) (string, error) {
-	pickled, err := json.MarshalIndent(flakeStat, "", "\t")
-	return string(pickled), err
 }
