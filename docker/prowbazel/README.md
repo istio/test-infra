@@ -34,3 +34,4 @@ Our dependency on this script is because it appropariately writes test job resul
 * 0.4.1: add go-junit-report
 * 0.4.2: add /opt/go/bin to PATH
 * 0.4.3: update bazel to 0.11.0
+* 0.4.4: update golang to 1.10
