@@ -168,6 +168,7 @@ func TestPassCheck(t *testing.T) {
 		codeRequirement: make(map[string]float64),
 		report:          reportFile,
 		requirement:     requirementFile,
+		bucket:          "fake",
 	}
 
 	// No other error code, code only show gcs upload failed which is expected

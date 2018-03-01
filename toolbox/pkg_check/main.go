@@ -203,15 +203,17 @@ func (c *codecovChecker) uploadCoverage() error {
 }
 
 func (c *codecovChecker) checkPackageCoverage() (code int) {
-	defer func() {
-		if err := c.uploadCoverage(); err != nil {
-			log.Printf("Failed to upload coverage, %v", err)
-			if code == 0 {
-				code = 3 //If no other error code, Error code 3: Failed to upload coverage
+	if c.bucket != "" {
+		defer func() {
+			if err := c.uploadCoverage(); err != nil {
+				log.Printf("Failed to upload coverage, %v", err)
+				if code == 0 {
+					code = 3 //If no other error code, Error code 3: Failed to upload coverage
+				}
 			}
-		}
 
-	}()
+		}()
+	}
 
 	if err := c.parseReport(); err != nil {
 		log.Printf("Failed to parse report, %v", err)
