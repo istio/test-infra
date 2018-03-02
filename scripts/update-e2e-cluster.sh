@@ -55,10 +55,11 @@ if [ "${REPO}" != 'istio' ] && [ "${REPO}" != 'daily-release' ]; then
 fi
 
 # Generate cluster version and name
-CLUSTER_VERSION=$(gcloud container get-server-config \
-  --project="${PROJECT_NAME}" \
-  --zone="${ZONE}" \
-  --format='value(defaultClusterVersion)')
+IFS=';' VERSIONS=($(gcloud container get-server-config \
+  --project=${PROJECT_NAME} \
+  --zone=${ZONE} \
+  --format='value(validMasterVersions)'))
+CLUSTER_VERSION="${VERSIONS[0]}"
 echo "Default cluster version: ${CLUSTER_VERSION}"
 
 KUBECONFIG_FILE="$(mktemp)"
