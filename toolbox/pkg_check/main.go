@@ -33,17 +33,18 @@ import (
 )
 
 const (
-	jobName         = "JOB_NAME"
-	buildID         = "BUILD_ID"
-	defaultValue    = "Default"
-	defaultTreshold = 80.0
+	jobName          = "JOB_NAME"
+	buildID          = "BUILD_ID"
+	defaultValue     = "Default"
+	defaultThreshold = 80.0
 )
 
 var (
-	reportFile       = flag.String("report_file", "codecov.report", "Package code coverage report.")
-	requirementFile  = flag.String("requirement_file", "codecov.requirement", "Package code coverage requirement.")
-	gcsBucket        = flag.String("bucket", "istio-code-coverage", "gcs bucket")
-	writeRequirement = flag.Bool("write_requirement", false, "Write requirement file from report")
+	reportFile           = flag.String("report_file", "codecov.report", "Package code coverage report.")
+	requirementFile      = flag.String("requirement_file", "codecov.requirement", "Package code coverage requirement.")
+	gcsBucket            = flag.String("bucket", "istio-code-coverage", "gcs bucket")
+	writeRequirement     = flag.Bool("write_requirement", false, "Write requirement file from report")
+	defaultThresholdFlag = flag.Float64("default_threshold", defaultThreshold, "Default threshold for new packages")
 )
 
 type codecovChecker struct {
@@ -53,6 +54,7 @@ type codecovChecker struct {
 	requirement     string
 	failedPackage   []string
 	bucket          string
+	defautThreshold float64
 }
 
 //Report example: "ok   istio.io/mixer/adapter/denyChecker      0.023s  coverage: 100.0% of statements"
@@ -222,14 +224,14 @@ func (c *codecovChecker) writeRequirementFromReport() (code int) {
 
 	f, err := os.Create(c.requirement)
 	if err != nil {
-		log.Printf("unable to create fail %s", c.requirement)
+		log.Printf("unable to create file %s", c.requirement)
 		return 4 //Error code 4: Unable to create requirement file
 	}
 	defer f.Close()
 
 	w := bufio.NewWriter(f)
 	// Writing default
-	w.WriteString(fmt.Sprintf("%s:%d [%.1f]\n", defaultValue, int(defaultTreshold), defaultTreshold))
+	w.WriteString(fmt.Sprintf("%s:%d [%.1f]\n", defaultValue, int(defaultThreshold), defaultThreshold))
 	for _, pkg := range sortedPkgs {
 		percent := c.codeCoverage[pkg]
 		if _, err := w.WriteString(fmt.Sprintf("%s:%d [%.1f]\n", pkg, int(percent), percent)); err != nil {
@@ -289,6 +291,7 @@ func main() {
 		report:          *reportFile,
 		requirement:     *requirementFile,
 		bucket:          *gcsBucket,
+		defautThreshold: *defaultThresholdFlag,
 	}
 
 	if *writeRequirement {

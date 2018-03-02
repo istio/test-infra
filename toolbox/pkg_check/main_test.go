@@ -213,7 +213,7 @@ func TestWriteRequirementFromReport(t *testing.T) {
 	}
 
 	expectedRequirement := fmt.Sprintf(
-		"Default:%d [%.1f]\npilot/cmd:0 [0.0]\npilot/model:90 [90.2]\n", int(defaultTreshold), defaultTreshold)
+		"Default:%d [%.1f]\npilot/cmd:0 [0.0]\npilot/model:90 [90.2]\n", int(defaultThreshold), defaultThreshold)
 
 	requirementFile := filepath.Join(tmpDir, "requirement6")
 
