@@ -27,11 +27,21 @@ PROJECT_NAME='istio-testing'
 ZONE='us-east4-c'
 MACHINE_TYPE='n1-standard-4'
 NUM_NODES='10'
+GCLOUD_PATH_ON_PROW_IMAGE='/usr/lib/google-cloud-sdk/bin/gcloud'
 
 PROW_CLUSTER='prow'
 PROW_ZONE='us-west1-a'
 PROW_PROJECT='istio-testing'
 PROW_TEST_NS='test-pods'
+
+#
+# In-place portable sed operation
+# the sed -i operation is not defined by POSIX and hence is not portable
+#
+function execute_sed() {
+  sed -e "${1}" $2 > $2.new
+  mv -- $2.new $2
+}
 
 cleanup () {
   if [ ! -z "${KUBECONFIG_FILE}" ] && [ -d "${KUBECONFIG_FILE}" ]; then
@@ -65,7 +75,7 @@ echo "Default cluster version: ${CLUSTER_VERSION}"
 KUBECONFIG_FILE="$(mktemp)"
 
 # Try to create a rotation cluster, named $REPO-e2e-rbac-rotation-<suffix>, suffix can be 1 or 2
-gcloud config set container/use_client_certificate True
+gcloud config unset container/use_client_certificate
 for i in {1..2}; do
   CLUSTER_NAME="${REPO}-e2e-rbac-rotation-${i}"
   # Passing KUBECONFIG as an env will override default ~/.kube/config
@@ -84,6 +94,9 @@ for i in {1..2}; do
     echo "Cannot create a rotation cluster for ${REPO}"; exit 1
   fi
 done
+
+# Update kubeconfig to point to the right gcloud command path
+execute_sed "s|\(\scmd-path:\s\).*|\1${GCLOUD_PATH_ON_PROW_IMAGE}|" "${KUBECONFIG_FILE}"
 
 # Switch to prow cluster
 gcloud container clusters get-credentials ${PROW_CLUSTER} \
