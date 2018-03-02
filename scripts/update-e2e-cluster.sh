@@ -75,6 +75,7 @@ echo "Default cluster version: ${CLUSTER_VERSION}"
 KUBECONFIG_FILE="$(mktemp)"
 
 # Try to create a rotation cluster, named $REPO-e2e-rbac-rotation-<suffix>, suffix can be 1 or 2
+gcloud config unset container/use_client_certificate
 for i in {1..2}; do
   CLUSTER_NAME="${REPO}-e2e-rbac-rotation-${i}"
   # Passing KUBECONFIG as an env will override default ~/.kube/config
