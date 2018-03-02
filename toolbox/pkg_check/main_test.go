@@ -222,7 +222,7 @@ func TestWriteRequirementFromReport(t *testing.T) {
 		codeRequirement: make(map[string]float64),
 		report:          reportFile,
 		requirement:     requirementFile,
-		thresholdDelta: 0,
+		thresholdDelta:  0,
 	}
 
 	if code := c.writeRequirementFromReport(); code != 0 {
