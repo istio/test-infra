@@ -37,6 +37,8 @@ const (
 	buildID          = "BUILD_ID"
 	defaultValue     = "Default"
 	defaultThreshold = 80.0
+	// Using 2% less than report for requirement
+	thresholdDelta = 2
 )
 
 var (
@@ -234,7 +236,8 @@ func (c *codecovChecker) writeRequirementFromReport() (code int) {
 	w.WriteString(fmt.Sprintf("%s:%d [%.1f]\n", defaultValue, int(defaultThreshold), defaultThreshold))
 	for _, pkg := range sortedPkgs {
 		percent := c.codeCoverage[pkg]
-		if _, err := w.WriteString(fmt.Sprintf("%s:%d [%.1f]\n", pkg, int(percent), percent)); err != nil {
+		threshold := int(math.Max(0, percent - thresholdDelta))
+		if _, err := w.WriteString(fmt.Sprintf("%s:%d [%.1f]\n", pkg, threshold, percent)); err != nil {
 			log.Printf("unable to print ")
 			return 5 //Error code 5: unable to write to requirement file
 		}
