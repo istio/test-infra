@@ -26,20 +26,27 @@ import (
 	"strconv"
 	"strings"
 
+	"sort"
+
 	"cloud.google.com/go/storage"
 	"golang.org/x/net/context"
 )
 
 const (
-	jobName      = "JOB_NAME"
-	buildID      = "BUILD_ID"
-	defaultValue = "Default"
+	jobName          = "JOB_NAME"
+	buildID          = "BUILD_ID"
+	defaultValue     = "Default"
+	defaultThreshold = 80.0
+	// Using 2% less than report for requirement
+	thresholdDelta = 2
 )
 
 var (
-	reportFile      = flag.String("report_file", "codecov.report", "Package code coverage report.")
-	requirementFile = flag.String("requirement_file", "codecov.requirement", "Package code coverage requirement.")
-	gcsBucket       = flag.String("bucket", "istio-code-coverage", "gcs bucket")
+	reportFile           = flag.String("report_file", "codecov.report", "Package code coverage report.")
+	requirementFile      = flag.String("requirement_file", "codecov.requirement", "Package code coverage requirement.")
+	gcsBucket            = flag.String("bucket", "istio-code-coverage", "gcs bucket")
+	writeRequirement     = flag.Bool("write_requirement", false, "Write requirement file from report")
+	defaultThresholdFlag = flag.Float64("default_threshold", defaultThreshold, "Default threshold for new packages")
 )
 
 type codecovChecker struct {
@@ -49,6 +56,8 @@ type codecovChecker struct {
 	requirement     string
 	failedPackage   []string
 	bucket          string
+	defautThreshold float64
+	thresholdDelta  float64
 }
 
 //Report example: "ok   istio.io/mixer/adapter/denyChecker      0.023s  coverage: 100.0% of statements"
@@ -202,6 +211,43 @@ func (c *codecovChecker) uploadCoverage() error {
 	return nil
 }
 
+func (c *codecovChecker) writeRequirementFromReport() (code int) {
+	if err := c.parseReport(); err != nil {
+		log.Printf("Failed to parse report, %v", err)
+		return 1 //Error code 1: Parse file failure
+	}
+
+	var sortedPkgs []string
+	for k := range c.codeCoverage {
+		sortedPkgs = append(sortedPkgs, k)
+	}
+
+	sort.Strings(sortedPkgs)
+
+	f, err := os.Create(c.requirement)
+	if err != nil {
+		log.Printf("unable to create file %s", c.requirement)
+		return 4 //Error code 4: Unable to create requirement file
+	}
+	defer f.Close()
+
+	w := bufio.NewWriter(f)
+	// Writing default
+	w.WriteString(fmt.Sprintf("%s:%d [%.1f]\n", defaultValue, int(defaultThreshold), defaultThreshold))
+	for _, pkg := range sortedPkgs {
+		percent := c.codeCoverage[pkg]
+		threshold := int(math.Max(0, percent-c.thresholdDelta))
+		if _, err := w.WriteString(fmt.Sprintf("%s:%d [%.1f]\n", pkg, threshold, percent)); err != nil {
+			log.Printf("unable to print ")
+			return 5 //Error code 5: unable to write to requirement file
+		}
+
+	}
+
+	w.Flush()
+	return 0
+}
+
 func (c *codecovChecker) checkPackageCoverage() (code int) {
 	if c.bucket != "" {
 		defer func() {
@@ -248,7 +294,12 @@ func main() {
 		report:          *reportFile,
 		requirement:     *requirementFile,
 		bucket:          *gcsBucket,
+		defautThreshold: *defaultThresholdFlag,
+		thresholdDelta:  thresholdDelta,
 	}
 
+	if *writeRequirement {
+		os.Exit(c.writeRequirementFromReport())
+	}
 	os.Exit(c.checkPackageCoverage())
 }
