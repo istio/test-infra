@@ -15,6 +15,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -201,6 +202,37 @@ func TestFailedCheck(t *testing.T) {
 
 	if code := c.checkPackageCoverage(); code != 2 {
 		t.Errorf("Unexpected return code, expected: %d, actual: %d", 2, code)
+	}
+}
+
+func TestWriteRequirementFromReport(t *testing.T) {
+	exampleReport := "?   \tpilot/cmd\t[no test files]\nok  \tpilot/model\t1.3s\tcoverage: 90.2% of statements"
+	reportFile := filepath.Join(tmpDir, "report5")
+	if err := ioutil.WriteFile(reportFile, []byte(exampleReport), 0644); err != nil {
+		t.Errorf("Failed to write example report file, %v", err)
+	}
+
+	expectedRequirement := fmt.Sprintf(
+		"Default:%d [%.1f]\npilot/cmd:0 [0.0]\npilot/model:90 [90.2]\n", int(defaultTreshold), defaultTreshold)
+
+	requirementFile := filepath.Join(tmpDir, "requirement6")
+
+	c := &codecovChecker{
+		codeCoverage:    make(map[string]float64),
+		codeRequirement: make(map[string]float64),
+		report:          reportFile,
+		requirement:     requirementFile,
+	}
+
+	if code := c.writeRequirementFromReport(); code != 0 {
+		t.Errorf("Unexpected return code, expected: %d, actual: %d", 0, code)
+	}
+	data, err := ioutil.ReadFile(requirementFile)
+	if err != nil {
+		t.Errorf("unable to read requirement file, %v", err)
+	}
+	if string(data) != expectedRequirement {
+		t.Errorf("\n%s\nshould match expected\n%s", string(data), expectedRequirement)
 	}
 }
 

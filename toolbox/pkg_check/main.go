@@ -26,20 +26,24 @@ import (
 	"strconv"
 	"strings"
 
+	"sort"
+
 	"cloud.google.com/go/storage"
 	"golang.org/x/net/context"
 )
 
 const (
-	jobName      = "JOB_NAME"
-	buildID      = "BUILD_ID"
-	defaultValue = "Default"
+	jobName         = "JOB_NAME"
+	buildID         = "BUILD_ID"
+	defaultValue    = "Default"
+	defaultTreshold = 80.0
 )
 
 var (
-	reportFile      = flag.String("report_file", "codecov.report", "Package code coverage report.")
-	requirementFile = flag.String("requirement_file", "codecov.requirement", "Package code coverage requirement.")
-	gcsBucket       = flag.String("bucket", "istio-code-coverage", "gcs bucket")
+	reportFile       = flag.String("report_file", "codecov.report", "Package code coverage report.")
+	requirementFile  = flag.String("requirement_file", "codecov.requirement", "Package code coverage requirement.")
+	gcsBucket        = flag.String("bucket", "istio-code-coverage", "gcs bucket")
+	writeRequirement = flag.Bool("write_requirement", false, "Write requirement file from report")
 )
 
 type codecovChecker struct {
@@ -202,6 +206,43 @@ func (c *codecovChecker) uploadCoverage() error {
 	return nil
 }
 
+func (c *codecovChecker) writeRequirementFromReport() (code int) {
+
+	if err := c.parseReport(); err != nil {
+		log.Printf("Failed to parse report, %v", err)
+		return 1 //Error code 1: Parse file failure
+	}
+
+	var sortedPkgs []string
+	for k := range c.codeCoverage {
+		sortedPkgs = append(sortedPkgs, k)
+	}
+
+	sort.Strings(sortedPkgs)
+
+	f, err := os.Create(c.requirement)
+	if err != nil {
+		log.Printf("unable to create fail %s", c.requirement)
+		return 4 //Error code 4: Unable to create requirement file
+	}
+	defer f.Close()
+
+	w := bufio.NewWriter(f)
+	// Writing default
+	w.WriteString(fmt.Sprintf("%s:%d [%.1f]\n", defaultValue, int(defaultTreshold), defaultTreshold))
+	for _, pkg := range sortedPkgs {
+		percent := c.codeCoverage[pkg]
+		if _, err := w.WriteString(fmt.Sprintf("%s:%d [%.1f]\n", pkg, int(percent), percent)); err != nil {
+			log.Printf("unable to print ")
+			return 5 //Error code 5: unable to write to requirement file
+		}
+
+	}
+
+	w.Flush()
+	return 0
+}
+
 func (c *codecovChecker) checkPackageCoverage() (code int) {
 	if c.bucket != "" {
 		defer func() {
@@ -250,5 +291,8 @@ func main() {
 		bucket:          *gcsBucket,
 	}
 
+	if *writeRequirement {
+		os.Exit(c.writeRequirementFromReport())
+	}
 	os.Exit(c.checkPackageCoverage())
 }
