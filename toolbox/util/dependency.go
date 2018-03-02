@@ -40,6 +40,7 @@ import (
 
 // Dependency records meta data
 type Dependency struct {
+	Comment       string `json:"_comment"` // hack comment into json file
 	Name          string `json:"name"`
 	RepoName      string `json:"repoName"`
 	ProdBranch    string `json:"prodBranch"`    // either master or stable
