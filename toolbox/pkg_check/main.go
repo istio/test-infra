@@ -57,6 +57,7 @@ type codecovChecker struct {
 	failedPackage   []string
 	bucket          string
 	defautThreshold float64
+	thresholdDelta  float64
 }
 
 //Report example: "ok   istio.io/mixer/adapter/denyChecker      0.023s  coverage: 100.0% of statements"
@@ -211,7 +212,6 @@ func (c *codecovChecker) uploadCoverage() error {
 }
 
 func (c *codecovChecker) writeRequirementFromReport() (code int) {
-
 	if err := c.parseReport(); err != nil {
 		log.Printf("Failed to parse report, %v", err)
 		return 1 //Error code 1: Parse file failure
@@ -236,7 +236,7 @@ func (c *codecovChecker) writeRequirementFromReport() (code int) {
 	w.WriteString(fmt.Sprintf("%s:%d [%.1f]\n", defaultValue, int(defaultThreshold), defaultThreshold))
 	for _, pkg := range sortedPkgs {
 		percent := c.codeCoverage[pkg]
-		threshold := int(math.Max(0, percent - thresholdDelta))
+		threshold := int(math.Max(0, percent-c.thresholdDelta))
 		if _, err := w.WriteString(fmt.Sprintf("%s:%d [%.1f]\n", pkg, threshold, percent)); err != nil {
 			log.Printf("unable to print ")
 			return 5 //Error code 5: unable to write to requirement file
@@ -295,6 +295,7 @@ func main() {
 		requirement:     *requirementFile,
 		bucket:          *gcsBucket,
 		defautThreshold: *defaultThresholdFlag,
+		thresholdDelta:  thresholdDelta,
 	}
 
 	if *writeRequirement {
