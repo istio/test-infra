@@ -109,7 +109,7 @@ gcloud container clusters get-credentials ${PROW_CLUSTER} \
 SECRET_NAME="${REPO}-e2e-rbac-kubeconfig"
 kubectl -n ${PROW_TEST_NS} create secret generic ${SECRET_NAME} \
   --from-file=config=${KUBECONFIG_FILE} --dry-run -o yaml \
- | kubeconfig apply -f -
+ | kubectl apply -f -
 kubectl get secret -n ${PROW_TEST_NS}
 
 # Bind the tester service account to clusteradmin role
