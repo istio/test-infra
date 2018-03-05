@@ -34,6 +34,8 @@ PROW_ZONE='us-west1-a'
 PROW_PROJECT='istio-testing'
 PROW_TEST_NS='test-pods'
 
+KUBE_USER="istio-prow-test-job@istio-testing.iam.gserviceaccount.com"
+
 #
 # In-place portable sed operation
 # the sed -i operation is not defined by POSIX and hence is not portable
@@ -109,6 +111,11 @@ kubectl -n ${PROW_TEST_NS} create secret generic ${SECRET_NAME} \
   --from-file=config=${KUBECONFIG_FILE} --dry-run -o yaml \
  | kubeconfig apply -f -
 kubectl get secret -n ${PROW_TEST_NS}
+
+# Bind the tester service account to clusteradmin role
+kubectl create clusterrolebinding prow-cluster-admin-binding\
+  --clusterrole=cluster-admin\
+  --user="${KUBE_USER}"
 
 echo "--------------------------------------"
 echo "Successfully update cluster for ${REPO}"
