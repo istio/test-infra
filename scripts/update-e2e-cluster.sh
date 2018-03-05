@@ -97,6 +97,11 @@ for i in {1..2}; do
   fi
 done
 
+# Bind the tester service account to clusteradmin role
+KUBECONFIG="${KUBECONFIG_FILE}" kubectl create clusterrolebinding prow-cluster-admin-binding\
+  --clusterrole=cluster-admin\
+  --user="${KUBE_USER}"
+
 # Update kubeconfig to point to the right gcloud command path
 execute_sed "s|\(\scmd-path:\s\).*|\1${GCLOUD_PATH_ON_PROW_IMAGE}|" "${KUBECONFIG_FILE}"
 
@@ -111,11 +116,6 @@ kubectl -n ${PROW_TEST_NS} create secret generic ${SECRET_NAME} \
   --from-file=config=${KUBECONFIG_FILE} --dry-run -o yaml \
  | kubeconfig apply -f -
 kubectl get secret -n ${PROW_TEST_NS}
-
-# Bind the tester service account to clusteradmin role
-kubectl create clusterrolebinding prow-cluster-admin-binding\
-  --clusterrole=cluster-admin\
-  --user="${KUBE_USER}"
 
 echo "--------------------------------------"
 echo "Successfully update cluster for ${REPO}"
