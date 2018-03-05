@@ -103,7 +103,7 @@ func main() {
 	for {
 		newFailures := checkOnJobsWatched()
 		if *emailSending {
-			if len(newFailures) > 0 {
+			if newFailures != nil {
 				log.Printf("%d tests failed in last circle", len(newFailures))
 				sendMessage(formatMessage(newFailures))
 			} else {
@@ -111,7 +111,7 @@ func main() {
 			}
 		}
 		if *guardProtectedBranch {
-			if len(newFailures) > 0 {
+			if newFailures != nil {
 				u.BlockMergingOnBranch(githubClnt, *protectedRepo, *protectedBranch)
 			} else {
 				u.UnBlockMergingOnBranch(githubClnt, *protectedRepo, *protectedBranch)
@@ -151,7 +151,7 @@ func triggerConcurrentReruns(job *jobStatus, cfg ProwJobConfig) error {
 }
 
 func getProwJobConfig(job *jobStatus, runNo int) (ProwJobConfig, error) {
-	cfg := ProwJobConfig{}
+	var cfg ProwJobConfig
 	jobStartedFile := filepath.Join(job.name, strconv.Itoa(runNo), startedJSON)
 	StartedFileString, err := gcsClient.Read(*gcsBucket, jobStartedFile)
 	if err != nil {
@@ -179,8 +179,8 @@ func sendMessage(body string) {
 			time.Now().In(location).Format("2006-01-02 15:04:05 PST")) +
 		messagePrologue + body + messageEnding
 
-	gmailSMTPAddr := fmt.Sprintf("%s:%d", gmailSMTPSERVER, gmailSMTPPORT)
-	err := smtp.SendMail(gmailSMTPAddr, smtp.PlainAuth("istio-bot", sender, gmailAppPass, gmailSMTPSERVER),
+	gmailSMTPAddr := fmt.Sprintf("%s:%d", gmailSMTPServer, gmailSMTPPort)
+	err := smtp.SendMail(gmailSMTPAddr, smtp.PlainAuth("istio-bot", sender, gmailAppPass, gmailSMTPServer),
 		sender, receivers, []byte(msg))
 	if err != nil {
 		log.Printf("smtp error: %s\n", err)
@@ -209,7 +209,7 @@ func getLatestRun(jobName string) (int, error) {
 // Record failure if it hasn't been recorded and update latestRun if necessary
 // Returns an array of postSubmitJob since the same job might fail at multiple runs
 func checkOnJobsWatched() []failure {
-	newFailures := []failure{}
+	var newFailures []failure
 	for _, job := range jobsWatched {
 		CurrentRunNo, err := getLatestRun(job.name)
 		if err != nil {
@@ -325,6 +325,7 @@ func processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failu
 }
 
 func storeFlakeStat(job *jobStatus, newFlakeStat FlakeStat) error {
-	// TODO
+	// Kettle takes over from here
+	log.Printf("newFlakeStat = %v\n", newFlakeStat)
 	return nil
 }

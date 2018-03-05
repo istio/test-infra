@@ -8,7 +8,7 @@ go_library(
         "main.go",
         "prowStat.go",
     ],
-    importpath = "istio.io/test-infra/toolbox/oncall_alert",
+    importpath = "istio.io/test-infra/toolbox/sisyphus",
     visibility = ["//visibility:private"],
     deps = [
         "//toolbox/util:go_default_library",
@@ -17,7 +17,7 @@ go_library(
 )
 
 go_binary(
-    name = "oncall_alert_static",
+    name = "sisyphus_static",
     embed = [":go_default_library"],
     gc_linkopts = [
         "-linkmode",
@@ -30,16 +30,16 @@ go_binary(
 )
 
 docker_build(
-    name = "oncall_alert_image",
+    name = "sisyphus_image",
     base = "@distroless//image:image.tar",
-    cmd = ["./oncall_alert_static"],
-    files = [":oncall_alert_static"],
+    cmd = ["./sisyphus_static"],
+    files = [":sisyphus_static"],
     tags = ["manual"],
 )
 
 go_binary(
-    name = "oncall_alert",
+    name = "sisyphus",
     embed = [":go_default_library"],
-    importpath = "istio.io/test-infra/toolbox/oncall_alert",
+    importpath = "istio.io/test-infra/toolbox/sisyphus",
     visibility = ["//visibility:public"],
 )

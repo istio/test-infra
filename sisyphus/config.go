@@ -29,8 +29,8 @@ const (
 	losAngeles    = "America/Los_Angeles"
 
 	// Gmail setting
-	gmailSMTPSERVER = "smtp.gmail.com"
-	gmailSMTPPORT   = 587
+	gmailSMTPServer = "smtp.gmail.com"
+	gmailSMTPPort   = 587
 
 	// Prow result GCS
 	lastBuildTXT  = "latest-build.txt"

@@ -1,7 +1,7 @@
 kind: Deployment
 apiVersion: extensions/v1beta1
 metadata:
-  name: oncall-alert
+  name: sisyphus
 spec:
   replicas: 1
   strategy:
@@ -12,11 +12,11 @@ spec:
   template:
     metadata:
       labels:
-        istio: oncall-alert
+        istio: sisyphus
     spec:
       containers:
       - name: oncall-alert
-        image: gcr.io/istio-testing/oncall_alert:0.0.2
+        image: gcr.io/istio-testing/sisyphus:0.0.2
         imagePullPolicy: Always
         volumeMounts:
         - name: git-token
