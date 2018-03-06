@@ -25,7 +25,8 @@ func SetKubeConfig(project, zone, cluster, kubeconfig string) error {
 	if err := os.Setenv("KUBECONFIG", kubeconfig); err != nil {
 		return err
 	}
-	_, err := util.Shell("gcloud", "container", "clusters", "get-credentials", cluster,
-		"--project", project, "--zone", zone)
+	_, err := util.Shell(
+		"gcloud container clusters get-credentials %s --project=%s --zone=%s",
+		cluster, project, zone)
 	return err
 }
