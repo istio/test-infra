@@ -10,6 +10,7 @@ set -x
 DEPLOYMENT="istio-toolbox"
 SISYPHUS=$(dirname $0)
 GIT_HEAD=$(git rev-parse HEAD)
+MODIFIED_YAML="${SISYPHUS}/local.sisyphus-deployment.yaml"
 
 bazel run //toolbox/sisyphus:sisyphus_image
 
@@ -19,10 +20,10 @@ gcr.io/istio-testing/sisyphus:${GIT_HEAD}
 gcloud docker -- push gcr.io/istio-testing/sisyphus:${GIT_HEAD}
 
 sed 's/image: gcr.io\/istio-testing\/sisyphus:.*/image: gcr.io\/istio-testing\/sisyphus:'"$GIT_HEAD"'/g' \
-${SISYPHUS}/alert-deployment.yaml > ${SISYPHUS}/local.alert-deployment.yaml
+${SISYPHUS}/sisyphus-deployment.yaml > ${MODIFIED_YAML}
 
-cat ${SISYPHUS}/local.alert-deployment.yaml
+cat ${MODIFIED_YAML}
 
 echo "To replace:
 1. connect to \"${DEPLOYMENT}\" cluster
-2. kubectl replace -f ${SISYPHUS}/local.alert-deployment.yaml -n sisyphus"
+2. kubectl replace -f ${MODIFIED_YAML} -n sisyphus"
