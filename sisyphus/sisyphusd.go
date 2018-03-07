@@ -27,12 +27,27 @@ import (
 	u "istio.io/test-infra/toolbox/util"
 )
 
+var (
+	gcsClient  *u.GCSClient
+	githubClnt *u.GithubClient
+
+	receivers         = []string{oncallMaillist}
+	gmailAppPass      string
+	location          *time.Location
+	pendingJobTimeout = 60 * time.Minute
+)
+
 type SisyphusDaemon struct {
 	jobsWatched []*jobStatus
 	alert       *Alert
 }
 
-func SisyphusDaemon(jobs []string) *SisyphusDaemon {
+func SisyphusDaemon(jobs []string, prowProject, prowZone string) *SisyphusDaemon {
+	// Connect to the Prow cluster
+	if _, err := u.Shell(`gcloud container clusters get-credentials prow \
+		--project=%s --zone=%s`, prowProject, prowZone); err != nil {
+		log.Fatalf("Unable to switch to prow cluster: %v\n", err)
+	}
 	var jobsWatched []*jobStatus
 	for _, jobName := range protectedJobs {
 		jobsWatched = append(jobsWatched, &jobStatus{
@@ -43,12 +58,14 @@ func SisyphusDaemon(jobs []string) *SisyphusDaemon {
 		})
 	}
 	return &SisyphusDaemon{
-		jobsWatched: jobsWatched
+		jobsWatched: jobsWatched,
 	}
 }
 
-func (d *SisyphusDaemon) SetAlert(gmailAppPass, identity, senderAddr, receiverAddr string) {
-	d.alert = newAlert(gmailAppPass, identity, senderAddr, receiverAddr)
+func (d *SisyphusDaemon) SetAlert(gmailAppPass, identity, senderAddr, receiverAddr string) error {
+	var err error
+	d.alert, err = newAlert(gmailAppPass, identity, senderAddr, receiverAddr)
+	return err
 }
 
 // func (d *SisyphusDaemon) SetProtectedBranch() {
@@ -77,17 +94,7 @@ type failure struct {
 	runNo   int
 }
 
-var (
-	gcsClient  *u.GCSClient
-	githubClnt *u.GithubClient
-
-	receivers         = []string{oncallMaillist}
-	gmailAppPass      string
-	location          *time.Location
-	pendingJobTimeout = 60 * time.Minute
-)
-
-func setup() {
+func (d *SisyphusDaemon) setup() {
 	gcsClient = u.NewGCSClient()
 	var err error
 	if *guardProtectedBranch {
@@ -97,25 +104,16 @@ func setup() {
 		}
 		githubClnt = u.NewGithubClient(*owner, token)
 	}
-
-	// Ensure all reruns commands are issued to Prow
-	if _, err := u.Shell(`gcloud container clusters get-credentials prow \
-		--project=%s --zone=%s`, *gcpProject, *prowZone); err != nil {
-		log.Fatalf("Unable to switch to prow cluster: %v\n", err)
-	}
-	if location, err = time.LoadLocation(losAngeles); err != nil {
-		log.Fatalf("Error loading time location")
-	}
 }
 
-func Start() {
-	setup()
+func (d *SisyphusDaemon) Start() {
+	d.setup()
 	for {
 		newFailures := checkOnJobsWatched()
-		if *emailSending {
+		if d.alert != nil {
 			if newFailures != nil {
 				log.Printf("%d tests failed in last circle", len(newFailures))
-				sendMessage(formatMessage(newFailures))
+				d.alert.send(formatMessage(newFailures))
 			} else {
 				log.Printf("No new tests failed in last circle.")
 			}
@@ -176,27 +174,10 @@ func getProwJobConfig(job *jobStatus, runNo int) (ProwJobConfig, error) {
 
 func formatMessage(failures []failure) (mess string) {
 	for _, f := range failures {
-		mess += fmt.Sprintf("%s failed: %s/%s/%d\n\n", f.jobName, gubernatorURL, f.jobName, f.runNo)
+		mess += fmt.Sprintf("%s failed: %s/%s/%d\n\n",
+			f.jobName, gubernatorURL, f.jobName, f.runNo)
 	}
 	return
-}
-
-// Use gmail smtp server to send out email.
-func sendMessage(body string) {
-	msg := fmt.Sprintf("From: %s\n", sender) +
-		fmt.Sprintf("To: %s\n", receivers) +
-		fmt.Sprintf("Subject: %s [%s]\n\n", messageSubject,
-			time.Now().In(location).Format("2006-01-02 15:04:05 PST")) +
-		messagePrologue + body + messageEnding
-
-	gmailSMTPAddr := fmt.Sprintf("%s:%d", gmailSMTPServer, gmailSMTPPort)
-	err := smtp.SendMail(gmailSMTPAddr, smtp.PlainAuth("istio-bot", sender, gmailAppPass, gmailSMTPServer),
-		sender, receivers, []byte(msg))
-	if err != nil {
-		log.Printf("smtp error: %s\n", err)
-		return
-	}
-	log.Printf("Alert message sent!\n")
 }
 
 // Read latest run from "latest-build.txt" of a job under gcs "istio-prow" bucket

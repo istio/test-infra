@@ -18,38 +18,61 @@ import (
 	"fmt"
 	"log"
 	"net/smtp"
+	"time"
 )
 
 const (
-	gmailSMTPServer = "smtp.gmail.com"
-	gmailSMTPPort   = 587
+	gmailSMTPServer    = "smtp.gmail.com"
+	gmailSMTPPort      = 587
+	defaultTimeZoneLoc = "America/Los_Angeles"
 )
+
+// AlertConfig is optional. It customizes the alert email message.
+type AlertConfig struct {
+	TimeZoneLocation string
+	Subject          string
+	Prologue         string
+	Epilogue         string
+}
 
 type alert struct {
 	gmailAppPass  string
 	identity      string
 	senderAddr    string
 	receiverAddrs []string
+	alertConfig   *AlertConfig
+	location      *time.Location
 }
 
-// function signature guarantees at least one receiver
-func newAlert(gmailAppPass, identity, senderAddr, receiverAddr string) *alert {
-	return &Alert{
+func newAlert(gmailAppPass, identity, senderAddr, receiverAddr string,
+	alertConfig *AlertConfig) (*alert, error) {
+	alert := &Alert{
 		gmailAppPass:  gmailAppPass,
 		identity:      identity,
 		senderAddr:    senderAddr,
 		receiverAddrs: []string{receiverAddr},
+		alertConfig:   alertConfig,
 	}
-}
-
-func (a *Alert) subscribe(receiverAddrs ...string) {
-	a.receiverAddrs = append(a.receiverAddrs, receivers...)
+	timeZoneLocation := alertConfig.TimeZoneLocation
+	if timeZoneLocation == "" {
+		timeZoneLocation = defaultTimeZoneLoc
+	}
+	var err error
+	alert.location, err = time.LoadLocation(timeZoneLocation)
+	return alert, err
 }
 
 // Use gmail smtp server to send out email.
-func (a *Alert) send(subject, body string) error {
+func (a *Alert) send(body string) error {
+	timestamp, err := a.now()
+	if err != nil {
+		log.Printf("Failed to read current time when sending alert\n")
+		return err
+	}
 	msg := fmt.Sprintf("From: %s\nTo: %s\nSubject: %s\n\n%s\n",
-		a.senderAddr, a.receiverAddrs, subject, body)
+		a.senderAddr, a.receiverAddrs,
+		a.alertConfig.Subject+timestamp,
+		a.alertConfig.Prologue+body+a.alertConfig.Epilogue)
 	gmailSMTPAddr := fmt.Sprintf("%s:%d", gmailSMTPServer, gmailSMTPPort)
 	smtpAuth := smtp.PlainAuth(a.identity, a.senderAddr, a.gmailAppPass, gmailSMTPServer)
 	err := smtp.SendMail(gmailSMTPAddr, smtpAuth, a.senderAddr, a.receiverAddrs, []byte(msg))
@@ -58,4 +81,8 @@ func (a *Alert) send(subject, body string) error {
 		return err
 	}
 	log.Printf("Alert successfully sent\n")
+}
+
+func (a *Alert) now() (string, error) {
+	return time.Now().In(a.location).Format("2006-01-02 15:04:05 PST"), nil
 }

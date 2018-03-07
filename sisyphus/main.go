@@ -22,13 +22,12 @@ import (
 
 const (
 	// Message Info
-	sender          = "istio.testing@gmail.com"
-	oncallMaillist  = "istio-oncall@googlegroups.com"
-	messageSubject  = "ATTENTION - Istio Post-Submit Test Failed"
-	messagePrologue = "Hi istio-oncall,\n\n" +
+	sender         = "istio.testing@gmail.com"
+	oncallMaillist = "istio-oncall@googlegroups.com"
+	subject        = "ATTENTION - Istio Post-Submit Test Failed"
+	prologue       = "Hi istio-oncall,\n\n" +
 		"Post-Submit is failing in istio/istio, please take a look at following failure(s) and fix ASAP\n\n"
-	messageEnding = "\nIf you have any questions about this message or notice inaccuracy, please contact istio-engprod@google.com."
-	losAngeles    = "America/Los_Angeles"
+	epilogue = "\nIf you have any questions about this message or notice inaccuracy, please contact istio-engprod@google.com."
 
 	// Prow result GCS
 	lastBuildTXT  = "latest-build.txt"
@@ -39,6 +38,11 @@ const (
 	// Token and password file
 	tokenFileDocker        = "/etc/github/git-token"
 	gmailAppPassFileDocker = "/etc/gmail/gmail-app-pass"
+	identity               = "istio-bot"
+
+	// Prow GCP settings
+	prowProject = "istio-testing"
+	prowZone    = "us-west1-a"
 )
 
 var (
@@ -48,8 +52,6 @@ var (
 	owner                = flag.String("owner", "istio", "Github owner or org")
 	tokenFile            = flag.String("github_token", tokenFileDocker, "Path to github token")
 	gmailAppPassFile     = flag.String("gmail_app_password", gmailAppPassFileDocker, "Path to gmail application password")
-	gcpProject           = flag.String("gcp_project", "istio-testing", "The Project ID under which Prow is deployed")
-	prowZone             = flag.String("prow_zone", "us-west1-a", "Which GCP zone the Prow cluster is at")
 	protectedRepo        = flag.String("protected_repo", "istio", "Protected repo")
 	protectedBranch      = flag.String("protected_branch", "master", "Protected branch")
 	guardProtectedBranch = flag.Bool("guard", false, "Suspend merge bot if postsubmit fails")
@@ -61,13 +63,17 @@ var (
 
 func main() {
 	flag.Parse()
-	sisyphusd := s.SisyphusDaemon(protectedJobs)
+	sisyphusd := s.SisyphusDaemon(protectedJobs, prowProject, prowZone)
 	if *emailSending {
 		gmailAppPass, err := u.GetPasswordFromFile(*gmailAppPassFile)
 		if err != nil {
 			log.Fatalf("Error accessing gmail app password: %v", err)
 		}
-		sisyphusd.SetAlert(gmailAppPass, identity, senderAddr, receiverAddr)
+		sisyphusd.SetAlert(gmailAppPass, identity, sender, oncallMaillist, &s.AlertConfig{
+			Subject:  subject,
+			Prologue: prologue,
+			Epilogue: epilogue,
+		})
 	}
 	sisyphusd.Start()
 }

@@ -1,6 +1,6 @@
 # Sisyphus
 
-#### Flakiness Detection and Monitoring Service for Istio
+### Flakiness Detection and Monitoring Service for Istio
 
 [Design Doc](goo.gl/119VaV)
 
