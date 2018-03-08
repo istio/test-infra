@@ -185,7 +185,7 @@ func (c *codecovChecker) uploadCoverage() error {
 	}
 
 	if c.buildID == "" || c.jobIdentifier == "" {
-		glog.Errorf("Missing build info: BUILD_ID: \"%s\", JOB_NAME: \"%s\"\n", buildID, jobIdentifier)
+		glog.Errorf("Missing build info: BUILD_ID: \"%s\", JOB_NAME: \"%s\"\n", c.buildID, c.jobIdentifier)
 		return errors.New("missing build info")
 	}
 
