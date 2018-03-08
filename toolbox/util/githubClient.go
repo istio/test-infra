@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"github.com/google/go-github/github"
-	multierror "github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-multierror"
 	"golang.org/x/oauth2"
 )
 
@@ -63,7 +63,7 @@ func NewGithubClientNoAuth(owner string) *GithubClient {
 }
 
 // SHAIsAncestorOfBranch checks if sha is ancestor of branch
-func (g GithubClient) SHAIsAncestorOfBranch(repo, branch, targetSHA string) (bool, error) {
+func (g *GithubClient) SHAIsAncestorOfBranch(repo, branch, targetSHA string) (bool, error) {
 	log.Printf("Checking if %s is ancestor of branch %s", targetSHA, branch)
 	sha, err := g.GetHeadCommitSHA(repo, branch)
 	if err != nil {
@@ -96,10 +96,11 @@ func (g GithubClient) SHAIsAncestorOfBranch(repo, branch, targetSHA string) (boo
 }
 
 // FastForward moves :branch on :repo to the given sha
-func (g GithubClient) FastForward(repo, branch, sha string) error {
+func (g *GithubClient) FastForward(repo, branch, sha string) error {
 	ref := fmt.Sprintf("refs/heads/%s", branch)
 	log.Printf("Updating ref %s to commit %s on repo %s", ref, sha, repo)
 	refType := "commit"
+
 	gho := github.GitObject{
 		SHA:  &sha,
 		Type: &refType,
@@ -110,6 +111,7 @@ func (g GithubClient) FastForward(repo, branch, sha string) error {
 	}
 	r.Ref = new(string)
 	*r.Ref = ref
+
 	_, _, err := g.client.Git.UpdateRef(
 		context.Background(), g.owner, repo, &r, false)
 	return err
@@ -117,7 +119,7 @@ func (g GithubClient) FastForward(repo, branch, sha string) error {
 
 // Remote generates the url to the remote repository on github
 // embedded with username and token
-func (g GithubClient) Remote(repo string) string {
+func (g *GithubClient) Remote(repo string) string {
 	return fmt.Sprintf(
 		"https://%s:%s@github.com/%s/%s.git",
 		g.owner, g.token, g.owner, repo,
@@ -126,7 +128,7 @@ func (g GithubClient) Remote(repo string) string {
 
 // CreatePullRequest within :repo from :branch to :baseBranch
 // releaseNote is a necessary part and will automatically set to "none" if caller leaves it empty.
-func (g GithubClient) CreatePullRequest(
+func (g *GithubClient) CreatePullRequest(
 	title, body, releaseNote, branch, baseBranch, repo string) (*github.PullRequest, error) {
 	if releaseNote == "" {
 		releaseNote = ReleaseNoteNone
@@ -150,12 +152,12 @@ func (g GithubClient) CreatePullRequest(
 
 // AddAutoMergeLabelsToPR adds /lgtm and /approve labels to a PR,
 // essentially automatically merges the PR without review, if PR passes presubmit
-func (g GithubClient) AddAutoMergeLabelsToPR(repo string, pr *github.PullRequest) error {
+func (g *GithubClient) AddAutoMergeLabelsToPR(repo string, pr *github.PullRequest) error {
 	return g.AddlabelsToPR(repo, pr, "lgtm", "approved", "release-note-none")
 }
 
 // AddlabelsToPR adds labels to the pull request
-func (g GithubClient) AddlabelsToPR(
+func (g *GithubClient) AddlabelsToPR(
 	repo string, pr *github.PullRequest, labels ...string) error {
 
 	// skip existing labels
@@ -185,7 +187,7 @@ func (g GithubClient) AddlabelsToPR(
 }
 
 // RemoveLabelFromPR removes "one" label from the pull request
-func (g GithubClient) RemoveLabelFromPR(
+func (g *GithubClient) RemoveLabelFromPR(
 	repo string, pr *github.PullRequest, removeLabel string) error {
 	labels, _, err := g.client.Issues.ListLabelsByIssue(context.Background(), g.owner, repo, *pr.Number, &github.ListOptions{})
 	if err != nil {
@@ -203,7 +205,7 @@ func (g GithubClient) RemoveLabelFromPR(
 }
 
 // ClosePRDeleteBranch closes a PR and deletes the branch from which the PR is made
-func (g GithubClient) ClosePRDeleteBranch(repo string, pr *github.PullRequest) error {
+func (g *GithubClient) ClosePRDeleteBranch(repo string, pr *github.PullRequest) error {
 	prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
 	prBranch := *pr.Head.Ref
 	log.Printf("Closing PR %s", prName)
@@ -229,7 +231,7 @@ func (g GithubClient) ClosePRDeleteBranch(repo string, pr *github.PullRequest) e
 }
 
 // MergePR force merges a PR
-func (g GithubClient) MergePR(repo string, pr *github.PullRequest) error {
+func (g *GithubClient) MergePR(repo string, pr *github.PullRequest) error {
 	prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
 	if _, _, err := g.client.Repositories.Merge(
 		context.Background(), g.owner, repo, &github.RepositoryMergeRequest{
@@ -244,7 +246,7 @@ func (g GithubClient) MergePR(repo string, pr *github.PullRequest) error {
 }
 
 // ListRepos returns a list of repos under the provided owner
-func (g GithubClient) ListRepos() ([]string, error) {
+func (g *GithubClient) ListRepos() ([]string, error) {
 	opt := &github.RepositoryListOptions{Type: "owner"}
 	repos, _, err := g.client.Repositories.List(context.Background(), g.owner, opt)
 	if err != nil {
@@ -260,7 +262,7 @@ func (g GithubClient) ListRepos() ([]string, error) {
 // ExistBranch checks if a given branch name has already existed on remote repo
 // Must get a full list of branches and iterate through since
 // fetching a nonexisting branch directly results in error
-func (g GithubClient) ExistBranch(repo, branch string) (bool, error) {
+func (g *GithubClient) ExistBranch(repo, branch string) (bool, error) {
 	branches, _, err := g.client.Repositories.ListBranches(
 		context.Background(), g.owner, repo, nil)
 	if err != nil {
@@ -275,7 +277,7 @@ func (g GithubClient) ExistBranch(repo, branch string) (bool, error) {
 }
 
 // GetPRTestResults return `success` if all *required* tests have passed
-func (g GithubClient) GetPRTestResults(repo string, pr *github.PullRequest, verbose bool) (string, error) {
+func (g *GithubClient) GetPRTestResults(repo string, pr *github.PullRequest, verbose bool) (string, error) {
 	combinedStatus, _, err := g.client.Repositories.GetCombinedStatus(
 		context.Background(), g.owner, repo, pr.Head.GetSHA(), nil)
 	if err != nil {
@@ -307,7 +309,7 @@ func (g GithubClient) GetPRTestResults(repo string, pr *github.PullRequest, verb
 // CloseIdlePullRequests checks all open PRs auto-created on baseBranch in repo,
 // closes the ones that have stayed open for a long time, and deletes the
 // remote branches from which the PRs are made
-func (g GithubClient) CloseIdlePullRequests(prTitlePrefix, repo, baseBranch string) error {
+func (g *GithubClient) CloseIdlePullRequests(prTitlePrefix, repo, baseBranch string) error {
 	log.Printf("If any, close failed auto PRs to update dependencies in repo %s", repo)
 	idleTimeout := time.Hour * 3
 	var multiErr error
@@ -338,13 +340,13 @@ func (g GithubClient) CloseIdlePullRequests(prTitlePrefix, repo, baseBranch stri
 }
 
 // GetHeadCommitSHA finds the SHA of the commit to which the HEAD of branch points
-func (g GithubClient) GetHeadCommitSHA(repo, branch string) (string, error) {
+func (g *GithubClient) GetHeadCommitSHA(repo, branch string) (string, error) {
 	sha, _, err := g.GetReferenceSHAAndType(repo, "refs/heads/"+branch)
 	return sha, err
 }
 
 // GetTagCommitSHA finds the SHA of the commit from which the tag was made
-func (g GithubClient) GetTagCommitSHA(repo, tag string) (string, error) {
+func (g *GithubClient) GetTagCommitSHA(repo, tag string) (string, error) {
 	sha, ty, err := g.GetReferenceSHAAndType(repo, "refs/tags/"+tag)
 	if err != nil {
 		return "", err
@@ -358,10 +360,10 @@ func (g GithubClient) GetTagCommitSHA(repo, tag string) (string, error) {
 		}
 		return *tagObj.Object.SHA, nil
 	} else if ty == "commit" {
-		commitObj, _, err := g.client.Git.GetCommit(context.Background(), g.owner, repo, sha)
-		if err != nil {
+		commitObj, err2 := g.GetCommit(repo, sha)
+		if err2 != nil {
 			log.Printf("Failed to get commit object %s", sha)
-			return "", err
+			return "", err2
 		}
 		return *commitObj.SHA, nil
 	}
@@ -369,9 +371,8 @@ func (g GithubClient) GetTagCommitSHA(repo, tag string) (string, error) {
 }
 
 // GetCommitCreationTime gets the time when the commit identified by sha is created
-func (g GithubClient) GetCommitCreationTime(repo, sha string) (time.Time, error) {
-	commit, _, err := g.client.Git.GetCommit(
-		context.Background(), g.owner, repo, sha)
+func (g *GithubClient) GetCommitCreationTime(repo, sha string) (time.Time, error) {
+	commit, err := g.GetCommit(repo, sha)
 	if err != nil {
 		log.Printf("Failed to get commit %s", sha)
 		return time.Time{}, err
@@ -379,9 +380,15 @@ func (g GithubClient) GetCommitCreationTime(repo, sha string) (time.Time, error)
 	return commit.Author.GetDate(), nil
 }
 
+// GetCommit gets a commit using the given repo and hash sha.
+func (g *GithubClient) GetCommit(repo, sha string) (*github.Commit, error) {
+	commit, _, err := g.client.Git.GetCommit(context.Background(), g.owner, repo, sha)
+	return commit, err
+}
+
 // GetCommitCreationTimeByTag finds the time when the commit pointed by a tag is created
 // Note that SHA of the tag is different from the commit SHA
-func (g GithubClient) GetCommitCreationTimeByTag(repo, tag string) (time.Time, error) {
+func (g *GithubClient) GetCommitCreationTimeByTag(repo, tag string) (time.Time, error) {
 	commitSHA, err := g.GetTagCommitSHA(repo, tag)
 	if err != nil {
 		return time.Time{}, err
@@ -391,7 +398,7 @@ func (g GithubClient) GetCommitCreationTimeByTag(repo, tag string) (time.Time, e
 
 // GetReleaseTagCreationTime gets the creation time of a lightweight tag created by release
 // Release tags from istio/istio are this kind of tag.
-func (g GithubClient) GetReleaseTagCreationTime(repo, tag string) (time.Time, error) {
+func (g *GithubClient) GetReleaseTagCreationTime(repo, tag string) (time.Time, error) {
 	release, _, err := g.client.Repositories.GetReleaseByTag(context.Background(), g.owner, repo, tag)
 	if err != nil {
 		return time.Time{}, fmt.Errorf("failed to to get release tag: %s", err)
@@ -401,7 +408,7 @@ func (g GithubClient) GetReleaseTagCreationTime(repo, tag string) (time.Time, er
 
 // GetannotatedTagCreationTime gets the creation time of an annotated Tag
 // Release tags except those from istio/istio are annotated tag.
-func (g GithubClient) GetannotatedTagCreationTime(repo, tag string) (time.Time, error) {
+func (g *GithubClient) GetannotatedTagCreationTime(repo, tag string) (time.Time, error) {
 	sha, ty, err := g.GetReferenceSHAAndType(repo, "refs/tags/"+tag)
 	if err != nil {
 		return time.Time{}, err
@@ -419,7 +426,7 @@ func (g GithubClient) GetannotatedTagCreationTime(repo, tag string) (time.Time, 
 }
 
 // GetFileContent retrieves the file content from the hosted repo
-func (g GithubClient) GetFileContent(repo, branch, path string) (string, error) {
+func (g *GithubClient) GetFileContent(repo, branch, path string) (string, error) {
 	opt := github.RepositoryContentGetOptions{branch}
 	fileContent, _, _, err := g.client.Repositories.GetContents(
 		context.Background(), g.owner, repo, path, &opt)
@@ -430,7 +437,7 @@ func (g GithubClient) GetFileContent(repo, branch, path string) (string, error) 
 }
 
 // CreateAnnotatedTag creates on the remote repo an annotated tag at given sha
-func (g GithubClient) CreateAnnotatedTag(repo, tag, sha, msg string) error {
+func (g *GithubClient) CreateAnnotatedTag(repo, tag, sha, msg string) error {
 	if !SHARegex.MatchString(sha) {
 		return fmt.Errorf(
 			"unable to create tag %s on repo %s: invalid commit SHA %s",
@@ -468,7 +475,7 @@ func (g GithubClient) CreateAnnotatedTag(repo, tag, sha, msg string) error {
 
 // CreateReleaseUploadArchives creates a release given release tag and
 // upload all files in archiveDir as assets of this release
-func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, sha, archiveDir string) error {
+func (g *GithubClient) CreateReleaseUploadArchives(repo, releaseTag, sha, archiveDir string) error {
 	// create release
 	release := github.RepositoryRelease{
 		TagName:         &releaseTag,
@@ -519,7 +526,7 @@ func (g GithubClient) CreateReleaseUploadArchives(repo, releaseTag, sha, archive
 }
 
 // GetReferenceSHAAndType returns the sha of a reference
-func (g GithubClient) GetReferenceSHAAndType(repo, ref string) (string, string, error) {
+func (g *GithubClient) GetReferenceSHAAndType(repo, ref string) (string, string, error) {
 	githubRefObj, _, err := g.client.Git.GetRef(
 		context.Background(), g.owner, repo, ref)
 	if err != nil {
@@ -530,24 +537,71 @@ func (g GithubClient) GetReferenceSHAAndType(repo, ref string) (string, string, 
 }
 
 // SearchIssues get issues/prs based on query
-func (g GithubClient) SearchIssues(queries []string, keyWord, sort, order string) (*github.IssuesSearchResult, error) {
+func (g *GithubClient) SearchIssues(queries []string, sort, order string) ([]*github.Issue, error) {
 	q := strings.Join(queries, " ")
 	searchOption := &github.SearchOptions{
 		Sort:  sort,
 		Order: order,
 	}
+	var allIssues []*github.Issue
 
-	issueResult, _, err := g.client.Search.Issues(context.Background(), q, searchOption)
-	if err != nil {
-		log.Printf("Failed to search issues")
-		return nil, err
+	for {
+		issueResult, resp, err := g.client.Search.Issues(context.Background(), q, searchOption)
+		if err != nil {
+			log.Printf("Failed to search issues")
+			return nil, err
+		}
+		for i := 0; i < len(issueResult.Issues); i++ {
+			allIssues = append(allIssues, &(issueResult.Issues[i]))
+		}
+		if resp.NextPage == 0 {
+			break
+		}
+		searchOption.Page = resp.NextPage
 	}
+	return allIssues, nil
+}
 
-	return issueResult, nil
+// GetPullReviews gets all the reviews associated with the pull request number.
+func (g *GithubClient) GetPullReviews(repo string, number int) ([]*github.PullRequestReview, error) {
+	listOption := &github.ListOptions{}
+	var allReviews []*github.PullRequestReview
+	for {
+		reviews, resp, err := g.client.PullRequests.ListReviews(context.Background(), g.owner, repo, number, listOption)
+		if err != nil {
+			log.Printf("Failed to list reviews")
+			return nil, err
+		}
+		allReviews = append(allReviews, reviews...)
+		if resp.NextPage == 0 {
+			break
+		}
+		listOption.Page = resp.NextPage
+	}
+	return allReviews, nil
+}
+
+// GetIssueEvents gets all the events associated with the issue number.
+func (g *GithubClient) GetIssueEvents(repo string, id int) ([]*github.IssueEvent, error) {
+	listOption := &github.ListOptions{}
+	var allEvents []*github.IssueEvent
+
+	for {
+		events, resp, err := g.client.Issues.ListIssueEvents(context.Background(), g.owner, repo, id, listOption)
+		if err != nil {
+			return nil, err
+		}
+		allEvents = append(allEvents, events...)
+		if resp.NextPage == 0 {
+			break
+		}
+		listOption.Page = resp.NextPage
+	}
+	return allEvents, nil
 }
 
 // GetLatestRelease get the latest release version
-func (g GithubClient) GetLatestRelease(repo string) (string, error) {
+func (g *GithubClient) GetLatestRelease(repo string) (string, error) {
 	release, _, err := g.client.Repositories.GetLatestRelease(context.Background(), g.owner, repo)
 	if err != nil {
 		return "", err
@@ -558,14 +612,14 @@ func (g GithubClient) GetLatestRelease(repo string) (string, error) {
 // CreatePRUpdateRepo checkout repo:baseBranch to local
 // create newBranch, do edit(), push newBranch
 // and create a PR again baseBranch with prTitle and prBody
-func (g GithubClient) CreatePRUpdateRepo(
+func (g *GithubClient) CreatePRUpdateRepo(
 	newBranch, baseBranch, repo, prTitle, prBody string, edit func() error) (*github.PullRequest, error) {
 	workDir, err := os.Getwd()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get current working dir: %s", err)
 	}
 	log.Printf("Cloning %s to local and checkout %s\n", repo, baseBranch)
-	repoDir, err := CloneRepoCheckoutBranch(&g, repo, baseBranch, newBranch, "")
+	repoDir, err := CloneRepoCheckoutBranch(g, repo, baseBranch, newBranch, "")
 	if err != nil {
 		return nil, err
 	}
@@ -589,7 +643,7 @@ func (g GithubClient) CreatePRUpdateRepo(
 }
 
 // ListPRs list PRs in a repo match the listOptions
-func (g GithubClient) ListPRs(options github.PullRequestListOptions, repo string) ([]*github.PullRequest, error) {
+func (g *GithubClient) ListPRs(options github.PullRequestListOptions, repo string) ([]*github.PullRequest, error) {
 	prs, _, err := g.client.PullRequests.List(
 		context.Background(), g.owner, repo, &options)
 	if err != nil {
@@ -600,7 +654,7 @@ func (g GithubClient) ListPRs(options github.PullRequestListOptions, repo string
 }
 
 // AddLabelToPRs add one label to PRs in a repo match the listOptions
-func (g GithubClient) AddLabelToPRs(options github.PullRequestListOptions, repo string, label string) error {
+func (g *GithubClient) AddLabelToPRs(options github.PullRequestListOptions, repo string, label string) error {
 	prs, err := g.ListPRs(options, repo)
 	if err != nil {
 		log.Printf("Failed to list open PRs in %s", repo)
@@ -617,7 +671,7 @@ func (g GithubClient) AddLabelToPRs(options github.PullRequestListOptions, repo 
 }
 
 // RemoveLabelFromPRs remove one label to PRs in a repo match the listOptions
-func (g GithubClient) RemoveLabelFromPRs(options github.PullRequestListOptions, repo string, label string) error {
+func (g *GithubClient) RemoveLabelFromPRs(options github.PullRequestListOptions, repo string, label string) error {
 	prs, err := g.ListPRs(options, repo)
 	if err != nil {
 		return err
