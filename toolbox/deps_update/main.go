@@ -106,6 +106,9 @@ func generateArtifactURL(repo, ref, suffix string) string {
 // Updates the list of dependencies in repo to the latest stable references
 func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency) error {
 	for _, dep := range *deps {
+		if dep.File == "" {
+			continue
+		}
 		if err := u.UpdateKeyValueInFile(dep.File, dep.Name, dep.LastStableSHA); err != nil {
 			return err
 		}
