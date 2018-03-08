@@ -74,33 +74,33 @@ func findIssueMetric(metric *fixItMetric) {
 		log.Printf("Failed to fetch Issues for %s: %s", *repo, err)
 		return
 	}
-	(*metric).totalIssues = len(allIssues)
+	metric.totalIssues = len(allIssues)
 	for _, issue := range allIssues {
 		if issue.GetState() == closedState {
-			(*metric).totalClosedIssues++
+			metric.totalClosedIssues++
 		}
-		events, err := gh.GetIssueEvents(*repo, (*issue).GetNumber())
+		events, err := gh.GetIssueEvents(*repo, issue.GetNumber())
 		if err != nil {
-			log.Printf("Failed to fetch events for issue %s: %s", (*issue).GetURL(), err)
+			log.Printf("Failed to fetch events for issue %s: %s", issue.GetURL(), err)
 			return
 		}
 
 		// Find the person who labeled the issue.
 		for _, event := range events {
-			if (*event).GetLabel() != nil {
-				if (*event).GetLabel().GetName() == *label {
-					(*metric).issueLabeledMap[(*event).GetActor().GetLogin()]++
+			if event.GetLabel() != nil {
+				if event.GetLabel().GetName() == *label {
+					metric.issueLabeledMap[event.GetActor().GetLogin()]++
 					break
 				}
 			}
 		}
 		// Find the person who labeled the issue.
 		for _, event := range events {
-			if (*event).GetEvent() == closedState && isFixItWeek(event.GetCreatedAt()) {
-				login := (*event).GetActor().GetLogin()
+			if event.GetEvent() == closedState && isFixItWeek(event.GetCreatedAt()) {
+				login := event.GetActor().GetLogin()
 				if login != "istio-merge-robot" {
 					// Not counting the bot
-					(*metric).issueClosedMap[login]++
+					metric.issueClosedMap[login]++
 					break
 				}
 			}
@@ -119,26 +119,26 @@ func findPullMetric(metric *fixItMetric) {
 		return
 	}
 	for _, pull := range allPulls {
-		login := (*pull).GetUser().GetLogin()
+		login := pull.GetUser().GetLogin()
 		if pull.GetState() == closedState {
-			(*metric).pullClosedMap[login]++
+			metric.pullClosedMap[login]++
 		} else if pull.GetState() == "open" {
-			(*metric).pullOpenMap[login]++
+			metric.pullOpenMap[login]++
 		}
-		reviews, err := gh.GetPullReviews(*repo, (*pull).GetNumber())
+		reviews, err := gh.GetPullReviews(*repo, pull.GetNumber())
 		if err != nil {
-			log.Printf("Failed to fetch reviews for %s: %s", (*pull).GetURL(), err)
+			log.Printf("Failed to fetch reviews for %s: %s", pull.GetURL(), err)
 			return
 		}
 
 		for _, review := range reviews {
 			// Multiple reviews in the same PR is counted as once
 			reviewers := make(map[string]bool)
-			if isFixItWeek((*review).GetSubmittedAt()) {
-				reviewers[(*review).GetUser().GetLogin()] = true
+			if isFixItWeek(review.GetSubmittedAt()) {
+				reviewers[review.GetUser().GetLogin()] = true
 			}
 			for reviewer := range reviewers {
-				(*metric).pullReviewMap[reviewer]++
+				metric.pullReviewMap[reviewer]++
 			}
 		}
 	}
