@@ -37,7 +37,7 @@ const (
 var (
 	org       = flag.String("user", "istio", "Github owner or org")
 	tokenFile = flag.String("token_file", "", "Github token file (optional)")
-	repo      = flag.String("repo", "istio", "Github repo")
+	repos     = flag.String("repos", "istio,api,proxy,test-infra", "Github repos, separate using \",\"")
 	label     = flag.String("label", "kind/fixit", "Label to search for")
 	sort      = flag.String("sort", string(created), "The sort field. Can be comments, created, or updated.")
 	order     = flag.String("order", string(desc), "The sort order if sort parameter is provided. One of asc or desc.")
@@ -65,21 +65,21 @@ func isFixItWeek(t time.Time) bool {
 }
 
 // Find all metric related to issues
-func findIssueMetric(metric *fixItMetric) {
-	issueQueries := createIssueQuery("issue")
+func findIssueMetric(repo string, metric *fixItMetric) {
+	issueQueries := createIssueQuery(repo, "issue")
 	log.Printf("Issue Query: %v", issueQueries)
 
 	allIssues, err := gh.SearchIssues(issueQueries, *sort, *order)
 	if err != nil {
-		log.Printf("Failed to fetch Issues for %s: %s", *repo, err)
+		log.Printf("Failed to fetch Issues for %s: %s", repo, err)
 		return
 	}
-	metric.totalIssues = len(allIssues)
+	metric.totalIssues += len(allIssues)
 	for _, issue := range allIssues {
 		if issue.GetState() == closedState {
 			metric.totalClosedIssues++
 		}
-		events, err := gh.GetIssueEvents(*repo, issue.GetNumber())
+		events, err := gh.GetIssueEvents(repo, issue.GetNumber())
 		if err != nil {
 			log.Printf("Failed to fetch events for issue %s: %s", issue.GetURL(), err)
 			return
@@ -109,13 +109,13 @@ func findIssueMetric(metric *fixItMetric) {
 }
 
 // Find all metric related to pulls
-func findPullMetric(metric *fixItMetric) {
-	pullQueries := createIssueQuery("pr")
+func findPullMetric(repo string, metric *fixItMetric) {
+	pullQueries := createIssueQuery(repo, "pr")
 	log.Printf("Pull Query: %v", pullQueries)
 
 	allPulls, err := gh.SearchIssues(pullQueries, *sort, *order)
 	if err != nil {
-		log.Printf("Failed to fetch PR for %s: %s", *repo, err)
+		log.Printf("Failed to fetch PR for %s: %s", repo, err)
 		return
 	}
 	for _, pull := range allPulls {
@@ -125,7 +125,7 @@ func findPullMetric(metric *fixItMetric) {
 		} else if pull.GetState() == "open" {
 			metric.pullOpenMap[login]++
 		}
-		reviews, err := gh.GetPullReviews(*repo, pull.GetNumber())
+		reviews, err := gh.GetPullReviews(repo, pull.GetNumber())
 		if err != nil {
 			log.Printf("Failed to fetch reviews for %s: %s", pull.GetURL(), err)
 			return
@@ -168,8 +168,10 @@ func newFixItMetric() *fixItMetric {
 
 func main() {
 	metric := newFixItMetric()
-	findIssueMetric(metric)
-	findPullMetric(metric)
+	for _, repo := range strings.Split(*repos, ",") {
+		findIssueMetric(repo, metric)
+		findPullMetric(repo, metric)
+	}
 	printReport(metric)
 }
 
@@ -201,9 +203,9 @@ func printLeaderBoard(title string, m map[string]int) {
 	fmt.Println()
 }
 
-func createIssueQuery(issuetype string) []string {
+func createIssueQuery(repo string, issuetype string) []string {
 	var queries []string
-	queries = addQuery(queries, "repo", *org, "/", *repo)
+	queries = addQuery(queries, "repo", *org, "/", repo)
 	queries = addQuery(queries, "label", *label)
 	queries = addQuery(queries, "type", issuetype)
 	return queries
