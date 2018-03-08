@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"github.com/google/go-github/github"
-	multierror "github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-multierror"
 	"golang.org/x/oauth2"
 )
 
@@ -360,10 +360,10 @@ func (g GithubClient) GetTagCommitSHA(repo, tag string) (string, error) {
 		}
 		return *tagObj.Object.SHA, nil
 	} else if ty == "commit" {
-		commitObj, err := g.GetCommit(repo, sha)
-		if err != nil {
+		commitObj, err2 := g.GetCommit(repo, sha)
+		if err2 != nil {
 			log.Printf("Failed to get commit object %s", sha)
-			return "", err
+			return "", err2
 		}
 		return *commitObj.SHA, nil
 	}
@@ -380,6 +380,7 @@ func (g GithubClient) GetCommitCreationTime(repo, sha string) (time.Time, error)
 	return commit.Author.GetDate(), nil
 }
 
+// GetCommit gets a commit using the given repo and hash sha.
 func (g GithubClient) GetCommit(repo, sha string) (*github.Commit, error) {
 	commit, _, err := g.client.Git.GetCommit(context.Background(), g.owner, repo, sha)
 	return commit, err
@@ -550,7 +551,7 @@ func (g GithubClient) SearchIssues(queries []string, sort, order string) ([]*git
 			log.Printf("Failed to search issues")
 			return nil, err
 		}
-		for i:=0; i<len(issueResult.Issues); i++ {
+		for i := 0; i < len(issueResult.Issues); i++ {
 			allIssues = append(allIssues, &(issueResult.Issues[i]))
 		}
 		if resp.NextPage == 0 {
@@ -561,7 +562,7 @@ func (g GithubClient) SearchIssues(queries []string, sort, order string) ([]*git
 	return allIssues, nil
 }
 
-// SearchIssues get issues/prs based on query
+// GetPullReviews gets all the reviews associated with the pull request number.
 func (g GithubClient) GetPullReviews(repo string, number int) ([]*github.PullRequestReview, error) {
 	listOption := &github.ListOptions{}
 	var allReviews []*github.PullRequestReview
@@ -580,6 +581,7 @@ func (g GithubClient) GetPullReviews(repo string, number int) ([]*github.PullReq
 	return allReviews, nil
 }
 
+// GetIssueEvents gets all the events associated with the issue number.
 func (g GithubClient) GetIssueEvents(repo string, id int) ([]*github.IssueEvent, error) {
 	listOption := &github.ListOptions{}
 	var allEvents []*github.IssueEvent

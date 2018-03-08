@@ -29,20 +29,21 @@ type sortV string
 
 const (
 	// Allowed field values can be found at https://developer.github.com/v3/search/#search-repositories
-	desc    = orderV("desc")
-	created = sortV("created")
+	desc        = orderV("desc")
+	created     = sortV("created")
+	closedState = string("closed")
 )
 
 var (
-	org             = flag.String("user", "istio", "Github owner or org")
-	tokenFile       = flag.String("token_file", "/Users/hklai/github_token", "Github token file (optional)")
-	repo            = flag.String("repo", "istio", "Github repo")
-	label            = flag.String("label", "kind/fixit", "Label to search for")
-	sort            = flag.String("sort", string(created), "The sort field. Can be comments, created, or updated.")
-	order           = flag.String("order", string(desc), "The sort order if sort parameter is provided. One of asc or desc.")
-	startDate       = time.Date(2018, time.March, 5, 0, 0, 0, 0, time.Local)
-	endDate       = time.Date(2018, time.March, 10, 0, 0, 0, 0, time.Local)
-	gh              *u.GithubClient
+	org       = flag.String("user", "istio", "Github owner or org")
+	tokenFile = flag.String("token_file", "", "Github token file (optional)")
+	repo      = flag.String("repo", "istio", "Github repo")
+	label     = flag.String("label", "kind/fixit", "Label to search for")
+	sort      = flag.String("sort", string(created), "The sort field. Can be comments, created, or updated.")
+	order     = flag.String("order", string(desc), "The sort order if sort parameter is provided. One of asc or desc.")
+	startDate = time.Date(2018, time.March, 5, 0, 0, 0, 0, time.Local)
+	endDate   = time.Date(2018, time.March, 10, 0, 0, 0, 0, time.Local)
+	gh        *u.GithubClient
 )
 
 func init() {
@@ -58,33 +59,24 @@ func init() {
 	}
 }
 
-// Increment a key in the given map.
-func incrementCount(m map[string]int, key string) {
-	val, ok := m[key]
-	if !ok {
-		val = 0
-	}
-	m[key] = val + 1
-}
-
 // Check if an event happened during the FixIt week.
 func isFixItWeek(t time.Time) bool {
 	return t.After(startDate) && t.Before(endDate)
 }
 
 // Find all metric related to issues
-func findIssueMetric(metric *FixItMetric) {
+func findIssueMetric(metric *fixItMetric) {
 	issueQueries := createIssueQuery("issue")
 	log.Printf("Issue Query: %v", issueQueries)
 
 	allIssues, err := gh.SearchIssues(issueQueries, *sort, *order)
 	if err != nil {
-		log.Printf("Failed to fetch Issues for %s: %s", repo, err)
+		log.Printf("Failed to fetch Issues for %s: %s", *repo, err)
 		return
 	}
 	(*metric).totalIssues = len(allIssues)
 	for _, issue := range allIssues {
-		if issue.GetState() == "closed" {
+		if issue.GetState() == closedState {
 			(*metric).totalClosedIssues++
 		}
 		events, err := gh.GetIssueEvents(*repo, (*issue).GetNumber())
@@ -97,19 +89,19 @@ func findIssueMetric(metric *FixItMetric) {
 		for _, event := range events {
 			if (*event).GetLabel() != nil {
 				if (*event).GetLabel().GetName() == *label {
-					incrementCount((*metric).issueLabeledMap, (*event).GetActor().GetLogin())
-					break;
+					(*metric).issueLabeledMap[(*event).GetActor().GetLogin()]++
+					break
 				}
 			}
 		}
 		// Find the person who labeled the issue.
 		for _, event := range events {
-			if (*event).GetEvent() == "closed" && isFixItWeek(event.GetCreatedAt()) {
+			if (*event).GetEvent() == closedState && isFixItWeek(event.GetCreatedAt()) {
 				login := (*event).GetActor().GetLogin()
 				if login != "istio-merge-robot" {
 					// Not counting the bot
-					incrementCount((*metric).issueClosedMap, login)
-					break;
+					(*metric).issueClosedMap[login]++
+					break
 				}
 			}
 		}
@@ -117,20 +109,21 @@ func findIssueMetric(metric *FixItMetric) {
 }
 
 // Find all metric related to pulls
-func findPullMetric(metric *FixItMetric) {
+func findPullMetric(metric *fixItMetric) {
 	pullQueries := createIssueQuery("pr")
 	log.Printf("Pull Query: %v", pullQueries)
 
 	allPulls, err := gh.SearchIssues(pullQueries, *sort, *order)
 	if err != nil {
-		log.Printf("Failed to fetch PR for %s: %s", repo, err)
+		log.Printf("Failed to fetch PR for %s: %s", *repo, err)
 		return
 	}
 	for _, pull := range allPulls {
-		if pull.GetState() == "closed" {
-			incrementCount((*metric).pullClosedMap, (*pull).GetUser().GetLogin())
+		login := (*pull).GetUser().GetLogin()
+		if pull.GetState() == closedState {
+			(*metric).pullClosedMap[login]++
 		} else if pull.GetState() == "open" {
-			incrementCount((*metric).pullOpenMap, (*pull).GetUser().GetLogin())
+			(*metric).pullOpenMap[login]++
 		}
 		reviews, err := gh.GetPullReviews(*repo, (*pull).GetNumber())
 		if err != nil {
@@ -140,31 +133,31 @@ func findPullMetric(metric *FixItMetric) {
 
 		for _, review := range reviews {
 			// Multiple reviews in the same PR is counted as once
-			reviewLogins := make(map[string]bool)
+			reviewers := make(map[string]bool)
 			if isFixItWeek((*review).GetSubmittedAt()) {
-				reviewLogins[(*review).GetUser().GetLogin()] = true
+				reviewers[(*review).GetUser().GetLogin()] = true
 			}
-			for login, _ := range reviewLogins {
-				incrementCount((*metric).pullReviewMap, login)
+			for reviewer := range reviewers {
+				(*metric).pullReviewMap[reviewer]++
 			}
 		}
 	}
 }
 
 // All metric that we capture.
-type FixItMetric struct {
-	totalIssues int
+type fixItMetric struct {
+	totalIssues       int
 	totalClosedIssues int
-	issueLabeledMap map[string]int
-	issueClosedMap map[string]int
-	pullClosedMap map[string]int
-	pullOpenMap map[string]int
-	pullReviewMap map[string]int
+	issueLabeledMap   map[string]int
+	issueClosedMap    map[string]int
+	pullClosedMap     map[string]int
+	pullOpenMap       map[string]int
+	pullReviewMap     map[string]int
 }
 
-// Building a new FixItMetric with all maps initialized.
-func NewFixItMetric() *FixItMetric {
-	var metric FixItMetric
+// Building a new fixItMetric with all maps initialized.
+func newFixItMetric() *fixItMetric {
+	var metric fixItMetric
 	metric.issueLabeledMap = make(map[string]int)
 	metric.issueClosedMap = make(map[string]int)
 	metric.pullClosedMap = make(map[string]int)
@@ -174,13 +167,13 @@ func NewFixItMetric() *FixItMetric {
 }
 
 func main() {
-	metric := NewFixItMetric()
+	metric := newFixItMetric()
 	findIssueMetric(metric)
 	findPullMetric(metric)
 	printReport(metric)
 }
 
-func printReport(metric *FixItMetric) {
+func printReport(metric *fixItMetric) {
 	fmt.Println("==================== Istio FixIt 2018 ====================")
 	fmt.Printf("Total number of issues: %d", metric.totalIssues)
 	fmt.Println()
@@ -228,4 +221,3 @@ func addQuery(queries []string, queryParts ...string) []string {
 	}
 	return append(queries, fmt.Sprintf("%s:%s", queryParts[0], strings.Join(queryParts[1:], "")))
 }
-

@@ -22,10 +22,10 @@ import (
 	"io/ioutil"
 	"log"
 	"os/exec"
+	"sort"
 	"strings"
 	"text/template"
 	"time"
-	"sort"
 )
 
 const (
@@ -75,16 +75,6 @@ func WriteTextFile(filePath, content string) error {
 		content += "\n"
 	}
 	return ioutil.WriteFile(filePath, []byte(content), 0600)
-}
-
-// ContainsString finds if target presents in the given slice
-func ContainsString(slice []string, target string) bool {
-	for _, element := range slice {
-		if element == target {
-			return true
-		}
-	}
-	return false
 }
 
 // updateKeyValueInTomlLines updates all occurrences of key to a new value
@@ -183,12 +173,12 @@ func sh(format string, muted bool, args ...interface{}) (string, error) {
 		log.Printf("Running command %s", command)
 	}
 	c := exec.Command("sh", "-c", command) // #nosec
-	bytes, err := c.CombinedOutput()
-	log.Printf("Command output: \n%s", string(bytes[:]))
+	b, err := c.CombinedOutput()
+	log.Printf("Command output: \n%s", string(b[:]))
 	if err != nil {
-		return "", fmt.Errorf("command failed: %q %v", string(bytes), err)
+		return "", fmt.Errorf("command failed: %q %v", string(b), err)
 	}
-	return string(bytes), nil
+	return string(b), nil
 }
 
 // FillUpTemplate fills up a template from the provided interface
@@ -212,19 +202,20 @@ func AssertNotEmpty(name string, value *string) {
 	}
 }
 
-
+// Pair contains key and value for sorting.
 type Pair struct {
-	Key string
+	Key   string
 	Value int
 }
 
-// A slice of Pairs that implements sort.Interface to sort by Value.
+// PairList contains a list of key-value pairs.
 type PairList []Pair
-func (p PairList) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
-func (p PairList) Len() int { return len(p) }
+
+func (p PairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+func (p PairList) Len() int           { return len(p) }
 func (p PairList) Less(i, j int) bool { return p[i].Value < p[j].Value }
 
-// A function to turn a map into a PairList, then sort and return it.
+// SortMapByValue sorts the map by the values and returns PairList.
 func SortMapByValue(m map[string]int) PairList {
 	p := make(PairList, len(m))
 	i := 0
@@ -235,8 +226,3 @@ func SortMapByValue(m map[string]int) PairList {
 	sort.Sort(p)
 	return p
 }
-
-
-
-
-
