@@ -90,47 +90,42 @@ func main() {
 		}
 		log.Printf("Query: %v", queries)
 
-		issuesResult, err := gh.SearchIssues(queries, "", *sort, *order)
+		issues, err := gh.SearchIssues(queries, *sort, *order)
 		if err != nil {
 			log.Printf("Failed to fetch PR with release note for %s: %s", repo, err)
 			continue
 		}
-		if err = fetchRelaseNoteFromRepo(repo, issuesResult, f); err != nil {
+		if err = fetchRelaseNoteFromRepo(repo, issues, f); err != nil {
 			log.Printf("Failed to get release note for %s: %s", repo, err)
 			continue
 		}
 	}
 }
 
-func fetchRelaseNoteFromRepo(repo string, issuesResult *github.IssuesSearchResult, f *os.File) error {
+func fetchRelaseNoteFromRepo(repo string, issues []*github.Issue, f *os.File) error {
 	title := fmt.Sprintf("\nistio/%s: %s -- %s\n", repo, *previousRelease, *currentRelease)
 	if _, err := f.WriteString(title); err != nil {
 		log.Printf("Failed to write title into output file: %s. Err: %s", title, err)
 	}
 
-	for _, i := range issuesResult.Issues {
-		note := fetchReleaseNoteFromPR(i)
+	for _, issue := range issues {
+		note := fetchReleaseNoteFromPR(issue)
 		if note == "" {
 			continue
 		}
 		if *prLink {
-			note += fmt.Sprintf("  %s\n", i.GetHTMLURL())
+			note += fmt.Sprintf("  %s\n", issue.GetHTMLURL())
 		}
 		if _, err := f.WriteString("* " + note); err != nil {
 			log.Printf("Failed to write a note into output file: %s. Err: %s", note, err)
 		}
 	}
-	if issuesResult.GetIncompleteResults() {
-		if _, err := f.WriteString("!!Warning: Some release notes missing due to incomplete search result from github!!"); err != nil {
-			log.Printf("Error: Release note is incomplete due to github search!")
-		}
-	}
 	return nil
 }
 
-func fetchReleaseNoteFromPR(i github.Issue) (note string) {
+func fetchReleaseNoteFromPR(issue *github.Issue) (note string) {
 	reg := regexp.MustCompile("```release-note\r\n((?s).+)\r\n```")
-	m := reg.FindStringSubmatch(*i.Body)
+	m := reg.FindStringSubmatch(*(*issue).Body)
 	if len(m) == 2 {
 		note = m[1]
 	}

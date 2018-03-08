@@ -100,6 +100,7 @@ func (g GithubClient) FastForward(repo, branch, sha string) error {
 	ref := fmt.Sprintf("refs/heads/%s", branch)
 	log.Printf("Updating ref %s to commit %s on repo %s", ref, sha, repo)
 	refType := "commit"
+
 	gho := github.GitObject{
 		SHA:  &sha,
 		Type: &refType,
@@ -110,6 +111,7 @@ func (g GithubClient) FastForward(repo, branch, sha string) error {
 	}
 	r.Ref = new(string)
 	*r.Ref = ref
+
 	_, _, err := g.client.Git.UpdateRef(
 		context.Background(), g.owner, repo, &r, false)
 	return err
@@ -358,7 +360,7 @@ func (g GithubClient) GetTagCommitSHA(repo, tag string) (string, error) {
 		}
 		return *tagObj.Object.SHA, nil
 	} else if ty == "commit" {
-		commitObj, _, err := g.client.Git.GetCommit(context.Background(), g.owner, repo, sha)
+		commitObj, err := g.GetCommit(repo, sha)
 		if err != nil {
 			log.Printf("Failed to get commit object %s", sha)
 			return "", err
@@ -370,13 +372,17 @@ func (g GithubClient) GetTagCommitSHA(repo, tag string) (string, error) {
 
 // GetCommitCreationTime gets the time when the commit identified by sha is created
 func (g GithubClient) GetCommitCreationTime(repo, sha string) (time.Time, error) {
-	commit, _, err := g.client.Git.GetCommit(
-		context.Background(), g.owner, repo, sha)
+	commit, err := g.GetCommit(repo, sha)
 	if err != nil {
 		log.Printf("Failed to get commit %s", sha)
 		return time.Time{}, err
 	}
 	return commit.Author.GetDate(), nil
+}
+
+func (g GithubClient) GetCommit(repo, sha string) (*github.Commit, error) {
+	commit, _, err := g.client.Git.GetCommit(context.Background(), g.owner, repo, sha)
+	return commit, err
 }
 
 // GetCommitCreationTimeByTag finds the time when the commit pointed by a tag is created
@@ -530,20 +536,66 @@ func (g GithubClient) GetReferenceSHAAndType(repo, ref string) (string, string, 
 }
 
 // SearchIssues get issues/prs based on query
-func (g GithubClient) SearchIssues(queries []string, keyWord, sort, order string) (*github.IssuesSearchResult, error) {
+func (g GithubClient) SearchIssues(queries []string, sort, order string) ([]*github.Issue, error) {
 	q := strings.Join(queries, " ")
 	searchOption := &github.SearchOptions{
 		Sort:  sort,
 		Order: order,
 	}
+	var allIssues []*github.Issue
 
-	issueResult, _, err := g.client.Search.Issues(context.Background(), q, searchOption)
-	if err != nil {
-		log.Printf("Failed to search issues")
-		return nil, err
+	for {
+		issueResult, resp, err := g.client.Search.Issues(context.Background(), q, searchOption)
+		if err != nil {
+			log.Printf("Failed to search issues")
+			return nil, err
+		}
+		for i:=0; i<len(issueResult.Issues); i++ {
+			allIssues = append(allIssues, &(issueResult.Issues[i]))
+		}
+		if resp.NextPage == 0 {
+			break
+		}
+		searchOption.Page = resp.NextPage
 	}
+	return allIssues, nil
+}
 
-	return issueResult, nil
+// SearchIssues get issues/prs based on query
+func (g GithubClient) GetPullReviews(repo string, number int) ([]*github.PullRequestReview, error) {
+	listOption := &github.ListOptions{}
+	var allReviews []*github.PullRequestReview
+	for {
+		reviews, resp, err := g.client.PullRequests.ListReviews(context.Background(), g.owner, repo, number, listOption)
+		if err != nil {
+			log.Printf("Failed to list reviews")
+			return nil, err
+		}
+		allReviews = append(allReviews, reviews...)
+		if resp.NextPage == 0 {
+			break
+		}
+		listOption.Page = resp.NextPage
+	}
+	return allReviews, nil
+}
+
+func (g GithubClient) GetIssueEvents(repo string, id int) ([]*github.IssueEvent, error) {
+	listOption := &github.ListOptions{}
+	var allEvents []*github.IssueEvent
+
+	for {
+		events, resp, err := g.client.Issues.ListIssueEvents(context.Background(), g.owner, repo, id, listOption)
+		if err != nil {
+			return nil, err
+		}
+		allEvents = append(allEvents, events...)
+		if resp.NextPage == 0 {
+			break
+		}
+		listOption.Page = resp.NextPage
+	}
+	return allEvents, nil
 }
 
 // GetLatestRelease get the latest release version
