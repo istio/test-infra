@@ -76,9 +76,6 @@ func findIssueMetric(repo string, metric *fixItMetric) {
 	}
 	metric.totalIssues += len(allIssues)
 	for _, issue := range allIssues {
-		if issue.GetState() == closedState {
-			metric.totalClosedIssues++
-		}
 		events, err := gh.GetIssueEvents(repo, issue.GetNumber())
 		if err != nil {
 			log.Printf("Failed to fetch events for issue %s: %s", issue.GetURL(), err)
@@ -94,14 +91,20 @@ func findIssueMetric(repo string, metric *fixItMetric) {
 				}
 			}
 		}
-		// Find the person who labeled the issue.
-		for _, event := range events {
-			if event.GetEvent() == closedState && isFixItWeek(event.GetCreatedAt()) {
-				login := event.GetActor().GetLogin()
-				if login != "istio-merge-robot" {
-					// Not counting the bot
-					metric.issueClosedMap[login]++
-					break
+
+		if issue.GetState() == closedState {
+			metric.totalClosedIssues++
+
+			// Find the person who closed the issue, by walking down the events in reverse order.
+			for i := len(events) - 1; i >= 0; i-- {
+				event := events[i]
+				if event.GetEvent() == closedState && isFixItWeek(event.GetCreatedAt()) {
+					login := event.GetActor().GetLogin()
+					if login != "istio-merge-robot" {
+						// Not counting the bot
+						metric.issueClosedMap[login]++
+						break
+					}
 				}
 			}
 		}
@@ -131,15 +134,16 @@ func findPullMetric(repo string, metric *fixItMetric) {
 			return
 		}
 
+		reviewers := make(map[string]bool)
 		for _, review := range reviews {
 			// Multiple reviews in the same PR is counted as once
-			reviewers := make(map[string]bool)
-			if isFixItWeek(review.GetSubmittedAt()) {
+			reviewer := review.GetUser().GetLogin()
+			if isFixItWeek(review.GetSubmittedAt()) && reviewer != pull.GetUser().GetLogin() {
 				reviewers[review.GetUser().GetLogin()] = true
 			}
-			for reviewer := range reviewers {
-				metric.pullReviewMap[reviewer]++
-			}
+		}
+		for reviewer := range reviewers {
+			metric.pullReviewMap[reviewer]++
 		}
 	}
 }
