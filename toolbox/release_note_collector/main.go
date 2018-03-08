@@ -125,7 +125,7 @@ func fetchRelaseNoteFromRepo(repo string, issues []*github.Issue, f *os.File) er
 
 func fetchReleaseNoteFromPR(issue *github.Issue) (note string) {
 	reg := regexp.MustCompile("```release-note\r\n((?s).+)\r\n```")
-	m := reg.FindStringSubmatch(*(*issue).Body)
+	m := reg.FindStringSubmatch(*issue.Body)
 	if len(m) == 2 {
 		note = m[1]
 	}
@@ -183,12 +183,12 @@ func addQuery(queries []string, queryParts ...string) []string {
 }
 
 func getReleaseTime(repo, release string) (string, error) {
-	time, err := getReleaseTagCreationTime(repo, release)
+	createTime, err := getReleaseTagCreationTime(repo, release)
 	if err != nil {
-		log.Println("Failed to get created time of this release tag")
+		log.Println("Failed to get created createTime of this release tag")
 		return "", err
 	}
-	t := time.UTC()
+	t := createTime.UTC()
 	timeString := fmt.Sprintf("%d-%02d-%02dT%02d:%02d:%02dZ",
 		t.Year(), t.Month(), t.Day(),
 		t.Hour(), t.Minute(), t.Second())

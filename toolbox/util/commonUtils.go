@@ -217,11 +217,9 @@ func (p PairList) Less(i, j int) bool { return p[i].Value < p[j].Value }
 
 // SortMapByValue sorts the map by the values and returns PairList.
 func SortMapByValue(m map[string]int) PairList {
-	p := make(PairList, len(m))
-	i := 0
+	p := make(PairList, 0, len(m))
 	for k, v := range m {
-		p[i] = Pair{k, v}
-		i++
+		p = append(p, Pair{k, v})
 	}
 	sort.Sort(p)
 	return p

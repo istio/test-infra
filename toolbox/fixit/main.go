@@ -37,7 +37,7 @@ const (
 var (
 	org       = flag.String("user", "istio", "Github owner or org")
 	tokenFile = flag.String("token_file", "", "Github token file (optional)")
-	repos     = flag.String("repos", "istio,api,proxy,test-infra", "Github repos, separate using \",\"")
+	repos     = flag.String("repos", "istio,api,proxy,test-infra,fortio,istio.github.io", "Github repos, separate using \",\"")
 	label     = flag.String("label", "kind/fixit", "Label to search for")
 	sort      = flag.String("sort", string(created), "The sort field. Can be comments, created, or updated.")
 	order     = flag.String("order", string(desc), "The sort order if sort parameter is provided. One of asc or desc.")
