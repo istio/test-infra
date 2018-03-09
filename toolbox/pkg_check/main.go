@@ -139,7 +139,7 @@ func (c *codecovChecker) parseReport() error {
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		if pkg, cov, err := parseReportLine(scanner.Text()); err != nil {
-			glog.Errorf("Failed to parse this line from report file: %s, %v", scanner.Text(), err)
+			glog.Warningf("Failed to parse this line from report file: %s, %v", scanner.Text(), err)
 		} else {
 			c.codeCoverage[pkg] = cov
 		}
@@ -261,6 +261,9 @@ func (c *codecovChecker) writeRequirementFromReport() (code int) {
 	for _, pkg := range sortedPkgs {
 		percent := c.codeCoverage[pkg]
 		threshold := int(math.Max(0, percent-c.thresholdDelta))
+		if percent == 100.0 {
+			threshold = 100
+		}
 		if _, err := w.WriteString(fmt.Sprintf("%s:%d [%.1f]\n", pkg, threshold, percent)); err != nil {
 			glog.Errorf("unable to write requirement file")
 			return 5 //Error code 5: unable to write to requirement file
