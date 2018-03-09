@@ -22,9 +22,9 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"istio.io/test-infra/boskos/gcp"
-
 	"k8s.io/test-infra/boskos/mason"
+
+	"istio.io/test-infra/boskos/gcp"
 )
 
 const (
