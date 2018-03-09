@@ -22,10 +22,9 @@ import (
 	"math"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
-
-	"sort"
 
 	"cloud.google.com/go/storage"
 	"github.com/golang/glog"
@@ -37,6 +36,7 @@ const (
 	defaultThreshold = 80.0
 	// Using 2% less than report for requirement
 	thresholdDelta = 2
+	googleACEnv    = "GOOGLE_APPLICATION_CREDENTIALS"
 )
 
 var (
@@ -47,7 +47,12 @@ var (
 	defaultThresholdFlag = flag.Float64("default_threshold", defaultThreshold, "Default threshold for new packages")
 	jobIdentifier        = flag.String("job_name", "", "Name of job to store data")
 	buildID              = flag.String("build_id", "", "Build ID")
+	serviceAccountJSON   = flag.String("service_account", "", "Path to the service account key")
 )
+
+type uploader interface {
+	upload(ctx context.Context, dest, data string) error
+}
 
 type codecovChecker struct {
 	codeCoverage    map[string]float64
@@ -58,9 +63,41 @@ type codecovChecker struct {
 	defautThreshold float64
 	thresholdDelta  float64
 	// Used for uploading data to a bucket for metrics
-	bucket        string
 	buildID       string
 	jobIdentifier string
+	storage       uploader
+}
+
+type googleStorageUploader struct {
+	bucket             string
+	serviceAccountJSON string
+}
+
+func (g *googleStorageUploader) upload(ctx context.Context, dest, data string) error {
+	if g.serviceAccountJSON != "" {
+		if err := os.Setenv(googleACEnv, g.serviceAccountJSON); err != nil {
+			return err
+		}
+	}
+
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		glog.Warningf("Failed to get storage client")
+		return err
+	}
+
+	w := client.Bucket(g.bucket).Object(dest).NewWriter(ctx)
+	defer func() {
+		if err = w.Close(); err != nil {
+			glog.Errorf("Failed to close gcs writer file, %v", err)
+		}
+	}()
+	if _, err = w.Write([]byte(data)); err != nil {
+		glog.Errorf("Failed to write coverage to gcs")
+		return err
+	}
+	glog.Infof("Successfully uploaded codecov.report %s", dest)
+	return nil
 }
 
 //Report example: "ok   istio.io/mixer/adapter/denyChecker      0.023s  coverage: 100.0% of statements"
@@ -177,39 +214,17 @@ func (c *codecovChecker) checkRequirement() {
 }
 
 func (c *codecovChecker) uploadCoverage() error {
-	ctx := context.Background()
-	client, err := storage.NewClient(ctx)
-	if err != nil {
-		glog.Warningf("Failed to get storage client")
-		return err
-	}
-
-	if c.buildID == "" || c.jobIdentifier == "" {
-		glog.Errorf("Missing build info: BUILD_ID: \"%s\", JOB_NAME: \"%s\"\n", c.buildID, c.jobIdentifier)
-		return errors.New("missing build info")
-	}
-
-	object := fmt.Sprintf("%s/%s", c.jobIdentifier, c.buildID)
-
 	coverageString := ""
 	for p, c := range c.codeCoverage {
 		coverageString += fmt.Sprintf("%s\t%.2f\n", p, c)
 	}
 
-	w := client.Bucket(c.bucket).Object(object).NewWriter(ctx)
-	if _, err = w.Write([]byte(coverageString)); err != nil {
-		glog.Errorf("Failed to write coverage to gcs")
-		return err
+	dest := fmt.Sprintf("%s/%s", c.jobIdentifier, c.buildID)
+	if c.buildID == "" || c.jobIdentifier == "" {
+		glog.Errorf("Missing build info: BUILD_ID: \"%s\", JOB_NAME: \"%s\"\n", c.buildID, c.jobIdentifier)
+		return errors.New("missing build info")
 	}
-
-	defer func() {
-		if err = w.Close(); err != nil {
-			glog.Errorf("Failed to close gcs writer file, %v", err)
-		}
-	}()
-
-	glog.Infof("Successfully upload codecov.report %s", object)
-	return nil
+	return c.storage.upload(context.Background(), dest, coverageString)
 }
 
 func (c *codecovChecker) writeRequirementFromReport() (code int) {
@@ -230,11 +245,19 @@ func (c *codecovChecker) writeRequirementFromReport() (code int) {
 		glog.Errorf("unable to create file %s", c.requirement)
 		return 4 //Error code 4: Unable to create requirement file
 	}
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			glog.Warningf("unable to close requirement file")
+		}
+	}()
 
 	w := bufio.NewWriter(f)
-	// Writing default
-	w.WriteString(fmt.Sprintf("%s:%d [%.1f]\n", defaultValue, int(defaultThreshold), defaultThreshold))
+	// Writing header
+	header := fmt.Sprintf("%s:%d [%.1f]\n", defaultValue, int(defaultThreshold), defaultThreshold)
+	if _, err := w.WriteString(header); err != nil {
+		glog.Errorf("unable to write requirement file")
+		return 5 //Error code 5: unable to write to requirement file
+	}
 	for _, pkg := range sortedPkgs {
 		percent := c.codeCoverage[pkg]
 		threshold := int(math.Max(0, percent-c.thresholdDelta))
@@ -244,20 +267,13 @@ func (c *codecovChecker) writeRequirementFromReport() (code int) {
 		}
 	}
 
-	w.Flush()
+	if err := w.Flush(); err != nil {
+		glog.Warningf("unable to flush requirement file")
+	}
 	return 0
 }
 
 func (c *codecovChecker) checkPackageCoverage() (code int) {
-	if c.bucket != "" {
-		defer func() {
-			if err := c.uploadCoverage(); err != nil {
-				// Failing silently
-				glog.Warningf("Failed to upload coverage, %v", err)
-			}
-
-		}()
-	}
 
 	if err := c.parseReport(); err != nil {
 		glog.Errorf("Failed to parse report, %v", err)
@@ -270,6 +286,13 @@ func (c *codecovChecker) checkPackageCoverage() (code int) {
 	}
 
 	c.checkRequirement()
+
+	if c.storage != nil {
+		if err := c.uploadCoverage(); err != nil {
+			// Failing silently
+			glog.Warningf("Failed to upload coverage, %v", err)
+		}
+	}
 
 	if len(c.failedPackage) == 0 {
 		glog.Infof("All packages passed code coverage requirements!")
@@ -286,16 +309,24 @@ func (c *codecovChecker) checkPackageCoverage() (code int) {
 func main() {
 	flag.Parse()
 
+	var s uploader
+	if *gcsBucket != "" {
+		s = &googleStorageUploader{
+			bucket:             *gcsBucket,
+			serviceAccountJSON: *serviceAccountJSON,
+		}
+	}
+
 	c := &codecovChecker{
 		codeCoverage:    make(map[string]float64),
 		codeRequirement: make(map[string]float64),
 		report:          *reportFile,
 		requirement:     *requirementFile,
-		bucket:          *gcsBucket,
 		defautThreshold: *defaultThresholdFlag,
 		thresholdDelta:  thresholdDelta,
 		buildID:         *buildID,
 		jobIdentifier:   *jobIdentifier,
+		storage:         s,
 	}
 
 	if *writeRequirement {
