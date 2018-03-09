@@ -1,0 +1,38 @@
+#!/bin/bash
+# May require sudo login.
+
+if [[ "$(uname)" != "Linux" ]]; then
+  echo "Run on Linux only."
+  exit 1
+fi
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+
+LLVM_VERSION=5.0
+
+# Ubuntu 16-04
+REPO='xenial'
+
+function install_clang() {
+  echo 'Installing clang'
+  curl https://apt.llvm.org/llvm-snapshot.gpg.key | ${SUDO} apt-key add - \
+  && clear_apt \
+  && ${SUDO} apt-get -qqy install "clang-${LLVM_VERSION}" \
+  && return 0
+  return 1
+}
+
+function update_llvm_apt() {
+  echo 'Adding repo for llvm'
+  echo "deb http://apt.llvm.org/xenial/${REPO} llvm-toolchain-${REPO}-${LLVM_VERSION} main" \
+    | ${SUDO} tee /etc/apt/sources.list.d/llvm.list
+}
+
+function update_clang() {
+  if [[ ! -x "$(command -v clang-${LLVM_VERSION})" ]]; then
+    update_llvm
+    retry install_clang || error_exit 'Cannot install clang.'
+  fi
+  echo 'clang is up to date.'
+}
