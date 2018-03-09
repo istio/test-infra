@@ -16,10 +16,8 @@ package sisyphus
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"log"
-	"net/smtp"
 	"path/filepath"
 	"strconv"
 	"time"
@@ -27,22 +25,39 @@ import (
 	u "istio.io/test-infra/toolbox/util"
 )
 
+const (
+	// Prow results
+	lastBuildTXT = "latest-build.txt"
+	finishedJSON = "finished.json"
+	startedJSON  = "started.json"
+
+	// default settings
+	DefaultPollGapSecs = 300
+	DefaultNumRerun    = 3
+)
+
 var (
 	gcsClient  *u.GCSClient
 	githubClnt *u.GithubClient
 
-	receivers         = []string{oncallMaillist}
-	gmailAppPass      string
-	location          *time.Location
 	pendingJobTimeout = 60 * time.Minute
 )
 
-type SisyphusDaemon struct {
-	jobsWatched []*jobStatus
-	alert       *Alert
+type sisyphusDaemon struct {
+	jobsWatched     []*jobStatus
+	alert           *alert
+	branchProtector *branchProtector
+	pollGapSecs     int
+	numRerun        int
 }
 
-func SisyphusDaemon(jobs []string, prowProject, prowZone string) *SisyphusDaemon {
+type SisyphusConfig struct {
+	pollGapSecs int
+	numRerun    int
+}
+
+func SisyphusDaemon(protectedJobs []string,
+	prowProject, prowZone, gubernatorURL string, cfg *SisyphusConfig) *sisyphusDaemon {
 	// Connect to the Prow cluster
 	if _, err := u.Shell(`gcloud container clusters get-credentials prow \
 		--project=%s --zone=%s`, prowProject, prowZone); err != nil {
@@ -57,21 +72,28 @@ func SisyphusDaemon(jobs []string, prowProject, prowZone string) *SisyphusDaemon
 			rerunJobStats:    make(map[string]*FlakeStat),
 		})
 	}
-	return &SisyphusDaemon{
+	daemon := sisyphusDaemon{
 		jobsWatched: jobsWatched,
+		pollGapSecs: DefaultPollGapSecs,
+		numRerun:    DefaultNumRerun,
 	}
+	if cfg != nil {
+		daemon.pollGapSecs = cfg.pollGapSecs
+		daemon.numRerun = cfg.numRerun
+	}
+	return &daemon
 }
 
-func (d *SisyphusDaemon) SetAlert(gmailAppPass, identity, senderAddr, receiverAddr string) error {
+func (d *sisyphusDaemon) SetAlert(gmailAppPass, identity, senderAddr, receiverAddr string,
+	alertConfig *AlertConfig) error {
 	var err error
-	d.alert, err = newAlert(gmailAppPass, identity, senderAddr, receiverAddr)
+	d.alert, err = newAlert(gmailAppPass, identity, senderAddr, receiverAddr, alertConfig)
 	return err
 }
 
-// func (d *SisyphusDaemon) SetProtectedBranch() {
-// 	// TODO (cx15)
-// 	return d
-// }
+func (d *sisyphusDaemon) SetProtectedBranch(owner, token, repo, branch string) {
+	d.branchProtector = newBranchProtector(owner, token, repo, branch)
+}
 
 type jobStatus struct {
 	// Assume job name unique
@@ -94,19 +116,11 @@ type failure struct {
 	runNo   int
 }
 
-func (d *SisyphusDaemon) setup() {
+func (d *sisyphusDaemon) setup() {
 	gcsClient = u.NewGCSClient()
-	var err error
-	if *guardProtectedBranch {
-		token, err := u.GetAPITokenFromFile(*tokenFile)
-		if err != nil {
-			log.Fatalf("Error accessing user supplied token_file: %v\n", err)
-		}
-		githubClnt = u.NewGithubClient(*owner, token)
-	}
 }
 
-func (d *SisyphusDaemon) Start() {
+func (d *sisyphusDaemon) Start() {
 	d.setup()
 	for {
 		newFailures := checkOnJobsWatched()
@@ -118,15 +132,11 @@ func (d *SisyphusDaemon) Start() {
 				log.Printf("No new tests failed in last circle.")
 			}
 		}
-		if *guardProtectedBranch {
-			if newFailures != nil {
-				u.BlockMergingOnBranch(githubClnt, *protectedRepo, *protectedBranch)
-			} else {
-				u.UnBlockMergingOnBranch(githubClnt, *protectedRepo, *protectedBranch)
-			}
+		if d.branchProtector != nil {
+			d.branchProtector.process(newFailures)
 		}
-		log.Printf("Sleeping for %d seconds", *interval)
-		time.Sleep(time.Duration(*interval) * time.Second)
+		log.Printf("Sleeping for %d seconds", d.pollGapSecs)
+		time.Sleep(time.Duration(d.pollGapSecs) * time.Second)
 	}
 }
 

@@ -21,39 +21,29 @@ import (
 )
 
 const (
-	// Message Info
+	// Alert settings
 	sender         = "istio.testing@gmail.com"
 	oncallMaillist = "istio-oncall@googlegroups.com"
 	subject        = "ATTENTION - Istio Post-Submit Test Failed"
 	prologue       = "Hi istio-oncall,\n\n" +
 		"Post-Submit is failing in istio/istio, please take a look at following failure(s) and fix ASAP\n\n"
 	epilogue = "\nIf you have any questions about this message or notice inaccuracy, please contact istio-engprod@google.com."
+	identity = "istio-bot"
 
-	// Prow result GCS
-	lastBuildTXT  = "latest-build.txt"
-	finishedJSON  = "finished.json"
-	startedJSON   = "started.json"
+	// Prow
+	prowProject   = "istio-testing"
+	prowZone      = "us-west1-a"
 	gubernatorURL = "https://k8s-gubernator.appspot.com/build/istio-prow"
 
-	// Token and password file
-	tokenFileDocker        = "/etc/github/git-token"
-	gmailAppPassFileDocker = "/etc/gmail/gmail-app-pass"
-	identity               = "istio-bot"
-
-	// Prow GCP settings
-	prowProject = "istio-testing"
-	prowZone    = "us-west1-a"
+	owner           = "istio"
+	protectedRepo   = "istio"
+	protectedBranch = "master"
 )
 
 var (
 	gcsBucket            = flag.String("bucket", "istio-prow", "Prow artifact GCS bucket name.")
-	interval             = flag.Int("interval", 60, "Check and report interval(seconds)")
-	numRerun             = flag.Int("num_rerun", 3, "Number of reruns to detect flakyness")
-	owner                = flag.String("owner", "istio", "Github owner or org")
-	tokenFile            = flag.String("github_token", tokenFileDocker, "Path to github token")
-	gmailAppPassFile     = flag.String("gmail_app_password", gmailAppPassFileDocker, "Path to gmail application password")
-	protectedRepo        = flag.String("protected_repo", "istio", "Protected repo")
-	protectedBranch      = flag.String("protected_branch", "master", "Protected branch")
+	tokenFile            = flag.String("github_token", "/etc/github/git-token", "Path to github token")
+	gmailAppPassFile     = flag.String("gmail_app_password", "/etc/gmail/gmail-app-pass", "Path to gmail application password")
 	guardProtectedBranch = flag.Bool("guard", false, "Suspend merge bot if postsubmit fails")
 	emailSending         = flag.Bool("email_sending", true, "Sending alert email")
 	catchFlakesByRun     = flag.Bool("catch_flakes_by_rerun", true, "whether to rerun failed jobs to detect flakyness")
@@ -63,17 +53,27 @@ var (
 
 func main() {
 	flag.Parse()
-	sisyphusd := s.SisyphusDaemon(protectedJobs, prowProject, prowZone)
+	sisyphusd := s.SisyphusDaemon(protectedJobs, prowProject, prowZone, gubernatorURL, nil)
 	if *emailSending {
 		gmailAppPass, err := u.GetPasswordFromFile(*gmailAppPassFile)
 		if err != nil {
 			log.Fatalf("Error accessing gmail app password: %v", err)
 		}
-		sisyphusd.SetAlert(gmailAppPass, identity, sender, oncallMaillist, &s.AlertConfig{
-			Subject:  subject,
-			Prologue: prologue,
-			Epilogue: epilogue,
-		})
+		if err := sisyphusd.SetAlert(gmailAppPass, identity, sender, oncallMaillist,
+			&s.AlertConfig{
+				Subject:  subject,
+				Prologue: prologue,
+				Epilogue: epilogue,
+			}); err != nil {
+			log.Fatalf("Failed to set up alerts: %v", err)
+		}
+	}
+	if *guardProtectedBranch {
+		token, err := u.GetAPITokenFromFile(*tokenFile)
+		if err != nil {
+			log.Fatalf("Error accessing user supplied token_file: %v\n", err)
+		}
+		sisyphusd.SetProtectedBranch(owner, token, protectedRepo, protectedBranch)
 	}
 	sisyphusd.Start()
 }

@@ -4,21 +4,34 @@ load("@io_bazel_rules_docker//docker:docker.bzl", "docker_build")
 go_library(
     name = "go_default_library",
     srcs = [
-        "config.go",
-        "main.go",
-        "prowStat.go",
+        "alert.go",
+        "branchProtector.go",
+        "prowstat.go",
+        "sisyphusd.go",
     ],
-    importpath = "istio.io/test-infra/toolbox/sisyphus",
-    visibility = ["//visibility:private"],
+    importpath = "istio.io/test-infra/sisyphus",
+    visibility = ["//visibility:public"],
     deps = [
         "//toolbox/util:go_default_library",
         "@com_github_google_go_github//github:go_default_library",
     ],
 )
 
+go_library(
+    name = "sisyphus_main",
+    srcs = [
+        "main.go",
+    ],
+    importpath = "istio.io/test-infra/sisyphus",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//sisyphus:go_default_library",
+    ],
+)
+
 go_binary(
     name = "sisyphus_static",
-    embed = [":go_default_library"],
+    embed = [":sisyphus_main"],
     gc_linkopts = [
         "-linkmode",
         "external",
@@ -39,7 +52,7 @@ docker_build(
 
 go_binary(
     name = "sisyphus",
-    embed = [":go_default_library"],
-    importpath = "istio.io/test-infra/toolbox/sisyphus",
+    embed = [":sisyphus_main"],
+    importpath = "istio.io/test-infra/sisyphus",
     visibility = ["//visibility:public"],
 )
