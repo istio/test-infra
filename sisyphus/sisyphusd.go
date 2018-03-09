@@ -15,85 +15,22 @@
 package sisyphus
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
-	"path/filepath"
-	"strconv"
 	"time"
 
 	u "istio.io/test-infra/toolbox/util"
 )
 
 const (
-	// Prow results
-	lastBuildTXT = "latest-build.txt"
-	finishedJSON = "finished.json"
-	startedJSON  = "started.json"
-
-	// default settings
-	DefaultPollGapSecs = 300
-	DefaultNumRerun    = 3
+	DefaultPollGapSecs      = 300
+	DefaultNumRerun         = 3
+	DefaultCatchFlakesByRun = true
 )
 
 var (
-	gcsClient  *u.GCSClient
-	githubClnt *u.GithubClient
-
 	pendingJobTimeout = 60 * time.Minute
 )
-
-type sisyphusDaemon struct {
-	jobsWatched     []*jobStatus
-	alert           *alert
-	branchProtector *branchProtector
-	pollGapSecs     int
-	numRerun        int
-}
-
-type SisyphusConfig struct {
-	pollGapSecs int
-	numRerun    int
-}
-
-func SisyphusDaemon(protectedJobs []string,
-	prowProject, prowZone, gubernatorURL string, cfg *SisyphusConfig) *sisyphusDaemon {
-	// Connect to the Prow cluster
-	if _, err := u.Shell(`gcloud container clusters get-credentials prow \
-		--project=%s --zone=%s`, prowProject, prowZone); err != nil {
-		log.Fatalf("Unable to switch to prow cluster: %v\n", err)
-	}
-	var jobsWatched []*jobStatus
-	for _, jobName := range protectedJobs {
-		jobsWatched = append(jobsWatched, &jobStatus{
-			name:             jobName,
-			lastCheckedRunNo: 0,
-			pendingFirstRuns: make(map[int]time.Time),
-			rerunJobStats:    make(map[string]*FlakeStat),
-		})
-	}
-	daemon := sisyphusDaemon{
-		jobsWatched: jobsWatched,
-		pollGapSecs: DefaultPollGapSecs,
-		numRerun:    DefaultNumRerun,
-	}
-	if cfg != nil {
-		daemon.pollGapSecs = cfg.pollGapSecs
-		daemon.numRerun = cfg.numRerun
-	}
-	return &daemon
-}
-
-func (d *sisyphusDaemon) SetAlert(gmailAppPass, identity, senderAddr, receiverAddr string,
-	alertConfig *AlertConfig) error {
-	var err error
-	d.alert, err = newAlert(gmailAppPass, identity, senderAddr, receiverAddr, alertConfig)
-	return err
-}
-
-func (d *sisyphusDaemon) SetProtectedBranch(owner, token, repo, branch string) {
-	d.branchProtector = newBranchProtector(owner, token, repo, branch)
-}
 
 type jobStatus struct {
 	// Assume job name unique
@@ -116,18 +53,93 @@ type failure struct {
 	runNo   int
 }
 
-func (d *sisyphusDaemon) setup() {
-	gcsClient = u.NewGCSClient()
+// FlakeStat records the stats from flakiness detection by multiple reruns
+type FlakeStat struct {
+	TestName           string           `json:"testName"`
+	SHA                string           `json:"sha"`
+	TotalRerun         int              `json:"totalRerun"`
+	Failures           int              `json:"failures"`
+	ParentJobTimeStamp uint32           `json:"parentJobTimeStamp"`
+	FailedTestCases    []FailedTestCase `json:"failedTestCases"`
 }
 
+// FailedTestCase is the per test case rerun results
+type FailedTestCase struct {
+	Name       string `json:"name"`
+	TotalRerun int    `json:"totalRerun"`
+	Failures   int    `json:"failures"`
+}
+
+type sisyphusDaemon struct {
+	jobsWatched      []*jobStatus
+	prowAccessor     *ProwAccessor
+	pollGapSecs      int
+	numRerun         int
+	catchFlakesByRun bool
+	// optional
+	alert           *alert
+	branchProtector *branchProtector
+}
+
+// SisyphusConfig is the optional configuration to SisyphusDaemon
+type SisyphusConfig struct {
+	PollGapSecs      int
+	NumRerun         int
+	CatchFlakesByRun bool
+}
+
+// SisyphusDaemon creates a sisyphusDaemon
+func SisyphusDaemon(protectedJobs []string,
+	prowProject, prowZone, gubernatorURL, gcsBucket string, cfg *SisyphusConfig) *sisyphusDaemon {
+	var jobsWatched []*jobStatus
+	for _, jobName := range protectedJobs {
+		jobsWatched = append(jobsWatched, &jobStatus{
+			name:             jobName,
+			lastCheckedRunNo: 0,
+			pendingFirstRuns: make(map[int]time.Time),
+			rerunJobStats:    make(map[string]*FlakeStat),
+		})
+	}
+	daemon := sisyphusDaemon{
+		jobsWatched:      jobsWatched,
+		prowAccessor:     NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket),
+		pollGapSecs:      DefaultPollGapSecs,
+		numRerun:         DefaultNumRerun,
+		catchFlakesByRun: DefaultCatchFlakesByRun,
+	}
+	if cfg != nil {
+		if cfg.PollGapSecs > 0 {
+			daemon.pollGapSecs = cfg.PollGapSecs
+		}
+		if cfg.NumRerun > 0 {
+			daemon.numRerun = cfg.NumRerun
+		}
+		daemon.catchFlakesByRun = cfg.CatchFlakesByRun
+	}
+	return &daemon
+}
+
+// SetAlert activates email alerts to receiverAddr when jobs failed
+func (d *sisyphusDaemon) SetAlert(gmailAppPass, identity, senderAddr, receiverAddr string,
+	alertConfig *AlertConfig) error {
+	var err error
+	d.alert, err = newAlert(gmailAppPass, identity, senderAddr, receiverAddr, alertConfig)
+	return err
+}
+
+// SetProtectedBranch disables auto merging PRs on protected branch if jobs failed
+func (d *sisyphusDaemon) SetProtectedBranch(owner, token, repo, branch string) {
+	d.branchProtector = newBranchProtector(owner, token, repo, branch)
+}
+
+// Start activates the SisyphusDaemon to start polling Prow results
 func (d *sisyphusDaemon) Start() {
-	d.setup()
 	for {
-		newFailures := checkOnJobsWatched()
+		newFailures := d.checkOnJobsWatched()
 		if d.alert != nil {
 			if newFailures != nil {
 				log.Printf("%d tests failed in last circle", len(newFailures))
-				d.alert.send(formatMessage(newFailures))
+				d.alert.send(d.formatMessage(newFailures))
 			} else {
 				log.Printf("No new tests failed in last circle.")
 			}
@@ -140,79 +152,13 @@ func (d *sisyphusDaemon) Start() {
 	}
 }
 
-func rerun(job *jobStatus, runNo int) error {
-	cfg, err := getProwJobConfig(job, runNo)
-	if err != nil {
-		return err
-	}
-	if err = triggerConcurrentReruns(job, cfg); err != nil {
-		return err
-	}
-	return nil
-}
-
-// Only log this error and continue. Should never exit process.
-func triggerConcurrentReruns(job *jobStatus, cfg ProwJobConfig) error {
-	log.Printf("Rerunning %s\n", job.name)
-	recess := 1 * time.Minute
-	maxRetry := 3
-	for i := 0; i < *numRerun; i++ {
-		if err := u.Retry(recess, maxRetry, func() error {
-			_, e := u.Shell(
-				"kubectl create -f \"https://prow.istio.io/rerun?prowjob=%s\"", cfg.Node)
-			return e
-		}); err != nil {
-			log.Printf("Unable to trigger the %d-th rerun of job %v", i, job.name)
-		}
-	}
-	return nil
-}
-
-func getProwJobConfig(job *jobStatus, runNo int) (ProwJobConfig, error) {
-	var cfg ProwJobConfig
-	jobStartedFile := filepath.Join(job.name, strconv.Itoa(runNo), startedJSON)
-	StartedFileString, err := gcsClient.Read(*gcsBucket, jobStartedFile)
-	if err != nil {
-		return cfg, err
-	}
-	if err = json.Unmarshal([]byte(StartedFileString), &cfg); err != nil {
-		log.Printf("Failed to unmarshal started prow job %s, %v\n", StartedFileString, err)
-		return cfg, err
-	}
-	return cfg, nil
-}
-
-func formatMessage(failures []failure) (mess string) {
-	for _, f := range failures {
-		mess += fmt.Sprintf("%s failed: %s/%s/%d\n\n",
-			f.jobName, gubernatorURL, f.jobName, f.runNo)
-	}
-	return
-}
-
-// Read latest run from "latest-build.txt" of a job under gcs "istio-prow" bucket
-// Example: istio-prow/istio-postsubmit/latest-build.txt
-func getLatestRun(jobName string) (int, error) {
-	lastBuildFile := filepath.Join(jobName, lastBuildTXT)
-	latestBuildString, err := gcsClient.Read(*gcsBucket, lastBuildFile)
-	if err != nil {
-		return 0, err
-	}
-	latestBuildInt, err := strconv.Atoi(latestBuildString)
-	if err != nil {
-		log.Printf("Failed to convert %s to int: %v\n", latestBuildString, err)
-		return 0, err
-	}
-	return latestBuildInt, nil
-}
-
-// From last check onward, check all the runs of protected Post-Submit tests.
+// From last check onward, check all the runs of jobsWatched.
 // Record failure if it hasn't been recorded and update latestRun if necessary
 // Returns an array of postSubmitJob since the same job might fail at multiple runs
-func checkOnJobsWatched() []failure {
+func (d *sisyphusDaemon) checkOnJobsWatched() []failure {
 	var newFailures []failure
-	for _, job := range jobsWatched {
-		CurrentRunNo, err := getLatestRun(job.name)
+	for _, job := range d.jobsWatched {
+		CurrentRunNo, err := d.prowAccessor.GetLatestRun(job.name)
 		if err != nil {
 			log.Printf("Failed to get last run number of %s: %v\n", job.name, err)
 			continue
@@ -231,14 +177,14 @@ func checkOnJobsWatched() []failure {
 		}
 		log.Printf("Checking previously pending run numbers: %v\n", pendingRuns)
 		for _, runNo := range pendingRuns {
-			if f := fetchAndProcessProwResult(job, runNo); f != nil {
+			if f := d.fetchAndProcessProwResult(job, runNo); f != nil {
 				newFailures = append(newFailures, *f)
 			}
 		}
 		// Check new runs since last check
 		log.Printf("Checking new run numbers since last check\n")
 		for runNo := job.lastCheckedRunNo + 1; runNo <= CurrentRunNo; runNo++ {
-			if f := fetchAndProcessProwResult(job, runNo); f != nil {
+			if f := d.fetchAndProcessProwResult(job, runNo); f != nil {
 				newFailures = append(newFailures, *f)
 			}
 		}
@@ -248,8 +194,16 @@ func checkOnJobsWatched() []failure {
 	return newFailures
 }
 
-func fetchAndProcessProwResult(job *jobStatus, runNo int) *failure {
-	prowResult, err := fetchProwResult(job.name, runNo)
+func (d *sisyphusDaemon) formatMessage(failures []failure) (mess string) {
+	for _, f := range failures {
+		mess += fmt.Sprintf("%s failed: %s/%s/%d\n\n",
+			f.jobName, d.prowAccessor.gubernatorURL, f.jobName, f.runNo)
+	}
+	return
+}
+
+func (d *sisyphusDaemon) fetchAndProcessProwResult(job *jobStatus, runNo int) *failure {
+	prowResult, err := d.prowAccessor.GetProwResult(job.name, runNo)
 	if err != nil {
 		log.Printf("Prow result still pending for %s/%d\n", job.name, runNo)
 		if firstTryTime, exists := job.pendingFirstRuns[runNo]; exists {
@@ -267,34 +221,18 @@ func fetchAndProcessProwResult(job *jobStatus, runNo int) *failure {
 		delete(job.pendingFirstRuns, runNo)
 	}
 	log.Printf("%s/%d -- Passed? [%t]\n", job.name, runNo, prowResult.Passed)
-	return processProwResult(job, runNo, prowResult)
+	return d.processProwResult(job, runNo, prowResult)
 }
 
-func fetchProwResult(jobName string, runNo int) (*ProwResult, error) {
-	target := filepath.Join(jobName, strconv.Itoa(runNo))
-	jobFinishedFile := filepath.Join(target, finishedJSON)
-	prowResultString, err := gcsClient.Read(*gcsBucket, jobFinishedFile)
-	if err != nil {
-		log.Printf("Failed to get prow job result %s: %v", target, err)
-		return nil, err
-	}
-	prowResult := ProwResult{}
-	if err = json.Unmarshal([]byte(prowResultString), &prowResult); err != nil {
-		log.Printf("Failed to unmarshal prow result %s, %v", prowResultString, err)
-		return nil, err
-	}
-	return &prowResult, nil
-}
-
-func processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failure {
-	if *catchFlakesByRun {
+func (d *sisyphusDaemon) processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failure {
+	if d.catchFlakesByRun {
 		resultSHA := prowResult.Metadata.RepoCommit
 		if flakeStatPtr, exists := job.rerunJobStats[resultSHA]; exists {
 			flakeStatPtr.TotalRerun++
 			if !prowResult.Passed {
 				flakeStatPtr.Failures++
 			}
-			if flakeStatPtr.TotalRerun == *numRerun {
+			if flakeStatPtr.TotalRerun == d.numRerun {
 				log.Printf("All reruns on job [%s] at sha [%s] have finished\n", job.name, resultSHA)
 				if err := storeFlakeStat(job, *flakeStatPtr); err != nil {
 					log.Printf("Failed to store flakeStat: %v\n", err)
@@ -310,7 +248,7 @@ func processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failu
 					SHA:                resultSHA,
 					ParentJobTimeStamp: prowResult.TimeStamp,
 				}
-				if err := rerun(job, runNo); err != nil {
+				if err := d.rerun(job, runNo); err != nil {
 					log.Printf("failed when starting reruns on [%s]: %v\n", job.name, err)
 				}
 			}
@@ -328,5 +266,32 @@ func processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failu
 func storeFlakeStat(job *jobStatus, newFlakeStat FlakeStat) error {
 	// Kettle takes over from here
 	log.Printf("newFlakeStat = %v\n", newFlakeStat)
+	return nil
+}
+
+func (d *sisyphusDaemon) rerun(job *jobStatus, runNo int) error {
+	cfg, err := d.prowAccessor.GetProwJobConfig(job.name, runNo)
+	if err != nil {
+		return err
+	}
+	if err = d.triggerConcurrentReruns(job, cfg); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d *sisyphusDaemon) triggerConcurrentReruns(job *jobStatus, cfg *ProwJobConfig) error {
+	log.Printf("Rerunning %s\n", job.name)
+	recess := 1 * time.Minute
+	maxRetry := 3
+	for i := 0; i < d.numRerun; i++ {
+		if err := u.Retry(recess, maxRetry, func() error {
+			_, e := u.Shell(
+				"kubectl create -f \"https://prow.istio.io/rerun?prowjob=%s\"", cfg.Node)
+			return e
+		}); err != nil {
+			log.Printf("Unable to trigger the %d-th rerun of job %v", i, job.name)
+		}
+	}
 	return nil
 }

@@ -16,8 +16,10 @@ package main
 
 import (
 	"flag"
+	"log"
 
 	s "istio.io/test-infra/sisyphus"
+	u "istio.io/test-infra/toolbox/util"
 )
 
 const (
@@ -34,14 +36,15 @@ const (
 	prowProject   = "istio-testing"
 	prowZone      = "us-west1-a"
 	gubernatorURL = "https://k8s-gubernator.appspot.com/build/istio-prow"
+	gcsBucket     = "istio-prow"
 
+	// Branch protection
 	owner           = "istio"
 	protectedRepo   = "istio"
 	protectedBranch = "master"
 )
 
 var (
-	gcsBucket            = flag.String("bucket", "istio-prow", "Prow artifact GCS bucket name.")
 	tokenFile            = flag.String("github_token", "/etc/github/git-token", "Path to github token")
 	gmailAppPassFile     = flag.String("gmail_app_password", "/etc/gmail/gmail-app-pass", "Path to gmail application password")
 	guardProtectedBranch = flag.Bool("guard", false, "Suspend merge bot if postsubmit fails")
@@ -51,9 +54,13 @@ var (
 	protectedJobs = []string{"istio-postsubmit", "e2e-suite-rbac-auth", "e2e-suite-rbac-no_auth"}
 )
 
+// TODO (chx) README
+// TODO (chx) unit tests
 func main() {
 	flag.Parse()
-	sisyphusd := s.SisyphusDaemon(protectedJobs, prowProject, prowZone, gubernatorURL, nil)
+	sisyphusd := s.SisyphusDaemon(
+		protectedJobs, prowProject, prowZone, gubernatorURL, gcsBucket,
+		&s.SisyphusConfig{CatchFlakesByRun: *catchFlakesByRun})
 	if *emailSending {
 		gmailAppPass, err := u.GetPasswordFromFile(*gmailAppPassFile)
 		if err != nil {
