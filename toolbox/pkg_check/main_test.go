@@ -170,11 +170,13 @@ func TestPassCheck(t *testing.T) {
 		report:          reportFile,
 		requirement:     requirementFile,
 		bucket:          "fake",
+		buildID:         "1234",
+		jobIdentifier:   "fakeJOb",
 	}
 
 	// No other error code, code only show gcs upload failed which is expected
-	if code := c.checkPackageCoverage(); code != 3 {
-		t.Errorf("Unexpected return code, expected: %d, actual: %d", 3, code)
+	if code := c.checkPackageCoverage(); code != 0 {
+		t.Errorf("Unexpected return code, expected: %d, actual: %d", 0, code)
 	}
 }
 

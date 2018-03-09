@@ -20,6 +20,12 @@ def go_vendor_repositories():
   )
 
   go_repository(
+    name = "com_github_golang_glog",
+    commit = "23def4e6c14b4da8ac2ed8007337bc5eb5007998",
+    importpath = "github.com/golang/glog",
+  )
+
+  go_repository(
     name = "com_github_golang_protobuf",
     commit = "1643683e1b54a9e88ad26d98f81400c8c9d9f4f9",
     importpath = "github.com/golang/protobuf",
