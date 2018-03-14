@@ -1,5 +1,7 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
 load("@io_bazel_rules_docker//docker:docker.bzl", "docker_build")
+
+# Library
 
 go_library(
     name = "go_default_library",
@@ -42,6 +44,24 @@ go_binary(
     tags = ["manual"],
     visibility = ["//visibility:public"],
 )
+
+# Test
+
+go_test(
+    name = "prowAccessor_test",
+    srcs = ["prowAccessor_test.go"],
+    embed = [":go_default_library"],
+    importpath = "istio.io/test-infra/sisyphus",
+)
+
+go_test(
+    name = "sisyphusd_test",
+    srcs = ["sisyphusd_test.go"],
+    embed = [":go_default_library"],
+    importpath = "istio.io/test-infra/sisyphus",
+)
+
+# Build
 
 docker_build(
     name = "sisyphus_image",

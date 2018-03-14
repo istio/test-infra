@@ -54,10 +54,18 @@ var (
 	protectedJobs = []string{"istio-postsubmit", "e2e-suite-rbac-auth", "e2e-suite-rbac-no_auth"}
 )
 
+func init() {
+	flag.Parse()
+	// Connect to the Prow cluster
+	if _, err := u.Shell(`gcloud container clusters get-credentials prow \
+		--project=%s --zone=%s`, prowProject, prowZone); err != nil {
+		log.Fatalf("Unable to switch to prow cluster: %v\n", err)
+	}
+}
+
 // TODO (chx) README
 // TODO (chx) unit tests
 func main() {
-	flag.Parse()
 	sisyphusd := s.SisyphusDaemon(
 		protectedJobs, prowProject, prowZone, gubernatorURL, gcsBucket,
 		&s.SisyphusConfig{CatchFlakesByRun: *catchFlakesByRun})

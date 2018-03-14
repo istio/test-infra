@@ -44,7 +44,7 @@ type alert struct {
 	location      *time.Location
 }
 
-func newAlert(gmailAppPass, identity, senderAddr, receiverAddr string,
+func NewAlert(gmailAppPass, identity, senderAddr, receiverAddr string,
 	alertConfig *AlertConfig) (*alert, error) {
 	alert := &alert{
 		gmailAppPass:  gmailAppPass,
@@ -62,8 +62,8 @@ func newAlert(gmailAppPass, identity, senderAddr, receiverAddr string,
 	return alert, err
 }
 
-// Use gmail smtp server to send out email.
-func (a *alert) send(body string) error {
+// Send uses gmail smtp server to send out email.
+func (a *alert) Send(body string) error {
 	timestamp, err := a.now()
 	if err != nil {
 		log.Printf("Failed to read current time when sending alert\n")

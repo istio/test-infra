@@ -119,11 +119,20 @@ func SisyphusDaemon(protectedJobs []string,
 	return &daemon
 }
 
+// returns the SisyphusConfig in use by d
+func (d *sisyphusDaemon) GetSisyphusConfig() *SisyphusConfig {
+	return &SisyphusConfig{
+		PollGapSecs:      d.pollGapSecs,
+		NumRerun:         d.numRerun,
+		CatchFlakesByRun: d.catchFlakesByRun,
+	}
+}
+
 // SetAlert activates email alerts to receiverAddr when jobs failed
 func (d *sisyphusDaemon) SetAlert(gmailAppPass, identity, senderAddr, receiverAddr string,
 	alertConfig *AlertConfig) error {
 	var err error
-	d.alert, err = newAlert(gmailAppPass, identity, senderAddr, receiverAddr, alertConfig)
+	d.alert, err = NewAlert(gmailAppPass, identity, senderAddr, receiverAddr, alertConfig)
 	return err
 }
 
@@ -139,7 +148,7 @@ func (d *sisyphusDaemon) Start() {
 		if d.alert != nil {
 			if newFailures != nil {
 				log.Printf("%d tests failed in last circle", len(newFailures))
-				d.alert.send(d.formatMessage(newFailures))
+				d.alert.Send(d.formatMessage(newFailures))
 			} else {
 				log.Printf("No new tests failed in last circle.")
 			}

@@ -41,9 +41,8 @@ type ProwResult struct {
 
 // ProwMetadata matches the structure published in finished.json
 type ProwMetadata struct {
-	Repo       string                 `json:"repo"`
-	Repos      map[string]interface{} `json:"repos"`
-	RepoCommit string                 `json:"repo-commit"`
+	Repo       string `json:"repo"`
+	RepoCommit string `json:"repo-commit"`
 }
 
 // ProwJobConfig matches the structure published in started.json
@@ -65,11 +64,6 @@ type ProwAccessor struct {
 
 // NewProwAccessor creates a new ProwAccessor
 func NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket string) *ProwAccessor {
-	// Connect to the Prow cluster
-	if _, err := u.Shell(`gcloud container clusters get-credentials prow \
-		--project=%s --zone=%s`, prowProject, prowZone); err != nil {
-		log.Fatalf("Unable to switch to prow cluster: %v\n", err)
-	}
 	return &ProwAccessor{
 		prowProject:   prowProject,
 		prowZone:      prowZone,
