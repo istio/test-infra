@@ -72,7 +72,7 @@ type FailedTestCase struct {
 
 type sisyphusDaemon struct {
 	jobsWatched      []*jobStatus
-	prowAccessor     *ProwAccessor
+	prowAccessor     IProwAccessor
 	pollGapSecs      int
 	numRerun         int
 	catchFlakesByRun bool
@@ -206,7 +206,7 @@ func (d *sisyphusDaemon) checkOnJobsWatched() []failure {
 func (d *sisyphusDaemon) formatMessage(failures []failure) (mess string) {
 	for _, f := range failures {
 		mess += fmt.Sprintf("%s failed: %s/%s/%d\n\n",
-			f.jobName, d.prowAccessor.gubernatorURL, f.jobName, f.runNo)
+			f.jobName, d.prowAccessor.GetGubernatorURL(), f.jobName, f.runNo)
 	}
 	return
 }

@@ -12,9 +12,9 @@ SISYPHUS=$(dirname $0)
 GIT_HEAD=$(git rev-parse HEAD)
 MODIFIED_YAML="${SISYPHUS}/local.sisyphus-deployment.yaml"
 
-bazel run //toolbox/sisyphus:sisyphus_image
+bazel run //sisyphus/istio_deployment:sisyphus_image
 
-docker tag bazel/toolbox/sisyphus:sisyphus_image \
+docker tag bazel/sisyphus/istio_deployment:sisyphus_image \
 gcr.io/istio-testing/sisyphus:${GIT_HEAD}
 
 gcloud docker -- push gcr.io/istio-testing/sisyphus:${GIT_HEAD}

@@ -29,6 +29,13 @@ const (
 	startedJSON  = "started.json"
 )
 
+type IProwAccessor interface {
+	GetLatestRun(jobName string) (int, error)
+	GetProwResult(jobName string, runNo int) (*ProwResult, error)
+	GetProwJobConfig(jobName string, runNo int) (*ProwJobConfig, error)
+	GetGubernatorURL() string
+}
+
 // ProwResult matches the structure published in finished.json
 type ProwResult struct {
 	TimeStamp  uint32       `json:"timestamp"`
@@ -117,4 +124,9 @@ func (p *ProwAccessor) GetProwJobConfig(jobName string, runNo int) (*ProwJobConf
 		return nil, err
 	}
 	return &cfg, nil
+}
+
+// GetGubernatorURL returns the gubernator URL used by this ProwAccessor
+func (p *ProwAccessor) GetGubernatorURL() string {
+	return p.gubernatorURL
 }

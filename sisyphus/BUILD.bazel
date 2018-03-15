@@ -1,7 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
-load("@io_bazel_rules_docker//docker:docker.bzl", "docker_build")
-
-# Library
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "go_default_library",
@@ -19,34 +16,6 @@ go_library(
     ],
 )
 
-go_library(
-    name = "sisyphus_main",
-    srcs = [
-        "main.go",
-    ],
-    importpath = "istio.io/test-infra/sisyphus/main",
-    visibility = ["//visibility:private"],
-    deps = [
-        "//sisyphus:go_default_library",
-        "//toolbox/util:go_default_library",
-    ],
-)
-
-go_binary(
-    name = "sisyphus_static",
-    embed = [":sisyphus_main"],
-    gc_linkopts = [
-        "-linkmode",
-        "external",
-        "-extldflags",
-        "-static",
-    ],
-    tags = ["manual"],
-    visibility = ["//visibility:public"],
-)
-
-# Test
-
 go_test(
     name = "prowAccessor_test",
     srcs = ["prowAccessor_test.go"],
@@ -59,21 +28,4 @@ go_test(
     srcs = ["sisyphusd_test.go"],
     embed = [":go_default_library"],
     importpath = "istio.io/test-infra/sisyphus",
-)
-
-# Build
-
-docker_build(
-    name = "sisyphus_image",
-    base = "@distroless//image:image.tar",
-    cmd = ["./sisyphus_static"],
-    files = [":sisyphus_static"],
-    tags = ["manual"],
-)
-
-go_binary(
-    name = "sisyphus",
-    embed = [":sisyphus_main"],
-    importpath = "istio.io/test-infra/sisyphus",
-    visibility = ["//visibility:public"],
 )
