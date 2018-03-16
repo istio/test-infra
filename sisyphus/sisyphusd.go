@@ -18,8 +18,6 @@ import (
 	"fmt"
 	"log"
 	"time"
-
-	u "istio.io/test-infra/toolbox/util"
 )
 
 const (
@@ -257,7 +255,7 @@ func (d *sisyphusDaemon) processProwResult(job *jobStatus, runNo int, prowResult
 					SHA:                resultSHA,
 					ParentJobTimeStamp: prowResult.TimeStamp,
 				}
-				if err := d.rerun(job, runNo); err != nil {
+				if err := d.prowAccessor.Rerun(job.name, runNo, d.numRerun); err != nil {
 					log.Printf("failed when starting reruns on [%s]: %v\n", job.name, err)
 				}
 			}
@@ -275,32 +273,5 @@ func (d *sisyphusDaemon) processProwResult(job *jobStatus, runNo int, prowResult
 func storeFlakeStat(job *jobStatus, newFlakeStat FlakeStat) error {
 	// Kettle takes over from here
 	log.Printf("newFlakeStat = %v\n", newFlakeStat)
-	return nil
-}
-
-func (d *sisyphusDaemon) rerun(job *jobStatus, runNo int) error {
-	cfg, err := d.prowAccessor.GetProwJobConfig(job.name, runNo)
-	if err != nil {
-		return err
-	}
-	if err = d.triggerConcurrentReruns(job, cfg); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (d *sisyphusDaemon) triggerConcurrentReruns(job *jobStatus, cfg *ProwJobConfig) error {
-	log.Printf("Rerunning %s\n", job.name)
-	recess := 1 * time.Minute
-	maxRetry := 3
-	for i := 0; i < d.numRerun; i++ {
-		if err := u.Retry(recess, maxRetry, func() error {
-			_, e := u.Shell(
-				"kubectl create -f \"https://prow.istio.io/rerun?prowjob=%s\"", cfg.Node)
-			return e
-		}); err != nil {
-			log.Printf("Unable to trigger the %d-th rerun of job %v", i, job.name)
-		}
-	}
 	return nil
 }

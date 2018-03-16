@@ -19,6 +19,7 @@ import (
 	"log"
 	"path/filepath"
 	"strconv"
+	"time"
 
 	u "istio.io/test-infra/toolbox/util"
 )
@@ -33,6 +34,7 @@ type IProwAccessor interface {
 	GetLatestRun(jobName string) (int, error)
 	GetProwResult(jobName string, runNo int) (*ProwResult, error)
 	GetProwJobConfig(jobName string, runNo int) (*ProwJobConfig, error)
+	Rerun(jobName string, runNo, numRerun int) error
 	GetGubernatorURL() string
 }
 
@@ -129,4 +131,31 @@ func (p *ProwAccessor) GetProwJobConfig(jobName string, runNo int) (*ProwJobConf
 // GetGubernatorURL returns the gubernator URL used by this ProwAccessor
 func (p *ProwAccessor) GetGubernatorURL() string {
 	return p.gubernatorURL
+}
+
+// GetGubernatorURL returns the gubernator URL used by this ProwAccessor
+func (p *ProwAccessor) Rerun(jobName string, runNo, numRerun int) error {
+	cfg, err := p.GetProwJobConfig(jobName, runNo)
+	if err != nil {
+		return err
+	}
+	if err = p.triggerConcurrentReruns(jobName, cfg.Node, numRerun); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ProwAccessor) triggerConcurrentReruns(jobName, node string, numRerun int) error {
+	log.Printf("Rerunning %s\n", jobName)
+	recess := 1 * time.Minute
+	maxRetry := 3
+	for i := 0; i < numRerun; i++ {
+		if err := u.Retry(recess, maxRetry, func() error {
+			_, e := u.Shell("kubectl create -f \"https://prow.istio.io/rerun?prowjob=%s\"", node)
+			return e
+		}); err != nil {
+			log.Printf("Unable to trigger the %d-th rerun of job %v", i, jobName)
+		}
+	}
+	return nil
 }
