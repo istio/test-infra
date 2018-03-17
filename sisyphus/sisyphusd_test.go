@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"reflect"
 	"strconv"
@@ -25,25 +26,33 @@ import (
 )
 
 const (
-	prowProjectMock   = "prow-project-mock"
-	prowZoneMock      = "us-west1-a"
-	gubernatorURLMock = "https://k8s-gubernator.appspot.com/build/mock"
-	gcsBucketMock     = "gcs-bucket-mock"
-	testDataDir       = "test_data"
+	prowProjectMock        = "prow-project-mock"
+	prowZoneMock           = "us-west1-a"
+	gubernatorURLMock      = "https://k8s-gubernator.appspot.com/build/mock"
+	gcsBucketMock          = "gcs-bucket-mock"
+	testDataDir            = "test_data"
+	expectedFlakeStatsJSON = "expectedFlakeStats.json"
 )
 
 var (
-	protectedJobsMock = []string{"job-1" /*, "job-2", "job-3"*/}
+	protectedJobsMock    = []string{"job-1" /*, "job-2", "job-3"*/}
+	exitSignalToSisyphus = make(chan bool, 1)
 )
 
 type ProwAccessorMock struct {
-	lastestRuns   map[string]int // jobName -> lastestRun
+	lastestRunNos map[string]int // jobName -> lastestRun
+	maxRunNos     map[string]int // jobName -> lastestRun
 	gubernatorURL string
 	prowResults   map[string]map[int]ProwResult // jobName -> runNo -> ProwResult
 }
 
 func NewProwAccessorMock(gubernatorURL string) *ProwAccessorMock {
-	prowResults := map[string]map[int]ProwResult{}
+	mock := &ProwAccessorMock{
+		lastestRunNos: make(map[string]int),
+		maxRunNos:     make(map[string]int),
+		gubernatorURL: gubernatorURL,
+		prowResults:   make(map[string]map[int]ProwResult),
+	}
 	for _, job := range protectedJobsMock {
 		dataFile := filepath.Join(testDataDir, job+".json")
 		raw, err := ioutil.ReadFile(dataFile)
@@ -56,25 +65,44 @@ func NewProwAccessorMock(gubernatorURL string) *ProwAccessorMock {
 			log.Fatalf("Failed to unmarshal test data for %s: %v", dataFile, err)
 		}
 		prowResultsForOneJob := map[int]ProwResult{}
+		minRunNo := 999999
+		maxRunNo := 0
 		for k, v := range prowResultsForOneJobTmp {
 			i, err := strconv.Atoi(k)
 			if err != nil {
 				log.Fatalf("Error converting %s to int :%v", k, err)
 			}
+			if i > maxRunNo {
+				maxRunNo = i
+			}
+			if i < minRunNo {
+				minRunNo = i
+			}
 			prowResultsForOneJob[i] = v
 		}
-		prowResults[job] = prowResultsForOneJob
+		mock.prowResults[job] = prowResultsForOneJob
+		mock.lastestRunNos[job] = minRunNo
+		mock.maxRunNos[job] = maxRunNo
 	}
-	return &ProwAccessorMock{
-		lastestRuns:   make(map[string]int),
-		gubernatorURL: gubernatorURL,
-		prowResults:   prowResults,
-	}
+	return mock
 }
 
 func (p *ProwAccessorMock) GetLatestRun(jobName string) (int, error) {
-	p.lastestRuns[jobName]++
-	return p.lastestRuns[jobName], nil
+	ret := p.lastestRunNos[jobName]
+	p.lastestRunNos[jobName]++
+	if ret > p.maxRunNos[jobName] {
+		allRunsFinished := true
+		for j, lastestRun := range p.lastestRunNos {
+			if lastestRun <= p.maxRunNos[j] { // equal sign to ensure the last run is seen before termination
+				allRunsFinished = false
+			}
+		}
+		if allRunsFinished {
+			exitSignalToSisyphus <- true
+		}
+		return p.maxRunNos[jobName], nil
+	}
+	return ret, nil
 }
 
 func (p *ProwAccessorMock) GetProwResult(jobName string, runNo int) (*ProwResult, error) {
@@ -82,15 +110,45 @@ func (p *ProwAccessorMock) GetProwResult(jobName string, runNo int) (*ProwResult
 	return &res, nil
 }
 
-func (p *ProwAccessorMock) GetProwJobConfig(jobName string, runNo int) (*ProwJobConfig, error) {
-	return nil, nil
-}
-
 func (p *ProwAccessorMock) GetGubernatorURL() string {
 	return p.gubernatorURL
 }
 
 func (p *ProwAccessorMock) Rerun(jobName string, runNo, numRerun int) error {
+	return nil
+}
+
+type StorageMock struct {
+	t             *testing.T
+	expectedStats []FlakeStat
+}
+
+func NewStorageMock(t *testing.T) *StorageMock {
+	dataFile := filepath.Join(testDataDir, expectedFlakeStatsJSON)
+	raw, err := ioutil.ReadFile(dataFile)
+	if err != nil {
+		log.Fatalf("Error reading %s:%v", dataFile, err)
+	}
+	var expectedStats []FlakeStat
+	if err = json.Unmarshal([]byte(raw), &expectedStats); err != nil {
+		log.Fatalf("Failed to unmarshal test data for %s: %v", dataFile, err)
+	}
+	return &StorageMock{
+		t:             t,
+		expectedStats: expectedStats,
+	}
+}
+
+func (s *StorageMock) Store(jobName, sha string, newFlakeStat FlakeStat) error {
+	for _, expectedStat := range s.expectedStats {
+		if expectedStat.TestName == jobName && expectedStat.SHA == sha {
+			if !reflect.DeepEqual(expectedStat, newFlakeStat) {
+				s.t.Error("Expecting %v but got %v", expectedStat, newFlakeStat)
+			}
+			return nil
+		}
+	}
+	s.t.Error("No matching expectedStat found given jobName = %s, sha = %s", jobName, sha)
 	return nil
 }
 
@@ -104,24 +162,52 @@ func TestSisyphusDaemonConfig(t *testing.T) {
 		PollGapSecs:      DefaultPollGapSecs,
 		NumRerun:         DefaultNumRerun,
 	}
-	sd := SisyphusDaemon(protectedJobsMock, prowProjectMock,
+	sisyphusd := SisyphusDaemon(protectedJobsMock, prowProjectMock,
 		prowZoneMock, gubernatorURLMock, gcsBucketMock, cfg)
-	if !reflect.DeepEqual(sd.GetSisyphusConfig(), cfgExpected) {
+	if !reflect.DeepEqual(sisyphusd.GetSisyphusConfig(), cfgExpected) {
 		t.Error("setting catchFlakesByRun failed")
 	}
 }
 
-func TestProwResultsMockParsing(t *testing.T) {
-	prowAccessor := NewProwAccessorMock(gubernatorURLMock)
-	res, err := prowAccessor.GetProwResult("job-1", 10)
+func TestProwResultsMock(t *testing.T) {
+	job := "job-1"
+	prowAccessorMock := NewProwAccessorMock(gubernatorURLMock)
+	res, err := prowAccessorMock.GetProwResult(job, 10)
 	if err != nil {
 		t.Error("GetProwResult failed: %v", err)
 	}
 	if res.Metadata.RepoCommit != "sha-1" {
 		t.Error("RepoCommit unmatched with data in file")
 	}
+	expectedBase := 10
+	if runNo, _ := prowAccessorMock.GetLatestRun(job); runNo != expectedBase {
+		t.Errorf("Expecting frist call to GetLatestRun to return %d but got %d", expectedBase, runNo)
+	}
+	if runNo, _ := prowAccessorMock.GetLatestRun(job); runNo != expectedBase+1 {
+		t.Errorf("Expecting second call to GetLatestRun to return %d but got %d", expectedBase+1, runNo)
+	}
+	for i := 0; i < 100; i++ {
+		prowAccessorMock.GetLatestRun(job)
+	}
+	expectedMax := 15
+	if runNo, _ := prowAccessorMock.GetLatestRun(job); runNo != expectedMax {
+		t.Errorf("Expecting call to GetLatestRun to not exceed %d but got %d", expectedMax, runNo)
+	}
 }
 
 func TestRerunLogics(t *testing.T) {
+	sisyphusd := SisyphusDaemon(protectedJobsMock, prowProjectMock,
+		prowZoneMock, gubernatorURLMock, gcsBucketMock, &SisyphusConfig{
+			CatchFlakesByRun: true,
+			PollGapSecs:      0,
+		})
+	sisyphusd.SetExitSignal(exitSignalToSisyphus)
+	sisyphusd.prowAccessor = NewProwAccessorMock(gubernatorURLMock)
+	sisyphusd.storage = NewStorageMock(t)
+	// sisyphusd.Start()
+}
 
+func TestMain(m *testing.M) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	os.Exit(m.Run())
 }

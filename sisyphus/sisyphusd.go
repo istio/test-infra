@@ -53,30 +53,24 @@ type failure struct {
 
 // FlakeStat records the stats from flakiness detection by multiple reruns
 type FlakeStat struct {
-	TestName           string           `json:"testName"`
-	SHA                string           `json:"sha"`
-	TotalRerun         int              `json:"totalRerun"`
-	Failures           int              `json:"failures"`
-	ParentJobTimeStamp uint32           `json:"parentJobTimeStamp"`
-	FailedTestCases    []FailedTestCase `json:"failedTestCases"`
-}
-
-// FailedTestCase is the per test case rerun results
-type FailedTestCase struct {
-	Name       string `json:"name"`
-	TotalRerun int    `json:"totalRerun"`
-	Failures   int    `json:"failures"`
+	TestName           string `json:"testName"`
+	SHA                string `json:"sha"`
+	TotalRerun         int    `json:"totalRerun"`
+	Failures           int    `json:"failures"`
+	ParentJobTimeStamp uint32 `json:"parentJobTimeStamp"`
 }
 
 type sisyphusDaemon struct {
 	jobsWatched      []*jobStatus
 	prowAccessor     IProwAccessor
+	storage          ISisyphusStorage
 	pollGapSecs      int
 	numRerun         int
 	catchFlakesByRun bool
 	// optional
 	alert           *alert
 	branchProtector *branchProtector
+	exitSignal      chan bool
 }
 
 // SisyphusConfig is the optional configuration to SisyphusDaemon
@@ -101,9 +95,11 @@ func SisyphusDaemon(protectedJobs []string,
 	daemon := sisyphusDaemon{
 		jobsWatched:      jobsWatched,
 		prowAccessor:     NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket),
+		storage:          NewSisyphusStorage(),
 		pollGapSecs:      DefaultPollGapSecs,
 		numRerun:         DefaultNumRerun,
 		catchFlakesByRun: DefaultCatchFlakesByRun,
+		exitSignal:       make(chan bool, 1), // default channel never receives, hence not blocking
 	}
 	if cfg != nil {
 		if cfg.PollGapSecs > 0 {
@@ -139,6 +135,11 @@ func (d *sisyphusDaemon) SetProtectedBranch(owner, token, repo, branch string) {
 	d.branchProtector = newBranchProtector(owner, token, repo, branch)
 }
 
+// SetExitSignal sets a channel on sisyphusDaemon
+func (d *sisyphusDaemon) SetExitSignal(channel chan bool) {
+	d.exitSignal = channel
+}
+
 // Start activates the SisyphusDaemon to start polling Prow results
 func (d *sisyphusDaemon) Start() {
 	for {
@@ -155,7 +156,12 @@ func (d *sisyphusDaemon) Start() {
 			d.branchProtector.process(newFailures)
 		}
 		log.Printf("Sleeping for %d seconds", d.pollGapSecs)
-		time.Sleep(time.Duration(d.pollGapSecs) * time.Second)
+		select {
+		case <-d.exitSignal:
+			log.Printf("Received from exitSignal channel, exiting")
+		case <-time.After(time.Duration(d.pollGapSecs) * time.Second):
+			fmt.Println("------ Resume ------")
+		}
 	}
 }
 
@@ -241,7 +247,7 @@ func (d *sisyphusDaemon) processProwResult(job *jobStatus, runNo int, prowResult
 			}
 			if flakeStatPtr.TotalRerun == d.numRerun {
 				log.Printf("All reruns on job [%s] at sha [%s] have finished\n", job.name, resultSHA)
-				if err := storeFlakeStat(job, *flakeStatPtr); err != nil {
+				if err := d.storage.Store(job.name, resultSHA, *flakeStatPtr); err != nil {
 					log.Printf("Failed to store flakeStat: %v\n", err)
 				}
 				// delete resultSHA from job.rerunJobStats since all reruns have finished
@@ -267,11 +273,5 @@ func (d *sisyphusDaemon) processProwResult(job *jobStatus, runNo int, prowResult
 			runNo:   runNo,
 		}
 	}
-	return nil
-}
-
-func storeFlakeStat(job *jobStatus, newFlakeStat FlakeStat) error {
-	// Kettle takes over from here
-	log.Printf("newFlakeStat = %v\n", newFlakeStat)
 	return nil
 }

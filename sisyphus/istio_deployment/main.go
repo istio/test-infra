@@ -56,6 +56,7 @@ var (
 
 func init() {
 	flag.Parse()
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	// Connect to the Prow cluster
 	if _, err := u.Shell(`gcloud container clusters get-credentials prow \
 		--project=%s --zone=%s`, prowProject, prowZone); err != nil {

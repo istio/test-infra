@@ -52,7 +52,7 @@ func TestGetProwResult(t *testing.T) {
 
 func TestGetProwJobConfig(t *testing.T) {
 	prowAccessor := NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket)
-	cfg, err := prowAccessor.GetProwJobConfig(jobName, runNo)
+	cfg, err := prowAccessor.getProwJobConfig(jobName, runNo)
 	if err != nil {
 		t.Errorf("Error when calling GetProwJobConfig: %v", err)
 	}

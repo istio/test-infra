@@ -33,7 +33,6 @@ const (
 type IProwAccessor interface {
 	GetLatestRun(jobName string) (int, error)
 	GetProwResult(jobName string, runNo int) (*ProwResult, error)
-	GetProwJobConfig(jobName string, runNo int) (*ProwJobConfig, error)
 	Rerun(jobName string, runNo, numRerun int) error
 	GetGubernatorURL() string
 }
@@ -113,8 +112,25 @@ func (p *ProwAccessor) GetProwResult(jobName string, runNo int) (*ProwResult, er
 	return &prowResult, nil
 }
 
-// GetProwJobConfig fetches the config of the job at runNo
-func (p *ProwAccessor) GetProwJobConfig(jobName string, runNo int) (*ProwJobConfig, error) {
+// GetGubernatorURL returns the gubernator URL used by this ProwAccessor
+func (p *ProwAccessor) GetGubernatorURL() string {
+	return p.gubernatorURL
+}
+
+// GetGubernatorURL returns the gubernator URL used by this ProwAccessor
+func (p *ProwAccessor) Rerun(jobName string, runNo, numRerun int) error {
+	cfg, err := p.getProwJobConfig(jobName, runNo)
+	if err != nil {
+		return err
+	}
+	if err = p.triggerConcurrentReruns(jobName, cfg.Node, numRerun); err != nil {
+		return err
+	}
+	return nil
+}
+
+// getProwJobConfig fetches the config of the job at runNo
+func (p *ProwAccessor) getProwJobConfig(jobName string, runNo int) (*ProwJobConfig, error) {
 	jobStartedFile := filepath.Join(jobName, strconv.Itoa(runNo), startedJSON)
 	StartedFileString, err := p.gcsClient.Read(jobStartedFile)
 	if err != nil {
@@ -126,23 +142,6 @@ func (p *ProwAccessor) GetProwJobConfig(jobName string, runNo int) (*ProwJobConf
 		return nil, err
 	}
 	return &cfg, nil
-}
-
-// GetGubernatorURL returns the gubernator URL used by this ProwAccessor
-func (p *ProwAccessor) GetGubernatorURL() string {
-	return p.gubernatorURL
-}
-
-// GetGubernatorURL returns the gubernator URL used by this ProwAccessor
-func (p *ProwAccessor) Rerun(jobName string, runNo, numRerun int) error {
-	cfg, err := p.GetProwJobConfig(jobName, runNo)
-	if err != nil {
-		return err
-	}
-	if err = p.triggerConcurrentReruns(jobName, cfg.Node, numRerun); err != nil {
-		return err
-	}
-	return nil
 }
 
 func (p *ProwAccessor) triggerConcurrentReruns(jobName, node string, numRerun int) error {
