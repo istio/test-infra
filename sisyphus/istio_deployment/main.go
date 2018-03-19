@@ -68,8 +68,9 @@ func init() {
 // TODO (chx) unit tests
 func main() {
 	sisyphusd := s.SisyphusDaemon(
-		protectedJobs, prowProject, prowZone, gubernatorURL, gcsBucket,
-		&s.SisyphusConfig{CatchFlakesByRun: *catchFlakesByRun})
+		protectedJobs, prowProject, prowZone, gubernatorURL, gcsBucket, &s.SisyphusConfig{
+			CatchFlakesByRun: *catchFlakesByRun,
+		})
 	if *emailSending {
 		gmailAppPass, err := u.GetPasswordFromFile(*gmailAppPassFile)
 		if err != nil {

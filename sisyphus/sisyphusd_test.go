@@ -23,6 +23,7 @@ import (
 	"reflect"
 	"strconv"
 	"testing"
+	"time"
 )
 
 const (
@@ -35,15 +36,15 @@ const (
 )
 
 var (
-	protectedJobsMock    = []string{"job-1" /*, "job-2", "job-3"*/}
-	exitSignalToSisyphus = make(chan bool, 1)
+	protectedJobsMock = []string{"job-1" /*, "job-2", "job-3"*/}
 )
 
 type ProwAccessorMock struct {
-	lastestRunNos map[string]int // jobName -> lastestRun
-	maxRunNos     map[string]int // jobName -> lastestRun
-	gubernatorURL string
-	prowResults   map[string]map[int]ProwResult // jobName -> runNo -> ProwResult
+	lastestRunNos        map[string]int // jobName -> lastestRun
+	maxRunNos            map[string]int // jobName -> maxRunNo
+	gubernatorURL        string
+	prowResults          map[string]map[int]ProwResult // jobName -> runNo -> ProwResult
+	exitSignalToSisyphus chan bool
 }
 
 func NewProwAccessorMock(gubernatorURL string) *ProwAccessorMock {
@@ -97,8 +98,8 @@ func (p *ProwAccessorMock) GetLatestRun(jobName string) (int, error) {
 				allRunsFinished = false
 			}
 		}
-		if allRunsFinished {
-			exitSignalToSisyphus <- true
+		if allRunsFinished && p.exitSignalToSisyphus != nil && len(p.exitSignalToSisyphus) == 0 {
+			p.exitSignalToSisyphus <- true
 		}
 		return p.maxRunNos[jobName], nil
 	}
@@ -159,7 +160,7 @@ func TestSisyphusDaemonConfig(t *testing.T) {
 	}
 	cfgExpected := &SisyphusConfig{
 		CatchFlakesByRun: catchFlakesByRun,
-		PollGapSecs:      DefaultPollGapSecs,
+		PollGapDuration:  DefaultPollGapDuration,
 		NumRerun:         DefaultNumRerun,
 	}
 	sisyphusd := SisyphusDaemon(protectedJobsMock, prowProjectMock,
@@ -199,12 +200,14 @@ func TestRerunLogics(t *testing.T) {
 	sisyphusd := SisyphusDaemon(protectedJobsMock, prowProjectMock,
 		prowZoneMock, gubernatorURLMock, gcsBucketMock, &SisyphusConfig{
 			CatchFlakesByRun: true,
-			PollGapSecs:      0,
+			PollGapDuration:  100 * time.Millisecond,
 		})
-	sisyphusd.SetExitSignal(exitSignalToSisyphus)
-	sisyphusd.prowAccessor = NewProwAccessorMock(gubernatorURLMock)
+	prowAccessorMock := NewProwAccessorMock(gubernatorURLMock)
+	prowAccessorMock.exitSignalToSisyphus = make(chan bool, 1) // TODO use context
+	sisyphusd.prowAccessor = prowAccessorMock
+	sisyphusd.SetExitSignal(prowAccessorMock.exitSignalToSisyphus)
 	sisyphusd.storage = NewStorageMock(t)
-	// sisyphusd.Start()
+	sisyphusd.Start()
 }
 
 func TestMain(m *testing.M) {

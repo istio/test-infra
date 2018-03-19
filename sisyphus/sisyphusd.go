@@ -21,13 +21,13 @@ import (
 )
 
 const (
-	DefaultPollGapSecs      = 300
 	DefaultNumRerun         = 3
 	DefaultCatchFlakesByRun = true
 )
 
 var (
-	pendingJobTimeout = 60 * time.Minute
+	pendingJobTimeout      = 60 * time.Minute
+	DefaultPollGapDuration = 300 * time.Second
 )
 
 type jobStatus struct {
@@ -64,7 +64,7 @@ type sisyphusDaemon struct {
 	jobsWatched      []*jobStatus
 	prowAccessor     IProwAccessor
 	storage          ISisyphusStorage
-	pollGapSecs      int
+	pollGapDuration  time.Duration
 	numRerun         int
 	catchFlakesByRun bool
 	// optional
@@ -75,7 +75,7 @@ type sisyphusDaemon struct {
 
 // SisyphusConfig is the optional configuration to SisyphusDaemon
 type SisyphusConfig struct {
-	PollGapSecs      int
+	PollGapDuration  time.Duration
 	NumRerun         int
 	CatchFlakesByRun bool
 }
@@ -96,14 +96,14 @@ func SisyphusDaemon(protectedJobs []string,
 		jobsWatched:      jobsWatched,
 		prowAccessor:     NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket),
 		storage:          NewSisyphusStorage(),
-		pollGapSecs:      DefaultPollGapSecs,
+		pollGapDuration:  DefaultPollGapDuration,
 		numRerun:         DefaultNumRerun,
 		catchFlakesByRun: DefaultCatchFlakesByRun,
 		exitSignal:       make(chan bool, 1), // default channel never receives, hence not blocking
 	}
 	if cfg != nil {
-		if cfg.PollGapSecs > 0 {
-			daemon.pollGapSecs = cfg.PollGapSecs
+		if cfg.PollGapDuration.Nanoseconds() > 0 {
+			daemon.pollGapDuration = cfg.PollGapDuration
 		}
 		if cfg.NumRerun > 0 {
 			daemon.numRerun = cfg.NumRerun
@@ -116,7 +116,7 @@ func SisyphusDaemon(protectedJobs []string,
 // returns the SisyphusConfig in use by d
 func (d *sisyphusDaemon) GetSisyphusConfig() *SisyphusConfig {
 	return &SisyphusConfig{
-		PollGapSecs:      d.pollGapSecs,
+		PollGapDuration:  d.pollGapDuration,
 		NumRerun:         d.numRerun,
 		CatchFlakesByRun: d.catchFlakesByRun,
 	}
@@ -155,11 +155,12 @@ func (d *sisyphusDaemon) Start() {
 		if d.branchProtector != nil {
 			d.branchProtector.process(newFailures)
 		}
-		log.Printf("Sleeping for %d seconds", d.pollGapSecs)
+		log.Printf("Sleeping for %d", d.pollGapDuration)
 		select {
 		case <-d.exitSignal:
 			log.Printf("Received from exitSignal channel, exiting")
-		case <-time.After(time.Duration(d.pollGapSecs) * time.Second):
+			return
+		case <-time.After(d.pollGapDuration):
 			fmt.Println("------ Resume ------")
 		}
 	}
