@@ -277,6 +277,39 @@ presubmits:
         secret:
           secretName: istio-e2e-rbac-kubeconfig
     run_after_success:
+    - name: istio-pilot-e2e-v1alpha3
+      agent: kubernetes
+      context: prow/istio-pilot-e2e-v1alpha3.sh
+      rerun_command: "/test istio-pilot-e2e-v1alpha3"
+      trigger: "(?m)^/test (istio-pilot-e2e-v1alpha3)?,?(\\s+|$)"
+      branches:
+      - master
+      - release-0.7
+      - release-0.8
+      - release-0.9
+      - release-1.0
+      max_concurrency: 8
+      spec:
+        containers:
+        - image: gcr.io/istio-testing/prowbazel:0.4.6
+          args:
+          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+          - "--clean"
+          - "--timeout=60"
+          # Bazel needs privileged mode in order to sandbox builds.
+          securityContext:
+            privileged: true
+          env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /etc/service-account/service-account.json
+          volumeMounts:
+          - name: service
+            mountPath: /etc/service-account
+            readOnly: true
+        volumes:
+        - name: service
+          secret:
+            secretName: service-account
     - name: istio-pilot-e2e
       agent: kubernetes
       context: prow/istio-pilot-e2e.sh
