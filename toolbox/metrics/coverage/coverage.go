@@ -25,18 +25,22 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// Storage abstraction for testing
 type Storage interface {
 	GetLatest(ctx context.Context) (io.ReadCloser, error)
-	GetRepo() string
+	GetLabel() string
 }
 
+// Metric implement the metrics.Metric interface
 type Metric struct {
 	coverage *prometheus.GaugeVec
 	storage  Storage
 }
 
+// Coverage holds go package code coverage percentage
 type Coverage map[string]float64
 
+// NewMetric instantiates a new Coverage metric
 func NewMetric(s Storage) *Metric {
 	return &Metric{
 		coverage: prometheus.NewGaugeVec(
@@ -66,14 +70,18 @@ func (m *Metric) Update(ctx context.Context) error {
 		return err
 	}
 	for pkg, percent := range coverage {
-		m.coverage.WithLabelValues(pkg, m.storage.GetRepo()).Set(percent)
+		m.coverage.WithLabelValues(pkg, m.storage.GetLabel()).Set(percent)
 	}
 	return nil
 }
 
 func getCoverage(r io.ReadCloser) (Coverage, error) {
 	cov := Coverage{}
-	defer r.Close()
+	defer func() {
+		if err := r.Close(); err != nil {
+			glog.Errorf("unable to close file %v", err)
+		}
+	}()
 
 	//Line example: "istio.io/mixer/adapter/denyChecker	99"
 	scanner := bufio.NewScanner(r)

@@ -43,7 +43,7 @@ func (f *fakeStorage) GetLatest(ctx context.Context) (io.ReadCloser, error) {
 	return nopCloser{bytes.NewBufferString(f.data)}, nil
 }
 
-func (f *fakeStorage) GetRepo() string {
+func (f *fakeStorage) GetLabel() string {
 	return "master"
 }
 
@@ -52,19 +52,22 @@ func TestMetric_Update(t *testing.T) {
 	//before := m.coverage.WithLabelValues()
 	c, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
+	errc := make(chan error)
 	go func() {
-		if err := m.Update(c); err != nil {
+		errc <- m.Update(c)
+	}()
+	select {
+	case err := <-errc:
+		if err != nil {
 			t.Errorf("Unexpected error %v", err)
 			t.FailNow()
 		}
-	}()
-	select {
 	case <-time.After(2 * time.Second):
 		t.Errorf("timed out")
 		t.FailNow()
 	case <-c.Done():
 	}
-	after := m.coverage.WithLabelValues("istio.io/istio/mixer/adapter/opa", m.storage.GetRepo())
+	after := m.coverage.WithLabelValues("istio.io/istio/mixer/adapter/opa", m.storage.GetLabel())
 	if after.Desc() == nil {
 		t.Errorf("%v should not be nil", after.Desc())
 	}

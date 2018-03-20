@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package metrics
 
 import (
@@ -21,8 +22,10 @@ import (
 	"golang.org/x/net/context"
 )
 
+// Suite of metrics to collect from.
 type Suite map[string]Metric
 
+// NewPublisher creates a publisher from a suite and update interval and timeout
 func NewPublisher(s Suite, updateInterval, updateTimeout time.Duration) *Publisher {
 	return &Publisher{
 		suite:          s,
@@ -37,6 +40,7 @@ type Publisher struct {
 	updateInterval, updateTimeout time.Duration
 }
 
+// Metric is used to collect data
 type Metric interface {
 	Update(ctx context.Context) error
 	GetCollector() prometheus.Collector
@@ -66,11 +70,12 @@ func (p *Publisher) Update(ctx context.Context) {
 func (p *Publisher) Publish(ctx context.Context) error {
 	glog.Infof("Starting publishing thread")
 	defer glog.Infof("Terminating publishing thread")
+	tick := time.Tick(p.updateInterval)
 	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.Tick(p.updateInterval):
+		case <-tick:
 			p.Update(ctx)
 		}
 	}

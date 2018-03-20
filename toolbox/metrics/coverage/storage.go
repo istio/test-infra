@@ -24,18 +24,21 @@ import (
 	"google.golang.org/api/option"
 )
 
+// GCSStorage implements the Storage interface
 type GCSStorage struct {
 	bucketHandle  *storage.BucketHandle
 	repo, jobName string
 	latest        chan string
 }
 
+// NewGCSStorage instantiates a new GCSStorage
 func NewGCSStorage() *GCSStorage {
 	return &GCSStorage{
 		latest: make(chan string, 10),
 	}
 }
 
+// Set needs be called in the main, as the GCSStorage is created in the binary init function per Prometheus Requirement
 func (g *GCSStorage) Set(bucket, repo, jobName string, options []option.ClientOption) error {
 	storageClient, err := storage.NewClient(context.Background(), options...)
 	if err != nil {
@@ -77,14 +80,20 @@ func (g *GCSStorage) getLatest(ctx context.Context) error {
 	return nil
 }
 
-func (g *GCSStorage) GetRepo() string {
+//
+func (g *GCSStorage) GetLabel() string {
 	return g.repo
 }
 
 func (g *GCSStorage) GetLatest(ctx context.Context) (io.ReadCloser, error) {
 	var latest string
-	go g.getLatest(ctx)
+	errc := make(chan error)
+	go func() {
+		errc <- g.getLatest(ctx)
+	}()
 	select {
+	case err := <-errc:
+		return nil, err
 	case <-ctx.Done():
 		return nil, ctx.Err()
 	case latest = <-g.latest:

@@ -77,12 +77,15 @@ func TestPublisher_Update(t *testing.T) {
 func TestPublisher_Publish(t *testing.T) {
 	c, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
+	errc := make(chan error)
 	go func() {
-		if err := m.Publish(c); err != c.Err() {
-			t.Errorf("Error should match %v received %v instead", c.Err(), err)
-		}
+		errc <- m.Publish(c)
 	}()
 	select {
+	case err := <-errc:
+		if err != c.Err() {
+			t.Errorf("Error should match %v received %v instead", c.Err(), err)
+		}
 	case <-time.After(2 * time.Second):
 		t.Error("test timed out, context should have finished")
 		t.FailNow()
