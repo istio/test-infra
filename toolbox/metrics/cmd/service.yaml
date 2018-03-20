@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    istio: metrics-fetcher
+  name: metrics-fetcher-serivce
+  namespace: metrics
+spec:
+  ports:
+    port: 9103
+    targetPort: 9103
+  selector:
+    istio: metrics-fetcher
+  type: LoadBalancer
+  loadBalancerIP: 104.197.146.56

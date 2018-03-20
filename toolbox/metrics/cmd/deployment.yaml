@@ -2,6 +2,7 @@ kind: Deployment
 apiVersion: extensions/v1beta1
 metadata:
   name: metrics-fetcher
+  namespace: metrics
 spec:
   replicas: 1
   strategy:
@@ -17,15 +18,3 @@ spec:
       containers:
       - name: metrics-fetcher
         image: gcr.io/istio-testing/metrics_fetcher:3dc124d13020314fe3e9cf59279939e5a2398423
-        imagePullPolicy: Always
-        env:
-          - name: JENKINS_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: jenkins-credential
-                key: username.txt
-          - name: JENKINS_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: jenkins-credential
-                key: password.txt
