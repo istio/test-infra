@@ -70,7 +70,7 @@ func (p *Publisher) Update(ctx context.Context) {
 func (p *Publisher) Publish(ctx context.Context) error {
 	glog.Infof("Starting publishing thread")
 	defer glog.Infof("Terminating publishing thread")
-	tick := time.Tick(p.updateInterval)
+	tick := time.NewTicker(p.updateInterval).C
 	for {
 		select {
 		case <-ctx.Done():
@@ -79,5 +79,4 @@ func (p *Publisher) Publish(ctx context.Context) error {
 			p.Update(ctx)
 		}
 	}
-	return nil
 }

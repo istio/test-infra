@@ -80,11 +80,12 @@ func (g *GCSStorage) getLatest(ctx context.Context) error {
 	return nil
 }
 
-//
+// GetLabel returns the repo where coverage was gathered.
 func (g *GCSStorage) GetLabel() string {
 	return g.repo
 }
 
+// GetLatest returns an io.ReadCloser for the bucket file found.
 func (g *GCSStorage) GetLatest(ctx context.Context) (io.ReadCloser, error) {
 	var latest string
 	errc := make(chan error)

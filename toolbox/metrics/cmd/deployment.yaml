@@ -17,4 +17,15 @@ spec:
     spec:
       containers:
       - name: metrics-fetcher
-        image: gcr.io/istio-testing/metrics_fetcher:3dc124d13020314fe3e9cf59279939e5a2398423
+        image: gcr.io/istio-testing/metrics_fetcher:1521576045102
+        args:
+        - --service_account_json=/etc/service-account/service-account.json
+        volumeMounts:
+        - mountPath: /etc/service-account
+          name: service-account
+          readOnly: true
+      volumes:
+      - name: service-account
+        secret:
+          secretName: metrics-service-account
+

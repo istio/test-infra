@@ -47,8 +47,8 @@ import (
 )
 
 const (
-	defaultUpdateInterval = 10 * time.Second
-	defaultUpdateTimeout  = 10 * time.Second
+	defaultUpdateInterval = 2 * time.Microsecond
+	defaultUpdateTimeout  = 30 * time.Second
 )
 
 var (
@@ -87,7 +87,11 @@ func main() {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	go ms.Publish(ctx)
+	go func() {
+		if err := ms.Publish(ctx); err != nil {
+			glog.Fatal(err)
+		}
+	}()
 	http.Handle("/metrics", promhttp.Handler())
 	go func() {
 		if err := http.ListenAndServe(fmt.Sprintf(":%d", *port), nil); err != nil {
