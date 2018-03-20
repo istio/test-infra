@@ -144,28 +144,28 @@ func (s *StorageMock) Store(jobName, sha string, newFlakeStat FlakeStat) error {
 	for _, expectedStat := range s.expectedStats {
 		if expectedStat.TestName == jobName && expectedStat.SHA == sha {
 			if !reflect.DeepEqual(expectedStat, newFlakeStat) {
-				s.t.Error("Expecting %v but got %v", expectedStat, newFlakeStat)
+				s.t.Errorf("Expecting %v but got %v", expectedStat, newFlakeStat)
 			}
 			return nil
 		}
 	}
-	s.t.Error("No matching expectedStat found given jobName = %s, sha = %s", jobName, sha)
+	s.t.Errorf("No matching expectedStat found given jobName = %s, sha = %s", jobName, sha)
 	return nil
 }
 
-func TestSisyphusDaemonConfig(t *testing.T) {
+func TestDaemonConfig(t *testing.T) {
 	catchFlakesByRun := true
-	cfg := &SisyphusConfig{
+	cfg := &Config{
 		CatchFlakesByRun: catchFlakesByRun,
 	}
-	cfgExpected := &SisyphusConfig{
+	cfgExpected := &Config{
 		CatchFlakesByRun: catchFlakesByRun,
 		PollGapDuration:  DefaultPollGapDuration,
 		NumRerun:         DefaultNumRerun,
 	}
-	sisyphusd := SisyphusDaemon(protectedJobsMock, prowProjectMock,
+	sisyphusd := NewDaemon(protectedJobsMock, prowProjectMock,
 		prowZoneMock, gubernatorURLMock, gcsBucketMock, cfg)
-	if !reflect.DeepEqual(sisyphusd.GetSisyphusConfig(), cfgExpected) {
+	if !reflect.DeepEqual(sisyphusd.GetConfig(), cfgExpected) {
 		t.Error("setting catchFlakesByRun failed")
 	}
 }
@@ -175,7 +175,7 @@ func TestProwResultsMock(t *testing.T) {
 	prowAccessorMock := NewProwAccessorMock(gubernatorURLMock)
 	res, err := prowAccessorMock.GetProwResult(job, 10)
 	if err != nil {
-		t.Error("GetProwResult failed: %v", err)
+		t.Errorf("GetProwResult failed: %v", err)
 	}
 	if res.Metadata.RepoCommit != "sha-1" {
 		t.Error("RepoCommit unmatched with data in file")
@@ -197,13 +197,13 @@ func TestProwResultsMock(t *testing.T) {
 }
 
 func TestRerunLogics(t *testing.T) {
-	sisyphusd := SisyphusDaemon(protectedJobsMock, prowProjectMock,
-		prowZoneMock, gubernatorURLMock, gcsBucketMock, &SisyphusConfig{
+	sisyphusd := NewDaemon(protectedJobsMock, prowProjectMock,
+		prowZoneMock, gubernatorURLMock, gcsBucketMock, &Config{
 			CatchFlakesByRun: true,
 			PollGapDuration:  100 * time.Millisecond,
 		})
 	prowAccessorMock := NewProwAccessorMock(gubernatorURLMock)
-	prowAccessorMock.exitSignalToSisyphus = make(chan bool, 1) // TODO use context
+	prowAccessorMock.exitSignalToSisyphus = make(chan bool, 1)
 	sisyphusd.prowAccessor = prowAccessorMock
 	sisyphusd.SetExitSignal(prowAccessorMock.exitSignalToSisyphus)
 	sisyphusd.storage = NewStorageMock(t)

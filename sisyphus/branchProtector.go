@@ -15,6 +15,8 @@
 package sisyphus
 
 import (
+	"log"
+
 	u "istio.io/test-infra/toolbox/util"
 )
 
@@ -34,8 +36,12 @@ func newBranchProtector(owner, token, repo, branch string) *branchProtector {
 
 func (p *branchProtector) process(failures []failure) {
 	if failures != nil {
-		u.BlockMergingOnBranch(p.githubClnt, p.repo, p.branch)
+		if err := u.BlockMergingOnBranch(p.githubClnt, p.repo, p.branch); err != nil {
+			log.Printf("Error during BlockMergingOnBranch: %v", err)
+		}
 	} else {
-		u.UnBlockMergingOnBranch(p.githubClnt, p.repo, p.branch)
+		if err := u.UnBlockMergingOnBranch(p.githubClnt, p.repo, p.branch); err != nil {
+			log.Printf("Error during UnBlockMergingOnBranch: %v", err)
+		}
 	}
 }

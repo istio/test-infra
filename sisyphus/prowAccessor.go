@@ -30,6 +30,7 @@ const (
 	startedJSON  = "started.json"
 )
 
+// IProwAccessor defines the Prow interface
 type IProwAccessor interface {
 	GetLatestRun(jobName string) (int, error)
 	GetProwResult(jobName string, runNo int) (*ProwResult, error)
@@ -117,7 +118,7 @@ func (p *ProwAccessor) GetGubernatorURL() string {
 	return p.gubernatorURL
 }
 
-// GetGubernatorURL returns the gubernator URL used by this ProwAccessor
+// Rerun starts on Prow the reruns on specified jobs
 func (p *ProwAccessor) Rerun(jobName string, runNo, numRerun int) error {
 	cfg, err := p.getProwJobConfig(jobName, runNo)
 	if err != nil {

@@ -35,7 +35,8 @@ type AlertConfig struct {
 	Epilogue         string
 }
 
-type alert struct {
+// Alert defines a subscription to job failures
+type Alert struct {
 	gmailAppPass  string
 	identity      string
 	senderAddr    string
@@ -44,9 +45,10 @@ type alert struct {
 	location      *time.Location
 }
 
+// NewAlert creates an Alert
 func NewAlert(gmailAppPass, identity, senderAddr, receiverAddr string,
-	alertConfig *AlertConfig) (*alert, error) {
-	alert := &alert{
+	alertConfig *AlertConfig) (*Alert, error) {
+	alert := &Alert{
 		gmailAppPass:  gmailAppPass,
 		identity:      identity,
 		senderAddr:    senderAddr,
@@ -63,7 +65,7 @@ func NewAlert(gmailAppPass, identity, senderAddr, receiverAddr string,
 }
 
 // Send uses gmail smtp server to send out email.
-func (a *alert) Send(body string) error {
+func (a *Alert) Send(body string) error {
 	timestamp, err := a.now()
 	if err != nil {
 		log.Printf("Failed to read current time when sending alert\n")
@@ -83,6 +85,6 @@ func (a *alert) Send(body string) error {
 	return nil
 }
 
-func (a *alert) now() (string, error) {
+func (a *Alert) now() (string, error) {
 	return time.Now().In(a.location).Format("2006-01-02 15:04:05 PST"), nil
 }

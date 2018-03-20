@@ -18,14 +18,14 @@ import (
 	"flag"
 	"log"
 
-	s "istio.io/test-infra/sisyphus"
+	"istio.io/test-infra/sisyphus"
 	u "istio.io/test-infra/toolbox/util"
 )
 
 const (
 	// Alert settings
 	sender         = "istio.testing@gmail.com"
-	oncallMaillist = "istio-oncall@googlegroups.com"
+	oncallMaillist = "istio-oncall@googlegroupsisyphus.com"
 	subject        = "ATTENTION - Istio Post-Submit Test Failed"
 	prologue       = "Hi istio-oncall,\n\n" +
 		"Post-Submit is failing in istio/istio, please take a look at following failure(s) and fix ASAP\n\n"
@@ -64,11 +64,9 @@ func init() {
 	}
 }
 
-// TODO (chx) README
-// TODO (chx) unit tests
 func main() {
-	sisyphusd := s.SisyphusDaemon(
-		protectedJobs, prowProject, prowZone, gubernatorURL, gcsBucket, &s.SisyphusConfig{
+	sisyphusd := sisyphus.NewDaemon(
+		protectedJobs, prowProject, prowZone, gubernatorURL, gcsBucket, &sisyphus.Config{
 			CatchFlakesByRun: *catchFlakesByRun,
 		})
 	if *emailSending {
@@ -77,7 +75,7 @@ func main() {
 			log.Fatalf("Error accessing gmail app password: %v", err)
 		}
 		if err := sisyphusd.SetAlert(gmailAppPass, identity, sender, oncallMaillist,
-			&s.AlertConfig{
+			&sisyphus.AlertConfig{
 				Subject:  subject,
 				Prologue: prologue,
 				Epilogue: epilogue,

@@ -21,12 +21,16 @@ import (
 )
 
 const (
-	DefaultNumRerun         = 3
+	// DefaultNumRerun is the default number of reruns for each failured jobs
+	DefaultNumRerun = 3
+	// DefaultCatchFlakesByRun defines if reruns are triggered by default
 	DefaultCatchFlakesByRun = true
 )
 
 var (
-	pendingJobTimeout      = 60 * time.Minute
+	pendingJobTimeout = 60 * time.Minute
+	// DefaultPollGapDuration is the default time that sisyphus waits between
+	// two checks on jobs
 	DefaultPollGapDuration = 300 * time.Second
 )
 
@@ -60,7 +64,8 @@ type FlakeStat struct {
 	ParentJobTimeStamp uint32 `json:"parentJobTimeStamp"`
 }
 
-type sisyphusDaemon struct {
+// Daemon defines the long-running service that sisyphus provides
+type Daemon struct {
 	jobsWatched      []*jobStatus
 	prowAccessor     IProwAccessor
 	storage          ISisyphusStorage
@@ -68,21 +73,21 @@ type sisyphusDaemon struct {
 	numRerun         int
 	catchFlakesByRun bool
 	// optional
-	alert           *alert
+	alert           *Alert
 	branchProtector *branchProtector
 	exitSignal      chan bool
 }
 
-// SisyphusConfig is the optional configuration to SisyphusDaemon
-type SisyphusConfig struct {
+// Config is the optional configuration to daemon
+type Config struct {
 	PollGapDuration  time.Duration
 	NumRerun         int
 	CatchFlakesByRun bool
 }
 
-// SisyphusDaemon creates a sisyphusDaemon
-func SisyphusDaemon(protectedJobs []string,
-	prowProject, prowZone, gubernatorURL, gcsBucket string, cfg *SisyphusConfig) *sisyphusDaemon {
+// NewDaemon creates a Daemon
+func NewDaemon(protectedJobs []string,
+	prowProject, prowZone, gubernatorURL, gcsBucket string, cfg *Config) *Daemon {
 	var jobsWatched []*jobStatus
 	for _, jobName := range protectedJobs {
 		jobsWatched = append(jobsWatched, &jobStatus{
@@ -92,7 +97,7 @@ func SisyphusDaemon(protectedJobs []string,
 			rerunJobStats:    make(map[string]*FlakeStat),
 		})
 	}
-	daemon := sisyphusDaemon{
+	daemon := Daemon{
 		jobsWatched:      jobsWatched,
 		prowAccessor:     NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket),
 		storage:          NewSisyphusStorage(),
@@ -113,9 +118,9 @@ func SisyphusDaemon(protectedJobs []string,
 	return &daemon
 }
 
-// returns the SisyphusConfig in use by d
-func (d *sisyphusDaemon) GetSisyphusConfig() *SisyphusConfig {
-	return &SisyphusConfig{
+// GetConfig returns the Config in use by d
+func (d *Daemon) GetConfig() *Config {
+	return &Config{
 		PollGapDuration:  d.pollGapDuration,
 		NumRerun:         d.numRerun,
 		CatchFlakesByRun: d.catchFlakesByRun,
@@ -123,7 +128,7 @@ func (d *sisyphusDaemon) GetSisyphusConfig() *SisyphusConfig {
 }
 
 // SetAlert activates email alerts to receiverAddr when jobs failed
-func (d *sisyphusDaemon) SetAlert(gmailAppPass, identity, senderAddr, receiverAddr string,
+func (d *Daemon) SetAlert(gmailAppPass, identity, senderAddr, receiverAddr string,
 	alertConfig *AlertConfig) error {
 	var err error
 	d.alert, err = NewAlert(gmailAppPass, identity, senderAddr, receiverAddr, alertConfig)
@@ -131,23 +136,25 @@ func (d *sisyphusDaemon) SetAlert(gmailAppPass, identity, senderAddr, receiverAd
 }
 
 // SetProtectedBranch disables auto merging PRs on protected branch if jobs failed
-func (d *sisyphusDaemon) SetProtectedBranch(owner, token, repo, branch string) {
+func (d *Daemon) SetProtectedBranch(owner, token, repo, branch string) {
 	d.branchProtector = newBranchProtector(owner, token, repo, branch)
 }
 
-// SetExitSignal sets a channel on sisyphusDaemon
-func (d *sisyphusDaemon) SetExitSignal(channel chan bool) {
+// SetExitSignal sets a channel on daemon
+func (d *Daemon) SetExitSignal(channel chan bool) {
 	d.exitSignal = channel
 }
 
-// Start activates the SisyphusDaemon to start polling Prow results
-func (d *sisyphusDaemon) Start() {
+// Start activates the daemon to start polling Prow results
+func (d *Daemon) Start() {
 	for {
 		newFailures := d.checkOnJobsWatched()
 		if d.alert != nil {
 			if newFailures != nil {
 				log.Printf("%d tests failed in last circle", len(newFailures))
-				d.alert.Send(d.formatMessage(newFailures))
+				if err := d.alert.Send(d.formatMessage(newFailures)); err != nil {
+					log.Printf("Unable to send alerts: %v", err)
+				}
 			} else {
 				log.Printf("No new tests failed in last circle.")
 			}
@@ -169,7 +176,7 @@ func (d *sisyphusDaemon) Start() {
 // From last check onward, check all the runs of jobsWatched.
 // Record failure if it hasn't been recorded and update latestRun if necessary
 // Returns an array of postSubmitJob since the same job might fail at multiple runs
-func (d *sisyphusDaemon) checkOnJobsWatched() []failure {
+func (d *Daemon) checkOnJobsWatched() []failure {
 	var newFailures []failure
 	for _, job := range d.jobsWatched {
 		CurrentRunNo, err := d.prowAccessor.GetLatestRun(job.name)
@@ -208,7 +215,7 @@ func (d *sisyphusDaemon) checkOnJobsWatched() []failure {
 	return newFailures
 }
 
-func (d *sisyphusDaemon) formatMessage(failures []failure) (mess string) {
+func (d *Daemon) formatMessage(failures []failure) (mess string) {
 	for _, f := range failures {
 		mess += fmt.Sprintf("%s failed: %s/%s/%d\n\n",
 			f.jobName, d.prowAccessor.GetGubernatorURL(), f.jobName, f.runNo)
@@ -216,7 +223,7 @@ func (d *sisyphusDaemon) formatMessage(failures []failure) (mess string) {
 	return
 }
 
-func (d *sisyphusDaemon) fetchAndProcessProwResult(job *jobStatus, runNo int) *failure {
+func (d *Daemon) fetchAndProcessProwResult(job *jobStatus, runNo int) *failure {
 	prowResult, err := d.prowAccessor.GetProwResult(job.name, runNo)
 	if err != nil {
 		log.Printf("Prow result still pending for %s/%d\n", job.name, runNo)
@@ -238,7 +245,7 @@ func (d *sisyphusDaemon) fetchAndProcessProwResult(job *jobStatus, runNo int) *f
 	return d.processProwResult(job, runNo, prowResult)
 }
 
-func (d *sisyphusDaemon) processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failure {
+func (d *Daemon) processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failure {
 	if d.catchFlakesByRun {
 		resultSHA := prowResult.Metadata.RepoCommit
 		if flakeStatPtr, exists := job.rerunJobStats[resultSHA]; exists {
