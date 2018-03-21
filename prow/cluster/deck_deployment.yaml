@@ -25,8 +25,9 @@ spec:
           - name: http
             containerPort: 8080
         args:
+        - --tide-url=http://tide/
         - --hook-url=http://hook:8888/plugin-help
-          #- --redirect-http-to=prow.istio.io
+        #- --redirect-http-to=prow.istio.io
         volumeMounts:
         - name: config
           mountPath: /etc/config
