@@ -48,13 +48,19 @@ sinker-deployment: get-cluster-credentials
 plank-deployment: get-cluster-credentials
 	kubectl apply -f cluster/plank_deployment.yaml
 
+tide-deployment: get-cluster-credentials
+	kubectl apply -f cluster/tide_deployment.yaml
+
+tide-service: get-cluster-credentials
+	kubectl apply -f cluster/tide_service.yaml
+
 tot-deployment: get-cluster-credentials
 	kubectl apply -f cluster/tot_deployment.yaml
 
 tot-service: get-cluster-credentials
 	kubectl apply -f cluster/tot_service.yaml
 
-.PHONY: hook-deployment hook-service sinker-deployment deck-deployment deck-service tot-service tot-deployment plank-deployment
+.PHONY: hook-deployment hook-service sinker-deployment deck-deployment deck-service tide-service tide-deployement tot-service tot-deployment plank-deployment
 
 # Deployment Management
 #

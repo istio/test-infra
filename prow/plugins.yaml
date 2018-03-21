@@ -42,15 +42,6 @@ plugins:
   - reopen
   - trigger
 
-  istio/mixerclient:
-  - approve
-  - assign
-  - close
-  - hold
-  - lgtm
-  - reopen
-  - trigger
-
   istio/proxy:
   - approve
   - assign
@@ -73,3 +64,9 @@ plugins:
 
   istio-releases/daily-release:
   - trigger
+
+external_plugins:
+  istio/test-infra:
+  - name: needs-rebase
+    events:
+      - pull_request
