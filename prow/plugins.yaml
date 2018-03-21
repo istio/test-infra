@@ -5,12 +5,8 @@
 triggers:
 - repos:
   - istio/api
-  - istio/old_auth_repo
-  - istio/old_broker_repo
   - sebastienvas/core
   - istio/istio
-  - istio/old_mixer_repo
-  - istio/old_pilot_repo
   - istio/test-infra
   - istio/mixerclient
   - istio/proxy
@@ -25,80 +21,54 @@ config_updater:
 plugins:
   istio/api:
   - assign
-  - trigger
   - close
-
-  istio/old_auth_repo:
-  - assign
   - trigger
-  - close
-  - reopen
-  - lgtm
-  - hold
-
-  istio/old_broker_repo:
-  - assign
-  - trigger
-  - close
-  - hold
 
   sebastienvas/core:
   - assign
-  - trigger
-  - release-note
   - close
-  - reopen
-  - lgtm
   - hold
+  - lgtm
+  - release-note
+  - reopen
+  - trigger
 
   istio/istio:
+  - approve
   - assign
-  - trigger
   - close
-  - reopen
-  - lgtm
   - hold
+  - lgtm
+  - reopen
+  - trigger
 
   istio/mixerclient:
+  - approve
   - assign
-  - trigger
   - close
-  - reopen
-  - lgtm
   - hold
+  - lgtm
+  - reopen
+  - trigger
 
   istio/proxy:
+  - approve
   - assign
-  - trigger
   - close
-  - reopen
-  - lgtm
   - hold
-
-  istio/old_mixer_repo:
-  - assign
+  - lgtm
+  - reopen
   - trigger
-  - close
-  - reopen
-  - lgtm
-  - hold
-
-  istio/old_pilot_repo:
-  - assign
-  - trigger
-  - close
-  - reopen
-  - lgtm
-  - hold
 
   istio/test-infra:
+  - approve
   - assign
-  - trigger
-  - config-updater
   - close
-  - reopen
-  - lgtm
+  - config-updater
   - hold
+  - lgtm
+  - reopen
+  - trigger
   - yuks
 
   istio-releases/daily-release:
