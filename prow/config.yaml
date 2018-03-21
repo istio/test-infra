@@ -7,8 +7,31 @@ sinker:
   max_prowjob_age: 168h
   max_pod_age: 12h
 
+deck:
+  tide_update_period: 1s
+
 prowjob_namespace: default
 pod_namespace: test-pods
+
+tide:
+  queries:
+  - repos:
+    - istio/test-infra
+    labels:
+    - lgtm
+    - approved
+    - "cla: yes"
+    missingLabels:
+    - do-not-merge
+    - do-not-merge/hold
+    - do-not-merge/work-in-progress
+    - needs-ok-to-test
+    - needs-rebase
+    reviewApprovedRequired: true
+  merge_method:
+    istio/test-infra: squash
+  target_url: https://prow.istio.io/tide.html
+
 
 presubmits:
   # PR job triggering definitions.
