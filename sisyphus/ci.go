@@ -16,6 +16,7 @@ package sisyphus
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"path/filepath"
 	"strconv"
@@ -24,19 +25,25 @@ import (
 	u "istio.io/test-infra/toolbox/util"
 )
 
+// CI defines common accessors for continuous integration systems
+type CI interface {
+	GetLatestRun(jobName string) (int, error)
+	GetResult(jobName string, runNo int) (*Result, error)
+	Rerun(jobName string, runNo, numRerun int) error
+	GetDetailsURL(jobName string, runNo int) string
+}
+
+// Result defines the output of each CI run
+type Result struct {
+	Passed bool   `json:"passed"`
+	SHA    string `json:"sha"`
+}
+
 const (
 	lastBuildTXT = "latest-build.txt"
 	finishedJSON = "finished.json"
 	startedJSON  = "started.json"
 )
-
-// IProwAccessor defines the Prow interface
-type IProwAccessor interface {
-	GetLatestRun(jobName string) (int, error)
-	GetProwResult(jobName string, runNo int) (*ProwResult, error)
-	Rerun(jobName string, runNo, numRerun int) error
-	GetGubernatorURL() string
-}
 
 // ProwResult matches the structure published in finished.json
 type ProwResult struct {
@@ -68,7 +75,8 @@ type ProwAccessor struct {
 	prowProject   string
 	prowZone      string
 	gubernatorURL string
-	gcsClient     *u.GCSClient
+	gcsClient     u.IGCSClient
+	rerunCmd      func(node string) error
 }
 
 // NewProwAccessor creates a new ProwAccessor
@@ -78,11 +86,15 @@ func NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket string) *Pr
 		prowZone:      prowZone,
 		gubernatorURL: gubernatorURL,
 		gcsClient:     u.NewGCSClient(gcsBucket),
+		rerunCmd: func(node string) error {
+			_, e := u.Shell("kubectl create -f \"https://prow.istio.io/rerun?prowjob=%s\"", node)
+			return e
+		},
 	}
 }
 
 // GetLatestRun reads latest run from "latest-build.txt" of a job under the gcs bucket
-// Example: {gcsBucket}}/{jobName}/latest-build.txt
+// Example: {gcsBucket}/{jobName}/latest-build.txt
 func (p *ProwAccessor) GetLatestRun(jobName string) (int, error) {
 	lastBuildFile := filepath.Join(jobName, lastBuildTXT)
 	latestBuildString, err := p.gcsClient.Read(lastBuildFile)
@@ -97,8 +109,8 @@ func (p *ProwAccessor) GetLatestRun(jobName string) (int, error) {
 	return latestBuildInt, nil
 }
 
-// GetProwResult returns the ProwResult of the job at a specific run
-func (p *ProwAccessor) GetProwResult(jobName string, runNo int) (*ProwResult, error) {
+// GetResult returns the Result of the job at a specific run
+func (p *ProwAccessor) GetResult(jobName string, runNo int) (*Result, error) {
 	jobFinishedFile := filepath.Join(jobName, strconv.Itoa(runNo), finishedJSON)
 	prowResultString, err := p.gcsClient.Read(jobFinishedFile)
 	if err != nil {
@@ -110,12 +122,15 @@ func (p *ProwAccessor) GetProwResult(jobName string, runNo int) (*ProwResult, er
 		log.Printf("Failed to unmarshal ProwResult %s: %v", prowResultString, err)
 		return nil, err
 	}
-	return &prowResult, nil
+	return &Result{
+		Passed: prowResult.Passed,
+		SHA:    prowResult.Metadata.RepoCommit,
+	}, nil
 }
 
-// GetGubernatorURL returns the gubernator URL used by this ProwAccessor
-func (p *ProwAccessor) GetGubernatorURL() string {
-	return p.gubernatorURL
+// GetDetailsURL returns the gubernator URL to that job at the run number
+func (p *ProwAccessor) GetDetailsURL(jobName string, runNo int) string {
+	return fmt.Sprintf("%s/%s/%d", p.gubernatorURL, jobName, runNo)
 }
 
 // Rerun starts on Prow the reruns on specified jobs
@@ -151,8 +166,7 @@ func (p *ProwAccessor) triggerConcurrentReruns(jobName, node string, numRerun in
 	maxRetry := 3
 	for i := 0; i < numRerun; i++ {
 		if err := u.Retry(recess, maxRetry, func() error {
-			_, e := u.Shell("kubectl create -f \"https://prow.istio.io/rerun?prowjob=%s\"", node)
-			return e
+			return p.rerunCmd(node)
 		}); err != nil {
 			log.Printf("Unable to trigger the %d-th rerun of job %v", i, jobName)
 		}

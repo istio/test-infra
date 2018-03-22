@@ -15,6 +15,7 @@
 package sisyphus
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
@@ -57,25 +58,23 @@ type failure struct {
 
 // FlakeStat records the stats from flakiness detection by multiple reruns
 type FlakeStat struct {
-	TestName           string `json:"testName"`
-	SHA                string `json:"sha"`
-	TotalRerun         int    `json:"totalRerun"`
-	Failures           int    `json:"failures"`
-	ParentJobTimeStamp uint32 `json:"parentJobTimeStamp"`
+	TestName   string `json:"testName"`
+	SHA        string `json:"sha"`
+	TotalRerun int    `json:"totalRerun"`
+	Failures   int    `json:"failures"`
 }
 
 // Daemon defines the long-running service that sisyphus provides
 type Daemon struct {
 	jobsWatched      []*jobStatus
-	prowAccessor     IProwAccessor
-	storage          ISisyphusStorage
+	ci               CI
+	storage          Storage
 	pollGapDuration  time.Duration
 	numRerun         int
 	catchFlakesByRun bool
 	// optional
 	alert           *Alert
 	branchProtector *branchProtector
-	exitSignal      chan bool
 }
 
 // Config is the optional configuration to daemon
@@ -85,9 +84,12 @@ type Config struct {
 	CatchFlakesByRun bool
 }
 
-// NewDaemon creates a Daemon
-func NewDaemon(protectedJobs []string,
-	prowProject, prowZone, gubernatorURL, gcsBucket string, cfg *Config) *Daemon {
+// NewDaemonUsingProw creates a Daemon that uses Prow as the the CI system.
+// It signature ensures proper setup of a Prow client.
+func NewDaemonUsingProw(
+	protectedJobs []string,
+	prowProject, prowZone, gubernatorURL, gcsBucket string,
+	cfg *Config) *Daemon {
 	var jobsWatched []*jobStatus
 	for _, jobName := range protectedJobs {
 		jobsWatched = append(jobsWatched, &jobStatus{
@@ -99,12 +101,11 @@ func NewDaemon(protectedJobs []string,
 	}
 	daemon := Daemon{
 		jobsWatched:      jobsWatched,
-		prowAccessor:     NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket),
-		storage:          NewSisyphusStorage(),
+		ci:               NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket),
+		storage:          NewStorage(),
 		pollGapDuration:  DefaultPollGapDuration,
 		numRerun:         DefaultNumRerun,
 		catchFlakesByRun: DefaultCatchFlakesByRun,
-		exitSignal:       make(chan bool, 1), // default channel never receives, hence not blocking
 	}
 	if cfg != nil {
 		if cfg.PollGapDuration.Nanoseconds() > 0 {
@@ -140,36 +141,35 @@ func (d *Daemon) SetProtectedBranch(owner, token, repo, branch string) {
 	d.branchProtector = newBranchProtector(owner, token, repo, branch)
 }
 
-// SetExitSignal sets a channel on daemon
-func (d *Daemon) SetExitSignal(channel chan bool) {
-	d.exitSignal = channel
-}
-
 // Start activates the daemon to start polling Prow results
-func (d *Daemon) Start() {
+func (d *Daemon) Start(ctx context.Context) {
 	for {
-		newFailures := d.checkOnJobsWatched()
-		if d.alert != nil {
-			if newFailures != nil {
-				log.Printf("%d tests failed in last circle", len(newFailures))
-				if err := d.alert.Send(d.formatMessage(newFailures)); err != nil {
-					log.Printf("Unable to send alerts: %v", err)
-				}
-			} else {
-				log.Printf("No new tests failed in last circle.")
-			}
-		}
-		if d.branchProtector != nil {
-			d.branchProtector.process(newFailures)
-		}
+		d.iterate()
 		log.Printf("Sleeping for %d", d.pollGapDuration)
 		select {
-		case <-d.exitSignal:
-			log.Printf("Received from exitSignal channel, exiting")
+		case <-ctx.Done():
+			log.Printf("Received cancel signal, exiting")
 			return
 		case <-time.After(d.pollGapDuration):
 			fmt.Println("------ Resume ------")
 		}
+	}
+}
+
+func (d *Daemon) iterate() {
+	newFailures := d.checkOnJobsWatched()
+	if d.alert != nil {
+		if newFailures != nil {
+			log.Printf("%d tests failed in last circle", len(newFailures))
+			if err := d.alert.Send(d.formatMessage(newFailures)); err != nil {
+				log.Printf("Unable to send alerts: %v", err)
+			}
+		} else {
+			log.Printf("No new tests failed in last circle.")
+		}
+	}
+	if d.branchProtector != nil {
+		d.branchProtector.process(newFailures)
 	}
 }
 
@@ -179,7 +179,7 @@ func (d *Daemon) Start() {
 func (d *Daemon) checkOnJobsWatched() []failure {
 	var newFailures []failure
 	for _, job := range d.jobsWatched {
-		CurrentRunNo, err := d.prowAccessor.GetLatestRun(job.name)
+		CurrentRunNo, err := d.ci.GetLatestRun(job.name)
 		if err != nil {
 			log.Printf("Failed to get last run number of %s: %v\n", job.name, err)
 			continue
@@ -198,14 +198,14 @@ func (d *Daemon) checkOnJobsWatched() []failure {
 		}
 		log.Printf("Checking previously pending run numbers: %v\n", pendingRuns)
 		for _, runNo := range pendingRuns {
-			if f := d.fetchAndProcessProwResult(job, runNo); f != nil {
+			if f := d.fetchAndProcessResult(job, runNo); f != nil {
 				newFailures = append(newFailures, *f)
 			}
 		}
 		// Check new runs since last check
 		log.Printf("Checking new run numbers since last check\n")
 		for runNo := job.lastCheckedRunNo + 1; runNo <= CurrentRunNo; runNo++ {
-			if f := d.fetchAndProcessProwResult(job, runNo); f != nil {
+			if f := d.fetchAndProcessResult(job, runNo); f != nil {
 				newFailures = append(newFailures, *f)
 			}
 		}
@@ -217,14 +217,14 @@ func (d *Daemon) checkOnJobsWatched() []failure {
 
 func (d *Daemon) formatMessage(failures []failure) (mess string) {
 	for _, f := range failures {
-		mess += fmt.Sprintf("%s failed: %s/%s/%d\n\n",
-			f.jobName, d.prowAccessor.GetGubernatorURL(), f.jobName, f.runNo)
+		mess += fmt.Sprintf("%s failed: %s\n\n",
+			f.jobName, d.ci.GetDetailsURL(f.jobName, f.runNo))
 	}
 	return
 }
 
-func (d *Daemon) fetchAndProcessProwResult(job *jobStatus, runNo int) *failure {
-	prowResult, err := d.prowAccessor.GetProwResult(job.name, runNo)
+func (d *Daemon) fetchAndProcessResult(job *jobStatus, runNo int) *failure {
+	result, err := d.ci.GetResult(job.name, runNo)
 	if err != nil {
 		log.Printf("Prow result still pending for %s/%d\n", job.name, runNo)
 		if firstTryTime, exists := job.pendingFirstRuns[runNo]; exists {
@@ -241,41 +241,39 @@ func (d *Daemon) fetchAndProcessProwResult(job *jobStatus, runNo int) *failure {
 		log.Printf("Former pending prow result is available for %s/%d\n", job.name, runNo)
 		delete(job.pendingFirstRuns, runNo)
 	}
-	log.Printf("%s/%d -- Passed? [%t]\n", job.name, runNo, prowResult.Passed)
-	return d.processProwResult(job, runNo, prowResult)
+	log.Printf("%s/%d -- Passed? [%t]\n", job.name, runNo, result.Passed)
+	return d.processResult(job, runNo, result)
 }
 
-func (d *Daemon) processProwResult(job *jobStatus, runNo int, prowResult *ProwResult) *failure {
+func (d *Daemon) processResult(job *jobStatus, runNo int, result *Result) *failure {
 	if d.catchFlakesByRun {
-		resultSHA := prowResult.Metadata.RepoCommit
-		if flakeStatPtr, exists := job.rerunJobStats[resultSHA]; exists {
+		if flakeStatPtr, exists := job.rerunJobStats[result.SHA]; exists {
 			flakeStatPtr.TotalRerun++
-			if !prowResult.Passed {
+			if !result.Passed {
 				flakeStatPtr.Failures++
 			}
 			if flakeStatPtr.TotalRerun == d.numRerun {
-				log.Printf("All reruns on job [%s] at sha [%s] have finished\n", job.name, resultSHA)
-				if err := d.storage.Store(job.name, resultSHA, *flakeStatPtr); err != nil {
+				log.Printf("All reruns on job [%s] at sha [%s] have finished\n", job.name, result.SHA)
+				if err := d.storage.Store(job.name, result.SHA, *flakeStatPtr); err != nil {
 					log.Printf("Failed to store flakeStat: %v\n", err)
 				}
-				// delete resultSHA from job.rerunJobStats since all reruns have finished
-				delete(job.rerunJobStats, resultSHA)
+				// delete result.SHA from job.rerunJobStats since all reruns have finished
+				delete(job.rerunJobStats, result.SHA)
 			}
 		} else { // no reruns exist on this SHA
-			if !prowResult.Passed {
-				log.Printf("Starting new rerun task on job [%s] at sha [%s]\n", job.name, resultSHA)
-				job.rerunJobStats[resultSHA] = &FlakeStat{
-					TestName:           job.name,
-					SHA:                resultSHA,
-					ParentJobTimeStamp: prowResult.TimeStamp,
+			if !result.Passed {
+				log.Printf("Starting new rerun task on job [%s] at sha [%s]\n", job.name, result.SHA)
+				job.rerunJobStats[result.SHA] = &FlakeStat{
+					TestName: job.name,
+					SHA:      result.SHA,
 				}
-				if err := d.prowAccessor.Rerun(job.name, runNo, d.numRerun); err != nil {
+				if err := d.ci.Rerun(job.name, runNo, d.numRerun); err != nil {
 					log.Printf("failed when starting reruns on [%s]: %v\n", job.name, err)
 				}
 			}
 		}
 	}
-	if !prowResult.Passed {
+	if !result.Passed {
 		return &failure{
 			jobName: job.name,
 			runNo:   runNo,

@@ -23,6 +23,12 @@ import (
 	"cloud.google.com/go/storage"
 )
 
+// IGCSClient defines public functions of GCSClient
+type IGCSClient interface {
+	Read(obj string) (string, error)
+	Write(obj, txt string) error
+}
+
 // GCSClient masks RPCs to gcs as local procedures
 type GCSClient struct {
 	client *storage.Client
@@ -42,22 +48,12 @@ func NewGCSClient(bucket string) *GCSClient {
 	}
 }
 
-// GetReaderOnFile return a GCS reader on the requested obj
-// Caller is responsible to close reader afterwards.
-func (gcs *GCSClient) GetReaderOnFile(obj string) (*storage.Reader, error) {
+// Read gets a file and return a string
+func (gcs *GCSClient) Read(obj string) (string, error) {
 	ctx := context.Background()
 	r, err := gcs.client.Bucket(gcs.bucket).Object(obj).NewReader(ctx)
 	if err != nil {
-		log.Printf("Failed to download file %s/%s from gcs, %v\n", gcs.bucket, obj, err)
-		return nil, err
-	}
-	return r, nil
-}
-
-// Read gets a file and return a string
-func (gcs *GCSClient) Read(obj string) (string, error) {
-	r, err := gcs.GetReaderOnFile(obj)
-	if err != nil {
+		log.Printf("Failed to open a reader on file %s/%s from gcs, %v\n", gcs.bucket, obj, err)
 		return "", err
 	}
 	defer func() {

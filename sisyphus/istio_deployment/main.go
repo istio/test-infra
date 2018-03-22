@@ -15,6 +15,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 
@@ -65,7 +66,7 @@ func init() {
 }
 
 func main() {
-	sisyphusd := sisyphus.NewDaemon(
+	sisyphusd := sisyphus.NewDaemonUsingProw(
 		protectedJobs, prowProject, prowZone, gubernatorURL, gcsBucket, &sisyphus.Config{
 			CatchFlakesByRun: *catchFlakesByRun,
 		})
@@ -90,5 +91,5 @@ func main() {
 		}
 		sisyphusd.SetProtectedBranch(owner, token, protectedRepo, protectedBranch)
 	}
-	sisyphusd.Start()
+	sisyphusd.Start(context.Background())
 }

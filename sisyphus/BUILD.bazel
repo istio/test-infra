@@ -5,7 +5,7 @@ go_library(
     srcs = [
         "alert.go",
         "branchProtector.go",
-        "prowAccessor.go",
+        "ci.go",
         "sisyphusd.go",
         "storage.go",
     ],
@@ -18,8 +18,9 @@ go_library(
 )
 
 go_test(
-    name = "prowAccessor_test",
-    srcs = ["prowAccessor_test.go"],
+    name = "ci_test",
+    srcs = ["ci_test.go"],
+    data = ["//sisyphus/test_data:testdata"],
     embed = [":go_default_library"],
     importpath = "istio.io/test-infra/sisyphus",
 )

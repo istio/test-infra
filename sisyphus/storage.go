@@ -18,23 +18,23 @@ import (
 	"log"
 )
 
-// ISisyphusStorage interface enables additional storage needs for clients besides istio
+// Storage interface enables additional storage needs for clients besides istio
 // and facilitates mocking in tests.
 // Istio uses Kettle from k8s tooling to export data to BigQuery.
-type ISisyphusStorage interface {
+type Storage interface {
 	Store(jobName, sha string, newFlakeStat FlakeStat) error
 }
 
-// Storage is empty since Kettle handles it
-type Storage struct{}
+// DefaultStorage is empty since Kettle handles it
+type DefaultStorage struct{}
 
-// NewSisyphusStorage creates a new Storage
-func NewSisyphusStorage() *Storage {
-	return &Storage{}
+// NewStorage creates a new Storage
+func NewStorage() *DefaultStorage {
+	return &DefaultStorage{}
 }
 
 // Store records FlakeStat to durable storage
-func (s *Storage) Store(jobName, sha string, newFlakeStat FlakeStat) error {
+func (s *DefaultStorage) Store(jobName, sha string, newFlakeStat FlakeStat) error {
 	log.Printf("newFlakeStat = %v\n", newFlakeStat)
 	return nil
 }

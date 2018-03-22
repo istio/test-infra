@@ -15,6 +15,7 @@
 package sisyphus
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -40,19 +41,20 @@ var (
 )
 
 type ProwAccessorMock struct {
-	lastestRunNos        map[string]int // jobName -> lastestRun
-	maxRunNos            map[string]int // jobName -> maxRunNo
-	gubernatorURL        string
-	prowResults          map[string]map[int]ProwResult // jobName -> runNo -> ProwResult
-	exitSignalToSisyphus chan bool
+	lastestRunNos   map[string]int // jobName -> lastestRun
+	maxRunNos       map[string]int // jobName -> maxRunNo
+	gubernatorURL   string
+	prowResults     map[string]map[int]ProwResult // jobName -> runNo -> ProwResult
+	cancelSisyphusd context.CancelFunc
 }
 
 func NewProwAccessorMock(gubernatorURL string) *ProwAccessorMock {
 	mock := &ProwAccessorMock{
-		lastestRunNos: make(map[string]int),
-		maxRunNos:     make(map[string]int),
-		gubernatorURL: gubernatorURL,
-		prowResults:   make(map[string]map[int]ProwResult),
+		lastestRunNos:   make(map[string]int),
+		maxRunNos:       make(map[string]int),
+		gubernatorURL:   gubernatorURL,
+		prowResults:     make(map[string]map[int]ProwResult),
+		cancelSisyphusd: func() {},
 	}
 	for _, job := range protectedJobsMock {
 		dataFile := filepath.Join(testDataDir, job+".json")
@@ -98,21 +100,24 @@ func (p *ProwAccessorMock) GetLatestRun(jobName string) (int, error) {
 				allRunsFinished = false
 			}
 		}
-		if allRunsFinished && p.exitSignalToSisyphus != nil && len(p.exitSignalToSisyphus) == 0 {
-			p.exitSignalToSisyphus <- true
+		if allRunsFinished {
+			p.cancelSisyphusd()
 		}
 		return p.maxRunNos[jobName], nil
 	}
 	return ret, nil
 }
 
-func (p *ProwAccessorMock) GetProwResult(jobName string, runNo int) (*ProwResult, error) {
-	res := p.prowResults[jobName][runNo]
-	return &res, nil
+func (p *ProwAccessorMock) GetResult(jobName string, runNo int) (*Result, error) {
+	prowResult := p.prowResults[jobName][runNo]
+	return &Result{
+		Passed: prowResult.Passed,
+		SHA:    prowResult.Metadata.RepoCommit,
+	}, nil
 }
 
-func (p *ProwAccessorMock) GetGubernatorURL() string {
-	return p.gubernatorURL
+func (p *ProwAccessorMock) GetDetailsURL(jobName string, runNo int) string {
+	return ""
 }
 
 func (p *ProwAccessorMock) Rerun(jobName string, runNo, numRerun int) error {
@@ -163,7 +168,7 @@ func TestDaemonConfig(t *testing.T) {
 		PollGapDuration:  DefaultPollGapDuration,
 		NumRerun:         DefaultNumRerun,
 	}
-	sisyphusd := NewDaemon(protectedJobsMock, prowProjectMock,
+	sisyphusd := NewDaemonUsingProw(protectedJobsMock, prowProjectMock,
 		prowZoneMock, gubernatorURLMock, gcsBucketMock, cfg)
 	if !reflect.DeepEqual(sisyphusd.GetConfig(), cfgExpected) {
 		t.Error("setting catchFlakesByRun failed")
@@ -173,11 +178,11 @@ func TestDaemonConfig(t *testing.T) {
 func TestProwResultsMock(t *testing.T) {
 	job := "job-1"
 	prowAccessorMock := NewProwAccessorMock(gubernatorURLMock)
-	res, err := prowAccessorMock.GetProwResult(job, 10)
+	res, err := prowAccessorMock.GetResult(job, 10)
 	if err != nil {
 		t.Errorf("GetProwResult failed: %v", err)
 	}
-	if res.Metadata.RepoCommit != "sha-1" {
+	if res.SHA != "sha-1" {
 		t.Error("RepoCommit unmatched with data in file")
 	}
 	expectedBase := 10
@@ -197,17 +202,17 @@ func TestProwResultsMock(t *testing.T) {
 }
 
 func TestRerunLogics(t *testing.T) {
-	sisyphusd := NewDaemon(protectedJobsMock, prowProjectMock,
+	sisyphusd := NewDaemonUsingProw(protectedJobsMock, prowProjectMock,
 		prowZoneMock, gubernatorURLMock, gcsBucketMock, &Config{
 			CatchFlakesByRun: true,
 			PollGapDuration:  100 * time.Millisecond,
 		})
-	prowAccessorMock := NewProwAccessorMock(gubernatorURLMock)
-	prowAccessorMock.exitSignalToSisyphus = make(chan bool, 1)
-	sisyphusd.prowAccessor = prowAccessorMock
-	sisyphusd.SetExitSignal(prowAccessorMock.exitSignalToSisyphus)
 	sisyphusd.storage = NewStorageMock(t)
-	sisyphusd.Start()
+	prowAccessorMock := NewProwAccessorMock(gubernatorURLMock)
+	ctx, cancelFn := context.WithCancel(context.Background())
+	prowAccessorMock.cancelSisyphusd = cancelFn
+	sisyphusd.ci = prowAccessorMock
+	sisyphusd.Start(ctx)
 }
 
 func TestMain(m *testing.M) {
