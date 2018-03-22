@@ -46,6 +46,15 @@ presets:
   - name: service
     secret:
       secretName: service-account
+- labels:
+    preset-bazel: true
+  volumeMounts:
+  - name: cache-ssd
+    mountPath: /home/bootstrap/.cache
+  volumes:
+  - name: cache-ssd
+    hostPath:
+      path: /mnt/disks/ssd0
 
 presubmits:
   # PR job triggering definitions.
@@ -75,6 +84,7 @@ presubmits:
     - master
     labels:
       preset-service-account: true
+      preset-bazel: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -85,9 +95,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        volumeMounts:
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
         ports:
         - containerPort: 9999
           hostPort: 9998
@@ -100,10 +107,6 @@ presubmits:
             cpu: "5000m"
       nodeSelector:
         cloud.google.com/gke-nodepool: build-pool
-      volumes:
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
 
   - name: proxy-presubmit-asan
     agent: kubernetes
@@ -115,6 +118,7 @@ presubmits:
     - master
     labels:
       preset-service-account: true
+      preset-bazel: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -125,9 +129,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        volumeMounts:
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
         ports:
         - containerPort: 9999
           hostPort: 9998
@@ -140,10 +141,6 @@ presubmits:
             cpu: "5000m"
       nodeSelector:
         cloud.google.com/gke-nodepool: build-pool
-      volumes:
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
 
   - name: proxy-presubmit-tsan
     agent: kubernetes
@@ -155,6 +152,7 @@ presubmits:
     - master
     labels:
       preset-service-account: true
+      preset-bazel: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -165,9 +163,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        volumeMounts:
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
         ports:
         - containerPort: 9999
           hostPort: 9998
@@ -180,10 +175,6 @@ presubmits:
             cpu: "5000m"
       nodeSelector:
         cloud.google.com/gke-nodepool: build-pool
-      volumes:
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
 
   istio/api:
 
@@ -540,6 +531,7 @@ presubmits:
     - master
     labels:
       preset-service-account: true
+      preset-bazel: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -550,9 +542,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        volumeMounts:
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
         ports:
         - containerPort: 9999
           hostPort: 9998
@@ -565,10 +554,6 @@ presubmits:
             cpu: "5000m"
       nodeSelector:
         cloud.google.com/gke-nodepool: build-pool
-      volumes:
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
 
   istio-releases/daily-release:
 
@@ -1123,6 +1108,7 @@ postsubmits:
     - master
     labels:
       preset-service-account: true
+      preset-bazel: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -1133,9 +1119,6 @@ postsubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        volumeMounts:
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
         ports:
         - containerPort: 9999
           hostPort: 9998
@@ -1148,10 +1131,6 @@ postsubmits:
             cpu: "5000m"
       nodeSelector:
         cloud.google.com/gke-nodepool: build-pool
-      volumes:
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
 
 periodics:
 
