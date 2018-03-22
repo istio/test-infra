@@ -1089,6 +1089,7 @@ periodics:
   name: test-infra-cleanup-cluster
   labels:
     preset-service-account: true
+    preset-daily-kubeconfig: true
   spec:
     containers:
     - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -1099,13 +1100,6 @@ periodics:
       # Docker needs privileged mode in order to sandbox builds.
       securityContext:
         privileged: true
-      volumeMounts:
-      - name: kubeconfig
-        mountPath: /home/bootstrap/.kube
-    volumes:
-    - name: kubeconfig
-      secret:
-        secretName: daily-release-e2e-rbac-kubeconfig
 
 - interval: 10m
   agent: kubernetes
