@@ -7,6 +7,7 @@ triggers:
   - istio/api
   - sebastienvas/core
   - istio/istio
+  - istio/istio.github.io
   - istio/test-infra
   - istio/mixerclient
   - istio/proxy
@@ -44,6 +45,16 @@ plugins:
   - reopen
   - trigger
 
+  istio/istio.github.io:
+  - approve
+  - assign
+  - blunderbuss
+  - close
+  - hold
+  - lgtm
+  - reopen
+  - trigger
+
   istio/proxy:
   - approve
   - assign
@@ -71,6 +82,10 @@ plugins:
 
 external_plugins:
   istio/istio:
+  - name: needs-rebase
+    events:
+      - pull_request
+  istio/istio.github.io:
   - name: needs-rebase
     events:
       - pull_request
