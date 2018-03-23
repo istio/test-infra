@@ -55,7 +55,7 @@ func (ut ResourcesConfigByName) Len() int           { return len(ut) }
 func (ut ResourcesConfigByName) Swap(i, j int)      { ut[i], ut[j] = ut[j], ut[i] }
 func (ut ResourcesConfigByName) Less(i, j int) bool { return ut[i].GetName() < ut[j].GetName() }
 
-// GetName implement the item interface for storage
+// GetName implements the item interface for storage
 func (conf ResourcesConfig) GetName() string { return conf.Name }
 
 // ItemToResourcesConfig casts an Item object to a ResourcesConfig
