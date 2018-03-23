@@ -17,6 +17,7 @@ limitations under the License.
 package mason
 
 import (
+	"fmt"
 	"sync"
 
 	"k8s.io/test-infra/boskos/common"
@@ -74,7 +75,11 @@ func (c *Client) Acquire(rtype, state, dest string) (*common.Resource, error) {
 
 // ReleaseOne will release a resource as well as leased resources associated to it
 func (c *Client) ReleaseOne(name, dest string) (allErrors error) {
-	res := c.getResource(name)
+	res, err := c.getResource(name)
+	if err != nil {
+		allErrors = err
+		return
+	}
 	resourceNames := []string{name}
 	var leasedResources common.LeasedResources
 	if err := res.UserData.Extract(LeasedResources, &leasedResources); err != nil {
@@ -110,14 +115,14 @@ func (c *Client) updateResource(r common.Resource) {
 	c.resources[r.Name] = r
 }
 
-func (c *Client) getResource(name string) *common.Resource {
+func (c *Client) getResource(name string) (*common.Resource, error) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 	res, ok := c.resources[name]
 	if !ok {
-		return nil
+		return nil, fmt.Errorf("resource %s not found", name)
 	}
-	return &res
+	return &res, nil
 }
 
 func (c *Client) deleteResource(name string) {

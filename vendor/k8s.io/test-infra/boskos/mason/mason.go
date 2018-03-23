@@ -18,37 +18,24 @@ package mason
 
 import (
 	"context"
-	"flag"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"sync"
 	"time"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/sirupsen/logrus"
-	"k8s.io/test-infra/boskos/client"
 	"k8s.io/test-infra/boskos/common"
 	"k8s.io/test-infra/boskos/storage"
 )
 
 const (
-	owner            = "Mason"
-	defaultSleepTime = 10 * time.Second
 	// LeasedResources is a common.UserData entry
-	LeasedResources = "LEASED_RESOURCES"
+	LeasedResources = "leasedResources"
 )
-
-var (
-	channelBufferSize = flag.Int("channel-buffer-size", 10, "Size of the channel buffer")
-	cleanerCount      = flag.Int("cleaner-count", 5, "Number of workers for cleanup thread")
-	rTypes            common.ResTypes
-)
-
-func init() {
-	flag.Var(&rTypes, "resource-types", "comma-separated list of resources need to be cleaned up")
-}
 
 // Masonable should be implemented by all configurations
 type Masonable interface {
@@ -72,7 +59,6 @@ type Mason struct {
 	cleanerCount                int
 	storage                     Storage
 	pending, fulfilled, cleaned chan requirements
-	typesToClean                []string
 	sleepTime                   time.Duration
 	wg                          sync.WaitGroup
 	configConverters            map[string]ConfigConverter
@@ -100,6 +86,8 @@ func (r requirements) isFulFilled() bool {
 }
 
 // ParseConfig reads data stored in given config path
+// In: configPath - path to the config file
+// Out: A list of ResourceConfig object on success, or nil on error.
 func ParseConfig(configPath string) ([]common.ResourcesConfig, error) {
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		return nil, err
@@ -118,6 +106,9 @@ func ParseConfig(configPath string) ([]common.ResourcesConfig, error) {
 }
 
 // ValidateConfig validates config with existing resources
+// In: configs   - a list of resources configs
+//     resources - a list of resources
+// Out: nil on success, error on failure
 func ValidateConfig(configs []common.ResourcesConfig, resources []common.Resource) error {
 	resourcesNeeds := map[string]int{}
 	actualResources := map[string]int{}
@@ -164,14 +155,14 @@ func ValidateConfig(configs []common.ResourcesConfig, resources []common.Resourc
 	return nil
 }
 
-// NewMasonFromFlags creates a new Mason from flags
-func NewMasonFromFlags() *Mason {
-	boskosClient := client.NewClient(owner, *client.BoskosURL)
-	logrus.Info("Initialized boskos client!")
-	return newMason(rTypes, *channelBufferSize, *cleanerCount, boskosClient, defaultSleepTime)
-}
-
-func newMason(rtypes []string, channelSize, cleanerCount int, client boskosClient, sleepTime time.Duration) *Mason {
+// NewMason creates and initialized a new Mason object
+// In: rtypes       - A list of resource types to act on
+//     channelSize  - Size for all the channel
+//     cleanerCount - Number of cleaning threads
+//     client       - boskos client
+//     sleepTime    - time to wait before a retry
+// Out: A Pointer to a Mason Object
+func NewMason(channelSize, cleanerCount int, client boskosClient, sleepTime time.Duration) *Mason {
 	return &Mason{
 		client:           client,
 		cleanerCount:     cleanerCount,
@@ -179,13 +170,16 @@ func newMason(rtypes []string, channelSize, cleanerCount int, client boskosClien
 		pending:          make(chan requirements, channelSize),
 		cleaned:          make(chan requirements, channelSize),
 		fulfilled:        make(chan requirements, channelSize),
-		typesToClean:     rtypes,
 		sleepTime:        sleepTime,
 		configConverters: map[string]ConfigConverter{},
 	}
 }
 
 // RegisterConfigConverter is used to register a new Masonable interface
+// In: name - identifier for Masonable implementation
+//     fn   - function that will parse the configuration string and return a Masonable interface
+//
+// Out: nil on success, error otherwise
 func (m *Mason) RegisterConfigConverter(name string, fn ConfigConverter) error {
 	_, ok := m.configConverters[name]
 	if ok {
@@ -320,7 +314,16 @@ func (m *Mason) recycleAll(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-time.After(m.sleepTime):
-			for _, r := range m.typesToClean {
+			configs, err := m.storage.GetConfigs()
+			if err != nil {
+				logrus.WithError(err).Error("unable to get configuration")
+				continue
+			}
+			var configTypes []string
+			for _, c := range configs {
+				configTypes = append(configTypes, c.Name)
+			}
+			for _, r := range configTypes {
 				if res, err := m.client.Acquire(r, common.Dirty, common.Cleaning); err != nil {
 					logrus.WithError(err).Debug("boskos acquire failed!")
 				} else {
@@ -469,6 +472,8 @@ func (m *Mason) updateResources(req *requirements) {
 }
 
 // UpdateConfigs updates configs from storage path
+// In: storagePath - the path to read the config file from
+// Out: nil on success error otherwise
 func (m *Mason) UpdateConfigs(storagePath string) error {
 	configs, err := ParseConfig(storagePath)
 	if err != nil {

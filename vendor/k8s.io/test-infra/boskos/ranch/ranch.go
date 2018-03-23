@@ -19,6 +19,7 @@ package ranch
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -122,11 +123,12 @@ func (r *Ranch) Acquire(rType, state, dest, owner string) (*common.Resource, err
 	return nil, &ResourceNotFound{rType}
 }
 
-// AcquireByState checks out resources of a given typewithout an owner,
-// and move the checked out resource to the end of the resource list.
+// AcquireByState checks out resources of a given type without an owner,
+// that matches a list of resources names.
 // In: state - current state of the requested resource
 //     dest - destination state of the requested resource
 //     owner - requester of the resource
+//     names - names of resource to acquire
 // Out: A valid list of Resource object on success, or
 //      ResourceNotFound error if target type resource does not exist in target state.
 func (r *Ranch) AcquireByState(state, dest, owner string, names []string) ([]common.Resource, error) {
@@ -154,7 +156,7 @@ func (r *Ranch) AcquireByState(state, dest, owner string, names []string) ([]com
 		res := allResources[idx]
 		if state == res.State {
 			if res.Owner != "" {
-				return nil, &OwnerNotMatch{owner, res.Owner}
+				continue
 			}
 			if rNames[res.Name] {
 				res.LastUpdate = r.UpdateTime()
@@ -165,12 +167,17 @@ func (r *Ranch) AcquireByState(state, dest, owner string, names []string) ([]com
 					return nil, err
 				}
 				resources = append(resources, res)
+				delete(rNames, res.Name)
 			}
 		}
 	}
-	if len(names) != len(resources) {
+	if len(rNames) != 0 {
+		var missingResources []string
+		for n := range rNames {
+			missingResources = append(missingResources, n)
+		}
 		err := &ResourceNotFound{state}
-		logrus.WithError(err).Errorf("could not find all required resources")
+		logrus.WithError(err).Errorf("could not find required resources %s", strings.Join(missingResources, ", "))
 		return resources, err
 	}
 	return resources, nil

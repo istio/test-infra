@@ -19,7 +19,6 @@ package client
 import (
 	"bytes"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -29,11 +28,6 @@ import (
 
 	"k8s.io/test-infra/boskos/common"
 	"strings"
-)
-
-var (
-	// BoskosURL defines URL where boskos HTTP server is running
-	BoskosURL = flag.String("boskos-url", "http://boskos", "Boskos URL")
 )
 
 // Client defines the public Boskos client object
