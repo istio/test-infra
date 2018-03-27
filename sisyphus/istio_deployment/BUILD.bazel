@@ -2,21 +2,21 @@ load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 load("@io_bazel_rules_docker//docker:docker.bzl", "docker_build")
 
 go_library(
-    name = "go_default_library",
+    name = "sisyphus_main",
     srcs = [
         "main.go",
     ],
-    importpath = "istio.io/test-infra/toolbox/oncall_alert",
+    importpath = "istio.io/test-infra/sisyphus/istio_deployment",
     visibility = ["//visibility:private"],
     deps = [
+        "//sisyphus:go_default_library",
         "//toolbox/util:go_default_library",
-        "@com_github_google_go_github//github:go_default_library",
     ],
 )
 
 go_binary(
-    name = "oncall_alert_static",
-    embed = [":go_default_library"],
+    name = "sisyphus_static",
+    embed = [":sisyphus_main"],
     gc_linkopts = [
         "-linkmode",
         "external",
@@ -28,16 +28,16 @@ go_binary(
 )
 
 docker_build(
-    name = "oncall_alert_image",
+    name = "sisyphus_image",
     base = "@distroless//image:image.tar",
-    cmd = ["./oncall_alert_static"],
-    files = [":oncall_alert_static"],
+    cmd = ["./sisyphus_static"],
+    files = [":sisyphus_static"],
     tags = ["manual"],
 )
 
 go_binary(
-    name = "oncall_alert",
-    embed = [":go_default_library"],
-    importpath = "istio.io/test-infra/toolbox/oncall_alert",
+    name = "sisyphus",
+    embed = [":sisyphus_main"],
+    importpath = "istio.io/test-infra/sisyphus/istio_deployment",
     visibility = ["//visibility:public"],
 )
