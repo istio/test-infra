@@ -25,10 +25,6 @@ import (
 )
 
 const (
-	prowProject      = "istio-testing"
-	prowZone         = "us-west1-a"
-	gubernatorURL    = "https://k8s-gubernator.appspot.com/build/istio-prow"
-	gcsBucket        = "istio-prow"
 	jobName          = "istio-postsubmit"
 	runNo            = 1000
 	finishedJSONMock = "mock-finished.json"
