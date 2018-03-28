@@ -11,24 +11,17 @@ go_library(
     ],
     importpath = "istio.io/test-infra/sisyphus",
     visibility = ["//visibility:public"],
-    deps = [
-        "//toolbox/util:go_default_library",
-        "@com_github_google_go_github//github:go_default_library",
+    deps = ["//toolbox/util:go_default_library"],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = [
+        "ci_test.go",
+        "sisyphusd_test.go",
     ],
-)
-
-go_test(
-    name = "ci_test",
-    srcs = ["ci_test.go"],
     data = ["//sisyphus/test_data:testdata"],
     embed = [":go_default_library"],
     importpath = "istio.io/test-infra/sisyphus",
-)
-
-go_test(
-    name = "sisyphusd_test",
-    srcs = ["sisyphusd_test.go"],
-    data = ["//sisyphus/test_data:testdata"],
-    embed = [":go_default_library"],
-    importpath = "istio.io/test-infra/sisyphus",
+    deps = ["//toolbox/util:go_default_library"],
 )
