@@ -41,3 +41,21 @@ go_binary(
     importpath = "istio.io/test-infra/sisyphus/istio_deployment",
     visibility = ["//visibility:public"],
 )
+
+go_library(
+    name = "go_default_library",
+    srcs = ["main.go"],
+    importpath = "istio.io/test-infra/sisyphus/istio_deployment",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//sisyphus:go_default_library",
+        "//toolbox/util:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "istio_deployment",
+    embed = [":go_default_library"],
+    importpath = "istio.io/test-infra/sisyphus/istio_deployment",
+    visibility = ["//visibility:public"],
+)
