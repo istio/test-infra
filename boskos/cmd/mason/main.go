@@ -32,7 +32,7 @@ const (
 	defaultUpdatePeriod      = time.Minute
 	defaultChannelSize       = 15
 	defaultCleanerCount      = 15
-	defaultSleepTimeDuration = time.Minute
+	defaultSleepTimeDuration = 15 * time.Second
 	defaultOwner             = "mason"
 )
 
