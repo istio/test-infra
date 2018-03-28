@@ -60,9 +60,10 @@ func (gcs *gcsMock) Write(obj, txt string) error {
 }
 
 func newProwAccessorWithGCSMock() *ProwAccessor {
-	prowAccessor := NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket)
-	prowAccessor.gcsClient = &gcsMock{}
-	return prowAccessor
+	return &ProwAccessor{
+		gcsClient: &gcsMock{},
+		rerunCmd:  func(node string) error { return nil },
+	}
 }
 
 func TestGetLatestRunOnProw(t *testing.T) {
