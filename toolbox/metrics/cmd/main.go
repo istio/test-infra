@@ -45,11 +45,9 @@ var (
 	serviceAccountJSON = flag.String("service_account_json", "", "Path to the service account JSON")
 
 	ms *metrics.Publisher
-	// Cannot set storage in init since we need flags.
-	storage = coverage.NewGCSStorage()
 )
 
-func newMetricPublisher() *metrics.Publisher {
+func newMetricPublisher(storage *coverage.GCSStorage) *metrics.Publisher {
 	suite := metrics.Suite{
 		"codecov": coverage.NewMetric(storage),
 	}
@@ -57,21 +55,20 @@ func newMetricPublisher() *metrics.Publisher {
 }
 
 func init() {
-	ms = newMetricPublisher()
-	ms.RegisterMetrics()
-}
-
-func main() {
 	flag.Parse()
 	var options []option.ClientOption
 	if *serviceAccountJSON != "" {
 		options = append(options, option.WithCredentialsFile(*serviceAccountJSON))
 	}
-
-	if err := storage.Set(*gcsBucket, *githubRepo, *codeCovTrackJob, options); err != nil {
+	storage, err := coverage.NewGCSStorage(*gcsBucket, *githubRepo, *codeCovTrackJob, options)
+	if err != nil {
 		glog.Fatalf("unable to create storage %v", err)
 	}
+	ms = newMetricPublisher(storage)
+	ms.RegisterMetrics()
+}
 
+func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
 		if err := ms.Publish(ctx); err != nil {

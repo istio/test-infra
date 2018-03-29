@@ -7,10 +7,9 @@ TAG ?= $(shell date +v%Y%m%d)-$(shell git describe --tags --always --dirty)
 image:
 	bazel run //toolbox/metrics/cmd:metrics
 
-deploy: 
-	kubectl apply -f cmd/deployment.yaml 
+deploy:
+	kubectl apply -f cmd/deployment.yaml
 	kubectl apply -f cmd/service.yaml
-
 config:
 
 ifndef SERVICE-ACCOUNT-JSON

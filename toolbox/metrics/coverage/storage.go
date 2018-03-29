@@ -34,22 +34,17 @@ type GCSStorage struct {
 }
 
 // NewGCSStorage instantiates a new GCSStorage
-func NewGCSStorage() *GCSStorage {
-	return &GCSStorage{
-		latest: make(chan string, 10),
-	}
-}
-
-// Set needs be called in the main, as the GCSStorage is created in the binary init function per Prometheus Requirement
-func (g *GCSStorage) Set(bucket, repo, jobName string, options []option.ClientOption) error {
+func NewGCSStorage(bucket, repo, jobName string, options []option.ClientOption) (*GCSStorage, error) {
 	storageClient, err := storage.NewClient(context.Background(), options...)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	g.bucketHandle = storageClient.Bucket(bucket)
-	g.repo = repo
-	g.jobName = jobName
-	return nil
+	return &GCSStorage{
+		repo:         repo,
+		jobName:      jobName,
+		bucketHandle: storageClient.Bucket(bucket),
+		latest:       make(chan string, 10),
+	}, nil
 }
 
 // Note that I tried using PubSub notification, but it appears that those appear broken for golang.
