@@ -34,3 +34,10 @@ container_push(
     stamp = True,
     tag = "{BUILD_TIMESTAMP}",
 )
+
+go_binary(
+    name = "cmd",
+    embed = [":go_default_library"],
+    importpath = "istio.io/test-infra/toolbox/metrics/cmd",
+    visibility = ["//visibility:public"],
+)

@@ -76,7 +76,7 @@ type Metric struct {
 	Type    string         `json:"type"`
 	Current map[string]int `json:"current"`
 	Owners  map[string]int `json:"owner"`
-	// TODO: Implement state transition metrics
+	// TODO: implements state transition metrics
 }
 
 // NewResource creates a new Boskos Resource.
@@ -141,7 +141,7 @@ func (r *ResTypes) Set(value string) error {
 	return nil
 }
 
-// GetName implement the Item interface used for storage
+// GetName implements the Item interface used for storage
 func (res Resource) GetName() string { return res.Name }
 
 // Extract unmarshalls a string a given struct if it exists

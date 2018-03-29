@@ -22,17 +22,25 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"k8s.io/test-infra/boskos/client"
 	"k8s.io/test-infra/boskos/mason"
 
 	"istio.io/test-infra/boskos/gcp"
 )
 
 const (
-	defaultUpdatePeriod = time.Minute * 1
+	defaultUpdatePeriod      = time.Minute
+	defaultChannelSize       = 15
+	defaultCleanerCount      = 15
+	defaultSleepTimeDuration = 15 * time.Second
+	defaultOwner             = "mason"
 )
 
 var (
-	configPath = flag.String("config", "", "Path to persistent volume to load configs")
+	configPath        = flag.String("config", "", "Path to persistent volume to load configs")
+	boskosURL         = flag.String("boskos-url", "http://boskos", "Boskos Server URL")
+	channelBufferSize = flag.Int("channel-buffer-size", defaultChannelSize, "Channel Size")
+	cleanerCount      = flag.Int("cleaner-count", defaultCleanerCount, "Number of threads running cleanup")
 )
 
 func main() {
@@ -42,8 +50,9 @@ func main() {
 	if *configPath == "" {
 		logrus.Panic("--config must be set")
 	}
+	client := client.NewClient(defaultOwner, *boskosURL)
 
-	mason := mason.NewMasonFromFlags()
+	mason := mason.NewMason(*channelBufferSize, *cleanerCount, client, defaultSleepTimeDuration)
 
 	// Registering Masonable Converters
 	if err := mason.RegisterConfigConverter(gcp.ResourceConfigType, gcp.ConfigConverter); err != nil {

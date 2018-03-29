@@ -15,12 +15,12 @@ spec:
       terminationGracePeriodSeconds: 300
       containers:
       - name: boskos-mason
-        image: gcr.io/istio-testing/mason:v20180216-stable-3191e68-288-g0f2e9cb
+        image: gcr.io/istio-testing/mason:v20180323-stable-3191e68-340-gb179b0b
         args:
         - --config=/etc/config/config
         - --service-account=/etc/service-account/service-account.json
-        - --resource-types=gke-e2e-test
-        - --channel-buffer-size=10
+        - --channel-buffer-size=15
+        - --cleaner-count=15
         volumeMounts:
         - mountPath: /etc/service-account
           name: service-account

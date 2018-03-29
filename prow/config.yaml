@@ -7,8 +7,80 @@ sinker:
   max_prowjob_age: 168h
   max_pod_age: 12h
 
+deck:
+  tide_update_period: 1s
+
 prowjob_namespace: default
 pod_namespace: test-pods
+
+tide:
+  branchProtection:
+  - protection:
+      useRequiredChecksOnly: true
+    orgs:
+      istio:
+        allRepos: true
+        allBranches: true
+  queries:
+  - repos:
+    - istio/test-infra
+    - istio/istio.github.io
+    labels:
+    - lgtm
+    - approved
+    - "cla: yes"
+    missingLabels:
+    - do-not-merge
+    - do-not-merge/hold
+    - do-not-merge/work-in-progress
+    - needs-ok-to-test
+    - needs-rebase
+    reviewApprovedRequired: true
+  merge_method:
+    istio/test-infra: squash
+  target_url: https://prow.istio.io/tide.html
+
+presets:
+- labels:
+    preset-service-account: true
+  env:
+  - name: GOOGLE_APPLICATION_CREDENTIALS
+    value: /etc/service-account/service-account.json
+  volumeMounts:
+  - name: service
+    mountPath: /etc/service-account
+    readOnly: true
+  volumes:
+  - name: service
+    secret:
+      secretName: service-account
+- labels:
+    preset-bazel: true
+  volumeMounts:
+  - name: cache-ssd
+    mountPath: /home/bootstrap/.cache
+  volumes:
+  - name: cache-ssd
+    hostPath:
+      path: /mnt/disks/ssd0
+- labels:
+    preset-istio-kubeconfig: true
+  volumeMounts:
+  - name: kubeconfig
+    mountPath: /home/bootstrap/.kube
+  volumes:
+  - name: kubeconfig
+    secret:
+      secretName: istio-e2e-rbac-kubeconfig
+- labels:
+    preset-daily-kubeconfig: true
+  volumeMounts:
+  - name: kubeconfig
+    mountPath: /home/bootstrap/.kube
+  volumes:
+  - name: kubeconfig
+    secret:
+      secretName: daily-release-e2e-rbac-kubeconfig
 
 presubmits:
   # PR job triggering definitions.
@@ -36,6 +108,9 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|proxy-presubmit))?,?(\\s+|$)"
     branches:
     - master
+    labels:
+      preset-service-account: true
+      preset-bazel: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -46,15 +121,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
         ports:
         - containerPort: 9999
           hostPort: 9998
@@ -67,13 +133,6 @@ presubmits:
             cpu: "5000m"
       nodeSelector:
         cloud.google.com/gke-nodepool: build-pool
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
 
   - name: proxy-presubmit-asan
     agent: kubernetes
@@ -83,6 +142,9 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|proxy-presubmit-asan))?,?(\\s+|$)"
     branches:
     - master
+    labels:
+      preset-service-account: true
+      preset-bazel: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -93,15 +155,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
         ports:
         - containerPort: 9999
           hostPort: 9998
@@ -114,13 +167,6 @@ presubmits:
             cpu: "5000m"
       nodeSelector:
         cloud.google.com/gke-nodepool: build-pool
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
 
   - name: proxy-presubmit-tsan
     agent: kubernetes
@@ -130,6 +176,9 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|proxy-presubmit-tsan))?,?(\\s+|$)"
     branches:
     - master
+    labels:
+      preset-service-account: true
+      preset-bazel: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -140,15 +189,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
         ports:
         - containerPort: 9999
           hostPort: 9998
@@ -161,13 +201,6 @@ presubmits:
             cpu: "5000m"
       nodeSelector:
         cloud.google.com/gke-nodepool: build-pool
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
 
   istio/api:
 
@@ -179,6 +212,8 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|api-presubmit))?,?(\\s+|$)"
     branches:
     - master
+    labels:
+      preset-service-account: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -189,17 +224,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
 
 
   istio/istio:
@@ -210,6 +234,9 @@ presubmits:
     always_run: true
     rerun_command: "/test istio-unit-tests"
     trigger: "(?m)^/(retest|test (all|istio-unit-tests))?,?(\\s+|$)"
+    labels:
+      preset-service-account: true
+      preset-istio-kubeconfig: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -220,23 +247,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-        # Pilot, security unit tests require kubeconfig
-        - name: kubeconfig
-          mountPath: /home/bootstrap/.kube
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
-      - name: kubeconfig
-        secret:
-          secretName: istio-e2e-rbac-kubeconfig
 
   - name: istio-presubmit
     agent: kubernetes
@@ -250,6 +260,9 @@ presubmits:
     - release-0.8
     - release-0.9
     - release-1.0
+    labels:
+      preset-service-account: true
+      preset-istio-kubeconfig: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -260,34 +273,20 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-        - name: kubeconfig
-          mountPath: /home/bootstrap/.kube
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
-      - name: kubeconfig
-        secret:
-          secretName: istio-e2e-rbac-kubeconfig
     run_after_success:
-    - name: istio-pilot-e2e
+    - name: istio-pilot-e2e-v1alpha3
       agent: kubernetes
-      context: prow/istio-pilot-e2e.sh
-      rerun_command: "/test istio-pilot-e2e"
-      trigger: "(?m)^/test (istio-pilot-e2e)?,?(\\s+|$)"
+      context: prow/istio-pilot-e2e-v1alpha3.sh
+      rerun_command: "/test istio-pilot-e2e-v1alpha3"
+      trigger: "(?m)^/test (istio-pilot-e2e-v1alpha3)?,?(\\s+|$)"
       branches:
       - master
       - release-0.7
       - release-0.8
       - release-0.9
       - release-1.0
+      labels:
+        preset-service-account: true
       max_concurrency: 8
       spec:
         containers:
@@ -299,17 +298,30 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
+    - name: istio-pilot-e2e
+      agent: kubernetes
+      context: prow/istio-pilot-e2e.sh
+      rerun_command: "/test istio-pilot-e2e"
+      trigger: "(?m)^/test (istio-pilot-e2e)?,?(\\s+|$)"
+      branches:
+      - master
+      - release-0.7
+      - release-0.8
+      - release-0.9
+      - release-1.0
+      labels:
+        preset-service-account: true
+      max_concurrency: 8
+      spec:
+        containers:
+        - image: gcr.io/istio-testing/prowbazel:0.4.6
+          args:
+          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+          - "--clean"
+          - "--timeout=60"
+          # Bazel needs privileged mode in order to sandbox builds.
+          securityContext:
+            privileged: true
     - name: e2e-bookInfoTests
       agent: kubernetes
       context: prow/e2e-bookInfoTests.sh
@@ -321,6 +333,8 @@ presubmits:
       - release-0.8
       - release-0.9
       - release-1.0
+      labels:
+        preset-service-account: true
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -331,17 +345,6 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
     - name: e2e-simpleTests
       agent: kubernetes
       context: prow/e2e-simpleTests.sh
@@ -353,6 +356,8 @@ presubmits:
       - release-0.8
       - release-0.9
       - release-1.0
+      labels:
+        preset-service-account: true
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -363,17 +368,6 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
 
   - name: istio-presubmit
     agent: kubernetes
@@ -384,6 +378,9 @@ presubmits:
     branches:
     - release-0.5
     - release-0.6
+    labels:
+      preset-service-account: true
+      preset-istio-kubeconfig: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.3
@@ -394,22 +391,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-        - name: kubeconfig
-          mountPath: /home/bootstrap/.kube
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
-      - name: kubeconfig
-        secret:
-          secretName: istio-e2e-rbac-kubeconfig
     run_after_success:
     - name: istio-pilot-e2e
       agent: kubernetes
@@ -419,6 +400,8 @@ presubmits:
       branches:
       - release-0.5
       - release-0.6
+      labels:
+        preset-service-account: true
       max_concurrency: 8
       spec:
         containers:
@@ -430,17 +413,6 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
     - name: e2e-bookInfoTests
       agent: kubernetes
       context: prow/e2e-bookInfoTests.sh
@@ -449,6 +421,9 @@ presubmits:
       branches:
       - release-0.5
       - release-0.6
+      labels:
+        preset-service-account: true
+        preset-istio-kubeconfig: true
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.3
@@ -459,22 +434,6 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-          - name: kubeconfig
-            mountPath: /home/bootstrap/.kube
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
-        - name: kubeconfig
-          secret:
-            secretName: istio-e2e-rbac-kubeconfig
     - name: e2e-simpleTests
       agent: kubernetes
       context: prow/e2e-simpleTests.sh
@@ -483,6 +442,9 @@ presubmits:
       branches:
       - release-0.5
       - release-0.6
+      labels:
+        preset-service-account: true
+        preset-istio-kubeconfig: true
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.3
@@ -493,22 +455,6 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-          - name: kubeconfig
-            mountPath: /home/bootstrap/.kube
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
-        - name: kubeconfig
-          secret:
-            secretName: istio-e2e-rbac-kubeconfig
 
   - name: e2e-suite-rbac-no_auth
     context: prow/e2e-suite-rbac-no_auth.sh
@@ -516,6 +462,8 @@ presubmits:
     rerun_command: "/test e2e-suite-rbac-no_auth"
     trigger: "(?m)^/(test e2e-suite-rbac-no_auth)?,?(\\s+|$)"
     agent: kubernetes
+    labels:
+      preset-service-account: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -526,17 +474,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
 
   - name: e2e-suite-rbac-auth
     context: prow/e2e-suite-rbac-auth.sh
@@ -544,6 +481,8 @@ presubmits:
     rerun_command: "/test e2e-suite-rbac-auth"
     trigger: "(?m)^/(test e2e-suite-rbac-auth)?,?(\\s+|$)"
     agent: kubernetes
+    labels:
+      preset-service-account: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -554,17 +493,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
 
   - name: e2e-cluster_wide-auth
     context: prow/e2e-cluster_wide-auth.sh
@@ -572,6 +500,8 @@ presubmits:
     rerun_command: "/test e2e-cluster_wide-auth"
     trigger: "(?m)^/(test e2e-cluster_wide-auth)?,?(\\s+|$)"
     agent: kubernetes
+    labels:
+      preset-service-account: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -582,17 +512,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
 
 
   istio/test-infra:
@@ -605,6 +524,9 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|test-infra-presubmit))?,?(\\s+|$)"
     branches:
     - master
+    labels:
+      preset-service-account: true
+      preset-bazel: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -615,15 +537,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
         ports:
         - containerPort: 9999
           hostPort: 9998
@@ -636,13 +549,6 @@ presubmits:
             cpu: "5000m"
       nodeSelector:
         cloud.google.com/gke-nodepool: build-pool
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
 
   istio-releases/daily-release:
 
@@ -654,6 +560,8 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-no_auth))?,?(\\s+|$)"
     branches:
     - master
+    labels:
+      preset-service-account: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -664,17 +572,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
     run_after_success:
     - name: daily-e2e-rbac-no_auth-skew
       agent: kubernetes
@@ -684,6 +581,8 @@ presubmits:
       trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-no_auth-skew))?,?(\\s+|$)"
       branches:
       - master
+      labels:
+        preset-service-account: true
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -694,17 +593,6 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
 
   - name: daily-e2e-rbac-no_auth-default
     agent: kubernetes
@@ -714,6 +602,8 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-no_auth-default))?,?(\\s+|$)"
     branches:
     - master
+    labels:
+      preset-service-account: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -724,17 +614,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
 
   - name: daily-e2e-rbac-auth
     agent: kubernetes
@@ -744,6 +623,8 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-auth))?,?(\\s+|$)"
     branches:
     - master
+    labels:
+      preset-service-account: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -754,17 +635,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
     run_after_success:
     - name: daily-e2e-rbac-auth-skew
       agent: kubernetes
@@ -774,6 +644,8 @@ presubmits:
       trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-auth-skew))?,?(\\s+|$)"
       branches:
       - master
+      labels:
+        preset-service-account: true
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -784,17 +656,6 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
 
   - name: daily-e2e-rbac-auth-default
     agent: kubernetes
@@ -804,6 +665,8 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-auth-default))?,?(\\s+|$)"
     branches:
     - master
+    labels:
+      preset-service-account: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -814,17 +677,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
 
   - name: daily-e2e-rbac-no_auth
     agent: kubernetes
@@ -834,6 +686,9 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-no_auth))?,?(\\s+|$)"
     branches:
     - release-0.6
+    labels:
+      preset-service-account: true
+      preset-daily-kubeconfig: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.3
@@ -844,22 +699,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-        - name: kubeconfig
-          mountPath: /home/bootstrap/.kube
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
-      - name: kubeconfig
-        secret:
-          secretName: daily-release-e2e-rbac-kubeconfig
     run_after_success:
     - name: daily-e2e-rbac-no_auth-skew
       agent: kubernetes
@@ -869,6 +708,9 @@ presubmits:
       trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-no_auth-skew))?,?(\\s+|$)"
       branches:
       - release-0.6
+      labels:
+        preset-service-account: true
+        preset-daily-kubeconfig: true
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.3
@@ -879,22 +721,6 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-          - name: kubeconfig
-            mountPath: /home/bootstrap/.kube
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
-        - name: kubeconfig
-          secret:
-            secretName: daily-release-e2e-rbac-kubeconfig
 
   - name: daily-e2e-rbac-no_auth-default
     agent: kubernetes
@@ -904,6 +730,9 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-no_auth-default))?,?(\\s+|$)"
     branches:
     - release-0.6
+    labels:
+      preset-service-account: true
+      preset-daily-kubeconfig: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.3
@@ -914,22 +743,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-        - name: kubeconfig
-          mountPath: /home/bootstrap/.kube
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
-      - name: kubeconfig
-        secret:
-          secretName: daily-release-e2e-rbac-kubeconfig
 
   - name: daily-e2e-rbac-auth
     agent: kubernetes
@@ -939,6 +752,9 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-auth))?,?(\\s+|$)"
     branches:
     - release-0.6
+    labels:
+      preset-service-account: true
+      preset-daily-kubeconfig: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.3
@@ -949,22 +765,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-        - name: kubeconfig
-          mountPath: /home/bootstrap/.kube
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
-      - name: kubeconfig
-        secret:
-          secretName: daily-release-e2e-rbac-kubeconfig
     run_after_success:
     - name: daily-e2e-rbac-auth-skew
       agent: kubernetes
@@ -974,6 +774,9 @@ presubmits:
       trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-auth-skew))?,?(\\s+|$)"
       branches:
       - release-0.6
+      labels:
+        preset-service-account: true
+        preset-daily-kubeconfig: true
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.3
@@ -984,22 +787,6 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-          - name: kubeconfig
-            mountPath: /home/bootstrap/.kube
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
-        - name: kubeconfig
-          secret:
-            secretName: daily-release-e2e-rbac-kubeconfig
 
   - name: daily-e2e-rbac-auth-default
     agent: kubernetes
@@ -1009,6 +796,9 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-auth-default))?,?(\\s+|$)"
     branches:
     - release-0.6
+    labels:
+      preset-service-account: true
+      preset-daily-kubeconfig: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.3
@@ -1019,22 +809,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-        - name: kubeconfig
-          mountPath: /home/bootstrap/.kube
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
-      - name: kubeconfig
-        secret:
-          secretName: daily-release-e2e-rbac-kubeconfig
 
   - name: daily-e2e-cluster_wide-auth
     agent: kubernetes
@@ -1045,6 +819,8 @@ presubmits:
     branches:
     - master
     - release-0.6
+    labels:
+      preset-service-account: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -1055,17 +831,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
     run_after_success:
     - name: daily-e2e-cluster_wide-auth-skew
       agent: kubernetes
@@ -1076,6 +841,8 @@ presubmits:
       branches:
       - master
       - release-0.6
+      labels:
+        preset-service-account: true
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -1086,17 +853,6 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
 
   - name: daily-e2e-cluster_wide-auth-default
     agent: kubernetes
@@ -1107,6 +863,8 @@ presubmits:
     branches:
     - master
     - release-0.6
+    labels:
+      preset-service-account: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -1117,17 +875,6 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
 
 postsubmits:
 
@@ -1138,6 +885,8 @@ postsubmits:
     branches:
     - master
     - release-0.2
+    labels:
+      preset-service-account: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -1148,20 +897,11 @@ postsubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
         volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
         - name: oauth
           mountPath: /etc/github
           readOnly: true
       volumes:
-      - name: service
-        secret:
-          secretName: service-account
       - name: oauth
         secret:
           secretName: oauth-token
@@ -1176,6 +916,9 @@ postsubmits:
     - release-0.8
     - release-0.9
     - release-1.0
+    labels:
+      preset-service-account: true
+      preset-istio-kubeconfig: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -1186,25 +929,11 @@ postsubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-        - name: kubeconfig
-          mountPath: /home/bootstrap/.kube
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
-      - name: kubeconfig
-        secret:
-          secretName: istio-e2e-rbac-kubeconfig
     run_after_success:
     - name: e2e-suite-rbac-no_auth
       agent: kubernetes
+      labels:
+        preset-service-account: true
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -1215,19 +944,10 @@ postsubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
     - name: e2e-suite-rbac-auth
       agent: kubernetes
+      labels:
+        preset-service-account: true
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -1238,19 +958,10 @@ postsubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
     - name: e2e-cluster_wide-auth
       agent: kubernetes
+      labels:
+        preset-service-account: true
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -1261,23 +972,15 @@ postsubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
 
   - name: istio-postsubmit
     agent: kubernetes
     branches:
     - release-0.5
     - release-0.6
+    labels:
+      preset-service-account: true
+      preset-istio-kubeconfig: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.3
@@ -1288,25 +991,11 @@ postsubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-        - name: kubeconfig
-          mountPath: /home/bootstrap/.kube
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
-      - name: kubeconfig
-        secret:
-          secretName: istio-e2e-rbac-kubeconfig
     run_after_success:
     - name: e2e-suite-rbac-no_auth
       agent: kubernetes
+      labels:
+        preset-service-account: true
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -1317,19 +1006,11 @@ postsubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
     - name: e2e-suite-rbac-auth
       agent: kubernetes
+      labels:
+        preset-service-account: true
+        preset-istio-kubeconfig: true
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -1340,24 +1021,10 @@ postsubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-          - name: kubeconfig
-            mountPath: /home/bootstrap/.kube
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
-        - name: kubeconfig
-          secret:
-            secretName: istio-e2e-rbac-kubeconfig
     - name: e2e-cluster_wide-auth
       agent: kubernetes
+      labels:
+        preset-service-account: true
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -1368,17 +1035,6 @@ postsubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
-          env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /etc/service-account/service-account.json
-          volumeMounts:
-          - name: service
-            mountPath: /etc/service-account
-            readOnly: true
-        volumes:
-        - name: service
-          secret:
-            secretName: service-account
 
 
   istio/proxy:
@@ -1391,6 +1047,9 @@ postsubmits:
     trigger: "(?m)^/(retest|test (all|proxy-postsubmit))?,?(\\s+|$)"
     branches:
     - master
+    labels:
+      preset-service-account: true
+      preset-bazel: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -1401,15 +1060,6 @@ postsubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-        - name: cache-ssd
-          mountPath: /home/bootstrap/.cache
         ports:
         - containerPort: 9999
           hostPort: 9998
@@ -1422,19 +1072,15 @@ postsubmits:
             cpu: "5000m"
       nodeSelector:
         cloud.google.com/gke-nodepool: build-pool
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0
 
 periodics:
 
 - interval: 10m
   agent: kubernetes
   name: test-infra-cleanup-cluster
+  labels:
+    preset-service-account: true
+    preset-istio-kubeconfig: true
   spec:
     containers:
     - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -1445,26 +1091,13 @@ periodics:
       # Docker needs privileged mode in order to sandbox builds.
       securityContext:
         privileged: true
-      env:
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/service-account.json
-      volumeMounts:
-      - name: service
-        mountPath: /etc/service-account
-        readOnly: true
-      - name: kubeconfig
-        mountPath: /home/bootstrap/.kube
-    volumes:
-    - name: service
-      secret:
-        secretName: service-account
-    - name: kubeconfig
-      secret:
-        secretName: istio-e2e-rbac-kubeconfig
 
 - interval: 10m
   agent: kubernetes
   name: test-infra-cleanup-cluster
+  labels:
+    preset-service-account: true
+    preset-daily-kubeconfig: true
   spec:
     containers:
     - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -1475,26 +1108,12 @@ periodics:
       # Docker needs privileged mode in order to sandbox builds.
       securityContext:
         privileged: true
-      env:
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/service-account.json
-      volumeMounts:
-      - name: service
-        mountPath: /etc/service-account
-        readOnly: true
-      - name: kubeconfig
-        mountPath: /home/bootstrap/.kube
-    volumes:
-    - name: service
-      secret:
-        secretName: service-account
-    - name: kubeconfig
-      secret:
-        secretName: daily-release-e2e-rbac-kubeconfig
 
 - interval: 10m
   agent: kubernetes
   name: test-infra-cleanup-GKE
+  labels:
+    preset-service-account: true
   spec:
     containers:
     - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -1505,21 +1124,12 @@ periodics:
       # Docker needs privileged mode in order to sandbox builds.
       securityContext:
         privileged: true
-      env:
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/service-account.json
-      volumeMounts:
-      - name: service
-        mountPath: /etc/service-account
-        readOnly: true
-    volumes:
-    - name: service
-      secret:
-        secretName: service-account
 
 - interval: 1h
   agent: kubernetes
   name: test-infra-update-deps
+  labels:
+    preset-service-account: true
   spec:
     containers:
     - image: gcr.io/istio-testing/prowbazel:0.4.6
@@ -1530,28 +1140,23 @@ periodics:
       securityContext:
         privileged: true
       env:
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/service-account.json
       - name: GIT_BRANCH
         value: master
       volumeMounts:
       - name: oauth
         mountPath: /etc/github
         readOnly: true
-      - mountPath: /etc/service-account
-        name: service
-        readOnly: true
     volumes:
     - name: oauth
       secret:
         secretName: oauth-token
-    - name: service
-      secret:
-        secretName: service-account
 
 - interval: 1h
   agent: kubernetes
   name: green-build
+  labels:
+    preset-service-account: true
+    preset-istio-kubeconfig: true
   spec:
     containers:
     - args:
@@ -1575,18 +1180,7 @@ periodics:
       - name: netrc
         mountPath: /etc/netrc
         readOnly: true
-      - mountPath: /etc/service-account
-        name: service
-        readOnly: true
-      - mountPath: /home/bootstrap/.kube
-        name: kubeconfig
     volumes:
-    - name: service
-      secret:
-        secretName: service-account
-    - name: kubeconfig
-      secret:
-        secretName: istio-e2e-rbac-kubeconfig
     - name: netrc
       secret:
         secretName: istio-testing-netrc

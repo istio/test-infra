@@ -24,10 +24,11 @@ import (
 
 	"net/http/httptest"
 
+	"sort"
+
 	"k8s.io/test-infra/boskos/client"
 	"k8s.io/test-infra/boskos/common"
 	"k8s.io/test-infra/boskos/ranch"
-	"sort"
 )
 
 // json does not serialized time with nanosecond precision
@@ -108,7 +109,7 @@ func TestAcquireByState(t *testing.T) {
 			resources: []common.Resource{
 				common.NewResource("test", "type", common.Dirty, "", time.Time{}),
 			},
-			err: fmt.Errorf("status 500 Internal Server Error, status code 500"),
+			err: fmt.Errorf("status 400 Bad Request, status code 400"),
 		},
 		{
 			name:  "noState",
@@ -144,10 +145,9 @@ func TestAcquireByState(t *testing.T) {
 				common.NewResource("test3", "type3", "state1", "foo", time.Time{}),
 				common.NewResource("test4", "type4", common.Dirty, "", time.Time{}),
 			},
-			err: fmt.Errorf("resources already used by another user"),
+			err: fmt.Errorf("resources not found"),
 		},
 	}
-	fmt.Println("test")
 	for _, tc := range testcases {
 		r := MakeTestRanch(tc.resources)
 		r.UpdateTime = updateTime
@@ -219,7 +219,6 @@ func TestClientServerUpdate(t *testing.T) {
 			ud:       common.UserData{"1": ""},
 		},
 	}
-	fmt.Println("test")
 	for _, tc := range testcases {
 		r := MakeTestRanch([]common.Resource{tc.resource})
 		r.UpdateTime = updateTime

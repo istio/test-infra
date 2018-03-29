@@ -52,6 +52,7 @@ var (
 	timeoutStr  = flag.String("timeout", defaultTimeout, "Timeout ")
 	kubecfgPath = flag.String("kubeconfig-save", defaultKubeconfig(), "Path to write kubeconfig file to")
 	infoSave    = flag.String("info-save", "", "Path to save info")
+	boskosURL   = flag.String("boskos-url", "http://boskos", "Boskos Server URL")
 )
 
 type masonClient struct {
@@ -135,7 +136,7 @@ func main() {
 		flag.Usage()
 		return
 	}
-	client := masonClient{mason: mason.NewClient(client.NewClient(*owner, *client.BoskosURL))}
+	client := masonClient{mason: mason.NewClient(client.NewClient(*owner, *boskosURL))}
 	if *kubecfgPath == "" {
 		logrus.Panic("flag --type must be set")
 	}
