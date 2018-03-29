@@ -25,10 +25,6 @@ import (
 )
 
 const (
-	prowProject      = "istio-testing"
-	prowZone         = "us-west1-a"
-	gubernatorURL    = "https://k8s-gubernator.appspot.com/build/istio-prow"
-	gcsBucket        = "istio-prow"
 	jobName          = "istio-postsubmit"
 	runNo            = 1000
 	finishedJSONMock = "mock-finished.json"
@@ -60,9 +56,10 @@ func (gcs *gcsMock) Write(obj, txt string) error {
 }
 
 func newProwAccessorWithGCSMock() *ProwAccessor {
-	prowAccessor := NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket)
-	prowAccessor.gcsClient = &gcsMock{}
-	return prowAccessor
+	return &ProwAccessor{
+		gcsClient: &gcsMock{},
+		rerunCmd:  func(node string) error { return nil },
+	}
 }
 
 func TestGetLatestRunOnProw(t *testing.T) {
