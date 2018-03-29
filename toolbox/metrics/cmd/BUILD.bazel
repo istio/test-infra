@@ -18,7 +18,7 @@ go_library(
 )
 
 go_image(
-    name = "cmd",
+    name = "image",
     embed = [":go_default_library"],
     importpath = "istio.io/test-infra/toolbox/metrics/cmd",
     pure = "on",
@@ -28,7 +28,7 @@ go_image(
 container_push(
     name = "metrics",
     format = "Docker",
-    image = ":cmd",
+    image = ":image",
     registry = "gcr.io",
     repository = "istio-testing/metrics_fetcher",
     stamp = True,
