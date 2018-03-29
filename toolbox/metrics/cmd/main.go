@@ -47,7 +47,7 @@ var (
 	ms *metrics.Publisher
 )
 
-func newMetricPublisher(storage *coverage.GCSStorage) *metrics.Publisher {
+func newMetricPublisher(storage coverage.Storage) *metrics.Publisher {
 	suite := metrics.Suite{
 		"codecov": coverage.NewMetric(storage),
 	}
