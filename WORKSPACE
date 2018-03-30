@@ -31,28 +31,26 @@ load("@io_bazel_rules_go//proto:def.bzl", "proto_register_toolchains")
 ## docker
 ##
 
+# You *must* import the Go rules before setting up the go_image rules.
 git_repository(
     name = "io_bazel_rules_docker",
-    commit = "9dd92c73e7c8cf07ad5e0dca89a3c3c422a3ab7d",  # Sep 27, 2017
     remote = "https://github.com/bazelbuild/rules_docker.git",
+    tag = "v0.4.0",
 )
 
-go_repository(
-    name = "com_github_docker_distribution",
-    commit = "a25b9ef0c9fe242ac04bb20d3a028442b7d266b6",  # Apr 5, 2017 (v2.6.1)
-    importpath = "github.com/docker/distribution",
+load(
+    "@io_bazel_rules_docker//container:container.bzl",
+    "container_push",
+    container_repositories = "repositories",
+)
+load(
+    "@io_bazel_rules_docker//go:image.bzl",
+    _go_image_repos = "repositories",
 )
 
-load("@io_bazel_rules_docker//docker:docker.bzl", "docker_repositories", "docker_pull")
+container_repositories()
 
-docker_repositories()
-
-docker_pull(
-    name = "distroless",
-    registry = "gcr.io",
-    repository = "distroless/base",
-    tag = "latest",
-)
+_go_image_repos()
 
 # Vendors
 #

@@ -1,17 +1,16 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
 load("@io_bazel_rules_docker//docker:docker.bzl", "docker_build")
 
 go_library(
     name = "go_default_library",
     srcs = [
-        "main.go",
+        "metrics.go",
     ],
     importpath = "istio.io/test-infra/toolbox/metrics",
-    visibility = ["//visibility:private"],
+    visibility = ["//visibility:public"],
     deps = [
+        "@com_github_golang_glog//:go_default_library",
         "@com_github_prometheus_client_golang//prometheus:go_default_library",
-        "@com_github_prometheus_client_golang//prometheus/promhttp:go_default_library",
-        "@com_google_cloud_go//storage:go_default_library",
         "@org_golang_x_net//context:go_default_library",
     ],
 )
@@ -37,9 +36,10 @@ docker_build(
     tags = ["manual"],
 )
 
-go_binary(
-    name = "metrics",
+go_test(
+    name = "go_default_test",
+    srcs = ["metrics_test.go"],
     embed = [":go_default_library"],
     importpath = "istio.io/test-infra/toolbox/metrics",
-    visibility = ["//visibility:public"],
+    deps = ["@com_github_prometheus_client_golang//prometheus:go_default_library"],
 )
