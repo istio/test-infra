@@ -223,6 +223,8 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
 
 
   istio/istio:
@@ -246,6 +248,8 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
 
   - name: istio-presubmit
     agent: kubernetes
@@ -272,6 +276,8 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
     run_after_success:
     - name: istio-pilot-e2e-v1alpha3
       agent: kubernetes
@@ -297,6 +303,8 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
     - name: istio-pilot-e2e
       agent: kubernetes
       context: prow/istio-pilot-e2e.sh
@@ -321,6 +329,8 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
     - name: e2e-bookInfoTests
       agent: kubernetes
       context: prow/e2e-bookInfoTests.sh
@@ -344,6 +354,8 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
     - name: e2e-simpleTests
       agent: kubernetes
       context: prow/e2e-simpleTests.sh
@@ -367,6 +379,8 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
 
   - name: istio-presubmit
     agent: kubernetes
@@ -390,6 +404,8 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
     run_after_success:
     - name: istio-pilot-e2e
       agent: kubernetes
@@ -412,6 +428,8 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
     - name: e2e-bookInfoTests
       agent: kubernetes
       context: prow/e2e-bookInfoTests.sh
@@ -433,6 +451,8 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
     - name: e2e-simpleTests
       agent: kubernetes
       context: prow/e2e-simpleTests.sh
@@ -454,6 +474,8 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
 
   - name: e2e-suite-rbac-no_auth
     context: prow/e2e-suite-rbac-no_auth.sh
@@ -473,6 +495,8 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
 
   - name: e2e-suite-rbac-auth
     context: prow/e2e-suite-rbac-auth.sh
@@ -492,6 +516,8 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
 
   - name: e2e-cluster_wide-auth
     context: prow/e2e-cluster_wide-auth.sh
@@ -511,6 +537,8 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
 
 
   istio/test-infra:
@@ -571,6 +599,8 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
     run_after_success:
     - name: daily-e2e-rbac-no_auth-skew
       agent: kubernetes
@@ -592,6 +622,8 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
 
   - name: daily-e2e-rbac-no_auth-default
     agent: kubernetes
@@ -613,6 +645,8 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
 
   - name: daily-e2e-rbac-auth
     agent: kubernetes
@@ -634,6 +668,8 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
     run_after_success:
     - name: daily-e2e-rbac-auth-skew
       agent: kubernetes
@@ -655,6 +691,8 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
 
   - name: daily-e2e-rbac-auth-default
     agent: kubernetes
@@ -676,6 +714,8 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
 
   - name: daily-e2e-rbac-no_auth
     agent: kubernetes
@@ -698,6 +738,8 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
     run_after_success:
     - name: daily-e2e-rbac-no_auth-skew
       agent: kubernetes
@@ -720,6 +762,8 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
 
   - name: daily-e2e-rbac-no_auth-default
     agent: kubernetes
@@ -742,6 +786,8 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
 
   - name: daily-e2e-rbac-auth
     agent: kubernetes
@@ -764,6 +810,8 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
     run_after_success:
     - name: daily-e2e-rbac-auth-skew
       agent: kubernetes
@@ -786,6 +834,8 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
 
   - name: daily-e2e-rbac-auth-default
     agent: kubernetes
@@ -808,6 +858,8 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
 
   - name: daily-e2e-cluster_wide-auth
     agent: kubernetes
@@ -830,6 +882,8 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
     run_after_success:
     - name: daily-e2e-cluster_wide-auth-skew
       agent: kubernetes
@@ -852,6 +906,8 @@ presubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
 
   - name: daily-e2e-cluster_wide-auth-default
     agent: kubernetes
@@ -874,6 +930,8 @@ presubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
 
 postsubmits:
 
@@ -904,6 +962,8 @@ postsubmits:
       - name: oauth
         secret:
           secretName: oauth-token
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
 
   istio/istio:
 
@@ -928,6 +988,8 @@ postsubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
     run_after_success:
     - name: e2e-suite-rbac-no_auth
       agent: kubernetes
@@ -943,6 +1005,8 @@ postsubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
     - name: e2e-suite-rbac-auth
       agent: kubernetes
       labels:
@@ -957,6 +1021,8 @@ postsubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
     - name: e2e-cluster_wide-auth
       agent: kubernetes
       labels:
@@ -971,6 +1037,8 @@ postsubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
 
   - name: istio-postsubmit
     agent: kubernetes
@@ -990,6 +1058,8 @@ postsubmits:
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
           privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: new-cluster-pool
     run_after_success:
     - name: e2e-suite-rbac-no_auth
       agent: kubernetes
@@ -1005,6 +1075,8 @@ postsubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
     - name: e2e-suite-rbac-auth
       agent: kubernetes
       labels:
@@ -1020,6 +1092,8 @@ postsubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
     - name: e2e-cluster_wide-auth
       agent: kubernetes
       labels:
@@ -1034,6 +1108,8 @@ postsubmits:
           # Bazel needs privileged mode in order to sandbox builds.
           securityContext:
             privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
 
 
   istio/proxy:
@@ -1090,6 +1166,8 @@ periodics:
       # Docker needs privileged mode in order to sandbox builds.
       securityContext:
         privileged: true
+    nodeSelector:
+      cloud.google.com/gke-nodepool: new-cluster-pool
 
 - interval: 10m
   agent: kubernetes
@@ -1107,6 +1185,8 @@ periodics:
       # Docker needs privileged mode in order to sandbox builds.
       securityContext:
         privileged: true
+    nodeSelector:
+      cloud.google.com/gke-nodepool: new-cluster-pool
 
 - interval: 10m
   agent: kubernetes
@@ -1123,6 +1203,8 @@ periodics:
       # Docker needs privileged mode in order to sandbox builds.
       securityContext:
         privileged: true
+    nodeSelector:
+      cloud.google.com/gke-nodepool: new-cluster-pool
 
 - interval: 1h
   agent: kubernetes
@@ -1149,6 +1231,8 @@ periodics:
     - name: oauth
       secret:
         secretName: oauth-token
+    nodeSelector:
+      cloud.google.com/gke-nodepool: new-cluster-pool
 
 - interval: 1h
   agent: kubernetes
@@ -1183,3 +1267,5 @@ periodics:
     - name: netrc
       secret:
         secretName: istio-testing-netrc
+    nodeSelector:
+      cloud.google.com/gke-nodepool: new-cluster-pool
