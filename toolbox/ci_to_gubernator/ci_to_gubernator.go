@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"path/filepath"
+	"log"
 	"time"
 
 	s "istio.io/test-infra/sisyphus"
@@ -36,6 +36,7 @@ const (
 
 type Converter struct {
 	gcsClient u.IGCSClient
+	bucket    string
 	org       string
 	repo      string
 	job       string
@@ -45,6 +46,7 @@ type Converter struct {
 func NewConverter(bucket, org, repo, job string, build int) *Converter {
 	return &Converter{
 		gcsClient: u.NewGCSClient(bucket),
+		bucket:    bucket,
 		org:       org,
 		repo:      repo,
 		job:       job,
@@ -79,7 +81,7 @@ func (c *Converter) CreateFinishedJSON(exitCode int, sha string) error {
 
 // GenerateStartedJSON creates the string content of start.json
 func (c *Converter) GenerateStartedJSON(prNum int, sha string) (string, error) {
-	prNumColonSHA := fmt.Sprintf("%s:%s", prNum, sha)
+	prNumColonSHA := fmt.Sprintf("%d:%s", prNum, sha)
 	started := s.ProwJobConfig{
 		TimeStamp: time.Now().Unix(),
 		Pull:      prNumColonSHA,
@@ -93,15 +95,17 @@ func (c *Converter) GenerateStartedJSON(prNum int, sha string) (string, error) {
 
 // CreateUploadStartedJSON creates and uploads started.json
 func (c *Converter) CreateUploadStartedJSON(prNum int, sha string) error {
-	gcsPath := filepath.Join(c.job, string(c.build), startedJSON)
+	gcsPath := fmt.Sprintf("%s/%d/%s", c.job, c.build, startedJSON)
 	return c.CreateUploadStartedJSONCustomPath(prNum, sha, gcsPath)
 }
 
 // CreateUploadStartedJSON creates and uploads started.json
 func (c *Converter) CreateUploadStartedJSONCustomPath(prNum int, sha, gcsPath string) error {
+	log.Printf("Generating started.json")
 	str, err := c.GenerateStartedJSON(prNum, sha)
 	if err != nil {
 		return err
 	}
+	log.Printf("Uploading started.json to gs://%s/%s", c.bucket, gcsPath)
 	return c.gcsClient.Write(gcsPath, str)
 }

@@ -50,7 +50,9 @@ At the start of a build, execute the following command to create and upload `sta
 ```bash
 $ ci_to_gubernator --job_starts \
 	--sha=<PULL_REFS> \
-	--org=istio \
-	--repo=istio \
-	--pr_number=3576
+	--org=<GITHUB_ORG> \
+	--repo=<GITHUB_REPO> \
+	--job=<CI_JOB_NAME> \
+	--build_number=<CI_BUILD_NUMBER> \
+	--pr_number=<GITHUB_PULL_REQUEST_NUMBER>
 ```

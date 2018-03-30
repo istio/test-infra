@@ -43,6 +43,7 @@ var (
 
 func main() {
 	flag.Parse()
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	if *jobStarts {
 		createPushStartedJSON()
 	} else if *jobFinishes {
@@ -61,7 +62,7 @@ func createPushStartedJSON() {
 	u.AssertIntDefined("pr_number", prNum, unspecifiedInt)
 	cvt := ci2g.NewConverter(circleciBucket, *org, *repo, *job, *buildNum)
 	if err := cvt.CreateUploadStartedJSON(*prNum, *sha); err != nil {
-		log.Fatalf("Failed to create started.json")
+		log.Fatalf("Failed to create started.json: %v", err)
 	}
 }
 
