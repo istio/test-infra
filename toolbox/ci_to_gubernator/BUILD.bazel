@@ -1,0 +1,27 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["ci_to_gubernator.go"],
+    importpath = "istio.io/test-infra/toolbox/ci_to_gubernator",
+    visibility = ["//visibility:public"],
+    deps = ["//sisyphus:go_default_library"],
+)
+
+go_library(
+    name = "main",
+    srcs = ["main.go"],
+    importpath = "istio.io/test-infra/toolbox/ci_to_gubernator/main",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//toolbox/ci_to_gubernator:go_default_library",
+        "//toolbox/util:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "ci_to_gubernator",
+    embed = [":main"],
+    importpath = "istio.io/test-infra/toolbox/ci_to_gubernator/main",
+    visibility = ["//visibility:public"],
+)

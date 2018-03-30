@@ -47,7 +47,7 @@ const (
 
 // ProwResult matches the structure published in finished.json
 type ProwResult struct {
-	TimeStamp  uint32       `json:"timestamp"`
+	TimeStamp  int64        `json:"timestamp"`
 	Version    string       `json:"version"`
 	Result     string       `json:"result"`
 	Passed     bool         `json:"passed"`
@@ -66,7 +66,7 @@ type ProwJobConfig struct {
 	Node        string `json:"node"`
 	JenkinsNode string `json:"jenkins-node"`
 	Version     string `json:"version"`
-	TimeStamp   uint32 `json:"timestamp"`
+	TimeStamp   int64  `json:"timestamp"`
 	RepoVersion string `json:"repo-version"`
 }
 
