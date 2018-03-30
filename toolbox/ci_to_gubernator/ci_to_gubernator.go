@@ -18,9 +18,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
 	"time"
 
 	s "istio.io/test-infra/sisyphus"
+	u "istio.io/test-infra/toolbox/util"
 )
 
 const (
@@ -32,7 +34,25 @@ const (
 	resultFailure = "FAILURE"
 )
 
-func CreateFinishedJSON(exitCode int, sha, org, repo string) error {
+type Converter struct {
+	gcsClient u.IGCSClient
+	org       string
+	repo      string
+	job       string
+	build     int
+}
+
+func NewConverter(bucket, org, repo, job string, build int) *Converter {
+	return &Converter{
+		gcsClient: u.NewGCSClient(bucket),
+		org:       org,
+		repo:      repo,
+		job:       job,
+		build:     build,
+	}
+}
+
+func (c *Converter) CreateFinishedJSON(exitCode int, sha string) error {
 	result := resultSuccess
 	passed := true
 	if exitCode != 0 {
@@ -46,7 +66,7 @@ func CreateFinishedJSON(exitCode int, sha, org, repo string) error {
 		Passed:     passed,
 		JobVersion: unknown,
 		Metadata: s.ProwMetadata{
-			Repo:       fmt.Sprintf("github.com/%s/%s", org, repo),
+			Repo:       fmt.Sprintf("github.com/%s/%s", c.org, c.repo),
 			RepoCommit: sha,
 		},
 	}
@@ -57,14 +77,31 @@ func CreateFinishedJSON(exitCode int, sha, org, repo string) error {
 	return ioutil.WriteFile(finishedJSON, flattened, 0600)
 }
 
-func CreateStartedJSON(prNum int /*, sha, org, repo string*/) error {
-	// started := ProwJobConfig{
-	// 	TimeStamp: time.Now().Unix(),
-	// }
-	// flattened, err := json.MarshalIndent(finished, "", "\t")
-	// if err != nil {
-	// 	return err
-	// }
-	// return ioutil.WriteFile(finishedJSON, flattened, 0600)
-	return nil
+// GenerateStartedJSON creates the string content of start.json
+func (c *Converter) GenerateStartedJSON(prNum int, sha string) (string, error) {
+	prNumColonSHA := fmt.Sprintf("%s:%s", prNum, sha)
+	started := s.ProwJobConfig{
+		TimeStamp: time.Now().Unix(),
+		Pull:      prNumColonSHA,
+		Repos: map[string]string{
+			fmt.Sprintf("github.com/%s/%s", c.org, c.repo): prNumColonSHA,
+		},
+	}
+	flattened, err := json.MarshalIndent(started, "", "\t")
+	return string(flattened), err
+}
+
+// CreateUploadStartedJSON creates and uploads started.json
+func (c *Converter) CreateUploadStartedJSON(prNum int, sha string) error {
+	gcsPath := filepath.Join(c.job, string(c.build), startedJSON)
+	return c.CreateUploadStartedJSONCustomPath(prNum, sha, gcsPath)
+}
+
+// CreateUploadStartedJSON creates and uploads started.json
+func (c *Converter) CreateUploadStartedJSONCustomPath(prNum int, sha, gcsPath string) error {
+	str, err := c.GenerateStartedJSON(prNum, sha)
+	if err != nil {
+		return err
+	}
+	return c.gcsClient.Write(gcsPath, str)
 }

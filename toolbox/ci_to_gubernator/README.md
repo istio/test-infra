@@ -42,9 +42,10 @@ XML reports should be named `junit_*.xml` and placed under `./artifacts` as well
 
 The binary `ci_to_gubernator` constructs these files and uploads these artifacts along with the log to the right location on GCS.
 
+
 ## Usage
 
-At the start of a build
+At the start of a build, execute the following command to create and upload `started.json` on GCS.
 
 ```bash
 $ ci_to_gubernator --job_starts \

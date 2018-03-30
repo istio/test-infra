@@ -101,8 +101,12 @@ func TestGetProwJobConfig(t *testing.T) {
 		Version:     "unknown",
 		TimeStamp:   1520646538,
 		RepoVersion: "unknown",
+		Pull:        "some_pr_number: sha",
+		Repos:       map[string]string{"repo": "some_pr_number: sha"},
 	}
 	if !reflect.DeepEqual(cfg, cfgExpected) {
+		fmt.Printf("cfg = %v\n", cfg)
+		fmt.Printf("cfgExpected = %v\n", cfgExpected)
 		t.Errorf("ProwJobConfig retrieved from Prow is not as expected")
 	}
 }
