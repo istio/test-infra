@@ -41,9 +41,17 @@ var (
 	buildLogTXT = flag.String("build_log_txt", "", "Path to the build log")
 )
 
-func main() {
+func init() {
 	flag.Parse()
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	u.AssertNotEmpty("sha", sha)
+	u.AssertNotEmpty("org", org)
+	u.AssertNotEmpty("repo", repo)
+	u.AssertNotEmpty("job", job)
+	u.AssertIntDefined("build_number", buildNum, unspecifiedInt)
+}
+
+func main() {
 	if *jobStarts {
 		createPushStartedJSON()
 	} else if *jobFinishes {
@@ -54,11 +62,6 @@ func main() {
 }
 
 func createPushStartedJSON() {
-	u.AssertNotEmpty("sha", sha)
-	u.AssertNotEmpty("org", org)
-	u.AssertNotEmpty("repo", repo)
-	u.AssertNotEmpty("job", job)
-	u.AssertIntDefined("build_number", buildNum, unspecifiedInt)
 	u.AssertIntDefined("pr_number", prNum, unspecifiedInt)
 	cvt := ci2g.NewConverter(circleciBucket, *org, *repo, *job, *buildNum)
 	if err := cvt.CreateUploadStartedJSON(*prNum, *sha); err != nil {
@@ -67,4 +70,19 @@ func createPushStartedJSON() {
 }
 
 func uploadArtifactsUpdateLatestBuild() {
+	u.AssertIntDefined("exit_code", exitCode, unspecifiedInt)
+	u.AssertNotEmpty("build_log_txt", buildLogTXT)
+	u.AssertNotEmpty("junit_xml", junitXML)
+	cvt := ci2g.NewConverter(circleciBucket, *org, *repo, *job, *buildNum)
+	if err := cvt.CreateUploadFinishedJSON(*exitCode, *sha); err != nil {
+		log.Fatalf("Failed to create started.json: %v", err)
+	}
+	if err := cvt.UploadBuildLog(*buildLogTXT); err != nil {
+		log.Fatalf("Failed to upload build-log.txt using %s: %v", *buildLogTXT, err)
+	}
+	if err := cvt.UploadJunitReports(*junitXML); err != nil {
+		log.Fatalf("Failed to upload junit report using %s: %v", *junitXML, err)
+	}
+	// TODO update lastBuildTXT, ask in group about GCS synchronization
+	// TOOD service account
 }

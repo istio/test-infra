@@ -1,3 +1,5 @@
+default: push
+
 build:
 	bazel build //toolbox/ci_to_gubernator
 
@@ -9,4 +11,4 @@ push: build
 	# make it public
 	gsutil acl ch -u AllUsers:R gs://istio-tools/ci_to_gubernator/ci_to_gubernator
 
-.PHONY: build push
+.PHONY: default build push

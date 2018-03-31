@@ -17,8 +17,8 @@ package ci_to_gubernator
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"path/filepath"
 	"time"
 
 	s "istio.io/test-infra/sisyphus"
@@ -27,34 +27,48 @@ import (
 
 const (
 	lastBuildTXT  = "latest-build.txt" // TODO update this file
+	buildLogTXT   = "build-log.txt"
 	finishedJSON  = "finished.json"
 	startedJSON   = "started.json"
+	junitXML      = "junit.xml"
+	artifacts     = "artifacts"
 	unknown       = "unknown"
 	resultSuccess = "SUCCESS"
 	resultFailure = "FAILURE"
 )
 
+// Converter defines how to convert generic CI results to artifacts that gubernator understands
 type Converter struct {
-	gcsClient u.IGCSClient
-	bucket    string
-	org       string
-	repo      string
-	job       string
-	build     int
+	gcsClient     u.IGCSClient
+	bucket        string
+	gcsPathPrefix string
+	org           string
+	repo          string
+	job           string
+	build         int
 }
 
+// NewConverter creates a Converter
 func NewConverter(bucket, org, repo, job string, build int) *Converter {
 	return &Converter{
-		gcsClient: u.NewGCSClient(bucket),
-		bucket:    bucket,
-		org:       org,
-		repo:      repo,
-		job:       job,
-		build:     build,
+		gcsClient:     u.NewGCSClient(bucket),
+		gcsPathPrefix: fmt.Sprintf("%s/%d", job, build),
+		bucket:        bucket,
+		org:           org,
+		repo:          repo,
+		job:           job,
+		build:         build,
 	}
 }
 
-func (c *Converter) CreateFinishedJSON(exitCode int, sha string) error {
+// SetGCSPathPrefix allows customized gcs location
+func (c *Converter) SetGCSPathPrefix(prefix string) *Converter {
+	c.gcsPathPrefix = prefix
+	return c
+}
+
+// GenerateFinishedJSON creates the string content of finished.json
+func (c *Converter) GenerateFinishedJSON(exitCode int, sha string) (string, error) {
 	result := resultSuccess
 	passed := true
 	if exitCode != 0 {
@@ -73,10 +87,37 @@ func (c *Converter) CreateFinishedJSON(exitCode int, sha string) error {
 		},
 	}
 	flattened, err := json.MarshalIndent(finished, "", "\t")
+	return string(flattened), err
+}
+
+// CreateUploadFinishedJSON creates and uploads finished.json
+func (c *Converter) CreateUploadFinishedJSON(exitCode int, sha string) error {
+	log.Printf("Generating finished.json")
+	str, err := c.GenerateFinishedJSON(exitCode, sha)
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(finishedJSON, flattened, 0600)
+	gcsPath := filepath.Join(c.gcsPathPrefix, finishedJSON)
+	log.Printf("Uploading finished.json to gs://%s/%s", c.bucket, gcsPath)
+	return c.gcsClient.Write(gcsPath, str)
+}
+
+// UploadJunitReports uploads junit report to GCS
+func (c *Converter) UploadJunitReports(junitReport string) error {
+	gcsPath := filepath.Join(c.gcsPathPrefix, artifacts, junitXML)
+	return c.upload(junitReport, gcsPath)
+}
+
+// UploadBuildLog uploads build-log.txt to GCS
+func (c *Converter) UploadBuildLog(logFile string) error {
+	gcsPath := filepath.Join(c.gcsPathPrefix, buildLogTXT)
+	return c.upload(logFile, gcsPath)
+}
+
+// UploadBuildLog uploads build-log.txt to GCS
+func (c *Converter) UpdateBuildLog(logFile string) error {
+	gcsPath := filepath.Join(c.gcsPathPrefix, buildLogTXT)
+	return c.upload(logFile, gcsPath)
 }
 
 // GenerateStartedJSON creates the string content of start.json
@@ -95,17 +136,21 @@ func (c *Converter) GenerateStartedJSON(prNum int, sha string) (string, error) {
 
 // CreateUploadStartedJSON creates and uploads started.json
 func (c *Converter) CreateUploadStartedJSON(prNum int, sha string) error {
-	gcsPath := fmt.Sprintf("%s/%d/%s", c.job, c.build, startedJSON)
-	return c.CreateUploadStartedJSONCustomPath(prNum, sha, gcsPath)
-}
-
-// CreateUploadStartedJSON creates and uploads started.json
-func (c *Converter) CreateUploadStartedJSONCustomPath(prNum int, sha, gcsPath string) error {
 	log.Printf("Generating started.json")
 	str, err := c.GenerateStartedJSON(prNum, sha)
 	if err != nil {
 		return err
 	}
+	gcsPath := filepath.Join(c.gcsPathPrefix, startedJSON)
 	log.Printf("Uploading started.json to gs://%s/%s", c.bucket, gcsPath)
+	return c.gcsClient.Write(gcsPath, str)
+}
+
+func (c *Converter) upload(localPath, gcsPath string) error {
+	log.Printf("Uploading %s to gs://%s/%s", localPath, c.bucket, gcsPath)
+	str, err := u.ReadFile(localPath)
+	if err != nil {
+		return err
+	}
 	return c.gcsClient.Write(gcsPath, str)
 }
