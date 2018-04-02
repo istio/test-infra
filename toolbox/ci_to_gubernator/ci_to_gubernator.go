@@ -15,11 +15,15 @@
 package ci_to_gubernator
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"path/filepath"
+	"strconv"
 	"time"
+
+	"github.com/marcacohen/gcslock"
 
 	s "istio.io/test-infra/sisyphus"
 	u "istio.io/test-infra/toolbox/util"
@@ -35,6 +39,10 @@ const (
 	unknown       = "unknown"
 	resultSuccess = "SUCCESS"
 	resultFailure = "FAILURE"
+)
+
+var (
+	defaultTimeout = 5 * time.Minute
 )
 
 // Converter defines how to convert generic CI results to artifacts that gubernator understands
@@ -114,10 +122,38 @@ func (c *Converter) UploadBuildLog(logFile string) error {
 	return c.upload(logFile, gcsPath)
 }
 
-// UploadBuildLog uploads build-log.txt to GCS
-func (c *Converter) UpdateBuildLog(logFile string) error {
-	gcsPath := filepath.Join(c.gcsPathPrefix, buildLogTXT)
-	return c.upload(logFile, gcsPath)
+// UpdateLastBuildTXT updates latest-build.txt to GCS
+func (c *Converter) UpdateLastBuildTXT() error {
+	m, err := gcslock.New(nil, c.bucket, lastBuildTXT)
+	if err != nil {
+		return err
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	defer cancel()
+	if err = m.ContextLock(ctx); err != nil {
+		return err
+	}
+	defer func() {
+		if err = m.ContextUnlock(ctx); err != nil {
+			log.Fatalf("Unlock %s has timed out: %v", lastBuildTXT, err)
+		}
+	}()
+	gcsPath := filepath.Join(c.job, lastBuildTXT)
+	val, err := c.gcsClient.Read(gcsPath)
+	if err != nil {
+		return err
+	}
+	log.Printf("Current value of gs://%s is %s", gcsPath, val)
+	latestBuildInt, err := strconv.Atoi(val)
+	if err != nil {
+		return err
+	}
+	if c.build > latestBuildInt {
+		log.Printf("Updating gs://%s to be %d", gcsPath, c.build)
+		return c.gcsClient.Write(gcsPath, fmt.Sprintf("%d", c.build))
+	}
+	log.Printf("No updates on %s needed", gcsPath)
+	return nil
 }
 
 // GenerateStartedJSON creates the string content of start.json

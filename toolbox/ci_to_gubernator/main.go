@@ -83,6 +83,8 @@ func uploadArtifactsUpdateLatestBuild() {
 	if err := cvt.UploadJunitReports(*junitXML); err != nil {
 		log.Fatalf("Failed to upload junit report using %s: %v", *junitXML, err)
 	}
-	// TODO update lastBuildTXT, ask in group about GCS synchronization
+	if err := cvt.UpdateLastBuildTXT(); err != nil {
+		log.Fatalf("Failed to update latest-build.txt to %d: %v", *buildNum, err)
+	}
 	// TOOD service account
 }

@@ -162,3 +162,9 @@ def go_vendor_repositories():
     commit = "74cdb28228f0d343407def1e30b72568cb8ada4c",
     importpath = "k8s.io/test-infra",
   )
+
+  go_repository(
+    name = "com_github_marcacohen_gcslock",
+    commit = "5782a95db7e207c634ebf85ca8fcd970b7a27ac5",
+    importpath = "github.com/marcacohen/gcslock",
+  )

@@ -59,8 +59,8 @@ $ ci_to_gubernator --job_starts \
 
 At the end of a build, execute the following command to
 * create `finished.json`
-* update `latest-build.txt` of this job with the current build number
 * upload `finished.json`, `artifacts/junit_*.xml`, and `build-log.txt` to GCS
+* update `latest-build.txt` of this job with the current build number
 
 ```bash
 $ ci_to_gubernator --job_finishes \
@@ -72,3 +72,5 @@ $ ci_to_gubernator --job_finishes \
 	--exit_code=<BUILD_PROCESS_EXIT_STATUS> \
 	--build_log_txt=<PATH_TO_LOG_FILE>
 ```
+
+Notice that current running jobs are going to update `latest-build.txt`, which is not safe without synchronization. To serialize the access to `latest-build.txt`, we use [gsclock](https://github.com/marcacohen/gcslock) that takes advange of [object versioning](https://cloud.google.com/storage/docs/object-versioning) of GCS.
