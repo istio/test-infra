@@ -202,11 +202,10 @@ func TestProwResultsMock(t *testing.T) {
 }
 
 func TestRerunLogics(t *testing.T) {
-	sisyphusd := NewDaemonUsingProw(protectedJobsMock, prowProjectMock,
-		prowZoneMock, gubernatorURLMock, gcsBucketMock, &Config{
-			CatchFlakesByRun: true,
-			PollGapDuration:  100 * time.Millisecond,
-		})
+	sisyphusd := newDaemon(protectedJobsMock, &Config{
+		CatchFlakesByRun: true,
+		PollGapDuration:  100 * time.Millisecond,
+	})
 	sisyphusd.storage = NewStorageMock(t)
 	prowAccessorMock := NewProwAccessorMock(gubernatorURLMock)
 	ctx, cancelFn := context.WithCancel(context.Background())

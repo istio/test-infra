@@ -84,12 +84,7 @@ type Config struct {
 	CatchFlakesByRun bool
 }
 
-// NewDaemonUsingProw creates a Daemon that uses Prow as the the CI system.
-// It signature ensures proper setup of a Prow client.
-func NewDaemonUsingProw(
-	protectedJobs []string,
-	prowProject, prowZone, gubernatorURL, gcsBucket string,
-	cfg *Config) *Daemon {
+func newDaemon(protectedJobs []string, cfg *Config) *Daemon {
 	var jobsWatched []*jobStatus
 	for _, jobName := range protectedJobs {
 		jobsWatched = append(jobsWatched, &jobStatus{
@@ -101,7 +96,6 @@ func NewDaemonUsingProw(
 	}
 	daemon := Daemon{
 		jobsWatched:      jobsWatched,
-		ci:               NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket),
 		storage:          NewStorage(),
 		pollGapDuration:  DefaultPollGapDuration,
 		numRerun:         DefaultNumRerun,
@@ -117,6 +111,17 @@ func NewDaemonUsingProw(
 		daemon.catchFlakesByRun = cfg.CatchFlakesByRun
 	}
 	return &daemon
+}
+
+// NewDaemonUsingProw creates a Daemon that uses Prow as the the CI system.
+// It signature ensures proper setup of a Prow client.
+func NewDaemonUsingProw(
+	protectedJobs []string,
+	prowProject, prowZone, gubernatorURL, gcsBucket string,
+	cfg *Config) *Daemon {
+	daemon := newDaemon(protectedJobs, cfg)
+	daemon.ci = NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket)
+	return daemon
 }
 
 // GetConfig returns the Config in use by d
