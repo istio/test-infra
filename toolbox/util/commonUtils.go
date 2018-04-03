@@ -218,7 +218,7 @@ func AssertNotEmpty(name string, value *string) {
 	}
 }
 
-// AssertNotEmpty check if a value is defined, exit if value not specified
+// AssertIntDefined check if an int value is defined, exit if value not specified
 func AssertIntDefined(name string, value *int, undefinedVal int) {
 	if value == nil || *value == undefinedVal {
 		log.Fatalf("%s must be specified\n", name)

@@ -69,7 +69,7 @@ type ProwJobConfig struct {
 	TimeStamp   int64             `json:"timestamp"`
 	RepoVersion string            `json:"repo-version"`
 	Pull        string            `json:"pull"`
-	Repos       map[string]string `json:repos`
+	Repos       map[string]string `json:"repos"`
 }
 
 // ProwAccessor provides programmable access to Prow data on GCS
