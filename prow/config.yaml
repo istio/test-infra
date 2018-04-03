@@ -540,6 +540,41 @@ presubmits:
       nodeSelector:
         cloud.google.com/gke-nodepool: new-cluster-pool
 
+  - name: istio-pilot-multicluster-e2e
+    context: prow/istio-pilot-multicluster-e2e.sh
+    always_run: false
+    skip_report: true
+    rerun_command: "/test istio-pilot-multicluster-e2e"
+    trigger: "(?m)^/(test istio-pilot-multicluster-e2e)?,?(\\s+|$)"
+    agent: kubernetes
+    branches:
+    - master
+    - release-0.7
+    - release-0.8
+    - release-0.9
+    - release-1.0
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.4.7
+        args:
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+        - "--clean"
+        - "--timeout=60"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
+
 
   istio/test-infra:
 
