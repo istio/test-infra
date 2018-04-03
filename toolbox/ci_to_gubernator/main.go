@@ -17,6 +17,7 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
 
 	ci2g "istio.io/test-infra/toolbox/ci_to_gubernator"
 	u "istio.io/test-infra/toolbox/util"
@@ -25,20 +26,22 @@ import (
 const (
 	unspecifiedInt = -1
 	circleciBucket = "istio-circleci"
+	googleAppCred  = "GOOGLE_APPLICATION_CREDENTIALS"
 )
 
 var (
-	jobStarts   = flag.Bool("job_starts", false, "Mark the start of a job by creating started.json")
-	jobFinishes = flag.Bool("job_finishes", false, "Mark the end of a job by creating finished.json")
-	exitCode    = flag.Int("exit_code", unspecifiedInt, "Exit code returned from the test command")
-	buildNum    = flag.Int("build_number", unspecifiedInt, "Build number genereated by CI")
-	prNum       = flag.Int("pr_number", unspecifiedInt, "Pull request number on GitHub")
-	sha         = flag.String("sha", "", "The commit from which the build and test were made")
-	org         = flag.String("org", "", "Org of the GitHub project being built")
-	repo        = flag.String("repo", "", "Repo of the GitHub project being built")
-	job         = flag.String("job", "", "Name of job being built")
-	junitXML    = flag.String("junit_xml", "", "Path to the junit xml report")
-	buildLogTXT = flag.String("build_log_txt", "", "Path to the build log")
+	jobStarts          = flag.Bool("job_starts", false, "Mark the start of a job by creating started.json")
+	jobFinishes        = flag.Bool("job_finishes", false, "Mark the end of a job by creating finished.json")
+	exitCode           = flag.Int("exit_code", unspecifiedInt, "Exit code returned from the test command")
+	buildNum           = flag.Int("build_number", unspecifiedInt, "Build number genereated by CI")
+	prNum              = flag.Int("pr_number", unspecifiedInt, "Pull request number on GitHub")
+	sha                = flag.String("sha", "", "The commit from which the build and test were made")
+	org                = flag.String("org", "", "Org of the GitHub project being built")
+	repo               = flag.String("repo", "", "Repo of the GitHub project being built")
+	job                = flag.String("job", "", "Name of job being built")
+	junitXML           = flag.String("junit_xml", "", "Path to the junit xml report")
+	buildLogTXT        = flag.String("build_log_txt", "", "Path to the build log")
+	serviceAccountJSON = flag.String("service_account", "", "Path to the service account key")
 )
 
 func init() {
@@ -48,7 +51,11 @@ func init() {
 	u.AssertNotEmpty("org", org)
 	u.AssertNotEmpty("repo", repo)
 	u.AssertNotEmpty("job", job)
+	u.AssertNotEmpty("service_account", serviceAccountJSON)
 	u.AssertIntDefined("build_number", buildNum, unspecifiedInt)
+	if err := os.Setenv(googleAppCred, *serviceAccountJSON); err != nil {
+		log.Fatalf("failed to set %s using %s: %v", googleAppCred, *serviceAccountJSON, err)
+	}
 }
 
 func main() {
@@ -86,5 +93,4 @@ func uploadArtifactsUpdateLatestBuild() {
 	if err := cvt.UpdateLastBuildTXT(); err != nil {
 		log.Fatalf("Failed to update latest-build.txt to %d: %v", *buildNum, err)
 	}
-	// TOOD service account
 }
