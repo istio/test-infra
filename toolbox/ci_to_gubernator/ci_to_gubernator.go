@@ -119,7 +119,12 @@ func (c *Converter) UploadJunitReports(junitReport string) error {
 // UploadBuildLog uploads build-log.txt to GCS
 func (c *Converter) UploadBuildLog(logFile string) error {
 	gcsPath := filepath.Join(c.gcsPathPrefix, buildLogTXT)
-	return c.upload(logFile, gcsPath)
+	if logFile != "" {
+		return c.upload(logFile, gcsPath)
+	}
+	link := fmt.Sprintf("https://circleci.com/gh/%s/%s/%d", c.org, c.repo, c.build)
+	log.Printf("Uploading %s to gs://%s/%s", buildLogTXT, c.bucket, gcsPath)
+	return c.gcsClient.Write(gcsPath, link)
 }
 
 // UpdateLastBuildTXT updates latest-build.txt to GCS

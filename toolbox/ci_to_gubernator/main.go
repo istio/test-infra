@@ -78,12 +78,12 @@ func createPushStartedJSON() {
 
 func uploadArtifactsUpdateLatestBuild() {
 	u.AssertIntDefined("exit_code", exitCode, unspecifiedInt)
-	u.AssertNotEmpty("build_log_txt", buildLogTXT)
 	u.AssertNotEmpty("junit_xml", junitXML)
 	cvt := ci2g.NewConverter(circleciBucket, *org, *repo, *job, *buildNum)
 	if err := cvt.CreateUploadFinishedJSON(*exitCode, *sha); err != nil {
 		log.Fatalf("Failed to create started.json: %v", err)
 	}
+	// buildLogTXT can be empty
 	if err := cvt.UploadBuildLog(*buildLogTXT); err != nil {
 		log.Fatalf("Failed to upload build-log.txt using %s: %v", *buildLogTXT, err)
 	}
