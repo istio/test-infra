@@ -13,6 +13,19 @@ deck:
 prowjob_namespace: default
 pod_namespace: test-pods
 
+branch-protection:
+  orgs:
+    istio:
+      require-contexts:
+      - cla/google
+      repos:
+        test-infra:
+          protect-by-default: true
+        istio.github.io:
+          protect-by-default: true
+          require-contexts:
+          - ci/circleci
+
 tide:
   branchProtection:
   - protection:
