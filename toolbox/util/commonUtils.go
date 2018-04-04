@@ -218,6 +218,13 @@ func AssertNotEmpty(name string, value *string) {
 	}
 }
 
+// AssertIntDefined check if an int value is defined, exit if value not specified
+func AssertIntDefined(name string, value *int, undefinedVal int) {
+	if value == nil || *value == undefinedVal {
+		log.Fatalf("%s must be specified\n", name)
+	}
+}
+
 // Pair contains key and value for sorting.
 type Pair struct {
 	Key   string

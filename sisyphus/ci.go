@@ -47,7 +47,7 @@ const (
 
 // ProwResult matches the structure published in finished.json
 type ProwResult struct {
-	TimeStamp  uint32       `json:"timestamp"`
+	TimeStamp  int64        `json:"timestamp"`
 	Version    string       `json:"version"`
 	Result     string       `json:"result"`
 	Passed     bool         `json:"passed"`
@@ -63,11 +63,13 @@ type ProwMetadata struct {
 
 // ProwJobConfig matches the structure published in started.json
 type ProwJobConfig struct {
-	Node        string `json:"node"`
-	JenkinsNode string `json:"jenkins-node"`
-	Version     string `json:"version"`
-	TimeStamp   uint32 `json:"timestamp"`
-	RepoVersion string `json:"repo-version"`
+	Node        string            `json:"node"`
+	JenkinsNode string            `json:"jenkins-node"`
+	Version     string            `json:"version"`
+	TimeStamp   int64             `json:"timestamp"`
+	RepoVersion string            `json:"repo-version"`
+	Pull        string            `json:"pull"`
+	Repos       map[string]string `json:"repos"`
 }
 
 // ProwAccessor provides programmable access to Prow data on GCS
