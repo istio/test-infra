@@ -30,7 +30,7 @@ import (
 )
 
 const (
-	lastBuildTXT  = "latest-build.txt" // TODO update this file
+	lastBuildTXT  = "latest-build.txt"
 	buildLogTXT   = "build-log.txt"
 	finishedJSON  = "finished.json"
 	startedJSON   = "started.json"
