@@ -13,6 +13,19 @@ deck:
 prowjob_namespace: default
 pod_namespace: test-pods
 
+branch-protection:
+  orgs:
+    istio:
+      require-contexts:
+      - cla/google
+      repos:
+        test-infra:
+          protect-by-default: true
+        istio.github.io:
+          protect-by-default: true
+          require-contexts:
+          - ci/circleci
+
 tide:
   branchProtection:
   - protection:
@@ -80,6 +93,29 @@ presets:
   - name: kubeconfig
     secret:
       secretName: daily-release-e2e-rbac-kubeconfig
+
+common_e2e_branches: &common_e2e_branches
+  - master
+  - release-0.7
+  - release-0.8
+  - release-0.9
+  - release-1.0
+
+common_e2e_spec: &common_e2e_spec
+  containers:
+  - image: gcr.io/istio-testing/prowbazel:0.4.8
+    args:
+    - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+    - "--clean"
+    - "--timeout=60"
+    # Bazel needs privileged mode in order to sandbox builds.
+    securityContext:
+      privileged: true
+  nodeSelector:
+    cloud.google.com/gke-nodepool: new-cluster-pool
+
+common_e2e_labels: &common_e2e_labels
+  preset-service-account: true
 
 presubmits:
   # PR job triggering definitions.
@@ -448,38 +484,15 @@ presubmits:
   - name: istio-pilot-multicluster-e2e
     context: prow/istio-pilot-multicluster-e2e.sh
     always_run: false
-    skip_report: true
     rerun_command: "/test istio-pilot-multicluster-e2e"
     trigger: "(?m)^/(test istio-pilot-multicluster-e2e)?,?(\\s+|$)"
     agent: kubernetes
-    branches:
-    - master
-    - release-0.7
-    - release-0.8
-    - release-0.9
-    - release-1.0
+    branches: *common_e2e_branches
+    labels:
+      <<: *common_e2e_labels
+    max_concurrency: 5
     spec:
-      containers:
-      - image: gcr.io/istio-testing/prowbazel:0.4.8
-        args:
-        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
-        - "--clean"
-        - "--timeout=60"
-        # Bazel needs privileged mode in order to sandbox builds.
-        securityContext:
-          privileged: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/service-account.json
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
-      volumes:
-      - name: service
-        secret:
-          secretName: service-account
-
+      <<: *common_e2e_spec
 
   istio/test-infra:
 
