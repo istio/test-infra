@@ -62,14 +62,16 @@ At the end of a build, execute the following command to
 * upload `finished.json`, `artifacts/junit_*.xml`, and `build-log.txt` to GCS
 * update `latest-build.txt` of this job with the current build number
 
+Caveat: this command exits with the same exit code as supplied by --exit_code.
+
 ```bash
-$ ci_to_gubernator --job_finishes \
+$ ci_to_gubernator \
+	--exit_code=<BUILD_PROCESS_EXIT_STATUS> \
 	--sha=<PULL_REFS> \
 	--org=<GITHUB_ORG> \
 	--repo=<GITHUB_REPO> \
 	--job=<CI_JOB_NAME> \
 	--build_number=<CI_BUILD_NUMBER> \
-	--exit_code=<BUILD_PROCESS_EXIT_STATUS> \
 	--build_log_txt=<PATH_TO_LOG_FILE>
 ```
 
