@@ -33,7 +33,7 @@ import (
 )
 
 const (
-	defaultUpdateInterval = 2 * time.Microsecond
+	defaultUpdateInterval = time.Minute
 	defaultUpdateTimeout  = 30 * time.Second
 )
 
