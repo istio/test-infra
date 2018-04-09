@@ -28,27 +28,3 @@ configs:
           scopes:
           - https://www.googleapis.com/auth/cloud-platform
 
-- name: gke-perf-preset
-  needs:
-    gcp-project: 1
-  config:
-    type: GCPResourceConfig
-    content: |
-      projectconfigs:
-      - type: gcp-perf-test
-        clusters:
-        - machinetype: n1-highcpu-2
-          numnodes: 6
-          version: 1.9
-          zone: us-central1-f
-          enablekubernetesalpha: true
-        vms:
-        - machinetype: n1-highcpu-2
-          sourceimage: projects/ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20180323
-          zone: us-central1-f
-          tags:
-          - http-server
-          - https-server
-          scopes:
-          - https://www.googleapis.com/auth/cloud-platform
-
