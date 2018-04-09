@@ -62,6 +62,12 @@ def go_vendor_repositories():
   )
 
   go_repository(
+    name = "com_github_marcacohen_gcslock",
+    commit = "5782a95db7e207c634ebf85ca8fcd970b7a27ac5",
+    importpath = "github.com/marcacohen/gcslock",
+  )
+
+  go_repository(
     name = "com_github_matttproud_golang_protobuf_extensions",
     commit = "3247c84500bff8d9fb6d579d800f20b3e091582c",
     importpath = "github.com/matttproud/golang_protobuf_extensions",
@@ -159,12 +165,6 @@ def go_vendor_repositories():
 
   go_repository(
     name = "io_k8s_test_infra",
-    commit = "74cdb28228f0d343407def1e30b72568cb8ada4c",
+    commit = "1027cba002af307fbbfef8da0e8a136fb084b2c0",
     importpath = "k8s.io/test-infra",
-  )
-
-  go_repository(
-    name = "com_github_marcacohen_gcslock",
-    commit = "5782a95db7e207c634ebf85ca8fcd970b7a27ac5",
-    importpath = "github.com/marcacohen/gcslock",
   )
