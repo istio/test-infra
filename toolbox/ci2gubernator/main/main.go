@@ -19,7 +19,7 @@ import (
 	"log"
 	"os"
 
-	ci2g "istio.io/test-infra/toolbox/ci_to_gubernator"
+	ci2g "istio.io/test-infra/toolbox/ci2gubernator"
 	u "istio.io/test-infra/toolbox/util"
 )
 
@@ -31,7 +31,6 @@ const (
 
 var (
 	jobStarts          = flag.Bool("job_starts", false, "Mark the start of a job by creating started.json")
-	jobFinishes        = flag.Bool("job_finishes", false, "Mark the end of a job by creating finished.json")
 	exitCode           = flag.Int("exit_code", unspecifiedInt, "Exit code returned from the test command")
 	buildNum           = flag.Int("build_number", unspecifiedInt, "Build number genereated by CI")
 	prNum              = flag.Int("pr_number", unspecifiedInt, "Pull request number on GitHub")
@@ -61,10 +60,11 @@ func init() {
 func main() {
 	if *jobStarts {
 		createPushStartedJSON()
-	} else if *jobFinishes {
-		uploadArtifactsUpdateLatestBuild()
+	} else if *exitCode == unspecifiedInt {
+		log.Fatalf("Either --job_starts or --exit_code is required")
 	} else {
-		log.Fatalf("Either --job_starts or --job_finishes is required")
+		uploadArtifactsUpdateLatestBuild()
+		os.Exit(*exitCode)
 	}
 }
 
@@ -77,7 +77,6 @@ func createPushStartedJSON() {
 }
 
 func uploadArtifactsUpdateLatestBuild() {
-	u.AssertIntDefined("exit_code", exitCode, unspecifiedInt)
 	u.AssertNotEmpty("junit_xml", junitXML)
 	cvt := ci2g.NewConverter(circleciBucket, *org, *repo, *job, *buildNum)
 	if err := cvt.CreateUploadFinishedJSON(*exitCode, *sha); err != nil {

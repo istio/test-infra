@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ci_to_gubernator
+package ci2gubernator
 
 import (
 	"context"
@@ -129,12 +129,12 @@ func (c *Converter) UploadBuildLog(logFile string) error {
 
 // UpdateLastBuildTXT updates latest-build.txt to GCS
 func (c *Converter) UpdateLastBuildTXT() error {
-	m, err := gcslock.New(nil, c.bucket, lastBuildTXT)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	defer cancel()
+	m, err := gcslock.New(ctx, c.bucket, lastBuildTXT)
 	if err != nil {
 		return err
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
-	defer cancel()
 	if err = m.ContextLock(ctx); err != nil {
 		return err
 	}
