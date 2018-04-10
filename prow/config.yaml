@@ -532,6 +532,18 @@ presubmits:
 
   istio-releases/daily-release:
 
+  - name: istio-perf-tests
+    agent: kubernetes
+    context: prow/istio-perf-tests.sh
+    always_run: true
+    rerun_command: "/test istio-perf-tests"
+    trigger: "(?m)^/(retest|test (all|istio-perf-tests))?,?(\\s+|$)"
+    labels:
+      preset-service-account: true
+      preset-istio-kubeconfig: true
+    spec:
+      <<: *common_e2e_spec
+
   - name: istio-unit-tests
     agent: kubernetes
     context: prow/istio-unit-tests.sh
