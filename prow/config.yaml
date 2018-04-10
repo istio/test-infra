@@ -532,6 +532,18 @@ presubmits:
 
   istio-releases/daily-release:
 
+  - name: istio-unit-tests
+    agent: kubernetes
+    context: prow/istio-unit-tests.sh
+    always_run: true
+    rerun_command: "/test istio-unit-tests"
+    trigger: "(?m)^/(retest|test (all|istio-unit-tests))?,?(\\s+|$)"
+    labels:
+      preset-service-account: true
+      preset-istio-kubeconfig: true
+    spec:
+      <<: *common_e2e_spec
+
   - name: daily-e2e-rbac-no_auth
     agent: kubernetes
     context: prow/daily-e2e-rbac-no_auth.sh
