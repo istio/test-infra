@@ -19,12 +19,15 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/container/v1"
 	"gopkg.in/yaml.v2"
@@ -33,12 +36,15 @@ import (
 )
 
 var (
+	seededRand     = rand.New(rand.NewSource(time.Now().UnixNano()))
 	serviceAccount = flag.String("service-account", "", "Path to projects service account")
 )
 
 const (
 	// ResourceConfigType defines the GCP config type
 	ResourceConfigType = "GCPResourceConfig"
+	operationTimeout   = 20 * time.Minute
+	charset            = "abcdefghijklmnopqrstuvwxyz1234567890"
 )
 
 type projectConfig struct {
@@ -93,6 +99,11 @@ func (rc *resourcesConfig) Construct(res *common.Resource, types common.TypeToRe
 		return r
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), operationTimeout)
+	defer cancel()
+	errGroup, derivedCtx := errgroup.WithContext(ctx)
+	var mutex sync.RWMutex
+
 	// Here we know that resources are of project type
 	for _, pc := range rc.ProjectConfigs {
 		project := popProject(pc.Type)
@@ -103,25 +114,39 @@ func (rc *resourcesConfig) Construct(res *common.Resource, types common.TypeToRe
 		}
 		pi := projectInfo{Name: project.Name}
 		for _, cl := range pc.Clusters {
-			var clusterInfo *instanceInfo
-			clusterInfo, err = gcpClient.gke.create(project.Name, cl)
-			if err != nil {
-				logrus.WithError(err).Errorf("unable to create cluster on project %s", project.Name)
-				return nil, err
-			}
-			pi.Clusters = append(pi.Clusters, *clusterInfo)
+			errGroup.Go(func() error {
+				clusterInfo, err := gcpClient.gke.create(derivedCtx, project.Name, cl)
+				if err != nil {
+					logrus.WithError(err).Errorf("unable to create cluster on project %s", project.Name)
+					return err
+				}
+				mutex.Lock()
+				defer mutex.Unlock()
+				pi.Clusters = append(pi.Clusters, *clusterInfo)
+				return nil
+			})
 		}
 		for _, vm := range pc.Vms {
-			var vmInfo *instanceInfo
-			vmInfo, err = gcpClient.gce.create(project.Name, vm)
-			if err != nil {
-				logrus.WithError(err).Errorf("unable to create vm on project %s", project.Name)
-				return nil, err
-			}
-			pi.VMs = append(pi.VMs, *vmInfo)
+			errGroup.Go(func() error {
+				vmInfo, err := gcpClient.gce.create(derivedCtx, project.Name, vm)
+				if err != nil {
+					logrus.WithError(err).Errorf("unable to create vm on project %s", project.Name)
+					return err
+				}
+				mutex.Lock()
+				defer mutex.Unlock()
+				pi.VMs = append(pi.VMs, *vmInfo)
+				return nil
+			})
 		}
 		info.ProjectsInfo = append(info.ProjectsInfo, pi)
 	}
+
+	if err := errGroup.Wait(); err != nil {
+		logrus.WithError(err).Errorf("failed to construct resources for %s", res.Name)
+		return nil, err
+	}
+
 	userData := common.UserData{}
 	if err := userData.Set(ResourceConfigType, &info); err != nil {
 		logrus.WithError(err).Errorf("unable to set %s user data", ResourceConfigType)
@@ -177,8 +202,18 @@ func newClient() (*client, error) {
 	}, nil
 }
 
+func randomString(length int) string {
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[seededRand.Intn(len(charset))]
+	}
+	return string(b)
+}
+
 func generateName(prefix string) string {
-	return fmt.Sprintf("%s-%s", prefix, time.Now().Format("0102150405"))
+	date := time.Now().Format("010206")
+	randString := randomString(10)
+	return fmt.Sprintf("%s-%s-%s", prefix, date, randString)
 }
 
 // Install kubeconfig for a given resource. It will create only one file with all contexts.
