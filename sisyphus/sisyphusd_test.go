@@ -177,9 +177,12 @@ func TestDaemonConfig(t *testing.T) {
 		PollGapDuration:  DefaultPollGapDuration,
 		NumRerun:         DefaultNumRerun,
 	}
+	presubmitJobs := []string{}
 	sisyphusd := NewDaemonUsingProw(
 		protectedJobsMock,
+		presubmitJobs,
 		prowProjectMock, prowZoneMock, gubernatorURLMock,
+		gcsBucketMock,
 		fakeClient{},
 		NewStorageMock(t), cfg)
 	if !reflect.DeepEqual(sisyphusd.GetConfig(), cfgExpected) {

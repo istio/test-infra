@@ -77,17 +77,20 @@ type ProwAccessor struct {
 	prowProject   string
 	prowZone      string
 	gubernatorURL string
+	gcsBucket     string
 	gcsClient     u.IGCSClient
 	rerunCmd      func(node string) error
+	presubmitJobs []string
 }
 
 // NewProwAccessor creates a new ProwAccessor
-func NewProwAccessor(prowProject, prowZone, gubernatorURL string, client u.IGCSClient) *ProwAccessor {
+func NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket string, client u.IGCSClient) *ProwAccessor {
 	return &ProwAccessor{
 		prowProject:   prowProject,
 		prowZone:      prowZone,
 		gubernatorURL: gubernatorURL,
 		gcsClient:     client,
+		gcsBucket:     gcsBucket,
 		rerunCmd: func(node string) error {
 			_, e := u.Shell("kubectl create -f \"https://prow.istio.io/rerun?prowjob=%s\"", node)
 			return e
@@ -95,10 +98,41 @@ func NewProwAccessor(prowProject, prowZone, gubernatorURL string, client u.IGCSC
 	}
 }
 
-// GetLatestRun reads latest run from "latest-build.txt" of a job under the gcs bucket
-// Example: {gcsBucket}/{jobName}/latest-build.txt
+// RegisterPresubmitJobs marks `jobNames` as pre-submit jobs
+func (p *ProwAccessor) RegisterPresubmitJobs(jobNames []string) {
+	p.presubmitJobs = jobNames
+}
+
+func (p *ProwAccessor) buildGCSPath(jobName string) string {
+	for _, presubmitJob := range p.presubmitJobs {
+		if jobName == presubmitJob {
+			return filepath.Join("directory", jobName)
+		}
+	}
+	// postsubmit path is just the job name
+	return jobName
+}
+
+func (p *ProwAccessor) buildGCSPathWithIndirection(jobName string, runNo int) (string, error) {
+	for _, presubmitJob := range p.presubmitJobs {
+		if jobName == presubmitJob {
+			redirect := filepath.Join("directory", jobName, fmt.Sprintf("%d.txt", runNo))
+			redirectURL, err := p.gcsClient.Read(redirect)
+			if err != nil {
+				return "", err
+			}
+			bucketPrefix := fmt.Sprintf("gs://%s/", p.gcsBucket)
+			return redirectURL[len(bucketPrefix):], nil
+		}
+	}
+	return filepath.Join(jobName, strconv.Itoa(runNo)), nil
+}
+
+// GetLatestRun reads latest run from "latest-build.txt" of a job under the gcs bucket.
+// This job is assumed to be a post-submit job unless registered through `RegisterPresubmitJobs()`.
+// Such distinction is critical as pre-submit and post-submit jobs have different GCS path
 func (p *ProwAccessor) GetLatestRun(jobName string) (int, error) {
-	lastBuildFile := filepath.Join(jobName, lastBuildTXT)
+	lastBuildFile := filepath.Join(p.buildGCSPath(jobName), lastBuildTXT)
 	latestBuildString, err := p.gcsClient.Read(lastBuildFile)
 	if err != nil {
 		return 0, err
@@ -113,7 +147,11 @@ func (p *ProwAccessor) GetLatestRun(jobName string) (int, error) {
 
 // GetResult returns the Result of the job at a specific run
 func (p *ProwAccessor) GetResult(jobName string, runNo int) (*Result, error) {
-	jobFinishedFile := filepath.Join(jobName, strconv.Itoa(runNo), finishedJSON)
+	gcsPath, err := p.buildGCSPathWithIndirection(jobName, runNo)
+	if err != nil {
+		return nil, err
+	}
+	jobFinishedFile := filepath.Join(gcsPath, finishedJSON)
 	prowResultString, err := p.gcsClient.Read(jobFinishedFile)
 	if err != nil {
 		log.Printf("Cannot access %s on GCS: %v", jobFinishedFile, err)
@@ -149,7 +187,11 @@ func (p *ProwAccessor) Rerun(jobName string, runNo, numRerun int) error {
 
 // getProwJobConfig fetches the config of the job at runNo
 func (p *ProwAccessor) getProwJobConfig(jobName string, runNo int) (*ProwJobConfig, error) {
-	jobStartedFile := filepath.Join(jobName, strconv.Itoa(runNo), startedJSON)
+	gcsPath, err := p.buildGCSPathWithIndirection(jobName, runNo)
+	if err != nil {
+		return nil, err
+	}
+	jobStartedFile := filepath.Join(gcsPath, startedJSON)
 	StartedFileString, err := p.gcsClient.Read(jobStartedFile)
 	if err != nil {
 		return nil, err
