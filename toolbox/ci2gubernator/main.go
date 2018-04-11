@@ -19,7 +19,7 @@ import (
 	"log"
 	"os"
 
-	ci2g "istio.io/test-infra/toolbox/ci2gubernator"
+	ci2g "istio.io/test-infra/toolbox/ci2gubernator/lib"
 	u "istio.io/test-infra/toolbox/util"
 )
 
@@ -64,7 +64,6 @@ func main() {
 		log.Fatalf("Either --job_starts or --exit_code is required")
 	} else {
 		uploadArtifactsUpdateLatestBuild()
-		os.Exit(*exitCode)
 	}
 }
 
