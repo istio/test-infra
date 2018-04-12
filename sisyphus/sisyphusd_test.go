@@ -31,7 +31,6 @@ const (
 	prowProjectMock        = "prow-project-mock"
 	prowZoneMock           = "us-west1-a"
 	gubernatorURLMock      = "https://k8s-gubernator.appspot.com/build/mock"
-	gcsBucketMock          = "gcs-bucket-mock"
 	testDataDir            = "test_data"
 	expectedFlakeStatsJSON = "expectedFlakeStats.json"
 )
@@ -158,6 +157,16 @@ func (s *StorageMock) Store(jobName, sha string, newFlakeStat FlakeStat) error {
 	return nil
 }
 
+type fakeClient struct{}
+
+func (f fakeClient) Read(obj string) (string, error) {
+	return "data", nil
+}
+
+func (f fakeClient) Write(obj, txt string) error {
+	return nil
+}
+
 func TestDaemonConfig(t *testing.T) {
 	catchFlakesByRun := true
 	cfg := &Config{
@@ -168,8 +177,11 @@ func TestDaemonConfig(t *testing.T) {
 		PollGapDuration:  DefaultPollGapDuration,
 		NumRerun:         DefaultNumRerun,
 	}
-	sisyphusd := NewDaemonUsingProw(protectedJobsMock, prowProjectMock,
-		prowZoneMock, gubernatorURLMock, gcsBucketMock, cfg)
+	sisyphusd := NewDaemonUsingProw(
+		protectedJobsMock,
+		prowProjectMock, prowZoneMock, gubernatorURLMock,
+		fakeClient{},
+		NewStorageMock(t), cfg)
 	if !reflect.DeepEqual(sisyphusd.GetConfig(), cfgExpected) {
 		t.Error("setting catchFlakesByRun failed")
 	}
@@ -202,11 +214,13 @@ func TestProwResultsMock(t *testing.T) {
 }
 
 func TestRerunLogics(t *testing.T) {
-	sisyphusd := newDaemon(protectedJobsMock, &Config{
-		CatchFlakesByRun: true,
-		PollGapDuration:  100 * time.Millisecond,
-	})
-	sisyphusd.storage = NewStorageMock(t)
+	sisyphusd := newDaemon(
+		protectedJobsMock,
+		&Config{
+			CatchFlakesByRun: true,
+			PollGapDuration:  100 * time.Millisecond,
+		},
+		NewStorageMock(t))
 	prowAccessorMock := NewProwAccessorMock(gubernatorURLMock)
 	ctx, cancelFn := context.WithCancel(context.Background())
 	prowAccessorMock.cancelSisyphusd = cancelFn
