@@ -4,11 +4,6 @@ set -e
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BIN_PATH="${ROOT}/scripts"
 
-bazel ${BAZEL_STARTUP_ARGS} build ${BAZEL_RUN_ARGS} \
-  //... $(bazel query 'tests(//...)')
-
-source ${BIN_PATH}/use_bazel_go.sh
-
 echo 'Installing gometalinter ...'
 go get -u gopkg.in/alecthomas/gometalinter.v2
 
