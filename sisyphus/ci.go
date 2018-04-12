@@ -82,12 +82,12 @@ type ProwAccessor struct {
 }
 
 // NewProwAccessor creates a new ProwAccessor
-func NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket string) *ProwAccessor {
+func NewProwAccessor(prowProject, prowZone, gubernatorURL string, client u.IGCSClient) *ProwAccessor {
 	return &ProwAccessor{
 		prowProject:   prowProject,
 		prowZone:      prowZone,
 		gubernatorURL: gubernatorURL,
-		gcsClient:     u.NewGCSClient(gcsBucket),
+		gcsClient:     client,
 		rerunCmd: func(node string) error {
 			_, e := u.Shell("kubectl create -f \"https://prow.istio.io/rerun?prowjob=%s\"", node)
 			return e

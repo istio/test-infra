@@ -31,7 +31,7 @@ type IGCSClient interface {
 
 // GCSClient masks RPCs to gcs as local procedures
 type GCSClient struct {
-	client *storage.Client
+	client *storage.BucketHandle
 	bucket string
 }
 
@@ -43,7 +43,7 @@ func NewGCSClient(bucket string) *GCSClient {
 		return nil
 	}
 	return &GCSClient{
-		client: gcsClient,
+		client: gcsClient.Bucket(bucket),
 		bucket: bucket,
 	}
 }
@@ -51,7 +51,8 @@ func NewGCSClient(bucket string) *GCSClient {
 // Read gets a file and return a string
 func (gcs *GCSClient) Read(obj string) (string, error) {
 	ctx := context.Background()
-	r, err := gcs.client.Bucket(gcs.bucket).Object(obj).NewReader(ctx)
+
+	r, err := gcs.client.Object(obj).NewReader(ctx)
 	if err != nil {
 		log.Printf("Failed to open a reader on file %s/%s from gcs, %v\n", gcs.bucket, obj, err)
 		return "", err
@@ -72,7 +73,7 @@ func (gcs *GCSClient) Read(obj string) (string, error) {
 // Write writes text to file on gcs
 func (gcs *GCSClient) Write(obj, txt string) error {
 	ctx := context.Background()
-	w := gcs.client.Bucket(gcs.bucket).Object(obj).NewWriter(ctx)
+	w := gcs.client.Object(obj).NewWriter(ctx)
 	if _, err := fmt.Fprintf(w, txt); err != nil {
 		log.Printf("Failed to write to gcs: %v\n", err)
 	}

@@ -66,8 +66,12 @@ func init() {
 }
 
 func main() {
+	gcsClient := u.NewGCSClient(gcsBucket)
 	sisyphusd := sisyphus.NewDaemonUsingProw(
-		protectedJobs, prowProject, prowZone, gubernatorURL, gcsBucket, &sisyphus.Config{
+		protectedJobs, prowProject, prowZone, gubernatorURL,
+		gcsClient,
+		sisyphus.NewStorage(),
+		&sisyphus.Config{
 			CatchFlakesByRun: *catchFlakesByRun,
 		})
 	if *emailSending {

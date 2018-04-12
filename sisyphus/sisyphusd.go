@@ -19,6 +19,8 @@ import (
 	"fmt"
 	"log"
 	"time"
+
+	"istio.io/test-infra/toolbox/util"
 )
 
 const (
@@ -84,7 +86,7 @@ type Config struct {
 	CatchFlakesByRun bool
 }
 
-func newDaemon(protectedJobs []string, cfg *Config) *Daemon {
+func newDaemon(protectedJobs []string, cfg *Config, storage Storage) *Daemon {
 	var jobsWatched []*jobStatus
 	for _, jobName := range protectedJobs {
 		jobsWatched = append(jobsWatched, &jobStatus{
@@ -96,7 +98,7 @@ func newDaemon(protectedJobs []string, cfg *Config) *Daemon {
 	}
 	daemon := Daemon{
 		jobsWatched:      jobsWatched,
-		storage:          NewStorage(),
+		storage:          storage,
 		pollGapDuration:  DefaultPollGapDuration,
 		numRerun:         DefaultNumRerun,
 		catchFlakesByRun: DefaultCatchFlakesByRun,
@@ -117,10 +119,12 @@ func newDaemon(protectedJobs []string, cfg *Config) *Daemon {
 // It signature ensures proper setup of a Prow client.
 func NewDaemonUsingProw(
 	protectedJobs []string,
-	prowProject, prowZone, gubernatorURL, gcsBucket string,
+	prowProject, prowZone, gubernatorURL string,
+	client util.IGCSClient,
+	storage Storage,
 	cfg *Config) *Daemon {
-	daemon := newDaemon(protectedJobs, cfg)
-	daemon.ci = NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket)
+	daemon := newDaemon(protectedJobs, cfg, storage)
+	daemon.ci = NewProwAccessor(prowProject, prowZone, gubernatorURL, client)
 	return daemon
 }
 
