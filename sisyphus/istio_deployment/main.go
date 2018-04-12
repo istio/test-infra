@@ -79,7 +79,7 @@ func init() {
 func main() {
 	gcsClient := u.NewGCSClient(gcsBucket)
 	sisyphusd := sisyphus.NewDaemonUsingProw(
-		protectedJobs, prowProject, prowZone, gubernatorURL,
+		protectedJobs, presubmitJobs, prowProject, prowZone, gubernatorURL,
 		gcsBucket,
 		gcsClient,
 		sisyphus.NewStorage(),

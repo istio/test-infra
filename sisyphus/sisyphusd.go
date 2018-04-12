@@ -123,8 +123,8 @@ func NewDaemonUsingProw(
 	client util.IGCSClient,
 	storage Storage,
 	cfg *Config) *Daemon {
-	daemon := newDaemon(protectedJobs, cfg)
-	prowAccessor := NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket)
+	daemon := newDaemon(protectedJobs, cfg, storage)
+	prowAccessor := NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket, client)
 	prowAccessor.RegisterPresubmitJobs(presubmitJobs)
 	daemon.ci = prowAccessor
 	return daemon

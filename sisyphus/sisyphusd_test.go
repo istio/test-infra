@@ -31,6 +31,7 @@ const (
 	prowProjectMock        = "prow-project-mock"
 	prowZoneMock           = "us-west1-a"
 	gubernatorURLMock      = "https://k8s-gubernator.appspot.com/build/mock"
+	gcsBucketMock          = "gcs-bucket-mock"
 	testDataDir            = "test_data"
 	expectedFlakeStatsJSON = "expectedFlakeStats.json"
 )
