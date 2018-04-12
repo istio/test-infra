@@ -107,12 +107,12 @@ func newComputeInstance(config virtualMachineConfig, project, name string) *comp
 	return instance
 }
 
-func (cc *computeEngine) create(ctx context.Context, project string, config virtualMachineConfig) (*instanceInfo, error) {
+func (cc *computeEngine) create(ctx context.Context, project string, config virtualMachineConfig) (*InstanceInfo, error) {
 	name := generateName("gce")
 	instance := newComputeInstance(config, project, name)
 	op, err := cc.service.Instances.Insert(project, config.Zone, instance).Context(ctx).Do()
 	if err != nil {
-		logrus.WithError(err).Errorf("failed to create %s on project %s", instance, project)
+		logrus.WithError(err).Errorf("failed to create %v on project %s", instance, project)
 		return nil, err
 	}
 	logrus.Infof("Instance %s being created via operation %s, waiting for completion", instance.Name, op.Name)
@@ -121,5 +121,5 @@ func (cc *computeEngine) create(ctx context.Context, project string, config virt
 		return nil, err
 	}
 	logrus.Infof("Instance %s created via operation %s", instance.Name, op.Name)
-	return &instanceInfo{Name: name, Zone: config.Zone}, nil
+	return &InstanceInfo{Name: name, Zone: config.Zone}, nil
 }

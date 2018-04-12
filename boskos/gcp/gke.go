@@ -74,7 +74,7 @@ func (cc *containerEngine) waitForOperation(ctx context.Context, op *container.O
 	}
 }
 
-func (cc *containerEngine) create(ctx context.Context, project string, config clusterConfig) (*instanceInfo, error) {
+func (cc *containerEngine) create(ctx context.Context, project string, config clusterConfig) (*InstanceInfo, error) {
 	var version string
 	name := generateName("gke")
 	serverConfig, err := cc.service.Projects.Zones.GetServerconfig(project, config.Zone).Do()
@@ -111,5 +111,7 @@ func (cc *containerEngine) create(ctx context.Context, project string, config cl
 		return nil, err
 	}
 	logrus.Infof("Instance %s created via operation %s", clusterRequest.Cluster.Name, op.Name)
-	return &instanceInfo{Name: name, Zone: config.Zone}, nil
+	info := &InstanceInfo{Name: name, Zone: config.Zone}
+
+	return info, nil
 }

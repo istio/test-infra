@@ -37,10 +37,11 @@ const (
 )
 
 var (
-	configPath        = flag.String("config", "", "Path to persistent volume to load configs")
 	boskosURL         = flag.String("boskos-url", "http://boskos", "Boskos Server URL")
 	channelBufferSize = flag.Int("channel-buffer-size", defaultChannelSize, "Channel Size")
 	cleanerCount      = flag.Int("cleaner-count", defaultCleanerCount, "Number of threads running cleanup")
+	configPath        = flag.String("config", "", "Path to persistent volume to load configs")
+	serviceAccount    = flag.String("service-account", "", "Path to projects service account")
 )
 
 func main() {
@@ -51,6 +52,11 @@ func main() {
 		logrus.Panic("--config must be set")
 	}
 	client := client.NewClient(defaultOwner, *boskosURL)
+	gcpClient, err := gcp.NewClient(*serviceAccount)
+	if err != nil {
+		logrus.WithError(err).Fatal("unable to create gcp client")
+	}
+	gcp.SetClient(gcpClient)
 
 	mason := mason.NewMason(*channelBufferSize, *cleanerCount, client, defaultSleepTimeDuration)
 

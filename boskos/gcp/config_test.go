@@ -27,7 +27,7 @@ import (
 )
 
 func TestParseInvalidConfig(t *testing.T) {
-	expected := resourcesConfig{
+	expected := resourceConfigs{
 		"type1": {{
 			Clusters: []clusterConfig{
 				{
@@ -61,7 +61,7 @@ func TestParseInvalidConfig(t *testing.T) {
 	if err != nil {
 		t.Errorf("cannot parse object")
 	} else {
-		if !reflect.DeepEqual(expected, *config.(*resourcesConfig)) {
+		if !reflect.DeepEqual(expected, *config.(*resourceConfigs)) {
 			t.Error("Object differ")
 		}
 	}
@@ -76,12 +76,13 @@ func TestParseConfig(t *testing.T) {
 		for _, config := range configs {
 			switch config.Config.Type {
 			case ResourceConfigType:
-				m, err := ConfigConverter(config.Config.Content)
+				var m mason.Masonable
+				m, err = ConfigConverter(config.Config.Content)
 				if err != nil {
 					t.Errorf("unable to parse config %s %v", config.Name, err)
 				}
 				needs := common.ResourceNeeds{}
-				rc, ok := m.(*resourcesConfig)
+				rc, ok := m.(*resourceConfigs)
 				if !ok {
 					t.Errorf("cannot convert masonable to resourceConfig")
 				} else {
@@ -128,13 +129,13 @@ type fakeVMCreator struct {
 	f *faker
 }
 
-func (vmc *fakeVMCreator) create(ctx context.Context, p string, c virtualMachineConfig) (*instanceInfo, error) {
+func (vmc *fakeVMCreator) create(ctx context.Context, p string, c virtualMachineConfig) (*InstanceInfo, error) {
 	if vmc.f != nil {
 		if err := vmc.f.do(ctx); err != nil {
 			return nil, err
 		}
 	}
-	return &instanceInfo{
+	return &InstanceInfo{
 		Name: "VMname",
 		Zone: "VMzone",
 	}, nil
@@ -144,13 +145,13 @@ type fakeClusterCreator struct {
 	f *faker
 }
 
-func (cc *fakeClusterCreator) create(ctx context.Context, p string, c clusterConfig) (*instanceInfo, error) {
+func (cc *fakeClusterCreator) create(ctx context.Context, p string, c clusterConfig) (*InstanceInfo, error) {
 	if cc.f != nil {
 		if err := cc.f.do(ctx); err != nil {
 			return nil, err
 		}
 	}
-	return &instanceInfo{
+	return &InstanceInfo{
 		Name: "ClusterName",
 		Zone: "ClusterZone",
 	}, nil
@@ -163,16 +164,18 @@ func TestResourcesConfig_Construct(t *testing.T) {
 	}
 
 	testCases := []struct {
-		name    string
-		rc      resourcesConfig
-		res     *common.Resource
-		types   common.TypeToResources
-		result  expected
-		vmf, cf *faker
+		name      string
+		rc        resourceConfigs
+		res       *common.Resource
+		types     common.TypeToResources
+		result    expected
+		vmf, cf   *faker
+		setClient bool
 	}{
 		{
-			name: "success",
-			rc: resourcesConfig{
+			name:      "success",
+			setClient: true,
+			rc: resourceConfigs{
 				"test": {{
 					Clusters: []clusterConfig{
 						{},
@@ -193,13 +196,13 @@ func TestResourcesConfig_Construct(t *testing.T) {
 			result: expected{
 				info: &ResourceInfo{
 					"leased": {
-						Clusters: []instanceInfo{
+						Clusters: []InstanceInfo{
 							{
 								Name: "ClusterName",
 								Zone: "ClusterZone",
 							},
 						},
-						VMs: []instanceInfo{
+						VMs: []InstanceInfo{
 							{
 								Name: "VMname",
 								Zone: "VMzone",
@@ -210,8 +213,9 @@ func TestResourcesConfig_Construct(t *testing.T) {
 			},
 		},
 		{
-			name: "timeout vm creation",
-			rc: resourcesConfig{
+			name:      "timeout vm creation",
+			setClient: true,
+			rc: resourceConfigs{
 				"test": {{
 					Clusters: []clusterConfig{
 						{},
@@ -237,8 +241,9 @@ func TestResourcesConfig_Construct(t *testing.T) {
 			},
 		},
 		{
-			name: "timeout cluster creation",
-			rc: resourcesConfig{
+			name:      "timeout cluster creation",
+			setClient: true,
+			rc: resourceConfigs{
 				"test": {{
 					Clusters: []clusterConfig{
 						{},
@@ -264,8 +269,9 @@ func TestResourcesConfig_Construct(t *testing.T) {
 			},
 		},
 		{
-			name: "failed vm creation",
-			rc: resourcesConfig{
+			name:      "failed vm creation",
+			setClient: true,
+			rc: resourceConfigs{
 				"test": {{
 					Clusters: []clusterConfig{
 						{},
@@ -291,8 +297,9 @@ func TestResourcesConfig_Construct(t *testing.T) {
 			},
 		},
 		{
-			name: "failed cluster creation",
-			rc: resourcesConfig{
+			name:      "failed cluster creation",
+			setClient: true,
+			rc: resourceConfigs{
 				"test": {{
 					Clusters: []clusterConfig{
 						{},
@@ -318,8 +325,9 @@ func TestResourcesConfig_Construct(t *testing.T) {
 			},
 		},
 		{
-			name: "running out project",
-			rc: resourcesConfig{
+			name:      "running out project",
+			setClient: true,
+			rc: resourceConfigs{
 				"test": {{
 					Clusters: []clusterConfig{
 						{},
@@ -341,12 +349,41 @@ func TestResourcesConfig_Construct(t *testing.T) {
 				err: "running out of project while creating resources",
 			},
 		},
+		{
+			name: "client not set",
+			rc: resourceConfigs{
+				"test": {{
+					Clusters: []clusterConfig{
+						{},
+					},
+					Vms: []virtualMachineConfig{
+						{},
+					}},
+				},
+			},
+			res: &common.Resource{
+				Name: "test",
+			},
+			types: common.TypeToResources{
+				"test": []*common.Resource{
+					{Name: "leased"},
+				},
+			},
+			result: expected{
+				err: "client not set",
+			},
+		},
 	}
 	for _, tc := range testCases {
-		defaultClient = &client{
-			operationTimeout: time.Second,
-			gce:              &fakeVMCreator{f: tc.vmf},
-			gke:              &fakeClusterCreator{f: tc.cf},
+		if tc.setClient {
+			c := &Client{
+				operationTimeout: time.Second,
+				gce:              &fakeVMCreator{f: tc.vmf},
+				gke:              &fakeClusterCreator{f: tc.cf},
+			}
+			SetClient(c)
+		} else {
+			SetClient(nil)
 		}
 		ud, err := tc.rc.Construct(tc.res, tc.types)
 		if tc.result.err != "" {

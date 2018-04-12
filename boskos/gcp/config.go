@@ -16,11 +16,11 @@ package gcp
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -35,10 +35,10 @@ import (
 )
 
 var (
-	seededRand     = rand.New(rand.NewSource(time.Now().UnixNano()))
-	serviceAccount = flag.String("service-account", "", "Path to projects service account")
-	// Testing only
-	defaultClient *client
+	seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
+	// Setting client
+	gcpClient     *Client
+	gcpClientLock sync.RWMutex
 )
 
 const (
@@ -49,157 +49,22 @@ const (
 	maxChannels             = 100
 )
 
-type projectConfig struct {
-	Clusters []clusterConfig        `json:"clusters,omitempty"`
-	Vms      []virtualMachineConfig `json:"vms,omitempty"`
+// SetClient sets the gcpClient used to construct a ResourceConfig
+func SetClient(c *Client) {
+	gcpClientLock.Lock()
+	defer gcpClientLock.Unlock()
+	gcpClient = c
 }
 
-// resource map of type of resource to list of project config
-type resourcesConfig map[string][]projectConfig
-
-type instanceInfo struct {
-	Name string `json:"name"`
-	Zone string `json:"zone"`
-}
-
-type projectInfo struct {
-	Clusters []instanceInfo `json:"clusters,omitempty"`
-	VMs      []instanceInfo `json:"vms,omitempty"`
-}
-
-// ResourceInfo holds information about the resource created, such that it can used
-type ResourceInfo map[string]projectInfo
-
-type vmCreator interface {
-	create(context.Context, string, virtualMachineConfig) (*instanceInfo, error)
-}
-
-type clusterCreator interface {
-	create(context.Context, string, clusterConfig) (*instanceInfo, error)
-}
-
-type client struct {
-	gke              clusterCreator
-	gce              vmCreator
-	operationTimeout time.Duration
-}
-
-// used for communication between go routine
-type com struct {
-	p   string
-	ci  *instanceInfo
-	vmi *instanceInfo
-}
-
-// Construct implements Masonable interface
-func (rc resourcesConfig) Construct(res *common.Resource, types common.TypeToResources) (common.UserData, error) {
-	var err error
-
-	if defaultClient == nil {
-		if defaultClient, err = newClient(); err != nil {
-			return nil, err
-		}
-	}
-
-	communication := make(chan com, maxChannels)
-
-	// Copy
-	typesCopy := types
-
-	popProject := func(rType string) *common.Resource {
-		if len(typesCopy[rType]) == 0 {
-			return nil
-		}
-		r := typesCopy[rType][len(typesCopy[rType])-1]
-		typesCopy[rType] = typesCopy[rType][:len(typesCopy[rType])-1]
-		return r
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), defaultClient.operationTimeout)
-	defer cancel()
-	errGroup, derivedCtx := errgroup.WithContext(ctx)
-
-	// Here we know that resources are of project type
-	for rType, pcs := range rc {
-		for _, pc := range pcs {
-			project := popProject(rType)
-			if project == nil {
-				err = fmt.Errorf("running out of project while creating resources")
-				logrus.WithError(err).Errorf("unable to create resources")
-				return nil, err
-			}
-			for _, cl := range pc.Clusters {
-				errGroup.Go(func() error {
-					clusterInfo, err := defaultClient.gke.create(derivedCtx, project.Name, cl)
-					if err != nil {
-						logrus.WithError(err).Errorf("unable to create cluster on project %s", project.Name)
-						return err
-					}
-					communication <- com{p: project.Name, ci: clusterInfo}
-					return nil
-				})
-			}
-			for _, vm := range pc.Vms {
-				errGroup.Go(func() error {
-					vmInfo, err := defaultClient.gce.create(derivedCtx, project.Name, vm)
-					if err != nil {
-						logrus.WithError(err).Errorf("unable to create vm on project %s", project.Name)
-						return err
-					}
-					communication <- com{p: project.Name, vmi: vmInfo}
-					return nil
-				})
-			}
-		}
-
-	}
-	if err := errGroup.Wait(); err != nil {
-		logrus.WithError(err).Errorf("failed to construct resources for %s", res.Name)
-		return nil, err
-	}
-	close(communication)
-
-	info := ResourceInfo{}
-
-	for c := range communication {
-		pi, exists := info[c.p]
-		if !exists {
-			pi = projectInfo{}
-		}
-		if c.ci != nil {
-			pi.Clusters = append(pi.Clusters, *c.ci)
-		} else {
-			pi.VMs = append(pi.VMs, *c.vmi)
-		}
-		info[c.p] = pi
-	}
-
-	userData := common.UserData{}
-	if err := userData.Set(ResourceConfigType, &info); err != nil {
-		logrus.WithError(err).Errorf("unable to set %s user data", ResourceConfigType)
-		return nil, err
-	}
-	return userData, nil
-}
-
-// ConfigConverter implements mason.ConfigConverter
-func ConfigConverter(in string) (mason.Masonable, error) {
-	var config resourcesConfig
-	if err := yaml.Unmarshal([]byte(in), &config); err != nil {
-		logrus.WithError(err).Errorf("unable to parse %s", in)
-		return nil, err
-	}
-	return &config, nil
-}
-
-func newClient() (*client, error) {
+// NewClient creates a new client
+func NewClient(serviceAccount string) (*Client, error) {
 	var (
 		oauthClient *http.Client
 		err         error
 	)
-	if *serviceAccount != "" {
+	if serviceAccount != "" {
 		var data []byte
-		data, err = ioutil.ReadFile(*serviceAccount)
+		data, err = ioutil.ReadFile(serviceAccount)
 		if err != nil {
 			return nil, err
 		}
@@ -223,11 +88,157 @@ func newClient() (*client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &client{
+	return &Client{
 		gke:              &containerEngine{gkeService},
 		gce:              &computeEngine{gceService},
 		operationTimeout: defaultOperationTimeout,
 	}, nil
+}
+
+type projectConfig struct {
+	Clusters []clusterConfig        `json:"clusters,omitempty"`
+	Vms      []virtualMachineConfig `json:"vms,omitempty"`
+}
+
+// resourceConfigs is resource map of type of resource to list of project config
+type resourceConfigs map[string][]projectConfig
+
+// InstanceInfo stores information about a cluster or a vm instance
+type InstanceInfo struct {
+	Name string `json:"name"`
+	Zone string `json:"zone"`
+}
+
+// ProjectInfo stores cluster and vm information for a given GCP project
+type ProjectInfo struct {
+	Clusters []InstanceInfo `json:"clusters,omitempty"`
+	VMs      []InstanceInfo `json:"vms,omitempty"`
+}
+
+// ResourceInfo holds information about the resource created, such that it can used
+type ResourceInfo map[string]ProjectInfo
+
+type vmCreator interface {
+	create(context.Context, string, virtualMachineConfig) (*InstanceInfo, error)
+}
+
+type clusterCreator interface {
+	create(context.Context, string, clusterConfig) (*InstanceInfo, error)
+}
+
+// Client abstracts operation with GCP
+type Client struct {
+	gke              clusterCreator
+	gce              vmCreator
+	operationTimeout time.Duration
+}
+
+// used for communication between go routine
+type com struct {
+	p   string
+	ci  *InstanceInfo
+	vmi *InstanceInfo
+}
+
+// Construct implements Masonable interface
+func (rc resourceConfigs) Construct(res *common.Resource, types common.TypeToResources) (common.UserData, error) {
+	var err error
+
+	if gcpClient == nil {
+		err = fmt.Errorf("client not set")
+		logrus.WithError(err).Error("client not set; please call SetClient")
+		return nil, err
+	}
+
+	communication := make(chan com, maxChannels)
+
+	// Copy
+	typesCopy := types
+
+	popProject := func(rType string) *common.Resource {
+		if len(typesCopy[rType]) == 0 {
+			return nil
+		}
+		r := typesCopy[rType][len(typesCopy[rType])-1]
+		typesCopy[rType] = typesCopy[rType][:len(typesCopy[rType])-1]
+		return r
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), gcpClient.operationTimeout)
+	defer cancel()
+	errGroup, derivedCtx := errgroup.WithContext(ctx)
+
+	// Here we know that resources are of project type
+	for rType, pcs := range rc {
+		for _, pc := range pcs {
+			project := popProject(rType)
+			if project == nil {
+				err = fmt.Errorf("running out of project while creating resources")
+				logrus.WithError(err).Errorf("unable to create resources")
+				return nil, err
+			}
+			for _, cl := range pc.Clusters {
+				errGroup.Go(func() error {
+					clusterInfo, err := gcpClient.gke.create(derivedCtx, project.Name, cl)
+					if err != nil {
+						logrus.WithError(err).Errorf("unable to create cluster on project %s", project.Name)
+						return err
+					}
+					communication <- com{p: project.Name, ci: clusterInfo}
+					return nil
+				})
+			}
+			for _, vm := range pc.Vms {
+				errGroup.Go(func() error {
+					vmInfo, err := gcpClient.gce.create(derivedCtx, project.Name, vm)
+					if err != nil {
+						logrus.WithError(err).Errorf("unable to create vm on project %s", project.Name)
+						return err
+					}
+					communication <- com{p: project.Name, vmi: vmInfo}
+					return nil
+				})
+			}
+		}
+
+	}
+	if err := errGroup.Wait(); err != nil {
+		logrus.WithError(err).Errorf("failed to construct resources for %s", res.Name)
+		return nil, err
+	}
+	close(communication)
+
+	info := ResourceInfo{}
+
+	for c := range communication {
+		pi, exists := info[c.p]
+		if !exists {
+			pi = ProjectInfo{}
+		}
+		if c.ci != nil {
+			pi.Clusters = append(pi.Clusters, *c.ci)
+		} else {
+			pi.VMs = append(pi.VMs, *c.vmi)
+		}
+		info[c.p] = pi
+	}
+
+	userData := common.UserData{}
+	if err := userData.Set(ResourceConfigType, &info); err != nil {
+		logrus.WithError(err).Errorf("unable to set %s user data", ResourceConfigType)
+		return nil, err
+	}
+	return userData, nil
+}
+
+// ConfigConverter implements mason.ConfigConverter
+func ConfigConverter(in string) (mason.Masonable, error) {
+	var config resourceConfigs
+	if err := yaml.Unmarshal([]byte(in), &config); err != nil {
+		logrus.WithError(err).Errorf("unable to parse %s", in)
+		return nil, err
+	}
+	return &config, nil
 }
 
 func randomString(length int) string {
