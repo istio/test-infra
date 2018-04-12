@@ -322,7 +322,7 @@ func DailyReleaseQualification() error {
 		case ci.Pending:
 			log.Printf("Results still pending. Will check again in %v.\n", retryDelay)
 			// Need this error to fail qualification in case we don't have any result after timeout.
-			errPoll = fmt.Errorf("Test result is still pending")
+			errPoll = fmt.Errorf("test result is still pending")
 		}
 		return exitPolling, errPoll
 	})
