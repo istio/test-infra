@@ -21,7 +21,6 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -38,6 +37,8 @@ import (
 var (
 	seededRand     = rand.New(rand.NewSource(time.Now().UnixNano()))
 	serviceAccount = flag.String("service-account", "", "Path to projects service account")
+	// Testing only
+	defaultClient *client
 )
 
 const (
@@ -45,17 +46,16 @@ const (
 	ResourceConfigType      = "GCPResourceConfig"
 	defaultOperationTimeout = 20 * time.Minute
 	charset                 = "abcdefghijklmnopqrstuvwxyz1234567890"
+	maxChannels             = 100
 )
 
 type projectConfig struct {
-	Type     string                 `json:"type,omitempty"`
 	Clusters []clusterConfig        `json:"clusters,omitempty"`
 	Vms      []virtualMachineConfig `json:"vms,omitempty"`
 }
 
-type resourcesConfig struct {
-	ProjectConfigs []projectConfig `json:"projectconfigs,omitempty"`
-}
+// resource map of type of resource to list of project config
+type resourcesConfig map[string][]projectConfig
 
 type instanceInfo struct {
 	Name string `json:"name"`
@@ -63,15 +63,12 @@ type instanceInfo struct {
 }
 
 type projectInfo struct {
-	Name     string         `json:"name"`
 	Clusters []instanceInfo `json:"clusters,omitempty"`
 	VMs      []instanceInfo `json:"vms,omitempty"`
 }
 
 // ResourceInfo holds information about the resource created, such that it can used
-type ResourceInfo struct {
-	ProjectsInfo []projectInfo `json:"projectsinfo,omitempty"`
-}
+type ResourceInfo map[string]projectInfo
 
 type vmCreator interface {
 	create(context.Context, string, virtualMachineConfig) (*instanceInfo, error)
@@ -82,20 +79,30 @@ type clusterCreator interface {
 }
 
 type client struct {
-	gke clusterCreator
-	gce vmCreator
+	gke              clusterCreator
+	gce              vmCreator
 	operationTimeout time.Duration
 }
 
+// used for communication between go routine
+type com struct {
+	p   string
+	ci  *instanceInfo
+	vmi *instanceInfo
+}
+
 // Construct implements Masonable interface
-func (rc *resourcesConfig) Construct(res *common.Resource, types common.TypeToResources) (common.UserData, error) {
-	info := ResourceInfo{}
+func (rc resourcesConfig) Construct(res *common.Resource, types common.TypeToResources) (common.UserData, error) {
 	var err error
 
-	gcpClient, err := newClient()
-	if err != nil {
-		return nil, err
+	if defaultClient == nil {
+		if defaultClient, err = newClient(); err != nil {
+			return nil, err
+		}
 	}
+
+	communication := make(chan com, maxChannels)
+
 	// Copy
 	typesCopy := types
 
@@ -108,54 +115,63 @@ func (rc *resourcesConfig) Construct(res *common.Resource, types common.TypeToRe
 		return r
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), gcpClient.operationTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultClient.operationTimeout)
 	defer cancel()
 	errGroup, derivedCtx := errgroup.WithContext(ctx)
-	var infoMutex sync.RWMutex
 
 	// Here we know that resources are of project type
-	for _, pc := range rc.ProjectConfigs {
-		project := popProject(pc.Type)
-		if project == nil {
-			err = fmt.Errorf("running out of project while creating resources")
-			logrus.WithError(err).Errorf("unable to create resources")
-			return nil, err
+	for rType, pcs := range rc {
+		for _, pc := range pcs {
+			project := popProject(rType)
+			if project == nil {
+				err = fmt.Errorf("running out of project while creating resources")
+				logrus.WithError(err).Errorf("unable to create resources")
+				return nil, err
+			}
+			for _, cl := range pc.Clusters {
+				errGroup.Go(func() error {
+					clusterInfo, err := defaultClient.gke.create(derivedCtx, project.Name, cl)
+					if err != nil {
+						logrus.WithError(err).Errorf("unable to create cluster on project %s", project.Name)
+						return err
+					}
+					communication <- com{p: project.Name, ci: clusterInfo}
+					return nil
+				})
+			}
+			for _, vm := range pc.Vms {
+				errGroup.Go(func() error {
+					vmInfo, err := defaultClient.gce.create(derivedCtx, project.Name, vm)
+					if err != nil {
+						logrus.WithError(err).Errorf("unable to create vm on project %s", project.Name)
+						return err
+					}
+					communication <- com{p: project.Name, vmi: vmInfo}
+					return nil
+				})
+			}
 		}
-		pi := projectInfo{Name: project.Name}
-		for _, cl := range pc.Clusters {
-			errGroup.Go(func() error {
-				clusterInfo, err := gcpClient.gke.create(derivedCtx, project.Name, cl)
-				if err != nil {
-					logrus.WithError(err).Errorf("unable to create cluster on project %s", project.Name)
-					return err
-				}
-				infoMutex.Lock()
-				pi.Clusters = append(pi.Clusters, *clusterInfo)
-				infoMutex.Unlock()
-				return nil
-			})
-		}
-		for _, vm := range pc.Vms {
-			errGroup.Go(func() error {
-				vmInfo, err := gcpClient.gce.create(derivedCtx, project.Name, vm)
-				if err != nil {
-					logrus.WithError(err).Errorf("unable to create vm on project %s", project.Name)
-					return err
-				}
-				infoMutex.Lock()
-				pi.VMs = append(pi.VMs, *vmInfo)
-				infoMutex.Unlock()
-				return nil
-			})
-		}
-		infoMutex.Lock()
-		info.ProjectsInfo = append(info.ProjectsInfo, pi)
-		infoMutex.Unlock()
-	}
 
+	}
 	if err := errGroup.Wait(); err != nil {
 		logrus.WithError(err).Errorf("failed to construct resources for %s", res.Name)
 		return nil, err
+	}
+	close(communication)
+
+	info := ResourceInfo{}
+
+	for c := range communication {
+		pi, exists := info[c.p]
+		if !exists {
+			pi = projectInfo{}
+		}
+		if c.ci != nil {
+			pi.Clusters = append(pi.Clusters, *c.ci)
+		} else {
+			pi.VMs = append(pi.VMs, *c.vmi)
+		}
+		info[c.p] = pi
 	}
 
 	userData := common.UserData{}
@@ -230,9 +246,9 @@ func generateName(prefix string) string {
 
 // Install kubeconfig for a given resource. It will create only one file with all contexts.
 func (r ResourceInfo) Install(kubeconfig string) error {
-	for _, p := range r.ProjectsInfo {
+	for project, p := range r {
 		for _, c := range p.Clusters {
-			if err := SetKubeConfig(p.Name, c.Zone, c.Name, kubeconfig); err != nil {
+			if err := SetKubeConfig(project, c.Zone, c.Name, kubeconfig); err != nil {
 				logrus.WithError(err).Errorf("failed to set kubeconfig")
 				return err
 			}
