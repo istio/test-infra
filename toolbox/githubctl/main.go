@@ -180,7 +180,7 @@ func UpdateIstioVersionAfterReleaseTagsMadeOnDeps() error {
 		cmd += fmt.Sprintf(" -p %s -i %s -P %s", hubCommaTag, istioctlURL, debianURL)
 		// Proxy
 		cmd += fmt.Sprintf(" -r %s -E %s", releaseTag, debianURL)
-		_, err := u.Shell(cmd)
+		_, err = u.Shell(cmd)
 		return err
 	}
 	releaseBranch := "Istio_Release_" + releaseTag
@@ -210,16 +210,16 @@ func CreateIstioReleaseUploadArtifacts() error {
 			downloadScript, "ISTIO_VERSION", fmt.Sprintf("${ISTIO_VERSION:-%s}", releaseTag))
 	}
 	edit := func() error {
-		if _, err := u.Shell(
+		if _, err = u.Shell(
 			"./release/create_release_archives.sh -d " + releaseBaseDir); err != nil {
 			return err
 		}
 		archiveDir := releaseBaseDir + "/archives"
-		if err := githubClnt.CreateReleaseUploadArchives(
+		if err = githubClnt.CreateReleaseUploadArchives(
 			istioRepo, releaseTag, *refSHA, archiveDir); err != nil {
 			return err
 		}
-		if err := u.WriteTextFile(releaseTagFile, *nextRelease); err != nil {
+		if err = u.WriteTextFile(releaseTagFile, *nextRelease); err != nil {
 			return err
 		}
 		return updateVersion()
