@@ -80,7 +80,7 @@ type ProwAccessor struct {
 	gcsBucket     string
 	gcsClient     u.IGCSClient
 	rerunCmd      func(node string) error
-	presubmitJobs []string
+	presubmitJobs map[string]bool
 }
 
 // NewProwAccessor creates a new ProwAccessor
@@ -91,39 +91,38 @@ func NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket string, cli
 		gubernatorURL: gubernatorURL,
 		gcsClient:     client,
 		gcsBucket:     gcsBucket,
+		presubmitJobs: make(map[string]bool),
 		rerunCmd: func(node string) error {
-			_, e := u.Shell("kubectl create -f \"https://prow.istio.io/rerun?prowjob=%s\"", node)
+			_, e := u.Shell("echo kubectl create -f \"https://prow.istio.io/rerun?prowjob=%s\"", node)
 			return e
 		},
 	}
 }
 
 // RegisterPresubmitJobs marks `jobNames` as pre-submit jobs
-func (p *ProwAccessor) RegisterPresubmitJobs(jobNames []string) {
-	p.presubmitJobs = jobNames
+func (p *ProwAccessor) RegisterPresubmitJobs(presubmitJobNames []string) {
+	for _, jobName := range presubmitJobNames {
+		p.presubmitJobs[jobName] = true
+	}
 }
 
 func (p *ProwAccessor) buildGCSPath(jobName string) string {
-	for _, presubmitJob := range p.presubmitJobs {
-		if jobName == presubmitJob {
-			return filepath.Join("directory", jobName)
-		}
+	if _, containsKey := p.presubmitJobs[jobName]; containsKey {
+		return filepath.Join("directory", jobName)
 	}
 	// postsubmit path is just the job name
 	return jobName
 }
 
 func (p *ProwAccessor) buildGCSPathWithIndirection(jobName string, runNo int) (string, error) {
-	for _, presubmitJob := range p.presubmitJobs {
-		if jobName == presubmitJob {
-			redirect := filepath.Join("directory", jobName, fmt.Sprintf("%d.txt", runNo))
-			redirectURL, err := p.gcsClient.Read(redirect)
-			if err != nil {
-				return "", err
-			}
-			bucketPrefix := fmt.Sprintf("gs://%s/", p.gcsBucket)
-			return redirectURL[len(bucketPrefix):], nil
+	if _, containsKey := p.presubmitJobs[jobName]; containsKey {
+		redirect := filepath.Join("directory", jobName, fmt.Sprintf("%d.txt", runNo))
+		redirectURL, err := p.gcsClient.Read(redirect)
+		if err != nil {
+			return "", err
 		}
+		bucketPrefix := fmt.Sprintf("gs://%s/", p.gcsBucket)
+		return redirectURL[len(bucketPrefix):], nil
 	}
 	return filepath.Join(jobName, strconv.Itoa(runNo)), nil
 }

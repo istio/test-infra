@@ -26,7 +26,7 @@ import (
 const (
 	// Alert settings
 	sender         = "istio.testing@gmail.com"
-	oncallMaillist = "istio-oncall@googlegroupsisyphus.com"
+	oncallMaillist = "istio-oncall@googlegroups.com"
 	subject        = "ATTENTION - Istio Post-Submit Test Failed"
 	prologue       = "Hi istio-oncall,\n\n" +
 		"Post-Submit is failing in istio/istio, please take a look at following failure(s) and fix ASAP\n\n"
