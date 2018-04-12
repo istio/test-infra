@@ -20,6 +20,9 @@ import (
 
 	"k8s.io/test-infra/boskos/mason"
 	"k8s.io/test-infra/boskos/ranch"
+	"context"
+	"fmt"
+	"k8s.io/test-infra/boskos/common"
 )
 
 func TestParseInvalidConfig(t *testing.T) {
@@ -78,4 +81,71 @@ func TestParseConfig(t *testing.T) {
 	if err = mason.ValidateConfig(configs, resources); err != nil {
 		t.Errorf(err.Error())
 	}
+}
+
+type fakeVMCreator struct {
+	fail bool
+}
+
+func (fVMc * fakeVMCreator) create(ctx context.Context, p string, c virtualMachineConfig) (*instanceInfo, error) {
+	if fVMc.fail {
+		return nil, fmt.Errorf("failed")
+	}
+	return &instanceInfo{
+		Name: "VMname",
+		Zone: "VMzone",
+	}, nil
+}
+
+
+type fakeClusterCreator struct {
+	fail bool
+}
+
+func (fcc *fakeClusterCreator) create(ctx context.Context, p string, c clusterConfig) (*instanceInfo, error) {
+	if fcc.fail {
+		return nil, fmt.Errorf("failed")
+	}
+	return &instanceInfo{
+		Name: "ClusterName",
+		Zone: "ClusterZone",
+	}, nil
+}
+
+
+func TestResourcesConfig_Construct(t *testing.T) {
+	testCases := []struct{
+		name string
+		rc resourcesConfig
+		res *common.Resource
+		types common.TypeToResources
+		err string
+	}{
+		{},
+	}
+	for _, tc := range testCases {
+		ud, err := tc.rc.Construct(&res, types)
+		if err != nil {
+			if err.Error() != tc.err {
+				t.Errorf("%s - expected err %s got %s", tc.name, tc.err, err)
+			}
+		} else if tc.err != "" {
+			t.Errorf("%s - expected err %s got nothing", tc.name, tc.err)
+		}
+		if tc.
+	}
+
+	rc := &resourcesConfig{
+		ProjectConfigs: []projectConfig{
+				{
+					Type: "test",
+					Clusters: []clusterConfig{},
+					Vms: []virtualMachineConfig{},
+				},
+		},
+	}
+	res := common.Resource{}
+	types := common.TypeToResources{}
+
+
 }

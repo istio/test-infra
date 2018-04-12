@@ -42,9 +42,9 @@ var (
 
 const (
 	// ResourceConfigType defines the GCP config type
-	ResourceConfigType = "GCPResourceConfig"
-	operationTimeout   = 20 * time.Minute
-	charset            = "abcdefghijklmnopqrstuvwxyz1234567890"
+	ResourceConfigType      = "GCPResourceConfig"
+	defaultOperationTimeout = 20 * time.Minute
+	charset                 = "abcdefghijklmnopqrstuvwxyz1234567890"
 )
 
 type projectConfig struct {
@@ -73,9 +73,18 @@ type ResourceInfo struct {
 	ProjectsInfo []projectInfo `json:"projectsinfo,omitempty"`
 }
 
+type vmCreator interface {
+	create(context.Context, string, virtualMachineConfig) (*instanceInfo, error)
+}
+
+type clusterCreator interface {
+	create(context.Context, string, clusterConfig) (*instanceInfo, error)
+}
+
 type client struct {
-	gke containerEngine
-	gce computeEngine
+	gke clusterCreator
+	gce vmCreator
+	operationTimeout time.Duration
 }
 
 // Construct implements Masonable interface
@@ -99,10 +108,10 @@ func (rc *resourcesConfig) Construct(res *common.Resource, types common.TypeToRe
 		return r
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), operationTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), gcpClient.operationTimeout)
 	defer cancel()
 	errGroup, derivedCtx := errgroup.WithContext(ctx)
-	var mutex sync.RWMutex
+	var infoMutex sync.RWMutex
 
 	// Here we know that resources are of project type
 	for _, pc := range rc.ProjectConfigs {
@@ -120,9 +129,9 @@ func (rc *resourcesConfig) Construct(res *common.Resource, types common.TypeToRe
 					logrus.WithError(err).Errorf("unable to create cluster on project %s", project.Name)
 					return err
 				}
-				mutex.Lock()
-				defer mutex.Unlock()
+				infoMutex.Lock()
 				pi.Clusters = append(pi.Clusters, *clusterInfo)
+				infoMutex.Unlock()
 				return nil
 			})
 		}
@@ -133,13 +142,15 @@ func (rc *resourcesConfig) Construct(res *common.Resource, types common.TypeToRe
 					logrus.WithError(err).Errorf("unable to create vm on project %s", project.Name)
 					return err
 				}
-				mutex.Lock()
-				defer mutex.Unlock()
+				infoMutex.Lock()
 				pi.VMs = append(pi.VMs, *vmInfo)
+				infoMutex.Unlock()
 				return nil
 			})
 		}
+		infoMutex.Lock()
 		info.ProjectsInfo = append(info.ProjectsInfo, pi)
+		infoMutex.Unlock()
 	}
 
 	if err := errGroup.Wait(); err != nil {
@@ -197,8 +208,9 @@ func newClient() (*client, error) {
 		return nil, err
 	}
 	return &client{
-		gke: containerEngine{gkeService},
-		gce: computeEngine{gceService},
+		gke:              &containerEngine{gkeService},
+		gce:              &computeEngine{gceService},
+		operationTimeout: defaultOperationTimeout,
 	}, nil
 }
 
