@@ -15,6 +15,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -31,6 +32,15 @@ const (
 var (
 	tmpDir string
 )
+
+type fakeStorage struct {
+	uploaded bool
+}
+
+func (f *fakeStorage) upload(ctx context.Context, dest, data string) error {
+	f.uploaded = true
+	return nil
+}
 
 func TestParseReport(t *testing.T) {
 	exampleReport := "?   \tpilot/cmd\t[no test files]\nok  \tpilot/model\t1.3s\tcoverage: 90.2% of statements"
@@ -164,17 +174,24 @@ func TestPassCheck(t *testing.T) {
 		}
 	}
 
+	s := &fakeStorage{}
+
 	c := &codecovChecker{
 		codeCoverage:    make(map[string]float64),
 		codeRequirement: make(map[string]float64),
 		report:          reportFile,
 		requirement:     requirementFile,
-		bucket:          "fake",
+		buildID:         "1234",
+		jobIdentifier:   "fakeJOb",
+		storage:         s,
 	}
 
 	// No other error code, code only show gcs upload failed which is expected
-	if code := c.checkPackageCoverage(); code != 3 {
-		t.Errorf("Unexpected return code, expected: %d, actual: %d", 3, code)
+	if code := c.checkPackageCoverage(); code != 0 {
+		t.Errorf("Unexpected return code, expected: %d, actual: %d", 0, code)
+	}
+	if !s.uploaded {
+		t.Errorf("upload method was not called")
 	}
 }
 

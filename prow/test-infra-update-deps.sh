@@ -35,6 +35,8 @@ git config --global user.name "istio-bot"
 TOKEN_PATH="/etc/github/oauth"
 UPDATE_EXT_DEP="false"
 
+UPDATE_BINARY="./bazel-bin/toolbox/deps_update/linux_amd64_stripped/deps_update"
+
 # List of repo where auto dependency update has been enabled
 # excluding istio/istio
 case ${GIT_BRANCH} in
@@ -46,7 +48,7 @@ case ${GIT_BRANCH} in
     # TODO need to update the bot for istio after fixing it
     case ${hour} in
       02|04|06|08|10|12)
-	./bazel-bin/toolbox/deps_update/deps_update \
+	${UPDATE_BINARY} \
 		--repo="istio" \
 		--base_branch=${GIT_BRANCH} \
 		--token_file=${TOKEN_PATH} \
@@ -68,7 +70,7 @@ esac
 
 for r in "${repos[@]}"; do
   echo "=== Updating Dependency of ${r} ==="
-  ./bazel-bin/toolbox/deps_update/deps_update \
+  ${UPDATE_BINARY} \
     --repo=${r} \
     --base_branch=${GIT_BRANCH} \
     --token_file=${TOKEN_PATH} \

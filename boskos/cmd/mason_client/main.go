@@ -26,7 +26,6 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-
 	"k8s.io/test-infra/boskos/client"
 	"k8s.io/test-infra/boskos/common"
 	"k8s.io/test-infra/boskos/mason"
@@ -53,6 +52,7 @@ var (
 	timeoutStr  = flag.String("timeout", defaultTimeout, "Timeout ")
 	kubecfgPath = flag.String("kubeconfig-save", defaultKubeconfig(), "Path to write kubeconfig file to")
 	infoSave    = flag.String("info-save", "", "Path to save info")
+	boskosURL   = flag.String("boskos-url", "http://boskos", "Boskos Server URL")
 )
 
 type masonClient struct {
@@ -136,7 +136,7 @@ func main() {
 		flag.Usage()
 		return
 	}
-	client := masonClient{mason: mason.NewClient(client.NewClient(*owner, *client.BoskosURL))}
+	client := masonClient{mason: mason.NewClient(client.NewClient(*owner, *boskosURL))}
 	if *kubecfgPath == "" {
 		logrus.Panic("flag --type must be set")
 	}
@@ -151,6 +151,7 @@ func main() {
 	defer updateCancel()
 	client.update(c2, common.Busy)
 
+loop:
 	for cType := range res.UserData {
 		switch cType {
 		case gcp.ResourceConfigType:
@@ -169,7 +170,7 @@ func main() {
 				}
 				logrus.Infof("Saved user data to %s", *infoSave)
 			}
-			break
+			break loop
 		}
 	}
 	logrus.Infof("READY")

@@ -4,30 +4,23 @@ set -e
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BIN_PATH="${ROOT}/scripts"
 
-bazel ${BAZEL_STARTUP_ARGS} build ${BAZEL_RUN_ARGS} \
-  //... $(bazel query 'tests(//...)')
+echo 'Installing gometalinter ...'
+go get -u gopkg.in/alecthomas/gometalinter.v2
 
-source ${BIN_PATH}/use_bazel_go.sh
+gometalinter.v2 --install
 
 cd ${ROOT}
 echo 'Running gometalinter ...'
-docker run \
-  -v $(bazel info output_base):$(bazel info output_base) \
-  -v $(pwd):/go/src/istio.io/test-infra \
-  -w /go/src/istio.io/test-infra \
-  gcr.io/istio-testing/linter:bfcc1d6942136fd86eb6f1a6fb328de8398fbd80 \
+gometalinter.v2 ./... \
   --concurrency=4\
-  --enable-gc\
-  --vendored-linters\
   --deadline=600s --disable-all\
-  --enable=aligncheck\
   --enable=deadcode\
   --enable=errcheck\
-  --enable=gas\
+  --enable-gc\
   --enable=goconst\
   --enable=gofmt\
   --enable=goimports\
-  --enable=golint --min-confidence=0 --exclude=.pb.go --exclude=vendor/ --exclude='should have a package comment'\
+  --enable=golint --min-confidence=0\
   --enable=ineffassign\
   --enable=interfacer\
   --enable=lll --line-length=160\
@@ -38,6 +31,10 @@ docker run \
   --enable=varcheck\
   --enable=vet\
   --enable=vetshadow\
+  --exclude='should have a package comment'\
+  --exclude=.pb.go\
+  --vendor\
+  --vendored-linters\
   ./...
 echo 'gometalinter OK'
 

@@ -41,6 +41,22 @@ var (
 	}
 )
 
+// Retry executes do() until no error was returned or numTrials has reached
+func Retry(interval time.Duration, numTrials int, do func() error) error {
+	if numTrials < 0 {
+		return fmt.Errorf("numTrials cannot be negative")
+	}
+	for i := 0; i < numTrials; i++ {
+		if err := do(); err != nil {
+			log.Printf("Error during trial %d: %v\nRetry in %v\n", i, err, interval)
+			time.Sleep(interval)
+		} else {
+			return nil
+		}
+	}
+	return fmt.Errorf("max iteration reached")
+}
+
 // Poll executes do() after time interval for a max of numTrials times.
 // The bool returned by do() indicates if polling succeeds in that trial
 func Poll(interval time.Duration, numTrials int, do func() (bool, error)) error {
@@ -56,7 +72,7 @@ func Poll(interval time.Duration, numTrials int, do func() (bool, error)) error 
 			time.Sleep(interval)
 		}
 	}
-	return fmt.Errorf("max polling iteration reached")
+	return fmt.Errorf("max iteration reached")
 }
 
 // ReadFile reads the file on the given path and
@@ -198,6 +214,13 @@ func FillUpTemplate(t string, i interface{}) (string, error) {
 // AssertNotEmpty check if a value is empty, exit if value not specified
 func AssertNotEmpty(name string, value *string) {
 	if value == nil || *value == "" {
+		log.Fatalf("%s must be specified\n", name)
+	}
+}
+
+// AssertIntDefined check if an int value is defined, exit if value not specified
+func AssertIntDefined(name string, value *int, undefinedVal int) {
+	if value == nil || *value == undefinedVal {
 		log.Fatalf("%s must be specified\n", name)
 	}
 }

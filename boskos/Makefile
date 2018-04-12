@@ -35,13 +35,13 @@ config: serviceaccount boskos-config mason-config
 
 boskos-config:
 	kubectl create configmap boskos-config\
-		--from-file=config=resources.yaml\
+		--from-file=resources.yaml\
 		-n $(NAMESPACE) --dry-run -o yaml\
 		| kubectl apply -f -
 
 mason-config:
 	kubectl create configmap mason-config\
-		--from-file=config=configs.yaml\
+		--from-file=configs.yaml\
 		-n $(NAMESPACE) --dry-run -o yaml\
 		| kubectl apply -f -
 

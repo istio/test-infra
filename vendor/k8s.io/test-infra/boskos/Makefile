@@ -59,22 +59,23 @@ metrics-image:
 	docker push "$(HUB)/metrics:$(TAG)"
 	rm metrics/metrics
 
-server-deployment:
+server-deployment: get-cluster-credentials
 	kubectl apply -f deployment.yaml
 
-reaper-deployment:
+reaper-deployment: get-cluster-credentials
 	kubectl apply -f reaper/deployment.yaml
 
-janitor-deployment:
+janitor-deployment: get-cluster-credentials
 	kubectl apply -f janitor/deployment.yaml
 
-metrics-deployment:
+metrics-deployment: get-cluster-credentials
 	kubectl apply -f metrics/deployment.yaml
 
-service:
+service: get-cluster-credentials
 	kubectl apply -f service.yaml
 
 update-config: get-cluster-credentials
+	#TODO: create the resources.yaml and use it instead
 	kubectl create configmap resources --from-file=config=resources.yaml --dry-run -o yaml | kubectl --namespace="$(NAMESPACE)" replace configmap resources -f -
 
 get-cluster-credentials:

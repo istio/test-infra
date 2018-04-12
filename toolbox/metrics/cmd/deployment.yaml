@@ -1,0 +1,32 @@
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: metrics-fetcher
+  namespace: metrics
+spec:
+  replicas: 1
+  strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        istio: metrics-fetcher
+    spec:
+      containers:
+      - name: metrics-fetcher
+        image: gcr.io/istio-testing/metrics_fetcher:1523046863300
+        args:
+        - --service_account_json=/etc/service-account/service-account.json
+        - --alsologtostderr
+        volumeMounts:
+        - mountPath: /etc/service-account
+          name: service-account
+          readOnly: true
+      volumes:
+      - name: service-account
+        secret:
+          secretName: metrics-service-account
+

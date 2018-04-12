@@ -77,12 +77,14 @@ func (g *GithubClient) SHAIsAncestorOfBranch(repo, branch, targetSHA string) (bo
 		if targetSHA == sha {
 			return true, nil
 		}
-		commit, _, err := g.client.Repositories.GetCommit(
+		var commit *github.RepositoryCommit
+		commit, _, err = g.client.Repositories.GetCommit(
 			context.Background(), g.owner, repo, sha)
 		if err != nil {
 			return false, err
 		}
-		creationTime, err := g.GetCommitCreationTime(repo, sha)
+		var creationTime time.Time
+		creationTime, err = g.GetCommitCreationTime(repo, sha)
 		if err != nil {
 			return false, err
 		}
@@ -355,7 +357,8 @@ func (g *GithubClient) GetTagCommitSHA(repo, tag string) (string, error) {
 	}
 
 	if ty == "tag" {
-		tagObj, _, err := g.client.Git.GetTag(context.Background(), g.owner, repo, sha)
+		var tagObj *github.Tag
+		tagObj, _, err = g.client.Git.GetTag(context.Background(), g.owner, repo, sha)
 		if err != nil {
 			log.Printf("Failed to get tag object %s", sha)
 			return "", err
@@ -429,7 +432,7 @@ func (g *GithubClient) GetannotatedTagCreationTime(repo, tag string) (time.Time,
 
 // GetFileContent retrieves the file content from the hosted repo
 func (g *GithubClient) GetFileContent(repo, branch, path string) (string, error) {
-	opt := github.RepositoryContentGetOptions{branch}
+	opt := github.RepositoryContentGetOptions{Ref: branch}
 	fileContent, _, _, err := g.client.Repositories.GetContents(
 		context.Background(), g.owner, repo, path, &opt)
 	if err != nil {
@@ -515,7 +518,7 @@ func (g *GithubClient) CreateReleaseUploadArchives(repo, releaseTag, sha, archiv
 		if err != nil {
 			return err
 		}
-		opt := github.UploadOptions{f.Name()}
+		opt := github.UploadOptions{Name: f.Name()}
 		_, _, err = g.client.Repositories.UploadReleaseAsset(
 			context.Background(), g.owner, repo, releaseID, &opt, fd)
 		if err != nil {

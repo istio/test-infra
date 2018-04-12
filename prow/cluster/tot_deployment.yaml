@@ -43,10 +43,11 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
       - name: tot
-        image: gcr.io/k8s-prow/tot:v20180223-28212fe21
+        image: gcr.io/k8s-prow/tot:v20180411-68d5d28e8
         imagePullPolicy: Always
         args:
         - -storage=/store/tot.json
+        - -fallback
         ports:
           - name: http
             containerPort: 8888

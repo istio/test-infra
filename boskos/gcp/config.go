@@ -22,18 +22,14 @@ import (
 	"net/http"
 	"time"
 
-	"gopkg.in/yaml.v2"
-
 	"github.com/sirupsen/logrus"
-
-	"k8s.io/test-infra/boskos/common"
-	"k8s.io/test-infra/boskos/mason"
-
-	"google.golang.org/api/compute/v1"
-	"google.golang.org/api/container/v1"
-
 	"golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
+	"google.golang.org/api/compute/v1"
+	"google.golang.org/api/container/v1"
+	"gopkg.in/yaml.v2"
+	"k8s.io/test-infra/boskos/common"
+	"k8s.io/test-infra/boskos/mason"
 )
 
 var (

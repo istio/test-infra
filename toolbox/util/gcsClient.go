@@ -17,59 +17,65 @@ package util
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"log"
 
 	"cloud.google.com/go/storage"
 )
 
+// IGCSClient defines public functions of GCSClient
+type IGCSClient interface {
+	Read(obj string) (string, error)
+	Write(obj, txt string) error
+}
+
 // GCSClient masks RPCs to gcs as local procedures
 type GCSClient struct {
-	client *storage.Client
+	client *storage.BucketHandle
+	bucket string
 }
 
 // NewGCSClient creates a new GCSClient
-func NewGCSClient() *GCSClient {
+func NewGCSClient(bucket string) *GCSClient {
 	gcsClient, err := storage.NewClient(context.Background())
 	if err != nil {
-		log.Fatalf("Failed to create a gcs client, %v", err)
+		log.Fatalf("Failed to create a gcs client, %v\n", err)
 		return nil
 	}
 	return &GCSClient{
-		client: gcsClient,
+		client: gcsClient.Bucket(bucket),
+		bucket: bucket,
 	}
 }
 
-// GetFileFromGCSReader gets a file and return a reader
-// Caller is responsible to close reader afterwards.
-func (gcs *GCSClient) GetFileFromGCSReader(bucket, obj string) (*storage.Reader, error) {
+// Read gets a file and return a string
+func (gcs *GCSClient) Read(obj string) (string, error) {
 	ctx := context.Background()
-	r, err := gcs.client.Bucket(bucket).Object(obj).NewReader(ctx)
 
+	r, err := gcs.client.Object(obj).NewReader(ctx)
 	if err != nil {
-		log.Printf("Failed to download file %s/%s from gcs, %v", bucket, obj, err)
-		return nil, err
-	}
-
-	return r, nil
-}
-
-// GetFileFromGCSString gets a file and return a string
-func (gcs *GCSClient) GetFileFromGCSString(bucket, obj string) (string, error) {
-	r, err := gcs.GetFileFromGCSReader(bucket, obj)
-	if err != nil {
+		log.Printf("Failed to open a reader on file %s/%s from gcs, %v\n", gcs.bucket, obj, err)
 		return "", err
 	}
 	defer func() {
 		if err = r.Close(); err != nil {
-			log.Printf("Failed to close gcs file reader, %v", err)
+			log.Printf("Failed to close gcs file reader, %v\n", err)
 		}
 	}()
-
 	buf := new(bytes.Buffer)
 	if _, err = buf.ReadFrom(r); err != nil {
-		log.Printf("Failed to read from gcs reader, %v", err)
+		log.Printf("Failed to read from gcs reader, %v\n", err)
 		return "", err
 	}
-
 	return buf.String(), nil
+}
+
+// Write writes text to file on gcs
+func (gcs *GCSClient) Write(obj, txt string) error {
+	ctx := context.Background()
+	w := gcs.client.Object(obj).NewWriter(ctx)
+	if _, err := fmt.Fprintf(w, txt); err != nil {
+		log.Printf("Failed to write to gcs: %v\n", err)
+	}
+	return w.Close()
 }

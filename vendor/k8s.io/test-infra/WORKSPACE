@@ -8,10 +8,10 @@ load("@bazel_skylib//:lib.bzl", "versions")
 
 versions.check(minimum_bazel_version = "0.10.0")
 
-git_repository(
+http_archive(
     name = "io_bazel_rules_go",
-    commit = "bdf2df58c0d352ffa262ae4b36c7a1a2d6e3f0c9",
-    remote = "https://github.com/bazelbuild/rules_go.git",
+    url = "https://github.com/bazelbuild/rules_go/releases/download/0.10.3/rules_go-0.10.3.tar.gz",
+    sha256 = "feba3278c13cde8d67e341a837f69a029f698d7a27ddbb2a202be7a10b22142a",
 )
 
 load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains")
@@ -19,7 +19,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_too
 go_rules_dependencies()
 
 go_register_toolchains(
-    go_version = "1.9.3",
+    go_version = "1.10.1",
 )
 
 git_repository(
@@ -30,9 +30,9 @@ git_repository(
 
 http_archive(
     name = "io_bazel_rules_docker",
-    sha256 = "c919051945ab388c8440ea92d7ceb429fdbbf0a53639e6e0159b231881ceed02",
-    strip_prefix = "rules_docker-3caf72f166f8b6b0e529442477a74871ad4d35e9",
-    urls = ["https://github.com/bazelbuild/rules_docker/archive/3caf72f166f8b6b0e529442477a74871ad4d35e9.tar.gz"],
+    sha256 = "cef4e7adfc1df999891e086bf42bed9092cfdf374adb902f18de2c1d6e1e0197",
+    strip_prefix = "rules_docker-198367210c55fba5dded22274adde1a289801dc4",
+    urls = ["https://github.com/bazelbuild/rules_docker/archive/198367210c55fba5dded22274adde1a289801dc4.tar.gz"],
 )
 
 git_repository(
@@ -74,6 +74,14 @@ docker_pull(
     digest = "sha256:92423bd3b24b0274198bb90c00e91b70d81c32e1d6bd26af30c00ca9f5faeb74",
     registry = "gcr.io",
     repository = "k8s-prow/git",
+)
+
+docker_pull(
+    name = "python",
+    digest = "sha256:8bfeec8f8ba3aaeea918a0198f4b1c7c9b2b39e26f399a7173229dfcef76fc1f",
+    registry = "index.docker.io",
+    repository = "library/python",
+    tag = "2.7.14-jessie",
 )
 
 git_repository(
@@ -417,3 +425,20 @@ git_repository(
 load("@io_bazel_rules_appengine//appengine:py_appengine.bzl", "py_appengine_repositories")
 
 py_appengine_repositories()
+
+git_repository(
+    name = "io_bazel_rules_python",
+    commit = "f414af5ed85e451908b3fb873211e8f2939ea4e8",
+    remote = "https://github.com/bazelbuild/rules_python.git",
+)
+
+# Only needed for PIP support:
+load("@io_bazel_rules_python//python:pip.bzl", "pip_import")
+
+pip_import(
+    name = "kettle_deps",
+    requirements = "//kettle:requirements.txt",
+)
+
+load("@kettle_deps//:requirements.bzl", "pip_install")
+pip_install()

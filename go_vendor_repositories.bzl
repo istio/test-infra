@@ -8,6 +8,18 @@ def go_vendor_repositories():
   )
 
   go_repository(
+    name = "com_github_PuerkitoBio_purell",
+    commit = "0bcb03f4b4d0a9428594752bd2a3b9aa0a9d4bd4",
+    importpath = "github.com/PuerkitoBio/purell",
+  )
+
+  go_repository(
+    name = "com_github_PuerkitoBio_urlesc",
+    commit = "de5bf2ad457846296e2031421a34e2568e304e35",
+    importpath = "github.com/PuerkitoBio/urlesc",
+  )
+
+  go_repository(
     name = "com_github_beorn7_perks",
     commit = "4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9",
     importpath = "github.com/beorn7/perks",
@@ -17,6 +29,54 @@ def go_vendor_repositories():
     name = "com_github_deckarep_golang_set",
     commit = "1d4478f51bed434f1dadf96dcd9b43aabac66795",
     importpath = "github.com/deckarep/golang-set",
+  )
+
+  go_repository(
+    name = "com_github_emicklei_go_restful",
+    commit = "26b41036311f2da8242db402557a0dbd09dc83da",
+    importpath = "github.com/emicklei/go-restful",
+  )
+
+  go_repository(
+    name = "com_github_ghodss_yaml",
+    commit = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7",
+    importpath = "github.com/ghodss/yaml",
+  )
+
+  go_repository(
+    name = "com_github_go_openapi_jsonpointer",
+    commit = "3a0015ad55fa9873f41605d3e8f28cd279c32ab2",
+    importpath = "github.com/go-openapi/jsonpointer",
+  )
+
+  go_repository(
+    name = "com_github_go_openapi_jsonreference",
+    commit = "3fb327e6747da3043567ee86abd02bb6376b6be2",
+    importpath = "github.com/go-openapi/jsonreference",
+  )
+
+  go_repository(
+    name = "com_github_go_openapi_spec",
+    commit = "370d9e047557906322be8396e77cb0376be6cb96",
+    importpath = "github.com/go-openapi/spec",
+  )
+
+  go_repository(
+    name = "com_github_go_openapi_swag",
+    commit = "811b1089cde9dad18d4d0c2d09fbdbf28dbd27a5",
+    importpath = "github.com/go-openapi/swag",
+  )
+
+  go_repository(
+    name = "com_github_gogo_protobuf",
+    commit = "1adfc126b41513cc696b209667c8656ea7aac67c",
+    importpath = "github.com/gogo/protobuf",
+  )
+
+  go_repository(
+    name = "com_github_golang_glog",
+    commit = "23def4e6c14b4da8ac2ed8007337bc5eb5007998",
+    importpath = "github.com/golang/glog",
   )
 
   go_repository(
@@ -38,9 +98,33 @@ def go_vendor_repositories():
   )
 
   go_repository(
+    name = "com_github_google_gofuzz",
+    commit = "24818f796faf91cd76ec7bddd72458fbced7a6c1",
+    importpath = "github.com/google/gofuzz",
+  )
+
+  go_repository(
     name = "com_github_googleapis_gax_go",
     commit = "317e0006254c44a0ac427cc52a0e083ff0b9622f",
     importpath = "github.com/googleapis/gax-go",
+  )
+
+  go_repository(
+    name = "com_github_gorilla_context",
+    commit = "1ea25387ff6f684839d82767c1733ff4d4d15d0a",
+    importpath = "github.com/gorilla/context",
+  )
+
+  go_repository(
+    name = "com_github_gorilla_securecookie",
+    commit = "e59506cc896acb7f7bf732d4fdf5e25f7ccd8983",
+    importpath = "github.com/gorilla/securecookie",
+  )
+
+  go_repository(
+    name = "com_github_gorilla_sessions",
+    commit = "ca9ada44574153444b00d3fd9c8559e4cc95f896",
+    importpath = "github.com/gorilla/sessions",
   )
 
   go_repository(
@@ -53,6 +137,18 @@ def go_vendor_repositories():
     name = "com_github_hashicorp_go_multierror",
     commit = "83588e72410abfbe4df460eeb6f30841ae47d4c4",
     importpath = "github.com/hashicorp/go-multierror",
+  )
+
+  go_repository(
+    name = "com_github_mailru_easyjson",
+    commit = "8b799c424f57fa123fc63a99d6383bc6e4c02578",
+    importpath = "github.com/mailru/easyjson",
+  )
+
+  go_repository(
+    name = "com_github_marcacohen_gcslock",
+    commit = "5782a95db7e207c634ebf85ca8fcd970b7a27ac5",
+    importpath = "github.com/marcacohen/gcslock",
   )
 
   go_repository(
@@ -86,9 +182,33 @@ def go_vendor_repositories():
   )
 
   go_repository(
+    name = "com_github_shurcooL_githubql",
+    commit = "d8297a7d5a840a2105de3f27796a6876d03b5da1",
+    importpath = "github.com/shurcooL/githubql",
+  )
+
+  go_repository(
+    name = "com_github_shurcooL_go",
+    commit = "47fa5b7ceee66c60ac3a281416089035bf526a3c",
+    importpath = "github.com/shurcooL/go",
+  )
+
+  go_repository(
+    name = "com_github_shurcooL_graphql",
+    commit = "3d276b9dcc6b1e0adf19557a8de5cb8632c07697",
+    importpath = "github.com/shurcooL/graphql",
+  )
+
+  go_repository(
     name = "com_github_sirupsen_logrus",
     commit = "d682213848ed68c0a260ca37d6dd5ace8423f5ba",
     importpath = "github.com/sirupsen/logrus",
+  )
+
+  go_repository(
+    name = "com_github_spf13_pflag",
+    commit = "583c0c0531f06d5278b7d917446061adc344b5cd",
+    importpath = "github.com/spf13/pflag",
   )
 
   go_repository(
@@ -146,13 +266,43 @@ def go_vendor_repositories():
   )
 
   go_repository(
+    name = "in_gopkg_inf_v0",
+    commit = "d2d2541c53f18d2a059457998ce2876cc8e67cbf",
+    importpath = "gopkg.in/inf.v0",
+  )
+
+  go_repository(
+    name = "in_gopkg_robfig_cron_v2",
+    commit = "be2e0b0deed5a68ffee390b4583a13aff8321535",
+    importpath = "gopkg.in/robfig/cron.v2",
+  )
+
+  go_repository(
     name = "in_gopkg_yaml_v2",
     commit = "d670f9405373e636a5a2765eea47fac0c9bc91a4",
     importpath = "gopkg.in/yaml.v2",
   )
 
   go_repository(
+    name = "io_k8s_api",
+    commit = "847e24b2c0e587a6a097d187ebd72e1ca24de001",
+    importpath = "k8s.io/api",
+  )
+
+  go_repository(
+    name = "io_k8s_apimachinery",
+    commit = "cb88e003047fb517f284ff8af294451b20f0b403",
+    importpath = "k8s.io/apimachinery",
+  )
+
+  go_repository(
+    name = "io_k8s_kube_openapi",
+    commit = "f442ecb314a3679150c272e2b9713d8deed5955d",
+    importpath = "k8s.io/kube-openapi",
+  )
+
+  go_repository(
     name = "io_k8s_test_infra",
-    commit = "85b96b6207178813c0e914c735d9c7ecb0db1ef4",
-    importpath = "github.com/sebastienvas/k8s-test-infra",
+    commit = "58dba43557c4d14c2f4549055eda8a15b55f183a",
+    importpath = "k8s.io/test-infra",
   )

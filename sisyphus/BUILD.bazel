@@ -1,0 +1,27 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "alert.go",
+        "branchProtector.go",
+        "ci.go",
+        "sisyphusd.go",
+        "storage.go",
+    ],
+    importpath = "istio.io/test-infra/sisyphus",
+    visibility = ["//visibility:public"],
+    deps = ["//toolbox/util:go_default_library"],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = [
+        "ci_test.go",
+        "sisyphusd_test.go",
+    ],
+    data = ["//sisyphus/test_data:testdata"],
+    embed = [":go_default_library"],
+    importpath = "istio.io/test-infra/sisyphus",
+    deps = ["//toolbox/util:go_default_library"],
+)

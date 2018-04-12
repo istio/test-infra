@@ -19,26 +19,24 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"log"
 	"math"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 
-	"sort"
-
 	"cloud.google.com/go/storage"
+	"github.com/golang/glog"
 	"golang.org/x/net/context"
 )
 
 const (
-	jobName          = "JOB_NAME"
-	buildID          = "BUILD_ID"
 	defaultValue     = "Default"
 	defaultThreshold = 80.0
 	// Using 2% less than report for requirement
 	thresholdDelta = 2
+	googleACEnv    = "GOOGLE_APPLICATION_CREDENTIALS"
 )
 
 var (
@@ -47,7 +45,14 @@ var (
 	gcsBucket            = flag.String("bucket", "istio-code-coverage", "gcs bucket")
 	writeRequirement     = flag.Bool("write_requirement", false, "Write requirement file from report")
 	defaultThresholdFlag = flag.Float64("default_threshold", defaultThreshold, "Default threshold for new packages")
+	jobIdentifier        = flag.String("job_name", "", "Name of job to store data")
+	buildID              = flag.String("build_id", "", "Build ID")
+	serviceAccountJSON   = flag.String("service_account", "", "Path to the service account key")
 )
+
+type uploader interface {
+	upload(ctx context.Context, dest, data string) error
+}
 
 type codecovChecker struct {
 	codeCoverage    map[string]float64
@@ -55,9 +60,44 @@ type codecovChecker struct {
 	report          string
 	requirement     string
 	failedPackage   []string
-	bucket          string
 	defautThreshold float64
 	thresholdDelta  float64
+	// Used for uploading data to a bucket for metrics
+	buildID       string
+	jobIdentifier string
+	storage       uploader
+}
+
+type googleStorageUploader struct {
+	bucket             string
+	serviceAccountJSON string
+}
+
+func (g *googleStorageUploader) upload(ctx context.Context, dest, data string) error {
+	if g.serviceAccountJSON != "" {
+		if err := os.Setenv(googleACEnv, g.serviceAccountJSON); err != nil {
+			return err
+		}
+	}
+
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		glog.Warningf("Failed to get storage client")
+		return err
+	}
+
+	w := client.Bucket(g.bucket).Object(dest).NewWriter(ctx)
+	defer func() {
+		if err = w.Close(); err != nil {
+			glog.Errorf("Failed to close gcs writer file, %v", err)
+		}
+	}()
+	if _, err = w.Write([]byte(data)); err != nil {
+		glog.Errorf("Failed to write coverage to gcs")
+		return err
+	}
+	glog.Infof("Successfully uploaded codecov.report %s", dest)
+	return nil
 }
 
 //Report example: "ok   istio.io/mixer/adapter/denyChecker      0.023s  coverage: 100.0% of statements"
@@ -73,7 +113,7 @@ func parseReportLine(line string) (string, float64, error) {
 	if m := regOK.FindStringSubmatch(line); len(m) != 0 {
 		n, err := strconv.ParseFloat(strings.TrimSuffix(m[numPos], "%"), 64)
 		if err != nil {
-			log.Printf("Failed to parse coverage to float64 for package %s: %s, %v",
+			glog.Errorf("Failed to parse coverage to float64 for package %s: %s, %v",
 				m[pkgPos], m[numPos], err)
 			return "", 0, err
 		}
@@ -87,19 +127,19 @@ func parseReportLine(line string) (string, float64, error) {
 func (c *codecovChecker) parseReport() error {
 	f, err := os.Open(c.report)
 	if err != nil {
-		log.Printf("Failed to open report file %s, %v", c.report, err)
+		glog.Errorf("Failed to open report file %s, %v", c.report, err)
 		return err
 	}
 	defer func() {
 		if err = f.Close(); err != nil {
-			log.Printf("Failed to close file %s, %v", c.report, err)
+			glog.Warningf("Failed to close file %s, %v", c.report, err)
 		}
 	}()
 
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		if pkg, cov, err := parseReportLine(scanner.Text()); err != nil {
-			log.Printf("Failed to parse this line from report file: %s, %v", scanner.Text(), err)
+			glog.Warningf("Failed to parse this line from report file: %s, %v", scanner.Text(), err)
 		} else {
 			c.codeCoverage[pkg] = cov
 		}
@@ -133,12 +173,12 @@ func parseRequirementLine(line string) (string, float64, error) {
 func (c *codecovChecker) parseRequirement() error {
 	f, err := os.Open(c.requirement)
 	if err != nil {
-		log.Printf("Failed to open requirement file, %s, %v", c.requirement, err)
+		glog.Errorf("Failed to open requirement file, %s, %v", c.requirement, err)
 		return err
 	}
 	defer func() {
 		if err = f.Close(); err != nil {
-			log.Printf("Failed to close file %s, %v", c.requirement, err)
+			glog.Errorf("Failed to close file %s, %v", c.requirement, err)
 		}
 	}()
 
@@ -147,7 +187,7 @@ func (c *codecovChecker) parseRequirement() error {
 	for scanner.Scan() {
 		pkg, req, err := parseRequirementLine(scanner.Text())
 		if err != nil {
-			log.Printf("Failed to parse this line from requirement file: %s, %v", scanner.Text(), err)
+			glog.Errorf("Failed to parse this line from requirement file: %s, %v", scanner.Text(), err)
 		}
 		c.codeRequirement[pkg] = req
 	}
@@ -174,46 +214,22 @@ func (c *codecovChecker) checkRequirement() {
 }
 
 func (c *codecovChecker) uploadCoverage() error {
-	ctx := context.Background()
-	client, err := storage.NewClient(ctx)
-	if err != nil {
-		log.Print("Failed to get storage client")
-		return err
-	}
-
-	jobName := os.Getenv(jobName)
-	buildID := os.Getenv(buildID)
-	if buildID == "" || jobName == "" {
-		log.Printf("Missing build info: BUILD_ID: \"%s\", JOB_NAME: \"%s\"\n", buildID, jobName)
-		return errors.New("missing build info")
-	}
-
-	object := jobName + "/" + buildID
-
 	coverageString := ""
 	for p, c := range c.codeCoverage {
 		coverageString += fmt.Sprintf("%s\t%.2f\n", p, c)
 	}
 
-	w := client.Bucket(c.bucket).Object(object).NewWriter(ctx)
-	if _, err = w.Write([]byte(coverageString)); err != nil {
-		log.Print("Failed to write coverage to gcs")
-		return err
+	dest := fmt.Sprintf("%s/%s", c.jobIdentifier, c.buildID)
+	if c.buildID == "" || c.jobIdentifier == "" {
+		glog.Errorf("Missing build info: BUILD_ID: \"%s\", JOB_NAME: \"%s\"\n", c.buildID, c.jobIdentifier)
+		return errors.New("missing build info")
 	}
-
-	defer func() {
-		if err = w.Close(); err != nil {
-			log.Printf("Failed to close gcs writer file, %v", err)
-		}
-	}()
-
-	log.Printf("Successfully upload codecov.report %s", object)
-	return nil
+	return c.storage.upload(context.Background(), dest, coverageString)
 }
 
 func (c *codecovChecker) writeRequirementFromReport() (code int) {
 	if err := c.parseReport(); err != nil {
-		log.Printf("Failed to parse report, %v", err)
+		glog.Errorf("Failed to parse report, %v", err)
 		return 1 //Error code 1: Parse file failure
 	}
 
@@ -226,59 +242,67 @@ func (c *codecovChecker) writeRequirementFromReport() (code int) {
 
 	f, err := os.Create(c.requirement)
 	if err != nil {
-		log.Printf("unable to create file %s", c.requirement)
+		glog.Errorf("unable to create file %s", c.requirement)
 		return 4 //Error code 4: Unable to create requirement file
 	}
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			glog.Warningf("unable to close requirement file")
+		}
+	}()
 
 	w := bufio.NewWriter(f)
-	// Writing default
-	w.WriteString(fmt.Sprintf("%s:%d [%.1f]\n", defaultValue, int(defaultThreshold), defaultThreshold))
+	// Writing header
+	header := fmt.Sprintf("%s:%d [%.1f]\n", defaultValue, int(defaultThreshold), defaultThreshold)
+	if _, err := w.WriteString(header); err != nil {
+		glog.Errorf("unable to write requirement file")
+		return 5 //Error code 5: unable to write to requirement file
+	}
 	for _, pkg := range sortedPkgs {
 		percent := c.codeCoverage[pkg]
 		threshold := int(math.Max(0, percent-c.thresholdDelta))
+		if percent == 100.0 {
+			threshold = 100
+		}
 		if _, err := w.WriteString(fmt.Sprintf("%s:%d [%.1f]\n", pkg, threshold, percent)); err != nil {
-			log.Printf("unable to print ")
+			glog.Errorf("unable to write requirement file")
 			return 5 //Error code 5: unable to write to requirement file
 		}
-
 	}
 
-	w.Flush()
+	if err := w.Flush(); err != nil {
+		glog.Warningf("unable to flush requirement file")
+	}
 	return 0
 }
 
 func (c *codecovChecker) checkPackageCoverage() (code int) {
-	if c.bucket != "" {
-		defer func() {
-			if err := c.uploadCoverage(); err != nil {
-				log.Printf("Failed to upload coverage, %v", err)
-				if code == 0 {
-					code = 3 //If no other error code, Error code 3: Failed to upload coverage
-				}
-			}
-
-		}()
-	}
 
 	if err := c.parseReport(); err != nil {
-		log.Printf("Failed to parse report, %v", err)
+		glog.Errorf("Failed to parse report, %v", err)
 		return 1 //Error code 1: Parse file failure
 	}
 
 	if err := c.parseRequirement(); err != nil {
-		log.Printf("Failed to parse requirement, %v", err)
+		glog.Errorf("Failed to parse requirement, %v", err)
 		return 1 //Error code 1: Parse file failure
 	}
 
 	c.checkRequirement()
 
+	if c.storage != nil {
+		if err := c.uploadCoverage(); err != nil {
+			// Failing silently
+			glog.Warningf("Failed to upload coverage, %v", err)
+		}
+	}
+
 	if len(c.failedPackage) == 0 {
-		log.Println("All packages passed code coverage requirements!")
+		glog.Infof("All packages passed code coverage requirements!")
 	} else {
-		log.Printf("Following package(s) failed to meet requirements:\n\tPackage Name\t\tActual Coverage\t\tRequirement\n")
+		glog.Errorf("Following package(s) failed to meet requirements:\n\tPackage Name\t\tActual Coverage\t\tRequirement\n")
 		for _, p := range c.failedPackage {
-			log.Println(p)
+			glog.Errorf(p)
 		}
 		return 2 //Error code 2: Unsatisfied coverage requirement
 	}
@@ -288,14 +312,24 @@ func (c *codecovChecker) checkPackageCoverage() (code int) {
 func main() {
 	flag.Parse()
 
+	var s uploader
+	if *gcsBucket != "" {
+		s = &googleStorageUploader{
+			bucket:             *gcsBucket,
+			serviceAccountJSON: *serviceAccountJSON,
+		}
+	}
+
 	c := &codecovChecker{
 		codeCoverage:    make(map[string]float64),
 		codeRequirement: make(map[string]float64),
 		report:          *reportFile,
 		requirement:     *requirementFile,
-		bucket:          *gcsBucket,
 		defautThreshold: *defaultThresholdFlag,
 		thresholdDelta:  thresholdDelta,
+		buildID:         *buildID,
+		jobIdentifier:   *jobIdentifier,
+		storage:         s,
 	}
 
 	if *writeRequirement {

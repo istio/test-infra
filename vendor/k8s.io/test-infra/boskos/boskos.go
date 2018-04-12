@@ -159,7 +159,9 @@ func handleAcquire(r *ranch.Ranch) http.HandlerFunc {
 			http.Error(res, err.Error(), ErrorToStatus(err))
 			// release the resource, though this is not expected to happen.
 			err = r.Release(resource.Name, state, owner)
-			logrus.WithError(err).Warning("unable to release resource %s", resource.Name)
+			if err != nil {
+				logrus.WithError(err).Warning("unable to release resource %s", resource.Name)
+			}
 			return
 		}
 		logrus.Infof("Resource leased: %v", string(resJSON))
@@ -167,7 +169,7 @@ func handleAcquire(r *ranch.Ranch) http.HandlerFunc {
 	}
 }
 
-//  handleAcquireByState: Handler for /acquire
+//  handleAcquireByState: Handler for /acquirebystate
 //  Method: POST
 // 	URLParams:
 //		Required: state=[string] : current state of the requested resource
@@ -190,18 +192,17 @@ func handleAcquireByState(r *ranch.Ranch) http.HandlerFunc {
 		dest := req.URL.Query().Get("dest")
 		owner := req.URL.Query().Get("owner")
 		names := req.URL.Query().Get("names")
-		var rNames []string
-		if names != "" {
-			rNames = strings.Split(names, ",")
-		}
-		if state == "" || dest == "" || owner == "" {
-			msg := fmt.Sprintf("state: %v, dest: %v, owner: %v, all of them must be set in the request.", state, dest, owner)
+		if state == "" || dest == "" || owner == "" || names == "" {
+			msg := fmt.Sprintf(
+				"state: %v, dest: %v, owner: %v, names: %v - all of them must be set in the request.",
+				state, dest, owner, names)
 			logrus.Warning(msg)
 			http.Error(res, msg, http.StatusBadRequest)
 			return
 		}
-
-		logrus.Infof("Request for a %v from %v, dest %v", state, owner, dest)
+		rNames := strings.Split(names, ",")
+		logrus.Infof("Request resources %s at state %v from %v, to state %v",
+			strings.Join(rNames, ", "), state, owner, dest)
 
 		resources, err := r.AcquireByState(state, dest, owner, rNames)
 
@@ -218,7 +219,9 @@ func handleAcquireByState(r *ranch.Ranch) http.HandlerFunc {
 			http.Error(res, err.Error(), ErrorToStatus(err))
 			for _, resource := range resources {
 				err := r.Release(resource.Name, state, owner)
-				logrus.WithError(err).Warning("unable to release resource %s", resource.Name)
+				if err != nil {
+					logrus.WithError(err).Warning("unable to release resource %s", resource.Name)
+				}
 			}
 			return
 		}

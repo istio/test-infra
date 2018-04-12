@@ -20,6 +20,7 @@ import (
 	"sync"
 
 	"fmt"
+
 	"k8s.io/test-infra/boskos/common"
 )
 
@@ -47,6 +48,10 @@ func NewMemoryStorage() PersistenceLayer {
 func (im *inMemoryStore) Add(i common.Item) error {
 	im.lock.Lock()
 	defer im.lock.Unlock()
+	_, ok := im.items[i.GetName()]
+	if ok {
+		return fmt.Errorf("item %s already exists", i.GetName())
+	}
 	im.items[i.GetName()] = i
 	return nil
 }
