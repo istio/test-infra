@@ -15,42 +15,43 @@
 package gcp
 
 import (
+	"context"
+	"fmt"
 	"reflect"
 	"testing"
+	"time"
 
+	"k8s.io/test-infra/boskos/common"
 	"k8s.io/test-infra/boskos/mason"
 	"k8s.io/test-infra/boskos/ranch"
 )
 
 func TestParseInvalidConfig(t *testing.T) {
-	expected := resourcesConfig{
-		ProjectConfigs: []projectConfig{
-			{
-				Type: "type1",
-				Clusters: []clusterConfig{
-					{
-						MachineType: "n1-standard-2",
-						NumNodes:    4,
-						Version:     "1.7",
-						Zone:        "us-central-1f",
-					},
+	expected := resourceConfigs{
+		"type1": {{
+			Clusters: []clusterConfig{
+				{
+					MachineType: "n1-standard-2",
+					NumNodes:    4,
+					Version:     "1.7",
+					Zone:        "us-central-1f",
 				},
-				Vms: []virtualMachineConfig{
-					{
-						MachineType: "n1-standard-4",
-						SourceImage: "projects/debian-cloud/global/images/debian-9-stretch-v20180105",
-						Zone:        "us-central-1f",
-						Tags: []string{
-							"http-server",
-							"https-server",
-						},
-						Scopes: []string{
-							"https://www.googleapis.com/auth/cloud-platform",
-						},
+			},
+			Vms: []virtualMachineConfig{
+				{
+					MachineType: "n1-standard-4",
+					SourceImage: "projects/debian-cloud/global/images/debian-9-stretch-v20180105",
+					Zone:        "us-central-1f",
+					Tags: []string{
+						"http-server",
+						"https-server",
+					},
+					Scopes: []string{
+						"https://www.googleapis.com/auth/cloud-platform",
 					},
 				},
 			},
-		},
+		}},
 	}
 	conf, err := mason.ParseConfig("test-configs.yaml")
 	if err != nil {
@@ -60,7 +61,7 @@ func TestParseInvalidConfig(t *testing.T) {
 	if err != nil {
 		t.Errorf("cannot parse object")
 	} else {
-		if !reflect.DeepEqual(expected, *config.(*resourcesConfig)) {
+		if !reflect.DeepEqual(expected, *config.(*resourceConfigs)) {
 			t.Error("Object differ")
 		}
 	}
@@ -70,12 +71,343 @@ func TestParseConfig(t *testing.T) {
 	configs, err := mason.ParseConfig("../configs.yaml")
 	if err != nil {
 		t.Error(err.Error())
+	} else {
+
+		for _, config := range configs {
+			switch config.Config.Type {
+			case ResourceConfigType:
+				var m mason.Masonable
+				m, err = ConfigConverter(config.Config.Content)
+				if err != nil {
+					t.Errorf("unable to parse config %s %v", config.Name, err)
+				}
+				needs := common.ResourceNeeds{}
+				rc, ok := m.(*resourceConfigs)
+				if !ok {
+					t.Errorf("cannot convert masonable to resourceConfig")
+				} else {
+					for rType, reqs := range *rc {
+						needs[rType] = len(reqs)
+					}
+					if !reflect.DeepEqual(needs, config.Needs) {
+						t.Errorf("Needs do not match for config %s. Expected %v found %v", config.Name, config.Needs, needs)
+					}
+				}
+
+			}
+
+		}
 	}
+
 	resources, err := ranch.ParseConfig("../resources.yaml")
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 	if err = mason.ValidateConfig(configs, resources); err != nil {
 		t.Errorf(err.Error())
+	}
+}
+
+type faker struct {
+	fail     bool
+	waitTime time.Duration
+}
+
+func (f faker) do(ctx context.Context) error {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-time.After(f.waitTime):
+	}
+	if f.fail {
+		return fmt.Errorf("fail")
+	}
+	return nil
+}
+
+type fakeVMCreator struct {
+	f *faker
+}
+
+func (vmc *fakeVMCreator) create(ctx context.Context, p string, c virtualMachineConfig) (*InstanceInfo, error) {
+	if vmc.f != nil {
+		if err := vmc.f.do(ctx); err != nil {
+			return nil, err
+		}
+	}
+	return &InstanceInfo{
+		Name: "VMname",
+		Zone: "VMzone",
+	}, nil
+}
+
+type fakeClusterCreator struct {
+	f *faker
+}
+
+func (cc *fakeClusterCreator) create(ctx context.Context, p string, c clusterConfig) (*InstanceInfo, error) {
+	if cc.f != nil {
+		if err := cc.f.do(ctx); err != nil {
+			return nil, err
+		}
+	}
+	return &InstanceInfo{
+		Name: "ClusterName",
+		Zone: "ClusterZone",
+	}, nil
+}
+
+func TestResourcesConfig_Construct(t *testing.T) {
+	type expected struct {
+		err  string
+		info *ResourceInfo
+	}
+
+	testCases := []struct {
+		name      string
+		rc        resourceConfigs
+		res       *common.Resource
+		types     common.TypeToResources
+		result    expected
+		vmf, cf   *faker
+		setClient bool
+	}{
+		{
+			name:      "success",
+			setClient: true,
+			rc: resourceConfigs{
+				"test": {{
+					Clusters: []clusterConfig{
+						{},
+					},
+					Vms: []virtualMachineConfig{
+						{},
+					},
+				}},
+			},
+			res: &common.Resource{
+				Name: "test",
+			},
+			types: common.TypeToResources{
+				"test": []*common.Resource{
+					{Name: "leased"},
+				},
+			},
+			result: expected{
+				info: &ResourceInfo{
+					"leased": {
+						Clusters: []InstanceInfo{
+							{
+								Name: "ClusterName",
+								Zone: "ClusterZone",
+							},
+						},
+						VMs: []InstanceInfo{
+							{
+								Name: "VMname",
+								Zone: "VMzone",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:      "timeout vm creation",
+			setClient: true,
+			rc: resourceConfigs{
+				"test": {{
+					Clusters: []clusterConfig{
+						{},
+					},
+					Vms: []virtualMachineConfig{
+						{},
+					}},
+				},
+			},
+			res: &common.Resource{
+				Name: "test",
+			},
+			types: common.TypeToResources{
+				"test": []*common.Resource{
+					{Name: "leased"},
+				},
+			},
+			result: expected{
+				err: "context deadline exceeded",
+			},
+			vmf: &faker{
+				waitTime: 2 * time.Second,
+			},
+		},
+		{
+			name:      "timeout cluster creation",
+			setClient: true,
+			rc: resourceConfigs{
+				"test": {{
+					Clusters: []clusterConfig{
+						{},
+					},
+					Vms: []virtualMachineConfig{
+						{},
+					}},
+				},
+			},
+			res: &common.Resource{
+				Name: "test",
+			},
+			types: common.TypeToResources{
+				"test": []*common.Resource{
+					{Name: "leased"},
+				},
+			},
+			result: expected{
+				err: "context deadline exceeded",
+			},
+			cf: &faker{
+				waitTime: 2 * time.Second,
+			},
+		},
+		{
+			name:      "failed vm creation",
+			setClient: true,
+			rc: resourceConfigs{
+				"test": {{
+					Clusters: []clusterConfig{
+						{},
+					},
+					Vms: []virtualMachineConfig{
+						{},
+					},
+				}},
+			},
+			res: &common.Resource{
+				Name: "test",
+			},
+			types: common.TypeToResources{
+				"test": []*common.Resource{
+					{Name: "leased"},
+				},
+			},
+			result: expected{
+				err: "fail",
+			},
+			vmf: &faker{
+				fail: true,
+			},
+		},
+		{
+			name:      "failed cluster creation",
+			setClient: true,
+			rc: resourceConfigs{
+				"test": {{
+					Clusters: []clusterConfig{
+						{},
+					},
+					Vms: []virtualMachineConfig{
+						{},
+					}},
+				},
+			},
+			res: &common.Resource{
+				Name: "test",
+			},
+			types: common.TypeToResources{
+				"test": []*common.Resource{
+					{Name: "leased"},
+				},
+			},
+			result: expected{
+				err: "fail",
+			},
+			cf: &faker{
+				fail: true,
+			},
+		},
+		{
+			name:      "running out project",
+			setClient: true,
+			rc: resourceConfigs{
+				"test": {{
+					Clusters: []clusterConfig{
+						{},
+					},
+					Vms: []virtualMachineConfig{
+						{},
+					}},
+				},
+			},
+			res: &common.Resource{
+				Name: "test",
+			},
+			types: common.TypeToResources{
+				"test1": []*common.Resource{
+					{Name: "leased"},
+				},
+			},
+			result: expected{
+				err: "running out of project while creating resources",
+			},
+		},
+		{
+			name: "client not set",
+			rc: resourceConfigs{
+				"test": {{
+					Clusters: []clusterConfig{
+						{},
+					},
+					Vms: []virtualMachineConfig{
+						{},
+					}},
+				},
+			},
+			res: &common.Resource{
+				Name: "test",
+			},
+			types: common.TypeToResources{
+				"test": []*common.Resource{
+					{Name: "leased"},
+				},
+			},
+			result: expected{
+				err: "client not set",
+			},
+		},
+	}
+	for _, tc := range testCases {
+		if tc.setClient {
+			c := &Client{
+				operationTimeout: time.Second,
+				gce:              &fakeVMCreator{f: tc.vmf},
+				gke:              &fakeClusterCreator{f: tc.cf},
+			}
+			SetClient(c)
+		} else {
+			SetClient(nil)
+		}
+		ud, err := tc.rc.Construct(tc.res, tc.types)
+		if tc.result.err != "" {
+			if ud != nil {
+				t.Errorf("%s - expected nil user data got %v", tc.name, ud)
+			}
+			if err == nil || err.Error() != tc.result.err {
+				t.Errorf("%s - expected err %s got %v", tc.name, tc.result.err, err)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("%s - expected no error got %v", tc.name, err)
+			}
+			if ud == nil {
+				t.Errorf("%s - expected user data got nil", tc.name)
+			} else {
+				var info ResourceInfo
+				if err := ud.Extract(ResourceConfigType, &info); err != nil {
+					t.Errorf("%s - unable to parse user data %v", tc.name, err)
+				}
+				if !reflect.DeepEqual(info, *tc.result.info) {
+					t.Errorf("%s - expected info %v got %v instead", tc.name, *tc.result.info, info)
+				}
+			}
+		}
 	}
 }

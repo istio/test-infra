@@ -25,7 +25,6 @@ import (
 )
 
 const (
-	operationTimeout = 15 * time.Minute
 	defaultSleepTime = 10 * time.Second
 	// Defined in https://godoc.org/google.golang.org/api/container/v1#Operation
 	operationDone     = "DONE"
@@ -75,7 +74,7 @@ func (cc *containerEngine) waitForOperation(ctx context.Context, op *container.O
 	}
 }
 
-func (cc *containerEngine) create(project string, config clusterConfig) (*instanceInfo, error) {
+func (cc *containerEngine) create(ctx context.Context, project string, config clusterConfig) (*InstanceInfo, error) {
 	var version string
 	name := generateName("gke")
 	serverConfig, err := cc.service.Projects.Zones.GetServerconfig(project, config.Zone).Do()
@@ -102,17 +101,17 @@ func (cc *containerEngine) create(project string, config clusterConfig) (*instan
 		},
 	}
 
-	op, err := cc.service.Projects.Zones.Clusters.Create(project, config.Zone, clusterRequest).Do()
+	op, err := cc.service.Projects.Zones.Clusters.Create(project, config.Zone, clusterRequest).Context(ctx).Do()
 	if err != nil {
 		return nil, err
 	}
-	c, cancel := context.WithTimeout(context.Background(), operationTimeout)
-	defer cancel()
 	logrus.Infof("Instance %s being created via operation %s, waiting for completion", clusterRequest.Cluster.Name, op.Name)
-	if err := cc.waitForOperation(c, op, project, config.Zone); err != nil {
+	if err := cc.waitForOperation(ctx, op, project, config.Zone); err != nil {
 		logrus.WithError(err).Errorf("operation %s failed", op.Name)
 		return nil, err
 	}
 	logrus.Infof("Instance %s created via operation %s", clusterRequest.Cluster.Name, op.Name)
-	return &instanceInfo{Name: name, Zone: config.Zone}, nil
+	info := &InstanceInfo{Name: name, Zone: config.Zone}
+
+	return info, nil
 }

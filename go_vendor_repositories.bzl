@@ -230,6 +230,12 @@ def go_vendor_repositories():
   )
 
   go_repository(
+    name = "org_golang_x_sync",
+    commit = "1d60e4601c6fd243af51cc01ddf169918a5407ca",
+    importpath = "golang.org/x/sync",
+  )
+
+  go_repository(
     name = "org_golang_x_sys",
     commit = "37707fdb30a5b38865cfb95e5aab41707daec7fd",
     importpath = "golang.org/x/sys",

@@ -20,6 +20,7 @@ go_library(
         "@org_golang_google_api//container/v1:go_default_library",
         "@org_golang_x_oauth2//google:go_default_library",
         "@org_golang_x_oauth2//jwt:go_default_library",
+        "@org_golang_x_sync//errgroup:go_default_library",
     ],
 )
 
@@ -33,6 +34,7 @@ go_test(
     embed = [":go_default_library"],
     importpath = "istio.io/test-infra/boskos/gcp",
     deps = [
+        "@io_k8s_test_infra//boskos/common:go_default_library",
         "@io_k8s_test_infra//boskos/mason:go_default_library",
         "@io_k8s_test_infra//boskos/ranch:go_default_library",
     ],
