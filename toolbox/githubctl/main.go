@@ -285,10 +285,11 @@ func DailyReleaseQualification() error {
 
 	verbose := true
 	ci := u.NewCIState()
-	retryDelay := 5 * time.Minute
+	retryDelay := 5 * time.Second
 	totalRetries := 240 // Max 20 hours wait before we automatically close the PR and fail release qualification.
 	log.Printf("Waiting for all jobs starting. Results Polling starts in %v.\n", retryDelay)
 	time.Sleep(retryDelay)
+
 	err = u.Poll(retryDelay, totalRetries, func() (bool, error) {
 		pr, err = ghClntRel.GetPR(dailyRepo, *pr.Number)
 		if err != nil {
@@ -296,11 +297,12 @@ func DailyReleaseQualification() error {
 		}
 		if *pr.Merged {
 			// PR is apparently closed manually. Exit the loop.
+			log.Printf("pr was manually merged.\n")
 			return true, nil
 		}
 		if *pr.State == "closed" {
 			// PR is apparently closed manually. Exit the loop.
-			return false, fmt.Errorf("max polling iteration reached")
+			return false, fmt.Errorf("pr close was manually closed")
 		}
 
 		status, errPoll := ghClntRel.GetPRTestResults(dailyRepo, pr, verbose)
@@ -311,31 +313,29 @@ func DailyReleaseQualification() error {
 		exitPolling := false
 		switch status {
 		case ci.Success:
-			log.Printf("Release qualification passed\n")
 			exitPolling = true
-		case ci.Failure:
-		case ci.Error:
-			// All failures have been logged by GetPRTestResults()
-			// Stay in the loop until time out, so release engineers can potentially suppress test failures or re-run
-			// flaky tests there.
-			errPoll = fmt.Errorf("release qualification failed")
+			log.Printf("Auto merging this PR to update daily release\n")
+			errPoll = ghClntRel.MergePR(dailyRepo, pr)
+			*pr.Merged = true
+
 		case ci.Pending:
 			log.Printf("Results still pending. Will check again in %v.\n", retryDelay)
-			// Need this error to fail qualification in case we don't have any result after timeout.
-			errPoll = fmt.Errorf("test result is still pending")
+		case ci.Error:
+		case ci.Failure:
+			// Go back to sleep until timeout, so that release engineer can potentially suppress test failure or retest
+			// in github directly.
 		}
 		return exitPolling, errPoll
 	})
-
-	if err != nil { // qualification failed
+	// Fail to poll or merge
+	if err != nil {
 		return err
-	} else if !*pr.Merged {
-		log.Printf("Auto merging this PR to update daily release\n")
-		return ghClntRel.MergePR(dailyRepo, pr)
-	} else {
-		// In case the PR is merged manually.
+	}
+	// In case the PR is merged manually or automatically
+	if *pr.Merged {
 		return nil
 	}
+	return fmt.Errorf("release qualification failed")
 }
 
 func init() {
