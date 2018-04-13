@@ -250,8 +250,10 @@ func DailyReleaseQualification() error {
 	u.AssertNotEmpty("tag", tag)
 	u.AssertNotEmpty("gcs_path", gcsPath)
 	log.Printf("Creating PR to trigger release qualifications\n")
-	prTitle := "[DO NOT MANUAL MERGE] " + relQualificationPRTtilePrefix + *refSHA
-	prBody := fmt.Sprintf("Trigger release qualification jobs")
+	prTitle := fmt.Sprintf("%s - %s", relQualificationPRTtilePrefix, *tag)
+	prBody := "This is a generated PR that triggers release qualification tests, and will be automatically merged " +
+		"if all tests pass. In case some test fails, you can manually rerun the failing tests using /test. Force " +
+		"merging this PR will suppress the test failures and let the release pipeline continue."
 	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
 	newBranch := "relQual_" + timestamp
 	edit := func() error {
@@ -284,10 +286,23 @@ func DailyReleaseQualification() error {
 	verbose := true
 	ci := u.NewCIState()
 	retryDelay := 5 * time.Minute
-	totalRetries := 60
+	totalRetries := 240 // Max 20 hours wait before we automatically close the PR and fail release qualification.
 	log.Printf("Waiting for all jobs starting. Results Polling starts in %v.\n", retryDelay)
 	time.Sleep(retryDelay)
 	err = u.Poll(retryDelay, totalRetries, func() (bool, error) {
+		pr, err = ghClntRel.GetPR(dailyRepo, *pr.Number)
+		if err != nil {
+			return true, err
+		}
+		if *pr.Merged {
+			// PR is apparently closed manually. Exit the loop.
+			return true, nil
+		}
+		if *pr.State == "closed" {
+			// PR is apparently closed manually. Exit the loop.
+			return false, fmt.Errorf("max polling iteration reached")
+		}
+
 		status, errPoll := ghClntRel.GetPRTestResults(dailyRepo, pr, verbose)
 		verbose = false
 		if errPoll != nil {
@@ -299,19 +314,28 @@ func DailyReleaseQualification() error {
 			log.Printf("Release qualification passed\n")
 			exitPolling = true
 		case ci.Failure:
+		case ci.Error:
 			// All failures have been logged by GetPRTestResults()
-			exitPolling = true
+			// Stay in the loop until time out, so release engineers can potentially suppress test failures or re-run
+			// flaky tests there.
 			errPoll = fmt.Errorf("release qualification failed")
 		case ci.Pending:
 			log.Printf("Results still pending. Will check again in %v.\n", retryDelay)
+			// Need this error to fail qualification in case we don't have any result after timeout.
+			errPoll = fmt.Errorf("test result is still pending")
 		}
 		return exitPolling, errPoll
 	})
+
 	if err != nil { // qualification failed
 		return err
+	} else if !*pr.Merged {
+		log.Printf("Auto merging this PR to update daily release\n")
+		return ghClntRel.MergePR(dailyRepo, pr)
+	} else {
+		// In case the PR is merged manually.
+		return nil
 	}
-	log.Printf("Auto merging this PR to update daily release\n")
-	return ghClntRel.MergePR(dailyRepo, pr)
 }
 
 func init() {

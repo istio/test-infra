@@ -210,12 +210,14 @@ func (g *GithubClient) RemoveLabelFromPR(
 func (g *GithubClient) ClosePRDeleteBranch(repo string, pr *github.PullRequest) error {
 	prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
 	prBranch := *pr.Head.Ref
-	log.Printf("Closing PR %s", prName)
-	*pr.State = "closed"
-	if _, _, err := g.client.PullRequests.Edit(
-		context.Background(), g.owner, repo, pr.GetNumber(), pr); err != nil {
-		log.Printf("Failed to close %s", prName)
-		return err
+	if *pr.State == "open" {
+		log.Printf("Closing PR %s", prName)
+		*pr.State = "closed"
+		if _, _, err := g.client.PullRequests.Edit(
+			context.Background(), g.owner, repo, pr.GetNumber(), pr); err != nil {
+			log.Printf("Failed to close %s", prName)
+			return err
+		}
 	}
 	prBranchExists, err := g.ExistBranch(repo, prBranch)
 	if err != nil {
@@ -654,6 +656,17 @@ func (g *GithubClient) ListPRs(options github.PullRequestListOptions, repo strin
 		return nil, err
 	}
 	return prs, nil
+}
+
+// GetPR Get PR in a repo match the given number
+func (g *GithubClient) GetPR(repo string, number int) (*github.PullRequest, error) {
+	pr, _, err := g.client.PullRequests.Get(
+		context.Background(), g.owner, repo, number)
+	if err != nil {
+		log.Printf("Failed to get PR %d in %s: %v", number, repo, err)
+		return nil, err
+	}
+	return pr, nil
 }
 
 // AddLabelToPRs add one label to PRs in a repo match the listOptions
