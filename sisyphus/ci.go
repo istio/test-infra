@@ -93,7 +93,7 @@ func NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket string, cli
 		gcsBucket:     gcsBucket,
 		presubmitJobs: make(map[string]struct{}),
 		rerunCmd: func(node string) error {
-			_, e := u.Shell("echo kubectl create -f \"https://prow.istio.io/rerun?prowjob=%s\"", node)
+			_, e := u.Shell("kubectl create -f \"https://prow.istio.io/rerun?prowjob=%s\"", node)
 			return e
 		},
 	}
