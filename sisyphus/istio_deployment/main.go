@@ -26,7 +26,7 @@ import (
 const (
 	// Alert settings
 	sender         = "istio.testing@gmail.com"
-	oncallMaillist = "istio-oncall@googlegroupsisyphus.com"
+	oncallMaillist = "istio-oncall@googlegroups.com"
 	subject        = "ATTENTION - Istio Post-Submit Test Failed"
 	prologue       = "Hi istio-oncall,\n\n" +
 		"Post-Submit is failing in istio/istio, please take a look at following failure(s) and fix ASAP\n\n"
@@ -49,10 +49,21 @@ var (
 	tokenFile            = flag.String("github_token", "/etc/github/git-token", "Path to github token")
 	gmailAppPassFile     = flag.String("gmail_app_password", "/etc/gmail/gmail-app-pass", "Path to gmail application password")
 	guardProtectedBranch = flag.Bool("guard", false, "Suspend merge bot if postsubmit fails")
-	emailSending         = flag.Bool("email_sending", true, "Sending alert email")
+	emailSending         = flag.Bool("email_sending", false, "Sending alert email")
 	catchFlakesByRun     = flag.Bool("catch_flakes_by_rerun", true, "whether to rerun failed jobs to detect flakyness")
 
-	protectedJobs = []string{"istio-postsubmit", "e2e-suite-rbac-auth", "e2e-suite-rbac-no_auth"}
+	protectedJobs = []string{
+		"daily-e2e-cluster_wide-auth-default",
+		"daily-e2e-cluster_wide-auth-skew",
+		"daily-e2e-cluster_wide-auth",
+		"daily-e2e-rbac-auth-default",
+		"daily-e2e-rbac-auth-skew",
+		"daily-e2e-rbac-auth",
+		"daily-e2e-rbac-no_auth-default",
+		"daily-e2e-rbac-no_auth-skew",
+		"daily-e2e-rbac-no_auth",
+	}
+	presubmitJobs = protectedJobs
 )
 
 func init() {
@@ -68,7 +79,8 @@ func init() {
 func main() {
 	gcsClient := u.NewGCSClient(gcsBucket)
 	sisyphusd := sisyphus.NewDaemonUsingProw(
-		protectedJobs, prowProject, prowZone, gubernatorURL,
+		protectedJobs, presubmitJobs, prowProject, prowZone, gubernatorURL,
+		gcsBucket,
 		gcsClient,
 		sisyphus.NewStorage(),
 		&sisyphus.Config{

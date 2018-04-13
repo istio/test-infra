@@ -118,13 +118,15 @@ func newDaemon(protectedJobs []string, cfg *Config, storage Storage) *Daemon {
 // NewDaemonUsingProw creates a Daemon that uses Prow as the the CI system.
 // It signature ensures proper setup of a Prow client.
 func NewDaemonUsingProw(
-	protectedJobs []string,
-	prowProject, prowZone, gubernatorURL string,
+	protectedJobs, presubmitJobs []string,
+	prowProject, prowZone, gubernatorURL, gcsBucket string,
 	client util.IGCSClient,
 	storage Storage,
 	cfg *Config) *Daemon {
 	daemon := newDaemon(protectedJobs, cfg, storage)
-	daemon.ci = NewProwAccessor(prowProject, prowZone, gubernatorURL, client)
+	prowAccessor := NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket, client)
+	prowAccessor.RegisterPresubmitJobs(presubmitJobs)
+	daemon.ci = prowAccessor
 	return daemon
 }
 

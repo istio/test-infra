@@ -31,6 +31,7 @@ const (
 	prowProjectMock        = "prow-project-mock"
 	prowZoneMock           = "us-west1-a"
 	gubernatorURLMock      = "https://k8s-gubernator.appspot.com/build/mock"
+	gcsBucketMock          = "gcs-bucket-mock"
 	testDataDir            = "test_data"
 	expectedFlakeStatsJSON = "expectedFlakeStats.json"
 )
@@ -177,9 +178,12 @@ func TestDaemonConfig(t *testing.T) {
 		PollGapDuration:  DefaultPollGapDuration,
 		NumRerun:         DefaultNumRerun,
 	}
+	presubmitJobs := []string{}
 	sisyphusd := NewDaemonUsingProw(
 		protectedJobsMock,
+		presubmitJobs,
 		prowProjectMock, prowZoneMock, gubernatorURLMock,
+		gcsBucketMock,
 		fakeClient{},
 		NewStorageMock(t), cfg)
 	if !reflect.DeepEqual(sisyphusd.GetConfig(), cfgExpected) {
