@@ -80,7 +80,7 @@ type ProwAccessor struct {
 	gcsBucket     string
 	gcsClient     u.IGCSClient
 	rerunCmd      func(node string) error
-	presubmitJobs map[string]bool
+	presubmitJobs map[string]struct{}
 }
 
 // NewProwAccessor creates a new ProwAccessor
@@ -91,7 +91,7 @@ func NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket string, cli
 		gubernatorURL: gubernatorURL,
 		gcsClient:     client,
 		gcsBucket:     gcsBucket,
-		presubmitJobs: make(map[string]bool),
+		presubmitJobs: make(map[string]struct{}),
 		rerunCmd: func(node string) error {
 			_, e := u.Shell("echo kubectl create -f \"https://prow.istio.io/rerun?prowjob=%s\"", node)
 			return e
@@ -102,7 +102,7 @@ func NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket string, cli
 // RegisterPresubmitJobs marks `jobNames` as pre-submit jobs
 func (p *ProwAccessor) RegisterPresubmitJobs(presubmitJobNames []string) {
 	for _, jobName := range presubmitJobNames {
-		p.presubmitJobs[jobName] = true
+		p.presubmitJobs[jobName] = struct{}{}
 	}
 }
 
