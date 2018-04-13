@@ -285,7 +285,7 @@ func DailyReleaseQualification() error {
 
 	verbose := true
 	ci := u.NewCIState()
-	retryDelay := 5 * time.Second
+	retryDelay := 5 * time.Minute
 	totalRetries := 240 // Max 20 hours wait before we automatically close the PR and fail release qualification.
 	log.Printf("Waiting for all jobs starting. Results Polling starts in %v.\n", retryDelay)
 	time.Sleep(retryDelay)
