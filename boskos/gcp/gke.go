@@ -56,8 +56,8 @@ func findVersionMatch(version string, supportedVersion []string) (string, error)
 	return "", nil
 }
 
-func isReady() bool {
-	_, err := util.Shell("kubectl get ns")
+func isReady(kubeconfig string) bool {
+	_, err := util.Shell("kubectl --kubeconfig=%s get ns", kubeconfig)
 	return err == nil
 }
 
@@ -77,7 +77,7 @@ func (cc *containerEngine) waitForReady(ctx context.Context, cluster, project, z
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-time.After(defaultSleepTime):
-			if isReady() {
+			if isReady(kubeconfigFile.Name()) {
 				return nil
 			}
 		}
@@ -147,7 +147,7 @@ func (cc *containerEngine) create(ctx context.Context, project string, config cl
 	info := &InstanceInfo{Name: name, Zone: config.Zone}
 
 	logrus.Info("Verifying that cluster %s in zone %s for project %s is ready", name, config.Zone, project)
-	if err := cc.waitForReady(ctx, name, project, config.Zone ); err != nil {
+	if err := cc.waitForReady(ctx, name, project, config.Zone); err != nil {
 		logrus.WithError(err).Errorf("cluster %s in zone %s for project %s is not usable", name, config.Zone, project)
 	}
 	logrus.WithError(err).Errorf("cluster %s in zone %s for project %s is ready", name, config.Zone, project)
