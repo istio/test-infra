@@ -7,7 +7,7 @@ MODIFIED_YAML := "/tmp/local.sisyphus-deployment.yaml"
 default: image push
 
 image:
-	docker build -t "gcr.io/$(PROJECT)/sisyphus:$(VERSION)" -f Dockerfile .
+	docker build --no-cache -t "gcr.io/$(PROJECT)/sisyphus:$(VERSION)" -f Dockerfile .
 
 push:
 	gcloud docker -- push "gcr.io/$(PROJECT)/sisyphus:$(VERSION)"
