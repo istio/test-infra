@@ -47,10 +47,15 @@ var (
 func main() {
 	flag.Parse()
 	logrus.SetFormatter(&logrus.JSONFormatter{})
-
 	if *configPath == "" {
-		logrus.Panic("--config must be set")
+		logrus.Fatalf("--config must be set")
 	}
+	if *serviceAccount != "" {
+		if err := gcp.ActivateServiceAccount(*serviceAccount); err != nil {
+			logrus.WithError(err).Fatal("cannot activate service account")
+		}
+	}
+
 	client := client.NewClient(defaultOwner, *boskosURL)
 	gcpClient, err := gcp.NewClient(*serviceAccount)
 	if err != nil {
@@ -62,10 +67,10 @@ func main() {
 
 	// Registering Masonable Converters
 	if err := mason.RegisterConfigConverter(gcp.ResourceConfigType, gcp.ConfigConverter); err != nil {
-		logrus.WithError(err).Panicf("unable tp register config converter")
+		logrus.WithError(err).Fatalf("unable tp register config converter")
 	}
 	if err := mason.UpdateConfigs(*configPath); err != nil {
-		logrus.WithError(err).Panicf("failed to update mason config")
+		logrus.WithError(err).Fatalf("failed to update mason config")
 	}
 	go func() {
 		for range time.NewTicker(defaultUpdatePeriod).C {

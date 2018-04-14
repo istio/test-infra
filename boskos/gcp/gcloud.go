@@ -30,3 +30,11 @@ func SetKubeConfig(project, zone, cluster, kubeconfig string) error {
 		cluster, project, zone)
 	return err
 }
+
+// SetKubeConfig saves kube config from a given cluster to the given location
+func ActivateServiceAccount(serviceAccount string) error {
+	_, err := util.Shell(
+		"gcloud auth activate-service-account --key-file=%s",
+		serviceAccount)
+	return err
+}

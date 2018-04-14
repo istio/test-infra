@@ -17,11 +17,15 @@ package gcp
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/container/v1"
+
+	"istio.io/test-infra/toolbox/util"
 )
 
 const (
@@ -50,6 +54,35 @@ func findVersionMatch(version string, supportedVersion []string) (string, error)
 		}
 	}
 	return "", nil
+}
+
+func isReady() bool {
+	_, err := util.Shell("kubectl get ns")
+	return err == nil
+}
+
+func (cc *containerEngine) waitForReady(ctx context.Context, cluster, project, zone string) error {
+	kubeconfigFile, err := ioutil.TempFile("", "kubeconfig")
+	if err != nil {
+		return err
+	}
+
+	defer os.Remove(kubeconfigFile.Name())
+	if err := SetKubeConfig(project, zone, cluster, kubeconfigFile.Name()); err != nil {
+		return err
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(defaultSleepTime):
+			if isReady() {
+				return nil
+			}
+		}
+	}
+	return nil
 }
 
 func (cc *containerEngine) waitForOperation(ctx context.Context, op *container.Operation, project, zone string) error {
@@ -113,5 +146,10 @@ func (cc *containerEngine) create(ctx context.Context, project string, config cl
 	logrus.Infof("Instance %s created via operation %s", clusterRequest.Cluster.Name, op.Name)
 	info := &InstanceInfo{Name: name, Zone: config.Zone}
 
+	logrus.Info("Verifying that cluster %s in zone %s for project %s is ready", name, config.Zone, project)
+	if err := cc.waitForReady(ctx, name, project, config.Zone ); err != nil {
+		logrus.WithError(err).Errorf("cluster %s in zone %s for project %s is not usable", name, config.Zone, project)
+	}
+	logrus.WithError(err).Errorf("cluster %s in zone %s for project %s is ready", name, config.Zone, project)
 	return info, nil
 }
