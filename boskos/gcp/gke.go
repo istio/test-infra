@@ -67,7 +67,12 @@ func (cc *containerEngine) waitForReady(ctx context.Context, cluster, project, z
 	if err != nil {
 		return err
 	}
-	defer os.Remove(kubeconfigFile.Name())
+	defer func() {
+		if err := os.Remove(kubeconfigFile.Name()); err != nil {
+			logrus.WithError(err).Errorf("failed to delete file %s", kubeconfigFile.Name())
+		}
+
+	}()
 
 	if err := SetKubeConfig(project, zone, cluster, kubeconfigFile.Name()); err != nil {
 		return err

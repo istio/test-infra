@@ -31,7 +31,7 @@ func SetKubeConfig(project, zone, cluster, kubeconfig string) error {
 	return err
 }
 
-// SetKubeConfig saves kube config from a given cluster to the given location
+// ActivateServiceAccount activates a service account for gcloud
 func ActivateServiceAccount(serviceAccount string) error {
 	_, err := util.ShellSilent(
 		"gcloud auth activate-service-account --key-file=%s",
