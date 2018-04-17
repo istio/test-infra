@@ -25,8 +25,16 @@ func SetKubeConfig(project, zone, cluster, kubeconfig string) error {
 	if err := os.Setenv("KUBECONFIG", kubeconfig); err != nil {
 		return err
 	}
-	_, err := util.Shell(
+	_, err := util.ShellSilent(
 		"gcloud container clusters get-credentials %s --project=%s --zone=%s",
 		cluster, project, zone)
+	return err
+}
+
+// ActivateServiceAccount activates a service account for gcloud
+func ActivateServiceAccount(serviceAccount string) error {
+	_, err := util.ShellSilent(
+		"gcloud auth activate-service-account --key-file=%s",
+		serviceAccount)
 	return err
 }
