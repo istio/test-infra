@@ -31,7 +31,7 @@ const (
 )
 
 var (
-	pendingJobTimeout = 60 * time.Minute
+	pendingJobTimeout = 120 * time.Minute
 	// DefaultPollGapDuration is the default time that sisyphus waits between
 	// two checks on jobs
 	DefaultPollGapDuration = 300 * time.Second
@@ -270,6 +270,12 @@ func (d *Daemon) processResult(job *jobStatus, runNo int, result *Result) *failu
 				}
 				// delete result.SHA from job.rerunJobStats since all reruns have finished
 				delete(job.rerunJobStats, result.SHA)
+			} else {
+				// flakeStatPtr.TotalRerun < d.numRerun
+				// start the next rerun
+				if err := d.ci.Rerun(job.name, runNo); err != nil {
+					log.Printf("failed when starting reruns on [%s]: %v\n", job.name, err)
+				}
 			}
 		} else { // no reruns exist on this SHA
 			if !result.Passed {
@@ -278,7 +284,8 @@ func (d *Daemon) processResult(job *jobStatus, runNo int, result *Result) *failu
 					TestName: job.name,
 					SHA:      result.SHA,
 				}
-				if err := d.ci.Rerun(job.name, runNo, d.numRerun); err != nil {
+				// start the first rerun
+				if err := d.ci.Rerun(job.name, runNo); err != nil {
 					log.Printf("failed when starting reruns on [%s]: %v\n", job.name, err)
 				}
 			}

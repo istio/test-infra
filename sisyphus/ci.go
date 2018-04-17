@@ -29,7 +29,7 @@ import (
 type CI interface {
 	GetLatestRun(jobName string) (int, error)
 	GetResult(jobName string, runNo int) (*Result, error)
-	Rerun(jobName string, runNo, numRerun int) error
+	Rerun(jobName string, runNo int) error
 	GetDetailsURL(jobName string, runNo int) string
 }
 
@@ -172,13 +172,13 @@ func (p *ProwAccessor) GetDetailsURL(jobName string, runNo int) string {
 	return fmt.Sprintf("%s/%s/%d", p.gubernatorURL, jobName, runNo)
 }
 
-// Rerun starts on Prow the reruns on specified jobs
-func (p *ProwAccessor) Rerun(jobName string, runNo, numRerun int) error {
+// Rerun starts on Prow the ONE rerun on the specified job
+func (p *ProwAccessor) Rerun(jobName string, runNo int) error {
 	cfg, err := p.getProwJobConfig(jobName, runNo)
 	if err != nil {
 		return err
 	}
-	if err = p.triggerConcurrentReruns(jobName, cfg.Node, numRerun); err != nil {
+	if err = p.triggerRerun(jobName, cfg.Node); err != nil {
 		return err
 	}
 	return nil
@@ -203,16 +203,14 @@ func (p *ProwAccessor) getProwJobConfig(jobName string, runNo int) (*ProwJobConf
 	return &cfg, nil
 }
 
-func (p *ProwAccessor) triggerConcurrentReruns(jobName, node string, numRerun int) error {
+func (p *ProwAccessor) triggerRerun(jobName, node string) error {
 	log.Printf("Rerunning %s\n", jobName)
 	recess := 1 * time.Minute
 	maxRetry := 3
-	for i := 0; i < numRerun; i++ {
-		if err := u.Retry(recess, maxRetry, func() error {
-			return p.rerunCmd(node)
-		}); err != nil {
-			log.Printf("Unable to trigger the %d-th rerun of job %v", i, jobName)
-		}
+	if err := u.Retry(recess, maxRetry, func() error {
+		return p.rerunCmd(node)
+	}); err != nil {
+		log.Printf("Unable to trigger rerun of job %v", jobName)
 	}
 	return nil
 }

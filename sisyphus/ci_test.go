@@ -118,8 +118,8 @@ func TestRerunOnProw(t *testing.T) {
 		counts[node]++
 		return nil
 	}
-	expectedNumRerun := 5
-	err := prowAccessor.Rerun(jobName, runNo, expectedNumRerun)
+	expectedNumRerun := 1
+	err := prowAccessor.Rerun(jobName, runNo)
 	if err != nil {
 		t.Errorf("Error when calling GetProwJobConfig: %v", err)
 	}
