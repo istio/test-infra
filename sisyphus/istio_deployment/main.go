@@ -54,9 +54,9 @@ var (
 	catchFlakesByRun     = flag.Bool("catch_flakes_by_rerun", true, "whether to rerun failed jobs to detect flakyness")
 
 	protectedJobs = []string{
-		"istio-unit-tests",
-		"istio-pilot-e2e-envoyv2-v1alpha3",
-		"istio-perf-tests",
+		"daily-unit-tests",
+		"daily-pilot-e2e-envoyv2-v1alpha3",
+		"daily-perf-tests",
 		"daily-e2e-rbac-auth-default",
 		"daily-e2e-rbac-auth-skew",
 		"daily-e2e-rbac-auth",
