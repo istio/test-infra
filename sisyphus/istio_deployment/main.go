@@ -18,7 +18,6 @@ import (
 	"context"
 	"flag"
 	"log"
-	"time"
 
 	"istio.io/test-infra/sisyphus"
 	u "istio.io/test-infra/toolbox/util"
