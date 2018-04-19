@@ -57,10 +57,8 @@ var (
 		"daily-pilot-e2e-envoyv2-v1alpha3",
 		"daily-perf-tests",
 		"daily-e2e-rbac-auth-default",
-		"daily-e2e-rbac-auth-skew",
 		"daily-e2e-rbac-auth",
 		"daily-e2e-rbac-no_auth-default",
-		"daily-e2e-rbac-no_auth-skew",
 		"daily-e2e-rbac-no_auth",
 	}
 	presubmitJobs = protectedJobs
