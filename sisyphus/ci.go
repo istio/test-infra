@@ -20,6 +20,7 @@ import (
 	"log"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	u "istio.io/test-infra/toolbox/util"
@@ -161,10 +162,24 @@ func (p *ProwAccessor) GetResult(jobName string, runNo int) (*Result, error) {
 		log.Printf("Failed to unmarshal ProwResult %s: %v", prowResultString, err)
 		return nil, err
 	}
-	return &Result{
-		Passed: prowResult.Passed,
-		SHA:    prowResult.Metadata.RepoCommit,
-	}, nil
+	cfg, err := p.getProwJobConfig(jobName, runNo)
+	if err != nil {
+		return nil, err
+	}
+	// Presubmit
+	// "master:241d69701ebf3c57c0d86d016937d23615dae390,554:cc02e59987163c8deb80db8bcc203c318c1b752e"
+	// Postsubmit
+	// "master:241d69701ebf3c57c0d86d016937d23615dae390"
+	for _, baseSHAprSHA := range cfg.Repos {
+		splitted := strings.Split(baseSHAprSHA, ",")
+		// the PR sha is always the last one
+		sha := strings.Split(splitted[len(splitted)-1], ":")[1]
+		return &Result{
+			Passed: prowResult.Passed,
+			SHA:    sha,
+		}, nil
+	}
+	return nil, fmt.Errorf("the .metadata.repos field is ill-defined in finished.json")
 }
 
 // GetDetailsURL returns the gubernator URL to that job at the run number

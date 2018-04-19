@@ -273,6 +273,8 @@ func (d *Daemon) processResult(job *jobStatus, runNo int, result *Result) *failu
 			} else {
 				// flakeStatPtr.TotalRerun < d.numRerun
 				// start the next rerun
+				log.Printf("Starting the %d-th rerun on job [%s] at sha [%s]",
+					flakeStatPtr.TotalRerun+1, job.name, result.SHA)
 				if err := d.ci.Rerun(job.name, runNo); err != nil {
 					log.Printf("failed when starting reruns on [%s]: %v\n", job.name, err)
 				}
@@ -285,6 +287,7 @@ func (d *Daemon) processResult(job *jobStatus, runNo int, result *Result) *failu
 					SHA:      result.SHA,
 				}
 				// start the first rerun
+				log.Printf("Starting the first rerun on job [%s] at sha [%s]", job.name, result.SHA)
 				if err := d.ci.Rerun(job.name, runNo); err != nil {
 					log.Printf("failed when starting reruns on [%s]: %v\n", job.name, err)
 				}
