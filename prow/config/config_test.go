@@ -18,8 +18,8 @@ import (
 	"testing"
 
 	"k8s.io/test-infra/prow/config"
-	"k8s.io/test-infra/prow/plugins"
 	_ "k8s.io/test-infra/prow/hook"
+	"k8s.io/test-infra/prow/plugins"
 )
 
 func TestConfig(t *testing.T) {
