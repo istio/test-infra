@@ -20,6 +20,12 @@ def go_vendor_repositories():
   )
 
   go_repository(
+    name = "com_github_bazelbuild_buildtools",
+    commit = "80c7f0d45d7e40fa1f7362852697d4a03df557b3",
+    importpath = "github.com/bazelbuild/buildtools",
+  )
+
+  go_repository(
     name = "com_github_beorn7_perks",
     commit = "4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9",
     importpath = "github.com/beorn7/perks",
@@ -77,6 +83,12 @@ def go_vendor_repositories():
     name = "com_github_golang_glog",
     commit = "23def4e6c14b4da8ac2ed8007337bc5eb5007998",
     importpath = "github.com/golang/glog",
+  )
+
+  go_repository(
+    name = "com_github_golang_lint",
+    commit = "85993ffd0a6cd043291f3f63d45d656d97b165bd",
+    importpath = "github.com/golang/lint",
   )
 
   go_repository(
@@ -182,6 +194,12 @@ def go_vendor_repositories():
   )
 
   go_repository(
+    name = "com_github_satori_go_uuid",
+    commit = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3",
+    importpath = "github.com/satori/go.uuid",
+  )
+
+  go_repository(
     name = "com_github_shurcooL_githubql",
     commit = "d8297a7d5a840a2105de3f27796a6876d03b5da1",
     importpath = "github.com/shurcooL/githubql",
@@ -245,6 +263,12 @@ def go_vendor_repositories():
     name = "org_golang_x_text",
     commit = "88f656faf3f37f690df1a32515b479415e1a6769",
     importpath = "golang.org/x/text",
+  )
+
+  go_repository(
+    name = "org_golang_x_tools",
+    commit = "94b14834a20132093826ea5e2da5502a13908ad3",
+    importpath = "golang.org/x/tools",
   )
 
   go_repository(
