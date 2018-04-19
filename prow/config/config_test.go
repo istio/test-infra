@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	"k8s.io/test-infra/prow/config"
+	_ "k8s.io/test-infra/prow/hook"
 	"k8s.io/test-infra/prow/plugins"
 )
 
@@ -30,7 +31,6 @@ func TestConfig(t *testing.T) {
 
 // Make sure that our plugins are valid.
 func TestPlugins(t *testing.T) {
-	t.Skip("unable to load plugins help for whatever reason")
 	pa := &plugins.PluginAgent{}
 	if err := pa.Load("../plugins.yaml"); err != nil {
 		t.Fatalf("could not load plugins: %v", err)
