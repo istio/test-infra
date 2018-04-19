@@ -43,6 +43,7 @@ load(
     "container_push",
     container_repositories = "repositories",
 )
+
 load(
     "@io_bazel_rules_docker//go:image.bzl",
     _go_image_repos = "repositories",
@@ -52,9 +53,25 @@ container_repositories()
 
 _go_image_repos()
 
+git_repository(
+    name="io_k8s_test_infra",
+    remote="https://github.com/kubernetes/test-infra.git",
+    commit="5b34cd1dc0fc6473670e9468c74d77ec78261524",
+)
+
+load("@io_k8s_test_infra//autogo:deps.bzl", "autogo_dependencies")
+
+autogo_dependencies()
+
+load("@io_k8s_test_infra//autogo:def.bzl", "autogo_generate")
+
+autogo_generate(name="autogo", prefix="istio.io/test-infra")
+
+
 # Vendors
 #
 
 load("//:go_vendor_repositories.bzl", "go_vendor_repositories")
 
 go_vendor_repositories()
+
