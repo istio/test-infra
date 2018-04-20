@@ -19,7 +19,7 @@
   $ cd mungegithub
   $ CONTAINER=gcr.io/istio-testing/mungegithub/submit-queue:Sep-11-yutongz-a81300506273c9c27bc6fcd33a4b12cf0feace69
   $ docker build --pull -t $(CONTAINER) -f Dockerfile-submit-queue .
-  $ gcloud docker -- push $(CONTAINER)
+  $ docker push $(CONTAINER)
   ```
   
 * Re-deploy Submit Queue instence

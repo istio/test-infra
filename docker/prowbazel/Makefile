@@ -6,7 +6,7 @@ image:
 	docker build -t "gcr.io/$(PROJECT)/prowbazel:$(VERSION)" -f Dockerfile ../../
 
 push:
-	gcloud docker -- push "gcr.io/$(PROJECT)/prowbazel:$(VERSION)"
+	docker push "gcr.io/$(PROJECT)/prowbazel:$(VERSION)"
 
 # Open shell to running prowbazel image for experimentation.
 run:
