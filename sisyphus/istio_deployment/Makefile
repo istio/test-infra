@@ -10,7 +10,7 @@ image:
 	docker build --no-cache -t "gcr.io/$(PROJECT)/sisyphus:$(VERSION)" -f Dockerfile .
 
 push:
-	gcloud docker -- push "gcr.io/$(PROJECT)/sisyphus:$(VERSION)"
+	docker push "gcr.io/$(PROJECT)/sisyphus:$(VERSION)"
 
 get-cluster-credentials:
 	gcloud container clusters get-credentials "$(CLUSTER)" --project="$(PROJECT)" --zone="$(ZONE)"

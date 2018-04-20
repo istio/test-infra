@@ -10,9 +10,9 @@ image:
 
 
 push:
-	gcloud docker -- push "gcr.io/$(PROJECT)/istio-builder:latest"
-	gcloud docker -- push "gcr.io/$(PROJECT)/istio-builder:$(VERSION)"
-	gcloud docker -- push "gcr.io/$(PROJECT)/prow-builder:$(VERSION)"
+	docker push "gcr.io/$(PROJECT)/istio-builder:latest"
+	docker push "gcr.io/$(PROJECT)/istio-builder:$(VERSION)"
+	docker push "gcr.io/$(PROJECT)/prow-builder:$(VERSION)"
 
 
 .PHONY: image push

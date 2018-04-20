@@ -8,7 +8,7 @@ TAG ?= $(shell date +v%Y%m%d)-$(shell git describe --tags --always --dirty)
 mason-image:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o cmd/mason/mason istio.io/test-infra/boskos/cmd/mason/
 	docker build --no-cache -t "$(HUB)/mason:$(TAG)" cmd/mason
-	gcloud docker -- push "$(HUB)/mason:$(TAG)"
+	docker push "$(HUB)/mason:$(TAG)"
 	rm cmd/mason/mason
 
 mason-client:
