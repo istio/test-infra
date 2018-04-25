@@ -1,5 +1,5 @@
 PROJECT = istio-testing
-VERSION = 0.4.8
+VERSION = 0.4.9
 
 # Note: The build directory is the root of the istio/test-infra repository, not ./
 image:
