@@ -97,6 +97,16 @@ func (g *GithubClient) SHAIsAncestorOfBranch(repo, branch, targetSHA string) (bo
 	return false, err
 }
 
+// GetParentSHA returns the parent sha of the sha
+func (g *GithubClient) GetParentSHA(repo, branch, sha string) (string, error) {
+	commit, _, err := g.client.Repositories.GetCommit(
+		context.Background(), g.owner, repo, sha)
+	if err != nil {
+		return "", err
+	}
+	return *commit.Parents[0].SHA, nil
+}
+
 // FastForward moves :branch on :repo to the given sha
 func (g *GithubClient) FastForward(repo, branch, sha string) error {
 	ref := fmt.Sprintf("refs/heads/%s", branch)
