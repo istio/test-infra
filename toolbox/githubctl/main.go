@@ -250,6 +250,9 @@ func DailyReleaseQualification(baseBranch *string) error {
 	u.AssertNotEmpty("tag", tag)
 	u.AssertNotEmpty("gcs_path", gcsPath)
 	var dstBranch string
+	// we could have made baseBranch have a default value, but that breaks all the places
+	// where baseBranch must be passed in cmdline and a default value is not acceptable
+	// therefore, if a branch is not passed in use masterBranch as the default destination
 	if baseBranch != nil {
 		dstBranch = *baseBranch
 	} else {
