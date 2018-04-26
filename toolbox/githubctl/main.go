@@ -245,17 +245,26 @@ func CreateIstioReleaseUploadArtifacts() error {
 // DailyReleaseQualification triggers test jobs buy creating a PR that generates
 // a GitHub notification. It blocks until PR status is known and returns nonzero
 // value if failure. Links to test logs will also be logged to console.
-func DailyReleaseQualification() error {
+func DailyReleaseQualification(baseBranch *string) error {
 	u.AssertNotEmpty("hub", hub) // TODO (chx) default value of hub
 	u.AssertNotEmpty("tag", tag)
 	u.AssertNotEmpty("gcs_path", gcsPath)
-	log.Printf("Creating PR to trigger release qualifications\n")
+	var dstBranch string
+	// we could have made baseBranch have a default value, but that breaks all the places
+	// where baseBranch must be passed in cmdline and a default value is not acceptable
+	// therefore, if a branch is not passed in use masterBranch as the default destination
+	if baseBranch != nil {
+		dstBranch = *baseBranch
+	} else {
+		dstBranch = masterBranch
+	}
+	log.Printf("Creating PR to trigger release qualifications on %s branch\n", dstBranch)
 	prTitle := fmt.Sprintf("%s - %s", relQualificationPRTtilePrefix, *tag)
 	prBody := "This is a generated PR that triggers release qualification tests, and will be automatically merged " +
 		"if all tests pass. In case some test fails, you can manually rerun the failing tests using /test. Force " +
 		"merging this PR will suppress the test failures and let the release pipeline continue."
 	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
-	newBranch := "relQual_" + timestamp
+	srcBranch := "relQual_" + timestamp
 	edit := func() error {
 		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "HUB", *hub); err != nil {
 			return err
@@ -272,7 +281,7 @@ func DailyReleaseQualification() error {
 		}
 		return nil
 	}
-	pr, err := ghClntRel.CreatePRUpdateRepo(newBranch, masterBranch, dailyRepo, prTitle, prBody, edit)
+	pr, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, dailyRepo, prTitle, prBody, edit)
 	if err != nil {
 		return err
 	}
@@ -370,7 +379,7 @@ func main() {
 			log.Printf("Error during CreateIstioReleaseUploadArtifacts: %v\n", err)
 		}
 	case "dailyRelQual":
-		if err := DailyReleaseQualification(); err != nil {
+		if err := DailyReleaseQualification(baseBranch); err != nil {
 			log.Printf("Error during DailyReleaseQualification: %v\n", err)
 			os.Exit(1)
 		}

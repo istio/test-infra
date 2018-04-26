@@ -9,16 +9,17 @@ You will need a ```<github token file>``` text file containing the github perona
 $ git clone https://github.com/istio/test-infra.git
 ```
 
-and build it using (might need bazel 0.5.4)
+and build it using
 
 ```
 $ bazel build //toolbox/githubctl
 ```
 
-The binary output is located in bazel-bin/toolbox/githubctl/githubctl.
+The binary output is located in bazel-bin/toolbox/githubctl/linux_amd64_stripped/githubctl.
+
 
 ```
-$ alias githubctl="${PWD}/bazel-bin/toolbox/githubctl/githubctl"
+$ alias githubctl="${PWD}/bazel-bin/toolbox/githubctl/linux_amd64_stripped/githubctl"
 ```
 
 To trigger daily release qualification,
