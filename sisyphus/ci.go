@@ -166,10 +166,22 @@ func (p *ProwAccessor) GetResult(jobName string, runNo int) (*Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	// Presubmit
-	// "master:241d69701ebf3c57c0d86d016937d23615dae390,554:cc02e59987163c8deb80db8bcc203c318c1b752e"
-	// Postsubmit
-	// "master:241d69701ebf3c57c0d86d016937d23615dae390"
+	/*	The .repos field in started.json is a string to string map that contains exactly
+		one kv pair. For example, a pre-submit run may look like
+			"repos": {
+				"repo": "master:1920a01a8df75baf71ae5fa38d68e4b055bad65c,554:cc02e59987163c8deb80db8bcc203c318c1b752e"
+			}
+		which records the PR number and sha, as well as the base branch and sha.
+		A post-submit run looks like
+			"repos": {
+				"repo": "master:241d69701ebf3c57c0d86d016937d23615dae390"
+			}
+	*/
+	if len(cfg.Repos) != 1 {
+		return nil, fmt.Errorf(
+			"the .repos field in started.json contains %d kv pairs and we expect only one",
+			len(cfg.Repos))
+	}
 	for _, baseSHAprSHA := range cfg.Repos {
 		splitted := strings.Split(baseSHAprSHA, ",")
 		// the PR sha is always the last one
@@ -179,7 +191,7 @@ func (p *ProwAccessor) GetResult(jobName string, runNo int) (*Result, error) {
 			SHA:    sha,
 		}, nil
 	}
-	return nil, fmt.Errorf("the .metadata.repos field is ill-defined in finished.json")
+	return nil, fmt.Errorf("the .repos field is ill-defined in started.json")
 }
 
 // GetDetailsURL returns the gubernator URL to that job at the run number
