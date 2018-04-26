@@ -569,27 +569,6 @@ presubmits:
       preset-service-account: true
     spec:
       <<: *common_e2e_spec
-    run_after_success:
-    - name: daily-e2e-rbac-no_auth-skew
-      agent: kubernetes
-      context: prow/daily-e2e-rbac-no_auth-skew.sh
-      always_run: true
-      rerun_command: "/test daily-e2e-rbac-no_auth-skew"
-      trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-no_auth-skew))?,?(\\s+|$)"
-      labels:
-        preset-service-account: true
-      spec:
-        containers:
-        - image: gcr.io/istio-testing/prowbazel:0.4.9
-          args:
-          - "--repo=github.com/istio-releases/daily-release=$(PULL_REFS)"
-          - "--clean"
-          - "--timeout=120"
-          # Bazel needs privileged mode in order to sandbox builds.
-          securityContext:
-            privileged: true
-        nodeSelector:
-          cloud.google.com/gke-nodepool: new-cluster-pool
 
   - name: daily-e2e-rbac-no_auth-default
     agent: kubernetes
@@ -612,27 +591,6 @@ presubmits:
       preset-service-account: true
     spec:
       <<: *common_e2e_spec
-    run_after_success:
-    - name: daily-e2e-rbac-auth-skew
-      agent: kubernetes
-      context: prow/daily-e2e-rbac-auth-skew.sh
-      always_run: true
-      rerun_command: "/test daily-e2e-rbac-auth-skew"
-      trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-auth-skew))?,?(\\s+|$)"
-      labels:
-        preset-service-account: true
-      spec:
-        containers:
-        - image: gcr.io/istio-testing/prowbazel:0.4.9
-          args:
-          - "--repo=github.com/istio-releases/daily-release=$(PULL_REFS)"
-          - "--clean"
-          - "--timeout=120"
-          # Bazel needs privileged mode in order to sandbox builds.
-          securityContext:
-            privileged: true
-        nodeSelector:
-          cloud.google.com/gke-nodepool: new-cluster-pool
 
   - name: daily-e2e-rbac-auth-default
     agent: kubernetes
