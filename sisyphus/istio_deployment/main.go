@@ -18,6 +18,7 @@ import (
 	"context"
 	"flag"
 	"log"
+	"strings"
 
 	"istio.io/test-infra/sisyphus"
 	u "istio.io/test-infra/toolbox/util"
@@ -40,8 +41,8 @@ const (
 	gcsBucket     = "istio-prow"
 
 	// Branch protection
-	owner           = "istio"
-	protectedRepo   = "istio"
+	owner           = "istio-releases"
+	protectedRepo   = "daily-release"
 	protectedBranch = "master"
 )
 
@@ -51,19 +52,6 @@ var (
 	guardProtectedBranch = flag.Bool("guard", false, "Suspend merge bot if postsubmit fails")
 	emailSending         = flag.Bool("email_sending", false, "Sending alert email")
 	catchFlakesByRun     = flag.Bool("catch_flakes_by_rerun", true, "whether to rerun failed jobs to detect flakyness")
-
-	protectedJobs = []string{
-		"daily-e2e-cluster_wide-auth-default",
-		"daily-e2e-cluster_wide-auth-skew",
-		"daily-e2e-cluster_wide-auth",
-		"daily-e2e-rbac-auth-default",
-		"daily-e2e-rbac-auth-skew",
-		"daily-e2e-rbac-auth",
-		"daily-e2e-rbac-no_auth-default",
-		"daily-e2e-rbac-no_auth-skew",
-		"daily-e2e-rbac-no_auth",
-	}
-	presubmitJobs = protectedJobs
 )
 
 func init() {
@@ -76,10 +64,34 @@ func init() {
 	}
 }
 
+func getProtectedJobs() ([]string, error) {
+	var prowTests []string
+	prowPrefix := "prow/"
+	shSuffix := ".sh"
+	ghClnt := u.NewGithubClientNoAuth(owner)
+	checks, err := ghClnt.GetLatestChecks(protectedRepo)
+	if err != nil {
+		return prowTests, err
+	}
+	for _, check := range checks {
+		if strings.HasPrefix(check, prowPrefix) {
+			check = strings.TrimPrefix(check, prowPrefix)
+			check = strings.TrimSuffix(check, shSuffix)
+			prowTests = append(prowTests, check)
+		}
+	}
+	return prowTests, nil
+}
+
 func main() {
+	prowTests, err := getProtectedJobs()
+	if err != nil {
+		log.Fatalf("Failed to get the list of prow jobs: %v", err)
+	}
+	presubmitJobs := prowTests
 	gcsClient := u.NewGCSClient(gcsBucket)
 	sisyphusd := sisyphus.NewDaemonUsingProw(
-		protectedJobs, presubmitJobs, prowProject, prowZone, gubernatorURL,
+		prowTests, presubmitJobs, prowProject, prowZone, gubernatorURL,
 		gcsBucket,
 		gcsClient,
 		sisyphus.NewStorage(),

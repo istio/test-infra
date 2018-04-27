@@ -20,6 +20,7 @@ import (
 	"log"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	u "istio.io/test-infra/toolbox/util"
@@ -29,7 +30,7 @@ import (
 type CI interface {
 	GetLatestRun(jobName string) (int, error)
 	GetResult(jobName string, runNo int) (*Result, error)
-	Rerun(jobName string, runNo, numRerun int) error
+	Rerun(jobName string, runNo int) error
 	GetDetailsURL(jobName string, runNo int) string
 }
 
@@ -161,10 +162,36 @@ func (p *ProwAccessor) GetResult(jobName string, runNo int) (*Result, error) {
 		log.Printf("Failed to unmarshal ProwResult %s: %v", prowResultString, err)
 		return nil, err
 	}
-	return &Result{
-		Passed: prowResult.Passed,
-		SHA:    prowResult.Metadata.RepoCommit,
-	}, nil
+	cfg, err := p.getProwJobConfig(jobName, runNo)
+	if err != nil {
+		return nil, err
+	}
+	/*	The .repos field in started.json is a string to string map that contains exactly
+		one kv pair. For example, a pre-submit run may look like
+			"repos": {
+				"repo": "master:1920a01a8df75baf71ae5fa38d68e4b055bad65c,554:cc02e59987163c8deb80db8bcc203c318c1b752e"
+			}
+		which records the PR number and sha, as well as the base branch and sha.
+		A post-submit run looks like
+			"repos": {
+				"repo": "master:241d69701ebf3c57c0d86d016937d23615dae390"
+			}
+	*/
+	if len(cfg.Repos) != 1 {
+		return nil, fmt.Errorf(
+			"the .repos field in started.json contains %d kv pairs and we expect only one",
+			len(cfg.Repos))
+	}
+	for _, baseSHAprSHA := range cfg.Repos {
+		splitted := strings.Split(baseSHAprSHA, ",")
+		// the PR sha is always the last one
+		sha := strings.Split(splitted[len(splitted)-1], ":")[1]
+		return &Result{
+			Passed: prowResult.Passed,
+			SHA:    sha,
+		}, nil
+	}
+	return nil, fmt.Errorf("the .repos field is ill-defined in started.json")
 }
 
 // GetDetailsURL returns the gubernator URL to that job at the run number
@@ -172,13 +199,13 @@ func (p *ProwAccessor) GetDetailsURL(jobName string, runNo int) string {
 	return fmt.Sprintf("%s/%s/%d", p.gubernatorURL, jobName, runNo)
 }
 
-// Rerun starts on Prow the reruns on specified jobs
-func (p *ProwAccessor) Rerun(jobName string, runNo, numRerun int) error {
+// Rerun starts on Prow the ONE rerun on the specified job
+func (p *ProwAccessor) Rerun(jobName string, runNo int) error {
 	cfg, err := p.getProwJobConfig(jobName, runNo)
 	if err != nil {
 		return err
 	}
-	if err = p.triggerConcurrentReruns(jobName, cfg.Node, numRerun); err != nil {
+	if err = p.triggerRerun(jobName, cfg.Node); err != nil {
 		return err
 	}
 	return nil
@@ -203,16 +230,14 @@ func (p *ProwAccessor) getProwJobConfig(jobName string, runNo int) (*ProwJobConf
 	return &cfg, nil
 }
 
-func (p *ProwAccessor) triggerConcurrentReruns(jobName, node string, numRerun int) error {
+func (p *ProwAccessor) triggerRerun(jobName, node string) error {
 	log.Printf("Rerunning %s\n", jobName)
 	recess := 1 * time.Minute
 	maxRetry := 3
-	for i := 0; i < numRerun; i++ {
-		if err := u.Retry(recess, maxRetry, func() error {
-			return p.rerunCmd(node)
-		}); err != nil {
-			log.Printf("Unable to trigger the %d-th rerun of job %v", i, jobName)
-		}
+	if err := u.Retry(recess, maxRetry, func() error {
+		return p.rerunCmd(node)
+	}); err != nil {
+		log.Printf("Unable to trigger rerun of job %v", jobName)
 	}
 	return nil
 }

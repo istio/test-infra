@@ -120,7 +120,7 @@ func (p *ProwAccessorMock) GetDetailsURL(jobName string, runNo int) string {
 	return ""
 }
 
-func (p *ProwAccessorMock) Rerun(jobName string, runNo, numRerun int) error {
+func (p *ProwAccessorMock) Rerun(jobName string, runNo int) error {
 	return nil
 }
 

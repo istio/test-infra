@@ -280,6 +280,32 @@ func (g *GithubClient) ExistBranch(repo, branch string) (bool, error) {
 	return false, nil
 }
 
+// GetLatestChecks returns the list of test names triggered on the most recent PR
+func (g *GithubClient) GetLatestChecks(repo string) ([]string, error) {
+	log.Printf("Fetching list of checks on %s", repo)
+	var checks []string
+	// fetch only the latest PR to see what is the triggered tests
+	PRs, err := g.ListPRs(github.PullRequestListOptions{
+		ListOptions: github.ListOptions{
+			Page:    0,
+			PerPage: 1,
+		},
+	}, repo)
+	if err != nil {
+		return checks, err
+	}
+	combinedStatus, _, err := g.client.Repositories.GetCombinedStatus(
+		context.Background(), g.owner, repo, PRs[0].Head.GetSHA(), nil)
+	if err != nil {
+		return checks, err
+	}
+	for _, status := range combinedStatus.Statuses {
+		log.Printf("> %s", status.GetContext())
+		checks = append(checks, status.GetContext())
+	}
+	return checks, err
+}
+
 // GetPRTestResults return `success` if all *required* tests have passed
 func (g *GithubClient) GetPRTestResults(repo string, pr *github.PullRequest, verbose bool) (string, error) {
 	combinedStatus, _, err := g.client.Repositories.GetCombinedStatus(

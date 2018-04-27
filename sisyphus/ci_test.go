@@ -82,7 +82,7 @@ func TestGetResultOnProw(t *testing.T) {
 	}
 	expectedResult := &Result{
 		Passed: true,
-		SHA:    "1920a01a8df75baf71ae5fa38d68e4b055bad65c",
+		SHA:    "cc02e59987163c8deb80db8bcc203c318c1b752e",
 	}
 	if !reflect.DeepEqual(res, expectedResult) {
 		t.Errorf("ProwResult retrieved from Prow is not as expected")
@@ -101,8 +101,9 @@ func TestGetProwJobConfig(t *testing.T) {
 		Version:     "unknown",
 		TimeStamp:   1520646538,
 		RepoVersion: "unknown",
-		Pull:        "some_pr_number: sha",
-		Repos:       map[string]string{"repo": "some_pr_number: sha"},
+		Pull:        "some_pr_number:sha",
+		Repos: map[string]string{
+			"repo": "master:1920a01a8df75baf71ae5fa38d68e4b055bad65c,554:cc02e59987163c8deb80db8bcc203c318c1b752e"},
 	}
 	if !reflect.DeepEqual(cfg, cfgExpected) {
 		fmt.Printf("cfg = %v\n", cfg)
@@ -118,8 +119,8 @@ func TestRerunOnProw(t *testing.T) {
 		counts[node]++
 		return nil
 	}
-	expectedNumRerun := 5
-	err := prowAccessor.Rerun(jobName, runNo, expectedNumRerun)
+	expectedNumRerun := 1
+	err := prowAccessor.Rerun(jobName, runNo)
 	if err != nil {
 		t.Errorf("Error when calling GetProwJobConfig: %v", err)
 	}
