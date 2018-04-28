@@ -27,18 +27,20 @@ import (
 )
 
 var (
-	owner      = flag.String("owner", "istio", "Github owner or org")
-	tokenFile  = flag.String("token_file", "", "File containing Github API Access Token")
-	op         = flag.String("op", "", "Operation to be performed")
-	repo       = flag.String("repo", "", "Repository to which op is applied")
-	baseBranch = flag.String("base_branch", "", "Branch to which op is applied")
-	refSHA     = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
-	hub        = flag.String("hub", "", "Hub of the docker images")
-	tag        = flag.String("tag", "", "Tag of the release candidate")
-	releaseOrg = flag.String("rel_org", "istio-releases", "GitHub Release Org")
-	gcsPath    = flag.String("gcs_path", "", "The path to the GCS bucket")
-	githubClnt *u.GithubClient
-	ghClntRel  *u.GithubClient
+	owner          = flag.String("owner", "istio", "Github owner or org")
+	tokenFile      = flag.String("token_file", "", "File containing Github API Access Token")
+	op             = flag.String("op", "", "Operation to be performed")
+	repo           = flag.String("repo", "", "Repository to which op is applied")
+	baseBranch     = flag.String("base_branch", "", "Branch to which op is applied")
+	refSHA         = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
+	hub            = flag.String("hub", "", "Hub of the docker images")
+	tag            = flag.String("tag", "", "Tag of the release candidate")
+	releaseOrg     = flag.String("rel_org", "istio-releases", "GitHub Release Org")
+	gcsPath        = flag.String("gcs_path", "", "The path to the GCS bucket")
+	maxCommitDepth = flag.Int("max_commit_depth", 50, "Max number of commits before HEAD to check if green")
+	maxRunDepth    = flag.Int("max_run_depth", 100, "Max number of runs before the latest one of which results are checked")
+	githubClnt     *u.GithubClient
+	ghClntRel      *u.GithubClient
 	// unable to query post-submit jobs as GitHub is unaware of them
 	// needs to be consistent with prow config map
 	postSubmitJobs = []string{
@@ -57,9 +59,6 @@ const (
 	prowZone      = "us-west1-a"
 	gubernatorURL = "https://k8s-gubernator.appspot.com/build/istio-prow"
 	gcsBucket     = "istio-prow"
-	// latest green SHA
-	maxCommitDepth = 50
-	maxRunDepth    = 100
 	// release qualification trigger
 	relQualificationPRTtilePrefix = "Release Qualification"
 	greenBuildVersionFile         = "greenBuild.VERSION"
@@ -86,7 +85,7 @@ func isJobSuccessOnSHA(sha, job string, prowAccessor *s.ProwAccessor) (bool, err
 	if err != nil {
 		return false, fmt.Errorf("failed to get latest run number of %s: %v", job, err)
 	}
-	for i := 0; i < maxRunDepth; i++ {
+	for i := 0; i < *maxRunDepth; i++ {
 		result, exists := prowResultsCache[job][runNumber]
 		if !exists {
 			result, err = prowAccessor.GetResult(job, runNumber)
@@ -109,6 +108,8 @@ func isJobSuccessOnSHA(sha, job string, prowAccessor *s.ProwAccessor) (bool, err
 func getLatestGreenSHA() (string, error) {
 	u.AssertNotEmpty("repo", repo)
 	u.AssertNotEmpty("base_branch", baseBranch)
+	u.AssertPositive("max_commit_depth", maxCommitDepth)
+	u.AssertPositive("max_run_depth", maxRunDepth)
 	for _, postSubmitJob := range postSubmitJobs {
 		prowResultsCache[postSubmitJob] = make(map[int]*s.Result)
 	}
@@ -118,7 +119,7 @@ func getLatestGreenSHA() (string, error) {
 	if err != nil {
 		log.Fatalf("failed to get the head commit sha of %s/%s", *repo, *baseBranch)
 	}
-	for i := 0; i < maxCommitDepth; i++ {
+	for i := 0; i < *maxCommitDepth; i++ {
 		log.Printf("Checking if [%s] passed all checks. %d commits before HEAD", sha, i)
 		allChecksPassed := true
 		var wg sync.WaitGroup
