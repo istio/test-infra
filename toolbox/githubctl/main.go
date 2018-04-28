@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 	"time"
 
 	s "istio.io/test-infra/sisyphus"
@@ -46,6 +47,7 @@ var (
 		"e2e-suite-rbac-auth",
 		"e2e-cluster_wide-auth",
 	}
+	prowResultsCache = make(map[string]map[int]*s.Result)
 )
 
 const (
@@ -56,7 +58,7 @@ const (
 	gubernatorURL = "https://k8s-gubernator.appspot.com/build/istio-prow"
 	gcsBucket     = "istio-prow"
 	// latest green SHA
-	maxCommitDepth = 10
+	maxCommitDepth = 50
 	maxRunDepth    = 100
 	// release qualification trigger
 	relQualificationPRTtilePrefix = "Release Qualification"
@@ -79,21 +81,26 @@ func fastForward(repo, baseBranch, refSHA *string) error {
 	return githubClnt.FastForward(*repo, *baseBranch, *refSHA)
 }
 
-// TODO (chx) caching scheme to reduce IO to GCS. Also use go routines to increase parallelism
 func isJobSuccessOnSHA(sha, job string, prowAccessor *s.ProwAccessor) (bool, error) {
 	runNumber, err := prowAccessor.GetLatestRun(job)
 	if err != nil {
 		return false, fmt.Errorf("failed to get latest run number of %s: %v", job, err)
 	}
 	for i := 0; i < maxRunDepth; i++ {
-		result, err := prowAccessor.GetResult(job, runNumber)
-		if err != nil {
-			return false, fmt.Errorf(
-				"failed to get result of %s at run number %d: %v", job, runNumber, err)
+		result, exists := prowResultsCache[job][runNumber]
+		if !exists {
+			result, err = prowAccessor.GetResult(job, runNumber)
+			if err != nil {
+				log.Printf("failed to get result of %s at run number %d. Added dummy entries in cache. Continue. ", job, runNumber)
+				result = &s.Result{SHA: "", Passed: false}
+			}
+			// the race on prowResultsCache is benign, concurrent accesses on different keys
+			prowResultsCache[job][runNumber] = result
 		}
 		if result.SHA == sha {
 			return result.Passed, nil
 		}
+		runNumber--
 	}
 	return false, fmt.Errorf(
 		"Did not find matching sha [%s] for job %s after checking latest %d runs", sha, job, maxRunDepth)
@@ -102,6 +109,9 @@ func isJobSuccessOnSHA(sha, job string, prowAccessor *s.ProwAccessor) (bool, err
 func getLatestGreenSHA() (string, error) {
 	u.AssertNotEmpty("repo", repo)
 	u.AssertNotEmpty("base_branch", baseBranch)
+	for _, postSubmitJob := range postSubmitJobs {
+		prowResultsCache[postSubmitJob] = make(map[int]*s.Result)
+	}
 	gcsClient := u.NewGCSClient(gcsBucket)
 	prowAccessor := s.NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket, gcsClient)
 	sha, err := githubClnt.GetHeadCommitSHA(*repo, *baseBranch)
@@ -109,17 +119,27 @@ func getLatestGreenSHA() (string, error) {
 		log.Fatalf("failed to get the head commit sha of %s/%s", *repo, *baseBranch)
 	}
 	for i := 0; i < maxCommitDepth; i++ {
+		log.Printf("Checking if [%s] passed all checks. %d commits before HEAD", sha, i)
 		allChecksPassed := true
-		for _, postSubmitJob := range postSubmitJobs {
-			passed, err := isJobSuccessOnSHA(sha, postSubmitJob, prowAccessor)
-			if err != nil {
-				log.Fatalf("failed to check if sha %s passed job %s", sha, postSubmitJob)
-			}
-			if !passed {
-				allChecksPassed = false
-				break
-			}
+		var wg sync.WaitGroup
+		for _, job := range postSubmitJobs {
+			wg.Add(1)
+			func(job string) {
+				passed, err := isJobSuccessOnSHA(sha, job, prowAccessor)
+				if err != nil {
+					log.Printf("failed to check if sha %s passed job %s. Continue.", sha, job)
+				}
+				if !passed {
+					log.Printf("[%s] failed %s", sha, job)
+					// the race on allChecksPassed is benign
+					allChecksPassed = false
+				} else {
+					log.Printf("[%s] passed %s", sha, job)
+				}
+				wg.Done()
+			}(job)
 		}
+		wg.Wait()
 		if allChecksPassed {
 			return sha, nil
 		}
@@ -240,6 +260,7 @@ func DailyReleaseQualification(baseBranch *string) error {
 
 func init() {
 	flag.Parse()
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	u.AssertNotEmpty("token_file", tokenFile)
 	token, err := u.GetAPITokenFromFile(*tokenFile)
 	if err != nil {
