@@ -253,7 +253,7 @@ func DailyReleaseQualification(baseBranch *string) error {
 	// we could have made baseBranch have a default value, but that breaks all the places
 	// where baseBranch must be passed in cmdline and a default value is not acceptable
 	// therefore, if a branch is not passed in use masterBranch as the default destination
-	if baseBranch != nil {
+	if baseBranch != nil && len(*baseBranch) != 0 {
 		dstBranch = *baseBranch
 	} else {
 		dstBranch = masterBranch
