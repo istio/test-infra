@@ -811,6 +811,8 @@ periodics:
       securityContext:
         privileged: true
       env:
+      - name: GIT_BRANCHES
+        value: master,release-0.8
       - name: GIT_BRANCH
         value: master
       volumeMounts:
@@ -844,43 +846,10 @@ periodics:
       securityContext:
         privileged: true
       env:
+      - name: GIT_BRANCHES
+        value: master,release-0.8
       - name: GIT_BRANCH
         value: master
-      - name: NETRC
-        value: /etc/netrc/
-      volumeMounts:
-      - name: netrc
-        mountPath: /etc/netrc
-        readOnly: true
-    volumes:
-    - name: netrc
-      secret:
-        secretName: istio-testing-netrc
-    nodeSelector:
-      cloud.google.com/gke-nodepool: new-cluster-pool
-
-- interval: 1h
-  agent: kubernetes
-  name: green-build
-  labels:
-    preset-service-account: true
-  spec:
-    containers:
-    - args:
-      - --job=green-build
-      - --jobs-dir=build/prow
-      - --service-account=/etc/service-account/service-account.json
-      - --upload=gs://istio-prow/
-      - --repo-manifest=https://github.com/istio/manifest,master
-      - --repo=green-build
-      - --clean
-      - --timeout=120
-      image: gcr.io/istio-testing/prow-builder:0.5.5
-      securityContext:
-        privileged: true
-      env:
-      - name: GIT_BRANCH
-        value: release-0.8
       - name: NETRC
         value: /etc/netrc/
       volumeMounts:

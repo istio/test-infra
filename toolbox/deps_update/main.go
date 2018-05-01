@@ -141,7 +141,7 @@ func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency
 }
 
 // Updates the given repository so that it uses the latest dependency references
-// pushes new branch to remote, create pull request on master,
+// pushes new branch to remote, create pull request on given base branch,
 // which is auto-merged after presumbit
 func updateDependenciesOf(repo string) error {
 	log.Printf("Updating dependencies of %s\n", repo)
