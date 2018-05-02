@@ -60,6 +60,7 @@ const (
 )
 
 // Updates dependency objects in :deps to the latest stable version.
+// ASSUMES that the branches are the same for the dependencies
 // Generates an MD5 digest of the latest dependencies, useful in avoiding making duplicate
 // branches of the same code change.
 // Returns a list of dependencies that were stale and have just been updated
@@ -75,26 +76,33 @@ func updateDepSHAGetFingerPrint(repo string, deps *[]u.Dependency) (string, []u.
 		if dep.RepoName == envoyRepoPath {
 			if *updateExtDep {
 				// update envoy sha only when specified
-				commitSHA, err = githubEnvoyClnt.GetHeadCommitSHA(envoyRepo, dep.ProdBranch)
-				log.Printf("new envoy proxy sha is %s\n", commitSHA)
+				commitSHA, err = githubEnvoyClnt.GetHeadCommitSHA(envoyRepo, *baseBranch)
+				if err != nil {
+					// skip update we could not find envoy sha for this branch
+					commitSHA = dep.LastStableSHA
+					log.Printf("no envoy proxy sha for branch %s\n", *baseBranch)
+					err = nil
+				} else {
+					log.Printf("new envoy proxy sha is %s\n", commitSHA)
+				}
 			} else {
 				// otherwise skip update
 				commitSHA = dep.LastStableSHA
 				log.Printf("skipping update of envoy proxy sha is %s\n", commitSHA)
 			}
 		} else {
-			commitSHA, err = githubClnt.GetHeadCommitSHA(dep.RepoName, dep.ProdBranch)
-		}
-		if err != nil {
-			return "", depChangeList, err
+			commitSHA, err = githubClnt.GetHeadCommitSHA(dep.RepoName, *baseBranch)
+			if err != nil {
+				return "", depChangeList, err
+			}
 		}
 		digest += commitSHA
 		if dep.LastStableSHA != commitSHA {
 			(*deps)[i].LastStableSHA = commitSHA
 			depChangeList = append(depChangeList, (*deps)[i])
 		}
-
 	}
+
 	return u.GetMD5Hash(digest), depChangeList, nil
 }
 
