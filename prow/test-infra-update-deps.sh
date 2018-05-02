@@ -81,6 +81,8 @@ function update_on_branch {
    done
 }
 
+
+GIT_BRANCHES=master #temporary hack to not run on release
 IFS=,
 branches=($GIT_BRANCHES)
 unset IFS
