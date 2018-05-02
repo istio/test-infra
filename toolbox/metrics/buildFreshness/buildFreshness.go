@@ -58,7 +58,7 @@ func getCommitCreationTimeByRef(githubClnt *u.GithubClient, repo, ref string) (t
 	return time.Time{}, err
 }
 
-func getAgeMetric(githubClnt *u.GithubClient, dep *u.Dependency) (*DepFreshness, error) {
+func getAgeMetric(githubClnt *u.GithubClient, dep *u.Dependency, branch string) (*DepFreshness, error) {
 	stableTime, err := getCommitCreationTimeByRef(githubClnt, dep.RepoName, dep.LastStableSHA)
 	if err != nil {
 		e := fmt.Errorf(
@@ -66,11 +66,11 @@ func getAgeMetric(githubClnt *u.GithubClient, dep *u.Dependency) (*DepFreshness,
 			dep.Name, err)
 		return nil, e
 	}
-	latestTime, err := getBranchHeadTime(githubClnt, dep.RepoName, dep.ProdBranch)
+	latestTime, err := getBranchHeadTime(githubClnt, dep.RepoName, branch)
 	if err != nil {
 		e := fmt.Errorf(
 			"failed to get the committed time of HEAD of branch %s on repo %s: %v",
-			dep.ProdBranch, dep.RepoName, err)
+			branch, dep.RepoName, err)
 		return nil, e
 	}
 	lag := latestTime.Sub(stableTime)
@@ -96,7 +96,7 @@ func GetAgeMetrics(owner, repo, branch string) ([]DepFreshness, error) {
 		wg.Add(1)
 		go func(dep u.Dependency) {
 			defer wg.Done()
-			ageMetric, err := getAgeMetric(githubClnt, &dep)
+			ageMetric, err := getAgeMetric(githubClnt, &dep, branch)
 			mutex.Lock()
 			defer mutex.Unlock()
 			if err != nil {

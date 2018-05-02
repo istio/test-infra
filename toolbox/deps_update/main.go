@@ -81,7 +81,6 @@ func updateDepSHAGetFingerPrint(repo string, deps *[]u.Dependency) (string, []u.
 					// skip update we could not find envoy sha for this branch
 					commitSHA = dep.LastStableSHA
 					log.Printf("no envoy proxy sha for branch %s\n", *baseBranch)
-					err = nil
 				} else {
 					log.Printf("new envoy proxy sha is %s\n", commitSHA)
 				}
