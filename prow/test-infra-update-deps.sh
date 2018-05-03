@@ -38,18 +38,13 @@ TOKEN_PATH="/etc/github/oauth"
 
 function update_on_branch {
    local CUR_BRANCH=$1
+   local hour24=`date "+%k"` #(0..23)
 
-   UPDATE_EXT_DEP="false"
-   # List of repo where auto dependency update has been enabled
-   # excluding istio/istio
    case ${CUR_BRANCH} in
      master|release-*)
-       hour=`date "+%I"` #( 1..12)
-       day_of_week=`date "+%u"` #( 1..7)
-       hour=25 #disable bot for istio repo, its broken now
-       # TODO need to update the bot for istio after fixing it
+       day_of_week=`date "+%u"` #(1..7)
        case ${hour} in
-         02|04|06|08|10|12)
+         12|22)
 	   ${UPDATE_BINARY} \
 	   	--repo="istio" \
 	   	--base_branch=${CUR_BRANCH} \
@@ -59,17 +54,21 @@ function update_on_branch {
          *)
            ;;
        esac
-       hour24=`date "+%k"` #( 0..23)
-       if [ "${hour24}" -ge 20 ] && [ "${day_of_week}" -eq 2 ]; then
-   	   # external deps (envoyproxy in proxy and depend.update in istio) updated only once a week
-           UPDATE_EXT_DEP="true"
-       fi
        ;;
      *)
        echo error CUR_BRANCH:$CUR_BRANCH, all branches:$GIT_BRANCHES set incorrectly; exit 1
        ;;
    esac
 
+   if [ "${hour24}" -ge 20 ] && [ "${day_of_week}" -eq 2 ]; then
+       # external deps (envoyproxy in proxy) updated only once a week
+        UPDATE_EXT_DEP="true"
+   else
+        UPDATE_EXT_DEP="false"
+   fi
+
+
+   # List of repo where auto dependency update has been enabled excluding istio/istio
    repos=( proxy )
    for r in "${repos[@]}"; do
      echo "=== Updating Dependency of ${r} ==="
