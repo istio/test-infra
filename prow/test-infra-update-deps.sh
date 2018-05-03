@@ -43,7 +43,7 @@ function update_on_branch {
    case ${CUR_BRANCH} in
      master|release-*)
        day_of_week=`date "+%u"` #(1..7)
-       case ${hour} in
+       case ${hour24} in
          12|22)
 	   ${UPDATE_BINARY} \
 	   	--repo="istio" \
