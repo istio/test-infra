@@ -39,12 +39,19 @@ TOKEN_PATH="/etc/github/oauth"
 function update_on_branch {
    local CUR_BRANCH=$1
    local hour24=`date "+%k"` #(0..23)
+   local day_of_week=`date "+%u"` #(1..7)
 
    case ${CUR_BRANCH} in
-     master|release-*)
-       day_of_week=`date "+%u"` #(1..7)
+     #master|release-*)
+     master)
+       # for now skip master updates
+       repos=( )
+       ;;
+     release-*)
        case ${hour24} in
          12|22)
+           # List of repo where auto dependency update has been enabled excluding istio/istio
+           repos=( proxy )
 	   ${UPDATE_BINARY} \
 	   	--repo="istio" \
 	   	--base_branch=${CUR_BRANCH} \
@@ -54,7 +61,7 @@ function update_on_branch {
          *)
            ;;
        esac
-       ;;
+       ;; # release-* branch end
      *)
        echo error CUR_BRANCH:$CUR_BRANCH, all branches:$GIT_BRANCHES set incorrectly; exit 1
        ;;
@@ -68,8 +75,6 @@ function update_on_branch {
    fi
 
 
-   # List of repo where auto dependency update has been enabled excluding istio/istio
-   repos=( proxy )
    for r in "${repos[@]}"; do
      echo "=== Updating Dependency of ${r} ==="
      ${UPDATE_BINARY} \
@@ -88,4 +93,3 @@ unset IFS
 for branch in "${branches[@]}"; do
     update_on_branch $branch
 done
-
