@@ -369,27 +369,26 @@ presubmits:
             privileged: true
         nodeSelector:
           cloud.google.com/gke-nodepool: new-cluster-pool
-      run_after_success:
-      - name: e2e-bookInfoTests-envoyv2-v1alpha3
-        agent: kubernetes
-        context: prow/e2e-bookInfoTests-v1alpha3.sh
-        rerun_command: "/test e2e-bookInfo-envoyv2-v1alpha3"
-        trigger: "(?m)^/test (e2e-bookInfo-envoyv2-v1alpha3)?,?(\\s+|$)"
-        branches: *common_qual_branches
-        labels:
-          preset-service-account: true
-        spec:
-          containers:
-          - image: gcr.io/istio-testing/prowbazel:0.4.9
-            args:
-            - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
-            - "--clean"
-            - "--timeout=60"
-            # Bazel needs privileged mode in order to sandbox builds.
-            securityContext:
-              privileged: true
-          nodeSelector:
-            cloud.google.com/gke-nodepool: new-cluster-pool
+    - name: e2e-bookInfoTests-envoyv2-v1alpha3
+      agent: kubernetes
+      context: prow/e2e-bookInfoTests-v1alpha3.sh
+      rerun_command: "/test e2e-bookInfo-envoyv2-v1alpha3"
+      trigger: "(?m)^/test (e2e-bookInfo-envoyv2-v1alpha3)?,?(\\s+|$)"
+      branches: *common_qual_branches
+      labels:
+        preset-service-account: true
+      spec:
+        containers:
+        - image: gcr.io/istio-testing/prowbazel:0.4.9
+          args:
+          - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+          - "--clean"
+          - "--timeout=60"
+          # Bazel needs privileged mode in order to sandbox builds.
+          securityContext:
+            privileged: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: new-cluster-pool
     - name: e2e-simpleTests
       agent: kubernetes
       context: prow/e2e-simpleTests.sh
