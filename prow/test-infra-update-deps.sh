@@ -39,6 +39,7 @@ TOKEN_PATH="/etc/github/oauth"
 function update_on_branch {
    local CUR_BRANCH=$1
    local hour24=`date "+%k"` #(0..23)
+   local day_of_week=`date "+%u"` #(1..7)
 
    case ${CUR_BRANCH} in
      #master|release-*)
@@ -47,11 +48,10 @@ function update_on_branch {
        repos=( )
            ;;
      release-*)
-       # List of repo where auto dependency update has been enabled excluding istio/istio
-       repos=( proxy )
-       day_of_week=`date "+%u"` #(1..7)
        case ${hour24} in
          12|22)
+           # List of repo where auto dependency update has been enabled excluding istio/istio
+           repos=( proxy )
 	   ${UPDATE_BINARY} \
 	   	--repo="istio" \
 	   	--base_branch=${CUR_BRANCH} \
