@@ -46,7 +46,7 @@ function update_on_branch {
      master)
        # for now skip master updates
        repos=( )
-           ;;
+       ;;
      release-*)
        case ${hour24} in
          12|22)
@@ -61,7 +61,7 @@ function update_on_branch {
          *)
            ;;
        esac
-       ;;
+       ;; # release-* branch end
      *)
        echo error CUR_BRANCH:$CUR_BRANCH, all branches:$GIT_BRANCHES set incorrectly; exit 1
        ;;
@@ -93,4 +93,3 @@ unset IFS
 for branch in "${branches[@]}"; do
     update_on_branch $branch
 done
-
