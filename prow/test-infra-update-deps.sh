@@ -45,13 +45,15 @@ function update_on_branch {
      #master|release-*)
      master)
        # for now skip master updates
-       repos=( )
+       return
        ;;
      release-*)
        case ${hour24} in
-         12|22)
+         10|20)
            # List of repo where auto dependency update has been enabled excluding istio/istio
            repos=( proxy )
+           ;;
+         12|22)
 	   ${UPDATE_BINARY} \
 	   	--repo="istio" \
 	   	--base_branch=${CUR_BRANCH} \
