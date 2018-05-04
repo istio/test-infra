@@ -42,7 +42,13 @@ function update_on_branch {
 
    case ${CUR_BRANCH} in
      #master|release-*)
+     master)
+       # for now skip master updates
+       repos=( )
+           ;;
      release-*)
+       # List of repo where auto dependency update has been enabled excluding istio/istio
+       repos=( proxy )
        day_of_week=`date "+%u"` #(1..7)
        case ${hour24} in
          12|22)
@@ -69,8 +75,6 @@ function update_on_branch {
    fi
 
 
-   # List of repo where auto dependency update has been enabled excluding istio/istio
-   repos=( proxy )
    for r in "${repos[@]}"; do
      echo "=== Updating Dependency of ${r} ==="
      ${UPDATE_BINARY} \
