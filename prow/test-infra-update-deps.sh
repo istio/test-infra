@@ -59,6 +59,7 @@ function update_on_branch {
 	   	--base_branch=${CUR_BRANCH} \
 		--token_file=${TOKEN_PATH} \
 		--update_ext_dep="false"
+           return
            ;;
          *)
            ;;
