@@ -41,7 +41,8 @@ function update_on_branch {
    local hour24=`date "+%k"` #(0..23)
 
    case ${CUR_BRANCH} in
-     master|release-*)
+     #master|release-*)
+     release-*)
        day_of_week=`date "+%u"` #(1..7)
        case ${hour24} in
          12|22)
