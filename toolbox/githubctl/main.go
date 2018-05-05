@@ -27,20 +27,21 @@ import (
 )
 
 var (
-	owner          = flag.String("owner", "istio", "Github owner or org")
-	tokenFile      = flag.String("token_file", "", "File containing Github API Access Token")
-	op             = flag.String("op", "", "Operation to be performed")
-	repo           = flag.String("repo", "", "Repository to which op is applied")
-	baseBranch     = flag.String("base_branch", "", "Branch to which op is applied")
-	refSHA         = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
-	hub            = flag.String("hub", "", "Hub of the docker images")
-	tag            = flag.String("tag", "", "Tag of the release candidate")
-	releaseOrg     = flag.String("rel_org", "istio-releases", "GitHub Release Org")
-	gcsPath        = flag.String("gcs_path", "", "The path to the GCS bucket")
-	maxCommitDepth = flag.Int("max_commit_depth", 50, "Max number of commits before HEAD to check if green")
-	maxRunDepth    = flag.Int("max_run_depth", 100, "Max number of runs before the latest one of which results are checked")
-	githubClnt     *u.GithubClient
-	ghClntRel      *u.GithubClient
+	owner                 = flag.String("owner", "istio", "Github owner or org")
+	tokenFile             = flag.String("token_file", "", "File containing Github API Access Token")
+	op                    = flag.String("op", "", "Operation to be performed")
+	repo                  = flag.String("repo", "", "Repository to which op is applied")
+	baseBranch            = flag.String("base_branch", "", "Branch to which op is applied")
+	refSHA                = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
+	hub                   = flag.String("hub", "", "Hub of the docker images")
+	tag                   = flag.String("tag", "", "Tag of the release candidate")
+	releaseOrg            = flag.String("rel_org", "istio-releases", "GitHub Release Org")
+	gcsPath               = flag.String("gcs_path", "", "The path to the GCS bucket")
+	maxCommitDepth        = flag.Int("max_commit_depth", 200, "Max number of commits before HEAD to check if green")
+	maxRunDepth           = flag.Int("max_run_depth", 500, "Max number of runs before the latest one of which results are checked")
+	maxConcurrentRequests = flag.Int("max_concurrent_reqs", 50, "Max number of concurrent requests permitted")
+	githubClnt            *u.GithubClient
+	ghClntRel             *u.GithubClient
 	// unable to query post-submit jobs as GitHub is unaware of them
 	// needs to be consistent with prow config map
 	postSubmitJobs = []string{
@@ -49,7 +50,6 @@ var (
 		"e2e-suite-rbac-auth",
 		"e2e-cluster_wide-auth",
 	}
-	prowResultsCache = make(map[string]map[int]*s.Result)
 )
 
 const (
@@ -80,29 +80,50 @@ func fastForward(repo, baseBranch, refSHA *string) error {
 	return githubClnt.FastForward(*repo, *baseBranch, *refSHA)
 }
 
-func isJobSuccessOnSHA(sha, job string, prowAccessor *s.ProwAccessor) (bool, error) {
-	runNumber, err := prowAccessor.GetLatestRun(job)
-	if err != nil {
-		return false, fmt.Errorf("failed to get latest run number of %s: %v", job, err)
-	}
-	for i := 0; i < *maxRunDepth; i++ {
-		result, exists := prowResultsCache[job][runNumber]
-		if !exists {
-			result, err = prowAccessor.GetResult(job, runNumber)
-			if err != nil {
-				log.Printf("failed to get result of %s at run number %d. Added dummy entries in cache. Continue. ", job, runNumber)
-				result = &s.Result{SHA: "", Passed: false}
-			}
-			// the race on prowResultsCache is benign, concurrent accesses on different keys
-			prowResultsCache[job][runNumber] = result
+// preprocessProwResults downloads the most recent prow results up to maxRunDepth
+// then returns a two-level map job -> sha -> passed (true) or failed (false)
+func preprocessProwResults() map[string]map[string]bool {
+	log.Printf("Start preprocessing prow results")
+	prowAccessor := s.NewProwAccessor(
+		prowProject,
+		prowZone,
+		gubernatorURL,
+		gcsBucket,
+		u.NewGCSClient(gcsBucket))
+	cache := make(map[string]map[string]bool)
+	mutex := &sync.Mutex{}
+	for _, job := range postSubmitJobs {
+		var wg sync.WaitGroup
+		QPSLimitQueue := make(chan int, *maxConcurrentRequests)
+		results := make(map[string]bool)
+		runNumber, err := prowAccessor.GetLatestRun(job)
+		if err != nil {
+			log.Fatalf("failed to get latest run number of %s: %v", job, err)
 		}
-		if result.SHA == sha {
-			return result.Passed, nil
+		// download the most recent prow results up to maxRunDepth
+		for i := 0; i < *maxRunDepth; i++ {
+			wg.Add(1)
+			go func(runNumber int) {
+				defer wg.Done()
+				QPSLimitQueue <- runNumber
+				log.Printf("fetching results of %s at run number %d", job, runNumber)
+				result, err := prowAccessor.GetResult(job, runNumber)
+				<-QPSLimitQueue
+				if err != nil {
+					log.Printf("failed to get result of %s at run number %d. Skip.", job, runNumber)
+					return
+				}
+				mutex.Lock()
+				results[result.SHA] = result.Passed
+				mutex.Unlock()
+			}(runNumber)
+			runNumber--
 		}
-		runNumber--
+		wg.Wait()
+		log.Printf(">> [%s] has finished preprocessing", job)
+		cache[job] = results
 	}
-	return false, fmt.Errorf(
-		"Did not find matching sha [%s] for job %s after checking latest %d runs", sha, job, maxRunDepth)
+	return cache
 }
 
 func getLatestGreenSHA() (string, error) {
@@ -110,38 +131,27 @@ func getLatestGreenSHA() (string, error) {
 	u.AssertNotEmpty("base_branch", baseBranch)
 	u.AssertPositive("max_commit_depth", maxCommitDepth)
 	u.AssertPositive("max_run_depth", maxRunDepth)
-	for _, postSubmitJob := range postSubmitJobs {
-		prowResultsCache[postSubmitJob] = make(map[int]*s.Result)
-	}
-	gcsClient := u.NewGCSClient(gcsBucket)
-	prowAccessor := s.NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket, gcsClient)
+	results := preprocessProwResults()
 	sha, err := githubClnt.GetHeadCommitSHA(*repo, *baseBranch)
 	if err != nil {
-		log.Fatalf("failed to get the head commit sha of %s/%s", *repo, *baseBranch)
+		log.Fatalf("failed to get the head commit sha of %s/%s: %v", *repo, *baseBranch, err)
 	}
 	for i := 0; i < *maxCommitDepth; i++ {
 		log.Printf("Checking if [%s] passed all checks. %d commits before HEAD", sha, i)
 		allChecksPassed := true
-		var wg sync.WaitGroup
 		for _, job := range postSubmitJobs {
-			wg.Add(1)
-			func(job string) {
-				passed, err := isJobSuccessOnSHA(sha, job, prowAccessor)
-				if err != nil {
-					log.Printf("failed to check if sha %s passed job %s. Continue.", sha, job)
-				}
-				if !passed {
-					log.Printf("[%s] failed %s", sha, job)
-					// the race on allChecksPassed is benign
-					allChecksPassed = false
-				} else {
-					log.Printf("[%s] passed %s", sha, job)
-				}
-				wg.Done()
-			}(job)
+			passed, keyExists := results[job][sha]
+			if !keyExists {
+				log.Printf("Results unknown in local cache for [%s] at [%s], treat the test as failed", job, sha)
+				passed = false
+			}
+			if !passed {
+				log.Printf("[%s] failed on [%s]", sha, job)
+				allChecksPassed = false
+			}
 		}
-		wg.Wait()
 		if allChecksPassed {
+			log.Printf("Found latest green sha [%s]", sha)
 			return sha, nil
 		}
 		parentSHA, err := githubClnt.GetParentSHA(*repo, *baseBranch, sha)
