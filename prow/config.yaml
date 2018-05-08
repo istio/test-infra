@@ -279,10 +279,17 @@ presubmits:
         - "--clean"
         - "--timeout=60"
         # Bazel needs privileged mode in order to sandbox builds.
+        resources:
+          requests:
+            memory: "16Gi"
+            cpu: "7000m"
+          limits:
+            memory: "20Gi"
+            cpu: "8000m"
         securityContext:
           privileged: true
       nodeSelector:
-        cloud.google.com/gke-nodepool: new-cluster-pool
+        cloud.google.com/gke-nodepool: build-pool
 
   - name: istio-presubmit
     agent: kubernetes
