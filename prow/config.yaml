@@ -270,6 +270,7 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|istio-unit-tests))?,?(\\s+|$)"
     labels:
       preset-service-account: true
+      preset-istio-kubeconfig: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -549,6 +550,7 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|daily-unit-tests))?,?(\\s+|$)"
     labels:
       preset-service-account: true
+      preset-istio-kubeconfig: true
     spec:
       <<: *common_e2e_spec
 
@@ -644,6 +646,7 @@ postsubmits:
     branches: *common_qual_branches
     labels:
       preset-service-account: true
+      preset-istio-kubeconfig: true
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.9
