@@ -80,6 +80,11 @@ func fastForward(repo, baseBranch, refSHA *string) error {
 	return githubClnt.FastForward(*repo, *baseBranch, *refSHA)
 }
 
+type task struct {
+	job       string
+	runNumber int
+}
+
 // preprocessProwResults downloads the most recent prow results up to maxRunDepth
 // then returns a two-level map job -> sha -> passed (true) or failed (false)
 func preprocessProwResults() map[string]map[string]bool {
@@ -91,38 +96,43 @@ func preprocessProwResults() map[string]map[string]bool {
 		gcsBucket,
 		u.NewGCSClient(gcsBucket))
 	cache := make(map[string]map[string]bool)
+	tasks := make(chan task)
+	var wg sync.WaitGroup
 	mutex := &sync.Mutex{}
+	for i := 0; i < *maxConcurrentRequests; i++ {
+		wg.Add(1)
+		go func() {
+			for {
+				t, more := <-tasks
+				if !more {
+					break
+				}
+				result, err := prowAccessor.GetResult(t.job, t.runNumber)
+				if err != nil {
+					log.Printf("failed to get result of %s at run number %d. Skip.", t.job, t.runNumber)
+					continue
+				}
+				mutex.Lock()
+				cache[t.job][result.SHA] = result.Passed
+				mutex.Unlock()
+			}
+			wg.Done()
+		}()
+	}
 	for _, job := range postSubmitJobs {
-		var wg sync.WaitGroup
-		QPSLimitQueue := make(chan int, *maxConcurrentRequests)
-		results := make(map[string]bool)
+		cache[job] = make(map[string]bool)
 		runNumber, err := prowAccessor.GetLatestRun(job)
 		if err != nil {
 			log.Fatalf("failed to get latest run number of %s: %v", job, err)
 		}
 		// download the most recent prow results up to maxRunDepth
 		for i := 0; i < *maxRunDepth; i++ {
-			wg.Add(1)
-			go func(runNumber int) {
-				defer wg.Done()
-				QPSLimitQueue <- runNumber
-				log.Printf("fetching results of %s at run number %d", job, runNumber)
-				result, err := prowAccessor.GetResult(job, runNumber)
-				<-QPSLimitQueue
-				if err != nil {
-					log.Printf("failed to get result of %s at run number %d. Skip.", job, runNumber)
-					return
-				}
-				mutex.Lock()
-				results[result.SHA] = result.Passed
-				mutex.Unlock()
-			}(runNumber)
+			tasks <- task{job, runNumber}
 			runNumber--
 		}
-		wg.Wait()
-		log.Printf(">> [%s] has finished preprocessing", job)
-		cache[job] = results
 	}
+	close(tasks)
+	wg.Wait()
 	return cache
 }
 
