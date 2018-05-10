@@ -96,14 +96,15 @@ func preprocessProwResults() map[string]map[string]bool {
 		gcsBucket,
 		u.NewGCSClient(gcsBucket))
 	cache := make(map[string]map[string]bool)
-	tasks := make(chan task)
+	tasksCh := make(chan *task, *maxConcurrentRequests)
 	var wg sync.WaitGroup
 	mutex := &sync.Mutex{}
 	for i := 0; i < *maxConcurrentRequests; i++ {
 		wg.Add(1)
 		go func() {
+			defer wg.Done()
 			for {
-				t, more := <-tasks
+				t, more := <-tasksCh
 				if !more {
 					break
 				}
@@ -116,7 +117,6 @@ func preprocessProwResults() map[string]map[string]bool {
 				cache[t.job][result.SHA] = result.Passed
 				mutex.Unlock()
 			}
-			wg.Done()
 		}()
 	}
 	for _, job := range postSubmitJobs {
@@ -127,11 +127,11 @@ func preprocessProwResults() map[string]map[string]bool {
 		}
 		// download the most recent prow results up to maxRunDepth
 		for i := 0; i < *maxRunDepth; i++ {
-			tasks <- task{job, runNumber}
+			tasksCh <- &task{job, runNumber}
 			runNumber--
 		}
 	}
-	close(tasks)
+	close(tasksCh)
 	wg.Wait()
 	return cache
 }
@@ -153,7 +153,6 @@ func getLatestGreenSHA() (string, error) {
 			passed, keyExists := results[job][sha]
 			if !keyExists {
 				log.Printf("Results unknown in local cache for [%s] at [%s], treat the test as failed", job, sha)
-				passed = false
 			}
 			if !passed {
 				log.Printf("[%s] failed on [%s]", sha, job)
