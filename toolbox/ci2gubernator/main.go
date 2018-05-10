@@ -31,6 +31,7 @@ const (
 
 var (
 	jobStarts          = flag.Bool("job_starts", false, "Mark the start of a job by creating started.json")
+	presubmit          = flag.Bool("presubmit", false, "True if this job runs during presubmit, false for postsubmit")
 	exitCode           = flag.Int("exit_code", unspecifiedInt, "Exit code returned from the test command")
 	buildNum           = flag.Int("build_number", unspecifiedInt, "Build number genereated by CI")
 	prNum              = flag.Int("pr_number", unspecifiedInt, "Pull request number on GitHub")
@@ -69,7 +70,7 @@ func main() {
 
 func createPushStartedJSON() {
 	u.AssertIntDefined("pr_number", prNum, unspecifiedInt)
-	cvt := ci2g.NewConverter(circleciBucket, *org, *repo, *job, *buildNum)
+	cvt := ci2g.NewConverter(circleciBucket, *org, *repo, *job, *buildNum, *presubmit)
 	if err := cvt.CreateUploadStartedJSON(*prNum, *sha); err != nil {
 		log.Fatalf("Failed to create started.json: %v", err)
 	}
@@ -77,7 +78,7 @@ func createPushStartedJSON() {
 
 func uploadArtifactsUpdateLatestBuild() {
 	u.AssertNotEmpty("junit_xml", junitXML)
-	cvt := ci2g.NewConverter(circleciBucket, *org, *repo, *job, *buildNum)
+	cvt := ci2g.NewConverter(circleciBucket, *org, *repo, *job, *buildNum, *presubmit)
 	if err := cvt.CreateUploadFinishedJSON(*exitCode, *sha); err != nil {
 		log.Fatalf("Failed to create started.json: %v", err)
 	}

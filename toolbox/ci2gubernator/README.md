@@ -45,7 +45,10 @@ The binary `ci_to_gubernator` constructs these files and uploads these artifacts
 
 ## Usage
 
-At the start of a build, execute the following command to create and upload `started.json` on GCS.
+At the start of a build, execute the following command to create and upload `started.json` on GCS. If the job is running as part of the presubmit, one should
+also specify the `--presubmit` flag. Presubmits are uploaded to a different
+locations on GCS so we could have different panels on testgrid that makes
+multiplexing results attainable.
 
 ```bash
 $ ci_to_gubernator --job_starts \
@@ -62,7 +65,7 @@ At the end of a build, execute the following command to
 * upload `finished.json`, `artifacts/junit_*.xml`, and `build-log.txt` to GCS
 * update `latest-build.txt` of this job with the current build number
 
-Caveat: this command exits with the same exit code as supplied by --exit_code.
+The same rules on `--presubmit` usage apply in here.
 
 ```bash
 $ ci_to_gubernator \
