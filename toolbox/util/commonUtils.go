@@ -227,6 +227,13 @@ func AssertIntDefined(name string, value *int, undefinedVal int) {
 	}
 }
 
+// AssertPositive check if an int value is positive, exit if value not specified
+func AssertPositive(name string, value *int) {
+	if value == nil || *value <= 0 {
+		log.Fatalf("%s must be specified\n", name)
+	}
+}
+
 // Pair contains key and value for sorting.
 type Pair struct {
 	Key   string

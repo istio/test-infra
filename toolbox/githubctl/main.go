@@ -19,45 +19,46 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
+	"sync"
 	"time"
 
+	s "istio.io/test-infra/sisyphus"
 	u "istio.io/test-infra/toolbox/util"
 )
 
 var (
-	owner                              = flag.String("owner", "istio", "Github owner or org")
-	tokenFile                          = flag.String("token_file", "", "File containing Github API Access Token")
-	op                                 = flag.String("op", "", "Operation to be performed")
-	repo                               = flag.String("repo", "", "Repository to which op is applied")
-	baseBranch                         = flag.String("base_branch", "", "Branch to which op is applied")
-	refSHA                             = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
-	nextRelease                        = flag.String("next_release", "", "Tag of the next release")
-	hub                                = flag.String("hub", "", "Hub of the docker images")
-	tag                                = flag.String("tag", "", "Tag of the release candidate")
-	releaseOrg                         = flag.String("rel_org", "istio-releases", "GitHub Release Org")
-	gcsPath                            = flag.String("gcs_path", "", "The path to the GCS bucket")
-	extraBranchesUpdateDownloadVersion = flag.String("update_rel_branches", "",
-		"Extra branches where you want to update downloadIstioCandidate.sh, separated by comma")
-	githubClnt *u.GithubClient
-	ghClntRel  *u.GithubClient
+	owner                 = flag.String("owner", "istio", "Github owner or org")
+	tokenFile             = flag.String("token_file", "", "File containing Github API Access Token")
+	op                    = flag.String("op", "", "Operation to be performed")
+	repo                  = flag.String("repo", "", "Repository to which op is applied")
+	baseBranch            = flag.String("base_branch", "", "Branch to which op is applied")
+	refSHA                = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
+	hub                   = flag.String("hub", "", "Hub of the docker images")
+	tag                   = flag.String("tag", "", "Tag of the release candidate")
+	releaseOrg            = flag.String("rel_org", "istio-releases", "GitHub Release Org")
+	gcsPath               = flag.String("gcs_path", "", "The path to the GCS bucket")
+	maxCommitDepth        = flag.Int("max_commit_depth", 200, "Max number of commits before HEAD to check if green")
+	maxRunDepth           = flag.Int("max_run_depth", 500, "Max number of runs before the latest one of which results are checked")
+	maxConcurrentRequests = flag.Int("max_concurrent_reqs", 50, "Max number of concurrent requests permitted")
+	githubClnt            *u.GithubClient
+	ghClntRel             *u.GithubClient
+	// unable to query post-submit jobs as GitHub is unaware of them
+	// needs to be consistent with prow config map
+	postSubmitJobs = []string{
+		"istio-postsubmit",
+		"e2e-suite-rbac-no_auth",
+		"e2e-suite-rbac-auth",
+		"e2e-cluster_wide-auth",
+	}
 )
 
 const (
-	// 0.2 release tooling
-	istioVersionFile     = "istio.VERSION"
-	istioDepsFile        = "istio.deps"
-	releaseTagFile       = "istio.RELEASE"
-	downloadScript       = "release/downloadIstioCandidate.sh"
-	istioRepo            = "istio"
-	masterBranch         = "master"
-	export               = "export "
-	dockerHub            = "docker.io/istio"
-	releaseBaseDir       = "/tmp/release"
-	releasePRTtilePrefix = "[Auto Release] "
-	releaseBucketFmtStr  = "https://storage.googleapis.com/istio-release/releases/%s/%s"
-	istioctlSuffix       = "istioctl"
-	debianSuffix         = "deb"
+	masterBranch = "master"
+	// Prow
+	prowProject   = "istio-testing"
+	prowZone      = "us-west1-a"
+	gubernatorURL = "https://k8s-gubernator.appspot.com/build/istio-prow"
+	gcsBucket     = "istio-prow"
 	// release qualification trigger
 	relQualificationPRTtilePrefix = "Release Qualification"
 	greenBuildVersionFile         = "greenBuild.VERSION"
@@ -79,167 +80,96 @@ func fastForward(repo, baseBranch, refSHA *string) error {
 	return githubClnt.FastForward(*repo, *baseBranch, *refSHA)
 }
 
-func processIstioVersion(content *string) map[string]string {
-	kv := make(map[string]string)
-	lines := strings.Split(*content, "\n")
-	for _, line := range lines {
-		if idx := strings.Index(line, "="); idx != -1 {
-			key := line[len(export):idx]
-			value := strings.Trim(line[idx+1:], "\"")
-			kv[key] = value
-		}
-	}
-	return kv
+type task struct {
+	job       string
+	runNumber int
 }
 
-func getReleaseTag() (string, error) {
-	u.AssertNotEmpty("base_branch", baseBranch)
-	releaseTag, err := githubClnt.GetFileContent(istioRepo, *baseBranch, releaseTagFile)
-	if err != nil {
-		return "", err
-	}
-	return strings.Trim(releaseTag, "\n"), nil
-}
-
-// TagIstioDepsForRelease creates release tag on each dependent repo of istio
-func TagIstioDepsForRelease() error {
-	u.AssertNotEmpty("base_branch", baseBranch)
-	log.Printf("Fetching and processing istio.VERSION\n")
-	istioVersion, err := githubClnt.GetFileContent(istioRepo, *baseBranch, istioVersionFile)
-	if err != nil {
-		return err
-	}
-	kv := processIstioVersion(&istioVersion)
-	pickledDeps, err := githubClnt.GetFileContent(istioRepo, *baseBranch, istioDepsFile)
-	if err != nil {
-		return err
-	}
-	deps, err := u.DeserializeDepsFromString(pickledDeps)
-	if err != nil {
-		return err
-	}
-	log.Printf("Fetching release tag\n")
-	releaseTag, err := getReleaseTag()
-	if err != nil {
-		return err
-	}
-	releaseMsg := "Istio Release " + releaseTag
-	for _, dep := range deps {
-		// use sha directly read from istio.VERSION in case updateVersion.sh was run
-		// manually without also updating istio.deps
-		log.Printf("Creating annotated tag [%s] on %s\n", releaseTag, dep.RepoName)
-		ref, exists := kv[dep.Name]
-		if !exists {
-			return fmt.Errorf("ill-defined %s: unable to find %s", istioVersionFile, dep.Name)
-		}
-		// make sure ref is a SHA, special case where previous release is used in this release
-		if u.ReleaseTagRegex.MatchString(ref) {
-			ref, err = githubClnt.GetTagCommitSHA(dep.RepoName, ref)
-			if err != nil {
-				return err
-			}
-		}
-		if err := githubClnt.CreateAnnotatedTag(
-			dep.RepoName, releaseTag, ref, releaseMsg); err != nil {
-			if strings.Contains(err.Error(), "Reference already exists") {
-				log.Printf("Tag [%s] already exists on %s\n", releaseTag, dep.RepoName)
-				prevTagSHA, err := githubClnt.GetTagCommitSHA(dep.RepoName, releaseTag)
+// preprocessProwResults downloads the most recent prow results up to maxRunDepth
+// then returns a two-level map job -> sha -> passed (true) or failed (false)
+func preprocessProwResults() map[string]map[string]bool {
+	log.Printf("Start preprocessing prow results")
+	prowAccessor := s.NewProwAccessor(
+		prowProject,
+		prowZone,
+		gubernatorURL,
+		gcsBucket,
+		u.NewGCSClient(gcsBucket))
+	cache := make(map[string]map[string]bool)
+	tasksCh := make(chan *task, *maxConcurrentRequests)
+	var wg sync.WaitGroup
+	mutex := &sync.Mutex{}
+	for i := 0; i < *maxConcurrentRequests; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for {
+				t, more := <-tasksCh
+				if !more {
+					break
+				}
+				result, err := prowAccessor.GetResult(t.job, t.runNumber)
 				if err != nil {
-					return err
-				}
-				if prevTagSHA == ref {
-					log.Printf("Intended to tag [%s] at the same SHA, resort to no-op and continue\n", ref)
+					log.Printf("failed to get result of %s at run number %d. Skip.", t.job, t.runNumber)
 					continue
-				} else {
-					return fmt.Errorf("trying to tag [%s] at different SHA", ref)
 				}
+				mutex.Lock()
+				cache[t.job][result.SHA] = result.Passed
+				mutex.Unlock()
 			}
+		}()
+	}
+	for _, job := range postSubmitJobs {
+		cache[job] = make(map[string]bool)
+		runNumber, err := prowAccessor.GetLatestRun(job)
+		if err != nil {
+			log.Fatalf("failed to get latest run number of %s: %v", job, err)
+		}
+		// download the most recent prow results up to maxRunDepth
+		for i := 0; i < *maxRunDepth; i++ {
+			tasksCh <- &task{job, runNumber}
+			runNumber--
 		}
 	}
-	return nil
+	close(tasksCh)
+	wg.Wait()
+	return cache
 }
 
-// UpdateIstioVersionAfterReleaseTagsMadeOnDeps runs updateVersion.sh to update
-// istio.VERSION and then create a PR on istio
-func UpdateIstioVersionAfterReleaseTagsMadeOnDeps() error {
+func getLatestGreenSHA() (string, error) {
+	u.AssertNotEmpty("repo", repo)
 	u.AssertNotEmpty("base_branch", baseBranch)
-	releaseTag, err := getReleaseTag()
+	u.AssertPositive("max_commit_depth", maxCommitDepth)
+	u.AssertPositive("max_run_depth", maxRunDepth)
+	results := preprocessProwResults()
+	sha, err := githubClnt.GetHeadCommitSHA(*repo, *baseBranch)
 	if err != nil {
-		return err
+		log.Fatalf("failed to get the head commit sha of %s/%s: %v", *repo, *baseBranch, err)
 	}
-	edit := func() error {
-		hubCommaTag := fmt.Sprintf("%s,%s", dockerHub, releaseTag)
-		istioctlURL := fmt.Sprintf(releaseBucketFmtStr, releaseTag, istioctlSuffix)
-		debianURL := fmt.Sprintf(releaseBucketFmtStr, releaseTag, debianSuffix)
-		cmd := fmt.Sprintf("./install/updateVersion.sh")
-		// Auth
-		cmd += fmt.Sprintf(" -c %s -A %s", hubCommaTag, debianURL)
-		// Mixer
-		cmd += fmt.Sprintf(" -x %s", hubCommaTag)
-		// Pilot
-		cmd += fmt.Sprintf(" -p %s -i %s -P %s", hubCommaTag, istioctlURL, debianURL)
-		// Proxy
-		cmd += fmt.Sprintf(" -r %s -E %s", releaseTag, debianURL)
-		_, err = u.Shell(cmd)
-		return err
-	}
-	releaseBranch := "Istio_Release_" + releaseTag
-	body := "Update istio.Version"
-	prTitle := releasePRTtilePrefix + body
-	_, err = githubClnt.CreatePRUpdateRepo(releaseBranch, *baseBranch, istioRepo, prTitle, body, edit)
-	return err
-}
-
-// CreateIstioReleaseUploadArtifacts creates a release on istio from the refSHA provided and uploads dependent artifacts
-func CreateIstioReleaseUploadArtifacts() error {
-	u.AssertNotEmpty("ref_sha", refSHA)
-	u.AssertNotEmpty("base_branch", baseBranch)
-	u.AssertNotEmpty("next_release", nextRelease)
-	releaseTag, err := getReleaseTag()
-	if releaseTag == *nextRelease {
-		return fmt.Errorf("next_release should be greater than the current release")
-	}
-	if err != nil {
-		return err
-	}
-	releaseBranch := "finalizeRelease-" + releaseTag
-	prBody := fmt.Sprintf("Finalize release %s on istio", releaseTag)
-	updateVersion := func() error {
-		log.Printf("Updating downloadIstioCandidate.sh with latest release")
-		return u.UpdateKeyValueInFile(
-			downloadScript, "ISTIO_VERSION", fmt.Sprintf("${ISTIO_VERSION:-%s}", releaseTag))
-	}
-	edit := func() error {
-		if _, err = u.Shell(
-			"./release/create_release_archives.sh -d " + releaseBaseDir); err != nil {
-			return err
-		}
-		archiveDir := releaseBaseDir + "/archives"
-		if err = githubClnt.CreateReleaseUploadArchives(
-			istioRepo, releaseTag, *refSHA, archiveDir); err != nil {
-			return err
-		}
-		if err = u.WriteTextFile(releaseTagFile, *nextRelease); err != nil {
-			return err
-		}
-		return updateVersion()
-	}
-	prTitle := releasePRTtilePrefix + prBody
-	_, err = githubClnt.CreatePRUpdateRepo(releaseBranch, *baseBranch, istioRepo, prTitle, prBody, edit)
-	if err != nil {
-		return err
-	}
-	if *extraBranchesUpdateDownloadVersion != "" {
-		extraBranches := strings.Split(*extraBranchesUpdateDownloadVersion, ",")
-		for _, branch := range extraBranches {
-			localBranch := fmt.Sprintf("%s-local", branch)
-			if _, err := githubClnt.CreatePRUpdateRepo(localBranch, branch, istioRepo, prTitle, prBody, updateVersion); err != nil {
-				// Only log out errors if failing update extra branches
-				log.Printf("Warning! Failed to update downloadIstioCandidate.sh in branch %s", branch)
+	for i := 0; i < *maxCommitDepth; i++ {
+		log.Printf("Checking if [%s] passed all checks. %d commits before HEAD", sha, i)
+		allChecksPassed := true
+		for _, job := range postSubmitJobs {
+			passed, keyExists := results[job][sha]
+			if !keyExists {
+				log.Printf("Results unknown in local cache for [%s] at [%s], treat the test as failed", job, sha)
+			}
+			if !passed {
+				log.Printf("[%s] failed on [%s]", sha, job)
+				allChecksPassed = false
 			}
 		}
+		if allChecksPassed {
+			log.Printf("Found latest green sha [%s]", sha)
+			return sha, nil
+		}
+		parentSHA, err := githubClnt.GetParentSHA(*repo, *baseBranch, sha)
+		if err != nil {
+			log.Fatalf("failed to find the parent sha of %s in %s/%s", sha, *repo, *baseBranch)
+		}
+		sha = parentSHA
 	}
-	return nil
+	return "", fmt.Errorf("exceeded max commit depth")
 }
 
 // DailyReleaseQualification triggers test jobs buy creating a PR that generates
@@ -350,6 +280,7 @@ func DailyReleaseQualification(baseBranch *string) error {
 
 func init() {
 	flag.Parse()
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	u.AssertNotEmpty("token_file", tokenFile)
 	token, err := u.GetAPITokenFromFile(*tokenFile)
 	if err != nil {
@@ -366,23 +297,18 @@ func main() {
 		if err := fastForward(repo, baseBranch, refSHA); err != nil {
 			log.Printf("Error during fastForward: %v\n", err)
 		}
-	case "tagIstioDepsForRelease":
-		if err := TagIstioDepsForRelease(); err != nil {
-			log.Printf("Error during TagIstioDepsForRelease: %v\n", err)
-		}
-	case "updateIstioVersion":
-		if err := UpdateIstioVersionAfterReleaseTagsMadeOnDeps(); err != nil {
-			log.Printf("Error during UpdateIstioVersionAfterReleaseTagsMadeOnDeps: %v\n", err)
-		}
-	case "uploadArtifacts":
-		if err := CreateIstioReleaseUploadArtifacts(); err != nil {
-			log.Printf("Error during CreateIstioReleaseUploadArtifacts: %v\n", err)
-		}
 	case "dailyRelQual":
 		if err := DailyReleaseQualification(baseBranch); err != nil {
 			log.Printf("Error during DailyReleaseQualification: %v\n", err)
 			os.Exit(1)
 		}
+	case "getLatestGreenSHA":
+		latestGreenSHA, err := getLatestGreenSHA()
+		if err != nil {
+			log.Printf("Error during getLatestGreenSHA: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("%s", latestGreenSHA)
 	default:
 		log.Printf("Unsupported operation: %s\n", *op)
 	}
