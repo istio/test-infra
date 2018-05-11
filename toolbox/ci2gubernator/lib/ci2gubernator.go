@@ -30,16 +30,15 @@ import (
 )
 
 const (
-	lastBuildTXT    = "latest-build.txt"
-	buildLogTXT     = "build-log.txt"
-	finishedJSON    = "finished.json"
-	startedJSON     = "started.json"
-	junitXML        = "junit.xml"
-	artifacts       = "artifacts"
-	unknown         = "unknown"
-	resultSuccess   = "SUCCESS"
-	resultFailure   = "FAILURE"
-	presubmitFolder = "presubmit"
+	lastBuildTXT  = "latest-build.txt"
+	buildLogTXT   = "build-log.txt"
+	finishedJSON  = "finished.json"
+	startedJSON   = "started.json"
+	junitXML      = "junit.xml"
+	artifacts     = "artifacts"
+	unknown       = "unknown"
+	resultSuccess = "SUCCESS"
+	resultFailure = "FAILURE"
 )
 
 var (
@@ -58,20 +57,16 @@ type Converter struct {
 }
 
 // NewConverter creates a Converter
-func NewConverter(bucket, org, repo, job string, build int, presubmit bool) *Converter {
-	cvt := &Converter{
+func NewConverter(bucket, org, repo, job, mux string, build int) *Converter {
+	return &Converter{
 		gcsClient:     u.NewGCSClient(bucket),
-		gcsPathPrefix: fmt.Sprintf("%s/%d", job, build),
+		gcsPathPrefix: fmt.Sprintf("%s/%s/%d", mux, job, build),
 		bucket:        bucket,
 		org:           org,
 		repo:          repo,
 		job:           job,
 		build:         build,
 	}
-	if presubmit {
-		cvt.gcsPathPrefix = filepath.Join(presubmitFolder, cvt.gcsPathPrefix)
-	}
-	return cvt
 }
 
 // SetGCSPathPrefix allows customized gcs location
@@ -148,7 +143,7 @@ func (c *Converter) UpdateLastBuildTXT() error {
 			log.Fatalf("Unlock %s has timed out: %v", lastBuildTXT, err)
 		}
 	}()
-	gcsPath := filepath.Join(presubmitFolder, c.job, lastBuildTXT)
+	gcsPath := filepath.Join(filepath.Dir(c.gcsPathPrefix), lastBuildTXT)
 	val, err := c.gcsClient.Read(gcsPath)
 	if err != nil {
 		return err

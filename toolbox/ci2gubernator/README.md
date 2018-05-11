@@ -45,8 +45,9 @@ The binary `ci_to_gubernator` constructs these files and uploads these artifacts
 
 ## Usage
 
-At the start of a build, execute the following command to create and upload `started.json` on GCS. If the job is running as part of the presubmit, one should
-also specify the `--presubmit` flag. Presubmits are uploaded to a different
+At the start of a build, execute the following command to create and upload `started.json` on GCS.
+If the job is running as part of the presubmit, one should
+also specify the `--stage=presubmit` flag. Presubmits are uploaded to a different
 locations on GCS so we could have different panels on testgrid that makes
 multiplexing results attainable.
 
