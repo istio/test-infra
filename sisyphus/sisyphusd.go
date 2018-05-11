@@ -25,7 +25,7 @@ import (
 
 const (
 	// DefaultNumRerun is the default number of reruns for each failured jobs
-	DefaultNumRerun = 3
+	DefaultNumRerun = 2
 	// DefaultCatchFlakesByRun defines if reruns are triggered by default
 	DefaultCatchFlakesByRun = true
 )
@@ -260,23 +260,26 @@ func (d *Daemon) processResult(job *jobStatus, runNo int, result *Result) *failu
 	if d.catchFlakesByRun {
 		if flakeStatPtr, exists := job.rerunJobStats[result.SHA]; exists {
 			flakeStatPtr.TotalRerun++
-			if !result.Passed {
-				flakeStatPtr.Failures++
-			}
-			if flakeStatPtr.TotalRerun == d.numRerun {
-				log.Printf("All reruns on job [%s] at sha [%s] have finished\n", job.name, result.SHA)
+			if result.Passed {
+				log.Printf("Job [%s] at sha [%s] is now green\n", job.name, result.SHA)
 				if err := d.storage.Store(job.name, result.SHA, *flakeStatPtr); err != nil {
 					log.Printf("Failed to store flakeStat: %v\n", err)
 				}
 				// delete result.SHA from job.rerunJobStats since all reruns have finished
 				delete(job.rerunJobStats, result.SHA)
 			} else {
-				// flakeStatPtr.TotalRerun < d.numRerun
-				// start the next rerun
-				log.Printf("Starting the %d-th rerun on job [%s] at sha [%s]",
-					flakeStatPtr.TotalRerun+1, job.name, result.SHA)
-				if err := d.ci.Rerun(job.name, runNo); err != nil {
-					log.Printf("failed when starting reruns on [%s]: %v\n", job.name, err)
+				flakeStatPtr.Failures++
+				if flakeStatPtr.TotalRerun == d.numRerun {
+					log.Printf("All %d reruns on job [%s] at sha [%s] have failed\n",
+						d.numRerun, job.name, result.SHA)
+				} else {
+					// flakeStatPtr.TotalRerun < d.numRerun
+					// start the next rerun
+					log.Printf("Starting the %d-th rerun on job [%s] at sha [%s]",
+						flakeStatPtr.TotalRerun+1, job.name, result.SHA)
+					if err := d.ci.Rerun(job.name, runNo); err != nil {
+						log.Printf("failed when starting reruns on [%s]: %v\n", job.name, err)
+					}
 				}
 			}
 		} else { // no reruns exist on this SHA
