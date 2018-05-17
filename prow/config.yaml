@@ -21,13 +21,37 @@ branch-protection:
         contexts:
         - cla/google
       repos:
-        test-infra:
+        istio:
           protect: true
+          required_status_check:
+            contexts:
+            - "ci/circleci: build"
+            - "ci/circleci: codecov"
+            - "ci/circleci: dependencies"
+            - "ci/circleci: e2e-pilot"
+            - "ci/circleci: e2e-pilot-noauth-v1alpha3-v2"
+            - "ci/circleci: e2e-simple"
+            - "ci/circleci: lint"
+            - "ci/circleci: test"
+            - prow/e2e-bookInfoTests.sh
+            - prow/e2e-simpleTests.sh
+            - prow/istio-presubmit.sh
+
         istio.github.io:
           protect: true
           required_status_check:
             contexts:
             - ci/circleci
+
+        proxy:
+          protect: true
+          required_status_check:
+            contexts:
+            - prow/proxy-presubmit-asan.sh
+            - prow/proxy-presubmit.sh- "ci/circleci: build"
+
+        test-infra:
+          protect: true
 
 tide:
   
@@ -35,6 +59,8 @@ tide:
   - repos:
     - istio/test-infra
     - istio/istio.github.io
+    - istio/istio
+    - istio/proxy
     labels:
     - lgtm
     - approved
@@ -49,6 +75,18 @@ tide:
     istio/test-infra: squash
     istio/istio.github.io: squash
   target_url: https://prow.istio.io/tide.html
+
+  context_options:
+    from-branch-protection: true
+    skip-unknown-contexts: true
+    org:
+      istio:
+        repos:
+          istio:
+            branches:
+              master:
+                required-contexts:
+                - "tide-merged-blocked"
 
 presets:
 - labels:
