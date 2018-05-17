@@ -9,7 +9,6 @@ triggers:
   - istio/istio
   - istio/istio.github.io
   - istio/test-infra
-  - istio/mixerclient
   - istio/proxy
   - istio-releases/daily-release
   trusted_org: istio
@@ -26,6 +25,17 @@ config_updater:
     boskos/configs.yaml:
       name: mason-config
       namespace: boskos
+
+approve:
+- repos:
+  - istio/api
+  - istio/istio
+  - istio/istio.github.io
+  - istio/test-infra
+  - istio/proxy
+  - istio-releases/daily-release
+  implicit_self_approve: true
+  lgtm_acts_as_approve: true
 
 plugins:
   istio/api:
