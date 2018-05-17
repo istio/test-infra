@@ -14,26 +14,23 @@ prowjob_namespace: default
 pod_namespace: test-pods
 
 branch-protection:
+  protect-tested-repos: true
   orgs:
     istio:
-      require-contexts:
-      - cla/google
+      required_status_checks:
+        contexts:
+        - cla/google
       repos:
         test-infra:
-          protect-by-default: true
+          protect: true
         istio.github.io:
-          protect-by-default: true
-          require-contexts:
-          - ci/circleci
+          protect: true
+          required_status_check:
+            contexts:
+            - ci/circleci
 
 tide:
-  branchProtection:
-  - protection:
-      useRequiredChecksOnly: true
-    orgs:
-      istio:
-        allRepos: true
-        allBranches: true
+  
   queries:
   - repos:
     - istio/test-infra
