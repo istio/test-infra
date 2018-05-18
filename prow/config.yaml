@@ -14,16 +14,24 @@ prowjob_namespace: default
 pod_namespace: test-pods
 
 branch-protection:
-  protect-tested-repos: true
+  allow_disabled_policies: true
   orgs:
     istio:
       required_status_checks:
         contexts:
         - cla/google
+      required_pull_request_reviews:
+        required_approving_review_count: 1
+        dismissal_restrictions:
+          teams:
+          - repo-admins
+      restrictions:
+        teams:
+        - repo-admins
       repos:
         istio:
-          protect: true
-          required_status_check:
+          protect: false
+          required_status_checks:
             contexts:
             - "ci/circleci: build"
             - "ci/circleci: codecov"
@@ -33,25 +41,81 @@ branch-protection:
             - "ci/circleci: e2e-simple"
             - "ci/circleci: lint"
             - "ci/circleci: test"
-            - prow/e2e-bookInfoTests.sh
-            - prow/e2e-simpleTests.sh
-            - prow/istio-presubmit.sh
-
+          branches:
+            release-0.1:
+              protect: true
+            release-0.2:
+              protect: true
+            release-0.3.0:
+              protect: true
+            release-0.4.0:
+              protect: true
+            release-0.5:
+              protect: true
+            release-0.6:
+              protect: true
+            release-0.7:
+              protect: true
+            release-0.8:
+              protect: true
+            master:
+              protect: true
+              required_status_checks:
+                contexts:
+                - "merges-blocked-needs-admin"
         istio.github.io:
-          protect: true
-          required_status_check:
+          protect: false
+          required_status_checks:
             contexts:
             - ci/circleci
-
+          branches:
+            release-0.1:
+              protect: true
+            release-0.2:
+              protect: true
+            release-0.3.0:
+              protect: true
+            release-0.4.0:
+              protect: true
+            release-0.5:
+              protect: true
+            release-0.6:
+              protect: true
+            release-0.7:
+              protect: true
+            release-0.8:
+              protect: true
+            master:
+              protect: true
         proxy:
-          protect: true
-          required_status_check:
+          protect: false
+          required_status_checks:
             contexts:
-            - prow/proxy-presubmit-asan.sh
-            - prow/proxy-presubmit.sh- "ci/circleci: build"
-
+            - "ci/circleci: build"
+          branches:
+            release-0.1:
+              protect: true
+            release-0.2:
+              protect: true
+            release-0.3.0:
+              protect: true
+            release-0.4.0:
+              protect: true
+            release-0.5:
+              protect: true
+            release-0.6:
+              protect: true
+            release-0.7:
+              protect: true
+            release-0.8:
+              protect: true
+            master:
+              protect: true
         test-infra:
-          protect: true
+          protect: false
+          branches:
+            master:
+              protect: true
 
 tide:
   
@@ -79,14 +143,6 @@ tide:
   context_options:
     from-branch-protection: true
     skip-unknown-contexts: true
-    org:
-      istio:
-        repos:
-          istio:
-            branches:
-              master:
-                required-contexts:
-                - "tide-merged-blocked"
 
 presets:
 - labels:
@@ -301,6 +357,7 @@ presubmits:
     agent: kubernetes
     context: prow/istio-unit-tests.sh
     always_run: true
+    optional: true
     rerun_command: "/test istio-unit-tests"
     trigger: "(?m)^/(retest|test (all|istio-unit-tests))?,?(\\s+|$)"
     labels:
