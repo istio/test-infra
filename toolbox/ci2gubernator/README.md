@@ -66,7 +66,7 @@ At the end of a build, execute the following command to
 * upload `finished.json`, `artifacts/junit_*.xml`, and `build-log.txt` to GCS
 * update `latest-build.txt` of this job with the current build number
 
-The same rules on `--presubmit` usage apply in here.
+The same rules on `--stage=presubmit` usage apply in here.
 
 ```bash
 $ ci_to_gubernator \
