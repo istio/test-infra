@@ -41,6 +41,7 @@ var (
 	junitXML           = flag.String("junit_xml", "", "Path to the junit xml report")
 	buildLogTXT        = flag.String("build_log_txt", "", "Path to the build log")
 	serviceAccountJSON = flag.String("service_account", "", "Path to the service account key")
+	stage              = flag.String("stage", "", "Used to multiplex results on GCS")
 )
 
 func init() {
@@ -69,7 +70,7 @@ func main() {
 
 func createPushStartedJSON() {
 	u.AssertIntDefined("pr_number", prNum, unspecifiedInt)
-	cvt := ci2g.NewConverter(circleciBucket, *org, *repo, *job, *buildNum)
+	cvt := ci2g.NewConverter(circleciBucket, *org, *repo, *job, *stage, *buildNum)
 	if err := cvt.CreateUploadStartedJSON(*prNum, *sha); err != nil {
 		log.Fatalf("Failed to create started.json: %v", err)
 	}
@@ -77,7 +78,7 @@ func createPushStartedJSON() {
 
 func uploadArtifactsUpdateLatestBuild() {
 	u.AssertNotEmpty("junit_xml", junitXML)
-	cvt := ci2g.NewConverter(circleciBucket, *org, *repo, *job, *buildNum)
+	cvt := ci2g.NewConverter(circleciBucket, *org, *repo, *job, *stage, *buildNum)
 	if err := cvt.CreateUploadFinishedJSON(*exitCode, *sha); err != nil {
 		log.Fatalf("Failed to create started.json: %v", err)
 	}

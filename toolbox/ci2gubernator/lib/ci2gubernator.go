@@ -57,10 +57,10 @@ type Converter struct {
 }
 
 // NewConverter creates a Converter
-func NewConverter(bucket, org, repo, job string, build int) *Converter {
+func NewConverter(bucket, org, repo, job, stage string, build int) *Converter {
 	return &Converter{
 		gcsClient:     u.NewGCSClient(bucket),
-		gcsPathPrefix: fmt.Sprintf("%s/%d", job, build),
+		gcsPathPrefix: filepath.Join(stage, job, strconv.Itoa(build)),
 		bucket:        bucket,
 		org:           org,
 		repo:          repo,
@@ -143,7 +143,7 @@ func (c *Converter) UpdateLastBuildTXT() error {
 			log.Fatalf("Unlock %s has timed out: %v", lastBuildTXT, err)
 		}
 	}()
-	gcsPath := filepath.Join(c.job, lastBuildTXT)
+	gcsPath := filepath.Join(filepath.Dir(c.gcsPathPrefix), lastBuildTXT)
 	val, err := c.gcsClient.Read(gcsPath)
 	if err != nil {
 		return err
