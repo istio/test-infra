@@ -13,6 +13,21 @@ deck:
 prowjob_namespace: default
 pod_namespace: test-pods
 
+blocked_branches: &blocked_branches
+  release-0.1: &blocking_merge
+    required_status_checks:
+      contexts:
+      - "merges-blocked-needs-admin"
+    protect: true
+  release-0.2: *blocking_merge
+  release-0.3: *blocking_merge
+  release-0.3.0: *blocking_merge
+  release-0.4: *blocking_merge
+  release-0.4.0: *blocking_merge
+  release-0.5: *blocking_merge
+  release-0.6: *blocking_merge
+  release-0.7: *blocking_merge
+
 branch-protection:
   allow_disabled_policies: true
   orgs:
@@ -29,6 +44,13 @@ branch-protection:
         teams:
         - repo-admins
       repos:
+        api:
+          protect: false
+          branches:
+            <<: *blocked_branches
+            release-0.8: *blocking_merge
+            master:
+              protect: true
         istio:
           protect: false
           required_status_checks:
@@ -42,47 +64,17 @@ branch-protection:
             - "ci/circleci: lint"
             - "ci/circleci: test"
           branches:
-            release-0.1:
-              protect: true
-            release-0.2:
-              protect: true
-            release-0.3.0:
-              protect: true
-            release-0.4.0:
-              protect: true
-            release-0.5:
-              protect: true
-            release-0.6:
-              protect: true
-            release-0.7:
-              protect: true
+            <<: *blocked_branches
             release-0.8:
               protect: true
-            master:
-              protect: true
-              required_status_checks:
-                contexts:
-                - "merges-blocked-needs-admin"
+            master: *blocking_merge
         istio.github.io:
           protect: false
           required_status_checks:
             contexts:
             - ci/circleci
           branches:
-            release-0.1:
-              protect: true
-            release-0.2:
-              protect: true
-            release-0.3.0:
-              protect: true
-            release-0.4.0:
-              protect: true
-            release-0.5:
-              protect: true
-            release-0.6:
-              protect: true
-            release-0.7:
-              protect: true
+            <<: *blocked_branches
             release-0.8:
               protect: true
             master:
@@ -93,22 +85,10 @@ branch-protection:
             contexts:
             - "ci/circleci: build"
           branches:
-            release-0.1:
-              protect: true
-            release-0.2:
-              protect: true
-            release-0.3.0:
-              protect: true
-            release-0.4.0:
-              protect: true
-            release-0.5:
-              protect: true
-            release-0.6:
-              protect: true
-            release-0.7:
-              protect: true
-            release-0.8:
-              protect: true
+            <<: *blocked_branches
+            endpoints-v1.1.x: *blocking_merge
+            endpoints-v1.2.x: *blocking_merge
+            release-0.8: *blocking_merge
             master:
               protect: true
         test-infra:
@@ -118,7 +98,6 @@ branch-protection:
               protect: true
 
 tide:
-  
   queries:
   - repos:
     - istio/test-infra
@@ -189,11 +168,11 @@ presets:
       secretName: daily-release-e2e-rbac-kubeconfig
 
 common_qual_branches: &common_qual_branches
-  - master
-  - release-0.7
-  - release-0.8
-  - release-0.9
-  - release-1.0
+- master
+- release-0.7
+- release-0.8
+- release-0.9
+- release-1.0
 
 common_e2e_spec: &common_e2e_spec
   containers:
