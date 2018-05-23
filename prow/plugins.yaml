@@ -26,6 +26,24 @@ config_updater:
       name: mason-config
       namespace: boskos
 
+slack:
+  mergewarnings:
+  - repos:
+    - istio/istio
+    - istio/api
+    - istio/proxy
+    - istio/istio.github.io
+    channels:
+    - oncall
+    whitelist:
+    - istio-testing
+  - repos:
+    - istio/test-infra
+    channels:
+    - test-and-release
+    whitelist:
+    - istio-testing
+
 approve:
 - repos:
   - istio/api
@@ -38,56 +56,29 @@ approve:
   lgtm_acts_as_approve: true
 
 plugins:
-  istio/api:
+  istio:
+  - approve
   - assign
   - blunderbuss
+  - hold
+  - lgtm
   - lifecycle
   - trigger
+  - help
 
   sebastienvas/core:
   - assign
   - hold
   - lgtm
   - lifecycle
-  - release-note
-  - trigger
-
-  istio/istio:
-  - approve
-  - assign
-  - blunderbuss
-  - hold
-  - lgtm
-  - lifecycle
-  - trigger
-
-  istio/istio.github.io:
-  - approve
-  - assign
-  - blunderbuss
-  - hold
-  - lgtm
-  - lifecycle
-  - trigger
-
-  istio/proxy:
-  - approve
-  - assign
-  - blunderbuss
-  - hold
-  - lgtm
-  - lifecycle
   - trigger
 
   istio/test-infra:
-  - approve
-  - assign
-  - blunderbuss
   - config-updater
-  - hold
-  - lgtm
-  - lifecycle
-  - trigger
+  - shrug
+  - skip
+  - slackevents
+  - wip
   - yuks
 
   istio-releases/daily-release:
