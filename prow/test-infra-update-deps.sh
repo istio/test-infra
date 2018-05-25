@@ -42,28 +42,9 @@ function update_on_branch {
    local day_of_week=`date "+%u"` #(1..7)
 
    case ${CUR_BRANCH} in
-     release-0.8)
+     release-0.8|master)
        return
        ;;
-     master)
-       case ${hour24} in
-         10|20)
-           # skip dep update from api to proxy
-           return
-           ;;
-         12|22)
-	   ${UPDATE_BINARY} \
-	   	--repo="istio" \
-	   	--base_branch=${CUR_BRANCH} \
-		--token_file=${TOKEN_PATH} \
-		--update_ext_dep="false"
-           return
-           ;;
-         *)
-           return
-           ;;
-       esac
-       ;; # master branch end
      release-*)
        case ${hour24} in
          10|20)
