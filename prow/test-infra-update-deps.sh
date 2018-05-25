@@ -44,9 +44,24 @@ function update_on_branch {
    case ${CUR_BRANCH} in
      #master|release-*)
      master)
-       # for now skip master updates
-       return
-       ;;
+       case ${hour24} in
+         10|20)
+           # skip dep update from api to proxy
+           return
+           ;;
+         12|22)
+	   ${UPDATE_BINARY} \
+	   	--repo="istio" \
+	   	--base_branch=${CUR_BRANCH} \
+		--token_file=${TOKEN_PATH} \
+		--update_ext_dep="false"
+           return
+           ;;
+         *)
+           return
+           ;;
+       esac
+       ;; # master branch end
      release-*)
        case ${hour24} in
          10|20)
@@ -62,6 +77,7 @@ function update_on_branch {
            return
            ;;
          *)
+           return
            ;;
        esac
        ;; # release-* branch end
