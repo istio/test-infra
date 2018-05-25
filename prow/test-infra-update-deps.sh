@@ -42,7 +42,9 @@ function update_on_branch {
    local day_of_week=`date "+%u"` #(1..7)
 
    case ${CUR_BRANCH} in
-     #master|release-*)
+     release-0.8)
+       return
+       ;;
      master)
        case ${hour24} in
          10|20)
