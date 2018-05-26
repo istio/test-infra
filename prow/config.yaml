@@ -65,9 +65,9 @@ branch-protection:
             - "ci/circleci: test"
           branches:
             <<: *blocked_branches
-            release-0.8:
+            release-0.8: *blocking_merge
+            master:
               protect: true
-            master: *blocking_merge
         istio.github.io:
           protect: false
           required_status_checks:
