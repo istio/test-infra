@@ -27,6 +27,9 @@ blocked_branches: &blocked_branches
   release-0.5: *blocking_merge
   release-0.6: *blocking_merge
   release-0.7: *blocking_merge
+  release-0.8: *blocking_merge
+  master:
+    protect: true
 
 branch-protection:
   allow_disabled_policies: true
@@ -48,9 +51,6 @@ branch-protection:
           protect: false
           branches:
             <<: *blocked_branches
-            release-0.8: *blocking_merge
-            master:
-              protect: true
         istio:
           protect: false
           required_status_checks:
@@ -65,9 +65,6 @@ branch-protection:
             - "ci/circleci: test"
           branches:
             <<: *blocked_branches
-            release-0.8:
-              protect: true
-            master: *blocking_merge
         istio.github.io:
           protect: false
           required_status_checks:
@@ -75,10 +72,6 @@ branch-protection:
             - ci/circleci
           branches:
             <<: *blocked_branches
-            release-0.8:
-              protect: true
-            master:
-              protect: true
         proxy:
           protect: false
           required_status_checks:
@@ -88,9 +81,6 @@ branch-protection:
             <<: *blocked_branches
             endpoints-v1.1.x: *blocking_merge
             endpoints-v1.2.x: *blocking_merge
-            release-0.8: *blocking_merge
-            master:
-              protect: true
         test-infra:
           protect: false
           branches:
