@@ -66,12 +66,19 @@ if [ "${REPO}" != 'istio' ] && [ "${REPO}" != 'daily-release' ]; then
   exit 1
 fi
 
+EXPECTED_VERSION='1.9'
 # Generate cluster version and name
 IFS=';' VERSIONS=($(gcloud container get-server-config \
   --project=${PROJECT_NAME} \
   --zone=${ZONE} \
   --format='value(validMasterVersions)'))
-CLUSTER_VERSION="${VERSIONS[0]}"
+for V in ${VERSIONS[@]}; do
+  if [[ "${V}" =~ "${EXPECTED_VERSION}" ]]; then
+    CLUSTER_VERSION="${V}"
+    break
+  fi
+done
+[[ -z "${CLUSTER_VERSION}" ]] && { echo "unable to find version"; exit 1; }
 echo "Default cluster version: ${CLUSTER_VERSION}"
 
 KUBECONFIG_FILE="$(mktemp)"
@@ -112,9 +119,9 @@ gcloud container clusters get-credentials ${PROW_CLUSTER} \
 
 # Update kubeconfig
 SECRET_NAME="${REPO}-e2e-rbac-kubeconfig"
+kubectl -n ${PROW_TEST_NS} delete secret ${SECRET_NAME}
 kubectl -n ${PROW_TEST_NS} create secret generic ${SECRET_NAME} \
-  --from-file=config=${KUBECONFIG_FILE} --dry-run -o yaml \
- | kubectl apply -f -
+  --from-file=config=${KUBECONFIG_FILE}
 kubectl get secret -n ${PROW_TEST_NS}
 
 echo "--------------------------------------"
