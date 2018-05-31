@@ -44,7 +44,7 @@ var (
 const (
 	// ResourceConfigType defines the GCP config type
 	ResourceConfigType      = "GCPResourceConfig"
-	defaultOperationTimeout = 20 * time.Minute
+	defaultOperationTimeout = 15 * time.Minute
 	charset                 = "abcdefghijklmnopqrstuvwxyz1234567890"
 	maxChannels             = 100
 )

@@ -23,11 +23,11 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"sync"
+	"strings"
 	"time"
 
 	"k8s.io/test-infra/boskos/common"
-	"strings"
+	"k8s.io/test-infra/boskos/storage"
 )
 
 // Client defines the public Boskos client object
@@ -35,16 +35,16 @@ type Client struct {
 	owner string
 	url   string
 
-	lock      sync.Mutex
-	resources []string
+	storage storage.PersistenceLayer
 }
 
 // NewClient creates a boskos client, with boskos url and owner of the client.
 func NewClient(owner string, url string) *Client {
 
 	client := &Client{
-		url:   url,
-		owner: owner,
+		url:     url,
+		owner:   owner,
+		storage: storage.NewMemoryStorage(),
 	}
 
 	return client
@@ -59,11 +59,8 @@ func (c *Client) Acquire(rtype, state, dest string) (*common.Resource, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	c.lock.Lock()
-	defer c.lock.Unlock()
 	if r != nil {
-		c.resources = append(c.resources, r.Name)
+		c.storage.Add(*r)
 	}
 
 	return r, nil
@@ -76,31 +73,28 @@ func (c *Client) AcquireByState(state, dest string, names []string) ([]common.Re
 	if err != nil {
 		return nil, err
 	}
-	c.lock.Lock()
-	defer c.lock.Unlock()
-	for _, resource := range resources {
-		c.resources = append(c.resources, resource.Name)
+
+	for _, r := range resources {
+		c.storage.Add(r)
 	}
 	return resources, nil
 }
 
 // ReleaseAll returns all resources hold by the client back to boskos and set them to dest state.
 func (c *Client) ReleaseAll(dest string) error {
-	c.lock.Lock()
-
-	if len(c.resources) == 0 {
-		c.lock.Unlock()
+	resources, err := c.storage.List()
+	if err != nil {
+		return err
+	}
+	if len(resources) == 0 {
 		return fmt.Errorf("no holding resource")
 	}
-	c.lock.Unlock()
 
-	for {
-		r, ok := c.popResource()
-		if !ok {
-			break
+	for _, r := range resources {
+		if err := c.release(r.GetName(), dest); err != nil {
+			return err
 		}
-
-		if err := c.release(r, dest); err != nil {
+		if err := c.storage.Delete(r.GetName()); err != nil {
 			return err
 		}
 	}
@@ -109,32 +103,37 @@ func (c *Client) ReleaseAll(dest string) error {
 
 // ReleaseOne returns one of owned resources back to boskos and set it to dest state.
 func (c *Client) ReleaseOne(name, dest string) error {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
-	for idx, r := range c.resources {
-		if r == name {
-			c.resources[idx] = c.resources[len(c.resources)-1]
-			c.resources = c.resources[:len(c.resources)-1]
-			err := c.release(r, dest)
-			return err
-		}
+	r, err := c.storage.Get(name)
+	if err != nil {
+		return fmt.Errorf("no resource name %v", name)
 	}
-
-	return fmt.Errorf("no resource name %v", name)
+	if err := c.release(r.GetName(), dest); err != nil {
+		return err
+	}
+	if err := c.storage.Delete(name); err != nil {
+		return err
+	}
+	return nil
 }
 
 // UpdateAll signals update for all resources hold by the client.
 func (c *Client) UpdateAll(state string) error {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
-	if len(c.resources) == 0 {
+	resources, err := c.storage.List()
+	if err != nil {
+		return err
+	}
+	if len(resources) == 0 {
 		return fmt.Errorf("no holding resource")
 	}
 
-	for _, r := range c.resources {
-		if err := c.update(r, state, nil); err != nil {
+	for _, r := range resources {
+		if err := c.update(r.GetName(), state, nil); err != nil {
+			return err
+		}
+		if err != nil {
+			return err
+		}
+		if err := c.updateLocalResource(r, state, nil); err != nil {
 			return err
 		}
 	}
@@ -142,19 +141,43 @@ func (c *Client) UpdateAll(state string) error {
 	return nil
 }
 
-// UpdateOne signals update for one of the resources hold by the client.
-func (c *Client) UpdateOne(name, state string, userData common.UserData) error {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
-	for _, r := range c.resources {
-		if r == name {
-			err := c.update(r, state, userData)
-			return err
-		}
+// SyncAll signals update for all resources hold by the client.
+func (c *Client) SyncAll() error {
+	resources, err := c.storage.List()
+	if err != nil {
+		return err
+	}
+	if len(resources) == 0 {
+		return fmt.Errorf("no holding resource")
 	}
 
-	return fmt.Errorf("no resource name %v", name)
+	for _, i := range resources {
+		r, err := common.ItemToResource(i)
+		if err != nil {
+			return err
+		}
+		if err := c.update(r.Name, r.State, nil); err != nil {
+			return err
+		}
+		if err := c.storage.Update(r); err != nil {
+			return err
+		}
+
+	}
+
+	return nil
+}
+
+// UpdateOne signals update for one of the resources hold by the client.
+func (c *Client) UpdateOne(name, state string, userData common.UserData) error {
+	r, err := c.storage.Get(name)
+	if err != nil {
+		return fmt.Errorf("no resource name %v", name)
+	}
+	if err := c.update(r.GetName(), state, userData); err != nil {
+		return err
+	}
+	return c.updateLocalResource(r, state, userData)
 }
 
 // Reset will scan all boskos resources of type, in state, last updated before expire, and set them to dest state.
@@ -171,22 +194,24 @@ func (c *Client) Metric(rtype string) (common.Metric, error) {
 
 // HasResource tells if current client holds any resources
 func (c *Client) HasResource() bool {
-	return len(c.resources) > 0
+	resources, _ := c.storage.List()
+	return len(resources) > 0
 }
 
 // private methods
 
-func (c *Client) popResource() (string, bool) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
-	if len(c.resources) == 0 {
-		return "", false
+func (c *Client) updateLocalResource(i common.Item, state string, data common.UserData) error {
+	res, err := common.ItemToResource(i)
+	if err != nil {
+		return err
 	}
-
-	r := c.resources[len(c.resources)-1]
-	c.resources = c.resources[:len(c.resources)-1]
-	return r, true
+	res.State = state
+	if res.UserData == nil {
+		res.UserData = data
+	} else {
+		res.UserData.Update(data)
+	}
+	return c.storage.Update(res)
 }
 
 func (c *Client) acquire(rtype, state, dest string) (*common.Resource, error) {
