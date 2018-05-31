@@ -42,7 +42,7 @@ const (
 )
 
 var (
-	defaultTimeout = 5 * time.Minute
+	defaultTimeout = 30 * time.Minute
 )
 
 // Converter defines how to convert generic CI results to artifacts that gubernator understands
