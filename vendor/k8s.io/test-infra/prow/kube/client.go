@@ -37,6 +37,8 @@ import (
 )
 
 const (
+	TestContainerName = "test"
+
 	inClusterBaseURL = "https://kubernetes.default"
 	maxRetries       = 8
 	retryDelay       = 2 * time.Second
@@ -460,7 +462,7 @@ func (c *Client) GetProwJob(name string) (ProwJob, error) {
 	}, &pj)
 	if err == nil && shouldHide(&pj, c.getHiddenRepos(), c.hiddenOnly) {
 		pj = ProwJob{}
-		// Revealing the existence of this prow job is ok because the the pj name cannot be used to
+		// Revealing the existence of this prow job is ok because the pj name cannot be used to
 		// retrieve the pj itself. Furthermore, a timing attack could differentiate true 404s from
 		// 404s returned when a hidden pj is queried so returning a 404 wouldn't hide the pj's existence.
 		err = errors.New("403 ProwJob is hidden")
@@ -524,7 +526,8 @@ func (c *Client) CreatePod(p v1.Pod) (Pod, error) {
 func (c *Client) GetLog(pod string) ([]byte, error) {
 	c.log("GetLog", pod)
 	return c.requestRetry(&request{
-		path: fmt.Sprintf("/api/v1/namespaces/%s/pods/%s/log", c.namespace, pod),
+		path:  fmt.Sprintf("/api/v1/namespaces/%s/pods/%s/log", c.namespace, pod),
+		query: map[string]string{"container": TestContainerName},
 	})
 }
 

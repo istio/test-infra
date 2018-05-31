@@ -83,6 +83,15 @@ type configGetter interface {
 	Config() *prowConf.Config
 }
 
+// Interface is an interface to work with OWNERS files.
+type Interface interface {
+	LoadRepoAliases(org, repo, base string) (RepoAliases, error)
+	LoadRepoOwners(org, repo, base string) (RepoOwnerInterface, error)
+}
+
+// Client is an implementation of the Interface.
+var _ Interface = &Client{}
+
 type Client struct {
 	configGetter configGetter
 
@@ -90,7 +99,8 @@ type Client struct {
 	ghc    githubClient
 	logger *logrus.Entry
 
-	mdYAMLEnabled func(org, repo string) bool
+	mdYAMLEnabled     func(org, repo string) bool
+	skipCollaborators func(org, repo string) bool
 
 	lock  sync.Mutex
 	cache map[string]cacheEntry
@@ -101,6 +111,7 @@ func NewClient(
 	ghc *github.Client,
 	configGetter *prowConf.Agent,
 	mdYAMLEnabled func(org, repo string) bool,
+	skipCollaborators func(org, repo string) bool,
 ) *Client {
 	return &Client{
 		git:    gc,
@@ -108,13 +119,28 @@ func NewClient(
 		logger: logrus.WithField("client", "repoowners"),
 		cache:  make(map[string]cacheEntry),
 
-		mdYAMLEnabled: mdYAMLEnabled,
+		mdYAMLEnabled:     mdYAMLEnabled,
+		skipCollaborators: skipCollaborators,
 
 		configGetter: configGetter,
 	}
 }
 
 type RepoAliases map[string]sets.String
+
+type RepoOwnerInterface interface {
+	FindApproverOwnersForFile(path string) string
+	FindReviewersOwnersForFile(path string) string
+	FindLabelsForFile(path string) sets.String
+	IsNoParentOwners(path string) bool
+	LeafApprovers(path string) sets.String
+	Approvers(path string) sets.String
+	LeafReviewers(path string) sets.String
+	Reviewers(path string) sets.String
+}
+
+// RepoOwners implements RepoOwnerInterface
+var _ RepoOwnerInterface = &RepoOwners{}
 
 type RepoOwners struct {
 	RepoAliases
@@ -134,10 +160,12 @@ type RepoOwners struct {
 // LoadRepoAliases returns an up-to-date RepoAliases struct for the specified repo.
 // If the repo does not have an aliases file then an empty alias map is returned with no error.
 // Note: The returned RepoAliases should be treated as read only.
-func (c *Client) LoadRepoAliases(org, repo string) (RepoAliases, error) {
-	log := c.logger.WithFields(logrus.Fields{"org": org, "repo": repo})
-	fullName := fmt.Sprintf("%s/%s", org, repo)
-	sha, err := c.ghc.GetRef(org, repo, "heads/master")
+func (c *Client) LoadRepoAliases(org, repo, base string) (RepoAliases, error) {
+	log := c.logger.WithFields(logrus.Fields{"org": org, "repo": repo, "base": base})
+	cloneRef := fmt.Sprintf("%s/%s", org, repo)
+	fullName := fmt.Sprintf("%s:%s", cloneRef, base)
+
+	sha, err := c.ghc.GetRef(org, repo, fmt.Sprintf("heads/%s", base))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get current SHA for %s: %v", fullName, err)
 	}
@@ -147,11 +175,14 @@ func (c *Client) LoadRepoAliases(org, repo string) (RepoAliases, error) {
 	entry, ok := c.cache[fullName]
 	if !ok || entry.sha != sha {
 		// entry is non-existent or stale.
-		gitRepo, err := c.git.Clone(fullName)
+		gitRepo, err := c.git.Clone(cloneRef)
 		if err != nil {
-			return nil, fmt.Errorf("failed to clone %s: %v", fullName, err)
+			return nil, fmt.Errorf("failed to clone %s: %v", cloneRef, err)
 		}
 		defer gitRepo.Clean()
+		if err := gitRepo.Checkout(base); err != nil {
+			return nil, err
+		}
 
 		entry.aliases = loadAliasesFrom(gitRepo.Dir, log)
 		entry.sha = sha
@@ -163,12 +194,13 @@ func (c *Client) LoadRepoAliases(org, repo string) (RepoAliases, error) {
 
 // LoadRepoOwners returns an up-to-date RepoOwners struct for the specified repo.
 // Note: The returned *RepoOwners should be treated as read only.
-func (c *Client) LoadRepoOwners(org, repo string) (*RepoOwners, error) {
-	log := c.logger.WithFields(logrus.Fields{"org": org, "repo": repo})
-
-	fullName := fmt.Sprintf("%s/%s", org, repo)
+func (c *Client) LoadRepoOwners(org, repo, base string) (RepoOwnerInterface, error) {
+	log := c.logger.WithFields(logrus.Fields{"org": org, "repo": repo, "base": base})
+	cloneRef := fmt.Sprintf("%s/%s", org, repo)
+	fullName := fmt.Sprintf("%s:%s", cloneRef, base)
 	mdYaml := c.mdYAMLEnabled(org, repo)
-	sha, err := c.ghc.GetRef(org, repo, "heads/master")
+
+	sha, err := c.ghc.GetRef(org, repo, fmt.Sprintf("heads/%s", base))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get current SHA for %s: %v", fullName, err)
 	}
@@ -177,11 +209,14 @@ func (c *Client) LoadRepoOwners(org, repo string) (*RepoOwners, error) {
 	defer c.lock.Unlock()
 	entry, ok := c.cache[fullName]
 	if !ok || entry.sha != sha || entry.owners == nil || entry.owners.enableMDYAML != mdYaml {
-		gitRepo, err := c.git.Clone(fullName)
+		gitRepo, err := c.git.Clone(cloneRef)
 		if err != nil {
-			return nil, fmt.Errorf("failed to clone %s: %v", fullName, err)
+			return nil, fmt.Errorf("failed to clone %s: %v", cloneRef, err)
 		}
 		defer gitRepo.Clean()
+		if err := gitRepo.Checkout(base); err != nil {
+			return nil, err
+		}
 
 		if entry.aliases == nil || entry.sha != sha {
 			// aliases must be loaded
@@ -203,6 +238,11 @@ func (c *Client) LoadRepoOwners(org, repo string) (*RepoOwners, error) {
 		}
 		entry.sha = sha
 		c.cache[fullName] = entry
+	}
+
+	if c.skipCollaborators(org, repo) {
+		log.Debugf("Skipping collaborator checks for %s/%s", org, repo)
+		return entry.owners, nil
 	}
 
 	var owners *RepoOwners

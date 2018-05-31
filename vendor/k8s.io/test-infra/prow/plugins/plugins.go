@@ -122,7 +122,7 @@ type PluginClient struct {
 	KubeClient   *kube.Client
 	GitClient    *git.Client
 	SlackClient  *slack.Client
-	OwnersClient *repoowners.Client
+	OwnersClient repoowners.Interface
 
 	CommentPruner *commentpruner.EventClient
 
@@ -170,6 +170,7 @@ type Configuration struct {
 	RequireSIG    RequireSIG    `json:"requiresig,omitempty"`
 	SigMention    SigMention    `json:"sigmention,omitempty"`
 	Cat           Cat           `json:"cat,omitempty"`
+	Label         *Label        `json:"label,omitempty"`
 }
 
 // ExternalPlugin holds configuration for registering an external
@@ -189,8 +190,11 @@ type ExternalPlugin struct {
 type Blunderbuss struct {
 	// ReviewerCount is the minimum number of reviewers to request
 	// reviews from. Defaults to requesting reviews from 2 reviewers
-	// if none of the given options is set.
+	// if FileWeightCount is not set.
 	ReviewerCount *int `json:"request_count,omitempty"`
+	// MaxReviewerCount is the maximum number of reviewers to request
+	// reviews from. Defaults to 0 meaning no limit.
+	MaxReviewerCount int `json:"max_request_count,omitempty"`
 	// FileWeightCount is the maximum number of reviewers to request
 	// reviews from. Selects reviewers based on file weighting.
 	// This and request_count are mutually exclusive options.
@@ -213,6 +217,11 @@ type Owners struct {
 		---
 	*/
 	MDYAMLRepos []string `json:"mdyamlrepos,omitempty"`
+
+	// SkipCollaborators disables collaborator cross-checks and forces both
+	// the approve and lgtm plugins to use solely OWNERS files for access
+	// control in the provided repos.
+	SkipCollaborators []string `json:"skip_collaborators,omitempty"`
 }
 
 func (pa *PluginAgent) MDYAMLEnabled(org, repo string) bool {
@@ -223,7 +232,16 @@ func (pa *PluginAgent) MDYAMLEnabled(org, repo string) bool {
 		}
 	}
 	return false
+}
 
+func (pa *PluginAgent) SkipCollaborators(org, repo string) bool {
+	full := fmt.Sprintf("%s/%s", org, repo)
+	for _, elem := range pa.Config().Owners.SkipCollaborators {
+		if elem == org || elem == full {
+			return true
+		}
+	}
+	return false
 }
 
 // RequireSIG specifies configuration for the require-sig plugin.
@@ -298,11 +316,23 @@ type Approve struct {
 	// ImplicitSelfApprove indicates if authors implicitly approve their own PRs
 	// in the specified repos.
 	ImplicitSelfApprove bool `json:"implicit_self_approve,omitempty"`
+	// LgtmActsAsApprove indicates that the lgtm command should be used to
+	// indicate approval
+	LgtmActsAsApprove bool `json:"lgtm_acts_as_approve,omitempty"`
+	// ReviewActsAsApprove indicates that GitHub review state should be used to
+	// indicate approval.
+	ReviewActsAsApprove bool `json:"review_acts_as_approve,omitempty"`
 }
 
 type Cat struct {
 	// Path to file containing an api key for thecatapi.com
 	KeyPath string `json:"key_path,omitempty"`
+}
+
+type Label struct {
+	// AdditionalLabels is a set of additional labels enabled for use
+	// on top of the existing "kind/*", "priority/*", and "area/*" labels.
+	AdditionalLabels []string `json:"additional_labels"`
 }
 
 type Trigger struct {
@@ -378,6 +408,8 @@ type MergeWarning struct {
 	Channels []string `json:"channels,omitempty"`
 	// A slack event is published if the user is not part of the WhiteList.
 	WhiteList []string `json:"whitelist,omitempty"`
+	// A slack event is published if the user is not on the branch whitelist
+	BranchWhiteList map[string][]string `json:"branch_whitelist,omitempty"`
 }
 
 // TriggerFor finds the Trigger for a repo, if one exists
