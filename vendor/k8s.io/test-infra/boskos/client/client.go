@@ -26,6 +26,10 @@ import (
 	"strings"
 	"time"
 
+	"sync"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/sirupsen/logrus"
 	"k8s.io/test-infra/boskos/common"
 	"k8s.io/test-infra/boskos/storage"
 )
@@ -34,6 +38,7 @@ import (
 type Client struct {
 	owner string
 	url   string
+	lock  sync.Mutex
 
 	storage storage.PersistenceLayer
 }
@@ -55,6 +60,8 @@ func NewClient(owner string, url string) *Client {
 // Acquire asks boskos for a resource of certain type in certain state, and set the resource to dest state.
 // Returns the resource on success.
 func (c *Client) Acquire(rtype, state, dest string) (*common.Resource, error) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	r, err := c.acquire(rtype, state, dest)
 	if err != nil {
 		return nil, err
@@ -69,6 +76,8 @@ func (c *Client) Acquire(rtype, state, dest string) (*common.Resource, error) {
 // AcquireByState asks boskos for a resources of certain type, and set the resource to dest state.
 // Returns a list of resources on success.
 func (c *Client) AcquireByState(state, dest string, names []string) ([]common.Resource, error) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	resources, err := c.acquireByState(state, dest, names)
 	if err != nil {
 		return nil, err
@@ -82,6 +91,8 @@ func (c *Client) AcquireByState(state, dest string, names []string) ([]common.Re
 
 // ReleaseAll returns all resources hold by the client back to boskos and set them to dest state.
 func (c *Client) ReleaseAll(dest string) error {
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	resources, err := c.storage.List()
 	if err != nil {
 		return err
@@ -89,28 +100,27 @@ func (c *Client) ReleaseAll(dest string) error {
 	if len(resources) == 0 {
 		return fmt.Errorf("no holding resource")
 	}
-
+	var allErrors error
 	for _, r := range resources {
-		if err := c.release(r.GetName(), dest); err != nil {
-			return err
-		}
-		if err := c.storage.Delete(r.GetName()); err != nil {
-			return err
+		err := c.release(r.GetName(), dest)
+		c.storage.Delete(r.GetName())
+		if err != nil {
+			allErrors = multierror.Append(allErrors, err)
 		}
 	}
-	return nil
+	return allErrors
 }
 
 // ReleaseOne returns one of owned resources back to boskos and set it to dest state.
 func (c *Client) ReleaseOne(name, dest string) error {
-	r, err := c.storage.Get(name)
-	if err != nil {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	if _, err := c.storage.Get(name); err != nil {
 		return fmt.Errorf("no resource name %v", name)
 	}
-	if err := c.release(r.GetName(), dest); err != nil {
-		return err
-	}
-	if err := c.storage.Delete(name); err != nil {
+	defer c.storage.Delete(name)
+	if err := c.release(name, dest); err != nil {
 		return err
 	}
 	return nil
@@ -118,6 +128,9 @@ func (c *Client) ReleaseOne(name, dest string) error {
 
 // UpdateAll signals update for all resources hold by the client.
 func (c *Client) UpdateAll(state string) error {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
 	resources, err := c.storage.List()
 	if err != nil {
 		return err
@@ -125,51 +138,55 @@ func (c *Client) UpdateAll(state string) error {
 	if len(resources) == 0 {
 		return fmt.Errorf("no holding resource")
 	}
-
+	var allErrors error
 	for _, r := range resources {
 		if err := c.update(r.GetName(), state, nil); err != nil {
-			return err
-		}
-		if err != nil {
-			return err
+			allErrors = multierror.Append(allErrors, err)
+			continue
 		}
 		if err := c.updateLocalResource(r, state, nil); err != nil {
-			return err
+			allErrors = multierror.Append(allErrors, err)
 		}
 	}
-
-	return nil
+	return allErrors
 }
 
 // SyncAll signals update for all resources hold by the client.
 func (c *Client) SyncAll() error {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
 	resources, err := c.storage.List()
 	if err != nil {
 		return err
 	}
 	if len(resources) == 0 {
-		return fmt.Errorf("no holding resource")
+		logrus.Info("no resource to sync")
+		return nil
 	}
-
+	var allErrors error
 	for _, i := range resources {
 		r, err := common.ItemToResource(i)
 		if err != nil {
-			return err
+			allErrors = multierror.Append(allErrors, err)
+			continue
 		}
 		if err := c.update(r.Name, r.State, nil); err != nil {
-			return err
+			allErrors = multierror.Append(allErrors, err)
+			continue
 		}
 		if err := c.storage.Update(r); err != nil {
-			return err
+			allErrors = multierror.Append(allErrors, err)
 		}
-
 	}
-
-	return nil
+	return allErrors
 }
 
 // UpdateOne signals update for one of the resources hold by the client.
 func (c *Client) UpdateOne(name, state string, userData common.UserData) error {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
 	r, err := c.storage.Get(name)
 	if err != nil {
 		return fmt.Errorf("no resource name %v", name)
@@ -276,7 +293,7 @@ func (c *Client) release(name, dest string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("status %s, statusCode %v", resp.Status, resp.StatusCode)
+		return fmt.Errorf("status %s, statusCode %v releasing %s", resp.Status, resp.StatusCode, name)
 	}
 	return nil
 }
@@ -299,7 +316,7 @@ func (c *Client) update(name, state string, userData common.UserData) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("status %s, status code %v", resp.Status, resp.StatusCode)
+		return fmt.Errorf("status %s, status code %v updating %s", resp.Status, resp.StatusCode, name)
 	}
 	return nil
 }
