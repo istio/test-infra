@@ -17,6 +17,8 @@ package gcp
 import (
 	"context"
 	"fmt"
+	"math/rand"
+	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -25,8 +27,9 @@ import (
 
 const (
 	// ResourceConfigType defines the GCP config type
-	persistent  = "PERSISTENT"
-	oneToOneNAT = "ONE_TO_ONE_NAT"
+	persistent   = "PERSISTENT"
+	oneToOneNAT  = "ONE_TO_ONE_NAT"
+	zoneUSPrefix = "us-"
 )
 
 type virtualMachineConfig struct {
@@ -39,6 +42,28 @@ type virtualMachineConfig struct {
 
 type computeEngine struct {
 	service *compute.Service
+}
+
+func (cc *computeEngine) listZones(project string) ([]string, error) {
+	zoneList, err := cc.service.Zones.List(project).Do()
+	if err != nil {
+		return nil, err
+	}
+	var zones []string
+	for _, z := range zoneList.Items {
+		if strings.HasPrefix(z.Name, zoneUSPrefix) {
+			zones = append(zones, z.Name)
+		}
+	}
+	if len(zones) == 0 {
+		return nil, fmt.Errorf("no zone found")
+	}
+	logrus.Infof("Found zones %v for project %s", zones, project)
+	// shuffling data to pick different zones across projects
+	rand.Shuffle(len(zones), func(i, j int) {
+		zones[i], zones[j] = zones[j], zones[i]
+	})
+	return zones, nil
 }
 
 func (cc *computeEngine) waitForOperation(ctx context.Context, op *compute.Operation, project, zone string) error {

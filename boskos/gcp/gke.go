@@ -30,6 +30,7 @@ import (
 
 const (
 	defaultSleepTime = 10 * time.Second
+	readyTimeout     = time.Minute
 	// Defined in https://godoc.org/google.golang.org/api/container/v1#Operation
 	operationDone     = "DONE"
 	operationAborting = "ABORTING"
@@ -155,8 +156,9 @@ func (cc *containerEngine) create(ctx context.Context, project string, config cl
 	}
 	logrus.Infof("Instance %s created via operation %s", clusterRequest.Cluster.Name, op.Name)
 	info := &InstanceInfo{Name: name, Zone: config.Zone}
-
-	if err := cc.waitForReady(ctx, name, project, config.Zone); err != nil {
+	readyCtx, cancel := context.WithTimeout(ctx, readyTimeout)
+	defer cancel()
+	if err := cc.waitForReady(readyCtx, name, project, config.Zone); err != nil {
 		logrus.WithError(err).Errorf("cluster %s in zone %s for project %s is not usable", name, config.Zone, project)
 		return nil, err
 	}

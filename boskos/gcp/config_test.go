@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"sort"
 	"testing"
 	"time"
 
@@ -136,9 +137,13 @@ func (vmc *fakeVMCreator) create(ctx context.Context, p string, c virtualMachine
 		}
 	}
 	return &InstanceInfo{
-		Name: "VMname",
-		Zone: "VMzone",
+		Name: "name",
+		Zone: c.Zone,
 	}, nil
+}
+
+func (vmc *fakeVMCreator) listZones(project string) ([]string, error) {
+	return []string{"zone1", "zone2", "zone3"}, nil
 }
 
 type fakeClusterCreator struct {
@@ -152,9 +157,16 @@ func (cc *fakeClusterCreator) create(ctx context.Context, p string, c clusterCon
 		}
 	}
 	return &InstanceInfo{
-		Name: "ClusterName",
-		Zone: "ClusterZone",
+		Name: "name",
+		Zone: c.Zone,
 	}, nil
+}
+
+func sortInfo(info *ResourceInfo) {
+	for _, v := range *info {
+		sort.Slice(v.Clusters, func(i, j int) bool { return v.Clusters[i].Zone < v.Clusters[j].Zone })
+		sort.Slice(v.VMs, func(i, j int) bool { return v.VMs[i].Zone < v.VMs[j].Zone })
+	}
 }
 
 func TestResourcesConfig_Construct(t *testing.T) {
@@ -178,9 +190,17 @@ func TestResourcesConfig_Construct(t *testing.T) {
 			rc: resourceConfigs{
 				"test": {{
 					Clusters: []clusterConfig{
+						{
+							Zone: "specified",
+						},
+						{},
 						{},
 					},
 					Vms: []virtualMachineConfig{
+						{
+							Zone: "specified",
+						},
+						{},
 						{},
 					},
 				}},
@@ -198,14 +218,30 @@ func TestResourcesConfig_Construct(t *testing.T) {
 					"leased": {
 						Clusters: []InstanceInfo{
 							{
-								Name: "ClusterName",
-								Zone: "ClusterZone",
+								Name: "name",
+								Zone: "specified",
+							},
+							{
+								Name: "name",
+								Zone: "zone1",
+							},
+							{
+								Name: "name",
+								Zone: "zone2",
 							},
 						},
 						VMs: []InstanceInfo{
 							{
-								Name: "VMname",
-								Zone: "VMzone",
+								Name: "name",
+								Zone: "specified",
+							},
+							{
+								Name: "name",
+								Zone: "zone1",
+							},
+							{
+								Name: "name",
+								Zone: "zone3",
 							},
 						},
 					},
@@ -404,6 +440,7 @@ func TestResourcesConfig_Construct(t *testing.T) {
 				if err := ud.Extract(ResourceConfigType, &info); err != nil {
 					t.Errorf("%s - unable to parse user data %v", tc.name, err)
 				}
+				sortInfo(&info)
 				if !reflect.DeepEqual(info, *tc.result.info) {
 					t.Errorf("%s - expected info %v got %v instead", tc.name, *tc.result.info, info)
 				}
