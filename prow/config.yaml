@@ -57,14 +57,24 @@ branch-protection:
             contexts:
             - "ci/circleci: build"
             - "ci/circleci: codecov"
-            - "ci/circleci: dependencies"
-            - "ci/circleci: e2e-pilot"
-            - "ci/circleci: e2e-pilot-noauth-v1alpha3-v2"
             - "ci/circleci: e2e-simple"
             - "ci/circleci: lint"
             - "ci/circleci: test"
           branches:
             <<: *blocked_branches
+            release-0.8:
+              protect: true
+              required_status_checks:
+                contexts:
+                - "ci/circleci: dependencies"
+                - "ci/circleci: e2e-pilot"
+                - "ci/circleci: e2e-pilot-noauth-v1alpha3-v2"
+            master:
+              protect: true
+              required_status_checks:
+                contexts:
+                - "ci/circleci: e2e-pilot-auth-v1alpha3-v2"
+
         istio.github.io:
           protect: false
           required_status_checks:
@@ -401,6 +411,7 @@ presubmits:
     - name: istio-pilot-e2e
       agent: kubernetes
       context: prow/istio-pilot-e2e.sh
+      optional: true
       rerun_command: "/test istio-pilot-e2e"
       trigger: "(?m)^/test (istio-pilot-e2e)?,?(\\s+|$)"
       branches: *common_qual_branches
@@ -422,6 +433,7 @@ presubmits:
     - name: e2e-bookInfoTests
       agent: kubernetes
       context: prow/e2e-bookInfoTests.sh
+      optional: true
       rerun_command: "/test e2e-bookInfo"
       trigger: "(?m)^/test (e2e-bookInfo)?,?(\\s+|$)"
       branches: *common_qual_branches
@@ -462,6 +474,7 @@ presubmits:
     - name: e2e-simpleTests
       agent: kubernetes
       context: prow/e2e-simpleTests.sh
+      optional: true
       rerun_command: "/test e2e-simple"
       trigger: "(?m)^/test (e2e-simple)?,?(\\s+|$)"
       branches: *common_qual_branches
