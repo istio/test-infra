@@ -120,6 +120,7 @@ type ResourceInfo map[string]ProjectInfo
 
 type vmCreator interface {
 	create(context.Context, string, virtualMachineConfig) (*InstanceInfo, error)
+	listZones(project string) ([]string, error)
 }
 
 type clusterCreator interface {
@@ -138,6 +139,21 @@ type com struct {
 	p   string
 	ci  *InstanceInfo
 	vmi *InstanceInfo
+}
+
+type stringRing struct {
+	index  int
+	values []string
+}
+
+func (r *stringRing) next() string {
+	value := r.values[r.index]
+	r.index = (r.index + 1) % len(r.values)
+	return value
+}
+
+func newStringRing(zones []string) *stringRing {
+	return &stringRing{values: zones}
 }
 
 // Construct implements Masonable interface
@@ -172,12 +188,23 @@ func (rc resourceConfigs) Construct(res *common.Resource, types common.TypeToRes
 	for rType, pcs := range rc {
 		for _, pc := range pcs {
 			project := popProject(rType)
+
 			if project == nil {
 				err = fmt.Errorf("running out of project while creating resources")
 				logrus.WithError(err).Errorf("unable to create resources")
 				return nil, err
 			}
-			for _, cl := range pc.Clusters {
+			zones, err := gcpClient.gce.listZones(project.Name)
+			if err != nil {
+				return nil, err
+			}
+			zoneRing := newStringRing(zones)
+
+			for i := range pc.Clusters {
+				cl := pc.Clusters[i]
+				if cl.Zone == "" {
+					cl.Zone = zoneRing.next()
+				}
 				errGroup.Go(func() error {
 					clusterInfo, err := gcpClient.gke.create(derivedCtx, project.Name, cl)
 					if err != nil {
@@ -188,7 +215,11 @@ func (rc resourceConfigs) Construct(res *common.Resource, types common.TypeToRes
 					return nil
 				})
 			}
-			for _, vm := range pc.Vms {
+			for j := range pc.Vms {
+				vm := pc.Vms[j]
+				if vm.Zone == "" {
+					vm.Zone = zoneRing.next()
+				}
 				errGroup.Go(func() error {
 					vmInfo, err := gcpClient.gce.create(derivedCtx, project.Name, vm)
 					if err != nil {
