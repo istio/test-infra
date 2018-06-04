@@ -62,6 +62,14 @@ branch-protection:
             - "ci/circleci: test"
           branches:
             <<: *blocked_branches
+            collab-gcp-identity:
+              protect: true
+              required_status_checks:
+                contexts:
+                - "ci/circleci: e2e-pilot-auth-v1alpha3-v2"
+              restrictions:
+                teams:
+                - istio-hackers
             release-0.8:
               protect: true
               required_status_checks:
@@ -173,6 +181,8 @@ common_qual_branches: &common_qual_branches
 - release-0.8
 - release-0.9
 - release-1.0
+# Collaboration work
+- collab-gcp-identity
 
 common_e2e_spec: &common_e2e_spec
   containers:
