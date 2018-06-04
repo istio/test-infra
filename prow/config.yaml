@@ -996,7 +996,13 @@ periodics:
       - name: netrc
         mountPath: /etc/netrc
         readOnly: true
+      - name: oauth
+        mountPath: /etc/github
+        readOnly: true
     volumes:
+    - name: oauth
+      secret:
+        secretName: oauth-token
     - name: netrc
       secret:
         secretName: istio-testing-netrc
