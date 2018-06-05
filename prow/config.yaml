@@ -135,7 +135,7 @@ tide:
 
 presets:
 - labels:
-    preset-service-account: true
+    preset-service-account: "true"
   env:
   - name: GOOGLE_APPLICATION_CREDENTIALS
     value: /etc/service-account/service-account.json
@@ -148,7 +148,7 @@ presets:
     secret:
       secretName: service-account
 - labels:
-    preset-bazel: true
+    preset-bazel: "true"
   volumeMounts:
   - name: cache-ssd
     mountPath: /home/bootstrap/.cache
@@ -157,7 +157,7 @@ presets:
     hostPath:
       path: /mnt/disks/ssd0
 - labels:
-    preset-istio-kubeconfig: true
+    preset-istio-kubeconfig: "true"
   volumeMounts:
   - name: kubeconfig
     mountPath: /home/bootstrap/.kube
@@ -166,7 +166,7 @@ presets:
     secret:
       secretName: istio-e2e-rbac-kubeconfig
 - labels:
-    preset-daily-kubeconfig: true
+    preset-daily-kubeconfig: "true"
   volumeMounts:
   - name: kubeconfig
     mountPath: /home/bootstrap/.kube
@@ -198,7 +198,7 @@ common_e2e_spec: &common_e2e_spec
     cloud.google.com/gke-nodepool: new-cluster-pool
 
 common_e2e_labels: &common_e2e_labels
-  preset-service-account: true
+  preset-service-account: "true"
 
 presubmits:
   # PR job triggering definitions.
@@ -226,8 +226,8 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|proxy-presubmit))?,?(\\s+|$)"
     branches: *common_qual_branches
     labels:
-      preset-service-account: true
-      preset-bazel: true
+      preset-service-account: "true"
+      preset-bazel: "true"
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -259,8 +259,8 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|proxy-presubmit-asan))?,?(\\s+|$)"
     branches: *common_qual_branches
     labels:
-      preset-service-account: true
-      preset-bazel: true
+      preset-service-account: "true"
+      preset-bazel: "true"
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -292,8 +292,8 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|proxy-presubmit-tsan))?,?(\\s+|$)"
     branches: *common_qual_branches
     labels:
-      preset-service-account: true
-      preset-bazel: true
+      preset-service-account: "true"
+      preset-bazel: "true"
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -327,7 +327,7 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|api-presubmit))?,?(\\s+|$)"
     branches: *common_qual_branches
     labels:
-      preset-service-account: true
+      preset-service-account: "true"
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -352,8 +352,8 @@ presubmits:
     rerun_command: "/test istio-unit-tests"
     trigger: "(?m)^/(retest|test (all|istio-unit-tests))?,?(\\s+|$)"
     labels:
-      preset-service-account: true
-      preset-istio-kubeconfig: true
+      preset-service-account: "true"
+      preset-istio-kubeconfig: "true"
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -382,8 +382,8 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|istio-presubmit))?,?(\\s+|$)"
     branches: *common_qual_branches
     labels:
-      preset-service-account: true
-      preset-istio-kubeconfig: true
+      preset-service-account: "true"
+      preset-istio-kubeconfig: "true"
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -404,7 +404,7 @@ presubmits:
       trigger: "(?m)^/test (istio-pilot-e2e-envoyv2-v1alpha3)?,?(\\s+|$)"
       branches: *common_qual_branches
       labels:
-        preset-service-account: true
+        preset-service-account: "true"
       max_concurrency: 8
       spec:
         containers:
@@ -426,7 +426,7 @@ presubmits:
       trigger: "(?m)^/test (istio-pilot-e2e)?,?(\\s+|$)"
       branches: *common_qual_branches
       labels:
-        preset-service-account: true
+        preset-service-account: "true"
       max_concurrency: 8
       spec:
         containers:
@@ -448,7 +448,7 @@ presubmits:
       trigger: "(?m)^/test (e2e-bookInfo)?,?(\\s+|$)"
       branches: *common_qual_branches
       labels:
-        preset-service-account: true
+        preset-service-account: "true"
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -468,7 +468,7 @@ presubmits:
       trigger: "(?m)^/test (e2e-bookInfo-envoyv2-v1alpha3)?,?(\\s+|$)"
       branches: *common_qual_branches
       labels:
-        preset-service-account: true
+        preset-service-account: "true"
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -489,7 +489,7 @@ presubmits:
       trigger: "(?m)^/test (e2e-simple)?,?(\\s+|$)"
       branches: *common_qual_branches
       labels:
-        preset-service-account: true
+        preset-service-account: "true"
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -510,7 +510,7 @@ presubmits:
     trigger: "(?m)^/(test e2e-suite-rbac-no_auth)?,?(\\s+|$)"
     agent: kubernetes
     labels:
-      preset-service-account: true
+      preset-service-account: "true"
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -531,7 +531,7 @@ presubmits:
     trigger: "(?m)^/(test e2e-suite-rbac-auth)?,?(\\s+|$)"
     agent: kubernetes
     labels:
-      preset-service-account: true
+      preset-service-account: "true"
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -552,7 +552,7 @@ presubmits:
     trigger: "(?m)^/(test e2e-cluster_wide-auth)?,?(\\s+|$)"
     agent: kubernetes
     labels:
-      preset-service-account: true
+      preset-service-account: "true"
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -590,8 +590,8 @@ presubmits:
     branches:
     - master
     labels:
-      preset-service-account: true
-      preset-bazel: true
+      preset-service-account: "true"
+      preset-bazel: "true"
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -624,7 +624,7 @@ presubmits:
     rerun_command: "/test daily-perf-tests"
     trigger: "(?m)^/(retest|test (all|daily-perf-tests))?,?(\\s+|$)"
     labels:
-      preset-service-account: true
+      preset-service-account: "true"
     spec:
       <<: *common_e2e_spec
 
@@ -635,8 +635,8 @@ presubmits:
     rerun_command: "/test daily-unit-tests"
     trigger: "(?m)^/(retest|test (all|daily-unit-tests))?,?(\\s+|$)"
     labels:
-      preset-service-account: true
-      preset-istio-kubeconfig: true
+      preset-service-account: "true"
+      preset-istio-kubeconfig: "true"
     spec:
       <<: *common_e2e_spec
 
@@ -647,7 +647,7 @@ presubmits:
     rerun_command: "/test daily-pilot-e2e-envoyv2-v1alpha3"
     trigger: "(?m)^/(retest|test (all|daily-pilot-e2e-envoyv2-v1alpha3))?,?(\\s+|$)"
     labels:
-      preset-service-account: true
+      preset-service-account: "true"
     spec:
       <<: *common_e2e_spec
 
@@ -658,7 +658,7 @@ presubmits:
     rerun_command: "/test daily-e2e-rbac-no_auth"
     trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-no_auth))?,?(\\s+|$)"
     labels:
-      preset-service-account: true
+      preset-service-account: "true"
     spec:
       <<: *common_e2e_spec
 
@@ -669,7 +669,7 @@ presubmits:
     rerun_command: "/test daily-e2e-rbac-no_auth-default"
     trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-no_auth-default))?,?(\\s+|$)"
     labels:
-      preset-service-account: true
+      preset-service-account: "true"
     spec:
       <<: *common_e2e_spec
 
@@ -680,7 +680,7 @@ presubmits:
     rerun_command: "/test daily-e2e-rbac-auth"
     trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-auth))?,?(\\s+|$)"
     labels:
-      preset-service-account: true
+      preset-service-account: "true"
     spec:
       <<: *common_e2e_spec
 
@@ -691,7 +691,7 @@ presubmits:
     rerun_command: "/test daily-e2e-rbac-auth-default"
     trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-auth-default))?,?(\\s+|$)"
     labels:
-      preset-service-account: true
+      preset-service-account: "true"
     spec:
       <<: *common_e2e_spec
 
@@ -703,7 +703,7 @@ postsubmits:
     agent: kubernetes
     branches: *common_qual_branches
     labels:
-      preset-service-account: true
+      preset-service-account: "true"
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -731,8 +731,8 @@ postsubmits:
     agent: kubernetes
     branches: *common_qual_branches
     labels:
-      preset-service-account: true
-      preset-istio-kubeconfig: true
+      preset-service-account: "true"
+      preset-istio-kubeconfig: "true"
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -749,7 +749,7 @@ postsubmits:
     - name: e2e-suite-rbac-no_auth
       agent: kubernetes
       labels:
-        preset-service-account: true
+        preset-service-account: "true"
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -765,7 +765,7 @@ postsubmits:
     - name: e2e-suite-rbac-auth
       agent: kubernetes
       labels:
-        preset-service-account: true
+        preset-service-account: "true"
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -781,7 +781,7 @@ postsubmits:
     - name: e2e-suite-rbac-auth-k8s-1.10
       agent: kubernetes
       labels:
-        preset-service-account: true
+        preset-service-account: "true"
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -797,7 +797,7 @@ postsubmits:
     - name: e2e-cluster_wide-auth
       agent: kubernetes
       labels:
-        preset-service-account: true
+        preset-service-account: "true"
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -813,7 +813,7 @@ postsubmits:
     - name: istio-pilot-e2e-envoyv2-v1alpha3
       agent: kubernetes
       labels:
-        preset-service-account: true
+        preset-service-account: "true"
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -829,7 +829,7 @@ postsubmits:
     - name: istio-pilot-e2e-envoyv2-v1alpha3-k8s-1.10
       agent: kubernetes
       labels:
-        preset-service-account: true
+        preset-service-account: "true"
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -853,8 +853,8 @@ postsubmits:
     trigger: "(?m)^/(retest|test (all|proxy-postsubmit))?,?(\\s+|$)"
     branches: *common_qual_branches
     labels:
-      preset-service-account: true
-      preset-bazel: true
+      preset-service-account: "true"
+      preset-bazel: "true"
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -884,8 +884,8 @@ periodics:
   agent: kubernetes
   name: test-infra-cleanup-cluster
   labels:
-    preset-service-account: true
-    preset-istio-kubeconfig: true
+    preset-service-account: "true"
+    preset-istio-kubeconfig: "true"
   spec:
     containers:
     - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -903,8 +903,8 @@ periodics:
   agent: kubernetes
   name: test-infra-cleanup-cluster
   labels:
-    preset-service-account: true
-    preset-daily-kubeconfig: true
+    preset-service-account: "true"
+    preset-daily-kubeconfig: "true"
   spec:
     containers:
     - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -922,7 +922,7 @@ periodics:
   agent: kubernetes
   name: test-infra-cleanup-GKE
   labels:
-    preset-service-account: true
+    preset-service-account: "true"
   spec:
     containers:
     - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -940,7 +940,7 @@ periodics:
   agent: kubernetes
   name: test-infra-update-deps
   labels:
-    preset-service-account: true
+    preset-service-account: "true"
   spec:
     containers:
     - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -970,7 +970,7 @@ periodics:
   agent: kubernetes
   name: green-build
   labels:
-    preset-service-account: true
+    preset-service-account: "true"
   spec:
     containers:
     - args:
