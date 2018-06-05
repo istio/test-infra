@@ -60,12 +60,12 @@ func NewClient(owner string, url string) *Client {
 // Acquire asks boskos for a resource of certain type in certain state, and set the resource to dest state.
 // Returns the resource on success.
 func (c *Client) Acquire(rtype, state, dest string) (*common.Resource, error) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
 	r, err := c.acquire(rtype, state, dest)
 	if err != nil {
 		return nil, err
 	}
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	if r != nil {
 		c.storage.Add(*r)
 	}
@@ -76,13 +76,12 @@ func (c *Client) Acquire(rtype, state, dest string) (*common.Resource, error) {
 // AcquireByState asks boskos for a resources of certain type, and set the resource to dest state.
 // Returns a list of resources on success.
 func (c *Client) AcquireByState(state, dest string, names []string) ([]common.Resource, error) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
 	resources, err := c.acquireByState(state, dest, names)
 	if err != nil {
 		return nil, err
 	}
-
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	for _, r := range resources {
 		c.storage.Add(r)
 	}
@@ -102,8 +101,8 @@ func (c *Client) ReleaseAll(dest string) error {
 	}
 	var allErrors error
 	for _, r := range resources {
-		err := c.release(r.GetName(), dest)
 		c.storage.Delete(r.GetName())
+		err := c.release(r.GetName(), dest)
 		if err != nil {
 			allErrors = multierror.Append(allErrors, err)
 		}
@@ -119,7 +118,7 @@ func (c *Client) ReleaseOne(name, dest string) error {
 	if _, err := c.storage.Get(name); err != nil {
 		return fmt.Errorf("no resource name %v", name)
 	}
-	defer c.storage.Delete(name)
+	c.storage.Delete(name)
 	if err := c.release(name, dest); err != nil {
 		return err
 	}

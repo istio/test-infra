@@ -204,7 +204,9 @@ func (m *Mason) garbageCollect(req requirements) {
 
 	for _, resources := range req.fulfillment {
 		for _, r := range resources {
-			names = append(names, r.Name)
+			if r != nil {
+				names = append(names, r.Name)
+			}
 		}
 	}
 
@@ -227,7 +229,7 @@ func (m *Mason) cleanAll(ctx context.Context) {
 			return
 		case req := <-m.fulfilled:
 			if err := m.cleanOne(&req.resource, req.fulfillment); err != nil {
-				logrus.WithError(err).Errorf("unable to clean resource")
+				logrus.WithError(err).Errorf("unable to clean resource %s", req.resource.Name)
 				m.garbageCollect(req)
 			} else {
 				m.cleaned <- req

@@ -285,6 +285,6 @@ def go_vendor_repositories():
 
   go_repository(
     name = "io_k8s_test_infra",
-    commit = "037e4589ab3847901d8ad860b3fc6e2a5087f352",
-    importpath = "github.com/sebastienvas/k8s-test-infra",
+    commit = "3235ced4cc38141775e63ff3575567e487c9316f",
+    importpath = "k8s.io/test-infra",
   )
