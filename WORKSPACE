@@ -47,10 +47,3 @@ load(
 container_repositories()
 
 _go_image_repos()
-
-# Vendors
-#
-
-load("//:go_vendor_repositories.bzl", "go_vendor_repositories")
-
-go_vendor_repositories()
