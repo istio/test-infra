@@ -138,7 +138,14 @@ func (c *Converter) UpdateLastBuildTXT() error {
 	if err = m.ContextLock(ctx); err != nil {
 		// force resetting lock state on timeout
 		m.Unlock()
-		return err
+		// try acquire the lock again
+		ctxRetry, cancelRetry := context.WithTimeout(context.Background(), defaultTimeout)
+		defer cancelRetry()
+		ctx = ctxRetry // so unlock use the same context
+		if err = m.ContextLock(ctx); err != nil {
+			// give up
+			return err
+		}
 	}
 	defer func() {
 		if err = m.ContextUnlock(ctx); err != nil {

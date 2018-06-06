@@ -22,7 +22,6 @@ import (
 	"sync"
 	"time"
 
-	"google.golang.org/api/iterator"
 	s "istio.io/test-infra/sisyphus"
 	u "istio.io/test-infra/toolbox/util"
 )

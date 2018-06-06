@@ -55,6 +55,10 @@ func (gcs *gcsMock) Write(obj, txt string) error {
 	return nil
 }
 
+func (gcs *gcsMock) Exists(obj string) (bool, error) {
+	return false, nil
+}
+
 func newProwAccessorWithGCSMock() *ProwAccessor {
 	return &ProwAccessor{
 		gcsClient: &gcsMock{},

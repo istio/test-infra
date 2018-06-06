@@ -61,7 +61,7 @@ func (gcs *GCSClient) Exists(obj string) (bool, error) {
 	if err == iterator.Done {
 		return false, nil
 	} else if err != nil {
-		log.Printf("Failed to get a iterator on %s from %s/%s from gcs, %v\n", obj, gcs.bucket, err)
+		log.Printf("Failed to get a iterator on %s/%s from gcs, %v\n", gcs.bucket, obj, err)
 		return false, err
 	}
 	return true, nil
