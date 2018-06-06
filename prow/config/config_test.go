@@ -23,7 +23,7 @@ import (
 )
 
 func TestConfig(t *testing.T) {
-	if _, err := config.Load("../config.yaml"); err != nil {
+	if _, err := config.Load("../config.yaml", ""); err != nil {
 		t.Fatalf("could not read configs: %v", err)
 	}
 	// TODO: Add branch protection validation once its in
