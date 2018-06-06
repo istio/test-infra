@@ -21,10 +21,12 @@ import (
 	"log"
 
 	"cloud.google.com/go/storage"
+	"google.golang.org/api/iterator"
 )
 
 // IGCSClient defines public functions of GCSClient
 type IGCSClient interface {
+	Exists(obj string) (bool, error)
 	Read(obj string) (string, error)
 	Write(obj, txt string) error
 }
@@ -46,6 +48,23 @@ func NewGCSClient(bucket string) *GCSClient {
 		client: gcsClient.Bucket(bucket),
 		bucket: bucket,
 	}
+}
+
+// Exists finds if an object already exists on GCS bucket
+func (gcs *GCSClient) Exists(obj string) (bool, error) {
+	ctx := context.Background()
+	query := &storage.Query{
+		Prefix: obj,
+	}
+	iter := gcs.client.Objects(ctx, query)
+	_, err := iter.Next()
+	if err == iterator.Done {
+		return false, nil
+	} else if err != nil {
+		log.Printf("Failed to get a iterator on %s from %s/%s from gcs, %v\n", obj, gcs.bucket, err)
+		return false, err
+	}
+	return true, nil
 }
 
 // Read gets a file and return a string

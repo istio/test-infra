@@ -145,7 +145,19 @@ func (c *Converter) UpdateLastBuildTXT() error {
 			log.Fatalf("Unlock %s has timed out: %v", lastBuildTXT, err)
 		}
 	}()
+
 	gcsPath := filepath.Join(filepath.Dir(c.gcsPathPrefix), lastBuildTXT)
+	update := func() error {
+		log.Printf("Updating gs://%s to be %d", gcsPath, c.build)
+		return c.gcsClient.Write(gcsPath, fmt.Sprintf("%d", c.build))
+	}
+	exists, err := c.gcsClient.Exists(gcsPath)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return update()
+	}
 	val, err := c.gcsClient.Read(gcsPath)
 	if err != nil {
 		return err
@@ -156,8 +168,7 @@ func (c *Converter) UpdateLastBuildTXT() error {
 		return err
 	}
 	if c.build > latestBuildInt {
-		log.Printf("Updating gs://%s to be %d", gcsPath, c.build)
-		return c.gcsClient.Write(gcsPath, fmt.Sprintf("%d", c.build))
+		return update()
 	}
 	log.Printf("No updates on %s needed", gcsPath)
 	return nil
