@@ -42,7 +42,7 @@ const (
 )
 
 var (
-	defaultTimeout = 30 * time.Minute
+	defaultTimeout = 5 * time.Minute
 )
 
 // Converter defines how to convert generic CI results to artifacts that gubernator understands
@@ -136,6 +136,8 @@ func (c *Converter) UpdateLastBuildTXT() error {
 		return err
 	}
 	if err = m.ContextLock(ctx); err != nil {
+		// force resetting lock state on timeout
+		m.Unlock()
 		return err
 	}
 	defer func() {
