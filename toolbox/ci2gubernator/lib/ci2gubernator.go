@@ -127,23 +127,25 @@ func (c *Converter) UpdateLastBuildTXT() error {
 		log.Printf("Updating gs://%s to be %d", gcsPath, c.build)
 		return c.gcsClient.Write(gcsPath, fmt.Sprintf("%d", c.build))
 	}
+	needsUpdate := func() bool {
+		val, err := c.gcsClient.Read(gcsPath)
+		if err != nil {
+			log.Printf("Error while reading gs://%s: %v ", gcsPath, err)
+			return false
+		}
+		log.Printf("Current value of gs://%s is %s", gcsPath, val)
+		latestBuildInt, err := strconv.Atoi(val)
+		if err != nil {
+			log.Printf("Error while parsing %s to int: %v ", val, err)
+			return false
+		}
+		return c.build > latestBuildInt
+	}
 	exists, err := c.gcsClient.Exists(gcsPath)
 	if err != nil {
 		return err
 	}
-	if !exists {
-		return update()
-	}
-	val, err := c.gcsClient.Read(gcsPath)
-	if err != nil {
-		return err
-	}
-	log.Printf("Current value of gs://%s is %s", gcsPath, val)
-	latestBuildInt, err := strconv.Atoi(val)
-	if err != nil {
-		return err
-	}
-	if c.build > latestBuildInt {
+	if !exists || (exists && needsUpdate()) {
 		return update()
 	}
 	log.Printf("No updates on %s needed", gcsPath)
