@@ -15,15 +15,12 @@
 package lib
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"path/filepath"
 	"strconv"
 	"time"
-
-	"github.com/marcacohen/gcslock"
 
 	s "istio.io/test-infra/sisyphus"
 	u "istio.io/test-infra/toolbox/util"
@@ -129,30 +126,6 @@ func (c *Converter) UploadBuildLog(logFile string) error {
 
 // UpdateLastBuildTXT updates latest-build.txt to GCS
 func (c *Converter) UpdateLastBuildTXT() error {
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
-	defer cancel()
-	m, err := gcslock.New(ctx, c.bucket, lastBuildTXT)
-	if err != nil {
-		return err
-	}
-	if err = m.ContextLock(ctx); err != nil {
-		// force resetting lock state on timeout
-		m.Unlock()
-		// try acquire the lock again
-		ctxRetry, cancelRetry := context.WithTimeout(context.Background(), defaultTimeout)
-		defer cancelRetry()
-		ctx = ctxRetry // so unlock use the same context
-		if err = m.ContextLock(ctx); err != nil {
-			// give up
-			return err
-		}
-	}
-	defer func() {
-		if err = m.ContextUnlock(ctx); err != nil {
-			log.Fatalf("Unlock %s has timed out: %v", lastBuildTXT, err)
-		}
-	}()
-
 	gcsPath := filepath.Join(filepath.Dir(c.gcsPathPrefix), lastBuildTXT)
 	update := func() error {
 		log.Printf("Updating gs://%s to be %d", gcsPath, c.build)
