@@ -15,15 +15,12 @@
 package lib
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"path/filepath"
 	"strconv"
 	"time"
-
-	"github.com/marcacohen/gcslock"
 
 	s "istio.io/test-infra/sisyphus"
 	u "istio.io/test-infra/toolbox/util"
@@ -39,10 +36,6 @@ const (
 	unknown       = "unknown"
 	resultSuccess = "SUCCESS"
 	resultFailure = "FAILURE"
-)
-
-var (
-	defaultTimeout = 5 * time.Minute
 )
 
 // Converter defines how to convert generic CI results to artifacts that gubernator understands
@@ -129,33 +122,31 @@ func (c *Converter) UploadBuildLog(logFile string) error {
 
 // UpdateLastBuildTXT updates latest-build.txt to GCS
 func (c *Converter) UpdateLastBuildTXT() error {
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
-	defer cancel()
-	m, err := gcslock.New(ctx, c.bucket, lastBuildTXT)
-	if err != nil {
-		return err
-	}
-	if err = m.ContextLock(ctx); err != nil {
-		return err
-	}
-	defer func() {
-		if err = m.ContextUnlock(ctx); err != nil {
-			log.Fatalf("Unlock %s has timed out: %v", lastBuildTXT, err)
-		}
-	}()
 	gcsPath := filepath.Join(filepath.Dir(c.gcsPathPrefix), lastBuildTXT)
-	val, err := c.gcsClient.Read(gcsPath)
-	if err != nil {
-		return err
-	}
-	log.Printf("Current value of gs://%s is %s", gcsPath, val)
-	latestBuildInt, err := strconv.Atoi(val)
-	if err != nil {
-		return err
-	}
-	if c.build > latestBuildInt {
+	update := func() error {
 		log.Printf("Updating gs://%s to be %d", gcsPath, c.build)
 		return c.gcsClient.Write(gcsPath, fmt.Sprintf("%d", c.build))
+	}
+	needsUpdate := func() bool {
+		val, err := c.gcsClient.Read(gcsPath)
+		if err != nil {
+			log.Printf("Error while reading gs://%s: %v ", gcsPath, err)
+			return false
+		}
+		log.Printf("Current value of gs://%s is %s", gcsPath, val)
+		latestBuildInt, err := strconv.Atoi(val)
+		if err != nil {
+			log.Printf("Error while parsing %s to int: %v ", val, err)
+			return false
+		}
+		return c.build > latestBuildInt
+	}
+	exists, err := c.gcsClient.Exists(gcsPath)
+	if err != nil {
+		return err
+	}
+	if !exists || (exists && needsUpdate()) {
+		return update()
 	}
 	log.Printf("No updates on %s needed", gcsPath)
 	return nil

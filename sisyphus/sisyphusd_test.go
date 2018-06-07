@@ -168,6 +168,10 @@ func (f fakeClient) Write(obj, txt string) error {
 	return nil
 }
 
+func (f fakeClient) Exists(obj string) (bool, error) {
+	return false, nil
+}
+
 func TestDaemonConfig(t *testing.T) {
 	catchFlakesByRun := true
 	cfg := &Config{
