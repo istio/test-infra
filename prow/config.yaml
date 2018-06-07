@@ -423,7 +423,8 @@ presubmits:
     - name: istio-pilot-e2e
       agent: kubernetes
       context: prow/istio-pilot-e2e.sh
-      optional: true
+      skip_branches:
+      - master
       rerun_command: "/test istio-pilot-e2e"
       trigger: "(?m)^/test (istio-pilot-e2e)?,?(\\s+|$)"
       branches: *common_qual_branches
@@ -445,7 +446,8 @@ presubmits:
     - name: e2e-bookInfoTests
       agent: kubernetes
       context: prow/e2e-bookInfoTests.sh
-      optional: true
+      skip_branches:
+      - master
       rerun_command: "/test e2e-bookInfo"
       trigger: "(?m)^/test (e2e-bookInfo)?,?(\\s+|$)"
       branches: *common_qual_branches
@@ -486,7 +488,6 @@ presubmits:
     - name: e2e-simpleTests
       agent: kubernetes
       context: prow/e2e-simpleTests.sh
-      optional: true
       rerun_command: "/test e2e-simple"
       trigger: "(?m)^/test (e2e-simple)?,?(\\s+|$)"
       branches: *common_qual_branches
