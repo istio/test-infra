@@ -22,6 +22,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/golang/glog"
+
 	s "istio.io/test-infra/sisyphus"
 	u "istio.io/test-infra/toolbox/util"
 )
@@ -74,7 +76,7 @@ func fastForward(repo, baseBranch, refSHA *string) error {
 		return err
 	}
 	if !isAncestor {
-		log.Printf("SHA %s is not an ancestor of branch %s, resorts to no-op\n", *refSHA, masterBranch)
+		glog.Infof("SHA %s is not an ancestor of branch %s, resorts to no-op\n", *refSHA, masterBranch)
 		return nil
 	}
 	return githubClnt.FastForward(*repo, *baseBranch, *refSHA)
@@ -88,7 +90,7 @@ type task struct {
 // preprocessProwResults downloads the most recent prow results up to maxRunDepth
 // then returns a two-level map job -> sha -> passed (true) or failed (false)
 func preprocessProwResults() map[string]map[string]bool {
-	log.Printf("Start preprocessing prow results")
+	glog.Infof("Start preprocessing prow results")
 	prowAccessor := s.NewProwAccessor(
 		prowProject,
 		prowZone,
@@ -110,7 +112,7 @@ func preprocessProwResults() map[string]map[string]bool {
 				}
 				result, err := prowAccessor.GetResult(t.job, t.runNumber)
 				if err != nil {
-					log.Printf("failed to get result of %s at run number %d. Skip.", t.job, t.runNumber)
+					glog.V(1).Infof("failed to get result of %s at run number %d. Skip.", t.job, t.runNumber)
 					continue
 				}
 				mutex.Lock()
@@ -123,7 +125,7 @@ func preprocessProwResults() map[string]map[string]bool {
 		cache[job] = make(map[string]bool)
 		runNumber, err := prowAccessor.GetLatestRun(job)
 		if err != nil {
-			log.Fatalf("failed to get latest run number of %s: %v", job, err)
+			glog.Fatalf("failed to get latest run number of %s: %v", job, err)
 		}
 		// download the most recent prow results up to maxRunDepth
 		for i := 0; i < *maxRunDepth; i++ {
@@ -147,25 +149,25 @@ func getLatestGreenSHA() (string, error) {
 		log.Fatalf("failed to get the head commit sha of %s/%s: %v", *repo, *baseBranch, err)
 	}
 	for i := 0; i < *maxCommitDepth; i++ {
-		log.Printf("Checking if [%s] passed all checks. %d commits before HEAD", sha, i)
+		glog.V(1).Infof("Checking if [%s] passed all checks. %d commits before HEAD", sha, i)
 		allChecksPassed := true
 		for _, job := range postSubmitJobs {
 			passed, keyExists := results[job][sha]
 			if !keyExists {
-				log.Printf("Results unknown in local cache for [%s] at [%s], treat the test as failed", job, sha)
+				glog.V(1).Infof("Results unknown in local cache for [%s] at [%s], treat the test as failed", job, sha)
 			}
 			if !passed {
-				log.Printf("[%s] failed on [%s]", sha, job)
+				glog.V(1).Infof("[%s] failed on [%s]", sha, job)
 				allChecksPassed = false
 			}
 		}
 		if allChecksPassed {
-			log.Printf("Found latest green sha [%s]", sha)
+			glog.Infof("Found latest green sha [%s] for %s/%s", sha, *repo, *baseBranch)
 			return sha, nil
 		}
 		parentSHA, err := githubClnt.GetParentSHA(*repo, *baseBranch, sha)
 		if err != nil {
-			log.Fatalf("failed to find the parent sha of %s in %s/%s", sha, *repo, *baseBranch)
+			glog.Fatalf("failed to find the parent sha of %s in %s/%s", sha, *repo, *baseBranch)
 		}
 		sha = parentSHA
 	}
@@ -188,7 +190,7 @@ func DailyReleaseQualification(baseBranch *string) error {
 	} else {
 		dstBranch = masterBranch
 	}
-	log.Printf("Creating PR to trigger release qualifications on %s branch\n", dstBranch)
+	glog.Infof("Creating PR to trigger release qualifications on %s branch\n", dstBranch)
 	prTitle := fmt.Sprintf("%s - %s", relQualificationPRTtilePrefix, *tag)
 	prBody := "This is a generated PR that triggers release qualification tests, and will be automatically merged " +
 		"if all tests pass. In case some test fails, you can manually rerun the failing tests using /test. Force " +
@@ -216,9 +218,9 @@ func DailyReleaseQualification(baseBranch *string) error {
 		return err
 	}
 	defer func() {
-		log.Printf("Close the PR and delete its branch\n")
+		glog.Infof("Close the PR and delete its branch\n")
 		if e := ghClntRel.ClosePRDeleteBranch(dailyRepo, pr); e != nil {
-			log.Printf("Error in ClosePRDeleteBranch: %v\n", e)
+			glog.Infof("Error in ClosePRDeleteBranch: %v\n", e)
 		}
 	}()
 
@@ -227,7 +229,7 @@ func DailyReleaseQualification(baseBranch *string) error {
 	retryDelay := 5 * time.Minute
 	maxWait := 20 * time.Hour
 	totalRetries := int(maxWait / retryDelay)
-	log.Printf("Waiting for all jobs starting. Results Polling starts in %v.\n", retryDelay)
+	glog.Infof("Waiting for all jobs starting. Results Polling starts in %v.\n", retryDelay)
 	time.Sleep(retryDelay)
 
 	err = u.Poll(retryDelay, totalRetries, func() (bool, error) {
@@ -237,7 +239,7 @@ func DailyReleaseQualification(baseBranch *string) error {
 		}
 		if *pr.Merged {
 			// PR is apparently closed manually. Exit the loop.
-			log.Printf("pr was manually merged.\n")
+			glog.Infof("pr was manually merged.\n")
 			return true, nil
 		}
 		if *pr.State == "closed" {
@@ -254,12 +256,12 @@ func DailyReleaseQualification(baseBranch *string) error {
 		switch status {
 		case ci.Success:
 			exitPolling = true
-			log.Printf("Auto merging this PR to update daily release\n")
+			glog.Infof("Auto merging this PR to update daily release\n")
 			errPoll = ghClntRel.MergePR(dailyRepo, pr)
 			*pr.Merged = true
 
 		case ci.Pending:
-			log.Printf("Results still pending. Will check again in %v.\n", retryDelay)
+			glog.Infof("Results still pending. Will check again in %v.\n", retryDelay)
 		case ci.Error:
 		case ci.Failure:
 			// Go back to sleep until timeout, so that release engineer can potentially suppress test failure or retest
@@ -284,7 +286,7 @@ func init() {
 	u.AssertNotEmpty("token_file", tokenFile)
 	token, err := u.GetAPITokenFromFile(*tokenFile)
 	if err != nil {
-		log.Fatalf("Error accessing user supplied token_file: %v\n", err)
+		glog.Fatalf("Error accessing user supplied token_file: %v\n", err)
 	}
 	githubClnt = u.NewGithubClient(*owner, token)
 	// a new github client is created for istio-releases org
@@ -295,21 +297,21 @@ func main() {
 	switch *op {
 	case "fastForward":
 		if err := fastForward(repo, baseBranch, refSHA); err != nil {
-			log.Printf("Error during fastForward: %v\n", err)
+			glog.Infof("Error during fastForward: %v\n", err)
 		}
 	case "dailyRelQual":
 		if err := DailyReleaseQualification(baseBranch); err != nil {
-			log.Printf("Error during DailyReleaseQualification: %v\n", err)
+			glog.Infof("Error during DailyReleaseQualification: %v\n", err)
 			os.Exit(1)
 		}
 	case "getLatestGreenSHA":
 		latestGreenSHA, err := getLatestGreenSHA()
 		if err != nil {
-			log.Printf("Error during getLatestGreenSHA: %v\n", err)
+			glog.Infof("Error during getLatestGreenSHA: %v\n", err)
 			os.Exit(1)
 		}
 		fmt.Printf("%s", latestGreenSHA)
 	default:
-		log.Printf("Unsupported operation: %s\n", *op)
+		glog.Infof("Unsupported operation: %s\n", *op)
 	}
 }

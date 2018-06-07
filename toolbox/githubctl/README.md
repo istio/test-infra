@@ -47,3 +47,5 @@ export GREEN_SHA=$(githubctl --token_file=<github token file> \
 Logs are output to stderr and only the latest green sha is directed to stdout.
 
 When using `githubctl` for this purpose, additional configuration such as `--max_commit_depth`, `--max_run_depth`, and `--maxConcurrentRequests` is available for customization.
+
+To see more verbose logging information, use `-v=1` as githubctl uses V-style logging.
