@@ -1,0 +1,15 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["shrug.go"],
+    importmap = "com_github_istio_test_infra/vendor/k8s.io/test-infra/prow/plugins/shrug",
+    importpath = "k8s.io/test-infra/prow/plugins/shrug",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/sirupsen/logrus:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/github:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/pluginhelp:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/plugins:go_default_library",
+    ],
+)
