@@ -38,10 +38,6 @@ const (
 	resultFailure = "FAILURE"
 )
 
-var (
-	defaultTimeout = 5 * time.Minute
-)
-
 // Converter defines how to convert generic CI results to artifacts that gubernator understands
 type Converter struct {
 	gcsClient     u.IGCSClient
