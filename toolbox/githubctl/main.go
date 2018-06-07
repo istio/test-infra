@@ -22,6 +22,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/golang/glog"
+
 	s "istio.io/test-infra/sisyphus"
 	u "istio.io/test-infra/toolbox/util"
 )
@@ -110,7 +112,7 @@ func preprocessProwResults() map[string]map[string]bool {
 				}
 				result, err := prowAccessor.GetResult(t.job, t.runNumber)
 				if err != nil {
-					log.Printf("failed to get result of %s at run number %d. Skip.", t.job, t.runNumber)
+					glog.V(1).Infof("failed to get result of %s at run number %d. Skip.", t.job, t.runNumber)
 					continue
 				}
 				mutex.Lock()
@@ -147,20 +149,20 @@ func getLatestGreenSHA() (string, error) {
 		log.Fatalf("failed to get the head commit sha of %s/%s: %v", *repo, *baseBranch, err)
 	}
 	for i := 0; i < *maxCommitDepth; i++ {
-		log.Printf("Checking if [%s] passed all checks. %d commits before HEAD", sha, i)
+		glog.V(1).Infof("Checking if [%s] passed all checks. %d commits before HEAD", sha, i)
 		allChecksPassed := true
 		for _, job := range postSubmitJobs {
 			passed, keyExists := results[job][sha]
 			if !keyExists {
-				log.Printf("Results unknown in local cache for [%s] at [%s], treat the test as failed", job, sha)
+				glog.V(1).Infof("Results unknown in local cache for [%s] at [%s], treat the test as failed", job, sha)
 			}
 			if !passed {
-				log.Printf("[%s] failed on [%s]", sha, job)
+				glog.V(1).Infof("[%s] failed on [%s]", sha, job)
 				allChecksPassed = false
 			}
 		}
 		if allChecksPassed {
-			log.Printf("Found latest green sha [%s]", sha)
+			log.Printf("Found latest green sha [%s] for %s/%s", sha, *repo, *baseBranch)
 			return sha, nil
 		}
 		parentSHA, err := githubClnt.GetParentSHA(*repo, *baseBranch, sha)
