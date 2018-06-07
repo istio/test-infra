@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: boskos-metrics
+  namespace: boskos
+spec:
+  selector:
+    app: boskos-metrics
+  ports:
+  - name: default
+    protocol: TCP
+    port: 80
+    targetPort: 8080
+  type: LoadBalancer
+  loadBalancerIP: 35.233.210.91
