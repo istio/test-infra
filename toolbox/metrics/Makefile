@@ -10,6 +10,7 @@ image:
 deploy:
 	kubectl apply -f cmd/deployment.yaml
 	kubectl apply -f cmd/service.yaml
+
 config:
 
 ifndef SERVICE-ACCOUNT-JSON
