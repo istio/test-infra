@@ -17,7 +17,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"sync"
 	"time"
@@ -146,10 +145,10 @@ func getLatestGreenSHA() (string, error) {
 	results := preprocessProwResults()
 	sha, err := githubClnt.GetHeadCommitSHA(*repo, *baseBranch)
 	if err != nil {
-		log.Fatalf("failed to get the head commit sha of %s/%s: %v", *repo, *baseBranch, err)
+		glog.Fatalf("failed to get the head commit sha of %s/%s: %v", *repo, *baseBranch, err)
 	}
 	for i := 0; i < *maxCommitDepth; i++ {
-		glog.V(1).Infof("Checking if [%s] passed all checks. %d commits before HEAD", sha, i)
+		glog.Infof("Checking if [%s] passed all checks. %d commits before HEAD", sha, i)
 		allChecksPassed := true
 		for _, job := range postSubmitJobs {
 			passed, keyExists := results[job][sha]
@@ -157,7 +156,7 @@ func getLatestGreenSHA() (string, error) {
 				glog.V(1).Infof("Results unknown in local cache for [%s] at [%s], treat the test as failed", job, sha)
 			}
 			if !passed {
-				glog.V(1).Infof("[%s] failed on [%s]", sha, job)
+				glog.Infof("[%s] failed on [%s]", sha, job)
 				allChecksPassed = false
 			}
 		}
@@ -282,7 +281,6 @@ func DailyReleaseQualification(baseBranch *string) error {
 
 func init() {
 	flag.Parse()
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	u.AssertNotEmpty("token_file", tokenFile)
 	token, err := u.GetAPITokenFromFile(*tokenFile)
 	if err != nil {

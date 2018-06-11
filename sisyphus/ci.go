@@ -23,6 +23,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang/glog"
+
 	u "istio.io/test-infra/toolbox/util"
 )
 
@@ -139,7 +141,7 @@ func (p *ProwAccessor) GetLatestRun(jobName string) (int, error) {
 	}
 	latestBuildInt, err := strconv.Atoi(latestBuildString)
 	if err != nil {
-		log.Printf("Failed to convert %s to int: %v\n", latestBuildString, err)
+		glog.V(1).Infof("Failed to convert %s to int: %v\n", latestBuildString, err)
 		return 0, err
 	}
 	return latestBuildInt, nil
@@ -154,12 +156,12 @@ func (p *ProwAccessor) GetResult(jobName string, runNo int) (*Result, error) {
 	jobFinishedFile := filepath.Join(gcsPath, finishedJSON)
 	prowResultString, err := p.gcsClient.Read(jobFinishedFile)
 	if err != nil {
-		log.Printf("Cannot access %s on GCS: %v", jobFinishedFile, err)
+		glog.V(1).Infof("Cannot access %s on GCS: %v", jobFinishedFile, err)
 		return nil, err
 	}
 	prowResult := ProwResult{}
 	if err = json.Unmarshal([]byte(prowResultString), &prowResult); err != nil {
-		log.Printf("Failed to unmarshal ProwResult %s: %v", prowResultString, err)
+		glog.V(1).Infof("Failed to unmarshal ProwResult %s: %v", prowResultString, err)
 		return nil, err
 	}
 	cfg, err := p.getProwJobConfig(jobName, runNo)
@@ -224,7 +226,7 @@ func (p *ProwAccessor) getProwJobConfig(jobName string, runNo int) (*ProwJobConf
 	}
 	cfg := ProwJobConfig{}
 	if err = json.Unmarshal([]byte(StartedFileString), &cfg); err != nil {
-		log.Printf("Failed to unmarshal ProwJobConfig %s: %v\n", StartedFileString, err)
+		glog.Infof("Failed to unmarshal ProwJobConfig %s: %v\n", StartedFileString, err)
 		return nil, err
 	}
 	return &cfg, nil
@@ -237,7 +239,7 @@ func (p *ProwAccessor) triggerRerun(jobName, node string) error {
 	if err := u.Retry(recess, maxRetry, func() error {
 		return p.rerunCmd(node)
 	}); err != nil {
-		log.Printf("Unable to trigger rerun of job %v", jobName)
+		glog.Infof("Unable to trigger rerun of job %v", jobName)
 	}
 	return nil
 }
