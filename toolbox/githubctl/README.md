@@ -41,7 +41,8 @@ A green SHA is a commit sha that has passed all post submit checks. `githubctl` 
 export GREEN_SHA=$(githubctl --token_file=<github token file> \
 	--op=getLatestGreenSHA \
 	--repo=istio \
-	--base_branch=master)
+	--base_branch=master \
+	--logtostderr)
 ```
 
 Logs are output to stderr and only the latest green sha is directed to stdout.
