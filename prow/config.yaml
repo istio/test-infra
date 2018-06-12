@@ -406,7 +406,7 @@ presubmits:
       - master
       labels:
         preset-service-account: "true"
-      max_concurrency: 8
+      max_concurrency: 5
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -429,7 +429,7 @@ presubmits:
       trigger: "(?m)^/test (istio-pilot-e2e)?,?(\\s+|$)"
       labels:
         preset-service-account: "true"
-      max_concurrency: 8
+      max_concurrency: 5
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -452,6 +452,7 @@ presubmits:
       trigger: "(?m)^/test (e2e-bookInfo)?,?(\\s+|$)"
       labels:
         preset-service-account: "true"
+      max_concurrency: 5
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -475,6 +476,7 @@ presubmits:
       - master
       labels:
         preset-service-account: "true"
+      max_concurrency: 5
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.9
@@ -496,6 +498,7 @@ presubmits:
       branches: *common_qual_branches
       labels:
         preset-service-account: "true"
+      max_concurrency: 5
       spec:
         containers:
         - image: gcr.io/istio-testing/prowbazel:0.4.9
