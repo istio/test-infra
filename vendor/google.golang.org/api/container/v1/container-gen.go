@@ -1,4 +1,4 @@
-// Package container provides access to the Google Container Engine API.
+// Package container provides access to the Google Kubernetes Engine API.
 //
 // See https://cloud.google.com/container-engine/
 //
@@ -163,8 +163,8 @@ type AcceleratorConfig struct {
 }
 
 func (s *AcceleratorConfig) MarshalJSON() ([]byte, error) {
-	type noMethod AcceleratorConfig
-	raw := noMethod(*s)
+	type NoMethod AcceleratorConfig
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -215,8 +215,8 @@ type AddonsConfig struct {
 }
 
 func (s *AddonsConfig) MarshalJSON() ([]byte, error) {
-	type noMethod AddonsConfig
-	raw := noMethod(*s)
+	type NoMethod AddonsConfig
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -256,8 +256,8 @@ type AutoUpgradeOptions struct {
 }
 
 func (s *AutoUpgradeOptions) MarshalJSON() ([]byte, error) {
-	type noMethod AutoUpgradeOptions
-	raw := noMethod(*s)
+	type NoMethod AutoUpgradeOptions
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -293,8 +293,8 @@ type CidrBlock struct {
 }
 
 func (s *CidrBlock) MarshalJSON() ([]byte, error) {
-	type noMethod CidrBlock
-	raw := noMethod(*s)
+	type NoMethod CidrBlock
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -324,12 +324,12 @@ type ClientCertificateConfig struct {
 }
 
 func (s *ClientCertificateConfig) MarshalJSON() ([]byte, error) {
-	type noMethod ClientCertificateConfig
-	raw := noMethod(*s)
+	type NoMethod ClientCertificateConfig
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Cluster: A Google Container Engine cluster.
+// Cluster: A Google Kubernetes Engine cluster.
 type Cluster struct {
 	// AddonsConfig: Configurations for the various addons available to run
 	// in the cluster.
@@ -421,10 +421,7 @@ type Cluster struct {
 	// time.
 	InitialNodeCount int64 `json:"initialNodeCount,omitempty"`
 
-	// InstanceGroupUrls: [Output only] The resource URLs of
-	// [instance
-	// groups](/compute/docs/instance-groups/) associated with this
-	// cluster.
+	// InstanceGroupUrls: Deprecated. Use node_pools.instance_group_urls.
 	InstanceGroupUrls []string `json:"instanceGroupUrls,omitempty"`
 
 	// IpAllocationPolicy: Configuration for cluster IP allocation.
@@ -604,8 +601,8 @@ type Cluster struct {
 }
 
 func (s *Cluster) MarshalJSON() ([]byte, error) {
-	type noMethod Cluster
-	raw := noMethod(*s)
+	type NoMethod Cluster
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -698,8 +695,8 @@ type ClusterUpdate struct {
 }
 
 func (s *ClusterUpdate) MarshalJSON() ([]byte, error) {
-	type noMethod ClusterUpdate
-	raw := noMethod(*s)
+	type NoMethod ClusterUpdate
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -734,8 +731,8 @@ type CreateClusterRequest struct {
 }
 
 func (s *CreateClusterRequest) MarshalJSON() ([]byte, error) {
-	type noMethod CreateClusterRequest
-	raw := noMethod(*s)
+	type NoMethod CreateClusterRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -763,8 +760,8 @@ type CreateNodePoolRequest struct {
 }
 
 func (s *CreateNodePoolRequest) MarshalJSON() ([]byte, error) {
-	type noMethod CreateNodePoolRequest
-	raw := noMethod(*s)
+	type NoMethod CreateNodePoolRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -804,8 +801,8 @@ type DailyMaintenanceWindow struct {
 }
 
 func (s *DailyMaintenanceWindow) MarshalJSON() ([]byte, error) {
-	type noMethod DailyMaintenanceWindow
-	raw := noMethod(*s)
+	type NoMethod DailyMaintenanceWindow
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -858,8 +855,8 @@ type HorizontalPodAutoscaling struct {
 }
 
 func (s *HorizontalPodAutoscaling) MarshalJSON() ([]byte, error) {
-	type noMethod HorizontalPodAutoscaling
-	raw := noMethod(*s)
+	type NoMethod HorizontalPodAutoscaling
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -893,8 +890,8 @@ type HttpLoadBalancing struct {
 }
 
 func (s *HttpLoadBalancing) MarshalJSON() ([]byte, error) {
-	type noMethod HttpLoadBalancing
-	raw := noMethod(*s)
+	type NoMethod HttpLoadBalancing
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1038,8 +1035,8 @@ type IPAllocationPolicy struct {
 }
 
 func (s *IPAllocationPolicy) MarshalJSON() ([]byte, error) {
-	type noMethod IPAllocationPolicy
-	raw := noMethod(*s)
+	type NoMethod IPAllocationPolicy
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1067,8 +1064,8 @@ type KubernetesDashboard struct {
 }
 
 func (s *KubernetesDashboard) MarshalJSON() ([]byte, error) {
-	type noMethod KubernetesDashboard
-	raw := noMethod(*s)
+	type NoMethod KubernetesDashboard
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1103,8 +1100,8 @@ type LegacyAbac struct {
 }
 
 func (s *LegacyAbac) MarshalJSON() ([]byte, error) {
-	type noMethod LegacyAbac
-	raw := noMethod(*s)
+	type NoMethod LegacyAbac
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1143,8 +1140,8 @@ type ListClustersResponse struct {
 }
 
 func (s *ListClustersResponse) MarshalJSON() ([]byte, error) {
-	type noMethod ListClustersResponse
-	raw := noMethod(*s)
+	type NoMethod ListClustersResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1176,8 +1173,8 @@ type ListNodePoolsResponse struct {
 }
 
 func (s *ListNodePoolsResponse) MarshalJSON() ([]byte, error) {
-	type noMethod ListNodePoolsResponse
-	raw := noMethod(*s)
+	type NoMethod ListNodePoolsResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1215,8 +1212,8 @@ type ListOperationsResponse struct {
 }
 
 func (s *ListOperationsResponse) MarshalJSON() ([]byte, error) {
-	type noMethod ListOperationsResponse
-	raw := noMethod(*s)
+	type NoMethod ListOperationsResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1245,8 +1242,8 @@ type MaintenancePolicy struct {
 }
 
 func (s *MaintenancePolicy) MarshalJSON() ([]byte, error) {
-	type noMethod MaintenancePolicy
-	raw := noMethod(*s)
+	type NoMethod MaintenancePolicy
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1277,8 +1274,8 @@ type MaintenanceWindow struct {
 }
 
 func (s *MaintenanceWindow) MarshalJSON() ([]byte, error) {
-	type noMethod MaintenanceWindow
-	raw := noMethod(*s)
+	type NoMethod MaintenanceWindow
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1343,8 +1340,8 @@ type MasterAuth struct {
 }
 
 func (s *MasterAuth) MarshalJSON() ([]byte, error) {
-	type noMethod MasterAuth
-	raw := noMethod(*s)
+	type NoMethod MasterAuth
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1384,8 +1381,8 @@ type MasterAuthorizedNetworksConfig struct {
 }
 
 func (s *MasterAuthorizedNetworksConfig) MarshalJSON() ([]byte, error) {
-	type noMethod MasterAuthorizedNetworksConfig
-	raw := noMethod(*s)
+	type NoMethod MasterAuthorizedNetworksConfig
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1422,8 +1419,8 @@ type NetworkPolicy struct {
 }
 
 func (s *NetworkPolicy) MarshalJSON() ([]byte, error) {
-	type noMethod NetworkPolicy
-	raw := noMethod(*s)
+	type NoMethod NetworkPolicy
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1454,8 +1451,8 @@ type NetworkPolicyConfig struct {
 }
 
 func (s *NetworkPolicyConfig) MarshalJSON() ([]byte, error) {
-	type noMethod NetworkPolicyConfig
-	raw := noMethod(*s)
+	type NoMethod NetworkPolicyConfig
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1525,10 +1522,16 @@ type NodeConfig struct {
 	// server.
 	// Additionally, to avoid ambiguity, keys must not conflict with any
 	// other
-	// metadata keys for the project or be one of the four reserved
-	// keys:
-	// "instance-template", "kube-env", "startup-script", and
-	// "user-data"
+	// metadata keys for the project or be one of the reserved keys:
+	//  "cluster-name"
+	//  "cluster-uid"
+	//  "configure-sh"
+	//  "gci-update-strategy"
+	//  "gci-ensure-gke-docker"
+	//  "instance-template"
+	//  "kube-env"
+	//  "startup-script"
+	//  "user-data"
 	//
 	// Values are free-form strings, and only have meaning as interpreted
 	// by
@@ -1616,8 +1619,8 @@ type NodeConfig struct {
 }
 
 func (s *NodeConfig) MarshalJSON() ([]byte, error) {
-	type noMethod NodeConfig
-	raw := noMethod(*s)
+	type NoMethod NodeConfig
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1662,8 +1665,8 @@ type NodeManagement struct {
 }
 
 func (s *NodeManagement) MarshalJSON() ([]byte, error) {
-	type noMethod NodeManagement
-	raw := noMethod(*s)
+	type NoMethod NodeManagement
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1696,10 +1699,11 @@ type NodePool struct {
 	// firewall and routes quota.
 	InitialNodeCount int64 `json:"initialNodeCount,omitempty"`
 
-	// InstanceGroupUrls: [Output only] The resource URLs of
-	// [instance
-	// groups](/compute/docs/instance-groups/) associated with this
-	// node pool.
+	// InstanceGroupUrls: [Output only] The resource URLs of the [managed
+	// instance
+	// groups](/compute/docs/instance-groups/creating-groups-of-mana
+	// ged-instances)
+	// associated with this node pool.
 	InstanceGroupUrls []string `json:"instanceGroupUrls,omitempty"`
 
 	// Management: NodeManagement configuration for this NodePool.
@@ -1743,7 +1747,7 @@ type NodePool struct {
 	// node pool instance, if available.
 	StatusMessage string `json:"statusMessage,omitempty"`
 
-	// Version: [Output only] The version of the Kubernetes of this node.
+	// Version: The version of the Kubernetes of this node.
 	Version string `json:"version,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -1768,8 +1772,8 @@ type NodePool struct {
 }
 
 func (s *NodePool) MarshalJSON() ([]byte, error) {
-	type noMethod NodePool
-	raw := noMethod(*s)
+	type NoMethod NodePool
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1808,8 +1812,8 @@ type NodePoolAutoscaling struct {
 }
 
 func (s *NodePoolAutoscaling) MarshalJSON() ([]byte, error) {
-	type noMethod NodePoolAutoscaling
-	raw := noMethod(*s)
+	type NoMethod NodePoolAutoscaling
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1903,8 +1907,8 @@ type Operation struct {
 }
 
 func (s *Operation) MarshalJSON() ([]byte, error) {
-	type noMethod Operation
-	raw := noMethod(*s)
+	type NoMethod Operation
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1916,7 +1920,7 @@ func (s *Operation) MarshalJSON() ([]byte, error) {
 type RollbackNodePoolUpgradeRequest struct {
 }
 
-// ServerConfig: Container Engine service configuration.
+// ServerConfig: Kubernetes Engine service configuration.
 type ServerConfig struct {
 	// DefaultClusterVersion: Version of Kubernetes the service deploys by
 	// default.
@@ -1958,8 +1962,8 @@ type ServerConfig struct {
 }
 
 func (s *ServerConfig) MarshalJSON() ([]byte, error) {
-	type noMethod ServerConfig
-	raw := noMethod(*s)
+	type NoMethod ServerConfig
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1989,8 +1993,8 @@ type SetAddonsConfigRequest struct {
 }
 
 func (s *SetAddonsConfigRequest) MarshalJSON() ([]byte, error) {
-	type noMethod SetAddonsConfigRequest
-	raw := noMethod(*s)
+	type NoMethod SetAddonsConfigRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -2004,7 +2008,7 @@ type SetLabelsRequest struct {
 	// this resource,
 	// used to detect conflicts. The fingerprint is initially generated
 	// by
-	// Container Engine and changes after every request to modify or
+	// Kubernetes Engine and changes after every request to modify or
 	// update
 	// labels. You must always provide an up-to-date fingerprint hash
 	// when
@@ -2035,8 +2039,8 @@ type SetLabelsRequest struct {
 }
 
 func (s *SetLabelsRequest) MarshalJSON() ([]byte, error) {
-	type noMethod SetLabelsRequest
-	raw := noMethod(*s)
+	type NoMethod SetLabelsRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -2065,8 +2069,8 @@ type SetLegacyAbacRequest struct {
 }
 
 func (s *SetLegacyAbacRequest) MarshalJSON() ([]byte, error) {
-	type noMethod SetLegacyAbacRequest
-	raw := noMethod(*s)
+	type NoMethod SetLegacyAbacRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -2104,8 +2108,8 @@ type SetLocationsRequest struct {
 }
 
 func (s *SetLocationsRequest) MarshalJSON() ([]byte, error) {
-	type noMethod SetLocationsRequest
-	raw := noMethod(*s)
+	type NoMethod SetLocationsRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -2139,8 +2143,8 @@ type SetLoggingServiceRequest struct {
 }
 
 func (s *SetLoggingServiceRequest) MarshalJSON() ([]byte, error) {
-	type noMethod SetLoggingServiceRequest
-	raw := noMethod(*s)
+	type NoMethod SetLoggingServiceRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -2171,8 +2175,8 @@ type SetMaintenancePolicyRequest struct {
 }
 
 func (s *SetMaintenancePolicyRequest) MarshalJSON() ([]byte, error) {
-	type noMethod SetMaintenancePolicyRequest
-	raw := noMethod(*s)
+	type NoMethod SetMaintenancePolicyRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -2215,8 +2219,8 @@ type SetMasterAuthRequest struct {
 }
 
 func (s *SetMasterAuthRequest) MarshalJSON() ([]byte, error) {
-	type noMethod SetMasterAuthRequest
-	raw := noMethod(*s)
+	type NoMethod SetMasterAuthRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -2250,8 +2254,8 @@ type SetMonitoringServiceRequest struct {
 }
 
 func (s *SetMonitoringServiceRequest) MarshalJSON() ([]byte, error) {
-	type noMethod SetMonitoringServiceRequest
-	raw := noMethod(*s)
+	type NoMethod SetMonitoringServiceRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -2279,8 +2283,8 @@ type SetNetworkPolicyRequest struct {
 }
 
 func (s *SetNetworkPolicyRequest) MarshalJSON() ([]byte, error) {
-	type noMethod SetNetworkPolicyRequest
-	raw := noMethod(*s)
+	type NoMethod SetNetworkPolicyRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -2308,8 +2312,8 @@ type SetNodePoolAutoscalingRequest struct {
 }
 
 func (s *SetNodePoolAutoscalingRequest) MarshalJSON() ([]byte, error) {
-	type noMethod SetNodePoolAutoscalingRequest
-	raw := noMethod(*s)
+	type NoMethod SetNodePoolAutoscalingRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -2338,8 +2342,8 @@ type SetNodePoolManagementRequest struct {
 }
 
 func (s *SetNodePoolManagementRequest) MarshalJSON() ([]byte, error) {
-	type noMethod SetNodePoolManagementRequest
-	raw := noMethod(*s)
+	type NoMethod SetNodePoolManagementRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -2368,8 +2372,8 @@ type SetNodePoolSizeRequest struct {
 }
 
 func (s *SetNodePoolSizeRequest) MarshalJSON() ([]byte, error) {
-	type noMethod SetNodePoolSizeRequest
-	raw := noMethod(*s)
+	type NoMethod SetNodePoolSizeRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -2403,19 +2407,17 @@ type UpdateClusterRequest struct {
 }
 
 func (s *UpdateClusterRequest) MarshalJSON() ([]byte, error) {
-	type noMethod UpdateClusterRequest
-	raw := noMethod(*s)
+	type NoMethod UpdateClusterRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // UpdateMasterRequest: UpdateMasterRequest updates the master of the
 // cluster.
 type UpdateMasterRequest struct {
-	// MasterVersion: The Kubernetes version to change the master to. The
-	// only valid value is the
-	// latest supported version. Use "-" to have the server automatically
-	// select
-	// the latest version.
+	// MasterVersion: The Kubernetes version to change the master to. Use
+	// "-" to have the server
+	// automatically select the default version.
 	MasterVersion string `json:"masterVersion,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "MasterVersion") to
@@ -2436,8 +2438,8 @@ type UpdateMasterRequest struct {
 }
 
 func (s *UpdateMasterRequest) MarshalJSON() ([]byte, error) {
-	type noMethod UpdateMasterRequest
-	raw := noMethod(*s)
+	type NoMethod UpdateMasterRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -2471,8 +2473,8 @@ type UpdateNodePoolRequest struct {
 }
 
 func (s *UpdateNodePoolRequest) MarshalJSON() ([]byte, error) {
-	type noMethod UpdateNodePoolRequest
-	raw := noMethod(*s)
+	type NoMethod UpdateNodePoolRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -2488,7 +2490,7 @@ type ProjectsZonesGetServerconfigCall struct {
 	header_      http.Header
 }
 
-// GetServerconfig: Returns configuration info about the Container
+// GetServerconfig: Returns configuration info about the Kubernetes
 // Engine service.
 func (r *ProjectsZonesService) GetServerconfig(projectId string, zone string) *ProjectsZonesGetServerconfigCall {
 	c := &ProjectsZonesGetServerconfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -2587,12 +2589,12 @@ func (c *ProjectsZonesGetServerconfigCall) Do(opts ...googleapi.CallOption) (*Se
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
 	// {
-	//   "description": "Returns configuration info about the Container Engine service.",
+	//   "description": "Returns configuration info about the Kubernetes Engine service.",
 	//   "flatPath": "v1/projects/{projectId}/zones/{zone}/serverconfig",
 	//   "httpMethod": "GET",
 	//   "id": "container.projects.zones.getServerconfig",
@@ -2731,7 +2733,7 @@ func (c *ProjectsZonesClustersAddonsCall) Do(opts ...googleapi.CallOption) (*Ope
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -2885,7 +2887,7 @@ func (c *ProjectsZonesClustersCompleteIpRotationCall) Do(opts ...googleapi.CallO
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3052,7 +3054,7 @@ func (c *ProjectsZonesClustersCreateCall) Do(opts ...googleapi.CallOption) (*Ope
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3203,7 +3205,7 @@ func (c *ProjectsZonesClustersDeleteCall) Do(opts ...googleapi.CallOption) (*Ope
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3361,7 +3363,7 @@ func (c *ProjectsZonesClustersGetCall) Do(opts ...googleapi.CallOption) (*Cluste
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3513,7 +3515,7 @@ func (c *ProjectsZonesClustersLegacyAbacCall) Do(opts ...googleapi.CallOption) (
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3673,7 +3675,7 @@ func (c *ProjectsZonesClustersListCall) Do(opts ...googleapi.CallOption) (*ListC
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3817,7 +3819,7 @@ func (c *ProjectsZonesClustersLocationsCall) Do(opts ...googleapi.CallOption) (*
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3971,7 +3973,7 @@ func (c *ProjectsZonesClustersLoggingCall) Do(opts ...googleapi.CallOption) (*Op
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4125,7 +4127,7 @@ func (c *ProjectsZonesClustersMasterCall) Do(opts ...googleapi.CallOption) (*Ope
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4279,7 +4281,7 @@ func (c *ProjectsZonesClustersMonitoringCall) Do(opts ...googleapi.CallOption) (
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4433,7 +4435,7 @@ func (c *ProjectsZonesClustersResourceLabelsCall) Do(opts ...googleapi.CallOptio
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4587,7 +4589,7 @@ func (c *ProjectsZonesClustersSetMaintenancePolicyCall) Do(opts ...googleapi.Cal
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4745,7 +4747,7 @@ func (c *ProjectsZonesClustersSetMasterAuthCall) Do(opts ...googleapi.CallOption
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4899,7 +4901,7 @@ func (c *ProjectsZonesClustersSetNetworkPolicyCall) Do(opts ...googleapi.CallOpt
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -5053,7 +5055,7 @@ func (c *ProjectsZonesClustersStartIpRotationCall) Do(opts ...googleapi.CallOpti
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -5207,7 +5209,7 @@ func (c *ProjectsZonesClustersUpdateCall) Do(opts ...googleapi.CallOption) (*Ope
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -5364,7 +5366,7 @@ func (c *ProjectsZonesClustersNodePoolsAutoscalingCall) Do(opts ...googleapi.Cal
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -5525,7 +5527,7 @@ func (c *ProjectsZonesClustersNodePoolsCreateCall) Do(opts ...googleapi.CallOpti
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -5675,7 +5677,7 @@ func (c *ProjectsZonesClustersNodePoolsDeleteCall) Do(opts ...googleapi.CallOpti
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -5843,7 +5845,7 @@ func (c *ProjectsZonesClustersNodePoolsGetCall) Do(opts ...googleapi.CallOption)
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -6008,7 +6010,7 @@ func (c *ProjectsZonesClustersNodePoolsListCall) Do(opts ...googleapi.CallOption
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -6164,7 +6166,7 @@ func (c *ProjectsZonesClustersNodePoolsRollbackCall) Do(opts ...googleapi.CallOp
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -6328,7 +6330,7 @@ func (c *ProjectsZonesClustersNodePoolsSetManagementCall) Do(opts ...googleapi.C
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -6492,7 +6494,7 @@ func (c *ProjectsZonesClustersNodePoolsSetSizeCall) Do(opts ...googleapi.CallOpt
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -6657,7 +6659,7 @@ func (c *ProjectsZonesClustersNodePoolsUpdateCall) Do(opts ...googleapi.CallOpti
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -6818,7 +6820,7 @@ func (c *ProjectsZonesOperationsCancelCall) Do(opts ...googleapi.CallOption) (*E
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -6979,7 +6981,7 @@ func (c *ProjectsZonesOperationsGetCall) Do(opts ...googleapi.CallOption) (*Oper
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -7135,7 +7137,7 @@ func (c *ProjectsZonesOperationsListCall) Do(opts ...googleapi.CallOption) (*Lis
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil

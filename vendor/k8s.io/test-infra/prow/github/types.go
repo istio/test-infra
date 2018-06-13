@@ -17,6 +17,7 @@ limitations under the License.
 package github
 
 import (
+	"encoding/json"
 	"strings"
 	"time"
 )
@@ -133,6 +134,10 @@ type PullRequestEvent struct {
 	Repo        Repo                   `json:"repository"`
 	Label       Label                  `json:"label"`
 	Sender      User                   `json:"sender"`
+
+	// Changes holds raw change data, which we must inspect
+	// and deserialize later as this is a polymorphic field
+	Changes json.RawMessage `json:"changes"`
 
 	// GUID is included in the header of the request received by Github.
 	GUID string
@@ -530,8 +535,10 @@ type Content struct {
 
 // Team is a github organizational team
 type Team struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	ID          int    `json:"id,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
+	Privacy     string `json:"privacy,omitempty"`
 }
 
 // TeamMember is a member of an organizational team
@@ -540,24 +547,52 @@ type TeamMember struct {
 }
 
 const (
-	// List members and admins
+	// RoleAll lists both members and admins
 	RoleAll = "all"
-	// User is an admin, or list admins
+	// RoleAdmin specifies the user is an org admin, or lists only admins
 	RoleAdmin = "admin"
-	// User is a regular member, or list members
+	// RoleMaintainer specifies the user is a team maintainer, or lists only maintainers
+	RoleMaintainer = "maintainer"
+	// RoleMember specifies the user is a regular user, or only lists regular users
 	RoleMember = "member"
-	// User has a pending invitation to the org
+	// StatePending specifies the user has an invitation to the org/team.
 	StatePending = "pending"
-	// User accepted the invitation, is in the org
+	// StateActive specifies the user's membership is active.
 	StateActive = "active"
 )
 
-// OrgMembership specifies the org membership details
-type OrgMembership struct {
+// Membership specifies the role and state details for an org and/or team.
+type Membership struct {
 	// admin or member
 	Role string `json:"role"`
 	// pending or active
 	State string `json:"state,omitempty"`
+}
+
+// Organization stores metadata information about an organization
+type Organization struct {
+	// BillingEmail holds private billing address
+	BillingEmail string `json:"billing_email"`
+	Company      string `json:"company"`
+	// Email is publicly visible
+	Email                        string `json:"email"`
+	Location                     string `json:"location"`
+	Name                         string `json:"name"`
+	Description                  string `json:"description"`
+	HasOrganizationProjects      bool   `json:"has_organization_projects"`
+	HasRepositoryProjects        bool   `json:"has_repository_projects"`
+	DefaultRepositoryPermission  string `json:"default_repository_permission"`
+	MembersCanCreateRepositories bool   `json:"members_can_create_repositories"`
+}
+
+// OrgMembership contains Membership fields for user membership in an org.
+type OrgMembership struct {
+	Membership
+}
+
+// TeamMembership contains Membership fields for user membership on a team.
+type TeamMembership struct {
+	Membership
 }
 
 type GenericCommentEventAction string
