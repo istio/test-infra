@@ -34,8 +34,10 @@ import (
 )
 
 const (
-	defaultSleepTime = 10 * time.Second
-	defaultTimeout   = "10m"
+	defaultBoskosRetryPeriod = 10 * time.Second
+	// Large enought such that Reaper does not take resource away from us
+	defaultBoskosSyncPeriod = 10 * time.Minute
+	defaultTimeout          = "10m"
 )
 
 func defaultKubeconfig() string {
@@ -63,7 +65,7 @@ type masonClient struct {
 func (m *masonClient) acquire(ctx context.Context, rtype, state string) (*common.Resource, error) {
 	for {
 		select {
-		case <-time.After(defaultSleepTime):
+		case <-time.After(defaultBoskosRetryPeriod):
 			logrus.Infof("Attempting to acquire resource")
 			res, err := m.mason.Acquire(rtype, common.Free, state)
 			if err == nil {
@@ -86,7 +88,7 @@ func (m *masonClient) release(res common.Resource) {
 }
 
 func (m *masonClient) update(ctx context.Context, state string) {
-	updateTick := time.NewTicker(defaultSleepTime).C
+	updateTick := time.NewTicker(defaultBoskosSyncPeriod).C
 	go func() {
 		for {
 			select {
