@@ -178,7 +178,7 @@ func TestResourcesConfig_Construct(t *testing.T) {
 	testCases := []struct {
 		name      string
 		rc        resourceConfigs
-		res       *common.Resource
+		res       common.Resource
 		types     common.TypeToResources
 		result    expected
 		vmf, cf   *faker
@@ -205,11 +205,11 @@ func TestResourcesConfig_Construct(t *testing.T) {
 					},
 				}},
 			},
-			res: &common.Resource{
+			res: common.Resource{
 				Name: "test",
 			},
 			types: common.TypeToResources{
-				"test": []*common.Resource{
+				"test": []common.Resource{
 					{Name: "leased"},
 				},
 			},
@@ -261,11 +261,11 @@ func TestResourcesConfig_Construct(t *testing.T) {
 					}},
 				},
 			},
-			res: &common.Resource{
+			res: common.Resource{
 				Name: "test",
 			},
 			types: common.TypeToResources{
-				"test": []*common.Resource{
+				"test": []common.Resource{
 					{Name: "leased"},
 				},
 			},
@@ -289,11 +289,11 @@ func TestResourcesConfig_Construct(t *testing.T) {
 					}},
 				},
 			},
-			res: &common.Resource{
+			res: common.Resource{
 				Name: "test",
 			},
 			types: common.TypeToResources{
-				"test": []*common.Resource{
+				"test": []common.Resource{
 					{Name: "leased"},
 				},
 			},
@@ -317,11 +317,11 @@ func TestResourcesConfig_Construct(t *testing.T) {
 					},
 				}},
 			},
-			res: &common.Resource{
+			res: common.Resource{
 				Name: "test",
 			},
 			types: common.TypeToResources{
-				"test": []*common.Resource{
+				"test": []common.Resource{
 					{Name: "leased"},
 				},
 			},
@@ -345,11 +345,11 @@ func TestResourcesConfig_Construct(t *testing.T) {
 					}},
 				},
 			},
-			res: &common.Resource{
+			res: common.Resource{
 				Name: "test",
 			},
 			types: common.TypeToResources{
-				"test": []*common.Resource{
+				"test": []common.Resource{
 					{Name: "leased"},
 				},
 			},
@@ -373,11 +373,11 @@ func TestResourcesConfig_Construct(t *testing.T) {
 					}},
 				},
 			},
-			res: &common.Resource{
+			res: common.Resource{
 				Name: "test",
 			},
 			types: common.TypeToResources{
-				"test1": []*common.Resource{
+				"test1": []common.Resource{
 					{Name: "leased"},
 				},
 			},
@@ -397,11 +397,11 @@ func TestResourcesConfig_Construct(t *testing.T) {
 					}},
 				},
 			},
-			res: &common.Resource{
+			res: common.Resource{
 				Name: "test",
 			},
 			types: common.TypeToResources{
-				"test": []*common.Resource{
+				"test": []common.Resource{
 					{Name: "leased"},
 				},
 			},
@@ -421,7 +421,7 @@ func TestResourcesConfig_Construct(t *testing.T) {
 		} else {
 			SetClient(nil)
 		}
-		ud, err := tc.rc.Construct(tc.res, tc.types)
+		ud, err := tc.rc.Construct(context.Background(), tc.res, tc.types)
 		if tc.result.err != "" {
 			if ud != nil {
 				t.Errorf("%s - expected nil user data got %v", tc.name, ud)
