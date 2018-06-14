@@ -32,7 +32,7 @@ const (
 	defaultUpdatePeriod      = time.Minute
 	defaultChannelSize       = 15
 	defaultCleanerCount      = 15
-	defaultSleepTimeDuration = 15 * time.Second
+	defaultBoskosRetryPeriod = 15 * time.Second
 	defaultOwner             = "mason"
 )
 
@@ -63,7 +63,7 @@ func main() {
 	}
 	gcp.SetClient(gcpClient)
 
-	mason := mason.NewMason(*channelBufferSize, *cleanerCount, client, defaultSleepTimeDuration)
+	mason := mason.NewMason(*channelBufferSize, *cleanerCount, client, defaultBoskosRetryPeriod)
 
 	// Registering Masonable Converters
 	if err := mason.RegisterConfigConverter(gcp.ResourceConfigType, gcp.ConfigConverter); err != nil {
