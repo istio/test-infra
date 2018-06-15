@@ -380,8 +380,6 @@ presubmits:
     rerun_command: "/test istio-presubmit"
     trigger: "(?m)^/(retest|test (all|istio-presubmit))?,?(\\s+|$)"
     branches: *common_qual_branches
-    skip_branches:
-    - collab-gcp-identity
     labels:
       preset-service-account: "true"
       preset-istio-kubeconfig: "true"
@@ -425,9 +423,7 @@ presubmits:
     - name: istio-pilot-e2e
       agent: kubernetes
       context: prow/istio-pilot-e2e.sh
-      branches:
-      - release-0.7
-      - release-0.8
+      optional: true
       rerun_command: "/test istio-pilot-e2e"
       trigger: "(?m)^/test (istio-pilot-e2e)?,?(\\s+|$)"
       labels:
@@ -448,9 +444,7 @@ presubmits:
     - name: e2e-bookInfoTests
       agent: kubernetes
       context: prow/e2e-bookInfoTests.sh
-      branches:
-      - release-0.7
-      - release-0.8
+      optional: true
       rerun_command: "/test e2e-bookInfo"
       trigger: "(?m)^/test (e2e-bookInfo)?,?(\\s+|$)"
       labels:
