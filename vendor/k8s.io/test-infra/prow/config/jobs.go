@@ -22,6 +22,8 @@ import (
 	"time"
 
 	"k8s.io/api/core/v1"
+
+	"k8s.io/test-infra/prow/kube"
 )
 
 // Preset is intended to match the k8s' PodPreset feature, and may be removed
@@ -101,8 +103,12 @@ type Presubmit struct {
 	Spec *v1.PodSpec `json:"spec,omitempty"`
 	// Run these jobs after successfully running this one.
 	RunAfterSuccess []Presubmit `json:"run_after_success"`
+	// Consider job optional for branch protection.
+	Optional bool `json:"optional,omitempty"`
 
 	Brancher
+
+	UtilityConfig
 
 	// We'll set these when we load it.
 	re        *regexp.Regexp // from Trigger.
@@ -124,6 +130,9 @@ type Postsubmit struct {
 	MaxConcurrency int `json:"max_concurrency"`
 
 	Brancher
+
+	UtilityConfig
+
 	// Run these jobs after successfully running this one.
 	RunAfterSuccess []Postsubmit `json:"run_after_success"`
 }
@@ -147,6 +156,8 @@ type Periodic struct {
 	Tags []string `json:"tags,omitempty"`
 	// Run these jobs after successfully running this one.
 	RunAfterSuccess []Periodic `json:"run_after_success"`
+
+	UtilityConfig
 
 	interval time.Duration
 }
@@ -207,6 +218,14 @@ func (ps Presubmit) TriggerMatches(body string) bool {
 	return ps.re.MatchString(body)
 }
 
+// ContextRequired checks whether a context is required from github points of view (required check).
+func (ps Presubmit) ContextRequired() bool {
+	if ps.Optional || ps.SkipReport {
+		return false
+	}
+	return true
+}
+
 type ChangedFilesProvider func() ([]string, error)
 
 func matching(j Presubmit, body string, testAll bool) []Presubmit {
@@ -231,6 +250,29 @@ func (c *Config) MatchingPresubmits(fullRepoName, body string, testAll bool) []P
 		}
 	}
 	return result
+}
+
+type UtilityConfig struct {
+	// Decorate determines if we decorate the PodSpec or not
+	Decorate bool `json:"decorate,omitempty"`
+
+	// PathAlias is the location under <root-dir>/src
+	// where the repository under test is cloned. If this
+	// is not set, <root-dir>/src/github.com/org/repo will
+	// be used as the default.
+	PathAlias string `json:"path_alias,omitempty"`
+	// CloneURI is the URI that is used to clone the
+	// repository. If unset, will default to
+	// `https://github.com/org/repo.git`.
+	CloneURI string `json:"clone_uri,omitempty"`
+
+	// ExtraRefs are auxiliary repositories that
+	// need to be cloned, determined from config
+	ExtraRefs []*kube.Refs `json:"extra_refs,omitempty"`
+
+	// DecorationConfig holds configuration options for
+	// decorating PodSpecs that users provide
+	*kube.DecorationConfig
 }
 
 // RetestPresubmits returns all presubmits that should be run given a /retest command.

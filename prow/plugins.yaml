@@ -9,7 +9,6 @@ triggers:
   - istio/istio
   - istio/istio.github.io
   - istio/test-infra
-  - istio/mixerclient
   - istio/proxy
   - istio-releases/daily-release
   trusted_org: istio
@@ -27,65 +26,64 @@ config_updater:
       name: mason-config
       namespace: boskos
 
+slack:
+  mergewarnings:
+  - repos:
+    - istio/istio
+    - istio/api
+    - istio/proxy
+    - istio/istio.github.io
+    channels:
+    - oncall
+    whitelist:
+    - istio-testing
+  - repos:
+    - istio/test-infra
+    channels:
+    - test-and-release
+    whitelist:
+    - istio-testing
+
+approve:
+- repos:
+  - istio/api
+  - istio/istio
+  - istio/istio.github.io
+  - istio/test-infra
+  - istio/proxy
+  - istio-releases/daily-release
+  implicit_self_approve: true
+  lgtm_acts_as_approve: true
+
 plugins:
-  istio/api:
+  istio:
+  - approve
   - assign
   - blunderbuss
-  - close
+  - golint
+  - help
+  - hold
+  - lgtm
+  - lifecycle
   - trigger
+  - wip
 
   sebastienvas/core:
   - assign
-  - close
   - hold
   - lgtm
-  - release-note
-  - reopen
-  - trigger
-
-  istio/istio:
-  - approve
-  - assign
-  - blunderbuss
-  - close
-  - hold
-  - lgtm
-  - reopen
-  - trigger
-
-  istio/istio.github.io:
-  - approve
-  - assign
-  - blunderbuss
-  - close
-  - hold
-  - lgtm
-  - reopen
-  - trigger
-
-  istio/proxy:
-  - approve
-  - assign
-  - blunderbuss
-  - close
-  - hold
-  - lgtm
-  - reopen
+  - lifecycle
   - trigger
 
   istio/test-infra:
-  - approve
-  - assign
-  - blunderbuss
-  - close
   - config-updater
-  - hold
-  - lgtm
-  - reopen
-  - trigger
+  - shrug
+  - skip
+  - slackevents
   - yuks
 
   istio-releases/daily-release:
+  - lifecycle
   - trigger
 
 external_plugins:

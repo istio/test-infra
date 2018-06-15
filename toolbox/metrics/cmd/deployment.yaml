@@ -21,10 +21,21 @@ spec:
         args:
         - --service_account_json=/etc/service-account/service-account.json
         - --alsologtostderr
+        ports:
+        - containerPort: 9103
+          protocol: TCP
         volumeMounts:
         - mountPath: /etc/service-account
           name: service-account
           readOnly: true
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: 9103
+          periodSeconds: 1
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 10
       volumes:
       - name: service-account
         secret:

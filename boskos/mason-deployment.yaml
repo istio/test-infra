@@ -6,7 +6,7 @@ metadata:
     app: boskos-mason
   namespace: boskos
 spec:
-  replicas: 1
+  replicas: 3
   template:
     metadata:
       labels:
@@ -15,12 +15,12 @@ spec:
       terminationGracePeriodSeconds: 300
       containers:
       - name: boskos-mason
-        image: gcr.io/istio-testing/mason:v20180414-tag-test-213-g5dcd7b28
+        image: gcr.io/istio-testing/mason:v20180605-tag-test-277-g3808d1e7
         args:
         - --config=/etc/config/configs.yaml
         - --service-account=/etc/service-account/service-account.json
-        - --channel-buffer-size=15
-        - --cleaner-count=15
+        - --channel-buffer-size=5
+        - --cleaner-count=5
         volumeMounts:
         - mountPath: /etc/service-account
           name: service-account

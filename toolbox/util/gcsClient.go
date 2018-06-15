@@ -18,13 +18,15 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"log"
 
 	"cloud.google.com/go/storage"
+	"github.com/golang/glog"
+	"google.golang.org/api/iterator"
 )
 
 // IGCSClient defines public functions of GCSClient
 type IGCSClient interface {
+	Exists(obj string) (bool, error)
 	Read(obj string) (string, error)
 	Write(obj, txt string) error
 }
@@ -39,7 +41,7 @@ type GCSClient struct {
 func NewGCSClient(bucket string) *GCSClient {
 	gcsClient, err := storage.NewClient(context.Background())
 	if err != nil {
-		log.Fatalf("Failed to create a gcs client, %v\n", err)
+		glog.Fatalf("Failed to create a gcs client, %v\n", err)
 		return nil
 	}
 	return &GCSClient{
@@ -48,23 +50,40 @@ func NewGCSClient(bucket string) *GCSClient {
 	}
 }
 
+// Exists finds if an object already exists on GCS bucket
+func (gcs *GCSClient) Exists(obj string) (bool, error) {
+	ctx := context.Background()
+	query := &storage.Query{
+		Prefix: obj,
+	}
+	iter := gcs.client.Objects(ctx, query)
+	_, err := iter.Next()
+	if err == iterator.Done {
+		return false, nil
+	} else if err != nil {
+		glog.V(1).Infof("Failed to get a iterator on %s/%s from gcs, %v\n", gcs.bucket, obj, err)
+		return false, err
+	}
+	return true, nil
+}
+
 // Read gets a file and return a string
 func (gcs *GCSClient) Read(obj string) (string, error) {
 	ctx := context.Background()
 
 	r, err := gcs.client.Object(obj).NewReader(ctx)
 	if err != nil {
-		log.Printf("Failed to open a reader on file %s/%s from gcs, %v\n", gcs.bucket, obj, err)
+		glog.V(1).Infof("Failed to open a reader on file %s/%s from gcs, %v\n", gcs.bucket, obj, err)
 		return "", err
 	}
 	defer func() {
 		if err = r.Close(); err != nil {
-			log.Printf("Failed to close gcs file reader, %v\n", err)
+			glog.V(1).Infof("Failed to close gcs file reader, %v\n", err)
 		}
 	}()
 	buf := new(bytes.Buffer)
 	if _, err = buf.ReadFrom(r); err != nil {
-		log.Printf("Failed to read from gcs reader, %v\n", err)
+		glog.V(1).Infof("Failed to read from gcs reader, %v\n", err)
 		return "", err
 	}
 	return buf.String(), nil
@@ -75,7 +94,7 @@ func (gcs *GCSClient) Write(obj, txt string) error {
 	ctx := context.Background()
 	w := gcs.client.Object(obj).NewWriter(ctx)
 	if _, err := fmt.Fprintf(w, txt); err != nil {
-		log.Printf("Failed to write to gcs: %v\n", err)
+		glog.V(1).Infof("Failed to write to gcs: %v\n", err)
 	}
 	return w.Close()
 }

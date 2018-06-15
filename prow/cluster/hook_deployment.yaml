@@ -5,7 +5,7 @@ metadata:
   labels:
     app: hook
 spec:
-  replicas: 2
+  replicas: 4
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -19,10 +19,10 @@ spec:
       terminationGracePeriodSeconds: 180
       containers:
       - name: hook
-        image: gcr.io/k8s-prow/hook:v20180411-68d5d28e8
-        imagePullPolicy: Always
+        image: gcr.io/k8s-prow/hook:v20180529-e9431eaa3
         args:
         - --dry-run=false
+        - --slack-token-file=/etc/slack/token
         ports:
           - name: http
             containerPort: 8888
@@ -39,7 +39,13 @@ spec:
         - name: plugins
           mountPath: /etc/plugins
           readOnly: true
+        - name: slack
+          mountPath: /etc/slack
+          readOnly: true
       volumes:
+      - name: slack
+        secret:
+          secretName: slack-token
       - name: hmac
         secret:
           secretName: hmac-token

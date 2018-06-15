@@ -173,10 +173,12 @@ type PullRequestBranch struct {
 	Repo Repo   `json:"repo"`
 }
 
+// Label describes a GitHub label.
 type Label struct {
-	URL   string `json:"url"`
-	Name  string `json:"name"`
-	Color string `json:"color"`
+	URL         string `json:"url"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Color       string `json:"color"`
 }
 
 // PullRequestFileStatus enumerates the statuses for this webhook payload type.
@@ -203,24 +205,29 @@ type PullRequestChange struct {
 
 // Repo contains general repository information.
 type Repo struct {
-	Owner    User   `json:"owner"`
-	Name     string `json:"name"`
-	FullName string `json:"full_name"`
-	HTMLURL  string `json:"html_url"`
-	Fork     bool   `json:"fork"`
+	Owner         User   `json:"owner"`
+	Name          string `json:"name"`
+	FullName      string `json:"full_name"`
+	HTMLURL       string `json:"html_url"`
+	Fork          bool   `json:"fork"`
+	DefaultBranch string `json:"default_branch"`
 }
 
+// Branch contains general branch information.
 type Branch struct {
 	Name      string `json:"name"`
-	Protected bool   `json:"protected"`
+	Protected bool   `json:"protected"` // only included for ?protection=true requests
+	// TODO(fejta): consider including undocumented protection key
 }
 
-// https://developer.github.com/v3/repos/branches/#update-branch-protection
+// BranchProtectionRequest represents
+// protections in place for a branch.
+// See also: https://developer.github.com/v3/repos/branches/#update-branch-protection
 type BranchProtectionRequest struct {
-	RequiredStatusChecks       RequiredStatusChecks        `json:"required_status_checks"`
-	EnforceAdmins              bool                        `json:"enforce_admins"`
+	RequiredStatusChecks       *RequiredStatusChecks       `json:"required_status_checks"`
+	EnforceAdmins              *bool                       `json:"enforce_admins"`
 	RequiredPullRequestReviews *RequiredPullRequestReviews `json:"required_pull_request_reviews"`
-	Restrictions               Restrictions                `json:"restrictions"`
+	Restrictions               *Restrictions               `json:"restrictions"`
 }
 
 type RequiredStatusChecks struct {
@@ -228,11 +235,21 @@ type RequiredStatusChecks struct {
 	Contexts []string `json:"contexts"`
 }
 
-type RequiredPullRequestReviews struct{}
+type RequiredPullRequestReviews struct {
+	DismissalRestrictions        Restrictions `json:"dismissal_restrictions"`
+	DismissStaleReviews          bool         `json:"dismiss_stale_reviews"`
+	RequireCodeOwnerReviews      bool         `json:"require_code_owner_reviews"`
+	RequiredApprovingReviewCount int          `json:"required_approving_review_count"`
+}
 
+// Restrictions tells github to restrict an activity to people/teams.
+//
+// Use *[]string in order to distinguish unset and empty list.
+// This is needed by dismissal_restrictions to distinguish
+// do not restrict (empty object) and restrict everyone (nil user/teams list)
 type Restrictions struct {
-	Users []string `json:"users"`
-	Teams []string `json:"teams"`
+	Users *[]string `json:"users,omitempty"`
+	Teams *[]string `json:"teams,omitempty"`
 }
 
 // IssueEventAction enumerates the triggers for this
@@ -285,6 +302,7 @@ const (
 	IssueCommentActionDeleted                         = "deleted"
 )
 
+// IssueCommentEvent is what GitHub sends us when an issue comment is changed.
 type IssueCommentEvent struct {
 	Action  IssueCommentEventAction `json:"action"`
 	Issue   Issue                   `json:"issue"`
@@ -295,6 +313,7 @@ type IssueCommentEvent struct {
 	GUID string
 }
 
+// Issue represents general info about an issue.
 type Issue struct {
 	User      User      `json:"user"`
 	Number    int       `json:"number"`
@@ -312,6 +331,7 @@ type Issue struct {
 	PullRequest *struct{} `json:"pull_request,omitempty"`
 }
 
+// IsAssignee checks if a user is assigned to the issue.
 func (i Issue) IsAssignee(login string) bool {
 	for _, assignee := range i.Assignees {
 		if NormLogin(login) == NormLogin(assignee.Login) {
@@ -321,14 +341,17 @@ func (i Issue) IsAssignee(login string) bool {
 	return false
 }
 
+// IsAuthor checks if a user is the author of the issue.
 func (i Issue) IsAuthor(login string) bool {
 	return NormLogin(i.User.Login) == NormLogin(login)
 }
 
+// IsPullRequest checks if an issue is a pull request.
 func (i Issue) IsPullRequest() bool {
 	return i.PullRequest != nil
 }
 
+// HasLabel checks if an issue has a given label.
 func (i Issue) HasLabel(labelToFind string) bool {
 	for _, label := range i.Labels {
 		if strings.ToLower(label.Name) == strings.ToLower(labelToFind) {
@@ -338,6 +361,7 @@ func (i Issue) HasLabel(labelToFind string) bool {
 	return false
 }
 
+// IssueComment represents general info about an issue comment.
 type IssueComment struct {
 	ID        int       `json:"id,omitempty"`
 	Body      string    `json:"body"`
@@ -368,6 +392,7 @@ type IssuesSearchResult struct {
 	Issues []Issue `json:"items,omitempty"`
 }
 
+// PushEvent is what GitHub sends us when a user pushes to a repo.
 type PushEvent struct {
 	Ref     string   `json:"ref"`
 	Before  string   `json:"before"`
@@ -384,11 +409,13 @@ type PushEvent struct {
 	GUID string
 }
 
+// Branch returns the name of the branch to which the user pushed.
 func (pe PushEvent) Branch() string {
 	refs := strings.Split(pe.Ref, "/")
 	return refs[len(refs)-1]
 }
 
+// Commit represents general info about a commit.
 type Commit struct {
 	ID       string   `json:"id"`
 	Message  string   `json:"message"`
@@ -510,6 +537,27 @@ type Team struct {
 // TeamMember is a member of an organizational team
 type TeamMember struct {
 	Login string `json:"login"`
+}
+
+const (
+	// List members and admins
+	RoleAll = "all"
+	// User is an admin, or list admins
+	RoleAdmin = "admin"
+	// User is a regular member, or list members
+	RoleMember = "member"
+	// User has a pending invitation to the org
+	StatePending = "pending"
+	// User accepted the invitation, is in the org
+	StateActive = "active"
+)
+
+// OrgMembership specifies the org membership details
+type OrgMembership struct {
+	// admin or member
+	Role string `json:"role"`
+	// pending or active
+	State string `json:"state,omitempty"`
 }
 
 type GenericCommentEventAction string

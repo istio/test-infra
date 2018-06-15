@@ -5,7 +5,11 @@ go_library(
     srcs = ["main.go"],
     importpath = "istio.io/test-infra/toolbox/githubctl",
     visibility = ["//visibility:private"],
-    deps = ["//toolbox/util:go_default_library"],
+    deps = [
+        "//sisyphus:go_default_library",
+        "//toolbox/util:go_default_library",
+        "//vendor/github.com/golang/glog:go_default_library",
+    ],
 )
 
 go_binary(

@@ -1,5 +1,5 @@
 PROJECT = istio-testing
-VERSION = 0.2.1
+VERSION = 0.3.0
 ZONE    ?= us-west1-a
 CLUSTER ?= istio-sisyphus
 MODIFIED_YAML := "/tmp/local.sisyphus-deployment.yaml"

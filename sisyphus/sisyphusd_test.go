@@ -168,15 +168,20 @@ func (f fakeClient) Write(obj, txt string) error {
 	return nil
 }
 
+func (f fakeClient) Exists(obj string) (bool, error) {
+	return false, nil
+}
+
 func TestDaemonConfig(t *testing.T) {
 	catchFlakesByRun := true
 	cfg := &Config{
 		CatchFlakesByRun: catchFlakesByRun,
+		NumRerun:         3,
 	}
 	cfgExpected := &Config{
 		CatchFlakesByRun: catchFlakesByRun,
 		PollGapDuration:  DefaultPollGapDuration,
-		NumRerun:         DefaultNumRerun,
+		NumRerun:         3,
 	}
 	presubmitJobs := []string{}
 	sisyphusd := NewDaemonUsingProw(

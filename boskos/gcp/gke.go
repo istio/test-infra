@@ -30,6 +30,7 @@ import (
 
 const (
 	defaultSleepTime = 10 * time.Second
+	readyTimeout     = time.Minute
 	// Defined in https://godoc.org/google.golang.org/api/container/v1#Operation
 	operationDone     = "DONE"
 	operationAborting = "ABORTING"
@@ -56,9 +57,9 @@ func findVersionMatch(version string, supportedVersion []string) (string, error)
 	return "", nil
 }
 
-func isReady(kubeconfig string) bool {
+func checkCluster(kubeconfig string) error {
 	_, err := util.Shell("kubectl --kubeconfig=%s get ns", kubeconfig)
-	return err == nil
+	return err
 }
 
 func (cc *containerEngine) waitForReady(ctx context.Context, cluster, project, zone string) error {
@@ -83,7 +84,11 @@ func (cc *containerEngine) waitForReady(ctx context.Context, cluster, project, z
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-time.After(defaultSleepTime):
-			if isReady(kubeconfigFile.Name()) {
+			err := checkCluster(kubeconfigFile.Name())
+			if err != nil {
+				logrus.WithError(err).Errorf("cluster %s in zone %s for project %s is not ready", cluster, zone, project)
+
+			} else {
 				logrus.Infof("cluster %s in zone %s for project %s is ready", cluster, zone, project)
 				return nil
 			}
@@ -151,9 +156,11 @@ func (cc *containerEngine) create(ctx context.Context, project string, config cl
 	}
 	logrus.Infof("Instance %s created via operation %s", clusterRequest.Cluster.Name, op.Name)
 	info := &InstanceInfo{Name: name, Zone: config.Zone}
-
-	if err := cc.waitForReady(ctx, name, project, config.Zone); err != nil {
+	readyCtx, cancel := context.WithTimeout(ctx, readyTimeout)
+	defer cancel()
+	if err := cc.waitForReady(readyCtx, name, project, config.Zone); err != nil {
 		logrus.WithError(err).Errorf("cluster %s in zone %s for project %s is not usable", name, config.Zone, project)
+		return nil, err
 	}
 	return info, nil
 }

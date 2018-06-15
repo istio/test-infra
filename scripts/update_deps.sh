@@ -20,15 +20,11 @@ set -x
 
 WORKSPACE=$(bazel info workspace)
 
-bazel run //:gazelle
-
 go get -u github.com/golang/dep/cmd/dep
 
 dep ensure -v
-dep prune -v
 
 find ${WORKSPACE}/vendor -type f -name BUILD -exec rm -rf {} \;
 find ${WORKSPACE}/vendor -type f -name BUILD.bazel -exec rm -rf {} \;
 
-${WORKSPACE}/scripts/deps_to_bazel.py
-
+bazel run //:gazelle

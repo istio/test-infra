@@ -21,10 +21,12 @@ import (
 	"regexp"
 
 	"github.com/sirupsen/logrus"
+	"k8s.io/apimachinery/pkg/util/sets"
 
 	"k8s.io/test-infra/prow/github"
 	"k8s.io/test-infra/prow/pluginhelp"
 	"k8s.io/test-infra/prow/plugins"
+	"k8s.io/test-infra/prow/repoowners"
 )
 
 const pluginName = "lgtm"
@@ -52,29 +54,31 @@ func helpProvider(config *plugins.Configuration, enabledRepos []string) (*plugin
 		Usage:       "/lgtm [cancel]",
 		Description: "Adds or removes the 'lgtm' label which is typically used to gate merging.",
 		Featured:    true,
-		WhoCanUse:   "Members of the organization that owns the repository. '/lgtm cancel' can be used additionally by the PR author.",
+		WhoCanUse:   "Collaborators on the repository. '/lgtm cancel' can be used additionally by the PR author.",
 		Examples:    []string{"/lgtm", "/lgtm cancel"},
 	})
 	return pluginHelp, nil
 }
 
 type githubClient interface {
-	IsMember(owner, login string) (bool, error)
+	IsCollaborator(owner, repo, login string) (bool, error)
 	AddLabel(owner, repo string, number int, label string) error
 	AssignIssue(owner, repo string, number int, assignees []string) error
 	CreateComment(owner, repo string, number int, comment string) error
 	RemoveLabel(owner, repo string, number int, label string) error
 	GetIssueLabels(org, repo string, number int) ([]github.Label, error)
+	GetPullRequest(org, repo string, number int) (*github.PullRequest, error)
+	GetPullRequestChanges(org, repo string, number int) ([]github.PullRequestChange, error)
 	ListIssueComments(org, repo string, number int) ([]github.IssueComment, error)
 	DeleteComment(org, repo string, ID int) error
 	BotName() (string, error)
 }
 
 func handleGenericComment(pc plugins.PluginClient, e github.GenericCommentEvent) error {
-	return handle(pc.GitHubClient, pc.Logger, &e)
+	return handle(pc.GitHubClient, pc.PluginConfig, pc.OwnersClient, pc.Logger, &e)
 }
 
-func handle(gc githubClient, log *logrus.Entry, e *github.GenericCommentEvent) error {
+func handle(gc githubClient, config *plugins.Configuration, ownersClient repoowners.Interface, log *logrus.Entry, e *github.GenericCommentEvent) error {
 	// Only consider open PRs and new comments.
 	if !e.IsPR || e.IssueState != "open" || e.Action != github.GenericCommentActionCreated {
 		return nil
@@ -104,24 +108,43 @@ func handle(gc githubClient, log *logrus.Entry, e *github.GenericCommentEvent) e
 			break
 		}
 	}
+	// If we need to skip collaborator checks for this repo, what we actually need
+	// to do is skip assignment checks and use OWNERS files to determine whether the
+	// commenter can lgtm the PR.
+	skipCollaborators := skipCollaborators(config, org, repo)
 	isAuthor := e.User.Login == e.IssueAuthor.Login
 	if isAuthor && wantLGTM {
 		resp := "you cannot LGTM your own PR."
 		log.Infof("Commenting with \"%s\".", resp)
 		return gc.CreateComment(org, repo, e.Number, plugins.FormatResponseRaw(e.Body, e.HTMLURL, commentAuthor, resp))
-	} else if !isAuthor && !isAssignee {
+	} else if !isAuthor && !isAssignee && !skipCollaborators {
 		log.Infof("Assigning %s/%s#%d to %s", org, repo, e.Number, commentAuthor)
 		if err := gc.AssignIssue(org, repo, e.Number, []string{commentAuthor}); err != nil {
 			msg := "assigning you to the PR failed"
-			if ok, merr := gc.IsMember(org, commentAuthor); merr == nil && !ok {
-				msg = fmt.Sprintf("only %s org members may be assigned issues", org)
+			if ok, merr := gc.IsCollaborator(org, repo, commentAuthor); merr == nil && !ok {
+				msg = fmt.Sprintf("only %s/%s repo collaborators may be assigned issues", org, repo)
 			} else if merr != nil {
-				log.WithError(merr).Errorf("Failed IsMember(%s, %s)", org, commentAuthor)
+				log.WithError(merr).Errorf("Failed IsCollaborator(%s, %s, %s)", org, repo, commentAuthor)
 			} else {
 				log.WithError(err).Errorf("Failed AssignIssue(%s, %s, %d, %s)", org, repo, e.Number, commentAuthor)
 			}
 			resp := "changing LGTM is restricted to assignees, and " + msg + "."
 			log.Infof("Reply to assign via /lgtm request with comment: \"%s\"", resp)
+			return gc.CreateComment(org, repo, e.Number, plugins.FormatResponseRaw(e.Body, e.HTMLURL, commentAuthor, resp))
+		}
+	} else if !isAuthor && skipCollaborators {
+		log.Debugf("Skipping collaborator checks and loading OWNERS for %s/%s#%d", org, repo, e.Number)
+		ro, err := loadRepoOwners(gc, ownersClient, org, repo, e.Number)
+		if err != nil {
+			return err
+		}
+		filenames, err := getChangedFiles(gc, org, repo, e.Number)
+		if err != nil {
+			return err
+		}
+		if !loadReviewers(ro, filenames).Has(github.NormLogin(commentAuthor)) {
+			resp := "adding LGTM is restricted to approvers and reviewers in OWNERS files."
+			log.Infof("Reply to /lgtm request with comment: \"%s\"", resp)
 			return gc.CreateComment(org, repo, e.Number, plugins.FormatResponseRaw(e.Body, e.HTMLURL, commentAuthor, resp))
 		}
 	}
@@ -201,4 +224,45 @@ func handlePullRequest(gc ghLabelClient, pe github.PullRequestEvent, log *logrus
 		return gc.CreateComment(org, repo, number, removeLGTMLabelNoti)
 	}
 	return nil
+}
+
+func skipCollaborators(config *plugins.Configuration, org, repo string) bool {
+	full := fmt.Sprintf("%s/%s", org, repo)
+	for _, elem := range config.Owners.SkipCollaborators {
+		if elem == org || elem == full {
+			return true
+		}
+	}
+	return false
+}
+
+func loadRepoOwners(gc githubClient, ownersClient repoowners.Interface, org, repo string, number int) (repoowners.RepoOwnerInterface, error) {
+	pr, err := gc.GetPullRequest(org, repo, number)
+	if err != nil {
+		return nil, err
+	}
+	return ownersClient.LoadRepoOwners(org, repo, pr.Base.Ref)
+}
+
+// getChangedFiles returns all the changed files for the provided pull request.
+func getChangedFiles(gc githubClient, org, repo string, number int) ([]string, error) {
+	changes, err := gc.GetPullRequestChanges(org, repo, number)
+	if err != nil {
+		return nil, fmt.Errorf("cannot get PR changes for %s/%s#%d", org, repo, number)
+	}
+	var filenames []string
+	for _, change := range changes {
+		filenames = append(filenames, change.Filename)
+	}
+	return filenames, nil
+}
+
+// loadReviewers returns all reviewers and approvers from all OWNERS files that
+// cover the provided filenames.
+func loadReviewers(ro repoowners.RepoOwnerInterface, filenames []string) sets.String {
+	reviewers := sets.String{}
+	for _, filename := range filenames {
+		reviewers = reviewers.Union(ro.Approvers(filename)).Union(ro.Reviewers(filename))
+	}
+	return reviewers
 }

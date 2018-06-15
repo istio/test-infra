@@ -7,23 +7,19 @@ git_repository(
 )
 
 load("@bazel_skylib//:lib.bzl", "versions")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-git_repository(
+http_archive(
     name = "io_bazel_rules_go",
-    commit = "bdf2df58c0d352ffa262ae4b36c7a1a2d6e3f0c9",
-    remote = "https://github.com/bazelbuild/rules_go.git",
+    sha256 = "c1f52b8789218bb1542ed362c4f7de7052abcf254d865d96fb7ba6d44bc15ee3",
+    urls = ["https://github.com/bazelbuild/rules_go/releases/download/0.12.0/rules_go-0.12.0.tar.gz"],
 )
 
-load(
-    "@io_bazel_rules_go//go:def.bzl",
-    "go_rules_dependencies",
-    "go_repository",
-    "go_register_toolchains",
-)
+load("@io_bazel_rules_go//go:def.bzl", "go_register_toolchains", "go_rules_dependencies")
 
 go_rules_dependencies()
 
-go_register_toolchains(go_version = "1.9.3")
+go_register_toolchains(go_version = "1.10.2")
 
 load("@io_bazel_rules_go//proto:def.bzl", "proto_register_toolchains")
 
@@ -66,12 +62,4 @@ autogo_dependencies()
 load("@io_k8s_test_infra//autogo:def.bzl", "autogo_generate")
 
 autogo_generate(name="autogo", prefix="istio.io/test-infra")
-
-
-# Vendors
-#
-
-load("//:go_vendor_repositories.bzl", "go_vendor_repositories")
-
-go_vendor_repositories()
 

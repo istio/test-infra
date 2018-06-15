@@ -42,9 +42,7 @@ function update_on_branch {
    local day_of_week=`date "+%u"` #(1..7)
 
    case ${CUR_BRANCH} in
-     #master|release-*)
-     master)
-       # for now skip master updates
+     release-0.8|master)
        return
        ;;
      release-*)
@@ -62,6 +60,7 @@ function update_on_branch {
            return
            ;;
          *)
+           return
            ;;
        esac
        ;; # release-* branch end

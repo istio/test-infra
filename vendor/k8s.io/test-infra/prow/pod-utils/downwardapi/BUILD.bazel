@@ -1,0 +1,13 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "doc.go",
+        "jobspec.go",
+    ],
+    importmap = "com_github_istio_test_infra/vendor/k8s.io/test-infra/prow/pod-utils/downwardapi",
+    importpath = "k8s.io/test-infra/prow/pod-utils/downwardapi",
+    visibility = ["//visibility:public"],
+    deps = ["//vendor/k8s.io/test-infra/prow/kube:go_default_library"],
+)
