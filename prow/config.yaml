@@ -380,6 +380,8 @@ presubmits:
     rerun_command: "/test istio-presubmit"
     trigger: "(?m)^/(retest|test (all|istio-presubmit))?,?(\\s+|$)"
     branches: *common_qual_branches
+    skip_branches:
+    - collab-gcp-identity
     labels:
       preset-service-account: "true"
       preset-istio-kubeconfig: "true"
