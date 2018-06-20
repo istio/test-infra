@@ -30,6 +30,7 @@ import (
 
 	"istio.io/test-infra/toolbox/metrics"
 	"istio.io/test-infra/toolbox/metrics/coverage"
+	"istio.io/test-infra/toolbox/metrics/flakes"
 )
 
 const (
@@ -50,6 +51,7 @@ var (
 func newMetricPublisher(storage coverage.Storage) *metrics.Publisher {
 	suite := metrics.Suite{
 		"codecov": coverage.NewMetric(storage),
+		"flake":   flakes.NewMetric(),
 	}
 	return metrics.NewPublisher(suite, defaultUpdateInterval, defaultUpdateTimeout)
 }
