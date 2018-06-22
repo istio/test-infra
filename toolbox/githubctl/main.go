@@ -18,10 +18,13 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/golang/glog"
+	"k8s.io/test-infra/prow/config"
 
 	s "istio.io/test-infra/sisyphus"
 	u "istio.io/test-infra/toolbox/util"
@@ -43,32 +46,7 @@ var (
 	maxConcurrentRequests = flag.Int("max_concurrent_reqs", 50, "Max number of concurrent requests permitted")
 	githubClnt            *u.GithubClient
 	ghClntRel             *u.GithubClient
-	// unable to query post-submit jobs as GitHub is unaware of them
-	// needs to be consistent with prow config map
-	postSubmitJobsMap = map[string][]string{
-		"master": {
-			"e2e-mixer-no_auth",
-			"e2e-bookInfoTests-envoyv2-v1alpha3",
-			"istio-pilot-e2e-envoyv2-v1alpha3",
-			"e2e-simpleTests",
-			"e2e-dashboard",
-			"istio-postsubmit",
-		},
-		"release-1.0.0-snapshot-0": {
-			"e2e-mixer-no_auth",
-			"e2e-bookInfoTests-envoyv2-v1alpha3",
-			"istio-pilot-e2e-envoyv2-v1alpha3",
-			"e2e-simpleTests",
-			"e2e-dashboard",
-			"istio-postsubmit",
-		},
-		"release-0.8": {
-			"istio-postsubmit",
-			"e2e-suite-rbac-no_auth",
-			"e2e-suite-rbac-auth",
-			"e2e-cluster_wide-auth",
-		},
-	}
+	postSubmitJobs        = []string{}
 )
 
 const (
@@ -162,6 +140,7 @@ func getLatestGreenSHA() (string, error) {
 	u.AssertNotEmpty("base_branch", baseBranch)
 	u.AssertPositive("max_commit_depth", maxCommitDepth)
 	u.AssertPositive("max_run_depth", maxRunDepth)
+	postSubmitJobs = readPostsubmitListFromProwConfig(*owner, *repo)
 	results := preprocessProwResults()
 	sha, err := githubClnt.GetHeadCommitSHA(*repo, *baseBranch)
 	if err != nil {
@@ -301,6 +280,34 @@ func DailyReleaseQualification(baseBranch *string) error {
 		return nil
 	}
 	return fmt.Errorf("release qualification failed")
+}
+
+func traverseJobTree(job config.Postsubmit, postsubmitJobs *[]string) {
+	*postsubmitJobs = append(*postsubmitJobs, job.Name)
+	if len(job.RunAfterSuccess) > 0 {
+		for _, childJob := range job.RunAfterSuccess {
+			traverseJobTree(childJob, postsubmitJobs)
+		}
+	}
+}
+
+func readPostsubmitListFromProwConfig(org, repo string) []string {
+	var postsubmitJobs []string
+	repoRootDir, err := u.Shell("git rev-parse --show-toplevel")
+	repoRootDir = strings.TrimSuffix(repoRootDir, "\n")
+	if err != nil {
+		glog.Fatalf("cannot find repo root directory path")
+	}
+	prowConfigYaml := filepath.Join(repoRootDir, "prow/config.yaml")
+	config, err := config.Load(prowConfigYaml, "")
+	if err != nil {
+		glog.Fatalf("could not read configs: %v", err)
+	}
+
+	for _, job := range config.Postsubmits[fmt.Sprintf("%s/%s", org, repo)] {
+		traverseJobTree(job, &postsubmitJobs)
+	}
+	return postsubmitJobs
 }
 
 func init() {
