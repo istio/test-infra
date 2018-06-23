@@ -45,11 +45,25 @@ var (
 	ghClntRel             *u.GithubClient
 	// unable to query post-submit jobs as GitHub is unaware of them
 	// needs to be consistent with prow config map
-	postSubmitJobs = []string{
+	postSubmitJobsMap = map[string][]string{
+	 "master": []string{
 		"istio-postsubmit",
 		"e2e-suite-rbac-no_auth",
 		"e2e-suite-rbac-auth",
 		"e2e-cluster_wide-auth",
+		},
+	 "release-0.8": []string{
+		"istio-postsubmit",
+		"e2e-suite-rbac-no_auth",
+		"e2e-suite-rbac-auth",
+		"e2e-cluster_wide-auth",
+		},
+	 "release-1.0.0-snapshot-0": []string{
+		"istio-postsubmit",
+		"e2e-suite-rbac-no_auth",
+		"e2e-suite-rbac-auth",
+		"e2e-cluster_wide-auth",
+		},
 	}
 )
 
@@ -120,6 +134,7 @@ func preprocessProwResults() map[string]map[string]bool {
 			}
 		}()
 	}
+	postSubmitJobs := postSubmitJobsMap[*baseBranch]
 	for _, job := range postSubmitJobs {
 		cache[job] = make(map[string]bool)
 		runNumber, err := prowAccessor.GetLatestRun(job)
@@ -150,6 +165,7 @@ func getLatestGreenSHA() (string, error) {
 	for i := 0; i < *maxCommitDepth; i++ {
 		glog.Infof("Checking if [%s] passed all checks. %d commits before HEAD", sha, i)
 		allChecksPassed := true
+		postSubmitJobs := postSubmitJobsMap[*baseBranch]
 		for _, job := range postSubmitJobs {
 			passed, keyExists := results[job][sha]
 			if !keyExists {
