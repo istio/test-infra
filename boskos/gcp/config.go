@@ -157,7 +157,7 @@ func newStringRing(zones []string) *stringRing {
 }
 
 // Construct implements Masonable interface
-func (rc resourceConfigs) Construct(res *common.Resource, types common.TypeToResources) (common.UserData, error) {
+func (rc resourceConfigs) Construct(ctx context.Context, res common.Resource, types common.TypeToResources) (*common.UserData, error) {
 	var err error
 
 	if gcpClient == nil {
@@ -177,10 +177,10 @@ func (rc resourceConfigs) Construct(res *common.Resource, types common.TypeToRes
 		}
 		r := typesCopy[rType][len(typesCopy[rType])-1]
 		typesCopy[rType] = typesCopy[rType][:len(typesCopy[rType])-1]
-		return r
+		return &r
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), gcpClient.operationTimeout)
+	ctx, cancel := context.WithTimeout(ctx, gcpClient.operationTimeout)
 	defer cancel()
 	errGroup, derivedCtx := errgroup.WithContext(ctx)
 
@@ -259,7 +259,7 @@ func (rc resourceConfigs) Construct(res *common.Resource, types common.TypeToRes
 		logrus.WithError(err).Errorf("unable to set %s user data", ResourceConfigType)
 		return nil, err
 	}
-	return userData, nil
+	return &userData, nil
 }
 
 // ConfigConverter implements mason.ConfigConverter

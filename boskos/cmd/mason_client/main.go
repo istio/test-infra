@@ -106,12 +106,12 @@ func (m *masonClient) update(ctx context.Context, state string) {
 	m.wg.Add(1)
 }
 
-func saveUserdataToFile(ud common.UserData, key, path string) error {
-	v, ok := ud[key]
+func saveUserdataToFile(ud *common.UserData, key, path string) error {
+	v, ok := ud.Load(key)
 	if !ok {
 		return nil
 	}
-	return ioutil.WriteFile(path, []byte(v), 0644)
+	return ioutil.WriteFile(path, []byte(v.(string)), 0644)
 }
 
 func wait() {
@@ -154,7 +154,7 @@ func main() {
 	client.update(c2, common.Busy)
 
 loop:
-	for cType := range res.UserData {
+	for cType := range res.UserData.ToMap() {
 		switch cType {
 		case gcp.ResourceConfigType:
 			if *kubecfgPath != "" {

@@ -30,18 +30,17 @@ import (
 
 const (
 	defaultUpdatePeriod      = time.Minute
-	defaultChannelSize       = 15
 	defaultCleanerCount      = 15
 	defaultBoskosRetryPeriod = 15 * time.Second
+	defaultBoskosSyncPeriod  = 10 * time.Minute
 	defaultOwner             = "mason"
 )
 
 var (
-	boskosURL         = flag.String("boskos-url", "http://boskos", "Boskos Server URL")
-	channelBufferSize = flag.Int("channel-buffer-size", defaultChannelSize, "Channel Size")
-	cleanerCount      = flag.Int("cleaner-count", defaultCleanerCount, "Number of threads running cleanup")
-	configPath        = flag.String("config", "", "Path to persistent volume to load configs")
-	serviceAccount    = flag.String("service-account", "", "Path to projects service account")
+	boskosURL      = flag.String("boskos-url", "http://boskos", "Boskos Server URL")
+	cleanerCount   = flag.Int("cleaner-count", defaultCleanerCount, "Number of threads running cleanup")
+	configPath     = flag.String("config", "", "Path to persistent volume to load configs")
+	serviceAccount = flag.String("service-account", "", "Path to projects service account")
 )
 
 func main() {
@@ -63,7 +62,7 @@ func main() {
 	}
 	gcp.SetClient(gcpClient)
 
-	mason := mason.NewMason(*channelBufferSize, *cleanerCount, client, defaultBoskosRetryPeriod)
+	mason := mason.NewMason(*cleanerCount, client, defaultBoskosRetryPeriod, defaultBoskosSyncPeriod)
 
 	// Registering Masonable Converters
 	if err := mason.RegisterConfigConverter(gcp.ResourceConfigType, gcp.ConfigConverter); err != nil {
