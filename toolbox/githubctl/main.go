@@ -139,6 +139,7 @@ func preprocessProwResults() map[string]map[string]bool {
 		}()
 	}
 	postSubmitJobs := postSubmitJobsMap[*baseBranch]
+	// note: if postSubmitJobs was not found in map, the for loop exits immediately
 	for _, job := range postSubmitJobs {
 		cache[job] = make(map[string]bool)
 		runNumber, err := prowAccessor.GetLatestRun(job)
@@ -166,10 +167,13 @@ func getLatestGreenSHA() (string, error) {
 	if err != nil {
 		glog.Fatalf("failed to get the head commit sha of %s/%s: %v", *repo, *baseBranch, err)
 	}
+	postSubmitJobs, found := postSubmitJobsMap[*baseBranch]
+	if !found {
+		return "", fmt.Errorf("cannot find post submit jobs for branch %s", *baseBranch)
+	}
 	for i := 0; i < *maxCommitDepth; i++ {
 		glog.Infof("Checking if [%s] passed all checks. %d commits before HEAD", sha, i)
 		allChecksPassed := true
-		postSubmitJobs := postSubmitJobsMap[*baseBranch]
 		for _, job := range postSubmitJobs {
 			passed, keyExists := results[job][sha]
 			if !keyExists {
