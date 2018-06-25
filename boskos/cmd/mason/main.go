@@ -30,7 +30,6 @@ import (
 
 const (
 	defaultUpdatePeriod      = time.Minute
-	defaultChannelSize       = 15
 	defaultCleanerCount      = 15
 	defaultBoskosRetryPeriod = 15 * time.Second
 	defaultBoskosSyncPeriod  = 10 * time.Minute
@@ -38,11 +37,10 @@ const (
 )
 
 var (
-	boskosURL         = flag.String("boskos-url", "http://boskos", "Boskos Server URL")
-	channelBufferSize = flag.Int("channel-buffer-size", defaultChannelSize, "Channel Size")
-	cleanerCount      = flag.Int("cleaner-count", defaultCleanerCount, "Number of threads running cleanup")
-	configPath        = flag.String("config", "", "Path to persistent volume to load configs")
-	serviceAccount    = flag.String("service-account", "", "Path to projects service account")
+	boskosURL      = flag.String("boskos-url", "http://boskos", "Boskos Server URL")
+	cleanerCount   = flag.Int("cleaner-count", defaultCleanerCount, "Number of threads running cleanup")
+	configPath     = flag.String("config", "", "Path to persistent volume to load configs")
+	serviceAccount = flag.String("service-account", "", "Path to projects service account")
 )
 
 func main() {
