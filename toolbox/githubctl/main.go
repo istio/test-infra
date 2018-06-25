@@ -46,27 +46,27 @@ var (
 	// unable to query post-submit jobs as GitHub is unaware of them
 	// needs to be consistent with prow config map
 	postSubmitJobsMap = map[string][]string{
-	 "master": []string{
-		"e2e-mixer-no_auth",
-		"e2e-bookInfoTests-envoyv2-v1alpha3",
-		"istio-pilot-e2e-envoyv2-v1alpha3",
-		"e2e-simpleTests",
-		"e2e-dashboard",
-		"istio-postsubmit",
+		"master": []string{
+			"e2e-mixer-no_auth",
+			"e2e-bookInfoTests-envoyv2-v1alpha3",
+			"istio-pilot-e2e-envoyv2-v1alpha3",
+			"e2e-simpleTests",
+			"e2e-dashboard",
+			"istio-postsubmit",
 		},
-	 "release-1.0.0-snapshot-0": []string{
-		"e2e-mixer-no_auth",
-		"e2e-bookInfoTests-envoyv2-v1alpha3",
-		"istio-pilot-e2e-envoyv2-v1alpha3",
-		"e2e-simpleTests",
-		"e2e-dashboard",
-		"istio-postsubmit",
+		"release-1.0.0-snapshot-0": []string{
+			"e2e-mixer-no_auth",
+			"e2e-bookInfoTests-envoyv2-v1alpha3",
+			"istio-pilot-e2e-envoyv2-v1alpha3",
+			"e2e-simpleTests",
+			"e2e-dashboard",
+			"istio-postsubmit",
 		},
-	 "release-0.8": []string{
-		"istio-postsubmit",
-		"e2e-suite-rbac-no_auth",
-		"e2e-suite-rbac-auth",
-		"e2e-cluster_wide-auth",
+		"release-0.8": []string{
+			"istio-postsubmit",
+			"e2e-suite-rbac-no_auth",
+			"e2e-suite-rbac-auth",
+			"e2e-cluster_wide-auth",
 		},
 	}
 )
