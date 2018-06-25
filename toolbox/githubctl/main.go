@@ -45,11 +45,29 @@ var (
 	ghClntRel             *u.GithubClient
 	// unable to query post-submit jobs as GitHub is unaware of them
 	// needs to be consistent with prow config map
-	postSubmitJobs = []string{
-		"istio-postsubmit",
-		"e2e-suite-rbac-no_auth",
-		"e2e-suite-rbac-auth",
-		"e2e-cluster_wide-auth",
+	postSubmitJobsMap = map[string][]string{
+		"master": {
+			"e2e-mixer-no_auth",
+			"e2e-bookInfoTests-envoyv2-v1alpha3",
+			"istio-pilot-e2e-envoyv2-v1alpha3",
+			"e2e-simpleTests",
+			"e2e-dashboard",
+			"istio-postsubmit",
+		},
+		"release-1.0.0-snapshot-0": {
+			"e2e-mixer-no_auth",
+			"e2e-bookInfoTests-envoyv2-v1alpha3",
+			"istio-pilot-e2e-envoyv2-v1alpha3",
+			"e2e-simpleTests",
+			"e2e-dashboard",
+			"istio-postsubmit",
+		},
+		"release-0.8": {
+			"istio-postsubmit",
+			"e2e-suite-rbac-no_auth",
+			"e2e-suite-rbac-auth",
+			"e2e-cluster_wide-auth",
+		},
 	}
 )
 
@@ -120,6 +138,8 @@ func preprocessProwResults() map[string]map[string]bool {
 			}
 		}()
 	}
+	postSubmitJobs := postSubmitJobsMap[*baseBranch]
+	// note: if postSubmitJobs was not found in map, the for loop exits immediately
 	for _, job := range postSubmitJobs {
 		cache[job] = make(map[string]bool)
 		runNumber, err := prowAccessor.GetLatestRun(job)
@@ -146,6 +166,10 @@ func getLatestGreenSHA() (string, error) {
 	sha, err := githubClnt.GetHeadCommitSHA(*repo, *baseBranch)
 	if err != nil {
 		glog.Fatalf("failed to get the head commit sha of %s/%s: %v", *repo, *baseBranch, err)
+	}
+	postSubmitJobs, found := postSubmitJobsMap[*baseBranch]
+	if !found {
+		return "", fmt.Errorf("cannot find post submit jobs for branch %s", *baseBranch)
 	}
 	for i := 0; i < *maxCommitDepth; i++ {
 		glog.Infof("Checking if [%s] passed all checks. %d commits before HEAD", sha, i)
