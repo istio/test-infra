@@ -660,7 +660,7 @@ presubmits:
     spec:
       <<: *common_e2e_spec
 
-  - name: daily-e2e-bookInfo
+  - name: daily-e2e-bookinfoTests
     agent: kubernetes
     context: prow/daily-e2e-bookinfoTests.sh
     always_run: true
@@ -671,7 +671,7 @@ presubmits:
     spec:
       <<: *common_e2e_spec
 
-  - name: daily-e2e-simple
+  - name: daily-e2e-simpleTests
     agent: kubernetes
     context: prow/daily-e2e-simpleTests.sh
     always_run: true
@@ -693,9 +693,9 @@ presubmits:
     spec:
       <<: *common_e2e_spec
 
-  - name: daily-dashboard
+  - name: daily-e2e-dashboard
     agent: kubernetes
-    context: prow/daily-dashboard.sh
+    context: prow/daily-e2e-dashboard.sh
     always_run: true
     rerun_command: "/test daily-e2e-dashboard"
     trigger: "(?m)^/(retest|test (all|daily-e2e-dashboard))?,?(\\s+|$)"
