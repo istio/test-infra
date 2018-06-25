@@ -116,7 +116,6 @@ func preprocessProwResults() map[string]map[string]bool {
 			}
 		}()
 	}
-	postSubmitJobs := postSubmitJobsMap[*baseBranch]
 	// note: if postSubmitJobs was not found in map, the for loop exits immediately
 	for _, job := range postSubmitJobs {
 		cache[job] = make(map[string]bool)
@@ -140,15 +139,11 @@ func getLatestGreenSHA() (string, error) {
 	u.AssertNotEmpty("base_branch", baseBranch)
 	u.AssertPositive("max_commit_depth", maxCommitDepth)
 	u.AssertPositive("max_run_depth", maxRunDepth)
-	postSubmitJobs = readPostsubmitListFromProwConfig(*owner, *repo)
+	postSubmitJobs = readPostsubmitListFromProwConfig(*owner, *repo, *baseBranch)
 	results := preprocessProwResults()
 	sha, err := githubClnt.GetHeadCommitSHA(*repo, *baseBranch)
 	if err != nil {
 		glog.Fatalf("failed to get the head commit sha of %s/%s: %v", *repo, *baseBranch, err)
-	}
-	postSubmitJobs, found := postSubmitJobsMap[*baseBranch]
-	if !found {
-		return "", fmt.Errorf("cannot find post submit jobs for branch %s", *baseBranch)
 	}
 	for i := 0; i < *maxCommitDepth; i++ {
 		glog.Infof("Checking if [%s] passed all checks. %d commits before HEAD", sha, i)
@@ -282,16 +277,21 @@ func DailyReleaseQualification(baseBranch *string) error {
 	return fmt.Errorf("release qualification failed")
 }
 
-func traverseJobTree(job config.Postsubmit, postsubmitJobs *[]string) {
-	*postsubmitJobs = append(*postsubmitJobs, job.Name)
-	if len(job.RunAfterSuccess) > 0 {
-		for _, childJob := range job.RunAfterSuccess {
-			traverseJobTree(childJob, postsubmitJobs)
+func traverseJobTree(job config.Postsubmit, postsubmitJobs *[]string, targetBranch string) {
+	for _, branch := range job.Brancher.Branches {
+		if branch == targetBranch {
+			*postsubmitJobs = append(*postsubmitJobs, job.Name)
+			if len(job.RunAfterSuccess) > 0 {
+				for _, childJob := range job.RunAfterSuccess {
+					traverseJobTree(childJob, postsubmitJobs, targetBranch)
+				}
+			}
+			break
 		}
 	}
 }
 
-func readPostsubmitListFromProwConfig(org, repo string) []string {
+func readPostsubmitListFromProwConfig(org, repo, branch string) []string {
 	var postsubmitJobs []string
 	repoRootDir, err := u.Shell("git rev-parse --show-toplevel")
 	repoRootDir = strings.TrimSuffix(repoRootDir, "\n")
@@ -305,7 +305,7 @@ func readPostsubmitListFromProwConfig(org, repo string) []string {
 	}
 
 	for _, job := range config.Postsubmits[fmt.Sprintf("%s/%s", org, repo)] {
-		traverseJobTree(job, &postsubmitJobs)
+		traverseJobTree(job, &postsubmitJobs, branch)
 	}
 	return postsubmitJobs
 }
