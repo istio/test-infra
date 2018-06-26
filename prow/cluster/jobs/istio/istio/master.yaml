@@ -1,0 +1,209 @@
+
+common_e2e_spec: &common_e2e_spec
+  containers:
+  - image: gcr.io/istio-testing/prowbazel:0.4.9
+    args:
+    - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+    - "--clean"
+    - "--timeout=90"
+    # Bazel needs privileged mode in order to sandbox builds.
+    securityContext:
+      privileged: true
+  nodeSelector:
+    cloud.google.com/gke-nodepool: new-cluster-pool
+
+presubmits:
+
+  istio/istio:
+
+  - name: istio-unit-tests
+    agent: kubernetes
+    context: prow/istio-unit-tests.sh
+    branches:
+    - master
+    always_run: true
+    optional: true
+    rerun_command: "/test istio-unit-tests"
+    trigger: "(?m)^/(retest|test (all|istio-unit-tests))?,?(\\s+|$)"
+    labels:
+      preset-service-account: "true"
+      preset-istio-kubeconfig: "true"
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.4.9
+        args:
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+        - "--clean"
+        - "--timeout=60"
+        securityContext:
+          privileged: true
+      nodeSelector:
+        cloud.google.com/gke-nodepool: build-pool
+
+  - name: istio-presubmit
+    agent: kubernetes
+    context: prow/istio-presubmit.sh
+    branches:
+    - master
+    always_run: true
+    rerun_command: "/test istio-presubmit"
+    trigger: "(?m)^/(retest|test (all|istio-presubmit))?,?(\\s+|$)"
+    labels:
+      preset-service-account: "true"
+      preset-istio-kubeconfig: "true"
+    spec:
+      <<: *common_e2e_spec
+    - name: istio-pilot-e2e-envoyv2-v1alpha3
+      agent: kubernetes
+      context: prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
+      rerun_command: "/test istio-pilot-e2e-envoyv2-v1alpha3"
+      trigger: "(?m)^/test (istio-pilot-e2e-envoyv2-v1alpha3)?,?(\\s+|$)"
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        <<: *common_e2e_spec
+    - name: e2e-mixer-no_auth
+      agent: kubernetes
+      context: prow/e2e-mixer-no_auth.sh
+      rerun_command: "/test e2e-mixer-no_auth"
+      trigger: "(?m)^/test (e2e-mixer-no_auth)?,?(\\s+|$)"
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        <<: *common_e2e_spec
+    - name: e2e-dashboard
+      agent: kubernetes
+      context: prow/e2e-dashboard.sh
+      rerun_command: "/test e2e-dashboard"
+      trigger: "(?m)^/test (e2e-dashboard)?,?(\\s+|$)"
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        <<: *common_e2e_spec
+    - name: e2e-bookInfoTests-envoyv2-v1alpha3
+      agent: kubernetes
+      context: prow/e2e-bookInfoTests-v1alpha3.sh
+      rerun_command: "/test e2e-bookInfo-envoyv2-v1alpha3"
+      trigger: "(?m)^/test (e2e-bookInfo-envoyv2-v1alpha3)?,?(\\s+|$)"
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        <<: *common_e2e_spec
+    - name: e2e-simpleTests
+      agent: kubernetes
+      context: prow/e2e-simpleTests.sh
+      rerun_command: "/test e2e-simple"
+      trigger: "(?m)^/test (e2e-simple)?,?(\\s+|$)"
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        <<: *common_e2e_spec
+
+  - name: e2e-suite-rbac-no_auth
+    context: prow/e2e-suite-rbac-no_auth.sh
+    branches:
+    - master
+    always_run: false
+    rerun_command: "/test e2e-suite-rbac-no_auth"
+    trigger: "(?m)^/(test e2e-suite-rbac-no_auth)?,?(\\s+|$)"
+    agent: kubernetes
+    labels:
+      preset-service-account: "true"
+    spec:
+      <<: *common_e2e_spec
+
+  - name: e2e-suite-rbac-auth
+    context: prow/e2e-suite-rbac-auth.sh
+    branches:
+    - master
+    always_run: false
+    rerun_command: "/test e2e-suite-rbac-auth"
+    trigger: "(?m)^/(test e2e-suite-rbac-auth)?,?(\\s+|$)"
+    agent: kubernetes
+    labels:
+      preset-service-account: "true"
+    spec:
+      <<: *common_e2e_spec
+
+  - name: e2e-cluster_wide-auth
+    context: prow/e2e-cluster_wide-auth.sh
+    branches:
+    - master
+    always_run: false
+    rerun_command: "/test e2e-cluster_wide-auth"
+    trigger: "(?m)^/(test e2e-cluster_wide-auth)?,?(\\s+|$)"
+    agent: kubernetes
+    labels:
+      preset-service-account: "true"
+    spec:
+      <<: *common_e2e_spec
+
+  - name: istio-pilot-multicluster-e2e
+    context: prow/istio-pilot-multicluster-e2e.sh
+    branches:
+    - master
+    always_run: false
+    rerun_command: "/test istio-pilot-multicluster-e2e"
+    trigger: "(?m)^/(test istio-pilot-multicluster-e2e)?,?(\\s+|$)"
+    agent: kubernetes
+    labels:
+      preset-service-account: "true"
+    max_concurrency: 5
+    spec:
+      <<: *common_e2e_spec
+
+postsubmits:
+
+  istio/istio:
+
+  - name: istio-postsubmit
+    agent: kubernetes
+    branches:
+    - master
+    labels:
+      preset-service-account: "true"
+      preset-istio-kubeconfig: "true"
+    spec:
+      <<: *common_e2e_spec
+    run_after_success:
+    - name: e2e-simpleTests
+      agent: kubernetes
+      labels:
+        preset-service-account: "true"
+      spec:
+        <<: *common_e2e_spec
+    - name: e2e-bookInfoTests-envoyv2-v1alpha3
+      agent: kubernetes
+      labels:
+        preset-service-account: "true"
+      spec:
+        <<: *common_e2e_spec
+    - name: istio-pilot-e2e-envoyv2-v1alpha3
+      agent: kubernetes
+      labels:
+        preset-service-account: "true"
+      spec:
+        <<: *common_e2e_spec
+    - name: istio-pilot-e2e-envoyv2-v1alpha3-k8s-1.10
+      agent: kubernetes
+      labels:
+        preset-service-account: "true"
+      spec:
+        <<: *common_e2e_spec
+    - name: e2e-mixer-no_auth
+      agent: kubernetes
+      labels:
+        preset-service-account: "true"
+      spec:
+        <<: *common_e2e_spec
+    - name: e2e-dashboard
+      agent: kubernetes
+      labels:
+        preset-service-account: "true"
+      spec:
+        <<: *common_e2e_spec
