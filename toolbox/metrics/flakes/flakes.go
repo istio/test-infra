@@ -88,7 +88,7 @@ func (f *FlakeGauge) update() error {
 
 // Update implements metrics.Metric interface
 func (f *FlakeGauge) Update(ctx context.Context) error {
-	glog.Infof("upading flakes matrics")
+	glog.Infof("updaing flakes matrics")
 	errc := make(chan error)
 	go func() {
 		errc <- f.update()
