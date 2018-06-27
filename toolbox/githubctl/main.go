@@ -278,15 +278,12 @@ func DailyReleaseQualification(baseBranch *string) error {
 }
 
 func traverseJobTree(job config.Postsubmit, postsubmitJobs *[]string, targetBranch string) {
-	for _, branch := range job.Brancher.Branches {
-		if branch == targetBranch {
-			*postsubmitJobs = append(*postsubmitJobs, job.Name)
-			if len(job.RunAfterSuccess) > 0 {
-				for _, childJob := range job.RunAfterSuccess {
-					traverseJobTree(childJob, postsubmitJobs, targetBranch)
-				}
+	if job.Brancher.RunsAgainstBranch(targetBranch) {
+		*postsubmitJobs = append(*postsubmitJobs, job.Name)
+		if len(job.RunAfterSuccess) > 0 {
+			for _, childJob := range job.RunAfterSuccess {
+				traverseJobTree(childJob, postsubmitJobs, targetBranch)
 			}
-			break
 		}
 	}
 }
