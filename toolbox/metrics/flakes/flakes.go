@@ -54,7 +54,7 @@ func NewMetric() *FlakeGauge {
 		gauge: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Name: "consistency",
-				Help: "In past 7 days, Number of successful runs over number of total runs",
+				Help: "In yesterday, Number of successful runs over number of total runs",
 			},
 			[]string{"job"},
 		),
