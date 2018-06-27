@@ -181,7 +181,6 @@ presets:
 
 common_qual_branches: &common_qual_branches
 - master
-- release-0.8
 - release-1.0.0-snapshot.0
 
 common_e2e_spec: &common_e2e_spec
@@ -656,6 +655,7 @@ presubmits:
     always_run: true
     rerun_command: "/test daily-e2e-pilot-no_auth"
     trigger: "(?m)^/(retest|test (all|daily-e2e-pilot-no_auth))?,?(\\s+|$)"
+    branches: *common_qual_branches
     labels:
       preset-service-account: "true"
     spec:
@@ -667,6 +667,7 @@ presubmits:
     always_run: true
     rerun_command: "/test daily-e2e-bookinfo"
     trigger: "(?m)^/(retest|test (all|daily-e2e-bookinfo))?,?(\\s+|$)"
+    branches: *common_qual_branches
     labels:
       preset-service-account: "true"
     spec:
@@ -678,6 +679,7 @@ presubmits:
     always_run: true
     rerun_command: "/test daily-e2e-simple"
     trigger: "(?m)^/(retest|test (all|daily-e2e-simple))?,?(\\s+|$)"
+    branches: *common_qual_branches
     labels:
       preset-service-account: "true"
     spec:
@@ -689,6 +691,7 @@ presubmits:
     always_run: true
     rerun_command: "/test daily-e2e-mixer-no_auth"
     trigger: "(?m)^/(retest|test (all|daily-e2e-mixer-no_auth))?,?(\\s+|$)"
+    branches: *common_qual_branches
     labels:
       preset-service-account: "true"
     spec:
@@ -700,8 +703,74 @@ presubmits:
     always_run: true
     rerun_command: "/test daily-e2e-dashboard"
     trigger: "(?m)^/(retest|test (all|daily-e2e-dashboard))?,?(\\s+|$)"
+    branches: *common_qual_branches
     labels:
       preset-service-account: "true"
+    spec:
+      <<: *common_e2e_spec
+
+  - name: daily-pilot-e2e-envoyv2-v1alpha3
+    agent: kubernetes
+    context: prow/daily-pilot-e2e-envoyv2-v1alpha3.sh
+    branches:
+    - release-0.8
+    always_run: true
+    rerun_command: "/test daily-pilot-e2e-envoyv2-v1alpha3"
+    trigger: "(?m)^/(retest|test (all|daily-pilot-e2e-envoyv2-v1alpha3))?,?(\\s+|$)"
+    labels:
+      preset-service-account: true
+    spec:
+      <<: *common_e2e_spec
+
+  - name: daily-e2e-rbac-no_auth
+    agent: kubernetes
+    context: prow/daily-e2e-rbac-no_auth.sh
+    branches:
+    - release-0.8
+    always_run: true
+    rerun_command: "/test daily-e2e-rbac-no_auth"
+    trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-no_auth))?,?(\\s+|$)"
+    labels:
+      preset-service-account: true
+    spec:
+      <<: *common_e2e_spec
+
+  - name: daily-e2e-rbac-no_auth-default
+    agent: kubernetes
+    context: prow/daily-e2e-rbac-no_auth-default.sh
+    branches:
+    - release-0.8
+    always_run: true
+    rerun_command: "/test daily-e2e-rbac-no_auth-default"
+    trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-no_auth-default))?,?(\\s+|$)"
+    labels:
+      preset-service-account: true
+    spec:
+      <<: *common_e2e_spec
+
+  - name: daily-e2e-rbac-auth
+    agent: kubernetes
+    context: prow/daily-e2e-rbac-auth.sh
+    branches:
+    - release-0.8
+    always_run: true
+    rerun_command: "/test daily-e2e-rbac-auth"
+    trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-auth))?,?(\\s+|$)"
+    labels:
+      preset-service-account: true
+    spec:
+      <<: *common_e2e_spec
+
+  - name: daily-e2e-rbac-auth-default
+    agent: kubernetes
+    context: prow/daily-e2e-rbac-auth-default.sh
+    branches:
+    - release-0.8
+    always_run: true
+    rerun_command: "/test daily-e2e-rbac-auth-default"
+    trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-auth-default))?,?(\\s+|$)"
+    labels:
+      preset-service-account: true
     spec:
       <<: *common_e2e_spec
 
