@@ -1087,3 +1087,32 @@ periodics:
         secretName: istio-testing-netrc
     nodeSelector:
       cloud.google.com/gke-nodepool: new-cluster-pool
+
+- interval: 24h
+  agent: kubernetes
+  name: gcr_cleanup_istio_testing
+  labels:
+    preset-service-account: "true"
+  spec:
+    containers:
+    - image: gcr.io/istio-testing/prowbazel:0.4.9
+      args:
+      - "--repo=github.com/istio/test-infra=master"
+      - "--clean"
+      - "--timeout=1400"
+      securityContext:
+        privileged: false
+      env:
+      - name: GIT_BRANCH
+        value: master
+      volumeMounts:
+      - name: oauth
+        mountPath: /etc/github
+        readOnly: true
+    volumes:
+    - name: oauth
+      secret:
+        secretName: oauth-token
+    nodeSelector:
+      cloud.google.com/gke-nodepool: new-cluster-pool
+
