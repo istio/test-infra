@@ -84,7 +84,7 @@ type task struct {
 
 // preprocessProwResults downloads the most recent prow results up to maxRunDepth
 // then returns a two-level map job -> sha -> passed (true) or failed (false)
-func preprocessProwResults(postSubmitJobs []string) map[string]map[string]bool {
+func preprocessProwResults(postSubmitJobs map[string]struct{}) map[string]map[string]bool {
 	glog.Infof("Start preprocessing prow results")
 	prowAccessor := s.NewProwAccessor(
 		prowProject,
@@ -117,7 +117,7 @@ func preprocessProwResults(postSubmitJobs []string) map[string]map[string]bool {
 		}()
 	}
 	// if postSubmitJobs is empty, the for loop exits immediately
-	for _, job := range postSubmitJobs {
+	for job := range postSubmitJobs {
 		cache[job] = make(map[string]bool)
 		runNumber, err := prowAccessor.GetLatestRun(job)
 		if err != nil {
@@ -134,15 +134,6 @@ func preprocessProwResults(postSubmitJobs []string) map[string]map[string]bool {
 	return cache
 }
 
-func contains(skipJobs []string, job string) bool {
-	for _, j := range skipJobs {
-		if j == job {
-			return true
-		}
-	}
-	return false
-}
-
 func getLatestGreenSHA() (string, error) {
 	u.AssertNotEmpty("repo", repo)
 	u.AssertNotEmpty("base_branch", baseBranch)
@@ -150,6 +141,9 @@ func getLatestGreenSHA() (string, error) {
 	u.AssertPositive("max_run_depth", maxRunDepth)
 	postSubmitJobs := readPostsubmitListFromProwConfig(*owner, *repo, *baseBranch)
 	skipJobs := strings.Split(*skip, ",")
+	for _, skipedJob := range skipJobs {
+		delete(postSubmitJobs, skipedJob)
+	}
 	results := preprocessProwResults(postSubmitJobs)
 	sha, err := githubClnt.GetHeadCommitSHA(*repo, *baseBranch)
 	if err != nil {
@@ -158,10 +152,7 @@ func getLatestGreenSHA() (string, error) {
 	for i := 0; i < *maxCommitDepth; i++ {
 		glog.Infof("Checking if [%s] passed all checks. %d commits before HEAD", sha, i)
 		allChecksPassed := true
-		for _, job := range postSubmitJobs {
-			if contains(skipJobs, job) {
-				continue
-			}
+		for job := range postSubmitJobs {
 			passed, keyExists := results[job][sha]
 			if !keyExists {
 				glog.V(1).Infof("Results unknown in local cache for [%s] at [%s], treat the test as failed", job, sha)
@@ -290,9 +281,9 @@ func DailyReleaseQualification(baseBranch *string) error {
 	return fmt.Errorf("release qualification failed")
 }
 
-func traverseJobTree(job config.Postsubmit, postsubmitJobs *[]string, targetBranch string) {
+func traverseJobTree(job config.Postsubmit, postsubmitJobs *map[string]struct{}, targetBranch string) {
 	if job.Brancher.RunsAgainstBranch(targetBranch) {
-		*postsubmitJobs = append(*postsubmitJobs, job.Name)
+		(*postsubmitJobs)[job.Name] = struct{}{}
 		if len(job.RunAfterSuccess) > 0 {
 			for _, childJob := range job.RunAfterSuccess {
 				traverseJobTree(childJob, postsubmitJobs, targetBranch)
@@ -301,8 +292,8 @@ func traverseJobTree(job config.Postsubmit, postsubmitJobs *[]string, targetBran
 	}
 }
 
-func readPostsubmitListFromProwConfig(org, repo, branch string) []string {
-	var postsubmitJobs []string
+func readPostsubmitListFromProwConfig(org, repo, branch string) map[string]struct{} {
+	postsubmitJobs := make(map[string]struct{})
 	repoRootDir, err := u.Shell("git rev-parse --show-toplevel")
 	repoRootDir = strings.TrimSuffix(repoRootDir, "\n")
 	if err != nil {
