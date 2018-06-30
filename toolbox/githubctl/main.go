@@ -41,6 +41,7 @@ var (
 	tag                   = flag.String("tag", "", "Tag of the release candidate")
 	releaseOrg            = flag.String("rel_org", "istio-releases", "GitHub Release Org")
 	gcsPath               = flag.String("gcs_path", "", "The path to the GCS bucket")
+	skip                  = flag.String("skip", "", "comma separated list of jobs to skip")
 	maxCommitDepth        = flag.Int("max_commit_depth", 200, "Max number of commits before HEAD to check if green")
 	maxRunDepth           = flag.Int("max_run_depth", 500, "Max number of runs before the latest one of which results are checked")
 	maxConcurrentRequests = flag.Int("max_concurrent_reqs", 50, "Max number of concurrent requests permitted")
@@ -133,12 +134,22 @@ func preprocessProwResults(postSubmitJobs []string) map[string]map[string]bool {
 	return cache
 }
 
+func contains(skipJobs []string, job string) bool {
+	for _, j := range skipJobs {
+		if j == job {
+			return true
+		}
+	}
+	return false
+}
+
 func getLatestGreenSHA() (string, error) {
 	u.AssertNotEmpty("repo", repo)
 	u.AssertNotEmpty("base_branch", baseBranch)
 	u.AssertPositive("max_commit_depth", maxCommitDepth)
 	u.AssertPositive("max_run_depth", maxRunDepth)
 	postSubmitJobs := readPostsubmitListFromProwConfig(*owner, *repo, *baseBranch)
+	skipJobs := strings.Split(*skip, ",")
 	results := preprocessProwResults(postSubmitJobs)
 	sha, err := githubClnt.GetHeadCommitSHA(*repo, *baseBranch)
 	if err != nil {
@@ -148,6 +159,9 @@ func getLatestGreenSHA() (string, error) {
 		glog.Infof("Checking if [%s] passed all checks. %d commits before HEAD", sha, i)
 		allChecksPassed := true
 		for _, job := range postSubmitJobs {
+			if contains(skipJobs, job) {
+				continue
+			}
 			passed, keyExists := results[job][sha]
 			if !keyExists {
 				glog.V(1).Infof("Results unknown in local cache for [%s] at [%s], treat the test as failed", job, sha)
@@ -277,15 +291,12 @@ func DailyReleaseQualification(baseBranch *string) error {
 }
 
 func traverseJobTree(job config.Postsubmit, postsubmitJobs *[]string, targetBranch string) {
-	for _, branch := range job.Brancher.Branches {
-		if branch == targetBranch {
-			*postsubmitJobs = append(*postsubmitJobs, job.Name)
-			if len(job.RunAfterSuccess) > 0 {
-				for _, childJob := range job.RunAfterSuccess {
-					traverseJobTree(childJob, postsubmitJobs, targetBranch)
-				}
+	if job.Brancher.RunsAgainstBranch(targetBranch) {
+		*postsubmitJobs = append(*postsubmitJobs, job.Name)
+		if len(job.RunAfterSuccess) > 0 {
+			for _, childJob := range job.RunAfterSuccess {
+				traverseJobTree(childJob, postsubmitJobs, targetBranch)
 			}
-			break
 		}
 	}
 }
