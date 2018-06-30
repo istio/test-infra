@@ -46,7 +46,6 @@ var (
 	maxConcurrentRequests = flag.Int("max_concurrent_reqs", 50, "Max number of concurrent requests permitted")
 	githubClnt            *u.GithubClient
 	ghClntRel             *u.GithubClient
-	postSubmitJobs        = []string{}
 )
 
 const (
@@ -84,7 +83,7 @@ type task struct {
 
 // preprocessProwResults downloads the most recent prow results up to maxRunDepth
 // then returns a two-level map job -> sha -> passed (true) or failed (false)
-func preprocessProwResults() map[string]map[string]bool {
+func preprocessProwResults(postSubmitJobs []string) map[string]map[string]bool {
 	glog.Infof("Start preprocessing prow results")
 	prowAccessor := s.NewProwAccessor(
 		prowProject,
@@ -116,7 +115,7 @@ func preprocessProwResults() map[string]map[string]bool {
 			}
 		}()
 	}
-	// note: if postSubmitJobs was not found in map, the for loop exits immediately
+	// if postSubmitJobs is empty, the for loop exits immediately
 	for _, job := range postSubmitJobs {
 		cache[job] = make(map[string]bool)
 		runNumber, err := prowAccessor.GetLatestRun(job)
@@ -139,8 +138,8 @@ func getLatestGreenSHA() (string, error) {
 	u.AssertNotEmpty("base_branch", baseBranch)
 	u.AssertPositive("max_commit_depth", maxCommitDepth)
 	u.AssertPositive("max_run_depth", maxRunDepth)
-	postSubmitJobs = readPostsubmitListFromProwConfig(*owner, *repo, *baseBranch)
-	results := preprocessProwResults()
+	postSubmitJobs := readPostsubmitListFromProwConfig(*owner, *repo, *baseBranch)
+	results := preprocessProwResults(postSubmitJobs)
 	sha, err := githubClnt.GetHeadCommitSHA(*repo, *baseBranch)
 	if err != nil {
 		glog.Fatalf("failed to get the head commit sha of %s/%s: %v", *repo, *baseBranch, err)
