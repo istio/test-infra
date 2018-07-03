@@ -29,7 +29,7 @@ blocked_branches: &blocked_branches
   release-0.7: *blocking_merge
   release-0.8: *blocking_merge
   release-1.0.0-snapshot.0: *blocking_merge
-  release-1.0.0: *blocking_merge
+  release-1.0: *blocking_merge
   master:
     protect: true
 
@@ -182,7 +182,8 @@ presets:
 
 common_qual_branches: &common_qual_branches
 - master
-- release-1.0.0
+- release-1.0
+- release-1.0.0-snapshot.0
 
 common_e2e_spec: &common_e2e_spec
   containers:
@@ -406,7 +407,8 @@ presubmits:
       trigger: "(?m)^/test (istio-pilot-e2e-envoyv2-v1alpha3)?,?(\\s+|$)"
       branches:
       - release-0.8
-      - release-1.0.0
+      - release-1.0
+      - release-1.0.0-snapshot.0
       - master
       labels:
         preset-service-account: "true"
@@ -474,6 +476,7 @@ presubmits:
       branches:
       - release-0.8
       - release-1.0.0
+      - release-1.0.0-snapshot.0
       - master
       labels:
         preset-service-account: "true"
@@ -1032,7 +1035,7 @@ periodics:
         privileged: true
       env:
       - name: GIT_BRANCHES
-        value: master,release-0.8,release-1.0.0
+        value: master,release-0.8,release-1.0,release-1.0.0-snapshot.0
       - name: GIT_BRANCH
         value: master
       volumeMounts:
@@ -1067,7 +1070,7 @@ periodics:
         privileged: true
       env:
       - name: GIT_BRANCHES
-        value: master,release-0.8,release-1.0.0
+        value: master,release-0.8,release-1.0,release-1.0.0-snapshot.0
       - name: GIT_BRANCH
         value: master
       - name: NETRC
