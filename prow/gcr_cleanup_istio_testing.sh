@@ -29,8 +29,6 @@ function delete_image() {
   echo echo deleting $IMAGE containers older than $DATE
   for digest in $(gcloud container images list-tags ${IMAGE} --limit=999999 --sort-by=TIMESTAMP \
      --filter "timestamp.datetime < '${DATE}'" --format='get(digest)'); do
-#    --filter "tags:???????????????????????????????????????? AND timestamp.datetime < '${DATE}'" --format='get(digest)'); do
-#--filter "NOT tags:* AND timestamp.datetime < '${DATE}'" --format='get(digest)'); do
     if [ $R -eq 0 ] || [ $R -eq 10 ]; then
       echo ""
       echo -n gcloud container images delete -q --force-delete-tags "${IMAGE}@${digest} "
@@ -46,15 +44,44 @@ function delete_image() {
   unset IFS
 }
 
+image_list=(
+  app
+  citadel
+  citadel-test
+  eurekamirror
+  flexvolumedriver
+  fortio
+  fortio.echosrv
+  fortio.fortio
+  fortio.grpcping
+  galley
+  grafana
+  istio-ca
+  istio-ca-test
+  manager
+  mixer
+  mixer_debug
+  node-agent
+  node-agent-test
+  pilot
+  proxy
+  proxy_debug
+  proxy_init
+  proxyv2
+  servicegraph
+  servicegraph_debug
+  sidecar_initialzer
+  sidecar_injector
+  test_policybackend
+  testmixer
+)
 
 function delete_all_images() {
   local TMP_DIR=$1
   local DEL_DATE=$2
   local REGISTRY="gcr.io/istio-testing"
 
-#  for image_name in galley grafana istio-ca istio-ca-test manager mixer mixer_debug node-agent node-agent-test pilot proxy proxy_debug proxy_init proxyv2 servicegraph servicegraph_debug sidecar_initialzer sidecar_injector test_policybackend testmixer; do
-
-  for image_name in app citadel citadel-test eurekamirror flexvolumedriver fortio fortio.echosrv fortio.fortio fortio.grpcping galley grafana istio-ca istio-ca-test manager mixer mixer_debug node-agent node-agent-test pilot proxy proxy_debug proxy_init proxyv2 servicegraph servicegraph_debug sidecar_initialzer sidecar_injector test_policybackend testmixer; do
+  for image_name in "${image_list[@]}"; do
 
     touch     $TMP_DIR/$image_name
     chmod +x  $TMP_DIR/$image_name
