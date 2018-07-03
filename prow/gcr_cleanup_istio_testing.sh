@@ -79,7 +79,7 @@ image_list=(
 function delete_all_images() {
   local TMP_DIR=$1
   local DEL_DATE=$2
-  local REGISTRY="gcr.io/istio-testing"
+  local REGISTRY=$3
 
   for image_name in "${image_list[@]}"; do
 
@@ -87,10 +87,9 @@ function delete_all_images() {
     chmod +x  $TMP_DIR/$image_name
     delete_image $REGISTRY/$image_name $DEL_DATE >> $TMP_DIR/$image_name
 
-    echo      echo "\\n\\n" $image_name start
+    echo      echo $REGISTRY/$image_name start
     echo      $TMP_DIR/$image_name
-    echo      date
-    echo      echo $image_name done
+    echo      echo $REGISTRY/$image_name done
   done
 }
 
@@ -98,12 +97,15 @@ function delete_all_images() {
 TMP_DIR=$(mktemp -d)
 [[ ! -z "${TMP_DIR}"  ]] || exit 1
 
-DEL_DATE=$(date "+%C%y-%m-%d" -d "-30 days")
+DEL_DATE_30=$( date "+%C%y-%m-%d" -d  "-30 days")
+DEL_DATE_180=$(date "+%C%y-%m-%d" -d "-180 days")
 
 echo     $TMP_DIR/delete_all.sh
 touch    $TMP_DIR/delete_all.sh
 chmod +x $TMP_DIR/delete_all.sh
-delete_all_images $TMP_DIR $DEL_DATE >> $TMP_DIR/delete_all.sh
+
+delete_all_images $TMP_DIR $DEL_DATE_30  gcr.io/istio-testing >> $TMP_DIR/delete_all.sh
+delete_all_images $TMP_DIR $DEL_DATE_180 gcr.io/istio-release >> $TMP_DIR/delete_all.sh
 
 $TMP_DIR/delete_all.sh
 
