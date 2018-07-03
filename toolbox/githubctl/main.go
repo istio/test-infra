@@ -281,9 +281,9 @@ func DailyReleaseQualification(baseBranch *string) error {
 	return fmt.Errorf("release qualification failed")
 }
 
-func traverseJobTree(job config.Postsubmit, postsubmitJobs *map[string]struct{}, targetBranch string) {
+func traverseJobTree(job config.Postsubmit, postsubmitJobs map[string]struct{}, targetBranch string) {
 	if job.Brancher.RunsAgainstBranch(targetBranch) {
-		(*postsubmitJobs)[job.Name] = struct{}{}
+		postsubmitJobs[job.Name] = struct{}{}
 		if len(job.RunAfterSuccess) > 0 {
 			for _, childJob := range job.RunAfterSuccess {
 				traverseJobTree(childJob, postsubmitJobs, targetBranch)
@@ -306,7 +306,7 @@ func readPostsubmitListFromProwConfig(org, repo, branch string) map[string]struc
 	}
 
 	for _, job := range config.Postsubmits[fmt.Sprintf("%s/%s", org, repo)] {
-		traverseJobTree(job, &postsubmitJobs, branch)
+		traverseJobTree(job, postsubmitJobs, branch)
 	}
 	return postsubmitJobs
 }
