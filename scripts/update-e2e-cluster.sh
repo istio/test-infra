@@ -95,7 +95,6 @@ for i in {1..2}; do
     --machine-type ${MACHINE_TYPE} \
     --num-nodes ${NUM_NODES} \
     --no-enable-legacy-authorization \
-    --enable-kubernetes-alpha \
     --quiet \
   ||  echo 'Failed')
   [[ ${result} == 'Failed' ]] || break
