@@ -13,10 +13,10 @@ get-cluster-credentials:
 	gcloud container clusters get-credentials "$(CLUSTER)" --project="$(PROJECT)" --zone="$(ZONE)"
 
 update-config: get-cluster-credentials
-	kubectl create configmap config --from-file=config=./config.yaml --dry-run -o yaml | kubectl replace configmap config -f -
+	kubectl create configmap config --from-file=./config.yaml --dry-run -o yaml | kubectl replace configmap config -f -
 
 update-plugins: get-cluster-credentials
-	kubectl create configmap plugins --from-file=plugins=./plugins.yaml --dry-run -o yaml | kubectl replace configmap plugins -f -
+	kubectl create configmap plugins --from-file=./plugins.yaml --dry-run -o yaml | kubectl replace configmap plugins -f -
 
 # use to guarantee that on command completion all deployments see new configs
 update-configs: update-config update-plugins
