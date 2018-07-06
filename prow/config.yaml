@@ -1049,6 +1049,23 @@ periodics:
     nodeSelector:
       cloud.google.com/gke-nodepool: new-cluster-pool
 
+- interval: 696h # 24 hours/day * 29 days
+  agent: kubernetes
+  name: test-infra-renew-cluster
+  labels:
+    preset-service-account: "true"
+  spec:
+    containers:
+    - image: gcr.io/istio-testing/prowbazel:0.4.9
+      args:
+      - "--repo=github.com/istio/test-infra=master"
+      - "--clean"
+      - "--timeout=60"
+      securityContext:
+        privileged: true
+    nodeSelector:
+      cloud.google.com/gke-nodepool: new-cluster-pool
+
 - interval: 30m
   agent: kubernetes
   name: green-build
