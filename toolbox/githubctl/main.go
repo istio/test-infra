@@ -18,10 +18,13 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/golang/glog"
+	"k8s.io/test-infra/prow/config"
 
 	s "istio.io/test-infra/sisyphus"
 	u "istio.io/test-infra/toolbox/util"
@@ -38,37 +41,12 @@ var (
 	tag                   = flag.String("tag", "", "Tag of the release candidate")
 	releaseOrg            = flag.String("rel_org", "istio-releases", "GitHub Release Org")
 	gcsPath               = flag.String("gcs_path", "", "The path to the GCS bucket")
+	skip                  = flag.String("skip", "", "comma separated list of jobs to skip")
 	maxCommitDepth        = flag.Int("max_commit_depth", 200, "Max number of commits before HEAD to check if green")
 	maxRunDepth           = flag.Int("max_run_depth", 500, "Max number of runs before the latest one of which results are checked")
 	maxConcurrentRequests = flag.Int("max_concurrent_reqs", 50, "Max number of concurrent requests permitted")
 	githubClnt            *u.GithubClient
 	ghClntRel             *u.GithubClient
-	// unable to query post-submit jobs as GitHub is unaware of them
-	// needs to be consistent with prow config map
-	postSubmitJobsMap = map[string][]string{
-		"master": {
-			"e2e-mixer-no_auth",
-			"e2e-bookInfoTests-envoyv2-v1alpha3",
-			"istio-pilot-e2e-envoyv2-v1alpha3",
-			"e2e-simpleTests",
-			"e2e-dashboard",
-			"istio-postsubmit",
-		},
-		"release-1.0.0-snapshot-0": {
-			"e2e-mixer-no_auth",
-			"e2e-bookInfoTests-envoyv2-v1alpha3",
-			"istio-pilot-e2e-envoyv2-v1alpha3",
-			"e2e-simpleTests",
-			"e2e-dashboard",
-			"istio-postsubmit",
-		},
-		"release-0.8": {
-			"istio-postsubmit",
-			"e2e-suite-rbac-no_auth",
-			"e2e-suite-rbac-auth",
-			"e2e-cluster_wide-auth",
-		},
-	}
 )
 
 const (
@@ -106,7 +84,7 @@ type task struct {
 
 // preprocessProwResults downloads the most recent prow results up to maxRunDepth
 // then returns a two-level map job -> sha -> passed (true) or failed (false)
-func preprocessProwResults() map[string]map[string]bool {
+func preprocessProwResults(postSubmitJobs map[string]struct{}) map[string]map[string]bool {
 	glog.Infof("Start preprocessing prow results")
 	prowAccessor := s.NewProwAccessor(
 		prowProject,
@@ -138,9 +116,8 @@ func preprocessProwResults() map[string]map[string]bool {
 			}
 		}()
 	}
-	postSubmitJobs := postSubmitJobsMap[*baseBranch]
-	// note: if postSubmitJobs was not found in map, the for loop exits immediately
-	for _, job := range postSubmitJobs {
+	// if postSubmitJobs is empty, the for loop exits immediately
+	for job := range postSubmitJobs {
 		cache[job] = make(map[string]bool)
 		runNumber, err := prowAccessor.GetLatestRun(job)
 		if err != nil {
@@ -162,19 +139,20 @@ func getLatestGreenSHA() (string, error) {
 	u.AssertNotEmpty("base_branch", baseBranch)
 	u.AssertPositive("max_commit_depth", maxCommitDepth)
 	u.AssertPositive("max_run_depth", maxRunDepth)
-	results := preprocessProwResults()
+	postSubmitJobs := readPostsubmitListFromProwConfig(*owner, *repo, *baseBranch)
+	skipJobs := strings.Split(*skip, ",")
+	for _, skipedJob := range skipJobs {
+		delete(postSubmitJobs, skipedJob)
+	}
+	results := preprocessProwResults(postSubmitJobs)
 	sha, err := githubClnt.GetHeadCommitSHA(*repo, *baseBranch)
 	if err != nil {
 		glog.Fatalf("failed to get the head commit sha of %s/%s: %v", *repo, *baseBranch, err)
 	}
-	postSubmitJobs, found := postSubmitJobsMap[*baseBranch]
-	if !found {
-		return "", fmt.Errorf("cannot find post submit jobs for branch %s", *baseBranch)
-	}
 	for i := 0; i < *maxCommitDepth; i++ {
 		glog.Infof("Checking if [%s] passed all checks. %d commits before HEAD", sha, i)
 		allChecksPassed := true
-		for _, job := range postSubmitJobs {
+		for job := range postSubmitJobs {
 			passed, keyExists := results[job][sha]
 			if !keyExists {
 				glog.V(1).Infof("Results unknown in local cache for [%s] at [%s], treat the test as failed", job, sha)
@@ -301,6 +279,36 @@ func DailyReleaseQualification(baseBranch *string) error {
 		return nil
 	}
 	return fmt.Errorf("release qualification failed")
+}
+
+func traverseJobTree(job config.Postsubmit, postsubmitJobs map[string]struct{}, targetBranch string) {
+	if job.Brancher.RunsAgainstBranch(targetBranch) {
+		postsubmitJobs[job.Name] = struct{}{}
+		if len(job.RunAfterSuccess) > 0 {
+			for _, childJob := range job.RunAfterSuccess {
+				traverseJobTree(childJob, postsubmitJobs, targetBranch)
+			}
+		}
+	}
+}
+
+func readPostsubmitListFromProwConfig(org, repo, branch string) map[string]struct{} {
+	postsubmitJobs := make(map[string]struct{})
+	repoRootDir, err := u.Shell("git rev-parse --show-toplevel")
+	repoRootDir = strings.TrimSuffix(repoRootDir, "\n")
+	if err != nil {
+		glog.Fatalf("cannot find repo root directory path")
+	}
+	prowConfigYaml := filepath.Join(repoRootDir, "prow/config.yaml")
+	config, err := config.Load(prowConfigYaml, "")
+	if err != nil {
+		glog.Fatalf("could not read configs: %v", err)
+	}
+
+	for _, job := range config.Postsubmits[fmt.Sprintf("%s/%s", org, repo)] {
+		traverseJobTree(job, postsubmitJobs, branch)
+	}
+	return postsubmitJobs
 }
 
 func init() {
