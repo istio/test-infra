@@ -961,6 +961,40 @@ postsubmits:
       nodeSelector:
         cloud.google.com/gke-nodepool: build-pool
 
+  - name: proxy-postsubmit
+    agent: kubernetes
+    context: prow/proxy-postsubmit.sh
+    always_run: true
+    rerun_command: "/test proxy-postsubmit"
+    trigger: "(?m)^/(retest|test (all|proxy-postsubmit))?,?(\\s+|$)"
+    branches:
+    - sds_api
+    labels:
+      preset-service-account: "true"
+      preset-bazel: "true"
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.4.9
+        args:
+        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+        - "--clean"
+        - "--timeout=60"
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        ports:
+        - containerPort: 9999
+          hostPort: 9998
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "24Gi"
+            cpu: "7000m"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: build-pool
+
 periodics:
 
 - interval: 10m
