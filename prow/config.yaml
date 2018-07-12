@@ -92,7 +92,24 @@ branch-protection:
             - ci/circleci
             - deploy/netlify
           branches:
-            <<: *blocked_branches
+            release-0.1:
+              protect: true
+            release-0.2:
+              protect: true
+            release-0.3:
+              protect: true
+            release-0.4:
+              protect: true
+            release-0.5:
+              protect: true
+            release-0.6:
+              protect: true
+            release-0.7:
+              protect: true
+            release-0.8:
+              protect: true
+            master:
+              protect: true
         proxy:
           protect: false
           required_status_checks:
@@ -126,12 +143,22 @@ tide:
     - do-not-merge/work-in-progress
     - needs-ok-to-test
     - needs-rebase
+  - repos:
+    - istio-releases/daily-release
+    labels:
+    missingLabels:
+    - do-not-merge
+    - do-not-merge/hold
+    - do-not-merge/work-in-progress
+    - needs-ok-to-test
+    - needs-rebase
   merge_method:
     istio/api: squash
     istio/istio.github.io: squash
     istio/istio: squash
     istio/proxy: squash
     istio/test-infra: squash
+    istio-releases/daily-release: squash
   target_url: https://prow.istio.io/tide.html
 
   context_options:
@@ -633,6 +660,7 @@ presubmits:
   - name: daily-perf-tests
     agent: kubernetes
     context: prow/daily-perf-tests.sh
+    optional: true
     always_run: true
     rerun_command: "/test daily-perf-tests"
     trigger: "(?m)^/(retest|test (all|daily-perf-tests))?,?(\\s+|$)"
