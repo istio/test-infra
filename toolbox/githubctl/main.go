@@ -225,8 +225,6 @@ func DailyReleaseQualification(baseBranch *string) error {
 		}
 	}()
 
-	verbose := true
-	ci := u.NewCIState()
 	retryDelay := 5 * time.Minute
 	maxWait := 20 * time.Hour
 	totalRetries := int(maxWait / retryDelay)
@@ -239,38 +237,18 @@ func DailyReleaseQualification(baseBranch *string) error {
 			return true, err
 		}
 		if *pr.Merged {
-			// PR is apparently closed manually. Exit the loop.
-			glog.Infof("pr was manually merged.\n")
+			// PR is already merged. Either all tests have passed or it is manually merged. Exit the loop.
+			glog.Infof("pr was has been merged.\n")
 			return true, nil
 		}
 		if *pr.State == "closed" {
-			// PR is apparently closed manually. Exit the loop.
-			return false, fmt.Errorf("pr close was manually closed")
+			// PR is closed and not merged, which is a signal the qualification is abandoned.
+			glog.Infof("pr has been closed.\n")
+			return true, nil
 		}
-
-		status, errPoll := ghClntRel.GetPRTestResults(dailyRepo, pr, verbose)
-		verbose = false
-		if errPoll != nil {
-			return false, errPoll
-		}
-		exitPolling := false
-		switch status {
-		case ci.Success:
-			exitPolling = true
-			glog.Infof("Auto merging this PR to update daily release\n")
-			errPoll = ghClntRel.MergePR(dailyRepo, pr)
-			*pr.Merged = true
-
-		case ci.Pending:
-			glog.Infof("Results still pending. Will check again in %v.\n", retryDelay)
-		case ci.Error:
-		case ci.Failure:
-			// Go back to sleep until timeout, so that release engineer can potentially suppress test failure or retest
-			// in github directly.
-		}
-		return exitPolling, errPoll
+		return false, nil
 	})
-	// Fail to poll or merge
+	// Fail to poll
 	if err != nil {
 		return err
 	}
