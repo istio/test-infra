@@ -33,6 +33,7 @@ import (
 	"gopkg.in/robfig/cron.v2"
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/util/sets"
 
 	"k8s.io/test-infra/prow/config/org"
 	"k8s.io/test-infra/prow/github"
@@ -260,7 +261,28 @@ type Branding struct {
 }
 
 // Load loads and parses the config at path.
-func Load(prowConfig, jobConfig string) (*Config, error) {
+func Load(prowConfig, jobConfig string) (c *Config, err error) {
+	// we never want config loading to take down the prow components
+	defer func() {
+		if r := recover(); r != nil {
+			c, err = nil, fmt.Errorf("panic loading config: %v", r)
+		}
+	}()
+	c, err = loadConfig(prowConfig, jobConfig)
+	if err != nil {
+		return nil, err
+	}
+	if err := c.finalizeJobConfig(); err != nil {
+		return nil, err
+	}
+	if err := c.validateJobConfig(); err != nil {
+		return nil, err
+	}
+	return c, nil
+}
+
+// loadConfig loads one or multiple config files and returns a config object.
+func loadConfig(prowConfig, jobConfig string) (*Config, error) {
 	stat, err := os.Stat(prowConfig)
 	if err != nil {
 		return nil, err
@@ -270,15 +292,18 @@ func Load(prowConfig, jobConfig string) (*Config, error) {
 		return nil, fmt.Errorf("prowConfig cannot be a dir - %s", prowConfig)
 	}
 
-	nc, err := yamlToConfig(prowConfig)
-	if err != nil {
+	var nc Config
+	if err := yamlToConfig(prowConfig, &nc); err != nil {
+		return nil, err
+	}
+	if err := parseProwConfig(&nc); err != nil {
 		return nil, err
 	}
 
 	// TODO(krzyzacy): temporary allow empty jobconfig
 	//                 also temporary allow job config in prow config
 	if jobConfig == "" {
-		return nc, nil
+		return &nc, nil
 	}
 
 	stat, err = os.Stat(jobConfig)
@@ -288,20 +313,33 @@ func Load(prowConfig, jobConfig string) (*Config, error) {
 
 	if !stat.IsDir() {
 		// still support a single file
-		jobConfig, err := yamlToConfig(jobConfig)
-		if err != nil {
+		var jc JobConfig
+		if err := yamlToConfig(jobConfig, &jc); err != nil {
 			return nil, err
 		}
-		if err := nc.mergeJobConfig(jobConfig.JobConfig); err != nil {
+		if err := nc.mergeJobConfig(jc); err != nil {
 			return nil, err
 		}
-		return nc, nil
+		return &nc, nil
 	}
+
+	// we need to ensure all config files have unique basenames,
+	// since updateconfig plugin will use basename as a key in the configmap
+	uniqueBasenames := sets.String{}
 
 	err = filepath.Walk(jobConfig, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			logrus.WithError(err).Errorf("walking path %q.", path)
 			// bad file should not stop us from parsing the directory
+			return nil
+		}
+
+		if strings.HasPrefix(info.Name(), "..") {
+			// kubernetes volumes also include files we
+			// should not look be looking into for keys
+			if info.IsDir() {
+				return filepath.SkipDir
+			}
 			return nil
 		}
 
@@ -313,33 +351,36 @@ func Load(prowConfig, jobConfig string) (*Config, error) {
 			return nil
 		}
 
-		subConfig, err := yamlToConfig(path)
-		if err != nil {
+		base := filepath.Base(path)
+		if uniqueBasenames.Has(base) {
+			return fmt.Errorf("duplicated basename is not allowed: %s", base)
+		}
+		uniqueBasenames.Insert(base)
+
+		var subConfig JobConfig
+		if err := yamlToConfig(path, &subConfig); err != nil {
 			return err
 		}
-		return nc.mergeJobConfig(subConfig.JobConfig)
+		return nc.mergeJobConfig(subConfig)
 	})
 
 	if err != nil {
 		return nil, err
 	}
-	return nc, nil
+
+	return &nc, nil
 }
 
 // yamlToConfig converts a yaml file into a Config object
-func yamlToConfig(path string) (*Config, error) {
+func yamlToConfig(path string, nc interface{}) error {
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("error reading %s: %v", path, err)
+		return fmt.Errorf("error reading %s: %v", path, err)
 	}
-	nc := &Config{}
 	if err := yaml.Unmarshal(b, nc); err != nil {
-		return nil, fmt.Errorf("error unmarshaling %s: %v", path, err)
+		return fmt.Errorf("error unmarshaling %s: %v", path, err)
 	}
-	if err := parseConfig(nc); err != nil {
-		return nil, err
-	}
-	return nc, nil
+	return nil
 }
 
 // mergeConfig merges two JobConfig together
@@ -349,9 +390,9 @@ func yamlToConfig(path string) (*Config, error) {
 // 	- Periodics
 //	- PodPresets
 func (c *Config) mergeJobConfig(jc JobConfig) error {
+	// Merge everything
+	// *** Presets ***
 	c.Presets = append(c.Presets, jc.Presets...)
-
-	c.Periodics = append(c.Periodics, jc.Periodics...)
 
 	// validate no duplicated presets
 	validLabels := map[string]string{}
@@ -364,77 +405,60 @@ func (c *Config) mergeJobConfig(jc JobConfig) error {
 		}
 	}
 
-	// validate no duplicated periodics
-	validPeriodics := map[string]bool{}
-	for _, p := range c.AllPeriodics() {
-		if _, ok := validPeriodics[p.Name]; ok {
-			return fmt.Errorf("duplicated periodic job : %s", p.Name)
-		}
-		validPeriodics[p.Name] = true
-	}
+	// *** Periodics ***
+	c.Periodics = append(c.Periodics, jc.Periodics...)
 
-	// validate no presubmit with same name exists cross multiple files
-	validPresubmits := map[string]bool{}
-	for _, p := range c.AllPresubmits(nil) {
-		validPresubmits[p.Name] = true
-	}
-
+	// *** Presubmits ***
 	if c.Presubmits == nil {
 		c.Presubmits = make(map[string][]Presubmit)
 	}
-
 	for repo, jobs := range jc.Presubmits {
-		if _, ok := c.Presubmits[repo]; ok {
-			for _, job := range jobs {
-				if _, ok := validPresubmits[job.Name]; ok {
-					return fmt.Errorf("duplicated presubmit job across multiple files : %s", job.Name)
-				}
-			}
-			c.Presubmits[repo] = append(c.Presubmits[repo], jobs...)
-		} else {
-			c.Presubmits[repo] = jobs
-		}
+		c.Presubmits[repo] = append(c.Presubmits[repo], jobs...)
 	}
 
-	// validate no postsubmit with same name exists cross multiple files
-	validPostsubmits := map[string]bool{}
-	for _, p := range c.AllPostsubmits(nil) {
-		validPostsubmits[p.Name] = true
-	}
-
+	// *** Postsubmits ***
 	if c.Postsubmits == nil {
 		c.Postsubmits = make(map[string][]Postsubmit)
 	}
-
 	for repo, jobs := range jc.Postsubmits {
-		if _, ok := c.Postsubmits[repo]; ok {
-			for _, job := range jobs {
-				if _, ok := validPostsubmits[job.Name]; ok {
-					return fmt.Errorf("duplicated postsubmit job across multiple files : %s", job.Name)
-				}
-			}
-			c.Postsubmits[repo] = append(c.Postsubmits[repo], jobs...)
-		} else {
-			c.Postsubmits[repo] = jobs
-		}
+		c.Postsubmits[repo] = append(c.Postsubmits[repo], jobs...)
 	}
 
 	return nil
 }
 
-func parseConfig(c *Config) error {
-	// Ensure that regexes are valid.
-	for _, vs := range c.Presubmits {
-		if err := SetPresubmitRegexes(vs); err != nil {
-			return fmt.Errorf("could not set regex: %v", err)
-		}
-	}
-	for _, js := range c.Postsubmits {
-		if err := SetPostsubmitRegexes(js); err != nil {
-			return fmt.Errorf("could not set regex: %v", err)
-		}
+func setPresubmitDecorationDefaults(c *Config, ps *Presubmit) {
+	if ps.Decorate {
+		ps.DecorationConfig = setDecorationDefaults(ps.DecorationConfig, c.Plank.DefaultDecorationConfig)
 	}
 
+	for i := range ps.RunAfterSuccess {
+		setPresubmitDecorationDefaults(c, &ps.RunAfterSuccess[i])
+	}
+}
+
+func setPostsubmitDecorationDefaults(c *Config, ps *Postsubmit) {
+	if ps.Decorate {
+		ps.DecorationConfig = setDecorationDefaults(ps.DecorationConfig, c.Plank.DefaultDecorationConfig)
+	}
+
+	for i := range ps.RunAfterSuccess {
+		setPostsubmitDecorationDefaults(c, &ps.RunAfterSuccess[i])
+	}
+}
+
+func setPeriodicDecorationDefaults(c *Config, ps *Periodic) {
+	if ps.Decorate {
+		ps.DecorationConfig = setDecorationDefaults(ps.DecorationConfig, c.Plank.DefaultDecorationConfig)
+	}
+
+	for i := range ps.RunAfterSuccess {
+		setPeriodicDecorationDefaults(c, &ps.RunAfterSuccess[i])
+	}
+}
+
+// finalizeJobConfig mutates and fixes entries for jobspecs
+func (c *Config) finalizeJobConfig() error {
 	if c.decorationRequested() {
 		if c.Plank.DefaultDecorationConfig == nil {
 			return errors.New("no default decoration config provided for plank")
@@ -451,33 +475,78 @@ func parseConfig(c *Config) error {
 
 		for _, vs := range c.Presubmits {
 			for i := range vs {
-				if vs[i].Decorate {
-					vs[i].DecorationConfig = setDecorationDefaults(vs[i].DecorationConfig, c.Plank.DefaultDecorationConfig)
-				}
+				setPresubmitDecorationDefaults(c, &vs[i])
 			}
 		}
 
 		for _, js := range c.Postsubmits {
 			for i := range js {
-				if js[i].Decorate {
-					js[i].DecorationConfig = setDecorationDefaults(js[i].DecorationConfig, c.Plank.DefaultDecorationConfig)
-				}
+				setPostsubmitDecorationDefaults(c, &js[i])
 			}
 		}
 
 		for i := range c.Periodics {
-			if c.Periodics[i].Decorate {
-				c.Periodics[i].DecorationConfig = setDecorationDefaults(c.Periodics[i].DecorationConfig, c.Plank.DefaultDecorationConfig)
-			}
+			setPeriodicDecorationDefaults(c, &c.Periodics[i])
 		}
 	}
 
-	// Validate presubmits.
+	// Ensure that regexes are valid.
+	for _, vs := range c.Presubmits {
+		if err := SetPresubmitRegexes(vs); err != nil {
+			return fmt.Errorf("could not set regex: %v", err)
+		}
+	}
+	for _, js := range c.Postsubmits {
+		if err := SetPostsubmitRegexes(js); err != nil {
+			return fmt.Errorf("could not set regex: %v", err)
+		}
+	}
+
 	for _, v := range c.AllPresubmits(nil) {
-		if err := validateAgent(v.Name, v.Agent, v.Spec, v.DecorationConfig); err != nil {
+		if err := resolvePresets(v.Name, v.Labels, v.Spec, c.Presets); err != nil {
 			return err
 		}
-		if err := validatePresets(v.Name, v.Labels, v.Spec, c.Presets); err != nil {
+	}
+
+	for _, v := range c.AllPostsubmits(nil) {
+		if err := resolvePresets(v.Name, v.Labels, v.Spec, c.Presets); err != nil {
+			return err
+		}
+	}
+
+	for _, v := range c.AllPeriodics() {
+		if err := resolvePresets(v.Name, v.Labels, v.Spec, c.Presets); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// validateJobConfig validates if all the jobspecs/presets are valid
+// if you are mutating the jobs, please add it to finalizeJobConfig above
+func (c *Config) validateJobConfig() error {
+	type orgRepoJobName struct {
+		orgRepo, jobName string
+	}
+
+	// Validate presubmits.
+	// Checking that no duplicate job in prow config exists on the same org / repo / branch.
+	validPresubmits := map[orgRepoJobName][]Presubmit{}
+	for repo, jobs := range c.Presubmits {
+		for _, job := range listPresubmits(jobs) {
+			repoJobName := orgRepoJobName{repo, job.Name}
+			for _, existingJob := range validPresubmits[repoJobName] {
+				if existingJob.Brancher.Intersects(job.Brancher) {
+					return fmt.Errorf("duplicated presubmit job: %s", job.Name)
+				}
+			}
+			validPresubmits[repoJobName] = append(validPresubmits[repoJobName], job)
+		}
+	}
+
+	for _, v := range c.AllPresubmits(nil) {
+		if err := validateAgent(v.Name, v.Agent, v.Spec, v.DecorationConfig); err != nil {
 			return err
 		}
 		// Ensure max_concurrency is non-negative.
@@ -496,11 +565,22 @@ func parseConfig(c *Config) error {
 	}
 
 	// Validate postsubmits.
+	// Checking that no duplicate job in prow config exists on the same org / repo / branch.
+	validPostsubmits := map[orgRepoJobName][]Postsubmit{}
+	for repo, jobs := range c.Postsubmits {
+		for _, job := range listPostsubmits(jobs) {
+			repoJobName := orgRepoJobName{repo, job.Name}
+			for _, existingJob := range validPostsubmits[repoJobName] {
+				if existingJob.Brancher.Intersects(job.Brancher) {
+					return fmt.Errorf("duplicated postsubmit job: %s", job.Name)
+				}
+			}
+			validPostsubmits[repoJobName] = append(validPostsubmits[repoJobName], job)
+		}
+	}
+
 	for _, j := range c.AllPostsubmits(nil) {
 		if err := validateAgent(j.Name, j.Agent, j.Spec, j.DecorationConfig); err != nil {
-			return err
-		}
-		if err := validatePresets(j.Name, j.Labels, j.Spec, c.Presets); err != nil {
 			return err
 		}
 		// Ensure max_concurrency is non-negative.
@@ -515,12 +595,15 @@ func parseConfig(c *Config) error {
 		}
 	}
 
+	// validate no duplicated periodics
+	validPeriodics := sets.NewString()
 	// Ensure that the periodic durations are valid and specs exist.
 	for _, p := range c.AllPeriodics() {
-		if err := validateAgent(p.Name, p.Agent, p.Spec, p.DecorationConfig); err != nil {
-			return err
+		if validPeriodics.Has(p.Name) {
+			return fmt.Errorf("duplicated periodic job : %s", p.Name)
 		}
-		if err := validatePresets(p.Name, p.Labels, p.Spec, c.Presets); err != nil {
+		validPeriodics.Insert(p.Name)
+		if err := validateAgent(p.Name, p.Agent, p.Spec, p.DecorationConfig); err != nil {
 			return err
 		}
 		if err := validatePodSpec(p.Name, kube.PeriodicJob, p.Spec); err != nil {
@@ -550,6 +633,10 @@ func parseConfig(c *Config) error {
 		}
 	}
 
+	return nil
+}
+
+func parseProwConfig(c *Config) error {
 	if err := ValidateController(&c.Plank.Controller); err != nil {
 		return fmt.Errorf("validating plank config: %v", err)
 	}
@@ -720,7 +807,7 @@ func parseConfig(c *Config) error {
 	return nil
 }
 
-func (c *Config) decorationRequested() bool {
+func (c *JobConfig) decorationRequested() bool {
 	for _, vs := range c.Presubmits {
 		for i := range vs {
 			if vs[i].Decorate {
@@ -811,7 +898,7 @@ func validateAgent(name, agent string, spec *v1.PodSpec, config *kube.Decoration
 	return nil
 }
 
-func validatePresets(name string, labels map[string]string, spec *v1.PodSpec, presets []Preset) error {
+func resolvePresets(name string, labels map[string]string, spec *v1.PodSpec, presets []Preset) error {
 	for _, preset := range presets {
 		if err := mergePreset(preset, labels, spec); err != nil {
 			return fmt.Errorf("job %s failed to merge presets: %v", name, err)
