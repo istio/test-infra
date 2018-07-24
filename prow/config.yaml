@@ -219,7 +219,6 @@ presets:
 common_qual_branches: &common_qual_branches
 - master
 - release-1.0
-- release-1.0.0-snapshot.0
 
 common_e2e_spec: &common_e2e_spec
   containers:
@@ -444,7 +443,6 @@ presubmits:
       branches:
       - release-0.8
       - release-1.0
-      - release-1.0.0-snapshot.0
       - master
       labels:
         preset-service-account: "true"
@@ -512,7 +510,6 @@ presubmits:
       branches:
       - release-0.8
       - release-1.0.0
-      - release-1.0.0-snapshot.0
       - master
       labels:
         preset-service-account: "true"
@@ -1106,7 +1103,7 @@ periodics:
         privileged: true
       env:
       - name: GIT_BRANCHES
-        value: master,release-0.8,release-1.0,release-1.0.0-snapshot.0
+        value: master,release-0.8,release-1.0
       - name: GIT_BRANCH
         value: master
       volumeMounts:
@@ -1141,7 +1138,7 @@ periodics:
         privileged: true
       env:
       - name: GIT_BRANCHES
-        value: master,release-0.8,release-1.0,release-1.0.0-snapshot.0
+        value: master,release-0.8,release-1.0
       - name: GIT_BRANCH
         value: master
       - name: NETRC
