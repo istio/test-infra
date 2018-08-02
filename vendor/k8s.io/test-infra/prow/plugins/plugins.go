@@ -161,19 +161,21 @@ type Configuration struct {
 	Owners Owners `json:"owners,omitempty"`
 
 	// Built-in plugins specific configuration.
-	Triggers      []Trigger            `json:"triggers,omitempty"`
-	Heart         Heart                `json:"heart,omitempty"`
-	RepoMilestone map[string]Milestone `json:"repo_milestone,omitempty"`
-	Slack         Slack                `json:"slack,omitempty"`
-	ConfigUpdater ConfigUpdater        `json:"config_updater,omitempty"`
-	Blockades     []Blockade           `json:"blockades,omitempty"`
 	Approve       []Approve            `json:"approve,omitempty"`
+	Blockades     []Blockade           `json:"blockades,omitempty"`
 	Blunderbuss   Blunderbuss          `json:"blunderbuss,omitempty"`
-	RequireSIG    RequireSIG           `json:"requiresig,omitempty"`
-	SigMention    SigMention           `json:"sigmention,omitempty"`
 	Cat           Cat                  `json:"cat,omitempty"`
+	ConfigUpdater ConfigUpdater        `json:"config_updater,omitempty"`
+	Heart         Heart                `json:"heart,omitempty"`
 	Label         *Label               `json:"label,omitempty"`
 	Lgtm          []Lgtm               `json:"lgtm,omitempty"`
+	RepoMilestone map[string]Milestone `json:"repo_milestone,omitempty"`
+	RequireSIG    RequireSIG           `json:"requiresig,omitempty"`
+	Slack         Slack                `json:"slack,omitempty"`
+	SigMention    SigMention           `json:"sigmention,omitempty"`
+	Size          *Size                `json:"size,omitempty"`
+	Triggers      []Trigger            `json:"triggers,omitempty"`
+	Welcome       Welcome              `json:"welcome,omitempty"`
 }
 
 // ExternalPlugin holds configuration for registering an external
@@ -282,6 +284,16 @@ type SigMention struct {
 	// Compiles into Re during config load.
 	Regexp string         `json:"regexp,omitempty"`
 	Re     *regexp.Regexp `json:"-"`
+}
+
+// Size specifies configuration for the size plugin, defining lower bounds (in # lines changed) for each size label.
+// XS is assumed to be zero.
+type Size struct {
+	S   int `json:"s"`
+	M   int `json:"m"`
+	L   int `json:"l"`
+	Xl  int `json:"xl"`
+	Xxl int `json:"xxl"`
 }
 
 /*
@@ -439,6 +451,14 @@ type MergeWarning struct {
 	BranchWhiteList map[string][]string `json:"branch_whitelist,omitempty"`
 }
 
+// Welcome is config for the welcome plugin
+type Welcome struct {
+	// MessageTemplate is the welcome message template to post on new-contributor PRs
+	// For the info struct see prow/plugins/welcome/welcome.go's PRInfo
+	// TODO(bentheelder): make this be configurable per-repo?
+	MessageTemplate string `json:"message_template,omitempty"`
+}
+
 // TriggerFor finds the Trigger for a repo, if one exists
 // a trigger can be listed for the repo itself or for the
 // owning organization
@@ -532,6 +552,9 @@ func (pa *PluginAgent) Load(path string) error {
 	if err := validateConfigUpdater(&np.ConfigUpdater); err != nil {
 		return err
 	}
+	if err := validateSizes(np.Size); err != nil {
+		return err
+	}
 	// regexp compilation should run after defaulting
 	if err := compileRegexps(np); err != nil {
 		return err
@@ -570,6 +593,18 @@ func validatePlugins(plugins map[string][]string) error {
 	if len(errors) > 0 {
 		return fmt.Errorf("invalid plugin configuration:\n\t%v", strings.Join(errors, "\n\t"))
 	}
+	return nil
+}
+
+func validateSizes(size *Size) error {
+	if size == nil {
+		return nil
+	}
+
+	if size.S > size.M || size.M > size.L || size.L > size.Xl || size.Xl > size.Xxl {
+		return errors.New("invalid size plugin configuration - one of the smaller sizes is bigger than a larger one")
+	}
+
 	return nil
 }
 
