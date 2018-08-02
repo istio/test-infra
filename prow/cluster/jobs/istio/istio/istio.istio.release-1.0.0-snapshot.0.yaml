@@ -12,6 +12,9 @@ common_e2e_spec: &common_e2e_spec
   nodeSelector:
     cloud.google.com/gke-nodepool: new-cluster-pool
 
+branch_spec: &branch_spec
+- release-1.0.0-snapshot.0
+
 presubmits:
 
   istio/istio:
@@ -19,8 +22,7 @@ presubmits:
   - name: istio-unit-tests
     agent: kubernetes
     context: prow/istio-unit-tests.sh
-    branches:
-    - release-1.0.0-snapshot.0
+    branches: *branch_spec
     always_run: true
     optional: true
     rerun_command: "/test istio-unit-tests"
@@ -43,8 +45,7 @@ presubmits:
   - name: istio-presubmit
     agent: kubernetes
     context: prow/istio-presubmit.sh
-    branches:
-    - release-1.0.0-snapshot.0
+    branches: *branch_spec
     always_run: true
     rerun_command: "/test istio-presubmit"
     trigger: "(?m)^/(retest|test (all|istio-presubmit))?,?(\\s+|$)"
@@ -55,6 +56,7 @@ presubmits:
       <<: *common_e2e_spec
     run_after_success:
     - name: istio-pilot-e2e-envoyv2-v1alpha3
+      branches: *branch_spec
       agent: kubernetes
       context: prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
       optional: false
@@ -66,6 +68,7 @@ presubmits:
       spec:
         <<: *common_e2e_spec
     - name: e2e-mixer-no_auth
+      branches: *branch_spec
       agent: kubernetes
       context: prow/e2e-mixer-no_auth.sh
       optional: true
@@ -77,6 +80,7 @@ presubmits:
       spec:
         <<: *common_e2e_spec
     - name: e2e-dashboard
+      branches: *branch_spec
       agent: kubernetes
       context: prow/e2e-dashboard.sh
       optional: true
@@ -88,6 +92,7 @@ presubmits:
       spec:
         <<: *common_e2e_spec
     - name: e2e-bookInfoTests-envoyv2-v1alpha3
+      branches: *branch_spec
       agent: kubernetes
       context: prow/e2e-bookInfoTests-v1alpha3.sh
       optional: false
@@ -99,6 +104,7 @@ presubmits:
       spec:
         <<: *common_e2e_spec
     - name: e2e-simpleTests
+      branches: *branch_spec
       agent: kubernetes
       context: prow/e2e-simpleTests.sh
       optional: false
@@ -112,8 +118,7 @@ presubmits:
 
   - name: e2e-suite-rbac-no_auth
     context: prow/e2e-suite-rbac-no_auth.sh
-    branches:
-    - release-1.0.0-snapshot.0
+    branches: *branch_spec
     always_run: false
     rerun_command: "/test e2e-suite-rbac-no_auth"
     trigger: "(?m)^/(test e2e-suite-rbac-no_auth)?,?(\\s+|$)"
@@ -125,8 +130,7 @@ presubmits:
 
   - name: e2e-suite-rbac-auth
     context: prow/e2e-suite-rbac-auth.sh
-    branches:
-    - release-1.0.0-snapshot.0
+    branches: *branch_spec
     always_run: false
     rerun_command: "/test e2e-suite-rbac-auth"
     trigger: "(?m)^/(test e2e-suite-rbac-auth)?,?(\\s+|$)"
@@ -138,8 +142,7 @@ presubmits:
 
   - name: e2e-cluster_wide-auth
     context: prow/e2e-cluster_wide-auth.sh
-    branches:
-    - release-1.0.0-snapshot.0
+    branches: *branch_spec
     always_run: false
     rerun_command: "/test e2e-cluster_wide-auth"
     trigger: "(?m)^/(test e2e-cluster_wide-auth)?,?(\\s+|$)"
@@ -151,8 +154,7 @@ presubmits:
 
   - name: istio-pilot-multicluster-e2e
     context: prow/istio-pilot-multicluster-e2e.sh
-    branches:
-    - release-1.0.0-snapshot.0
+    branches: *branch_spec
     always_run: false
     rerun_command: "/test istio-pilot-multicluster-e2e"
     trigger: "(?m)^/(test istio-pilot-multicluster-e2e)?,?(\\s+|$)"
@@ -169,8 +171,7 @@ postsubmits:
 
   - name: istio-postsubmit
     agent: kubernetes
-    branches:
-    - release-1.0.0-snapshot.0
+    branches: *branch_spec
     labels:
       preset-service-account: "true"
       preset-istio-kubeconfig: "true"
@@ -178,36 +179,42 @@ postsubmits:
       <<: *common_e2e_spec
     run_after_success:
     - name: e2e-simpleTests
+      branches: *branch_spec
       agent: kubernetes
       labels:
         preset-service-account: "true"
       spec:
         <<: *common_e2e_spec
     - name: e2e-bookInfoTests-envoyv2-v1alpha3
+      branches: *branch_spec
       agent: kubernetes
       labels:
         preset-service-account: "true"
       spec:
         <<: *common_e2e_spec
     - name: istio-pilot-e2e-envoyv2-v1alpha3
+      branches: *branch_spec
       agent: kubernetes
       labels:
         preset-service-account: "true"
       spec:
         <<: *common_e2e_spec
     - name: istio-pilot-e2e-envoyv2-v1alpha3-k8s-1.10
+      branches: *branch_spec
       agent: kubernetes
       labels:
         preset-service-account: "true"
       spec:
         <<: *common_e2e_spec
     - name: e2e-mixer-no_auth
+      branches: *branch_spec
       agent: kubernetes
       labels:
         preset-service-account: "true"
       spec:
         <<: *common_e2e_spec
     - name: e2e-dashboard
+      branches: *branch_spec
       agent: kubernetes
       labels:
         preset-service-account: "true"
