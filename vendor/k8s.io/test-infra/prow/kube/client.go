@@ -27,6 +27,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -312,15 +313,15 @@ func NewClientInCluster(namespace string) (*Client, error) {
 // gcloud --project <gcp_project> container clusters describe --zone <zone> <cluster_name>
 type Cluster struct {
 	// The IP address of the cluster's master endpoint.
-	Endpoint string `yaml:"endpoint"`
+	Endpoint string `json:"endpoint"`
 	// Base64-encoded public cert used by clients to authenticate to the
 	// cluster endpoint.
-	ClientCertificate string `yaml:"clientCertificate"`
+	ClientCertificate string `json:"clientCertificate"`
 	// Base64-encoded private key used by clients..
-	ClientKey string `yaml:"clientKey"`
+	ClientKey string `json:"clientKey"`
 	// Base64-encoded public certificate that is the root of trust for the
 	// cluster.
-	ClusterCACertificate string `yaml:"clusterCaCertificate"`
+	ClusterCACertificate string `json:"clusterCaCertificate"`
 }
 
 // NewClientFromFile reads a Cluster object at clusterPath and returns an
@@ -337,16 +338,8 @@ func NewClientFromFile(clusterPath, namespace string) (*Client, error) {
 	return NewClient(&c, namespace)
 }
 
-// ClientMapFromFile reads the file at clustersPath and attempts to load a map of cluster aliases
-// to authenticated clients to the respective clusters.
-// The file at clustersPath is expected to be a yaml map from strings to Cluster structs OR it may
-// simply be a single Cluster struct which will be assigned the alias $DefaultClusterAlias.
-// If the file is an alias map, it must include the alias $DefaultClusterAlias.
-func ClientMapFromFile(clustersPath, namespace string) (map[string]*Client, error) {
-	data, err := ioutil.ReadFile(clustersPath)
-	if err != nil {
-		return nil, err
-	}
+// UnmarshalClusterMap reads a map[string]Cluster in yaml bytes.
+func UnmarshalClusterMap(data []byte) (map[string]Cluster, error) {
 	var raw map[string]Cluster
 	if err := yaml.Unmarshal(data, &raw); err != nil {
 		// If we failed to unmarshal the multicluster format try the single Cluster format.
@@ -355,6 +348,28 @@ func ClientMapFromFile(clustersPath, namespace string) (map[string]*Client, erro
 			return nil, err
 		}
 		raw = map[string]Cluster{DefaultClusterAlias: singleConfig}
+	}
+	return raw, nil
+}
+
+// MarshalClusterMap writes c as yaml bytes.
+func MarshalClusterMap(c map[string]Cluster) ([]byte, error) {
+	return yaml.Marshal(c)
+}
+
+// ClientMapFromFile reads the file at clustersPath and attempts to load a map of cluster aliases
+// to authenticated clients to the respective clusters.
+// The file at clustersPath is expected to be a yaml map from strings to Cluster structs OR it may
+// simply be a single Cluster struct which will be assigned the alias $DefaultClusterAlias.
+// If the file is an alias map, it must include the alias $DefaultClusterAlias.
+func ClientMapFromFile(clustersPath, namespace string) (map[string]*Client, error) {
+	data, err := ioutil.ReadFile(clustersPath)
+	if err != nil {
+		return nil, fmt.Errorf("read error: %v", err)
+	}
+	raw, err := UnmarshalClusterMap(data)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal error: %v", err)
 	}
 	foundDefault := false
 	result := map[string]*Client{}
@@ -575,6 +590,22 @@ func (c *Client) GetLog(pod string) ([]byte, error) {
 	c.log("GetLog", pod)
 	return c.requestRetry(&request{
 		path: fmt.Sprintf("/api/v1/namespaces/%s/pods/%s/log", c.namespace, pod),
+	})
+}
+
+// GetLogTail returns the last n bytes of the log of the specified container in the specified pod,
+// in the client's default namespace.
+//
+// Analogous to kubectl logs pod --tail -1 --limit-bytes n -c container
+func (c *Client) GetLogTail(pod, container string, n int64) ([]byte, error) {
+	c.log("GetLogTail", pod, n)
+	return c.requestRetry(&request{
+		path: fmt.Sprintf("/api/v1/namespaces/%s/pods/%s/log", c.namespace, pod),
+		query: map[string]string{ // Because we want last n bytes, we fetch all lines and then limit to n bytes
+			"tailLines":  "-1",
+			"container":  container,
+			"limitBytes": strconv.FormatInt(n, 10),
+		},
 	})
 }
 

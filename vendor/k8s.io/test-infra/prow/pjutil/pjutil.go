@@ -71,8 +71,10 @@ func NewProwJob(spec kube.ProwJobSpec, labels map[string]string) kube.ProwJob {
 	}
 
 	return kube.ProwJob{
-		APIVersion: "prow.k8s.io/v1",
-		Kind:       "ProwJob",
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "prow.k8s.io/v1",
+			Kind:       "ProwJob",
+		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   uuid.NewV1().String(),
 			Labels: allLabels,
@@ -83,6 +85,31 @@ func NewProwJob(spec kube.ProwJobSpec, labels map[string]string) kube.ProwJob {
 			State:     kube.TriggeredState,
 		},
 	}
+}
+
+func NewPresubmit(pr github.PullRequest, baseSHA string, job config.Presubmit, eventGUID string) kube.ProwJob {
+	org := pr.Base.Repo.Owner.Login
+	repo := pr.Base.Repo.Name
+	number := pr.Number
+	kr := kube.Refs{
+		Org:     org,
+		Repo:    repo,
+		BaseRef: pr.Base.Ref,
+		BaseSHA: baseSHA,
+		Pulls: []kube.Pull{
+			{
+				Number: number,
+				Author: pr.User.Login,
+				SHA:    pr.Head.SHA,
+			},
+		},
+	}
+	labels := make(map[string]string)
+	for k, v := range job.Labels {
+		labels[k] = v
+	}
+	labels[github.EventGUID] = eventGUID
+	return NewProwJob(PresubmitSpec(job, kr), labels)
 }
 
 // PresubmitSpec initializes a ProwJobSpec for a given presubmit job.
@@ -176,7 +203,7 @@ func BatchSpec(p config.Presubmit, refs kube.Refs) kube.ProwJobSpec {
 		Job:       p.Name,
 		Refs:      &refs,
 		ExtraRefs: p.ExtraRefs,
-		Context:   p.Context, // The Submit Queue's getCompleteBatches needs this.
+		Context:   p.Context,
 
 		DecorationConfig: p.DecorationConfig,
 	}
