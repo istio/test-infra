@@ -20,7 +20,7 @@ presubmits:
     agent: kubernetes
     context: prow/istio-unit-tests.sh
     branches:
-    - master
+    - release-1.0.0-snapshot.0
     always_run: true
     optional: true
     rerun_command: "/test istio-unit-tests"
@@ -44,7 +44,7 @@ presubmits:
     agent: kubernetes
     context: prow/istio-presubmit.sh
     branches:
-    - master
+    - release-1.0.0-snapshot.0
     always_run: true
     rerun_command: "/test istio-presubmit"
     trigger: "(?m)^/(retest|test (all|istio-presubmit))?,?(\\s+|$)"
@@ -53,9 +53,11 @@ presubmits:
       preset-istio-kubeconfig: "true"
     spec:
       <<: *common_e2e_spec
+    run_after_success:
     - name: istio-pilot-e2e-envoyv2-v1alpha3
       agent: kubernetes
       context: prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
+      optional: false
       rerun_command: "/test istio-pilot-e2e-envoyv2-v1alpha3"
       trigger: "(?m)^/test (istio-pilot-e2e-envoyv2-v1alpha3)?,?(\\s+|$)"
       labels:
@@ -66,6 +68,7 @@ presubmits:
     - name: e2e-mixer-no_auth
       agent: kubernetes
       context: prow/e2e-mixer-no_auth.sh
+      optional: true
       rerun_command: "/test e2e-mixer-no_auth"
       trigger: "(?m)^/test (e2e-mixer-no_auth)?,?(\\s+|$)"
       labels:
@@ -76,6 +79,7 @@ presubmits:
     - name: e2e-dashboard
       agent: kubernetes
       context: prow/e2e-dashboard.sh
+      optional: true
       rerun_command: "/test e2e-dashboard"
       trigger: "(?m)^/test (e2e-dashboard)?,?(\\s+|$)"
       labels:
@@ -86,6 +90,7 @@ presubmits:
     - name: e2e-bookInfoTests-envoyv2-v1alpha3
       agent: kubernetes
       context: prow/e2e-bookInfoTests-v1alpha3.sh
+      optional: false
       rerun_command: "/test e2e-bookInfo-envoyv2-v1alpha3"
       trigger: "(?m)^/test (e2e-bookInfo-envoyv2-v1alpha3)?,?(\\s+|$)"
       labels:
@@ -96,6 +101,7 @@ presubmits:
     - name: e2e-simpleTests
       agent: kubernetes
       context: prow/e2e-simpleTests.sh
+      optional: false
       rerun_command: "/test e2e-simple"
       trigger: "(?m)^/test (e2e-simple)?,?(\\s+|$)"
       labels:
@@ -107,7 +113,7 @@ presubmits:
   - name: e2e-suite-rbac-no_auth
     context: prow/e2e-suite-rbac-no_auth.sh
     branches:
-    - master
+    - release-1.0.0-snapshot.0
     always_run: false
     rerun_command: "/test e2e-suite-rbac-no_auth"
     trigger: "(?m)^/(test e2e-suite-rbac-no_auth)?,?(\\s+|$)"
@@ -120,7 +126,7 @@ presubmits:
   - name: e2e-suite-rbac-auth
     context: prow/e2e-suite-rbac-auth.sh
     branches:
-    - master
+    - release-1.0.0-snapshot.0
     always_run: false
     rerun_command: "/test e2e-suite-rbac-auth"
     trigger: "(?m)^/(test e2e-suite-rbac-auth)?,?(\\s+|$)"
@@ -133,7 +139,7 @@ presubmits:
   - name: e2e-cluster_wide-auth
     context: prow/e2e-cluster_wide-auth.sh
     branches:
-    - master
+    - release-1.0.0-snapshot.0
     always_run: false
     rerun_command: "/test e2e-cluster_wide-auth"
     trigger: "(?m)^/(test e2e-cluster_wide-auth)?,?(\\s+|$)"
@@ -146,7 +152,7 @@ presubmits:
   - name: istio-pilot-multicluster-e2e
     context: prow/istio-pilot-multicluster-e2e.sh
     branches:
-    - master
+    - release-1.0.0-snapshot.0
     always_run: false
     rerun_command: "/test istio-pilot-multicluster-e2e"
     trigger: "(?m)^/(test istio-pilot-multicluster-e2e)?,?(\\s+|$)"
@@ -164,7 +170,7 @@ postsubmits:
   - name: istio-postsubmit
     agent: kubernetes
     branches:
-    - master
+    - release-1.0.0-snapshot.0
     labels:
       preset-service-account: "true"
       preset-istio-kubeconfig: "true"
