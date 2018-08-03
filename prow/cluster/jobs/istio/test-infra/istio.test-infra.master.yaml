@@ -1,0 +1,44 @@
+
+bazel_spec: &bazel_spec
+  containers:
+  - image: gcr.io/istio-testing/prowbazel:0.4.10
+    args:
+    - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+    - "--clean"
+    - "--timeout=20"
+    # Bazel needs privileged mode in order to sandbox builds.
+    securityContext:
+      privileged: true
+    ports:
+    - containerPort: 9999
+      hostPort: 9998
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "24Gi"
+        cpu: "7000m"
+  nodeSelector:
+    cloud.google.com/gke-nodepool: build-pool
+
+presubmits:
+
+  istio/test-infra:
+
+  - name: test-infra-presubmit
+    agent: kubernetes
+    context: prow/test-infra-presubmit.sh
+    always_run: true
+    rerun_command: "/test test-infra-presubmit"
+    trigger: "(?m)^/(retest|test (all|test-infra-presubmit))?,?(\\s+|$)"
+    branches:
+    - master
+    labels:
+      preset-service-account: "true"
+      preset-bazel: "true"
+    spec:
+      <<: *bazel_spec
+
+postsubmits:
+
