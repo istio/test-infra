@@ -18,6 +18,7 @@ spec:
             args:
             - --config-path=/etc/config/config.yaml
             - --github-token-path=/etc/github/oauth
+            - --job-config-path=/etc/job-config
             - --confirm
             volumeMounts:
             - name: oauth
@@ -25,6 +26,9 @@ spec:
               readOnly: true
             - name: config
               mountPath: /etc/config
+              readOnly: true
+            - name: job-config
+              mountPath: /etc/job-config
               readOnly: true
           restartPolicy: Never
           volumes:
@@ -34,3 +38,6 @@ spec:
           - name: config
             configMap:
               name: config
+          - name: job-config
+            configMap:
+              name: job-config

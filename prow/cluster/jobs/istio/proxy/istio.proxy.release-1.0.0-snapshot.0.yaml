@@ -1,0 +1,87 @@
+
+bazel_spec: &bazel_spec
+  containers:
+  - image: gcr.io/istio-testing/prowbazel:0.4.9
+    args:
+    - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+    - "--clean"
+    - "--timeout=20"
+    # Bazel needs privileged mode in order to sandbox builds.
+    securityContext:
+      privileged: true
+    ports:
+    - containerPort: 9999
+      hostPort: 9998
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "24Gi"
+        cpu: "7000m"
+  nodeSelector:
+    cloud.google.com/gke-nodepool: build-pool
+
+presubmits:
+
+  istio/proxy:
+
+  - name: proxy-presubmit
+    agent: kubernetes
+    context: prow/proxy-presubmit.sh
+    branches:
+    - release-1.0.0-snapshot.0
+    always_run: true
+    rerun_command: "/test proxy-presubmit"
+    trigger: "(?m)^/(retest|test (all|proxy-presubmit))?,?(\\s+|$)"
+    labels:
+      preset-service-account: "true"
+      preset-bazel: "true"
+    spec:
+      <<: *bazel_spec
+
+  - name: proxy-presubmit-asan
+    agent: kubernetes
+    context: prow/proxy-presubmit-asan.sh
+    branches:
+    - release-1.0.0-snapshot.0
+    always_run: true
+    rerun_command: "/test proxy-presubmit-asan"
+    trigger: "(?m)^/(retest|test (all|proxy-presubmit-asan))?,?(\\s+|$)"
+    labels:
+      preset-service-account: "true"
+      preset-bazel: "true"
+    spec:
+      <<: *bazel_spec
+
+  - name: proxy-presubmit-tsan
+    agent: kubernetes
+    context: prow/proxy-presubmit-tsan.sh
+    branches:
+    - release-1.0.0-snapshot.0
+    always_run: true
+    rerun_command: "/test proxy-presubmit-tsan"
+    trigger: "(?m)^/(retest|test (all|proxy-presubmit-tsan))?,?(\\s+|$)"
+    labels:
+      preset-service-account: "true"
+      preset-bazel: "true"
+    spec:
+      <<: *bazel_spec
+
+postsubmits:
+
+  istio/proxy:
+
+  - name: proxy-postsubmit
+    agent: kubernetes
+    context: prow/proxy-postsubmit.sh
+    branches:
+    - release-1.0.0-snapshot.0
+    always_run: true
+    rerun_command: "/test proxy-postsubmit"
+    trigger: "(?m)^/(retest|test (all|proxy-postsubmit))?,?(\\s+|$)"
+    labels:
+      preset-service-account: "true"
+      preset-bazel: "true"
+    spec:
+      <<: *bazel_spec

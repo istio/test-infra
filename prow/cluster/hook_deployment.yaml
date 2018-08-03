@@ -23,6 +23,7 @@ spec:
         args:
         - --dry-run=false
         - --slack-token-file=/etc/slack/token
+        - --job-config-path=/etc/job-config
         ports:
           - name: http
             containerPort: 8888
@@ -42,6 +43,9 @@ spec:
         - name: slack
           mountPath: /etc/slack
           readOnly: true
+        - name: job-config
+          mountPath: /etc/job-config
+          readOnly: true
       volumes:
       - name: slack
         secret:
@@ -58,3 +62,6 @@ spec:
       - name: plugins
         configMap:
           name: plugins
+      - name: job-config
+        configMap:
+          name: job-config

@@ -3,7 +3,10 @@ load("@io_bazel_rules_go//go:def.bzl", "go_test")
 go_test(
     name = "go_default_test",
     srcs = ["config_test.go"],
-    data = ["//prow:configs"],
+    data = [
+        "//prow:configs",
+        "//prow/cluster:configs",
+    ],
     importpath = "istio.io/test-infra/prow/config",
     deps = [
         "//vendor/k8s.io/test-infra/prow/config:go_default_library",
