@@ -101,6 +101,17 @@ presubmits:
       max_concurrency: 5
       spec:
         <<: *common_spec
+    - name: istio-pilot-multicluster-e2e
+      branches: *branch_spec
+      agent: kubernetes
+      context: prow/istio-pilot-multicluster-e2e.sh
+      rerun_command: "/test istio-pilot-multicluster-e2e"
+      trigger: "(?m)^/test (istio-pilot-multicluster-e2e)?,?(\\s+|$)"
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        <<: *common_spec
 
   - name: e2e-suite-rbac-no_auth
     context: prow/e2e-suite-rbac-no_auth.sh
@@ -135,19 +146,6 @@ presubmits:
     agent: kubernetes
     labels:
       preset-service-account: "true"
-    spec:
-      <<: *common_spec
-
-  - name: istio-pilot-multicluster-e2e
-    context: prow/istio-pilot-multicluster-e2e.sh
-    branches: *branch_spec
-    always_run: false
-    rerun_command: "/test istio-pilot-multicluster-e2e"
-    trigger: "(?m)^/(test istio-pilot-multicluster-e2e)?,?(\\s+|$)"
-    agent: kubernetes
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
     spec:
       <<: *common_spec
 
