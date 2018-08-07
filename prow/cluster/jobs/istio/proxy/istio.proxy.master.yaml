@@ -5,7 +5,7 @@ bazel_spec: &bazel_spec
     args:
     - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
     - "--clean"
-    - "--timeout=20"
+    - "--timeout=60"
     # Bazel needs privileged mode in order to sandbox builds.
     securityContext:
       privileged: true
@@ -84,24 +84,4 @@ postsubmits:
       preset-service-account: "true"
       preset-bazel: "true"
     spec:
-      containers:
-      - image: gcr.io/istio-testing/prowbazel:0.4.10
-        args:
-        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
-        - "--clean"
-        - "--timeout=60"
-        # Bazel needs privileged mode in order to sandbox builds.
-        securityContext:
-          privileged: true
-        ports:
-        - containerPort: 9999
-          hostPort: 9998
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "24Gi"
-            cpu: "7000m"
-      nodeSelector:
-        cloud.google.com/gke-nodepool: build-pool
+      <<: *bazel_spec
