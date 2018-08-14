@@ -129,7 +129,7 @@ presubmits:
     - master
     spec:
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.1.2
+      - image: gcr.io/istio-testing/prowbazel:0.4.11
     # ...
 
 # in plugins.yaml
