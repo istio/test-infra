@@ -41,3 +41,4 @@ Our dependency on this script is because it appropariately writes test job resul
 * 0.4.8: update golang to 1.10.1
 * 0.4.9: adds helm 2.7.2
 * 0.4.10: adds ninja and updates bazel to 0.15.2
+* 0.4.11: update clang to 6.0
