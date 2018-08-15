@@ -211,8 +211,8 @@ func updateDependenciesOf(repo string) error {
 			return err
 		}
 	}
-	if _, err = u.Shell("git diff --quiet HEAD"); err == nil {
-		// it exited without error, nothing to commit
+	if _, err = u.Shell("git diff -w --quiet HEAD"); err == nil {
+		// diff exited without error, nothing to commit or only whitespace changes
 		log.Printf("%s is up to date. No commits are made.", repo)
 		return nil
 	}
