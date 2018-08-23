@@ -32,16 +32,7 @@ presubmits:
       preset-service-account: "true"
       preset-istio-kubeconfig: "true"
     spec:
-      containers:
-      - image: gcr.io/istio-testing/prowbazel:0.4.11
-        args:
-        - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
-        - "--clean"
-        - "--timeout=60"
-        securityContext:
-          privileged: true
-      nodeSelector:
-        cloud.google.com/gke-nodepool: build-pool
+      <<: *common_e2e_spec
 
   - name: istio-presubmit
     agent: kubernetes
@@ -168,8 +159,6 @@ postsubmits:
   - name: istio-postsubmit
     agent: kubernetes
     branches: *branch_spec
-    branches:
-    - release-1.0
     labels:
       preset-service-account: "true"
       preset-istio-kubeconfig: "true"
