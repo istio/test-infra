@@ -1,4 +1,17 @@
 
+build_e2e_spec: &build_e2e_spec
+  containers:
+  - image: gcr.io/istio-testing/prowbazel:0.4.11
+    args:
+    - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+    - "--clean"
+    - "--timeout=90"
+    # Bazel needs privileged mode in order to sandbox builds.
+    securityContext:
+      privileged: true
+  nodeSelector:
+    cloud.google.com/gke-nodepool: build-pool
+
 common_e2e_spec: &common_e2e_spec
   containers:
   - image: gcr.io/istio-testing/prowbazel:0.4.11
@@ -32,7 +45,7 @@ presubmits:
       preset-service-account: "true"
       preset-istio-kubeconfig: "true"
     spec:
-      <<: *common_e2e_spec
+      <<: *build_e2e_spec
 
   - name: istio-presubmit
     agent: kubernetes
