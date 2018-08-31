@@ -1,5 +1,5 @@
 
-common_e2e_spec: &common_e2e_spec
+build_spec: &build_spec
   containers:
   - image: gcr.io/istio-testing/prowbazel:0.4.11
     args:
@@ -10,7 +10,20 @@ common_e2e_spec: &common_e2e_spec
     securityContext:
       privileged: true
   nodeSelector:
-    cloud.google.com/gke-nodepool: new-cluster-pool
+    testing: build-pool
+
+test_spec: &test_spec
+  containers:
+  - image: gcr.io/istio-testing/prowbazel:0.4.11
+    args:
+    - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+    - "--clean"
+    - "--timeout=90"
+    # Bazel needs privileged mode in order to sandbox builds.
+    securityContext:
+      privileged: true
+  nodeSelector:
+    testing: test-pool
 
 presubmits:
 
@@ -26,7 +39,7 @@ presubmits:
     labels:
       preset-service-account: true
     spec:
-      <<: *common_e2e_spec
+      <<: *test_spec
   - name: daily-unit-tests
     agent: kubernetes
     context: prow/daily-unit-tests.sh
@@ -39,7 +52,7 @@ presubmits:
       preset-service-account: true
       preset-istio-kubeconfig: true
     spec:
-      <<: *common_e2e_spec
+      <<: *build_spec
   - name: daily-pilot-e2e-envoyv2-v1alpha3
     agent: kubernetes
     context: prow/daily-pilot-e2e-envoyv2-v1alpha3.sh
@@ -51,7 +64,7 @@ presubmits:
     labels:
       preset-service-account: true
     spec:
-      <<: *common_e2e_spec
+      <<: *test_spec
   - name: daily-e2e-rbac-no_auth
     agent: kubernetes
     context: prow/daily-e2e-rbac-no_auth.sh
@@ -63,7 +76,7 @@ presubmits:
     labels:
       preset-service-account: true
     spec:
-      <<: *common_e2e_spec
+      <<: *test_spec
   - name: daily-e2e-rbac-no_auth-default
     agent: kubernetes
     context: prow/daily-e2e-rbac-no_auth-default.sh
@@ -75,7 +88,7 @@ presubmits:
     labels:
       preset-service-account: true
     spec:
-      <<: *common_e2e_spec
+      <<: *test_spec
   - name: daily-e2e-rbac-auth
     agent: kubernetes
     context: prow/daily-e2e-rbac-auth.sh
@@ -87,7 +100,7 @@ presubmits:
     labels:
       preset-service-account: true
     spec:
-      <<: *common_e2e_spec
+      <<: *test_spec
   - name: daily-e2e-rbac-auth-default
     agent: kubernetes
     context: prow/daily-e2e-rbac-auth-default.sh
@@ -99,7 +112,7 @@ presubmits:
     labels:
       preset-service-account: true
     spec:
-      <<: *common_e2e_spec
+      <<: *test_spec
 
 postsubmits:
 

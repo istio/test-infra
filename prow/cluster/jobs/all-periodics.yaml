@@ -1,4 +1,17 @@
 
+test_spec: &test_spec
+  containers:
+  - image: gcr.io/istio-testing/prowbazel:0.4.11
+    args:
+    - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+    - "--clean"
+    - "--timeout=30"
+    # Bazel needs privileged mode in order to sandbox builds.
+    securityContext:
+      privileged: true
+  nodeSelector:
+    testing: test-pool
+
 periodics:
 
 - interval: 10m
@@ -8,17 +21,7 @@ periodics:
     preset-service-account: "true"
     preset-istio-kubeconfig: "true"
   spec:
-    containers:
-    - image: gcr.io/istio-testing/prowbazel:0.4.11
-      args:
-      - "--repo=github.com/istio/test-infra=master"
-      - "--clean"
-      - "--timeout=20"
-      # Docker needs privileged mode in order to sandbox builds.
-      securityContext:
-        privileged: true
-    nodeSelector:
-      cloud.google.com/gke-nodepool: new-cluster-pool
+    <<: *test_spec
 
 - interval: 10m
   agent: kubernetes
@@ -27,17 +30,7 @@ periodics:
     preset-service-account: "true"
     preset-daily-kubeconfig: "true"
   spec:
-    containers:
-    - image: gcr.io/istio-testing/prowbazel:0.4.11
-      args:
-      - "--repo=github.com/istio/test-infra=master"
-      - "--clean"
-      - "--timeout=20"
-      # Docker needs privileged mode in order to sandbox builds.
-      securityContext:
-        privileged: true
-    nodeSelector:
-      cloud.google.com/gke-nodepool: new-cluster-pool
+    <<: *test_spec
 
 - interval: 10m
   agent: kubernetes
@@ -45,17 +38,7 @@ periodics:
   labels:
     preset-service-account: "true"
   spec:
-    containers:
-    - image: gcr.io/istio-testing/prowbazel:0.4.11
-      args:
-      - "--repo=github.com/istio/test-infra=master"
-      - "--clean"
-      - "--timeout=30"
-      # Docker needs privileged mode in order to sandbox builds.
-      securityContext:
-        privileged: true
-    nodeSelector:
-      cloud.google.com/gke-nodepool: new-cluster-pool
+    <<: *test_spec
 
 - interval: 1h
   agent: kubernetes
@@ -85,7 +68,7 @@ periodics:
       secret:
         secretName: oauth-token
     nodeSelector:
-      cloud.google.com/gke-nodepool: new-cluster-pool
+      testing: test-pool
 
 - interval: 30m
   agent: kubernetes
@@ -128,7 +111,7 @@ periodics:
       secret:
         secretName: istio-testing-netrc
     nodeSelector:
-      cloud.google.com/gke-nodepool: new-cluster-pool
+      testing: test-pool
 
 - interval: 24h
   agent: kubernetes
@@ -156,4 +139,4 @@ periodics:
       secret:
         secretName: oauth-token
     nodeSelector:
-      cloud.google.com/gke-nodepool: new-cluster-pool
+      testing: test-pool

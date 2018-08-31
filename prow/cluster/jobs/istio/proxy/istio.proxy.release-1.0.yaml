@@ -9,9 +9,6 @@ bazel_spec: &bazel_spec
     # Bazel needs privileged mode in order to sandbox builds.
     securityContext:
       privileged: true
-    ports:
-    - containerPort: 9999
-      hostPort: 9998
     resources:
       requests:
         memory: "512Mi"
@@ -20,7 +17,7 @@ bazel_spec: &bazel_spec
         memory: "24Gi"
         cpu: "7000m"
   nodeSelector:
-    cloud.google.com/gke-nodepool: build-pool
+    testing: build-pool
 
 presubmits:
 

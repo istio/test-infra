@@ -1,5 +1,5 @@
 
-common_e2e_spec: &common_e2e_spec
+test_spec: &test_spec
   containers:
   - image: gcr.io/istio-testing/prowbazel:0.4.11
     args:
@@ -10,7 +10,7 @@ common_e2e_spec: &common_e2e_spec
     securityContext:
       privileged: true
   nodeSelector:
-    cloud.google.com/gke-nodepool: new-cluster-pool
+    testing: test-pool
 
 presubmits:
 
@@ -27,7 +27,7 @@ presubmits:
     labels:
       preset-service-account: "true"
     spec:
-      <<: *common_e2e_spec
+      <<: *test_spec
 
 postsubmits:
 
@@ -40,4 +40,4 @@ postsubmits:
     labels:
       preset-service-account: "true"
     spec:
-      <<: *common_e2e_spec
+      <<: *test_spec
