@@ -58,6 +58,7 @@ presubmits:
     run_after_success:
     - name: istio-pilot-e2e
       branches: *branch_spec
+      always_run: true
       agent: kubernetes
       context: prow/istio-pilot-e2e.sh
       rerun_command: "/test istio-pilot-e2e"
@@ -69,6 +70,7 @@ presubmits:
         <<: *common_e2e_spec
     - name: istio-pilot-e2e-envoyv2-v1alpha3
       branches: *branch_spec
+      always_run: true
       agent: kubernetes
       context: prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
       optional: false
@@ -81,6 +83,7 @@ presubmits:
         <<: *common_e2e_spec
     - name: e2e-bookInfoTests
       branches: *branch_spec
+      always_run: true
       agent: kubernetes
       context: prow/e2e-bookInfoTests.sh
       optional: false
@@ -93,6 +96,7 @@ presubmits:
         <<: *common_e2e_spec
     - name: e2e-bookInfoTests-envoyv2-v1alpha3
       branches: *branch_spec
+      always_run: true
       agent: kubernetes
       context: prow/e2e-bookInfoTests-v1alpha3.sh
       optional: false
@@ -104,6 +108,7 @@ presubmits:
       spec:
         <<: *common_e2e_spec
     - name: e2e-simpleTests
+      always_run: true
       branches: *branch_spec
       agent: kubernetes
       context: prow/e2e-simpleTests.sh
