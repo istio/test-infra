@@ -1,9 +1,9 @@
 
-test_spec: &test_spec
+test_infra_master_spec: &test_infra_master_spec
   containers:
   - image: gcr.io/istio-testing/prowbazel:0.4.11
     args:
-    - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+    - "--repo=github.com/istio/test-infra=master"
     - "--clean"
     - "--timeout=30"
     # Bazel needs privileged mode in order to sandbox builds.
@@ -21,7 +21,7 @@ periodics:
     preset-service-account: "true"
     preset-istio-kubeconfig: "true"
   spec:
-    <<: *test_spec
+    <<: *test_infra_master_spec
 
 - interval: 10m
   agent: kubernetes
@@ -30,7 +30,7 @@ periodics:
     preset-service-account: "true"
     preset-daily-kubeconfig: "true"
   spec:
-    <<: *test_spec
+    <<: *test_infra_master_spec
 
 - interval: 10m
   agent: kubernetes
@@ -38,7 +38,7 @@ periodics:
   labels:
     preset-service-account: "true"
   spec:
-    <<: *test_spec
+    <<: *test_infra_master_spec
 
 - interval: 1h
   agent: kubernetes
