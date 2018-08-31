@@ -10,9 +10,9 @@ build_spec: &build_spec
     securityContext:
       privileged: true
   nodeSelector:
-    cloud.google.com/gke-nodepool: new-cluster-pool
+    testing: build-pool
 
-common_spec: &common_spec
+test_spec: &test_spec
   containers:
   - image: gcr.io/istio-testing/prowbazel:0.4.11
     args:
@@ -23,7 +23,7 @@ common_spec: &common_spec
     securityContext:
       privileged: true
   nodeSelector:
-    cloud.google.com/gke-nodepool: new-cluster-pool
+    testing: test-pool
 
 branch_spec: &branch_spec
 - master
@@ -57,7 +57,7 @@ presubmits:
       preset-service-account: "true"
       preset-istio-kubeconfig: "true"
     spec:
-      <<: *common_spec
+      <<: *build_spec
     run_after_success:
     - name: istio-pilot-e2e-envoyv2-v1alpha3
       branches: *branch_spec
@@ -70,7 +70,7 @@ presubmits:
         preset-service-account: "true"
       max_concurrency: 5
       spec:
-        <<: *common_spec
+        <<: *test_spec
     - name: e2e-mixer-no_auth
       branches: *branch_spec
       always_run: true
@@ -82,7 +82,7 @@ presubmits:
         preset-service-account: "true"
       max_concurrency: 5
       spec:
-        <<: *common_spec
+        <<: *test_spec
     - name: e2e-dashboard
       branches: *branch_spec
       always_run: true
@@ -94,7 +94,7 @@ presubmits:
         preset-service-account: "true"
       max_concurrency: 5
       spec:
-        <<: *common_spec
+        <<: *test_spec
     - name: e2e-bookInfoTests-envoyv2-v1alpha3
       branches: *branch_spec
       always_run: true
@@ -106,7 +106,7 @@ presubmits:
         preset-service-account: "true"
       max_concurrency: 5
       spec:
-        <<: *common_spec
+        <<: *test_spec
     - name: e2e-simpleTests
       branches: *branch_spec
       always_run: true
@@ -118,7 +118,7 @@ presubmits:
         preset-service-account: "true"
       max_concurrency: 5
       spec:
-        <<: *common_spec
+        <<: *test_spec
     - name: istio-pilot-multicluster-e2e
       branches: *branch_spec
       always_run: true
@@ -131,7 +131,7 @@ presubmits:
         preset-service-account: "true"
       max_concurrency: 5
       spec:
-        <<: *common_spec
+        <<: *test_spec
 
   - name: e2e-suite-rbac-no_auth
     context: prow/e2e-suite-rbac-no_auth.sh
@@ -144,7 +144,7 @@ presubmits:
     labels:
       preset-service-account: "true"
     spec:
-      <<: *common_spec
+      <<: *test_spec
 
   - name: e2e-suite-rbac-auth
     context: prow/e2e-suite-rbac-auth.sh
@@ -157,7 +157,7 @@ presubmits:
     labels:
       preset-service-account: "true"
     spec:
-      <<: *common_spec
+      <<: *test_spec
 
   - name: e2e-cluster_wide-auth
     context: prow/e2e-cluster_wide-auth.sh
@@ -170,7 +170,7 @@ presubmits:
     labels:
       preset-service-account: "true"
     spec:
-      <<: *common_spec
+      <<: *test_spec
 
 postsubmits:
 
@@ -183,7 +183,7 @@ postsubmits:
       preset-service-account: "true"
       preset-istio-kubeconfig: "true"
     spec:
-      <<: *common_spec
+      <<: *test_spec
     run_after_success:
     - name: e2e-simpleTests
       branches: *branch_spec
@@ -191,39 +191,39 @@ postsubmits:
       labels:
         preset-service-account: "true"
       spec:
-        <<: *common_spec
+        <<: *test_spec
     - name: e2e-bookInfoTests-envoyv2-v1alpha3
       branches: *branch_spec
       agent: kubernetes
       labels:
         preset-service-account: "true"
       spec:
-        <<: *common_spec
+        <<: *test_spec
     - name: istio-pilot-e2e-envoyv2-v1alpha3
       branches: *branch_spec
       agent: kubernetes
       labels:
         preset-service-account: "true"
       spec:
-        <<: *common_spec
+        <<: *test_spec
     - name: istio-pilot-e2e-envoyv2-v1alpha3-k8s-1.10
       branches: *branch_spec
       agent: kubernetes
       labels:
         preset-service-account: "true"
       spec:
-        <<: *common_spec
+        <<: *test_spec
     - name: e2e-mixer-no_auth
       branches: *branch_spec
       agent: kubernetes
       labels:
         preset-service-account: "true"
       spec:
-        <<: *common_spec
+        <<: *test_spec
     - name: e2e-dashboard
       branches: *branch_spec
       agent: kubernetes
       labels:
         preset-service-account: "true"
       spec:
-        <<: *common_spec
+        <<: *test_spec
