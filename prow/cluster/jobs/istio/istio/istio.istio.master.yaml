@@ -46,6 +46,21 @@ presubmits:
     spec:
       <<: *build_spec
 
+  - name: test-e2e-mixer-no_auth
+    agent: kubernetes
+    branches: *branch_spec
+    always_run: true
+    optional: true
+    skip_report: true
+    context: prow/test-e2e-mixer-no_auth.sh
+    rerun_command: "/test test-e2e-mixer-no_auth"
+    trigger: "(?m)^/test (test-e2e-mixer-no_auth)?,?(\\s+|$)"
+    labels:
+      preset-service-account: "true"
+    max_concurrency: 5
+    spec:
+      <<: *test_spec
+
   - name: istio-presubmit
     agent: kubernetes
     context: prow/istio-presubmit.sh
@@ -55,7 +70,6 @@ presubmits:
     trigger: "(?m)^/(retest|test (all|istio-presubmit))?,?(\\s+|$)"
     labels:
       preset-service-account: "true"
-      preset-istio-kubeconfig: "true"
     spec:
       <<: *build_spec
     run_after_success:
