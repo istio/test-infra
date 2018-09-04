@@ -27,6 +27,8 @@ spec:
           mountPath: /etc/config
           readOnly: true
       volumes:
-        - name: config
-          configMap:
-            name: boskos-config
+      - name: config
+        configMap:
+          name: boskos-config
+      nodeSelector:
+        prod: prow
