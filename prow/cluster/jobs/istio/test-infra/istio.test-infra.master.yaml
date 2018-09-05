@@ -19,6 +19,9 @@ bazel_spec: &bazel_spec
   nodeSelector:
     testing: build-pool
 
+branch_spec: &branch_spec
+- "^master$"
+
 presubmits:
 
   istio/test-infra:
@@ -29,8 +32,7 @@ presubmits:
     always_run: true
     rerun_command: "/test test-infra-presubmit"
     trigger: "(?m)^/(retest|test (all|test-infra-presubmit))?,?(\\s+|$)"
-    branches:
-    - master
+    branches: *branch_spec
     labels:
       preset-service-account: "true"
       preset-bazel: "true"

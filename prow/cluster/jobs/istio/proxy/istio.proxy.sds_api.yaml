@@ -19,6 +19,9 @@ bazel_spec: &bazel_spec
   nodeSelector:
     testing: build-pool
 
+branch_spec: &branch_spec
+- "^sds_api$"
+
 postsubmits:
 
   istio/proxy:
@@ -26,8 +29,7 @@ postsubmits:
   - name: proxy-postsubmit
     agent: kubernetes
     context: prow/proxy-postsubmit.sh
-    branches:
-    - sds_api
+    branches: *branch_spec
     always_run: true
     rerun_command: "/test proxy-postsubmit"
     trigger: "(?m)^/(retest|test (all|proxy-postsubmit))?,?(\\s+|$)"

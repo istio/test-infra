@@ -25,6 +25,9 @@ test_spec: &test_spec
   nodeSelector:
     testing: test-pool
 
+branch_spec: &branch_spec
+- "^master$"
+
 presubmits:
 
   istio-releases/daily-release:
@@ -32,8 +35,7 @@ presubmits:
   - name: daily-perf-tests
     agent: kubernetes
     context: prow/daily-perf-tests.sh
-    branches:
-    - master
+    branches: *branch_spec
     always_run: true
     rerun_command: "/test daily-perf-tests"
     trigger: "(?m)^/(retest|test (all|daily-perf-tests))?,?(\\s+|$)"
@@ -45,8 +47,7 @@ presubmits:
   - name: daily-unit-tests
     agent: kubernetes
     context: prow/daily-unit-tests.sh
-    branches:
-    - master
+    branches: *branch_spec
     always_run: true
     rerun_command: "/test daily-unit-tests"
     trigger: "(?m)^/(retest|test (all|daily-unit-tests))?,?(\\s+|$)"
@@ -59,8 +60,7 @@ presubmits:
   - name: daily-e2e-pilot-no_auth
     agent: kubernetes
     context: prow/daily-e2e-pilot-no_auth.sh
-    branches:
-    - master
+    branches: *branch_spec
     always_run: true
     rerun_command: "/test daily-e2e-pilot-no_auth"
     trigger: "(?m)^/(retest|test (all|daily-e2e-pilot-no_auth))?,?(\\s+|$)"
@@ -72,8 +72,7 @@ presubmits:
   - name: daily-e2e-bookinfoTests
     agent: kubernetes
     context: prow/daily-e2e-bookinfoTests.sh
-    branches:
-    - master
+    branches: *branch_spec
     always_run: true
     rerun_command: "/test daily-e2e-bookinfo"
     trigger: "(?m)^/(retest|test (all|daily-e2e-bookinfo))?,?(\\s+|$)"
@@ -85,8 +84,7 @@ presubmits:
   - name: daily-e2e-simpleTests
     agent: kubernetes
     context: prow/daily-e2e-simpleTests.sh
-    branches:
-    - master
+    branches: *branch_spec
     always_run: true
     rerun_command: "/test daily-e2e-simple"
     trigger: "(?m)^/(retest|test (all|daily-e2e-simple))?,?(\\s+|$)"
@@ -98,8 +96,7 @@ presubmits:
   - name: daily-e2e-mixer-no_auth
     agent: kubernetes
     context: prow/daily-e2e-mixer-no_auth.sh
-    branches:
-    - master
+    branches: *branch_spec
     always_run: true
     rerun_command: "/test daily-e2e-mixer-no_auth"
     trigger: "(?m)^/(retest|test (all|daily-e2e-mixer-no_auth))?,?(\\s+|$)"
@@ -111,8 +108,7 @@ presubmits:
   - name: daily-e2e-dashboard
     agent: kubernetes
     context: prow/daily-e2e-dashboard.sh
-    branches:
-    - master
+    branches: *branch_spec
     always_run: true
     rerun_command: "/test daily-e2e-dashboard"
     trigger: "(?m)^/(retest|test (all|daily-e2e-dashboard))?,?(\\s+|$)"
