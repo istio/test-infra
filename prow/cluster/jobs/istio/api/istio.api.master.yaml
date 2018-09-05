@@ -11,6 +11,10 @@ test_spec: &test_spec
       privileged: true
   nodeSelector:
     testing: test-pool
+
+branch_spec: &branch_spec
+- "^master$"
+
 presubmits:
 
   istio/api:
@@ -18,8 +22,7 @@ presubmits:
   - name: api-presubmit
     agent: kubernetes
     context: prow/api-presubmit.sh
-    branches:
-    - master
+    branches: *branch_spec
     always_run: true
     rerun_command: "/test api-presubmit"
     trigger: "(?m)^/(retest|test (all|api-presubmit))?,?(\\s+|$)"
@@ -34,8 +37,7 @@ postsubmits:
 
   - name: api-postsubmit
     agent: kubernetes
-    branches:
-    - master
+    branches: *branch_spec
     labels:
       preset-service-account: "true"
     spec:

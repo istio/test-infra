@@ -19,6 +19,9 @@ bazel_spec: &bazel_spec
   nodeSelector:
     testing: build-pool
 
+branch_spec: &branch_spec
+- "^master$"
+
 presubmits:
 
   istio/proxy:
@@ -26,8 +29,7 @@ presubmits:
   - name: proxy-presubmit
     agent: kubernetes
     context: prow/proxy-presubmit.sh
-    branches:
-    - master
+    branches: *branch_spec
     always_run: true
     rerun_command: "/test proxy-presubmit"
     trigger: "(?m)^/(retest|test (all|proxy-presubmit))?,?(\\s+|$)"
@@ -40,8 +42,7 @@ presubmits:
   - name: proxy-presubmit-asan
     agent: kubernetes
     context: prow/proxy-presubmit-asan.sh
-    branches:
-    - master
+    branches: *branch_spec
     always_run: true
     rerun_command: "/test proxy-presubmit-asan"
     trigger: "(?m)^/(retest|test (all|proxy-presubmit-asan))?,?(\\s+|$)"
@@ -54,8 +55,7 @@ presubmits:
   - name: proxy-presubmit-tsan
     agent: kubernetes
     context: prow/proxy-presubmit-tsan.sh
-    branches:
-    - master
+    branches: *branch_spec
     always_run: true
     rerun_command: "/test proxy-presubmit-tsan"
     trigger: "(?m)^/(retest|test (all|proxy-presubmit-tsan))?,?(\\s+|$)"
@@ -72,8 +72,7 @@ postsubmits:
   - name: proxy-postsubmit
     agent: kubernetes
     context: prow/proxy-postsubmit.sh
-    branches:
-    - master
+    branches: *branch_spec
     always_run: true
     rerun_command: "/test proxy-postsubmit"
     trigger: "(?m)^/(retest|test (all|proxy-postsubmit))?,?(\\s+|$)"
