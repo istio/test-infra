@@ -1,7 +1,7 @@
 
 test_infra_master_spec: &test_infra_master_spec
   containers:
-  - image: gcr.io/istio-testing/prowbazel:0.4.12
+  - image: gcr.io/istio-testing/prowbazel:0.4.13
     args:
     - "--repo=github.com/istio/test-infra=master"
     - "--clean"
@@ -47,7 +47,7 @@ periodics:
     preset-service-account: "true"
   spec:
     containers:
-    - image: gcr.io/istio-testing/prowbazel:0.4.12
+    - image: gcr.io/istio-testing/prowbazel:0.4.13
       args:
       - "--repo=github.com/istio/test-infra=master"
       - "--clean"
@@ -86,7 +86,7 @@ periodics:
       - --repo=green-build
       - --clean
       - --timeout=120
-      image: gcr.io/istio-testing/prow-builder:0.5.8
+      image: gcr.io/istio-testing/prow-builder:0.5.9
       securityContext:
         privileged: true
       env:
@@ -120,7 +120,7 @@ periodics:
     preset-service-account: "true"
   spec:
     containers:
-    - image: gcr.io/istio-testing/prowbazel:0.4.12
+    - image: gcr.io/istio-testing/prowbazel:0.4.13
       args:
       - "--repo=github.com/istio/test-infra=master"
       - "--clean"

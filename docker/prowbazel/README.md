@@ -43,3 +43,4 @@ Our dependency on this script is because it appropariately writes test job resul
 * 0.4.10: adds ninja and updates bazel to 0.15.2
 * 0.4.11: update clang to 6.0
 * 0.4.12: update golang to 1.10.4 and docker to 18.06.1-CE
+* 0.4.13: Update docker to use overlay2 fs for performance and bazel to 0.16.1
