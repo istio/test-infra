@@ -9,19 +9,15 @@ fi
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 . ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
 
-# EE
-#Version: 1.13.1-0~ubuntu-xenial
-#DOCKER_VERSION='1.13.1'
-# CE
-#Version: 17.05.0~ce-0~ubuntu-xenial
-DOCKER_VERSION=17.05.0
+#Version: 18.06.1~ce-0~ubuntu-xenial
+DOCKER_VERSION=18.06.1
 
 # Ubuntu 16-04
-XENIAL_REPO='ubuntu-xenial'
+XENIAL_REPO='ubuntu'
 # EE
 #XENIAL_VERSION_SUFFIX="-0~${XENIAL_REPO}"
 # CE
-XENIAL_VERSION_SUFFIX="~ce-0~${XENIAL_REPO}"
+XENIAL_VERSION_SUFFIX="~ce~3-0~${XENIAL_REPO}"
 # Default
 REPO="${XENIAL_REPO}"
 VERSION_SUFFIX="${XENIAL_VERSION_SUFFIX}"
@@ -38,25 +34,25 @@ function set_platform_env() {
 
 function purge_docker() {
   echo 'Removing older docker installation if any'
-  ${SUDO} apt-get purge -y docker.io* \
+  ${SUDO} apt-get purge -y docker.io* docker-engine docker\
     || echo 'docker.io not installed, proceeding...'
 }
 
 function install_docker() {
   echo 'Installing docker'
-  ${SUDO} apt-key adv \
-    --keyserver hkp://ha.pool.sks-keyservers.net:80 \
-    --recv-keys 58118E89F3A912897C070ADBF76221572C52609D \
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | ${SUDO} apt-key add - \
   && clear_apt \
-  && ${SUDO} apt-get -qqy install docker-engine="${DOCKER_VERSION}${VERSION_SUFFIX}" \
+  && ${SUDO} apt-get -qqy install docker-ce="${DOCKER_VERSION}${VERSION_SUFFIX}" \
   && return 0
   return 1
 }
 
 function update_apt() {
   echo 'Adding repo for docker'
-  echo "deb https://apt.dockerproject.org/repo ${REPO} main" \
-    | ${SUDO} tee /etc/apt/sources.list.d/docker.list
+  sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
 }
 
 function update_docker() {

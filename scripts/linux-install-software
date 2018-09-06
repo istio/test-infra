@@ -45,6 +45,7 @@ function install_packages() {
     ruby \
     rubygems \
     ruby-dev \
+    software-properties-common \
     time \
     unzip \
     uuid-dev \
@@ -80,6 +81,7 @@ if [[ -d "${TOOLS_DIR}" ]]; then
 else
   mkdir -p "${TOOLS_DIR}" -m 0777
 fi
+update_docker "${PLATFORM}"
 update_protoc
 update_gcloud
 update_go
@@ -87,7 +89,6 @@ update_repo
 update_wrk
 update_bazel
 update_clang
-update_docker "${PLATFORM}"
 update_helm
 clear_apt
 
