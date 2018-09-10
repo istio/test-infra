@@ -39,5 +39,38 @@ presubmits:
     spec:
       <<: *bazel_spec
 
+
+  - name: new-presubmit
+    agent: kubernetes
+    context: "prow: new-presubmit"
+    skip_report: true
+    always_run: true
+    rerun_command: "/test test-infra-presubmit"
+    path_alias: /go/src/istio.io/test-infra
+    trigger: "(?m)^/(retest|test (all|test-infra-presubmit))?,?(\\s+|$)"
+    decorate: true
+    branches: *branch_spec
+    labels:
+      preset-service-account: "true"
+      preset-bazel: "true"
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/istio-builder:podutils-test-01
+        command:
+        - entrypoints.sh
+        - prow/new-test.sh
+        # Bazel needs privileged mode in order to sandbox builds.
+        securityContext:
+          privileged: true
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "24Gi"
+            cpu: "7000m"
+      nodeSelector:
+        testing: build-pool
+
 postsubmits:
 

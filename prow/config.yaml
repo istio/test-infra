@@ -1,6 +1,21 @@
 ---
 plank:
   job_url_template: 'https://k8s-gubernator.appspot.com/build/istio-prow/{{if eq .Spec.Type "presubmit"}}pull/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else}}.{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}/'
+  pod_pending_timeout: 60m
+  default_decoration_config:
+    timeout: 7200000000000 # 2h
+    grace_period: 15000000000 # 15s
+    utility_images:
+      clonerefs: "registry.svc.ci.openshift.org/ci/clonerefs:latest"
+      initupload: "registry.svc.ci.openshift.org/ci/initupload:latest"
+      entrypoint: "registry.svc.ci.openshift.org/ci/entrypoint:latest"
+      sidecar: "registry.svc.ci.openshift.org/ci/sidecar:latest"
+    gcs_configuration:
+      bucket: "kubernetes-jenkins"
+      path_strategy: "legacy"
+      default_org: "kubernetes"
+      default_repo: "kubernetes"
+    gcs_credentials_secret: "service-account"
 
 sinker:
   resync_period: 1h
