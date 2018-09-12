@@ -304,7 +304,7 @@ func (c *codecovChecker) checkPackageCoverage() (code int) {
 		for _, p := range c.failedPackage {
 			glog.Errorf(p)
 		}
-		return 2 //Error code 2: Unsatisfied coverage requirement
+		return 0 //Do not fail the job in case of package violation. This is advisory only.
 	}
 	return 0
 }

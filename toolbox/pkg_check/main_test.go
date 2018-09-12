@@ -217,8 +217,8 @@ func TestFailedCheck(t *testing.T) {
 		requirement:     requirementFile,
 	}
 
-	if code := c.checkPackageCoverage(); code != 2 {
-		t.Errorf("Unexpected return code, expected: %d, actual: %d", 2, code)
+	if code := c.checkPackageCoverage(); code != 0 {
+		t.Errorf("Unexpected return code, expected: %d, actual: %d", 0, code)
 	}
 }
 
