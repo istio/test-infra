@@ -1,23 +1,15 @@
-
-bazel_spec: &bazel_spec
-  containers:
-  - image: gcr.io/istio-testing/prowbazel:0.4.11
-    args:
-    - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
-    - "--clean"
-    - "--timeout=20"
-    # Bazel needs privileged mode in order to sandbox builds.
-    securityContext:
-      privileged: true
-    resources:
-      requests:
-        memory: "512Mi"
-        cpu: "500m"
-      limits:
-        memory: "24Gi"
-        cpu: "7000m"
-  nodeSelector:
-    testing: build-pool
+test_infra_container: &test_infra_container
+  image: gcr.io/istio-testing/test-infra-builder:0.6
+  # Bazel needs privileged mode in order to sandbox builds.
+  securityContext:
+    privileged: true
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "24Gi"
+      cpu: "7000m"
 
 branch_spec: &branch_spec
 - "^master$"
@@ -26,49 +18,43 @@ presubmits:
 
   istio/test-infra:
 
-  - name: test-infra-presubmit
+  - name: build-test
     agent: kubernetes
-    context: prow/test-infra-presubmit.sh
+    context: "prow: build-test"
     always_run: true
-    rerun_command: "/test test-infra-presubmit"
-    trigger: "(?m)^/(retest|test (all|test-infra-presubmit))?,?(\\s+|$)"
-    branches: *branch_spec
-    labels:
-      preset-service-account: "true"
-      preset-bazel: "true"
-    spec:
-      <<: *bazel_spec
-
-
-  - name: new-presubmit
-    agent: kubernetes
-    context: "prow: new-presubmit"
-    skip_report: true
-    always_run: true
-    rerun_command: "/test test-infra-presubmit"
-    path_alias: /go/src/istio.io/test-infra
-    trigger: "(?m)^/(retest|test (all|test-infra-presubmit))?,?(\\s+|$)"
+    rerun_command: "/test build-test"
+    trigger: "(?m)^/(retest|test (all|build-test))?,?(\\s+|$)"
     decorate: true
+    path_alias: istio.io/test-infra
     branches: *branch_spec
     labels:
-      preset-service-account: "true"
+      preset-prow-bazel: "true"
+    spec:
+      containers:
+      - <<: *test_infra_container
+        command:
+        - entrypoint
+        - prow/build-test.sh
+      nodeSelector:
+        testing: build-pool
+
+  - name: lint-check
+    agent: kubernetes
+    context: "prow: lint-check"
+    always_run: true
+    rerun_command: "/test lint-check"
+    trigger: "(?m)^/(retest|test (all|lint-check))?,?(\\s+|$)"
+    decorate: true
+    path_alias: istio.io/test-infra
+    branches: *branch_spec
+    labels:
       preset-bazel: "true"
     spec:
       containers:
-      - image: gcr.io/istio-testing/istio-builder:podutils-test-01
+      - <<: *test_infra_container
         command:
-        - entrypoints.sh
-        - prow/new-test.sh
-        # Bazel needs privileged mode in order to sandbox builds.
-        securityContext:
-          privileged: true
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "24Gi"
-            cpu: "7000m"
+        - entrypoint
+        - scripts/linters.sh
       nodeSelector:
         testing: build-pool
 
