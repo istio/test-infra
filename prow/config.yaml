@@ -11,10 +11,8 @@ plank:
       entrypoint: "registry.svc.ci.openshift.org/ci/entrypoint:latest"
       sidecar: "registry.svc.ci.openshift.org/ci/sidecar:latest"
     gcs_configuration:
-      bucket: "kubernetes-jenkins"
-      path_strategy: "legacy"
-      default_org: "kubernetes"
-      default_repo: "kubernetes"
+      bucket: "istio-prow"
+      path_strategy: "explicit"
     gcs_credentials_secret: "service-account"
 
 sinker:
@@ -238,6 +236,15 @@ presets:
   - name: service
     secret:
       secretName: service-account
+- labels:
+    preset-prow-bazel: "true"
+  volumeMounts:
+  - name: cache-ssd
+    mountPath: /home/prow/.cache
+  volumes:
+  - name: cache-ssd
+    hostPath:
+      path: /mnt/disks/ssd0
 - labels:
     preset-bazel: "true"
   volumeMounts:
