@@ -61,6 +61,22 @@ presubmits:
     spec:
       <<: *test_spec
 
+  - name: test-e2e-mixer-no_auth-mcp
+    agent: kubernetes
+    branches: *branch_spec
+    always_run: true
+    optional: true
+    skip_report: true
+    context: prow/test-e2e-mixer-no_auth-mcp.sh
+    rerun_command: "/test test-e2e-mixer-no_auth-mcp"
+    trigger: "(?m)^/test (test-e2e-mixer-no_auth-mcp)?,?(\\s+|$)"
+    optional: true
+    labels:
+      preset-service-account: "true"
+    max_concurrency: 5
+    spec:
+      <<: *test_spec
+
   - name: istio-presubmit
     agent: kubernetes
     context: prow/istio-presubmit.sh
@@ -85,6 +101,19 @@ presubmits:
       max_concurrency: 5
       spec:
         <<: *test_spec
+    - name: istio-pilot-e2e-envoyv2-v1alpha3-mcp
+      branches: *branch_spec
+      always_run: true
+      agent: kubernetes
+      context: prow/istio-pilot-e2e-envoyv2-v1alpha3-mcp.sh
+      rerun_command: "/test istio-pilot-e2e-envoyv2-v1alpha3-mcp"
+      trigger: "(?m)^/test (istio-pilot-e2e-envoyv2-v1alpha3-mcp)?,?(\\s+|$)"
+      optional: true
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        <<: *test_spec
     - name: e2e-mixer-no_auth
       branches: *branch_spec
       always_run: true
@@ -92,6 +121,19 @@ presubmits:
       context: prow/e2e-mixer-no_auth.sh
       rerun_command: "/test e2e-mixer-no_auth"
       trigger: "(?m)^/test (e2e-mixer-no_auth)?,?(\\s+|$)"
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        <<: *test_spec
+    - name: e2e-mixer-no_auth-mcp
+      branches: *branch_spec
+      always_run: true
+      agent: kubernetes
+      context: prow/e2e-mixer-no_auth-mcp.sh
+      rerun_command: "/test e2e-mixer-no_auth-mcp"
+      trigger: "(?m)^/test (e2e-mixer-no_auth-mcp)?,?(\\s+|$)"
+      optional: true
       labels:
         preset-service-account: "true"
       max_concurrency: 5
@@ -121,6 +163,19 @@ presubmits:
       max_concurrency: 5
       spec:
         <<: *test_spec
+    - name: e2e-bookInfoTests-envoyv2-v1alpha3-mcp
+      branches: *branch_spec
+      always_run: true
+      agent: kubernetes
+      context: prow/e2e-bookInfoTests-v1alpha3-mcp.sh
+      rerun_command: "/test e2e-bookInfo-envoyv2-v1alpha3-mcp"
+      trigger: "(?m)^/test (e2e-bookInfo-envoyv2-v1alpha3-mcp)?,?(\\s+|$)"
+      optional: true
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        <<: *test_spec
     - name: e2e-simpleTests
       branches: *branch_spec
       always_run: true
@@ -128,6 +183,19 @@ presubmits:
       context: prow/e2e-simpleTests.sh
       rerun_command: "/test e2e-simple"
       trigger: "(?m)^/test (e2e-simple)?,?(\\s+|$)"
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        <<: *test_spec
+    - name: e2e-simpleTests-mcp
+      branches: *branch_spec
+      always_run: true
+      agent: kubernetes
+      context: prow/e2e-simpleTests-mcp.sh
+      rerun_command: "/test e2e-simple-mcp"
+      trigger: "(?m)^/test (e2e-simple-mcp)?,?(\\s+|$)"
+      optional: true
       labels:
         preset-service-account: "true"
       max_concurrency: 5
@@ -146,6 +214,7 @@ presubmits:
       max_concurrency: 5
       spec:
         <<: *test_spec
+
 
 postsubmits:
 
