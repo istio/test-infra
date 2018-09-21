@@ -1,7 +1,7 @@
 FROM ubuntu:xenial
 
 # Installing
-ADD shared/tools test-infra/install.sh /tmp/tools/
+ADD shared/tools istio/install.sh /tmp/tools/
 RUN chmod -R +x /tmp/tools/*.sh
 RUN cd /tmp/tools && ./install.sh && rm -rf /tmp/tools
 

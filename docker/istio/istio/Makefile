@@ -1,6 +1,6 @@
 PROJECT ?= istio-testing
-VERSION ?= 0.7
-IMAGE ?= test-infra-builder
+VERSION ?= 0.1
+IMAGE ?= istio-builder
 
 # Note: The build directory is the root of the istio/test-infra repository, not ./
 image:
