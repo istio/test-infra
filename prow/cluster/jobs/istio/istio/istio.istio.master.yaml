@@ -1,3 +1,15 @@
+istio_container: &istio_container
+  image: gcr.io/istio-testing/istio-builder:0.1
+  # Docker in Docker
+  securityContext:
+    privileged: true
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "24Gi"
+      cpu: "7000m"
 
 build_spec: &build_spec
   containers:
@@ -51,14 +63,20 @@ presubmits:
     always_run: true
     optional: true
     skip_report: true
-    context: prow/test-e2e-mixer-no_auth.sh
+    context: "prow: test-e2e-mixer-no_auth"
     rerun_command: "/test test-e2e-mixer-no_auth"
     trigger: "(?m)^/test (test-e2e-mixer-no_auth)?,?(\\s+|$)"
-    labels:
-      preset-service-account: "true"
+    decorate: true
+    path_alias: isito.io/istio
     max_concurrency: 5
     spec:
-      <<: *test_spec
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/test-e2e-mixer-no_auth.sh
+      nodeSelector:
+        testing: test-pool
 
   - name: istio-presubmit
     agent: kubernetes
