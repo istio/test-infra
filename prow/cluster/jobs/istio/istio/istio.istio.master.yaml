@@ -1,5 +1,5 @@
 istio_container: &istio_container
-  image: gcr.io/istio-testing/istio-builder:0.1
+  image: gcr.io/istio-testing/istio-builder:0.4
   # Docker in Docker
   securityContext:
     privileged: true
@@ -18,7 +18,7 @@ build_spec: &build_spec
     - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
     - "--clean"
     - "--timeout=90"
-    # Bazel needs privileged mode in order to sandbox builds.
+    # Docker in Docker needs privileged mode
     securityContext:
       privileged: true
   nodeSelector:
@@ -31,7 +31,7 @@ test_spec: &test_spec
     - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
     - "--clean"
     - "--timeout=90"
-    # Bazel needs privileged mode in order to sandbox builds.
+    # Docker in Docker needs privileged mode
     securityContext:
       privileged: true
   nodeSelector:
@@ -60,15 +60,16 @@ presubmits:
   - name: test-e2e-mixer-no_auth
     agent: kubernetes
     branches: *branch_spec
-    always_run: true
     optional: true
     skip_report: true
     context: "prow: test-e2e-mixer-no_auth"
     rerun_command: "/test test-e2e-mixer-no_auth"
     trigger: "(?m)^/test (test-e2e-mixer-no_auth)?,?(\\s+|$)"
     decorate: true
-    path_alias: isito.io/istio
+    path_alias: istio.io/istio
     max_concurrency: 5
+    labels:
+      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
