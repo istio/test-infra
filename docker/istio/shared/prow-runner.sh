@@ -1,7 +1,6 @@
 #!/bin/bash
 
-set -o errexit
-set -o nounset
+set -eux
 
 service docker start
 
@@ -17,5 +16,7 @@ for D in "${PROW_DIRS[@]}"; do
     chown -R prow "${D}"
   fi
 done
+
+export PATH=${GOPATH}/bin:${PATH}
 
 exec /usr/local/bin/gosu prow "$@"
