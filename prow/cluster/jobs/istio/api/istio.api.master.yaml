@@ -20,12 +20,8 @@ presubmits:
   istio/api:
 
   - name: api-presubmit
-    agent: kubernetes
-    context: prow/api-presubmit.sh
     branches: *branch_spec
     always_run: true
-    rerun_command: "/test api-presubmit"
-    trigger: "(?m)^/(retest|test (all|api-presubmit))?,?(\\s+|$)"
     labels:
       preset-service-account: "true"
     spec:
@@ -36,7 +32,6 @@ postsubmits:
   istio/api:
 
   - name: api-postsubmit
-    agent: kubernetes
     branches: *branch_spec
     labels:
       preset-service-account: "true"

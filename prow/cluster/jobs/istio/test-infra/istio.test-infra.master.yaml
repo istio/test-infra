@@ -19,11 +19,7 @@ presubmits:
   istio/test-infra:
 
   - name: build-test
-    agent: kubernetes
-    context: "prow: build-test"
     always_run: true
-    rerun_command: "/test build-test"
-    trigger: "(?m)^/(retest|test (all|build-test))?,?(\\s+|$)"
     decorate: true
     path_alias: istio.io/test-infra
     branches: *branch_spec
@@ -39,11 +35,7 @@ presubmits:
         testing: build-pool
 
   - name: lint-check
-    agent: kubernetes
-    context: "prow: lint-check"
     always_run: true
-    rerun_command: "/test lint-check"
-    trigger: "(?m)^/(retest|test (all|lint-check))?,?(\\s+|$)"
     decorate: true
     path_alias: istio.io/test-infra
     branches: *branch_spec

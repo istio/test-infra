@@ -15,7 +15,6 @@ test_infra_master_spec: &test_infra_master_spec
 periodics:
 
 - interval: 10m
-  agent: kubernetes
   name: test-infra-cleanup-cluster
   labels:
     preset-service-account: "true"
@@ -24,7 +23,6 @@ periodics:
     <<: *test_infra_master_spec
 
 - interval: 10m
-  agent: kubernetes
   name: test-infra-cleanup-cluster-release
   labels:
     preset-service-account: "true"
@@ -33,7 +31,6 @@ periodics:
     <<: *test_infra_master_spec
 
 - interval: 10m
-  agent: kubernetes
   name: test-infra-cleanup-GKE
   labels:
     preset-service-account: "true"
@@ -41,7 +38,6 @@ periodics:
     <<: *test_infra_master_spec
 
 - interval: 1h
-  agent: kubernetes
   name: test-infra-update-deps
   labels:
     preset-service-account: "true"
@@ -71,7 +67,6 @@ periodics:
       testing: test-pool
 
 - interval: 30m
-  agent: kubernetes
   name: green-build
   labels:
     preset-service-account: "true"
@@ -114,7 +109,6 @@ periodics:
       testing: test-pool
 
 - interval: 24h
-  agent: kubernetes
   name: gcr_cleanup_istio_testing
   labels:
     preset-service-account: "true"

@@ -27,12 +27,8 @@ postsubmits:
   istio/proxy:
 
   - name: proxy-postsubmit
-    agent: kubernetes
-    context: prow/proxy-postsubmit.sh
     branches: *branch_spec
     always_run: true
-    rerun_command: "/test proxy-postsubmit"
-    trigger: "(?m)^/(retest|test (all|proxy-postsubmit))?,?(\\s+|$)"
     labels:
       preset-service-account: "true"
       preset-bazel: "true"
