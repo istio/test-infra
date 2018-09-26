@@ -17,6 +17,6 @@ for D in "${PROW_DIRS[@]}"; do
   fi
 done
 
-export PATH=${GOPATH}/bin:${PATH}
+[[ -n ${GOPATH:-} ]] && export PATH=${GOPATH}/bin:${PATH}
 
 exec /usr/local/bin/gosu prow "$@"
