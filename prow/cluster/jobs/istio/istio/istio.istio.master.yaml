@@ -1,5 +1,12 @@
+job_template: &job_template
+  agent: kubernetes
+  branches:
+  - "^master$"
+  decorate: true
+  path_alias: istio.io/istio
+
 istio_container: &istio_container
-  image: gcr.io/istio-testing/istio-builder:0.4
+  image: gcr.io/istio-testing/istio-builder:0.5
   # Docker in Docker
   securityContext:
     privileged: true
@@ -11,62 +18,34 @@ istio_container: &istio_container
       memory: "24Gi"
       cpu: "7000m"
 
-build_spec: &build_spec
-  containers:
-  - image: gcr.io/istio-testing/prowbazel:0.4.13
-    args:
-    - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
-    - "--clean"
-    - "--timeout=90"
-    # Docker in Docker needs privileged mode
-    securityContext:
-      privileged: true
-  nodeSelector:
-    testing: build-pool
-
-test_spec: &test_spec
-  containers:
-  - image: gcr.io/istio-testing/prowbazel:0.4.13
-    args:
-    - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
-    - "--clean"
-    - "--timeout=90"
-    # Docker in Docker needs privileged mode
-    securityContext:
-      privileged: true
-  nodeSelector:
-    testing: test-pool
-
-branch_spec: &branch_spec
-- "^master$"
-
 presubmits:
 
   istio/istio:
 
   - name: istio-unit-tests
-    agent: kubernetes
+    <<: *job_template
     context: prow/istio-unit-tests.sh
-    branches: *branch_spec
     always_run: true
     rerun_command: "/test istio-unit-tests"
     trigger: "(?m)^/(retest|test (all|istio-unit-tests))?,?(\\s+|$)"
     labels:
-      preset-service-account: "true"
       preset-istio-kubeconfig: "true"
     spec:
-      <<: *build_spec
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/istio-unit-tests.sh
+      nodeSelector:
+        testing: build-pool
 
   - name: test-e2e-mixer-no_auth
-    agent: kubernetes
-    branches: *branch_spec
+    <<: *job_template
     optional: true
     skip_report: true
     context: "prow: test-e2e-mixer-no_auth"
     rerun_command: "/test test-e2e-mixer-no_auth"
     trigger: "(?m)^/test (test-e2e-mixer-no_auth)?,?(\\s+|$)"
-    decorate: true
-    path_alias: istio.io/istio
     max_concurrency: 5
     labels:
       preset-service-account: "true"
@@ -80,21 +59,25 @@ presubmits:
         testing: test-pool
 
   - name: istio-presubmit
-    agent: kubernetes
+    <<: *job_template
     context: prow/istio-presubmit.sh
-    branches: *branch_spec
     always_run: true
     rerun_command: "/test istio-presubmit"
     trigger: "(?m)^/(retest|test (all|istio-presubmit))?,?(\\s+|$)"
     labels:
       preset-service-account: "true"
     spec:
-      <<: *build_spec
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/istio-presubmit.sh
+      nodeSelector:
+        testing: build-pool
     run_after_success:
     - name: istio-pilot-e2e-envoyv2-v1alpha3
-      branches: *branch_spec
+      <<: *job_template
       always_run: true
-      agent: kubernetes
       context: prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
       rerun_command: "/test istio-pilot-e2e-envoyv2-v1alpha3"
       trigger: "(?m)^/test (istio-pilot-e2e-envoyv2-v1alpha3)?,?(\\s+|$)"
@@ -102,11 +85,16 @@ presubmits:
         preset-service-account: "true"
       max_concurrency: 5
       spec:
-        <<: *test_spec
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
+        nodeSelector:
+          testing: test-pool
     - name: istio-pilot-e2e-envoyv2-v1alpha3-mcp
-      branches: *branch_spec
+      <<: *job_template
       always_run: true
-      agent: kubernetes
       context: prow/istio-pilot-e2e-envoyv2-v1alpha3-mcp.sh
       rerun_command: "/test istio-pilot-e2e-envoyv2-v1alpha3-mcp"
       trigger: "(?m)^/test (istio-pilot-e2e-envoyv2-v1alpha3-mcp)?,?(\\s+|$)"
@@ -115,11 +103,16 @@ presubmits:
         preset-service-account: "true"
       max_concurrency: 5
       spec:
-        <<: *test_spec
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/istio-pilot-e2e-envoyv2-v1alpha3-mcp.sh
+        nodeSelector:
+          testing: test-pool
     - name: e2e-mixer-no_auth
-      branches: *branch_spec
+      <<: *job_template
       always_run: true
-      agent: kubernetes
       context: prow/e2e-mixer-no_auth.sh
       rerun_command: "/test e2e-mixer-no_auth"
       trigger: "(?m)^/test (e2e-mixer-no_auth)?,?(\\s+|$)"
@@ -127,11 +120,16 @@ presubmits:
         preset-service-account: "true"
       max_concurrency: 5
       spec:
-        <<: *test_spec
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-mixer-no_auth.sh
+        nodeSelector:
+          testing: test-pool
     - name: e2e-mixer-no_auth-mcp
-      branches: *branch_spec
+      <<: *job_template
       always_run: true
-      agent: kubernetes
       context: prow/e2e-mixer-no_auth-mcp.sh
       rerun_command: "/test e2e-mixer-no_auth-mcp"
       trigger: "(?m)^/test (e2e-mixer-no_auth-mcp)?,?(\\s+|$)"
@@ -140,11 +138,16 @@ presubmits:
         preset-service-account: "true"
       max_concurrency: 5
       spec:
-        <<: *test_spec
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-mixer-no_auth-mcp.sh
+        nodeSelector:
+          testing: test-pool
     - name: e2e-dashboard
-      branches: *branch_spec
+      <<: *job_template
       always_run: true
-      agent: kubernetes
       context: prow/e2e-dashboard.sh
       rerun_command: "/test e2e-dashboard"
       trigger: "(?m)^/test (e2e-dashboard)?,?(\\s+|$)"
@@ -152,11 +155,16 @@ presubmits:
         preset-service-account: "true"
       max_concurrency: 5
       spec:
-        <<: *test_spec
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-dashboard.sh
+        nodeSelector:
+          testing: test-pool
     - name: e2e-bookInfoTests-envoyv2-v1alpha3
-      branches: *branch_spec
+      <<: *job_template
       always_run: true
-      agent: kubernetes
       context: prow/e2e-bookInfoTests-v1alpha3.sh
       rerun_command: "/test e2e-bookInfo-envoyv2-v1alpha3"
       trigger: "(?m)^/test (e2e-bookInfo-envoyv2-v1alpha3)?,?(\\s+|$)"
@@ -164,11 +172,16 @@ presubmits:
         preset-service-account: "true"
       max_concurrency: 5
       spec:
-        <<: *test_spec
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
+        nodeSelector:
+          testing: test-pool
     - name: e2e-simpleTests
-      branches: *branch_spec
+      <<: *job_template
       always_run: true
-      agent: kubernetes
       context: prow/e2e-simpleTests.sh
       rerun_command: "/test e2e-simple"
       trigger: "(?m)^/test (e2e-simple)?,?(\\s+|$)"
@@ -176,11 +189,16 @@ presubmits:
         preset-service-account: "true"
       max_concurrency: 5
       spec:
-        <<: *test_spec
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-simpleTests.sh
+        nodeSelector:
+          testing: test-pool
     - name: istio-pilot-multicluster-e2e
-      branches: *branch_spec
+      <<: *job_template
       always_run: true
-      agent: kubernetes
       context: prow/istio-pilot-multicluster-e2e.sh
       optional: true
       rerun_command: "/test istio-pilot-multicluster-e2e"
@@ -189,7 +207,13 @@ presubmits:
         preset-service-account: "true"
       max_concurrency: 5
       spec:
-        <<: *test_spec
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/istio-pilot-multicluster-e2e.sh
+        nodeSelector:
+          testing: test-pool
 
 
 postsubmits:
@@ -197,71 +221,114 @@ postsubmits:
   istio/istio:
 
   - name: istio-postsubmit
-    agent: kubernetes
-    branches: *branch_spec
+    <<: *job_template
     labels:
       preset-service-account: "true"
       preset-istio-kubeconfig: "true"
     spec:
-      <<: *test_spec
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/istio-postsubmit.sh
+      nodeSelector:
+        testing: test-pool
     run_after_success:
     - name: e2e-simpleTests
-      branches: *branch_spec
-      agent: kubernetes
+      <<: *job_template
       labels:
         preset-service-account: "true"
       spec:
-        <<: *test_spec
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-simpleTests.sh
+        nodeSelector:
+          testing: test-pool
     - name: e2e-simpleTests-mcp
-      branches: *branch_spec
-      agent: kubernetes
-      context: prow/e2e-simpleTests-mcp.sh
+      <<: *job_template
       labels:
         preset-service-account: "true"
       max_concurrency: 5
       spec:
-        <<: *test_spec
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-simpleTests-mcp.sh
+        nodeSelector:
+          testing: test-pool
     - name: e2e-bookInfoTests-envoyv2-v1alpha3
-      branches: *branch_spec
-      agent: kubernetes
+      <<: *job_template
       labels:
         preset-service-account: "true"
       spec:
-        <<: *test_spec
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
+        nodeSelector:
+          testing: test-pool
     - name: istio-pilot-e2e-envoyv2-v1alpha3
-      branches: *branch_spec
-      agent: kubernetes
+      <<: *job_template
       labels:
         preset-service-account: "true"
       spec:
-        <<: *test_spec
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
+        nodeSelector:
+          testing: test-pool
     - name: istio-pilot-e2e-envoyv2-v1alpha3-k8s-1.10
-      branches: *branch_spec
-      agent: kubernetes
+      <<: *job_template
       labels:
         preset-service-account: "true"
       spec:
-        <<: *test_spec
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/istio-pilot-e2e-envoyv2-v1alpha3-k8s-1.10.sh
+        nodeSelector:
+          testing: test-pool
     - name: e2e-bookInfoTests-envoyv2-v1alpha3-mcp
-      branches: *branch_spec
-      agent: kubernetes
-      context: prow/e2e-bookInfoTests-v1alpha3-mcp.sh
+      <<: *job_template
       labels:
         preset-service-account: "true"
       max_concurrency: 5
       spec:
-        <<: *test_spec
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-bookInfoTests-envoyv2-v1alpha3-mcp.sh
+        nodeSelector:
+          testing: test-pool
     - name: e2e-mixer-no_auth
-      branches: *branch_spec
-      agent: kubernetes
+      <<: *job_template
       labels:
         preset-service-account: "true"
       spec:
-        <<: *test_spec
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-mixer-no_auth.sh
+        nodeSelector:
+          testing: test-pool
     - name: e2e-dashboard
-      branches: *branch_spec
-      agent: kubernetes
+      <<: *job_template
       labels:
         preset-service-account: "true"
       spec:
-        <<: *test_spec
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-dashboard.sh
+        nodeSelector:
+          testing: test-pool
