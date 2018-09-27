@@ -21,7 +21,6 @@ apt-get -qqy --no-install-recommends install \
 ./install-docker.sh
 ./install-gcloud.sh
 ./install-golang.sh
-./install-gosu.sh
 
 apt-get clean
 rm -rf /var/lib/apt/lists/*
