@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [[ "$(uname)" != "Linux" ]]; then
+  echo "Run on Linux only."
+  exit 1
+fi
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+
+
+# Install githubctl
+function install_githubctl() {
+    pushd $DIR/..
+    git clone https://github.com/istio/test-infra.git -b master --depth 1
+      pushd test-infra
+       bazel build //toolbox/githubctl
+       cp bazel-bin/toolbox/githubctl/linux_amd64_stripped/githubctl /usr/local/bin
+      popd
+    popd
+    ls -l /usr/local/bin/githubctl
+}
+
+function update_githubctl() {
+  install_githubctl
+  echo 'githubctl up-to-date.'
+}
