@@ -32,79 +32,58 @@ presubmits:
 
   istio-releases/daily-release:
   - name: daily-perf-tests
-    agent: kubernetes
     context: prow/daily-perf-tests.sh
     branches: *branch_spec
     always_run: true
-    rerun_command: "/test daily-perf-tests"
-    trigger: "(?m)^/(retest|test (all|daily-perf-tests))?,?(\\s+|$)"
     labels:
       preset-service-account: true
     spec:
       <<: *test_spec
   - name: daily-unit-tests
-    agent: kubernetes
     context: prow/daily-unit-tests.sh
     branches: *branch_spec
     always_run: true
-    rerun_command: "/test daily-unit-tests"
-    trigger: "(?m)^/(retest|test (all|daily-unit-tests))?,?(\\s+|$)"
     labels:
       preset-service-account: true
       preset-istio-kubeconfig: true
     spec:
       <<: *build_spec
   - name: daily-pilot-e2e-envoyv2-v1alpha3
-    agent: kubernetes
     context: prow/daily-pilot-e2e-envoyv2-v1alpha3.sh
     branches: *branch_spec
     always_run: true
-    rerun_command: "/test daily-pilot-e2e-envoyv2-v1alpha3"
-    trigger: "(?m)^/(retest|test (all|daily-pilot-e2e-envoyv2-v1alpha3))?,?(\\s+|$)"
     labels:
       preset-service-account: true
     spec:
       <<: *test_spec
   - name: daily-e2e-rbac-no_auth
-    agent: kubernetes
     context: prow/daily-e2e-rbac-no_auth.sh
     branches: *branch_spec
     always_run: true
-    rerun_command: "/test daily-e2e-rbac-no_auth"
-    trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-no_auth))?,?(\\s+|$)"
     labels:
       preset-service-account: true
     spec:
       <<: *test_spec
   - name: daily-e2e-rbac-no_auth-default
-    agent: kubernetes
     context: prow/daily-e2e-rbac-no_auth-default.sh
     branches: *branch_spec
     always_run: true
-    rerun_command: "/test daily-e2e-rbac-no_auth-default"
-    trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-no_auth-default))?,?(\\s+|$)"
     labels:
       preset-service-account: true
     spec:
       <<: *test_spec
   - name: daily-e2e-rbac-auth
-    agent: kubernetes
     context: prow/daily-e2e-rbac-auth.sh
     branches: *branch_spec
     always_run: true
-    rerun_command: "/test daily-e2e-rbac-auth"
-    trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-auth))?,?(\\s+|$)"
     labels:
       preset-service-account: true
     spec:
       <<: *test_spec
   - name: daily-e2e-rbac-auth-default
-    agent: kubernetes
     context: prow/daily-e2e-rbac-auth-default.sh
     branches: *branch_spec
     always_run: true
-    rerun_command: "/test daily-e2e-rbac-auth-default"
-    trigger: "(?m)^/(retest|test (all|daily-e2e-rbac-auth-default))?,?(\\s+|$)"
     labels:
       preset-service-account: true
     spec:
