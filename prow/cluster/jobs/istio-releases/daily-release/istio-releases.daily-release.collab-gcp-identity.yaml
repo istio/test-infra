@@ -33,6 +33,7 @@ presubmits:
   istio-releases/daily-release:
 
   - name: daily-unit-tests
+    context: prow/daily-unit-tests.sh
     branches: *branch_spec
     always_run: true
     labels:
@@ -42,6 +43,7 @@ presubmits:
       <<: *build_spec
 
   - name: daily-e2e-pilot-no_auth
+    context: prow/daily-e2e-pilot-no_auth.sh
     branches: *branch_spec
     always_run: true
     labels:
@@ -50,6 +52,7 @@ presubmits:
       <<: *test_spec
 
   - name: daily-e2e-bookinfoTests
+    context: prow/daily-e2e-bookinfoTests.sh
     branches: *branch_spec
     always_run: true
     labels:
@@ -58,6 +61,7 @@ presubmits:
       <<: *test_spec
 
   - name: daily-e2e-simpleTests
+    context: prow/daily-e2e-simpleTests.sh
     branches: *branch_spec
     always_run: true
     labels:
@@ -66,6 +70,7 @@ presubmits:
       <<: *test_spec
 
   - name: daily-e2e-mixer-no_auth
+    context: prow/daily-e2e-mixer-no_auth.sh
     branches: *branch_spec
     always_run: true
     labels:
@@ -74,6 +79,7 @@ presubmits:
       <<: *test_spec
 
   - name: daily-e2e-dashboard
+    context: prow/daily-e2e-dashboard.sh
     branches: *branch_spec
     always_run: true
     labels:

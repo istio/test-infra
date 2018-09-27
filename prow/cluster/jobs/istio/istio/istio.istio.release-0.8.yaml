@@ -34,6 +34,7 @@ presubmits:
   istio/istio:
 
   - name: istio-unit-tests
+    context: prow/istio-unit-tests.sh
     branches: *branch_spec
     always_run: true
     optional: true
@@ -45,6 +46,7 @@ presubmits:
 
   - name: istio-presubmit
     branches: *branch_spec
+    context: prow/istio-presubmit.sh
     always_run: true
     labels:
       preset-service-account: "true"
@@ -55,6 +57,7 @@ presubmits:
     - name: istio-pilot-e2e
       branches: *branch_spec
       always_run: true
+      context: prow/istio-pilot-e2e.sh
       labels:
         preset-service-account: "true"
       max_concurrency: 5
@@ -63,6 +66,7 @@ presubmits:
     - name: istio-pilot-e2e-envoyv2-v1alpha3
       branches: *branch_spec
       always_run: true
+      context: prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
       optional: false
       labels:
         preset-service-account: "true"
@@ -72,6 +76,7 @@ presubmits:
     - name: e2e-bookInfoTests
       branches: *branch_spec
       always_run: true
+      context: prow/e2e-bookInfoTests.sh
       optional: false
       labels:
         preset-service-account: "true"
@@ -81,6 +86,7 @@ presubmits:
     - name: e2e-bookInfoTests-envoyv2-v1alpha3
       branches: *branch_spec
       always_run: true
+      context: prow/e2e-bookInfoTests-v1alpha3.sh
       optional: false
       labels:
         preset-service-account: "true"
@@ -90,6 +96,7 @@ presubmits:
     - name: e2e-simpleTests
       always_run: true
       branches: *branch_spec
+      context: prow/e2e-simpleTests.sh
       optional: false
       labels:
         preset-service-account: "true"

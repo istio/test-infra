@@ -27,6 +27,7 @@ presubmits:
   istio/proxy:
 
   - name: proxy-presubmit
+    context: prow/proxy-presubmit.sh
     branches: *branch_spec
     always_run: true
     labels:
@@ -36,6 +37,7 @@ presubmits:
       <<: *bazel_spec
 
   - name: proxy-presubmit-asan
+    context: prow/proxy-presubmit-asan.sh
     branches: *branch_spec
     always_run: true
     labels:
@@ -45,6 +47,7 @@ presubmits:
       <<: *bazel_spec
 
   - name: proxy-presubmit-tsan
+    context: prow/proxy-presubmit-tsan.sh
     branches: *branch_spec
     always_run: true
     labels:
@@ -58,6 +61,7 @@ postsubmits:
   istio/proxy:
 
   - name: proxy-postsubmit
+    context: prow/proxy-postsubmit.sh
     branches: *branch_spec
     always_run: true
     labels:
