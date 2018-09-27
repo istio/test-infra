@@ -19,6 +19,7 @@ apt-get -qqy --no-install-recommends install \
 
 ./install-bazel.sh
 ./install-docker.sh
+./install-gcloud.sh
 ./install-golang.sh
 ./install-gosu.sh
 

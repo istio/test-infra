@@ -13,10 +13,15 @@ PROW_DIRS=( "/logs" "${HOME}" )
 
 for D in "${PROW_DIRS[@]}"; do
   if [[ -d "${D}" ]]; then
-    chown -R prow "${D}"
+    chown -R prow "${D}" || true
   fi
 done
 
-export PATH=${GOPATH}/bin:${PATH}
+[[ -n ${GOPATH:-} ]] && export PATH=${GOPATH}/bin:${PATH}
+
+# Authenticate gcloud, allow failures
+if [[ -n "${GOOGLE_APPLICATION_CREDENTIALS:-}" ]]; then
+  gcloud auth activate-service-account --key-file="${GOOGLE_APPLICATION_CREDENTIALS}" || true
+fi
 
 exec /usr/local/bin/gosu prow "$@"

@@ -11,6 +11,7 @@ apt-get -qqy --no-install-recommends install \
   ca-certificates \
   curl \
   lsb-release \
+  python \
   software-properties-common \
   unzip \
   wget
