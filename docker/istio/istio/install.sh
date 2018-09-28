@@ -11,6 +11,7 @@ apt-get -qqy --no-install-recommends install \
   ca-certificates \
   curl \
   lsb-release \
+  python \
   software-properties-common \
   unzip \
   wget
@@ -18,7 +19,6 @@ apt-get -qqy --no-install-recommends install \
 ./install-docker.sh
 ./install-gcloud.sh
 ./install-golang.sh
-./install-gosu.sh
 ./install-helm.sh
 ./install-protoc.sh
 

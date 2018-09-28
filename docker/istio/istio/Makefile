@@ -1,5 +1,5 @@
 PROJECT ?= istio-testing
-VERSION ?= 0.4
+VERSION ?= $(shell date +v%Y%m%d)-$(shell git describe --tags --always --dirty)
 IMAGE ?= istio-builder
 
 # Note: The build directory is the root of the istio/test-infra repository, not ./
