@@ -342,7 +342,7 @@ func main() {
 			glog.Info(err)
 			os.Exit(1)
 		}
-		fmt.Printf(baseSha)
+		fmt.Print(baseSha)
 	default:
 		glog.Infof("Unsupported operation: %s\n", *op)
 	}
