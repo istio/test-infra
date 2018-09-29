@@ -32,7 +32,8 @@ import (
 
 var (
 	owner                 = flag.String("owner", "istio", "Github owner or org")
-	tokenFile             = flag.String("token_file", "", "File containing Github API Access Token")
+	accessToken           = flag.String("access_token", "", "Github API Access Token")
+	tokenFile             = flag.String("token_file", "", "File containing Github API Access Token. Used if access_token is not provided.")
 	op                    = flag.String("op", "", "Operation to be performed")
 	repo                  = flag.String("repo", "", "Repository to which op is applied")
 	baseBranch            = flag.String("base_branch", "", "Branch to which op is applied")
@@ -42,6 +43,7 @@ var (
 	releaseOrg            = flag.String("rel_org", "istio-releases", "GitHub Release Org")
 	gcsPath               = flag.String("gcs_path", "", "The path to the GCS bucket")
 	skip                  = flag.String("skip", "", "comma separated list of jobs to skip")
+	prNum                 = flag.Int("pr_num", 0, "PR number")
 	maxCommitDepth        = flag.Int("max_commit_depth", 200, "Max number of commits before HEAD to check if green")
 	maxRunDepth           = flag.Int("max_run_depth", 500, "Max number of runs before the latest one of which results are checked")
 	maxConcurrentRequests = flag.Int("max_concurrent_reqs", 50, "Max number of concurrent requests permitted")
@@ -75,6 +77,15 @@ func fastForward(repo, baseBranch, refSHA *string) error {
 		return nil
 	}
 	return githubClnt.FastForward(*repo, *baseBranch, *refSHA)
+}
+
+func getBaseSha(repo *string, prNumber int) (string, error) {
+	u.AssertNotEmpty("repo", repo)
+	pr, err := githubClnt.GetPR(*repo, prNumber)
+	if err != nil {
+		return "", err
+	}
+	return *pr.Base.SHA, nil
 }
 
 type task struct {
@@ -291,10 +302,16 @@ func readPostsubmitListFromProwConfig(org, repo, branch string) map[string]struc
 
 func init() {
 	flag.Parse()
-	u.AssertNotEmpty("token_file", tokenFile)
-	token, err := u.GetAPITokenFromFile(*tokenFile)
-	if err != nil {
-		glog.Fatalf("Error accessing user supplied token_file: %v\n", err)
+	var token string
+	var err error
+	if len(*accessToken) > 0 {
+		token = *accessToken
+	} else {
+		u.AssertNotEmpty("token_file", tokenFile)
+		token, err = u.GetAPITokenFromFile(*tokenFile)
+		if err != nil {
+			glog.Fatalf("Error accessing user supplied token_file: %v\n", err)
+		}
 	}
 	githubClnt = u.NewGithubClient(*owner, token)
 	// a new github client is created for istio-releases org
@@ -319,6 +336,13 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Printf("%s", latestGreenSHA)
+	case "getBaseSHA":
+		baseSha, err := getBaseSha(repo, *prNum)
+		if err != nil {
+			glog.Info(err)
+			os.Exit(1)
+		}
+		fmt.Printf(baseSha)
 	default:
 		glog.Infof("Unsupported operation: %s\n", *op)
 	}
