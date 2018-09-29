@@ -12,9 +12,14 @@ apt-get -qqy --no-install-recommends install \
   curl \
   lsb-release \
   python \
+  ruby \
+  rubygems \
+  ruby-dev \
   software-properties-common \
   unzip \
   wget
+
+gem install --no-ri --no-rdoc fpm
 
 ./install-docker.sh
 ./install-gcloud.sh

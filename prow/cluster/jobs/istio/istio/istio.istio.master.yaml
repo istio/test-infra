@@ -5,7 +5,7 @@ job_template: &job_template
   path_alias: istio.io/istio
 
 istio_container: &istio_container
-  image: gcr.io/istio-testing/istio-builder:v20180927-30391f3f
+  image: gcr.io/istio-testing/istio-builder:v20180927-e1ac2070
   # Docker in Docker
   securityContext:
     privileged: true
@@ -25,8 +25,6 @@ presubmits:
     <<: *job_template
     context: prow/istio-unit-tests.sh
     always_run: true
-    labels:
-      preset-istio-kubeconfig: "true"
     spec:
       containers:
       - <<: *istio_container
@@ -201,7 +199,6 @@ postsubmits:
     <<: *job_template
     labels:
       preset-service-account: "true"
-      preset-istio-kubeconfig: "true"
     spec:
       containers:
       - <<: *istio_container
