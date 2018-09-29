@@ -32,8 +32,8 @@ const (
 )
 
 var (
-	reportFile           = flag.String("report_file", "codecov.reportFile", "Package code coverage reportFile.")
-	baselineFile    	 = flag.String("baseline_file", "", "Package code coverage baseline.")
+	reportFile   = flag.String("report_file", "codecov.reportFile", "Package code coverage reportFile.")
+	baselineFile = flag.String("baseline_file", "", "Package code coverage baseline.")
 )
 
 //Report example: "ok   istio.io/mixer/adapter/denyChecker      0.023s  coverage: 100.0% of statements"
@@ -94,7 +94,7 @@ func findDelta(codeCoverage, baseline map[string]float64) {
 			delete(baseline, pkg)
 			delta = cov - base
 		}
-		if delta + thresholdDelta < 0 {
+		if delta+thresholdDelta < 0 {
 			bad[pkg] = delta
 		} else {
 			good[pkg] = delta
@@ -115,12 +115,12 @@ func findDelta(codeCoverage, baseline map[string]float64) {
 }
 
 func checkBaseline(reportFile, baselineFile string) (code int) {
-	codeCoverage, err :=  parseReport(reportFile)
+	codeCoverage, err := parseReport(reportFile)
 	if err != nil {
 		glog.Error(err)
 		return 1 //Error code 1: Parse file failure
 	}
-	baseline, err :=  parseReport(baselineFile)
+	baseline, err := parseReport(baselineFile)
 	if err != nil {
 		glog.Error(err)
 		return 1 //Error code 1: Parse file failure

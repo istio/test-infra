@@ -30,7 +30,6 @@ var (
 	tmpDir string
 )
 
-
 func TestParseReport(t *testing.T) {
 	exampleReport := "?   \tpilot/cmd\t[no test files]\nok  \tpilot/model\t1.3s\tcoverage: 90.2% of statements"
 	reportFile := filepath.Join(tmpDir, "reportFile")
@@ -47,7 +46,6 @@ func TestParseReport(t *testing.T) {
 		}
 	}
 }
-
 
 func TestMain(m *testing.M) {
 	var err error
