@@ -258,25 +258,3 @@ presets:
   - name: cache-ssd
     hostPath:
       path: /mnt/disks/ssd0/proxy
-- labels:
-    preset-istio-kubeconfig: "true"
-  env:
-  - name: KUBECONFIG
-    value: /home/bootstrap/.kube/config
-  volumeMounts:
-  - name: kubeconfig
-    mountPath: /home/bootstrap/.kube
-  volumes:
-  - name: kubeconfig
-    secret:
-      secretName: istio-e2e-rbac-kubeconfig
-- labels:
-    preset-daily-kubeconfig: "true"
-  volumeMounts:
-  - name: kubeconfig
-    mountPath: /home/bootstrap/.kube
-  volumes:
-  - name: kubeconfig
-    secret:
-      secretName: daily-release-e2e-rbac-kubeconfig
-
