@@ -15,22 +15,6 @@ test_infra_master_spec: &test_infra_master_spec
 periodics:
 
 - interval: 10m
-  name: test-infra-cleanup-cluster
-  labels:
-    preset-service-account: "true"
-    preset-istio-kubeconfig: "true"
-  spec:
-    <<: *test_infra_master_spec
-
-- interval: 10m
-  name: test-infra-cleanup-cluster-release
-  labels:
-    preset-service-account: "true"
-    preset-daily-kubeconfig: "true"
-  spec:
-    <<: *test_infra_master_spec
-
-- interval: 10m
   name: test-infra-cleanup-GKE
   labels:
     preset-service-account: "true"
