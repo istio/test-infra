@@ -212,8 +212,10 @@ func DailyReleaseQualification(baseBranch *string) error {
 			fmt.Sprintf("https://storage.googleapis.com/%s", *gcsPath)); err != nil {
 			return err
 		}
-		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "SHA", *refSHA); err != nil {
-			return err
+		if len(*refSHA) != 0 {
+			if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "SHA", *refSHA); err != nil {
+				return err
+			}
 		}
 		return nil
 	}

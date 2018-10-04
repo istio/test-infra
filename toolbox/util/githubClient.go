@@ -672,6 +672,7 @@ func (g *GithubClient) CreatePRUpdateRepo(
 			log.Printf("Failed to go back to workDir %s: %s", workDir, err)
 		}
 	}()
+	log.Printf("Calling the edit function\n")
 	if err = edit(); err != nil {
 		return nil, err
 	}
@@ -680,6 +681,7 @@ func (g *GithubClient) CreatePRUpdateRepo(
 		newBranch, newBranch); err != nil {
 		return nil, err
 	}
+	log.Printf("Creating pull request\n")
 	return g.CreatePullRequest(prTitle, prBody, "", newBranch, baseBranch, repo)
 }
 
