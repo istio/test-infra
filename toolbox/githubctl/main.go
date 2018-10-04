@@ -36,7 +36,7 @@ var (
 	op                    = flag.String("op", "", "Operation to be performed")
 	repo                  = flag.String("repo", "", "Repository to which op is applied")
 	baseBranch            = flag.String("base_branch", "", "Branch to which op is applied")
-	refSHA                = flag.String("ref_sha", "", "Reference commit SHA used to update base branch")
+	refSHA                = flag.String("ref_sha", "", "Commit SHA used by the operation")
 	hub                   = flag.String("hub", "", "Hub of the docker images")
 	tag                   = flag.String("tag", "", "Tag of the release candidate")
 	releaseOrg            = flag.String("rel_org", "istio-releases", "GitHub Release Org")
@@ -212,6 +212,9 @@ func DailyReleaseQualification(baseBranch *string) error {
 			fmt.Sprintf("https://storage.googleapis.com/%s", *gcsPath)); err != nil {
 			return err
 		}
+		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "SHA", *refSHA); err != nil {
+			return err
+		}
 		return nil
 	}
 	pr, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, dailyRepo, prTitle, prBody, edit)
@@ -278,12 +281,12 @@ func readPostsubmitListFromProwConfig(org, repo, branch string) map[string]struc
 		glog.Fatalf("cannot find repo root directory path")
 	}
 	prowConfigYaml := filepath.Join(repoRootDir, "prow/config.yaml")
-	config, err := config.Load(prowConfigYaml, "")
+	prowConfig, err := config.Load(prowConfigYaml, "")
 	if err != nil {
 		glog.Fatalf("could not read configs: %v", err)
 	}
 
-	for _, job := range config.Postsubmits[fmt.Sprintf("%s/%s", org, repo)] {
+	for _, job := range prowConfig.Postsubmits[fmt.Sprintf("%s/%s", org, repo)] {
 		traverseJobTree(job, postsubmitJobs, branch)
 	}
 	return postsubmitJobs
