@@ -71,7 +71,7 @@ presubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/daily-upgrade-test-from-1.0.1.sh
+        - prow/daily-upgrade-tests-from-1.0.1.sh
       nodeSelector:
         testing: test-pool
 
@@ -87,7 +87,7 @@ presubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/daily-upgrade-test-from-1.0.2.sh
+        - prow/daily-upgrade-tests-from-1.0.2.sh
       nodeSelector:
         testing: test-pool
 
@@ -103,7 +103,7 @@ presubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/daily-upgrade-test.sh
+        - prow/daily-downgrade-tests-to-1.0.1.sh
       nodeSelector:
         testing: test-pool
 
@@ -119,7 +119,7 @@ presubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/daily-upgrade-tests.sh
+        - prow/daily-downgrade-tests-to-1.0.2.sh
       nodeSelector:
         testing: test-pool
 
