@@ -1,7 +1,24 @@
+job_template: &job_template
+  branches:
+  - "^release-1.0$"
+  decorate: true
+
+istio_container: &istio_container
+  image: gcr.io/istio-testing/istio-builder:v20180927-e1ac2070
+  # Docker in Docker
+  securityContext:
+    privileged: true
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "24Gi"
+      cpu: "7000m"
 
 build_spec: &build_spec
   containers:
-  - image: gcr.io/istio-testing/prowbazel:0.4.11
+  - image: gcr.io/istio-testing/prowbazel:0.4.13
     args:
     - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
     - "--clean"
@@ -14,7 +31,7 @@ build_spec: &build_spec
 
 test_spec: &test_spec
   containers:
-  - image: gcr.io/istio-testing/prowbazel:0.4.11
+  - image: gcr.io/istio-testing/prowbazel:0.4.13
     args:
     - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
     - "--clean"
@@ -41,6 +58,38 @@ presubmits:
       preset-service-account: "true"
     spec:
       <<: *test_spec
+
+  - name: daily-upgrade-tests-1.0.1
+    <<: *job_template
+    context: prow/daily-upgrade-tests-1.0.1.sh
+    always_run: true
+    optional: true
+    labels:
+      preset-service-account: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/daily-upgrade-tests-1.0.1.sh
+      nodeSelector:
+        testing: test-pool
+
+  - name: daily-upgrade-tests-1.0.2
+    <<: *job_template
+    context: prow/daily-upgrade-tests-1.0.2.sh
+    always_run: true
+    optional: true
+    labels:
+      preset-service-account: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/daily-upgrade-tests-1.0.2.sh
+      nodeSelector:
+        testing: test-pool
 
   - name: daily-unit-tests
     context: prow/daily-unit-tests.sh
