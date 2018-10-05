@@ -42,6 +42,38 @@ presubmits:
     spec:
       <<: *test_spec
 
+  - name: daily-upgrade-tests-1.0.1
+    <<: *job_template
+    context: prow/daily-upgrade-tests-1.0.1.sh
+    always_run: true
+    optional: true
+    labels:
+      preset-service-account: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/daily-upgrade-tests-1.0.1.sh
+      nodeSelector:
+        testing: test-pool
+
+  - name: daily-upgrade-tests-1.0.2
+    <<: *job_template
+    context: prow/daily-upgrade-tests-1.0.2.sh
+    always_run: true
+    optional: true
+    labels:
+      preset-service-account: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/daily-upgrade-tests-1.0.2.sh
+      nodeSelector:
+        testing: test-pool
+
   - name: daily-unit-tests
     context: prow/daily-unit-tests.sh
     branches: *branch_spec
