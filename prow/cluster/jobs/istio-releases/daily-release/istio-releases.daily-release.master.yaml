@@ -59,9 +59,9 @@ presubmits:
     spec:
       <<: *test_spec
 
-  - name: daily-upgrade-tests
+  - name: daily-upgrade-tests-from-1.0.1
     <<: *job_template
-    context: prow/daily-upgrade-tests.sh
+    context: prow/daily-upgrade-tests-from-1.0.1.sh
     always_run: true
     optional: true
     labels:
@@ -71,7 +71,55 @@ presubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/daily-upgrade-tests.sh
+        - prow/daily-upgrade-tests-from-1.0.1.sh
+      nodeSelector:
+        testing: test-pool
+
+  - name: daily-upgrade-tests-from-1.0.2
+    <<: *job_template
+    context: prow/daily-upgrade-tests-from-1.0.2.sh
+    always_run: true
+    optional: true
+    labels:
+      preset-service-account: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/daily-upgrade-tests-from-1.0.2.sh
+      nodeSelector:
+        testing: test-pool
+
+  - name: daily-downgrade-tests-to-1.0.1
+    <<: *job_template
+    context: prow/daily-downgrade-tests-to-1.0.1.sh
+    always_run: true
+    optional: true
+    labels:
+      preset-service-account: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/daily-downgrade-tests-to-1.0.1.sh
+      nodeSelector:
+        testing: test-pool
+
+  - name: daily-downgrade-tests-to-1.0.2
+    <<: *job_template
+    context: prow/daily-downgrade-tests-to-1.0.2.sh
+    always_run: true
+    optional: true
+    labels:
+      preset-service-account: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/daily-downgrade-tests-to-1.0.2.sh
       nodeSelector:
         testing: test-pool
 
