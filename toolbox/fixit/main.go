@@ -49,7 +49,6 @@ var (
 func init() {
 	flag.Parse()
 	if *tokenFile != "" {
-		log.Printf("Using token file %s\n", *tokenFile)
 		token, err := u.GetAPITokenFromFile(*tokenFile)
 		if err != nil {
 			log.Fatalf("Error accessing user supplied token_file: %v\n", err)
