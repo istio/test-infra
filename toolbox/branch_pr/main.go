@@ -31,15 +31,16 @@ const (
 	// Allowed field values can be found at https://developer.github.com/v3/search/#search-repositories
 	desc        = orderV("desc")
 	created     = sortV("created")
+	merged      = sortV("merged")
 	closedState = string("closed")
 )
 
 var (
 	org       = flag.String("user", "istio", "Github owner or org")
 	tokenFile = flag.String("token_file", "", "Github token file (optional)")
-	repos     = flag.String("repos", "istio,api,proxy,test-infra,fortio,istio.github.io", "Github repos, separate using \",\"")
-	label     = flag.String("label", "kind/fixit", "Label to search for")
-	sort      = flag.String("sort", string(created), "The sort field. Can be comments, created, or updated.")
+	repos     = flag.String("repos", "istio,api,proxy", "Github repos, separate using \",\"")
+	brancg    = flag.String("branch", "release-1.0", "Branches to search for")
+	sort      = flag.String("sort", string(merged), "The sort field. Can be comments, created, or updated.")
 	order     = flag.String("order", string(desc), "The sort order if sort parameter is provided. One of asc or desc.")
 	startDate = time.Date(2018, time.March, 5, 0, 0, 0, 0, time.Local)
 	endDate   = time.Date(2018, time.March, 10, 0, 0, 0, 0, time.Local)
@@ -60,10 +61,6 @@ func init() {
 	}
 }
 
-// Check if an event happened during the FixIt week.
-func isFixItWeek(t time.Time) bool {
-	return t.After(startDate) && t.Before(endDate)
-}
 
 // Find all metric related to issues
 func findIssueMetric(repo string, metric *fixItMetric) {
