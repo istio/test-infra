@@ -273,7 +273,7 @@ postsubmits:
           - prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
         nodeSelector:
           testing: test-pool
-    - name: istio-pilot-e2e-envoyv2-v1alpha3-k8s-1.10
+    - name: istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest
       <<: *job_template
       labels:
         preset-service-account: "true"
@@ -282,7 +282,7 @@ postsubmits:
         - <<: *istio_container
           command:
           - entrypoint
-          - prow/istio-pilot-e2e-envoyv2-v1alpha3-k8s-1.10.sh
+          - prow/istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest.sh
         nodeSelector:
           testing: test-pool
     - name: e2e-bookInfoTests-envoyv2-v1alpha3-mcp
