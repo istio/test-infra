@@ -189,6 +189,22 @@ presubmits:
           - prow/istio-pilot-multicluster-e2e.sh
         nodeSelector:
           testing: test-pool
+    - name: build-tests
+      <<: *job_template
+      always_run: true
+      context: prow/build-tests.sh
+      optional: true
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/build-tests.sh
+        nodeSelector:
+          testing: test-pool
 
 
 postsubmits:
