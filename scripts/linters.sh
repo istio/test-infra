@@ -48,13 +48,8 @@ function check_licences() {
   echo 'licences OK'
 }
 
-function install_buildifier() {
-  echo 'Installing bazelbuilder ...'
-  go get -u github.com/bazelbuild/buildtools/buildifier
-}
-
 function run_buildifier() {
-  "${GOPATH}/bin/buildifier" -showlog -mode=check $(git ls-files| grep -e BUILD -e WORKSPACE | grep -v vendor)
+  bazel run //:buildifier -- -showlog -mode=check $(git ls-files| grep -e BUILD -e WORKSPACE | grep -v vendor)
   echo 'buildifier OK'
 }
 
@@ -64,6 +59,5 @@ pushd ${ROOT}
 install_gometalinter
 run_gometalinter
 check_licences
-install_buildifier
 run_buildifier
 popd
