@@ -59,7 +59,7 @@ func findPulls(repo string) {
 	}
 	log.Printf("Created %s", filename)
 
-	pullQueries := createIssueQuery(repo, "pr")
+	pullQueries := createIssueQuery(repo)
 	log.Printf("Pull Query: %v", pullQueries)
 
 	allPulls, err := gh.SearchIssues(pullQueries, *sort, *order)
@@ -75,7 +75,7 @@ func findPulls(repo string) {
 		title := pull.GetTitle()
 		masterPr := ""
 		// Find corresponding PR in master if this is a cherrypick.
-		re := regexp.MustCompile(`\(\#(.*?)\)`)
+		re := regexp.MustCompile(`\(#(.*?)\)`)
 		match := re.FindStringSubmatch(title)
 		if match != nil {
 			masterPr = fmt.Sprintf("https://github.com/istio/%s/pull/%s", repo, match[1])
@@ -104,25 +104,12 @@ func main() {
 	}
 }
 
-func createIssueQuery(repo string, issuetype string) []string {
+func createIssueQuery(repo string) []string {
 	var queries []string
-	queries = addQuery(queries, "repo", *org, "/", repo)
-	queries = addQuery(queries, "type", issuetype)
-	queries = addQuery(queries, "merged", ">="+*startDate)
-	queries = addQuery(queries, "base", *branch)
+	queries = append(queries, fmt.Sprintf("repo:%s/%s", *org, repo))
+	queries = append(queries, "type:pr")
+	queries = append(queries, "merged:>="+*startDate)
+	queries = append(queries, "base:"+*branch)
 
 	return queries
-}
-
-func addQuery(queries []string, queryParts ...string) []string {
-	if len(queryParts) < 2 {
-		log.Printf("Not enough to form a query: %v", queryParts)
-		return queries
-	}
-	for _, part := range queryParts {
-		if part == "" {
-			return queries
-		}
-	}
-	return append(queries, fmt.Sprintf("%s:%s", queryParts[0], strings.Join(queryParts[1:], "")))
 }
