@@ -71,11 +71,13 @@ func findPulls(repo string) {
 	// Insert CSV header
 	_, _ = fmt.Fprintf(file, "PR (Ordered by descending merge time), Description, Author, PR in master\n")
 
+	re := regexp.MustCompile(`\(#(.*?)\)`)
+
 	for _, pull := range allPulls {
 		title := pull.GetTitle()
 		masterPr := ""
+
 		// Find corresponding PR in master if this is a cherrypick.
-		re := regexp.MustCompile(`\(#(.*?)\)`)
 		match := re.FindStringSubmatch(title)
 		if match != nil {
 			masterPr = fmt.Sprintf("https://github.com/istio/%s/pull/%s", repo, match[1])
