@@ -52,7 +52,10 @@ presubmits:
     <<: *job_template
     optional: true
     context: prow/istio-integ-k8s-tests.sh
+    max_concurrency: 5
     always_run: true
+    labels:
+      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
