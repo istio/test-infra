@@ -77,10 +77,6 @@ branch-protection:
               protect: true
             master:
               protect: true
-              required_status_checks:
-                contexts:
-                - "merges-blocked-needs-admin"
-
         istio:
           protect: false
           required_status_checks:
@@ -96,14 +92,6 @@ branch-protection:
               restrictions:
                 teams:
                 - istio-hackers
-            release-0.8:
-              protect: true
-              required_status_checks:
-                contexts:
-                - "merges-blocked-needs-admin"
-                - "ci/circleci: dependencies"
-                - "ci/circleci: e2e-pilot"
-                - "ci/circleci: e2e-pilot-noauth-v1alpha3-v2"
             release-1.1:
               protect: true
               required_status_checks:
@@ -117,7 +105,6 @@ branch-protection:
               protect: true
               required_status_checks:
                 contexts:
-                - "merges-blocked-needs-admin"
                 - "ci/circleci: shellcheck"
                 - "ci/circleci: e2e-pilot-auth-v1alpha3-v2"
                 - "ci/circleci: e2e-pilot-noauth-v1alpha3-v2"
@@ -166,9 +153,6 @@ branch-protection:
               protect: true
             master:
               protect: true
-              required_status_checks:
-                contexts:
-                - "merges-blocked-needs-admin"
         test-infra:
           protect: false
           branches:
