@@ -1,4 +1,24 @@
 
+bazel_spec: &bazel_spec
+  containers:
+  - image: gcr.io/istio-testing/prowbazel:0.4.13
+    args:
+    - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
+    - "--clean"
+    - "--timeout=120"
+    # Bazel needs privileged mode in order to sandbox builds.
+    securityContext:
+      privileged: true
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "24Gi"
+        cpu: "7000m"
+  nodeSelector:
+    testing: build-pool
+
 test_infra_master_spec: &test_infra_master_spec
   containers:
   - image: gcr.io/istio-testing/prowbazel:0.4.13
@@ -118,3 +138,11 @@ periodics:
         secretName: oauth-token
     nodeSelector:
       testing: test-pool
+
+  name: proxy-postsubmit-periodic
+    context: prow/proxy-postsubmit.sh
+    branches: master
+    labels:
+      preset-service-account: "true"
+    spec:
+      <<: *bazel_spec
