@@ -18,6 +18,7 @@ package github
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -167,13 +168,13 @@ const (
 	PullRequestActionReviewRequested = "review_requested"
 	// PullRequestActionReviewRequestRemoved means review requests were removed.
 	PullRequestActionReviewRequestRemoved = "review_request_removed"
-	// PullRequestActionLabeled means means labels were added.
+	// PullRequestActionLabeled means labels were added.
 	PullRequestActionLabeled = "labeled"
 	// PullRequestActionUnlabeled means labels were removed
 	PullRequestActionUnlabeled = "unlabeled"
 	// PullRequestActionOpened means the PR was created
 	PullRequestActionOpened = "opened"
-	// PullRequestActionEdited means means the PR body changed.
+	// PullRequestActionEdited means the PR body changed.
 	PullRequestActionEdited = "edited"
 	// PullRequestActionClosed means the PR was closed (or was merged).
 	PullRequestActionClosed = "closed"
@@ -271,6 +272,7 @@ type PullRequestChange struct {
 }
 
 // Repo contains general repository information.
+// See also https://developer.github.com/v3/repos/#get
 type Repo struct {
 	Owner         User   `json:"owner"`
 	Name          string `json:"name"`
@@ -278,6 +280,7 @@ type Repo struct {
 	HTMLURL       string `json:"html_url"`
 	Fork          bool   `json:"fork"`
 	DefaultBranch string `json:"default_branch"`
+	Archived      bool   `json:"archived"`
 }
 
 // Branch contains general branch information.
@@ -295,6 +298,14 @@ type BranchProtectionRequest struct {
 	EnforceAdmins              *bool                       `json:"enforce_admins"`
 	RequiredPullRequestReviews *RequiredPullRequestReviews `json:"required_pull_request_reviews"`
 	Restrictions               *Restrictions               `json:"restrictions"`
+}
+
+func (r BranchProtectionRequest) String() string {
+	bytes, err := json.Marshal(&r)
+	if err != nil {
+		return fmt.Sprintf("%#v", r)
+	}
+	return string(bytes)
 }
 
 // RequiredStatusChecks specifies which contexts must pass to merge.
@@ -508,6 +519,16 @@ type Commit struct {
 	Added    []string `json:"added"`
 	Removed  []string `json:"removed"`
 	Modified []string `json:"modified"`
+}
+
+// SingleCommit is the commit part received when requesting a single commit
+// https://developer.github.com/v3/repos/commits/#get-a-single-commit
+type SingleCommit struct {
+	Commit struct {
+		Tree struct {
+			SHA string `json:"sha"`
+		} `json:"tree"`
+	} `json:"commit"`
 }
 
 // ReviewEventAction enumerates the triggers for this
