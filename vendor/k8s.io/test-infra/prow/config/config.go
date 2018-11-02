@@ -522,7 +522,7 @@ func (c *Config) mergeJobConfig(jc JobConfig) error {
 
 func setPresubmitDecorationDefaults(c *Config, ps *Presubmit) {
 	if ps.Decorate {
-		ps.DecorationConfig = setDecorationDefaults(ps.DecorationConfig, c.Plank.DefaultDecorationConfig)
+		ps.DecorationConfig = ps.DecorationConfig.ApplyDefault(c.Plank.DefaultDecorationConfig)
 	}
 
 	for i := range ps.RunAfterSuccess {
@@ -532,7 +532,7 @@ func setPresubmitDecorationDefaults(c *Config, ps *Presubmit) {
 
 func setPostsubmitDecorationDefaults(c *Config, ps *Postsubmit) {
 	if ps.Decorate {
-		ps.DecorationConfig = setDecorationDefaults(ps.DecorationConfig, c.Plank.DefaultDecorationConfig)
+		ps.DecorationConfig = ps.DecorationConfig.ApplyDefault(c.Plank.DefaultDecorationConfig)
 	}
 
 	for i := range ps.RunAfterSuccess {
@@ -542,7 +542,7 @@ func setPostsubmitDecorationDefaults(c *Config, ps *Postsubmit) {
 
 func setPeriodicDecorationDefaults(c *Config, ps *Periodic) {
 	if ps.Decorate {
-		ps.DecorationConfig = setDecorationDefaults(ps.DecorationConfig, c.Plank.DefaultDecorationConfig)
+		ps.DecorationConfig = ps.DecorationConfig.ApplyDefault(c.Plank.DefaultDecorationConfig)
 	}
 
 	for i := range ps.RunAfterSuccess {
@@ -661,6 +661,9 @@ func (c *Config) validateJobConfig() error {
 		if err := validatePodSpec(v.Name, kube.PresubmitJob, v.Spec); err != nil {
 			return err
 		}
+		if err := validateDecoration(v.Name, v.Spec, v.DecorationConfig); err != nil {
+			return err
+		}
 		if err := validateLabels(v.Name, v.Labels); err != nil {
 			return err
 		}
@@ -695,6 +698,9 @@ func (c *Config) validateJobConfig() error {
 		if err := validatePodSpec(j.Name, kube.PostsubmitJob, j.Spec); err != nil {
 			return err
 		}
+		if err := validateDecoration(j.Name, j.Spec, j.DecorationConfig); err != nil {
+			return err
+		}
 		if err := validateLabels(j.Name, j.Labels); err != nil {
 			return err
 		}
@@ -712,6 +718,9 @@ func (c *Config) validateJobConfig() error {
 			return err
 		}
 		if err := validatePodSpec(p.Name, kube.PeriodicJob, p.Spec); err != nil {
+			return err
+		}
+		if err := validateDecoration(p.Name, p.Spec, p.DecorationConfig); err != nil {
 			return err
 		}
 		if err := validateLabels(p.Name, p.Labels); err != nil {
@@ -953,37 +962,6 @@ func (c *JobConfig) decorationRequested() bool {
 	return false
 }
 
-func setDecorationDefaults(provided, defaults *kube.DecorationConfig) *kube.DecorationConfig {
-	merged := &kube.DecorationConfig{}
-	if provided != nil {
-		merged = provided
-	}
-
-	if merged.Timeout == 0 {
-		merged.Timeout = defaults.Timeout
-	}
-	if merged.GracePeriod == 0 {
-		merged.GracePeriod = defaults.GracePeriod
-	}
-	if merged.UtilityImages == nil {
-		merged.UtilityImages = defaults.UtilityImages
-	}
-	if merged.GCSConfiguration == nil {
-		merged.GCSConfiguration = defaults.GCSConfiguration
-	}
-	if merged.GCSCredentialsSecret == "" {
-		merged.GCSCredentialsSecret = defaults.GCSCredentialsSecret
-	}
-	if len(merged.SSHKeySecrets) == 0 {
-		merged.SSHKeySecrets = defaults.SSHKeySecrets
-	}
-	if merged.CookiefileSecret == "" {
-		merged.CookiefileSecret = defaults.CookiefileSecret
-	}
-
-	return merged
-}
-
 func validateLabels(name string, labels map[string]string) error {
 	for label := range labels {
 		for _, prowLabel := range decorate.Labels() {
@@ -1010,19 +988,26 @@ func validateAgent(name, agent string, spec *v1.PodSpec, config *kube.Decoration
 	if agent != string(kube.KubernetesAgent) && config != nil {
 		return fmt.Errorf("job %s configured PodSpec decoration but is not a Kubernetes job", name)
 	}
-	// Jobs asking for decoration should provide config
-	if agent == string(kube.KubernetesAgent) && config != nil {
-		if config.UtilityImages == nil {
-			return fmt.Errorf("job %s does not configure pod utility images but asks for decoration", name)
-		}
-		if config.GCSConfiguration == nil || config.GCSCredentialsSecret == "" {
-			return fmt.Errorf("job %s does not configure GCS uploads but asks for decoration", name)
-		}
-	}
 	// Ensure agent is a known value.
 	if agent != string(kube.KubernetesAgent) && agent != string(kube.JenkinsAgent) {
 		return fmt.Errorf("job %s has invalid agent (%s), it needs to be one of the following: %s %s",
 			name, agent, kube.KubernetesAgent, kube.JenkinsAgent)
+	}
+	return nil
+}
+
+func validateDecoration(name string, spec *v1.PodSpec, config *kube.DecorationConfig) error {
+	if config == nil {
+		return nil
+	}
+
+	if err := config.Validate(); err != nil {
+		return fmt.Errorf("job %s has an invalid decoration config: %v", name, err)
+	}
+	var args []string
+	args = append(append(args, spec.Containers[0].Command...), spec.Containers[0].Args...)
+	if len(args) == 0 || args[0] == "" {
+		return fmt.Errorf("job %s requested decoration, but does not specify `command` or `args` for the container", name)
 	}
 	return nil
 }
