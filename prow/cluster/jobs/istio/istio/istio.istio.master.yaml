@@ -241,7 +241,16 @@ presubmits:
 postsubmits:
 
   istio/istio:
-
+  - name: istio-integ-local-tests
+    <<: *job_template
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/istio-integ-local-tests.sh
+      nodeSelector:
+        testing: test-pool
   - name: istio-postsubmit
     <<: *job_template
     labels:
