@@ -22,6 +22,8 @@ import (
 	"testing"
 	"time"
 
+	"google.golang.org/api/container/v1"
+
 	"k8s.io/test-infra/boskos/common"
 	"k8s.io/test-infra/boskos/mason"
 	"k8s.io/test-infra/boskos/ranch"
@@ -54,6 +56,34 @@ func TestParseInvalidConfig(t *testing.T) {
 			},
 		}},
 	}
+	expectedCni := resourceConfigs{
+		"type1": {{
+			Clusters: []clusterConfig{
+				{
+					MachineType:   "n1-standard-2",
+					NumNodes:      4,
+					Version:       "1.7",
+					Zone:          "us-central-1f",
+					NetworkPolicy: &container.NetworkPolicy{Enabled: true, Provider: "CALICO"},
+				},
+			},
+			Vms: []virtualMachineConfig{
+				{
+					MachineType: "n1-standard-4",
+					SourceImage: "projects/debian-cloud/global/images/debian-9-stretch-v20180105",
+					Zone:        "us-central-1f",
+					Tags: []string{
+						"http-server",
+						"https-server",
+					},
+					Scopes: []string{
+						"https://www.googleapis.com/auth/cloud-platform",
+					},
+				},
+			},
+		}},
+	}
+
 	conf, err := mason.ParseConfig("test-configs.yaml")
 	if err != nil {
 		t.Error("could not parse config")
@@ -61,10 +91,16 @@ func TestParseInvalidConfig(t *testing.T) {
 	config, err := ConfigConverter(conf[0].Config.Content)
 	if err != nil {
 		t.Errorf("cannot parse object")
-	} else {
-		if !reflect.DeepEqual(expected, *config.(*resourceConfigs)) {
-			t.Error("Object differ")
-		}
+	}
+	configCni, err := ConfigConverter(conf[1].Config.Content)
+	if err != nil {
+		t.Errorf("cannot parse networkpolicy object")
+	}
+	if !reflect.DeepEqual(expected, *config.(*resourceConfigs)) {
+		t.Error("Object differ")
+	}
+	if !reflect.DeepEqual(expectedCni, *configCni.(*resourceConfigs)) {
+		t.Error("Object with Networkpolicy differ")
 	}
 }
 
