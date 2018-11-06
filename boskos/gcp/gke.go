@@ -37,11 +37,12 @@ const (
 )
 
 type clusterConfig struct {
-	MachineType           string `json:"machinetype,omitempty"`
-	NumNodes              int64  `json:"numnodes,omitempty"`
-	Version               string `json:"version,omitempty"`
-	Zone                  string `json:"zone,ompitempty"`
-	EnableKubernetesAlpha bool   `json:"enablekubernetesalpha"`
+	MachineType           string                   `json:"machinetype,omitempty"`
+	NumNodes              int64                    `json:"numnodes,omitempty"`
+	Version               string                   `json:"version,omitempty"`
+	Zone                  string                   `json:"zone,omitempty"`
+	EnableKubernetesAlpha bool                     `json:"enablekubernetesalpha"`
+	NetworkPolicy         *container.NetworkPolicy `json:"networkpolicy,omitempty"`
 }
 
 type containerEngine struct {
@@ -141,6 +142,7 @@ func (cc *containerEngine) create(ctx context.Context, project string, config cl
 			NodeConfig: &container.NodeConfig{
 				MachineType: config.MachineType,
 			},
+			NetworkPolicy:         config.NetworkPolicy,
 			EnableKubernetesAlpha: config.EnableKubernetesAlpha,
 		},
 	}
