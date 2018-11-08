@@ -26,14 +26,10 @@ import (
 	"github.com/golang/glog"
 )
 
-const (
-	// Using 0% less than reportFile for requirement
-	thresholdDelta = 0
-)
-
 var (
 	reportFile   = flag.String("report_file", "codecov.reportFile", "Package code coverage reportFile.")
 	baselineFile = flag.String("baseline_file", "", "Package code coverage baseline.")
+	threshold    = flag.Float64("threshold", 5, "Coverage drop threshold. Trigger error if any package drops more than this.")
 )
 
 //Report example: "ok   istio.io/mixer/adapter/denyChecker      0.023s  coverage: 100.0% of statements"
@@ -104,7 +100,7 @@ func printDelta(deltas, report, baseline map[string]float64) {
 
 	// Then generate errors for reduced coverage.
 	for pkg, delta := range deltas {
-		if delta+thresholdDelta < 0 {
+		if delta+*threshold < 0 {
 			glog.Errorf("Coverage dropped: %s:%f%% (%f%% to %f%%)", pkg, delta, baseline[pkg], report[pkg])
 		}
 	}

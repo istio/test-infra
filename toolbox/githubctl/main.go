@@ -304,10 +304,8 @@ func readPostsubmitListFromProwConfig(org, repo, branch string) map[string]struc
 
 func init() {
 	flag.Parse()
-	var token string
-	var err error
 	u.AssertNotEmpty("token_file", tokenFile)
-	token, err = u.GetAPITokenFromFile(*tokenFile)
+	token, err := u.GetAPITokenFromFile(*tokenFile)
 	if err != nil {
 		glog.Fatalf("Error accessing user supplied token_file: %v\n", err)
 	}
