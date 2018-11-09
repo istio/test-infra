@@ -48,23 +48,6 @@ presubmits:
       nodeSelector:
         testing: build-pool
 
-  - name: istio-integ-k8s-tests
-    <<: *job_template
-    optional: true
-    context: prow/istio-integ-k8s-tests.sh
-    max_concurrency: 5
-    always_run: true
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/istio-integ-k8s-tests.sh
-      nodeSelector:
-        testing: build-pool
-
   - name: test-e2e-mixer-no_auth
     <<: *job_template
     optional: true
@@ -264,6 +247,18 @@ postsubmits:
         command:
         - entrypoint
         - prow/istio-integ-local-tests.sh
+      nodeSelector:
+        testing: test-pool
+  - name: istio-integ-k8s-tests
+    <<: *job_template
+    labels:
+      preset-service-account: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/istio-integ-k8s-tests.sh
       nodeSelector:
         testing: test-pool
   - name: istio-postsubmit
