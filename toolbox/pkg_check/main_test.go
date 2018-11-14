@@ -78,6 +78,62 @@ func TestFindDelta(t *testing.T) {
 	}
 }
 
+func TestCheckDeltaError(t *testing.T) {
+	code := checkDelta(
+		// Delta
+		map[string]float64{
+			"P1": -20,
+			"P2": 30,
+			"P3": 0,
+			"P4": 90,
+			"P5": -60,
+		},
+		// report
+		map[string]float64{
+			"P1": 30,
+			"P2": 90,
+			"P3": 100,
+			"P4": 90,
+		},
+		// baseline
+		map[string]float64{
+			"P1": 50,
+			"P2": 60,
+			"P3": 100,
+			"P5": 60,
+		})
+	if code != THRESHOLD_EXCEEDED_ERROR {
+		t.Errorf("Expecting return code 2, got %d", code)
+	}
+}
+
+func TestCheckDeltaGood(t *testing.T) {
+	code := checkDelta(
+		// Delta
+		map[string]float64{
+			"P1": -1,
+			"P2": 30,
+			"P3": 0,
+			"P4": 90,
+		},
+		// report
+		map[string]float64{
+			"P1": 30,
+			"P2": 90,
+			"P3": 100,
+			"P4": 90,
+		},
+		// baseline
+		map[string]float64{
+			"P1": 31,
+			"P2": 60,
+			"P3": 100,
+		})
+	if code != NO_ERROR_CODE {
+		t.Errorf("Expecting return code 0, got %d", code)
+	}
+}
+
 func TestMain(m *testing.M) {
 	var err error
 	if tmpDir, err = ioutil.TempDir("", tmpDirPrefix); err != nil {
