@@ -102,7 +102,7 @@ func TestCheckDeltaError(t *testing.T) {
 			"P3": 100,
 			"P5": 60,
 		})
-	if code != THRESHOLD_EXCEEDED_ERROR {
+	if code != ThresholdExceeded {
 		t.Errorf("Expecting return code 2, got %d", code)
 	}
 }
@@ -129,7 +129,7 @@ func TestCheckDeltaGood(t *testing.T) {
 			"P2": 60,
 			"P3": 100,
 		})
-	if code != NO_ERROR_CODE {
+	if code != NoError {
 		t.Errorf("Expecting return code 0, got %d", code)
 	}
 }

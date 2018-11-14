@@ -33,10 +33,11 @@ var (
 )
 
 const (
-	NO_ERROR_CODE = 0
-	THRESHOLD_EXCEEDED_ERROR = 2
+	// NoError is return code for no error
+	NoError = 0
+	// ThresholdExceeded is return code in case codecov threshold is exceeded.
+	ThresholdExceeded = 2
 )
-
 
 //Report example: "ok   istio.io/mixer/adapter/denyChecker      0.023s  coverage: 100.0% of statements"
 //expected output: c.codeCoverage["istio.io/mixer/adapter/denyChecker"] = 100
@@ -99,7 +100,7 @@ func findDelta(report, baseline map[string]float64) map[string]float64 {
 }
 
 func checkDelta(deltas, report, baseline map[string]float64) int {
-	code := NO_ERROR_CODE
+	code := NoError
 
 	// First print all coverage change.
 	for pkg, delta := range deltas {
@@ -110,7 +111,7 @@ func checkDelta(deltas, report, baseline map[string]float64) int {
 	for pkg, delta := range deltas {
 		if delta+*threshold < 0 {
 			glog.Errorf("Coverage dropped: %s:%f%% (%f%% to %f%%)", pkg, delta, baseline[pkg], report[pkg])
-			code = THRESHOLD_EXCEEDED_ERROR
+			code = ThresholdExceeded
 		}
 	}
 	return code
