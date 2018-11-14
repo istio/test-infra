@@ -32,6 +32,13 @@ var (
 	threshold    = flag.Float64("threshold", 5, "Coverage drop threshold. Trigger error if any package drops more than this.")
 )
 
+const (
+	// NoError is return code for no error
+	NoError = 0
+	// ThresholdExceeded is return code in case codecov threshold is exceeded.
+	ThresholdExceeded = 2
+)
+
 //Report example: "ok   istio.io/mixer/adapter/denyChecker      0.023s  coverage: 100.0% of statements"
 //expected output: c.codeCoverage["istio.io/mixer/adapter/denyChecker"] = 100
 //Report example: "?    istio.io/mixer/adapter/denyChecker/config       [no test files]"
@@ -92,7 +99,9 @@ func findDelta(report, baseline map[string]float64) map[string]float64 {
 	return deltas
 }
 
-func printDelta(deltas, report, baseline map[string]float64) {
+func checkDelta(deltas, report, baseline map[string]float64) int {
+	code := NoError
+
 	// First print all coverage change.
 	for pkg, delta := range deltas {
 		glog.Infof("Coverage change: %s:%f%% (%f%% to %f%%)", pkg, delta, baseline[pkg], report[pkg])
@@ -102,11 +111,13 @@ func printDelta(deltas, report, baseline map[string]float64) {
 	for pkg, delta := range deltas {
 		if delta+*threshold < 0 {
 			glog.Errorf("Coverage dropped: %s:%f%% (%f%% to %f%%)", pkg, delta, baseline[pkg], report[pkg])
+			code = ThresholdExceeded
 		}
 	}
+	return code
 }
 
-func checkBaseline(reportFile, baselineFile string) (code int) {
+func checkBaseline(reportFile, baselineFile string) int {
 	report, err := parseReport(reportFile)
 	if err != nil {
 		glog.Error(err)
@@ -118,8 +129,7 @@ func checkBaseline(reportFile, baselineFile string) (code int) {
 		return 1 //Error code 1: Parse file failure
 	}
 	deltas := findDelta(report, baseline)
-	printDelta(deltas, report, baseline)
-	return 0
+	return checkDelta(deltas, report, baseline)
 }
 
 func main() {
