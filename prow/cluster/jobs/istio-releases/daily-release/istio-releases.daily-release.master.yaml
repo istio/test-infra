@@ -48,6 +48,39 @@ presubmits:
 
   istio-releases/daily-release:
 
+  - name: daily-run-if-changed-build
+    context: prow/daily-run-if-changed-build.sh
+    branches: *branch_spec
+    always_run: false
+    optional: true
+    run_if_changed: "build/.*"
+    labels:
+      preset-service-account: "true"
+    spec:
+      <<: *test_spec
+
+  - name: daily-run-if-changed-test
+    context: prow/daily-run-if-changed-test.sh
+    branches: *branch_spec
+    always_run: false
+    optional: true
+    run_if_changed: "test/.*"
+    labels:
+      preset-service-account: "true"
+    spec:
+      <<: *test_spec
+
+  - name: daily-run-if-changed-release
+    context: prow/daily-run-if-changed-release.sh
+    branches: *branch_spec
+    always_run: false
+    optional: true
+    run_if_changed: "release/.*"
+    labels:
+      preset-service-account: "true"
+    spec:
+      <<: *test_spec
+
   - name: daily-perf-tests
     context: prow/daily-perf-tests.sh
     branches: *branch_spec
