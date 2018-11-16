@@ -59,7 +59,7 @@ const (
 	gcsBucket     = "istio-prow"
 	// release qualification trigger
 	relQualificationPRTtilePrefix = "Release Qualification"
-	greenBuildVersionFile         = "greenBuild.VERSION"
+	greenBuildVersionFile         = "test/greenBuild.VERSION"
 	dailyRepo                     = "daily-release"
 )
 
