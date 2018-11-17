@@ -270,6 +270,20 @@ postsubmits:
           - prow/e2e-simpleTests.sh
         nodeSelector:
           testing: test-pool
+    - name: e2e-simpleTestsMinProfile
+      <<: *job_template
+      optional: true
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-simpleTests-minProfile.sh
+        nodeSelector:
+          testing: test-pool        
     - name: e2e-simpleTests-mcp
       <<: *job_template
       labels:
