@@ -12,14 +12,19 @@ istio_build_spec: &istio_build_spec
     # Bazel needs privileged mode in order to sandbox builds.
     securityContext:
       privileged: true
+    env:
+    - name: GIT_BRANCH
+      value: master
+    - name: GOOGLE_APPLICATION_CREDENTIALS
+      value: /etc/service-account/rel-pipeline-service-account.json
     volumeMounts:
-    - name: oauth
-      mountPath: /etc/github
+    - name: rel-pipeline-service-account.json
+      mountPath: /etc/service-account
       readOnly: true
   volumes:
-  - name: oauth
+  - name: rel-pipeline-service-account.json
     secret:
-      secretName: oauth-token
+      secretName: rel-pipeline-service-account.json
   nodeSelector:
     testing: build-pool
 
@@ -75,21 +80,8 @@ presubmits:
     always_run: false
     run_if_changed: "build/.*"
     optional: true
-    labels:
-      preset-service-account: "true"
     spec:
       <<: *istio_build_spec
-
-  - name: daily-run-if-changed-test
-    context: prow/daily-run-if-changed-test.sh
-    branches: *branch_spec
-    always_run: false
-    run_if_changed: "test/.*"
-    optional: true
-    labels:
-      preset-service-account: "true"
-    spec:
-      <<: *test_spec
 
   - name: daily-run-if-changed-release
     context: prow/daily-run-if-changed-release.sh
@@ -97,10 +89,8 @@ presubmits:
     always_run: false
     run_if_changed: "release/.*"
     optional: true
-    labels:
-      preset-service-account: "true"
     spec:
-      <<: *test_spec
+      <<: *istio_build_spec
 
   - name: daily-perf-tests
     context: prow/daily-perf-tests.sh
