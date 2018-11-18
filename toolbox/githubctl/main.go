@@ -202,20 +202,16 @@ func ReleasePipelineBuild(baseBranch *string) error {
 		dstBranch = masterBranch
 	}
 	glog.Infof("Creating PR to trigger build on %s branch\n", dstBranch)
-	prTitle := fmt.Sprintf("%s - %s", relQualificationPRTtilePrefix, *tag)
+	prTitle := relBuildPRTtilePrefix
 	prBody := "This is a generated PR that triggers release build, and will be automatically merged "
 	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
 	srcBranch := "relQual_" + timestamp
 	edit := func() error {
-		if _, err := u.Shell(createBuildEnvCmd); err != nil {
-			return nil
-		}
-	}
-	pr, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, dailyRepo, prTitle, prBody, edit)
-	if err != nil {
+		_, err := u.Shell(createBuildEnvCmd)
 		return err
 	}
-	return nil
+	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, dailyRepo, prTitle, prBody, edit)
+	return err
 }
 
 // ReleasePipelineQualification triggers test jobs buy creating a PR that generates
@@ -262,11 +258,8 @@ func ReleasePipelineQualification(baseBranch *string) error {
 		}
 		return nil
 	}
-	pr, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, dailyRepo, prTitle, prBody, edit)
-	if err != nil {
-		return err
-	}
-	return nil
+	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, dailyRepo, prTitle, prBody, edit)
+	return err
 }
 
 // ReleasePipelineRelease triggers release job for finishing release pipeline by creating a PR
@@ -282,21 +275,16 @@ func ReleasePipelineRelease(baseBranch *string) error {
 		dstBranch = masterBranch
 	}
 	glog.Infof("Creating PR to trigger release on %s branch\n", dstBranch)
-	prTitle := fmt.Sprintf("%s - %s", relReleasePRTtilePrefix, *tag)
+	prTitle := relReleasePRTtilePrefix
 	prBody := "This is a generated PR that triggers release job, and will be automatically merged "
 	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
 	srcBranch := "relRelease_" + timestamp
 	edit := func() error {
-		if _, err := u.Shell(copyEnvToReleaseCmd); err != nil {
-			return nil
-		}
-		return nil
-	}
-	pr, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, dailyRepo, prTitle, prBody, edit)
-	if err != nil {
+		_, err := u.Shell(copyEnvToReleaseCmd)
 		return err
 	}
-	return nil
+	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, dailyRepo, prTitle, prBody, edit)
+	return err
 }
 
 // DailyReleaseQualification triggers test jobs buy creating a PR that generates
@@ -440,7 +428,7 @@ func main() {
 			glog.Infof("Error during ReleasePipelineBuild: %v\n", err)
 			os.Exit(1)
 		}
-	case  "relPipelineQual":
+	case "relPipelineQual":
 		if err := ReleasePipelineQualification(baseBranch); err != nil {
 			glog.Infof("Error during ReleasePipelineQualification: %v\n", err)
 			os.Exit(1)
