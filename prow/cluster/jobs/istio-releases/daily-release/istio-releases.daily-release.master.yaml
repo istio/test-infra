@@ -17,14 +17,22 @@ istio_build_spec: &istio_build_spec
       value: master
     - name: GOOGLE_APPLICATION_CREDENTIALS
       value: /etc/service-account/rel-pipeline-service-account.json
+    - name: GITHUB_TOKEN_FILE
+      value: /etc/github/rel-pipeline-service-account.json
     volumeMounts:
     - name: rel-pipeline-service-account.json
       mountPath: /etc/service-account
+      readOnly: true
+    - name: rel-pipeline-github
+      mountPath: /etc/github
       readOnly: true
   volumes:
   - name: rel-pipeline-service-account.json
     secret:
       secretName: rel-pipeline-service-account.json
+  - name: rel-pipeline-github
+    secret:
+      secretName: rel-pipeline-github
   nodeSelector:
     testing: build-pool
 
