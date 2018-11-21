@@ -50,14 +50,14 @@ func TestParseReport(t *testing.T) {
 }
 
 func TestParseHtml(t *testing.T) {
-	exampleHtml :=
+	exampleHTML :=
 		"<html>\n" +
 			"    <option value=\"file2\">istio.io/istio/galley/pkg/crd/validation/endpoint.go (62.8%)</option>\n" +
 			"\n" +
 			"    <option value=\"file3\">istio.io/istio/galley/pkg/crd/validation/monitoring.go (61.2%)</option>\n" +
 			"</html>\n"
 	reportFile := filepath.Join(tmpDir, "reportFile")
-	if err := ioutil.WriteFile(reportFile, []byte(exampleHtml), 0644); err != nil {
+	if err := ioutil.WriteFile(reportFile, []byte(exampleHTML), 0644); err != nil {
 		t.Errorf("Failed to write example reportFile file, %v", err)
 	}
 
