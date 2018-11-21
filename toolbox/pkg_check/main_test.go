@@ -77,6 +77,53 @@ func TestParseHtml(t *testing.T) {
 	}
 }
 
+func TestParseThreshold(t *testing.T) {
+	example :=
+		"#Some comments\n" +
+			"istio.io/istio/galley/pkg/crd=10.5\n" +
+			"istio.io/istio/pilot=20.2\n" +
+			"\n"
+	outFile := filepath.Join(tmpDir, "outFile")
+	if err := ioutil.WriteFile(outFile, []byte(example), 0644); err != nil {
+		t.Errorf("Failed to write example file, %v", err)
+	}
+
+	thresholds, err := parseThreshold(outFile)
+	if err != nil {
+		t.Errorf("Failed to parse outFile, %v", err)
+	} else {
+		if len(thresholds) != 2 {
+			t.Error("Wrong result count from parseThresholds()")
+		}
+		if thresholds["istio.io/istio/galley/pkg/crd"] != 10.5 {
+			t.Error("Wrong result from parseThreshold()")
+		}
+		if thresholds["istio.io/istio/pilot"] != 20.2 {
+			t.Error("Wrong result from parseThreshold()")
+		}
+	}
+}
+
+func TestGetThreshold(t *testing.T) {
+	thresholds := map[string]float64{
+		"istio.io/istio/galley/pkg/crd": 20,
+		"istio.io/istio/galley/pkg":     30,
+		"istio.io/istio/pilot":          40,
+	}
+	if getThreshold(thresholds, "istio.io/istio/galley/pkg/crd/foobar") != 20 {
+		t.Error("Unexpected threshold")
+	}
+	if getThreshold(thresholds, "istio.io/istio/galley/pkg/foobar") != 30 {
+		t.Error("Unexpected threshold")
+	}
+	if getThreshold(thresholds, "istio.io/istio/pilot/pkg/crd/foobar") != 40 {
+		t.Error("Unexpected threshold")
+	}
+	if getThreshold(thresholds, "istio.io/istio/mixer/pkg/crd/foobar") != 5 {
+		t.Error("Unexpected threshold")
+	}
+}
+
 func TestFindDelta(t *testing.T) {
 	dettas := findDelta(
 		// report
@@ -129,7 +176,9 @@ func TestCheckDeltaError(t *testing.T) {
 			"P2": 60,
 			"P3": 100,
 			"P5": 60,
-		})
+		},
+		// thresholds
+		map[string]float64{})
 	if code != ThresholdExceeded {
 		t.Errorf("Expecting return code 2, got %d", code)
 	}
@@ -156,7 +205,9 @@ func TestCheckDeltaGood(t *testing.T) {
 			"P1": 31,
 			"P2": 60,
 			"P3": 100,
-		})
+		},
+		// thresholds
+		map[string]float64{})
 	if code != NoError {
 		t.Errorf("Expecting return code 0, got %d", code)
 	}
