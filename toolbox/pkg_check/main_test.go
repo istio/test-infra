@@ -119,7 +119,7 @@ func TestGetThreshold(t *testing.T) {
 	if getThreshold(thresholds, "istio.io/istio/pilot/pkg/crd/foobar") != 40 {
 		t.Error("Unexpected threshold")
 	}
-	if getThreshold(thresholds, "istio.io/istio/mixer/pkg/crd/foobar") != 5 {
+	if getThreshold(thresholds, "istio.io/istio/mixer/pkg/crd/foobar") != 0 {
 		t.Error("Unexpected threshold")
 	}
 }
@@ -178,7 +178,10 @@ func TestCheckDeltaError(t *testing.T) {
 			"P5": 60,
 		},
 		// thresholds
-		map[string]float64{})
+		map[string]float64{
+			// Default threshold
+			"P": 5,
+		})
 	if code != ThresholdExceeded {
 		t.Errorf("Expecting return code 2, got %d", code)
 	}
@@ -207,7 +210,10 @@ func TestCheckDeltaGood(t *testing.T) {
 			"P3": 100,
 		},
 		// thresholds
-		map[string]float64{})
+		map[string]float64{
+			// Default threshold
+			"P": 5,
+		})
 	if code != NoError {
 		t.Errorf("Expecting return code 0, got %d", code)
 	}

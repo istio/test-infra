@@ -29,7 +29,6 @@ import (
 var (
 	reportFile    = flag.String("report_file", "", "Code coverage report file.")
 	baselineFile  = flag.String("baseline_file", "", "Code coverage baseline file.")
-	threshold     = flag.Float64("threshold", 5, "Default threshold")
 	thresholdFile = flag.String("threshold_file", "", "File containing package to threshold mappings, as overrides")
 	html          = flag.Bool("html", false, "Whether the report files are in html")
 )
@@ -118,7 +117,12 @@ func parseThreshold(thresholdFile string) (map[string]float64, error) {
 	thresholds := make(map[string]float64)
 
 	for scanner.Scan() {
-		m := reg.FindStringSubmatch(scanner.Text())
+		line := scanner.Text()
+		if strings.HasPrefix(line, "#") {
+			// Skip comments
+			continue
+		}
+		m := reg.FindStringSubmatch(line)
 		if len(m) == 3 {
 			threshold, err := strconv.ParseFloat(m[2], 64)
 			if err != nil {
@@ -165,7 +169,7 @@ func checkDelta(deltas, report, baseline, thresholds map[string]float64) int {
 }
 
 func getThreshold(thresholds map[string]float64, path string) float64 {
-	matchedThreshold := *threshold
+	matchedThreshold := 0.0
 	matchedPackageLebgth := 0
 	for pkg, threshold := range thresholds {
 		// Find the threshold that matches the longest package prefix.
