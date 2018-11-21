@@ -27,10 +27,11 @@ import (
 )
 
 var (
-	reportFile   = flag.String("report_file", "codecov.reportFile", "Package code coverage reportFile.")
-	baselineFile = flag.String("baseline_file", "", "Package code coverage baseline.")
-	threshold    = flag.Float64("threshold", 5, "Coverage drop threshold. Trigger error if any package drops more than this.")
-	html         = flag.Bool("html", false, "Whether the report files are in html")
+	reportFile    = flag.String("report_file", "", "Code coverage report file.")
+	baselineFile  = flag.String("baseline_file", "", "Code coverage baseline file.")
+	threshold     = flag.Float64("threshold", 5, "Default threshold")
+	thresholdFile = flag.String("threshold_file", "", "File containing package to threshold mappings, as overrides")
+	html          = flag.Bool("html", false, "Whether the report files are in html")
 )
 
 const (
@@ -99,6 +100,37 @@ func parseReport(filename string, html bool) (map[string]float64, error) {
 	return coverage, scanner.Err()
 }
 
+func parseThreshold(thresholdFile string) (map[string]float64, error) {
+	f, err := os.Open(thresholdFile)
+	if err != nil {
+		glog.Errorf("Failed to open threshold file, %s, %v", thresholdFile, err)
+		return nil, err
+	}
+	defer func() {
+		if err = f.Close(); err != nil {
+			glog.Errorf("Failed to close file %s, %v", thresholdFile, err)
+		}
+	}()
+
+	scanner := bufio.NewScanner(f)
+	reg := regexp.MustCompile(`(.*)=(.*)`)
+
+	thresholds := make(map[string]float64)
+
+	for scanner.Scan() {
+		m := reg.FindStringSubmatch(scanner.Text())
+		if len(m) == 3 {
+			threshold, err := strconv.ParseFloat(m[2], 64)
+			if err != nil {
+				return nil, fmt.Errorf("failed to parse threshold to float64 for package %s: %s, %v",
+					m[1], m[2], err)
+			}
+			thresholds[m[1]] = threshold
+		}
+	}
+	return thresholds, scanner.Err()
+}
+
 func findDelta(report, baseline map[string]float64) map[string]float64 {
 	deltas := make(map[string]float64)
 
@@ -114,7 +146,7 @@ func findDelta(report, baseline map[string]float64) map[string]float64 {
 	return deltas
 }
 
-func checkDelta(deltas, report, baseline map[string]float64) int {
+func checkDelta(deltas, report, baseline, thresholds map[string]float64) int {
 	code := NoError
 
 	// First print all coverage change.
@@ -124,7 +156,7 @@ func checkDelta(deltas, report, baseline map[string]float64) int {
 
 	// Then generate errors for reduced coverage.
 	for pkg, delta := range deltas {
-		if delta+*threshold < 0 {
+		if delta+getThreshold(thresholds, pkg) < 0 {
 			glog.Errorf("Coverage dropped: %s:%f%% (%f%% to %f%%)", pkg, delta, baseline[pkg], report[pkg])
 			code = ThresholdExceeded
 		}
@@ -132,7 +164,20 @@ func checkDelta(deltas, report, baseline map[string]float64) int {
 	return code
 }
 
-func checkBaseline(reportFile, baselineFile string) int {
+func getThreshold(thresholds map[string]float64, path string) float64 {
+	matchedThreshold := *threshold
+	matchedPackageLebgth := 0
+	for pkg, threshold := range thresholds {
+		// Find the threshold that matches the longest package prefix.
+		if strings.HasPrefix(path, pkg) && len(pkg) > matchedPackageLebgth {
+			matchedPackageLebgth = len(pkg)
+			matchedThreshold = threshold
+		}
+	}
+	return matchedThreshold
+}
+
+func checkBaseline(reportFile, baselineFile, thresholdFile string) int {
 	report, err := parseReport(reportFile, *html)
 	if err != nil {
 		glog.Error(err)
@@ -143,11 +188,16 @@ func checkBaseline(reportFile, baselineFile string) int {
 		glog.Error(err)
 		return 1 //Error code 1: Parse file failure
 	}
+	thresholds, err := parseThreshold(thresholdFile)
+	if err != nil {
+		glog.Error(err)
+		return 1 //Error code 1: Parse file failure
+	}
 	deltas := findDelta(report, baseline)
-	return checkDelta(deltas, report, baseline)
+	return checkDelta(deltas, report, baseline, thresholds)
 }
 
 func main() {
 	flag.Parse()
-	os.Exit(checkBaseline(*reportFile, *baselineFile))
+	os.Exit(checkBaseline(*reportFile, *baselineFile, *thresholdFile))
 }
