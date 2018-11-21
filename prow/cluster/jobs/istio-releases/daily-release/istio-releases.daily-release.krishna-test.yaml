@@ -41,6 +41,27 @@ istio_rel_pipeline_container: &istio_rel_pipeline_container
         memory: "24Gi"
         cpu: "7000m"
 
+istio_rel_pipeline_container_nomount: &istio_rel_pipeline_container_nomount
+  containers:
+  - image: gcr.io/istio-testing/istio-builder:v20181008-db31a9fd
+    # Docker in Docker
+    securityContext:
+      privileged: true
+    env:
+    - name: GIT_BRANCH
+      value: master
+    - name: GOOGLE_APPLICATION_CREDENTIALS
+      value: /etc/service-account/rel-pipeline-service-account.json
+    - name: GITHUB_TOKEN_FILE
+      value: /etc/github/rel-pipeline-service-account.json
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "24Gi"
+        cpu: "7000m"
+
 istio_container: &istio_container
   image: gcr.io/istio-testing/istio-builder:v20181008-db31a9fd
   # Docker in Docker
@@ -66,11 +87,27 @@ presubmits:
     context: prow/daily-run-if-changed-build.sh
     always_run: false
     run_if_changed: "build/.*"
-    optional: true
+    optional: false
     spec:
       <<: *istio_rel_pipeline_spec
       containers:
       - <<: *istio_rel_pipeline_container
+        command:
+        - entrypoint
+        - prow/daily-run-if-changed-build.sh
+      nodeSelector:
+        testing: test-pool
+
+  - name: daily-run-if-changed-build-no-mount
+    <<: *job_template
+    context: prow/daily-run-if-changed-build-no-mount.sh
+    always_run: false
+    run_if_changed: "build/.*"
+    optional: false
+    spec:
+      <<: *istio_rel_pipeline_spec
+      containers:
+      - <<: *istio_rel_pipeline_container_nomount
         command:
         - entrypoint
         - prow/daily-run-if-changed-build.sh
@@ -123,7 +160,7 @@ presubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/daily-e2e-pilot-no_auth
+        - prow/daily-e2e-pilot-no_auth.sh
       nodeSelector:
         testing: test-pool
 
