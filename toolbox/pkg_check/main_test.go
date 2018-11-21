@@ -39,11 +39,39 @@ func TestParseReport(t *testing.T) {
 		t.Errorf("Failed to write example reportFile file, %v", err)
 	}
 
-	codeCoverage, err := parseReport(reportFile)
+	codeCoverage, err := parseReport(reportFile, false)
 	if err != nil {
 		t.Errorf("Failed to parse reportFile, %v", err)
 	} else {
 		if len(codeCoverage) != 1 && codeCoverage["pilot/model"] != 90.2 {
+			t.Error("Wrong result from parseReport()")
+		}
+	}
+}
+
+func TestParseHtml(t *testing.T) {
+	exampleHtml :=
+		"<html>\n" +
+			"    <option value=\"file2\">istio.io/istio/galley/pkg/crd/validation/endpoint.go (62.8%)</option>\n" +
+			"\n" +
+			"    <option value=\"file3\">istio.io/istio/galley/pkg/crd/validation/monitoring.go (61.2%)</option>\n" +
+			"</html>\n"
+	reportFile := filepath.Join(tmpDir, "reportFile")
+	if err := ioutil.WriteFile(reportFile, []byte(exampleHtml), 0644); err != nil {
+		t.Errorf("Failed to write example reportFile file, %v", err)
+	}
+
+	codeCoverage, err := parseReport(reportFile, true)
+	if err != nil {
+		t.Errorf("Failed to parse reportFile, %v", err)
+	} else {
+		if len(codeCoverage) != 2 {
+			t.Error("Wrong result count from parseReport()")
+		}
+		if codeCoverage["istio.io/istio/galley/pkg/crd/validation/endpoint.go"] != 62.8 {
+			t.Error("Wrong result from parseReport()")
+		}
+		if codeCoverage["istio.io/istio/galley/pkg/crd/validation/monitoring.go"] != 61.2 {
 			t.Error("Wrong result from parseReport()")
 		}
 	}

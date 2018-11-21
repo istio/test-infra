@@ -30,6 +30,7 @@ var (
 	reportFile   = flag.String("report_file", "codecov.reportFile", "Package code coverage reportFile.")
 	baselineFile = flag.String("baseline_file", "", "Package code coverage baseline.")
 	threshold    = flag.Float64("threshold", 5, "Coverage drop threshold. Trigger error if any package drops more than this.")
+	html		 = flag.Bool("html", false, "Whether the report files are in html")
 )
 
 const (
@@ -39,29 +40,43 @@ const (
 	ThresholdExceeded = 2
 )
 
-//Report example: "ok   istio.io/mixer/adapter/denyChecker      0.023s  coverage: 100.0% of statements"
-//expected output: c.codeCoverage["istio.io/mixer/adapter/denyChecker"] = 100
-//Report example: "?    istio.io/mixer/adapter/denyChecker/config       [no test files]"
-//Report example: c.codeCoverage["istio.io/mixer/adapter/denyChecker/config"] = 0
-func parseReportLine(line string) (string, float64, error) {
-	regOK := regexp.MustCompile(`(ok  )\t(.*)\t(.*)\tcoverage: (.*) of statements`)
-	regNoTest := regexp.MustCompile(`(\?   )\t(.*)\t\[no test files\]`)
-	pkgPos := 2
-	numPos := 4
-
-	if m := regOK.FindStringSubmatch(line); len(m) != 0 {
-		n, err := strconv.ParseFloat(strings.TrimSuffix(m[numPos], "%"), 64)
-		if err != nil {
-			return "", 0, err
+func parseReportLine(line string, html bool) (string, float64, error) {
+	// <option value="file0">istio.io/istio/galley/cmd/shared/shared.go (0.0%)</option>
+	reg := regexp.MustCompile(` *<option value=\"(.*)\">(.*) \((.*)%\)</option>`)
+	if html {
+		if m := reg.FindStringSubmatch(line); len(m) != 0 {
+			cov, err := strconv.ParseFloat(m[3], 64)
+			if err != nil {
+				return "", 0, err
+			}
+			return m[2], cov, nil
 		}
-		return m[pkgPos], n, nil
-	} else if m := regNoTest.FindStringSubmatch(line); len(m) != 0 {
-		return m[pkgPos], 0, nil
+		return "", 0, fmt.Errorf("No coverage in %s", line)
+
+	} else {
+		//Report example: "ok   istio.io/mixer/adapter/denyChecker      0.023s  coverage: 100.0% of statements"
+		//expected output: c.codeCoverage["istio.io/mixer/adapter/denyChecker"] = 100
+		//Report example: "?    istio.io/mixer/adapter/denyChecker/config       [no test files]"
+		//Report example: c.codeCoverage["istio.io/mixer/adapter/denyChecker/config"] = 0
+		regOK := regexp.MustCompile(`(ok  )\t(.*)\t(.*)\tcoverage: (.*) of statements`)
+		regNoTest := regexp.MustCompile(`(\?   )\t(.*)\t\[no test files\]`)
+		pkgPos := 2
+		numPos := 4
+
+		if m := regOK.FindStringSubmatch(line); len(m) != 0 {
+			n, err := strconv.ParseFloat(strings.TrimSuffix(m[numPos], "%"), 64)
+			if err != nil {
+				return "", 0, err
+			}
+			return m[pkgPos], n, nil
+		} else if m := regNoTest.FindStringSubmatch(line); len(m) != 0 {
+			return m[pkgPos], 0, nil
+		}
+		return "", 0, fmt.Errorf("unclear line from reportFile: %s", line)
 	}
-	return "", 0, fmt.Errorf("unclear line from reportFile: %s", line)
 }
 
-func parseReport(filename string) (map[string]float64, error) {
+func parseReport(filename string, html bool) (map[string]float64, error) {
 	coverage := make(map[string]float64)
 
 	f, err := os.Open(filename)
@@ -77,7 +92,7 @@ func parseReport(filename string) (map[string]float64, error) {
 
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		if pkg, cov, err := parseReportLine(scanner.Text()); err == nil {
+		if pkg, cov, err := parseReportLine(scanner.Text(), html); err == nil {
 			coverage[pkg] = cov
 		}
 	}
@@ -118,12 +133,12 @@ func checkDelta(deltas, report, baseline map[string]float64) int {
 }
 
 func checkBaseline(reportFile, baselineFile string) int {
-	report, err := parseReport(reportFile)
+	report, err := parseReport(reportFile, *html)
 	if err != nil {
 		glog.Error(err)
 		return 1 //Error code 1: Parse file failure
 	}
-	baseline, err := parseReport(baselineFile)
+	baseline, err := parseReport(baselineFile, *html)
 	if err != nil {
 		glog.Error(err)
 		return 1 //Error code 1: Parse file failure
