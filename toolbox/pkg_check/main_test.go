@@ -80,8 +80,9 @@ func TestParseHtml(t *testing.T) {
 func TestParseThreshold(t *testing.T) {
 	example :=
 		"#Some comments\n" +
+			"  # more comments\n" +
 			"istio.io/istio/galley/pkg/crd=10.5\n" +
-			"istio.io/istio/pilot=20.2\n" +
+			" istio.io/istio/pilot = 20.2\n" +
 			"\n"
 	outFile := filepath.Join(tmpDir, "outFile")
 	if err := ioutil.WriteFile(outFile, []byte(example), 0644); err != nil {

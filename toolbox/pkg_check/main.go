@@ -117,19 +117,19 @@ func parseThreshold(thresholdFile string) (map[string]float64, error) {
 	thresholds := make(map[string]float64)
 
 	for scanner.Scan() {
-		line := scanner.Text()
+		line := strings.TrimSpace(scanner.Text())
 		if strings.HasPrefix(line, "#") {
 			// Skip comments
 			continue
 		}
 		m := reg.FindStringSubmatch(line)
 		if len(m) == 3 {
-			threshold, err := strconv.ParseFloat(m[2], 64)
+			threshold, err := strconv.ParseFloat(strings.TrimSpace(m[2]), 64)
 			if err != nil {
 				return nil, fmt.Errorf("failed to parse threshold to float64 for package %s: %s, %v",
 					m[1], m[2], err)
 			}
-			thresholds[m[1]] = threshold
+			thresholds[strings.TrimSpace(m[1])] = threshold
 		}
 	}
 	return thresholds, scanner.Err()
