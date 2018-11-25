@@ -10,6 +10,9 @@ istio_rel_pipeline_spec: &istio_rel_pipeline_spec
   - name: rel-pipeline-github
     secret:
       secretName: rel-pipeline-github
+  - name: rel-pipeline-docker-config
+    secret:
+      secretName: rel-pipeline-docker-config
   nodeSelector:
     testing: build-pool
 
@@ -19,18 +22,23 @@ istio_rel_pipeline_container: &istio_rel_pipeline_container
   securityContext:
     privileged: true
   env:
+  - name: DOCKER_CONFIG
+    value: /etc/rel-pipeline-docker-config
   - name: GIT_BRANCH
     value: master
-  - name: GOOGLE_APPLICATION_CREDENTIALS
-    value: /etc/service-account/rel-pipeline-service-account.json
   - name: GITHUB_TOKEN_FILE
     value: /etc/github/rel-pipeline-service-account.json
+  - name: GOOGLE_APPLICATION_CREDENTIALS
+    value: /etc/service-account/rel-pipeline-service-account.json
   volumeMounts:
-  - name: rel-pipeline-service-account
-    mountPath: /etc/service-account
+  - name: rel-pipeline-docker-config
+    mountPath: /etc/rel-pipeline-docker-config
     readOnly: true
   - name: rel-pipeline-github
     mountPath: /etc/github
+    readOnly: true
+  - name: rel-pipeline-service-account
+    mountPath: /etc/service-account
     readOnly: true
   resources:
     requests:
