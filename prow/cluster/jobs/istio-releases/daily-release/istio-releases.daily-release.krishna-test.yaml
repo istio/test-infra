@@ -82,6 +82,20 @@ presubmits:
         - entrypoint
         - prow/daily-run-if-changed-build.sh
 
+  - name: daily-run-if-changed-release
+    <<: *job_template
+    context: prow/daily-run-if-changed-release.sh
+    always_run: false
+    run_if_changed: "build/.*"
+    optional: false
+    spec:
+      <<: *istio_rel_pipeline_spec
+      containers:
+      - <<: *istio_rel_pipeline_container
+        command:
+        - entrypoint
+        - prow/daily-run-if-changed-release.sh
+
   - name: daily-upgrade-tests-1.0.1
     <<: *job_template
     context: prow/daily-upgrade-tests-1.0.1.sh
