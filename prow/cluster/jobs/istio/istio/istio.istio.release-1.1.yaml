@@ -186,6 +186,21 @@ presubmits:
           - prow/e2e-simpleTests.sh
         nodeSelector:
           testing: test-pool
+    - name: e2e-simpleTestsMinProfile
+      <<: *job_template
+      optional: true
+      context: prow//e2e-simpleTests-minProfile.sh
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-simpleTests-minProfile.sh
+        nodeSelector:
+          testing: test-pool          
     - name: istio-pilot-multicluster-e2e
       <<: *job_template
       always_run: true
