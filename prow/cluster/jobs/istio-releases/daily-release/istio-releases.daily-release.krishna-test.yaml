@@ -44,7 +44,7 @@ presubmits:
 
   - name: release-pipeline-build
     <<: *job_template
-    context: rel_scripts/run-build.sh
+    context: rel_scripts/run_build.sh
     always_run: false
     run_if_changed: "(daily|monthly)/build/.*"
     optional: false
@@ -56,11 +56,11 @@ presubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/run-build.sh
+        - rel_scripts/run_build.sh
 
   - name: release-pipeline-release
     <<: *job_template
-    context: rel_scripts/run-release.sh
+    context: rel_scripts/run_release.sh
     always_run: false
     run_if_changed: "(daily|monthly)/release/.*"
     optional: false
@@ -72,7 +72,7 @@ presubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/run-release.sh
+        - rel_scripts/run_release.sh
 
   - name: daily-e2e-pilot-no_auth
     <<: *job_template
@@ -121,3 +121,4 @@ postsubmits:
         command:
         - entrypoint
         - rel_scripts/trigger_release.sh
+
