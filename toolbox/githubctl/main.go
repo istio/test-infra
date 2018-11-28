@@ -59,9 +59,9 @@ const (
 	gubernatorURL = "https://k8s-gubernator.appspot.com/build/istio-prow"
 	gcsBucket     = "istio-prow"
 	// release pipeline triggers
-	relBuildPRTtilePrefix         = "Rel Pipeline Build"
-	relQualificationPRTtilePrefix = "Rel Pipeline Qualification"
-	relReleasePRTtilePrefix       = "Rel Pipeline Release"
+	relBuildPRTtilePrefix         = "Rel Pipeline Build - "
+	relQualificationPRTtilePrefix = "Rel Pipeline Qualification - "
+	relReleasePRTtilePrefix       = "Rel Pipeline Release -"
 	greenBuildVersionFile         = "test/greenBuild.VERSION"
 	createBuildEnvCmd             = "./rel_scripts/create_release_build_env.sh"
 	copyEnvToTestCmd              = "cp %s/build/build_env.sh %s/test/build_env.sh"
@@ -193,6 +193,7 @@ func getLatestGreenSHA() (string, error) {
 
 // ReleasePipelineBuild triggers build job by creating a PR that generates GitHub notification.
 func ReleasePipelineBuild(baseBranch *string) error {
+	u.AssertNotEmpty("tag", tag)
 	var dstBranch string
 	// we could have made baseBranch have a default value, but that breaks all the places
 	// where baseBranch must be passed in cmdline and a default value is not acceptable
@@ -203,7 +204,7 @@ func ReleasePipelineBuild(baseBranch *string) error {
 		dstBranch = masterBranch
 	}
 	glog.Infof("Creating PR to trigger build on %s branch\n", dstBranch)
-	prTitle := relBuildPRTtilePrefix
+	prTitle := relBuildPRTtilePrefix + *tag
 	prBody := "This is a generated PR that triggers release build, and will be automatically merged "
 	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
 	srcBranch := "relQual_" + timestamp
@@ -232,7 +233,7 @@ func ReleasePipelineQualification(baseBranch *string) error {
 		dstBranch = masterBranch
 	}
 	glog.Infof("Creating PR to trigger release qualifications on %s branch\n", dstBranch)
-	prTitle := fmt.Sprintf("%s - %s", relQualificationPRTtilePrefix, *tag)
+	prTitle := relQualificationPRTtilePrefix + *tag
 	prBody := "This is a generated PR that triggers release qualification tests, and will be automatically merged " +
 		"if all tests pass. In case some test fails, you can manually rerun the failing tests using /test. Force " +
 		"merging this PR will suppress the test failures and let the release pipeline continue."
@@ -270,6 +271,7 @@ func ReleasePipelineQualification(baseBranch *string) error {
 //  that generates a GitHub notification.
 func ReleasePipelineRelease(baseBranch *string) error {
 	u.AssertNotEmpty("pipeline", pipelineType)
+	u.AssertNotEmpty("tag", tag)
 	var dstBranch string
 	// we could have made baseBranch have a default value, but that breaks all the places
 	// where baseBranch must be passed in cmdline and a default value is not acceptable
@@ -280,7 +282,7 @@ func ReleasePipelineRelease(baseBranch *string) error {
 		dstBranch = masterBranch
 	}
 	glog.Infof("Creating PR to trigger release on %s branch\n", dstBranch)
-	prTitle := relReleasePRTtilePrefix
+	prTitle := relReleasePRTtilePrefix + *tag
 	prBody := "This is a generated PR that triggers release job, and will be automatically merged "
 	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
 	srcBranch := "relRelease_" + timestamp
@@ -310,7 +312,7 @@ func DailyReleaseQualification(baseBranch *string) error {
 		dstBranch = masterBranch
 	}
 	glog.Infof("Creating PR to trigger release qualifications on %s branch\n", dstBranch)
-	prTitle := fmt.Sprintf("%s - %s", relQualificationPRTtilePrefix, *tag)
+	prTitle := relQualificationPRTtilePrefix + *tag
 	prBody := "This is a generated PR that triggers release qualification tests, and will be automatically merged " +
 		"if all tests pass. In case some test fails, you can manually rerun the failing tests using /test. Force " +
 		"merging this PR will suppress the test failures and let the release pipeline continue."
