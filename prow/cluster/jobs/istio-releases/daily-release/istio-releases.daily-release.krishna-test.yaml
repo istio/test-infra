@@ -42,11 +42,11 @@ presubmits:
 
   istio-releases/daily-release:
 
-  - name: release-pipeline-build
+  - name: release-pipeline-daily-build
     <<: *job_template
-    context: rel_scripts/run_build.sh
+    context: rel_scripts/run_daily_build.sh
     always_run: false
-    run_if_changed: "(daily|monthly)/build/.*"
+    run_if_changed: "daily/build/.*"
     optional: false
     labels:
       preset-release-pipeline: "true"
@@ -56,13 +56,13 @@ presubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/run_build.sh
+        - rel_scripts/run_daily_build.sh
 
-  - name: release-pipeline-release
+  - name: release-pipeline-daily-release
     <<: *job_template
-    context: rel_scripts/run_release.sh
+    context: rel_scripts/run_daily_release.sh
     always_run: false
-    run_if_changed: "(daily|monthly)/release/.*"
+    run_if_changed: "daily/release/.*"
     optional: false
     labels:
       preset-release-pipeline: "true"
@@ -72,7 +72,39 @@ presubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/run_release.sh
+        - rel_scripts/run_daily_release.sh
+
+  - name: release-pipeline-monthly-build
+    <<: *job_template
+    context: rel_scripts/run_monthly_build.sh
+    always_run: false
+    run_if_changed: "monthly/build/.*"
+    optional: false
+    labels:
+      preset-release-pipeline: "true"
+    spec:
+      <<: *istio_rel_pipeline_spec
+      containers:
+      - <<: *istio_rel_pipeline_container
+        command:
+        - entrypoint
+        - rel_scripts/run_monthly_build.sh
+
+  - name: release-pipeline-monthly-release
+    <<: *job_template
+    context: rel_scripts/run_monthly_release.sh
+    always_run: false
+    run_if_changed: "monthly/release/.*"
+    optional: false
+    labels:
+      preset-release-pipeline: "true"
+    spec:
+      <<: *istio_rel_pipeline_spec
+      containers:
+      - <<: *istio_rel_pipeline_container
+        command:
+        - entrypoint
+        - rel_scripts/run_monthly_release.sh
 
   - name: daily-e2e-pilot-no_auth
     <<: *job_template
@@ -93,10 +125,10 @@ presubmits:
 postsubmits:
 
   istio-releases/daily-release:
-  - name: release-pipeline-trigger-test
-    context: rel_scripts/trigger_test.sh
+  - name: release-pipeline-trigger-daily-test
+    context: rel_scripts/trigger_daily_test.sh
     <<: *job_template
-    run_if_changed: "(daily|monthly)/build/.*"
+    run_if_changed: "daily/build/.*"
     labels:
       preset-release-pipeline: "true"
     spec:
@@ -105,13 +137,13 @@ postsubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/trigger_test.sh
+        - rel_scripts/trigger_daily_test.sh
 
   istio-releases/daily-release:
-  - name: release-pipeline-trigger-release
-    context: rel_scripts/trigger_release.sh
+  - name: release-pipeline-trigger-daily-release
+    context: rel_scripts/trigger_daily_release.sh
     <<: *job_template
-    run_if_changed: "(daily|monthly)/test/.*"
+    run_if_changed: "daily/test/.*"
     labels:
       preset-release-pipeline: "true"
     spec:
@@ -120,5 +152,34 @@ postsubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/trigger_release.sh
+        - rel_scripts/trigger_daily_release.sh
 
+  istio-releases/daily-release:
+  - name: release-pipeline-trigger-monthly-test
+    context: rel_scripts/trigger_monthly_test.sh
+    <<: *job_template
+    run_if_changed: "monthly/build/.*"
+    labels:
+      preset-release-pipeline: "true"
+    spec:
+      <<: *istio_rel_pipeline_spec
+      containers:
+      - <<: *istio_rel_pipeline_container
+        command:
+        - entrypoint
+        - rel_scripts/trigger_monthly_test.sh
+
+  istio-releases/daily-release:
+  - name: release-pipeline-trigger-monthly-release
+    context: rel_scripts/trigger_monthly_release.sh
+    <<: *job_template
+    run_if_changed: "monthly/test/.*"
+    labels:
+      preset-release-pipeline: "true"
+    spec:
+      <<: *istio_rel_pipeline_spec
+      containers:
+      - <<: *istio_rel_pipeline_container
+        command:
+        - entrypoint
+        - rel_scripts/trigger_monthly_release.sh
