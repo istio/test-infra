@@ -35,6 +35,7 @@ var (
 	tokenFile             = flag.String("token_file", "", "File containing Github API Access Token.")
 	op                    = flag.String("op", "", "Operation to be performed")
 	repo                  = flag.String("repo", "", "Repository to which op is applied")
+	pipelineType          = flag.String("pipeline", "", "Pipeline type daily/monthly")
 	baseBranch            = flag.String("base_branch", "", "Branch to which op is applied")
 	refSHA                = flag.String("ref_sha", "", "Commit SHA used by the operation")
 	hub                   = flag.String("hub", "", "Hub of the docker images")
@@ -63,8 +64,8 @@ const (
 	relReleasePRTtilePrefix       = "Rel Pipeline Release"
 	greenBuildVersionFile         = "test/greenBuild.VERSION"
 	createBuildEnvCmd             = "./rel_scripts/create_release_build_env.sh"
-	copyEnvToTestCmd              = "cp build/build_env.sh   test/build_env.sh"
-	copyEnvToReleaseCmd           = "cp test/build_env.sh release/build_env.sh"
+	copyEnvToTestCmd              = "cp %s/build/build_env.sh %s/test/build_env.sh"
+	copyEnvToReleaseCmd           = "cp %s/test/build_env.sh %s/release/build_env.sh"
 	dailyRepo                     = "daily-release"
 )
 
@@ -220,6 +221,7 @@ func ReleasePipelineQualification(baseBranch *string) error {
 	u.AssertNotEmpty("hub", hub) // TODO (chx) default value of hub
 	u.AssertNotEmpty("tag", tag)
 	u.AssertNotEmpty("gcs_path", gcsPath)
+	u.AssertNotEmpty("pipeline", pipelineType)
 	var dstBranch string
 	// we could have made baseBranch have a default value, but that breaks all the places
 	// where baseBranch must be passed in cmdline and a default value is not acceptable
@@ -237,23 +239,25 @@ func ReleasePipelineQualification(baseBranch *string) error {
 	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
 	srcBranch := "relQual_" + timestamp
 	edit := func() error {
-		if _, err := u.Shell(copyEnvToTestCmd); err != nil {
+		copyCmd := fmt.Sprintf(copyEnvToTestCmd, *pipelineType, *pipelineType)
+		if _, err := u.Shell(copyCmd); err != nil {
 			return nil
 		}
-		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "HUB", *hub); err != nil {
+		versionFile := *pipelineType + "/" + greenBuildVersionFile
+		if err := u.UpdateKeyValueInFile(versionFile, "HUB", *hub); err != nil {
 			return err
 		}
-		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "TAG", *tag); err != nil {
+		if err := u.UpdateKeyValueInFile(versionFile, "TAG", *tag); err != nil {
 			return err
 		}
-		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "TIME", timestamp); err != nil {
+		if err := u.UpdateKeyValueInFile(versionFile, "TIME", timestamp); err != nil {
 			return err
 		}
-		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "ISTIO_REL_URL",
+		if err := u.UpdateKeyValueInFile(versionFile, "ISTIO_REL_URL",
 			fmt.Sprintf("https://storage.googleapis.com/%s", *gcsPath)); err != nil {
 			return err
 		}
-		if err := u.UpdateKeyValueInFile(greenBuildVersionFile, "SHA", *refSHA); err != nil {
+		if err := u.UpdateKeyValueInFile(versionFile, "SHA", *refSHA); err != nil {
 			return err
 		}
 		return nil
@@ -265,6 +269,7 @@ func ReleasePipelineQualification(baseBranch *string) error {
 // ReleasePipelineRelease triggers release job for finishing release pipeline by creating a PR
 //  that generates a GitHub notification.
 func ReleasePipelineRelease(baseBranch *string) error {
+	u.AssertNotEmpty("pipeline", pipelineType)
 	var dstBranch string
 	// we could have made baseBranch have a default value, but that breaks all the places
 	// where baseBranch must be passed in cmdline and a default value is not acceptable
@@ -280,7 +285,8 @@ func ReleasePipelineRelease(baseBranch *string) error {
 	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
 	srcBranch := "relRelease_" + timestamp
 	edit := func() error {
-		_, err := u.Shell(copyEnvToReleaseCmd)
+		copyCmd := fmt.Sprintf(copyEnvToReleaseCmd, *pipelineType, *pipelineType)
+		_, err := u.Shell(copyCmd)
 		return err
 	}
 	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, dailyRepo, prTitle, prBody, edit)
