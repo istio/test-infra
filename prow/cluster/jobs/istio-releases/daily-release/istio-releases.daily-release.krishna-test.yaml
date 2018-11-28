@@ -94,7 +94,7 @@ postsubmits:
 
   istio-releases/daily-release:
   - name: release-pipeline-trigger-test
-    context: rel_scripts/trigger-test.sh
+    context: rel_scripts/trigger_test.sh
     <<: *job_template
     run_if_changed: "(daily|monthly)/build/.*"
     labels:
@@ -105,11 +105,11 @@ postsubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/trigger-test.sh
+        - rel_scripts/trigger_test.sh
 
   istio-releases/daily-release:
   - name: release-pipeline-trigger-release
-    context: rel_scripts/trigger-release.sh
+    context: rel_scripts/trigger_release.sh
     <<: *job_template
     run_if_changed: "(daily|monthly)/test/.*"
     labels:
@@ -120,4 +120,4 @@ postsubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/trigger-release.sh
+        - rel_scripts/trigger_release.sh
