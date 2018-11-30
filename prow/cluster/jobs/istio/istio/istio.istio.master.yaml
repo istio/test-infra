@@ -111,11 +111,10 @@ presubmits:
           - prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
         nodeSelector:
           testing: test-pool
-    - name: istio-pilot-e2e-envoyv2-v1alpha3-mcp
+    - name: istio-pilot-e2e-envoyv2-v1alpha3-non-mcp
       <<: *job_template
       always_run: true
-      context: prow/istio-pilot-e2e-envoyv2-v1alpha3-mcp.sh
-      optional: true
+      context: prow/istio-pilot-e2e-envoyv2-v1alpha3-non-mcp.sh
       labels:
         preset-service-account: "true"
       max_concurrency: 5
@@ -124,7 +123,7 @@ presubmits:
         - <<: *istio_container
           command:
           - entrypoint
-          - prow/istio-pilot-e2e-envoyv2-v1alpha3-mcp.sh
+          - prow/istio-pilot-e2e-envoyv2-v1alpha3-non-mcp.sh
         nodeSelector:
           testing: test-pool
     - name: e2e-mixer-no_auth
@@ -142,11 +141,10 @@ presubmits:
           - prow/e2e-mixer-no_auth.sh
         nodeSelector:
           testing: test-pool
-    - name: e2e-mixer-no_auth-mcp
+    - name: e2e-mixer-no_auth-non-mcp
       <<: *job_template
       always_run: true
-      context: prow/e2e-mixer-no_auth-mcp.sh
-      optional: true
+      context: prow/e2e-mixer-no_auth-non-mcp.sh
       labels:
         preset-service-account: "true"
       max_concurrency: 5
@@ -155,7 +153,7 @@ presubmits:
         - <<: *istio_container
           command:
           - entrypoint
-          - prow/e2e-mixer-no_auth-mcp.sh
+          - prow/e2e-mixer-no_auth-non-mcp.sh
         nodeSelector:
           testing: test-pool
     - name: e2e-dashboard
@@ -301,7 +299,7 @@ postsubmits:
           - prow/e2e-simpleTests.sh
         nodeSelector:
           testing: test-pool
-    - name: e2e-simpleTests-mcp
+    - name: e2e-simpleTests-non-mcp
       <<: *job_template
       labels:
         preset-service-account: "true"
@@ -311,7 +309,7 @@ postsubmits:
         - <<: *istio_container
           command:
           - entrypoint
-          - prow/e2e-simpleTests-mcp.sh
+          - prow/e2e-simpleTests-non-mcp.sh
         nodeSelector:
           testing: test-pool
     - name: e2e-bookInfoTests-envoyv2-v1alpha3
@@ -350,7 +348,7 @@ postsubmits:
           - prow/istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest.sh
         nodeSelector:
           testing: test-pool
-    - name: e2e-bookInfoTests-envoyv2-v1alpha3-mcp
+    - name: e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp
       <<: *job_template
       labels:
         preset-service-account: "true"
@@ -360,7 +358,7 @@ postsubmits:
         - <<: *istio_container
           command:
           - entrypoint
-          - prow/e2e-bookInfoTests-envoyv2-v1alpha3-mcp.sh
+          - prow/e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp.sh
         nodeSelector:
           testing: test-pool
     - name: e2e-mixer-no_auth
