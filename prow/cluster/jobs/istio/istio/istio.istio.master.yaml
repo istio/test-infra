@@ -111,21 +111,6 @@ presubmits:
           - prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
         nodeSelector:
           testing: test-pool
-    - name: istio-pilot-e2e-envoyv2-v1alpha3-non-mcp
-      <<: *job_template
-      always_run: true
-      context: prow/istio-pilot-e2e-envoyv2-v1alpha3-non-mcp.sh
-      labels:
-        preset-service-account: "true"
-      max_concurrency: 5
-      spec:
-        containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - prow/istio-pilot-e2e-envoyv2-v1alpha3-non-mcp.sh
-        nodeSelector:
-          testing: test-pool
     - name: e2e-mixer-no_auth
       <<: *job_template
       always_run: true
@@ -139,21 +124,6 @@ presubmits:
           command:
           - entrypoint
           - prow/e2e-mixer-no_auth.sh
-        nodeSelector:
-          testing: test-pool
-    - name: e2e-mixer-no_auth-non-mcp
-      <<: *job_template
-      always_run: true
-      context: prow/e2e-mixer-no_auth-non-mcp.sh
-      labels:
-        preset-service-account: "true"
-      max_concurrency: 5
-      spec:
-        containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - prow/e2e-mixer-no_auth-non-mcp.sh
         nodeSelector:
           testing: test-pool
     - name: e2e-dashboard
