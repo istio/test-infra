@@ -61,11 +61,11 @@ const (
 	// release pipeline triggers
 	relBuildPRTtilePrefix         = "Rel Pipeline Build - "
 	relQualificationPRTtilePrefix = "Rel Pipeline Qualification - "
-	relReleasePRTtilePrefix       = "Rel Pipeline Release -"
+	relReleasePRTtilePrefix       = "Rel Pipeline Release - "
 	greenBuildVersionFile         = "test/greenBuild.VERSION"
-	createBuildEnvCmd             = "./rel_scripts/create_release_build_env.sh"
-	copyEnvToTestCmd              = "cp %s/build/build_env.sh %s/test/build_env.sh"
-	copyEnvToReleaseCmd           = "cp %s/test/build_env.sh %s/release/build_env.sh"
+	createBuildParametersCmd      = "./rel_scripts/create_release_build_parameters.sh -b %s -p %s -v %s"
+	copyEnvToTestCmd              = "cp %s/build/build_parameters.sh %s/test/build_parameters.sh"
+	copyEnvToReleaseCmd           = "cp %s/test/build_parameters.sh %s/release/build_parameters.sh"
 	dailyRepo                     = "daily-release"
 )
 
@@ -193,23 +193,19 @@ func getLatestGreenSHA() (string, error) {
 
 // ReleasePipelineBuild triggers build job by creating a PR that generates GitHub notification.
 func ReleasePipelineBuild(baseBranch *string) error {
+	u.AssertNotEmpty("pipeline", pipelineType)
 	u.AssertNotEmpty("tag", tag)
-	var dstBranch string
-	// we could have made baseBranch have a default value, but that breaks all the places
-	// where baseBranch must be passed in cmdline and a default value is not acceptable
-	// therefore, if a branch is not passed in use masterBranch as the default destination
-	if baseBranch != nil && len(*baseBranch) != 0 {
-		dstBranch = *baseBranch
-	} else {
-		dstBranch = masterBranch
-	}
+	u.AssertNotEmpty("base_branch", baseBranch)
+	dstBranch := *baseBranch
 	glog.Infof("Creating PR to trigger build on %s branch\n", dstBranch)
 	prTitle := relBuildPRTtilePrefix + *tag
 	prBody := "This is a generated PR that triggers release build, and will be automatically merged "
 	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
 	srcBranch := "relQual_" + timestamp
 	edit := func() error {
-		_, err := u.Shell(createBuildEnvCmd)
+		createParametersCmd := fmt.Sprintf(createBuildParametersCmd, dstBranch, *pipelineType, *tag)
+		glog.Infof("Running cmd: %s", createParametersCmd)
+		_, err := u.Shell(createParametersCmd)
 		return err
 	}
 	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, dailyRepo, prTitle, prBody, edit)
@@ -219,19 +215,10 @@ func ReleasePipelineBuild(baseBranch *string) error {
 // ReleasePipelineQualification triggers test jobs buy creating a PR that generates
 // a GitHub notification.
 func ReleasePipelineQualification(baseBranch *string) error {
-	u.AssertNotEmpty("hub", hub) // TODO (chx) default value of hub
 	u.AssertNotEmpty("tag", tag)
-	u.AssertNotEmpty("gcs_path", gcsPath)
 	u.AssertNotEmpty("pipeline", pipelineType)
-	var dstBranch string
-	// we could have made baseBranch have a default value, but that breaks all the places
-	// where baseBranch must be passed in cmdline and a default value is not acceptable
-	// therefore, if a branch is not passed in use masterBranch as the default destination
-	if baseBranch != nil && len(*baseBranch) != 0 {
-		dstBranch = *baseBranch
-	} else {
-		dstBranch = masterBranch
-	}
+	u.AssertNotEmpty("base_branch", baseBranch)
+	dstBranch := *baseBranch
 	glog.Infof("Creating PR to trigger release qualifications on %s branch\n", dstBranch)
 	prTitle := relQualificationPRTtilePrefix + *tag
 	prBody := "This is a generated PR that triggers release qualification tests, and will be automatically merged " +
@@ -241,27 +228,8 @@ func ReleasePipelineQualification(baseBranch *string) error {
 	srcBranch := "relQual_" + timestamp
 	edit := func() error {
 		copyCmd := fmt.Sprintf(copyEnvToTestCmd, *pipelineType, *pipelineType)
-		if _, err := u.Shell(copyCmd); err != nil {
-			return nil
-		}
-		versionFile := *pipelineType + "/" + greenBuildVersionFile
-		if err := u.UpdateKeyValueInFile(versionFile, "HUB", *hub); err != nil {
-			return err
-		}
-		if err := u.UpdateKeyValueInFile(versionFile, "TAG", *tag); err != nil {
-			return err
-		}
-		if err := u.UpdateKeyValueInFile(versionFile, "TIME", timestamp); err != nil {
-			return err
-		}
-		if err := u.UpdateKeyValueInFile(versionFile, "ISTIO_REL_URL",
-			fmt.Sprintf("https://storage.googleapis.com/%s", *gcsPath)); err != nil {
-			return err
-		}
-		if err := u.UpdateKeyValueInFile(versionFile, "SHA", *refSHA); err != nil {
-			return err
-		}
-		return nil
+		_, err := u.Shell(copyCmd)
+		return err
 	}
 	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, dailyRepo, prTitle, prBody, edit)
 	return err
@@ -272,15 +240,8 @@ func ReleasePipelineQualification(baseBranch *string) error {
 func ReleasePipelineRelease(baseBranch *string) error {
 	u.AssertNotEmpty("pipeline", pipelineType)
 	u.AssertNotEmpty("tag", tag)
-	var dstBranch string
-	// we could have made baseBranch have a default value, but that breaks all the places
-	// where baseBranch must be passed in cmdline and a default value is not acceptable
-	// therefore, if a branch is not passed in use masterBranch as the default destination
-	if baseBranch != nil && len(*baseBranch) != 0 {
-		dstBranch = *baseBranch
-	} else {
-		dstBranch = masterBranch
-	}
+	u.AssertNotEmpty("base_branch", baseBranch)
+	dstBranch := *baseBranch
 	glog.Infof("Creating PR to trigger release on %s branch\n", dstBranch)
 	prTitle := relReleasePRTtilePrefix + *tag
 	prBody := "This is a generated PR that triggers release job, and will be automatically merged "
