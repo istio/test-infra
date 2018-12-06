@@ -83,7 +83,7 @@ periodics:
         -label:needs-rebase
         -label:needs-ok-to-test
         repo:istio/istio
-      - --token=/etc/token/oauth
+      - --token=/etc/github/rel-pipeline-github
       - |-
         --comment=/retest
         This bot automatically retries jobs that failed/flaked on approved PRs.
@@ -93,12 +93,13 @@ periodics:
       - --ceiling=2
       - --confirm
       volumeMounts:
-      - name: oauth
-        mountPath: /etc/token
+      - name: rel-pipeline-github
+        mountPath: /etc/github
+        readOnly: true
     volumes:
-    - name: oauth
+    - name: rel-pipeline-github
       secret:
-        secretName: oauth-token
+        secretName: rel-pipeline-github
 
 - interval: 24h
   name: gcr_cleanup_istio_testing
