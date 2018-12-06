@@ -2,40 +2,6 @@ job_template: &job_template
   branches: *branch_spec
   decorate: true
 
-istio_build_spec: &istio_build_spec
-  containers:
-  - image: gcr.io/istio-testing/istio-builder:0.5.10
-    args:
-    - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
-    - "--clean"
-    - "--timeout=90"
-    # Bazel needs privileged mode in order to sandbox builds.
-    securityContext:
-      privileged: true
-    env:
-    - name: GIT_BRANCH
-      value: master
-    - name: GOOGLE_APPLICATION_CREDENTIALS
-      value: /etc/service-account/rel-pipeline-service-account.json
-    - name: GITHUB_TOKEN_FILE
-      value: /etc/github/rel-pipeline-service-account.json
-    volumeMounts:
-    - name: rel-pipeline-service-account.json
-      mountPath: /etc/service-account
-      readOnly: true
-    - name: rel-pipeline-github
-      mountPath: /etc/github
-      readOnly: true
-  volumes:
-  - name: rel-pipeline-service-account.json
-    secret:
-      secretName: rel-pipeline-service-account.json
-  - name: rel-pipeline-github
-    secret:
-      secretName: rel-pipeline-github
-  nodeSelector:
-    testing: build-pool
-
 istio_container: &istio_container
   image: gcr.io/istio-testing/istio-builder:v20181008-db31a9fd
   # Docker in Docker
@@ -82,29 +48,10 @@ presubmits:
 
   istio-releases/daily-release:
 
-  - name: daily-run-if-changed-build
-    context: prow/daily-run-if-changed-build.sh
-    branches: *branch_spec
-    always_run: false
-    run_if_changed: "build/.*"
-    optional: true
-    spec:
-      <<: *istio_build_spec
-
-  - name: daily-run-if-changed-release
-    context: prow/daily-run-if-changed-release.sh
-    branches: *branch_spec
-    always_run: false
-    run_if_changed: "release/.*"
-    optional: true
-    spec:
-      <<: *istio_build_spec
-
   - name: daily-upgrade-tests-1.0.1
     <<: *job_template
     context: prow/daily-upgrade-tests-1.0.1.sh
-    always_run: false
-    run_if_changed: "test/.*"
+    always_run: true
     optional: true
     labels:
       preset-service-account: "true"
@@ -120,8 +67,7 @@ presubmits:
   - name: daily-upgrade-tests-1.0.2
     <<: *job_template
     context: prow/daily-upgrade-tests-1.0.2.sh
-    always_run: false
-    run_if_changed: "test/.*"
+    always_run: true
     optional: true
     labels:
       preset-service-account: "true"
@@ -137,8 +83,7 @@ presubmits:
   - name: daily-unit-tests
     context: prow/daily-unit-tests.sh
     branches: *branch_spec
-    always_run: false
-    run_if_changed: "test/.*"
+    always_run: true
     labels:
       preset-service-account: "true"
     spec:
@@ -147,8 +92,7 @@ presubmits:
   - name: istioctl-tests
     context: prow/istioctl-tests.sh
     branches: *branch_spec
-    always_run: false
-    run_if_changed: "test/.*"
+    always_run: true
     labels:
       preset-service-account: "true"
     spec:
@@ -157,8 +101,7 @@ presubmits:
   - name: daily-e2e-pilot-no_auth
     context: prow/daily-e2e-pilot-no_auth.sh
     branches: *branch_spec
-    always_run: false
-    run_if_changed: "test/.*"
+    always_run: true
     labels:
       preset-service-account: "true"
     spec:
@@ -167,8 +110,7 @@ presubmits:
   - name: daily-e2e-bookinfoTests
     context: prow/daily-e2e-bookinfoTests.sh
     branches: *branch_spec
-    always_run: false
-    run_if_changed: "test/.*"
+    always_run: true
     labels:
       preset-service-account: "true"
     spec:
@@ -177,8 +119,7 @@ presubmits:
   - name: daily-e2e-simpleTests
     context: prow/daily-e2e-simpleTests.sh
     branches: *branch_spec
-    always_run: false
-    run_if_changed: "test/.*"
+    always_run: true
     labels:
       preset-service-account: "true"
     spec:
@@ -187,8 +128,7 @@ presubmits:
   - name: daily-e2e-mixer-no_auth
     context: prow/daily-e2e-mixer-no_auth.sh
     branches: *branch_spec
-    always_run: false
-    run_if_changed: "test/.*"
+    always_run: true
     labels:
       preset-service-account: "true"
     spec:
@@ -197,8 +137,7 @@ presubmits:
   - name: daily-e2e-dashboard
     context: prow/daily-e2e-dashboard.sh
     branches: *branch_spec
-    always_run: false
-    run_if_changed: "test/.*"
+    always_run: true
     labels:
       preset-service-account: "true"
     spec:
