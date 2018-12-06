@@ -66,7 +66,7 @@ periodics:
     nodeSelector:
       testing: test-pool
 
-- name: periodic-test-infra-retester
+- name: periodic-retester
   interval: 10m  # Retest at most 2 PR per 10m to not DOS Prow.
   spec:
     containers:
@@ -93,7 +93,7 @@ periodics:
       - --ceiling=2
       - --confirm
       volumeMounts:
-      - name: token
+      - name: oauth
         mountPath: /etc/token
     volumes:
     - name: oauth
