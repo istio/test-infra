@@ -188,11 +188,23 @@ branch-protection:
               protect: true
             master:
               protect: true
+        pipeline:
+          protect: false
+          restrictions:
+          branches:
+            krishna-test:
+              protect: true
+            master:
+              protect: true
+            release-1.1:
+              protect: true
+            release-1.0:
+              protect: true
 
 tide:
   queries:
   - repos:
-    - istio-releases/daily-release
+    - istio-releases/pipeline
     missingLabels:
     - do-not-merge
     - do-not-merge/hold
@@ -240,6 +252,7 @@ tide:
     istio/proxy: squash
     istio/test-infra: squash
     istio-releases/daily-release: squash
+    istio-releases/pipeline: squash
   target_url: https://prow.istio.io/tide
 
   context_options:
