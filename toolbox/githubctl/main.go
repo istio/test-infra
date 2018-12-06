@@ -67,6 +67,7 @@ const (
 	copyEnvToTestCmd              = "cp %s/build/build_parameters.sh %s/test/build_parameters.sh"
 	copyEnvToReleaseCmd           = "cp %s/test/build_parameters.sh %s/release/build_parameters.sh"
 	dailyRepo                     = "daily-release"
+	pipelineRepo                  = "pipeline"
 )
 
 func fastForward(repo, baseBranch, refSHA *string) error {
@@ -208,7 +209,7 @@ func ReleasePipelineBuild(baseBranch *string) error {
 		_, err := u.Shell(createParametersCmd)
 		return err
 	}
-	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, dailyRepo, prTitle, prBody, edit)
+	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, pipelineRepo, prTitle, prBody, edit)
 	return err
 }
 
@@ -231,7 +232,7 @@ func ReleasePipelineQualification(baseBranch *string) error {
 		_, err := u.Shell(copyCmd)
 		return err
 	}
-	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, dailyRepo, prTitle, prBody, edit)
+	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, pipelineRepo, prTitle, prBody, edit)
 	return err
 }
 
@@ -252,7 +253,7 @@ func ReleasePipelineRelease(baseBranch *string) error {
 		_, err := u.Shell(copyCmd)
 		return err
 	}
-	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, dailyRepo, prTitle, prBody, edit)
+	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, pipelineRepo, prTitle, prBody, edit)
 	return err
 }
 
