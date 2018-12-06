@@ -153,13 +153,12 @@ periodics:
       testing: build-pool
 
 - cron: "15 9 * * *" # every day at 1:15 am PST
-  name: release-pipeline-periodic
-  context: rel_scripts/trigger_daily_build.sh
+  name: rp-trigger-daily-build
   branches: krishna-test
   decorate: true
   extra_refs:
   - org: istio-releases
-    repo: daily-release
+    repo: pipeline
     base_ref: krishna-test
   labels:
     preset-release-pipeline: "true"
