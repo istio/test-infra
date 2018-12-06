@@ -66,7 +66,7 @@ periodics:
     nodeSelector:
       testing: test-pool
 
-- name: periodic-retester
+- name: periodic-istio-retester
   interval: 10m  # Retest at most 2 PR per 10m to not DOS Prow.
   spec:
     containers:
@@ -83,7 +83,7 @@ periodics:
         -label:needs-rebase
         -label:needs-ok-to-test
         repo:istio/istio
-      - --token=/etc/token/bot-github-token
+      - --token=/etc/token/oauth
       - |-
         --comment=/retest
         This bot automatically retries jobs that failed/flaked on approved PRs.
