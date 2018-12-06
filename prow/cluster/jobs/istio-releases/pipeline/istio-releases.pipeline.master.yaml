@@ -40,9 +40,9 @@ branch_spec: &branch_spec
 
 presubmits:
 
-  istio-releases/daily-release:
+  istio-releases/pipeline:
 
-  - name: rp-daily-build
+  - name: release-daily-build
     <<: *job_template
     always_run: false
     run_if_changed: "daily/build/.*"
@@ -57,7 +57,7 @@ presubmits:
         - entrypoint
         - rel_scripts/run_daily_build.sh
 
-  - name: rp-daily-release
+  - name: release-daily-release
     <<: *job_template
     always_run: false
     run_if_changed: "daily/release/.*"
@@ -72,7 +72,7 @@ presubmits:
         - entrypoint
         - rel_scripts/run_daily_release.sh
 
-  - name: rp-monthly-build
+  - name: release-monthly-build
     <<: *job_template
     always_run: false
     run_if_changed: "monthly/build/.*"
@@ -87,7 +87,7 @@ presubmits:
         - entrypoint
         - rel_scripts/run_monthly_build.sh
 
-  - name: rp-monthly-release
+  - name: release-monthly-release
     <<: *job_template
     always_run: false
     run_if_changed: "monthly/release/.*"
@@ -102,7 +102,7 @@ presubmits:
         - entrypoint
         - rel_scripts/run_monthly_release.sh
 
-  - name: rp-upgrade-tests-1.0.1
+  - name: release-upgrade-tests-1.0.1
     <<: *job_template
     always_run: false
     run_if_changed: "(daily|monthly)/test/.*"
@@ -118,7 +118,7 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
-  - name: rp-upgrade-tests-1.0.2
+  - name: release-upgrade-tests-1.0.2
     <<: *job_template
     always_run: false
     run_if_changed: "(daily|monthly)/test/.*"
@@ -134,7 +134,7 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
-  - name: rp-unit-tests
+  - name: release-unit-tests
     branches: *branch_spec
     always_run: false
     run_if_changed: "(daily|monthly)/test/.*"
@@ -149,7 +149,7 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
-  - name: rp-istioctl-tests
+  - name: release-istioctl-tests
     branches: *branch_spec
     always_run: false
     run_if_changed: "(daily|monthly)/test/.*"
@@ -164,7 +164,7 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
-  - name: rp-e2e-pilot-no_auth
+  - name: release-e2e-pilot-no_auth
     branches: *branch_spec
     always_run: false
     run_if_changed: "(daily|monthly)/test/.*"
@@ -179,7 +179,7 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
-  - name: rp-e2e-bookinfoTests
+  - name: release-e2e-bookinfoTests
     branches: *branch_spec
     always_run: false
     run_if_changed: "(daily|monthly)/test/.*"
@@ -194,7 +194,7 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
-  - name: rp-e2e-simpleTests
+  - name: release-e2e-simpleTests
     branches: *branch_spec
     always_run: false
     run_if_changed: "(daily|monthly)/test/.*"
@@ -209,7 +209,7 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
-  - name: rp-e2e-mixer-no_auth
+  - name: release-e2e-mixer-no_auth
     branches: *branch_spec
     always_run: false
     run_if_changed: "(daily|monthly)/test/.*"
@@ -224,7 +224,7 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
-  - name: rp-daily-e2e-dashboard
+  - name: release-e2e-dashboard
     branches: *branch_spec
     always_run: false
     run_if_changed: "(daily|monthly)/test/.*"
@@ -241,9 +241,9 @@ presubmits:
 
 postsubmits:
 
-  istio-releases/daily-release:
+  istio-releases/pipeline:
 
-  - name: rp-trigger-daily-test
+  - name: release-trigger-daily-test
     <<: *job_template
     run_if_changed: "daily/build/.*"
     labels:
@@ -256,7 +256,7 @@ postsubmits:
         - entrypoint
         - rel_scripts/trigger_daily_test.sh
 
-  - name: rp-trigger-daily-release
+  - name: release-trigger-daily-release
     <<: *job_template
     run_if_changed: "daily/test/.*"
     labels:
@@ -269,7 +269,7 @@ postsubmits:
         - entrypoint
         - rel_scripts/trigger_daily_release.sh
 
-  - name: rp-trigger-monthly-test
+  - name: release-trigger-monthly-test
     <<: *job_template
     run_if_changed: "monthly/build/.*"
     labels:
@@ -282,7 +282,7 @@ postsubmits:
         - entrypoint
         - rel_scripts/trigger_monthly_test.sh
 
-  - name: rp-trigger-monthly-release
+  - name: release-trigger-monthly-release
     <<: *job_template
     run_if_changed: "monthly/test/.*"
     labels:
