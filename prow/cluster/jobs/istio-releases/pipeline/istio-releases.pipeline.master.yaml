@@ -135,7 +135,7 @@ presubmits:
         testing: test-pool
 
   - name: release-unit-tests
-    branches: *branch_spec
+    <<: *job_template
     always_run: false
     run_if_changed: "(daily|monthly)/test/.*"
     labels:
@@ -150,7 +150,7 @@ presubmits:
         testing: test-pool
 
   - name: release-istioctl-tests
-    branches: *branch_spec
+    <<: *job_template
     always_run: false
     run_if_changed: "(daily|monthly)/test/.*"
     labels:
@@ -165,7 +165,7 @@ presubmits:
         testing: test-pool
 
   - name: release-e2e-pilot-no_auth
-    branches: *branch_spec
+    <<: *job_template
     always_run: false
     run_if_changed: "(daily|monthly)/test/.*"
     labels:
@@ -180,7 +180,7 @@ presubmits:
         testing: test-pool
 
   - name: release-e2e-bookinfoTests
-    branches: *branch_spec
+    <<: *job_template
     always_run: false
     run_if_changed: "(daily|monthly)/test/.*"
     labels:
@@ -195,7 +195,7 @@ presubmits:
         testing: test-pool
 
   - name: release-e2e-simpleTests
-    branches: *branch_spec
+    <<: *job_template
     always_run: false
     run_if_changed: "(daily|monthly)/test/.*"
     labels:
@@ -210,7 +210,7 @@ presubmits:
         testing: test-pool
 
   - name: release-e2e-mixer-no_auth
-    branches: *branch_spec
+    <<: *job_template
     always_run: false
     run_if_changed: "(daily|monthly)/test/.*"
     labels:
@@ -225,7 +225,7 @@ presubmits:
         testing: test-pool
 
   - name: release-e2e-dashboard
-    branches: *branch_spec
+    <<: *job_template
     always_run: false
     run_if_changed: "(daily|monthly)/test/.*"
     labels:
