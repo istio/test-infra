@@ -66,41 +66,6 @@ periodics:
     nodeSelector:
       testing: test-pool
 
-- name: periodic-istio-retester
-  interval: 10m  # Retest at most 2 PR per 10m to not DOS Prow.
-  spec:
-    containers:
-    - image: gcr.io/k8s-testimages/commenter:v20170808-abf66782
-      args:
-      - |-
-        --query=is:pr
-        -label:do-not-merge
-        -label:do-not-merge/hold
-        -label:do-not-merge/work-in-progress
-        label:lgtm
-        label:approved
-        status:failure
-        -label:needs-rebase
-        -label:needs-ok-to-test
-        repo:istio/istio
-      - --token=/etc/github/rel-pipeline-github
-      - |-
-        --comment=/retest
-        This bot automatically retries jobs that failed/flaked on approved PRs.
-        Review the [full test history](https://k8s-gubernator.appspot.com/jobs/istio-prow/pr-logs/pull/istio_istio/{{.Number}}) for this PR.
-        `/lgtm cancel` will stop retrying.
-      - --template
-      - --ceiling=2
-      - --confirm
-      volumeMounts:
-      - name: rel-pipeline-github
-        mountPath: /etc/github
-        readOnly: true
-    volumes:
-    - name: rel-pipeline-github
-      secret:
-        secretName: rel-pipeline-github
-
 - interval: 24h
   name: gcr_cleanup_istio_testing
   labels:
