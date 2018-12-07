@@ -198,7 +198,7 @@ func ReleasePipelineBuild(baseBranch *string) error {
 	u.AssertNotEmpty("tag", tag)
 	u.AssertNotEmpty("base_branch", baseBranch)
 	dstBranch := *baseBranch
-	glog.Infof("Creating PR to trigger build on %s branch\n", dstBranch)
+	glog.Infof("Creating PR to trigger build on %s branch\n", masterBranch)
 	prTitle := *tag + relBuildPRTtileSuffix
 	prBody := "This is a generated PR that triggers release build, and will be automatically merged "
 	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
@@ -209,7 +209,7 @@ func ReleasePipelineBuild(baseBranch *string) error {
 		_, err := u.Shell(createParametersCmd)
 		return err
 	}
-	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, pipelineRepo, prTitle, prBody, edit)
+	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, masterBranch, pipelineRepo, prTitle, prBody, edit)
 	return err
 }
 
@@ -220,7 +220,7 @@ func ReleasePipelineQualification(baseBranch *string) error {
 	u.AssertNotEmpty("pipeline", pipelineType)
 	u.AssertNotEmpty("base_branch", baseBranch)
 	dstBranch := *baseBranch
-	glog.Infof("Creating PR to trigger release qualifications on %s branch\n", dstBranch)
+	glog.Infof("Creating PR to trigger release qualifications on %s branch\n", masterBranch)
 	prTitle := *tag + relQualificationPRTtileSuffix
 	prBody := "This is a generated PR that triggers release qualification tests, and will be automatically merged " +
 		"if all tests pass. In case some test fails, you can manually rerun the failing tests using /test. Force " +
@@ -228,11 +228,12 @@ func ReleasePipelineQualification(baseBranch *string) error {
 	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
 	srcBranch := "relQual_" + timestamp
 	edit := func() error {
-		copyCmd := fmt.Sprintf(copyEnvToTestCmd, *pipelineType, *pipelineType)
+		path := filepath.Join(dstBranch, *pipelineType)
+		copyCmd := fmt.Sprintf(copyEnvToTestCmd, path, path)
 		_, err := u.Shell(copyCmd)
 		return err
 	}
-	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, pipelineRepo, prTitle, prBody, edit)
+	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, masterBranch, pipelineRepo, prTitle, prBody, edit)
 	return err
 }
 
@@ -243,17 +244,18 @@ func ReleasePipelineRelease(baseBranch *string) error {
 	u.AssertNotEmpty("tag", tag)
 	u.AssertNotEmpty("base_branch", baseBranch)
 	dstBranch := *baseBranch
-	glog.Infof("Creating PR to trigger release on %s branch\n", dstBranch)
+	glog.Infof("Creating PR to trigger release on %s branch\n", masterBranch)
 	prTitle := *tag + relReleasePRTtileSuffix
 	prBody := "This is a generated PR that triggers release job, and will be automatically merged "
 	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
 	srcBranch := "relRelease_" + timestamp
 	edit := func() error {
-		copyCmd := fmt.Sprintf(copyEnvToReleaseCmd, *pipelineType, *pipelineType)
+		path := filepath.Join(dstBranch, *pipelineType)
+		copyCmd := fmt.Sprintf(copyEnvToReleaseCmd, path, path)
 		_, err := u.Shell(copyCmd)
 		return err
 	}
-	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, pipelineRepo, prTitle, prBody, edit)
+	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, masterBranch, pipelineRepo, prTitle, prBody, edit)
 	return err
 }
 

@@ -120,7 +120,7 @@ periodics:
 
 - cron: "15 9 * * *" # every day at 1:15 am PST
   name: release-trigger-daily-build
-  branches: krishna-test
+  branches: master
   decorate: true
   extra_refs:
   - org: istio-releases
@@ -134,7 +134,7 @@ periodics:
     - <<: *istio_rel_pipeline_container
       env:
       - name: GIT_BRANCH
-        value: krishna-test
+        value: master
       command:
       - entrypoint
       - rel_scripts/trigger_daily_build.sh
