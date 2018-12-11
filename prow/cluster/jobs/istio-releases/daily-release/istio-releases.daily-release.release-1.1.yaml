@@ -141,5 +141,14 @@ presubmits:
     spec:
       <<: *test_spec
 
+  - name: daily-e2e-stackdriver
+    context: prow/daily-e2e-stackdriver.sh
+    branches: *branch_spec
+    always_run: true
+    labels:
+      preset-service-account: "true"
+    spec:
+      <<: *test_spec
+
 postsubmits:
 
