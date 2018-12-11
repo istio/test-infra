@@ -48,21 +48,10 @@ presubmits:
 
   istio-releases/daily-release:
 
-  - name: daily-perf-tests
-    context: prow/daily-perf-tests.sh
-    branches: *branch_spec
-    always_run: true
-    optional: true
-    labels:
-      preset-service-account: "true"
-    spec:
-      <<: *test_spec
-
   - name: daily-upgrade-tests-1.0.1
     <<: *job_template
     context: prow/daily-upgrade-tests-1.0.1.sh
     always_run: true
-    optional: true
     labels:
       preset-service-account: "true"
     spec:
@@ -78,7 +67,6 @@ presubmits:
     <<: *job_template
     context: prow/daily-upgrade-tests-1.0.2.sh
     always_run: true
-    optional: true
     labels:
       preset-service-account: "true"
     spec:

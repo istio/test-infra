@@ -36,7 +36,6 @@ presubmits:
 
   - name: istio-integ-local-tests
     <<: *job_template
-    optional: true
     context: prow/istio-integ-local-tests.sh
     always_run: true
     spec:
@@ -45,23 +44,6 @@ presubmits:
         command:
         - entrypoint
         - prow/istio-integ-local-tests.sh
-      nodeSelector:
-        testing: build-pool
-
-  - name: istio-integ-k8s-tests
-    <<: *job_template
-    optional: true
-    context: prow/istio-integ-k8s-tests.sh
-    max_concurrency: 5
-    always_run: true
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/istio-integ-k8s-tests.sh
       nodeSelector:
         testing: build-pool
 
@@ -112,22 +94,6 @@ presubmits:
           - prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
         nodeSelector:
           testing: test-pool
-    - name: istio-pilot-e2e-envoyv2-v1alpha3-mcp
-      <<: *job_template
-      always_run: true
-      context: prow/istio-pilot-e2e-envoyv2-v1alpha3-mcp.sh
-      optional: true
-      labels:
-        preset-service-account: "true"
-      max_concurrency: 5
-      spec:
-        containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - prow/istio-pilot-e2e-envoyv2-v1alpha3-mcp.sh
-        nodeSelector:
-          testing: test-pool
     - name: e2e-mixer-no_auth
       <<: *job_template
       always_run: true
@@ -141,22 +107,6 @@ presubmits:
           command:
           - entrypoint
           - prow/e2e-mixer-no_auth.sh
-        nodeSelector:
-          testing: test-pool
-    - name: e2e-mixer-no_auth-mcp
-      <<: *job_template
-      always_run: true
-      context: prow/e2e-mixer-no_auth-mcp.sh
-      optional: true
-      labels:
-        preset-service-account: "true"
-      max_concurrency: 5
-      spec:
-        containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - prow/e2e-mixer-no_auth-mcp.sh
         nodeSelector:
           testing: test-pool
     - name: e2e-dashboard
@@ -204,6 +154,21 @@ presubmits:
           - prow/e2e-simpleTests.sh
         nodeSelector:
           testing: test-pool
+    - name: e2e-simpleTestsMinProfile
+      <<: *job_template
+      optional: true
+      context: prow/e2e-simpleTests-minProfile.sh
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-simpleTests-minProfile.sh
+        nodeSelector:
+          testing: test-pool
     - name: istio-pilot-multicluster-e2e
       <<: *job_template
       always_run: true
@@ -220,11 +185,10 @@ presubmits:
           - prow/istio-pilot-multicluster-e2e.sh
         nodeSelector:
           testing: test-pool
-    - name: build-tests
+    - name: release-test
       <<: *job_template
       always_run: true
-      context: prow/build-tests.sh
-      optional: true
+      context: prow/release-test.sh
       labels:
         preset-service-account: "true"
       max_concurrency: 5
@@ -233,15 +197,37 @@ presubmits:
         - <<: *istio_container
           command:
           - entrypoint
-          - prow/build-tests.sh
+          - prow/release-test.sh
         nodeSelector:
           testing: test-pool
+
 
 
 postsubmits:
 
   istio/istio:
-
+  - name: istio-integ-local-tests
+    <<: *job_template
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/istio-integ-local-tests.sh
+      nodeSelector:
+        testing: test-pool
+  - name: istio-integ-k8s-tests
+    <<: *job_template
+    labels:
+      preset-service-account: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/istio-integ-k8s-tests.sh
+      nodeSelector:
+        testing: test-pool
   - name: istio-postsubmit
     <<: *job_template
     labels:
@@ -267,7 +253,21 @@ postsubmits:
           - prow/e2e-simpleTests.sh
         nodeSelector:
           testing: test-pool
-    - name: e2e-simpleTests-mcp
+    - name: e2e-simpleTestsMinProfile
+      <<: *job_template
+      optional: true
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-simpleTests-minProfile.sh
+        nodeSelector:
+          testing: test-pool
+    - name: e2e-simpleTests-non-mcp
       <<: *job_template
       labels:
         preset-service-account: "true"
@@ -277,7 +277,7 @@ postsubmits:
         - <<: *istio_container
           command:
           - entrypoint
-          - prow/e2e-simpleTests-mcp.sh
+          - prow/e2e-simpleTests-non-mcp.sh
         nodeSelector:
           testing: test-pool
     - name: e2e-bookInfoTests-envoyv2-v1alpha3
@@ -316,7 +316,7 @@ postsubmits:
           - prow/istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest.sh
         nodeSelector:
           testing: test-pool
-    - name: e2e-bookInfoTests-envoyv2-v1alpha3-mcp
+    - name: e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp
       <<: *job_template
       labels:
         preset-service-account: "true"
@@ -326,7 +326,7 @@ postsubmits:
         - <<: *istio_container
           command:
           - entrypoint
-          - prow/e2e-bookInfoTests-envoyv2-v1alpha3-mcp.sh
+          - prow/e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp.sh
         nodeSelector:
           testing: test-pool
     - name: e2e-mixer-no_auth

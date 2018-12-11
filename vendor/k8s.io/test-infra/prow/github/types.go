@@ -140,6 +140,7 @@ type Status struct {
 
 // CombinedStatus is the latest statuses for a ref.
 type CombinedStatus struct {
+	SHA      string   `json:"sha"`
 	Statuses []Status `json:"statuses"`
 }
 
@@ -493,8 +494,10 @@ type PushEvent struct {
 	Ref     string   `json:"ref"`
 	Before  string   `json:"before"`
 	After   string   `json:"after"`
+	Created bool     `json:"created"`
+	Deleted bool     `json:"deleted"`
+	Forced  bool     `json:"forced"`
 	Compare string   `json:"compare"`
-	Size    int      `json:"size"`
 	Commits []Commit `json:"commits"`
 	// Pusher is the user that pushed the commit, valid in a webhook event.
 	Pusher User `json:"pusher"`

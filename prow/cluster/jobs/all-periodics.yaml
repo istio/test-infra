@@ -11,6 +11,23 @@ test_infra_master_spec: &test_infra_master_spec
   nodeSelector:
     testing: test-pool
 
+istio_rel_pipeline_spec: &istio_rel_pipeline_spec
+  nodeSelector:
+    testing: build-pool
+
+istio_rel_pipeline_container: &istio_rel_pipeline_container
+  image: gcr.io/istio-testing/istio-builder:v20181008-db31a9fd
+  # Docker in Docker
+  securityContext:
+    privileged: true
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "24Gi"
+      cpu: "7000m"
+
 periodics:
 
 - interval: 10m
@@ -35,7 +52,7 @@ periodics:
         privileged: true
       env:
       - name: GIT_BRANCHES
-        value: master,release-0.8,release-1.0
+        value: master,release-1.0,release-1.1
       - name: GIT_BRANCH
         value: master
       volumeMounts:
@@ -48,6 +65,34 @@ periodics:
         secretName: oauth-token
     nodeSelector:
       testing: test-pool
+
+- name: periodic-release-retester
+  interval: 10m  # Retest at most 2 PR per 10m to not DOS Prow.
+  spec:
+    containers:
+    - image: gcr.io/k8s-testimages/commenter:v20170808-abf66782
+      args:
+      - |-
+        --query=is:pr
+        -label:do-not-merge
+        status:failure
+        repo:istio-releases/daily-release
+      - --token=/etc/github/rel-pipeline-github
+      - |-
+        --comment=/retest
+        This bot automatically retries jobs that failed/flaked on release PRs.
+        Review the [full test history](https://k8s-gubernator.appspot.com/jobs/istio-prow/pr-logs/pull/istio_istio/{{.Number}}) for this PR.
+      - --template
+      - --ceiling=2
+      - --confirm
+      volumeMounts:
+      - name: rel-pipeline-github
+        mountPath: /etc/github
+        readOnly: true
+    volumes:
+    - name: rel-pipeline-github
+      secret:
+        secretName: rel-pipeline-github
 
 - interval: 24h
   name: gcr_cleanup_istio_testing
@@ -100,3 +145,24 @@ periodics:
           cpu: "7000m"
     nodeSelector:
       testing: build-pool
+
+- cron: "15 9 * * *" # every day at 1:15 am PST
+  name: release-trigger-daily-build
+  branches: master
+  decorate: true
+  extra_refs:
+  - org: istio-releases
+    repo: pipeline
+    base_ref: krishna-test
+  labels:
+    preset-release-pipeline: "true"
+  spec:
+    <<: *istio_rel_pipeline_spec
+    containers:
+    - <<: *istio_rel_pipeline_container
+      env:
+      - name: GIT_BRANCH
+        value: master
+      command:
+      - entrypoint
+      - rel_scripts/trigger_daily_build.sh

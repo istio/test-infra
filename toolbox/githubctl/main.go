@@ -32,9 +32,10 @@ import (
 
 var (
 	owner                 = flag.String("owner", "istio", "Github owner or org")
-	tokenFile             = flag.String("token_file", "", "File containing Github API Access Token")
+	tokenFile             = flag.String("token_file", "", "File containing Github API Access Token.")
 	op                    = flag.String("op", "", "Operation to be performed")
 	repo                  = flag.String("repo", "", "Repository to which op is applied")
+	pipelineType          = flag.String("pipeline", "", "Pipeline type daily/monthly")
 	baseBranch            = flag.String("base_branch", "", "Branch to which op is applied")
 	refSHA                = flag.String("ref_sha", "", "Commit SHA used by the operation")
 	hub                   = flag.String("hub", "", "Hub of the docker images")
@@ -42,6 +43,7 @@ var (
 	releaseOrg            = flag.String("rel_org", "istio-releases", "GitHub Release Org")
 	gcsPath               = flag.String("gcs_path", "", "The path to the GCS bucket")
 	skip                  = flag.String("skip", "", "comma separated list of jobs to skip")
+	prNum                 = flag.Int("pr_num", 0, "PR number")
 	maxCommitDepth        = flag.Int("max_commit_depth", 200, "Max number of commits before HEAD to check if green")
 	maxRunDepth           = flag.Int("max_run_depth", 500, "Max number of runs before the latest one of which results are checked")
 	maxConcurrentRequests = flag.Int("max_concurrent_reqs", 50, "Max number of concurrent requests permitted")
@@ -56,10 +58,16 @@ const (
 	prowZone      = "us-west1-a"
 	gubernatorURL = "https://k8s-gubernator.appspot.com/build/istio-prow"
 	gcsBucket     = "istio-prow"
-	// release qualification trigger
-	relQualificationPRTtilePrefix = "Release Qualification"
-	greenBuildVersionFile         = "greenBuild.VERSION"
+	// release pipeline triggers
+	relBuildPRTtileSuffix         = " - Build"
+	relQualificationPRTtileSuffix = " - Qualification"
+	relReleasePRTtileSuffix       = " - Release"
+	greenBuildVersionFile         = "test/greenBuild.VERSION"
+	createBuildParametersCmd      = "./rel_scripts/create_release_build_parameters.sh -b %s -p %s -v %s"
+	copyEnvToTestCmd              = "cp %s/build/build_parameters.sh %s/test/build_parameters.sh"
+	copyEnvToReleaseCmd           = "cp %s/test/build_parameters.sh %s/release/build_parameters.sh"
 	dailyRepo                     = "daily-release"
+	pipelineRepo                  = "pipeline"
 )
 
 func fastForward(repo, baseBranch, refSHA *string) error {
@@ -75,6 +83,15 @@ func fastForward(repo, baseBranch, refSHA *string) error {
 		return nil
 	}
 	return githubClnt.FastForward(*repo, *baseBranch, *refSHA)
+}
+
+func getBaseSha(repo *string, prNumber int) (string, error) {
+	u.AssertNotEmpty("repo", repo)
+	pr, err := githubClnt.GetPR(*repo, prNumber)
+	if err != nil {
+		return "", err
+	}
+	return *pr.Base.SHA, nil
 }
 
 type task struct {
@@ -175,6 +192,73 @@ func getLatestGreenSHA() (string, error) {
 	return "", fmt.Errorf("exceeded max commit depth")
 }
 
+// ReleasePipelineBuild triggers build job by creating a PR that generates GitHub notification.
+func ReleasePipelineBuild(baseBranch *string) error {
+	u.AssertNotEmpty("pipeline", pipelineType)
+	u.AssertNotEmpty("tag", tag)
+	u.AssertNotEmpty("base_branch", baseBranch)
+	dstBranch := *baseBranch
+	glog.Infof("Creating PR to trigger build on %s branch\n", masterBranch)
+	prTitle := *tag + relBuildPRTtileSuffix
+	prBody := "This is a generated PR that triggers release build, and will be automatically merged "
+	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
+	srcBranch := "relQual_" + timestamp
+	edit := func() error {
+		createParametersCmd := fmt.Sprintf(createBuildParametersCmd, dstBranch, *pipelineType, *tag)
+		glog.Infof("Running cmd: %s", createParametersCmd)
+		_, err := u.Shell(createParametersCmd)
+		return err
+	}
+	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, masterBranch, pipelineRepo, prTitle, prBody, edit)
+	return err
+}
+
+// ReleasePipelineQualification triggers test jobs buy creating a PR that generates
+// a GitHub notification.
+func ReleasePipelineQualification(baseBranch *string) error {
+	u.AssertNotEmpty("tag", tag)
+	u.AssertNotEmpty("pipeline", pipelineType)
+	u.AssertNotEmpty("base_branch", baseBranch)
+	dstBranch := *baseBranch
+	glog.Infof("Creating PR to trigger release qualifications on %s branch\n", masterBranch)
+	prTitle := *tag + relQualificationPRTtileSuffix
+	prBody := "This is a generated PR that triggers release qualification tests, and will be automatically merged " +
+		"if all tests pass. In case some test fails, you can manually rerun the failing tests using /test. Force " +
+		"merging this PR will suppress the test failures and let the release pipeline continue."
+	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
+	srcBranch := "relQual_" + timestamp
+	edit := func() error {
+		path := filepath.Join(dstBranch, *pipelineType)
+		copyCmd := fmt.Sprintf(copyEnvToTestCmd, path, path)
+		_, err := u.Shell(copyCmd)
+		return err
+	}
+	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, masterBranch, pipelineRepo, prTitle, prBody, edit)
+	return err
+}
+
+// ReleasePipelineRelease triggers release job for finishing release pipeline by creating a PR
+//  that generates a GitHub notification.
+func ReleasePipelineRelease(baseBranch *string) error {
+	u.AssertNotEmpty("pipeline", pipelineType)
+	u.AssertNotEmpty("tag", tag)
+	u.AssertNotEmpty("base_branch", baseBranch)
+	dstBranch := *baseBranch
+	glog.Infof("Creating PR to trigger release on %s branch\n", masterBranch)
+	prTitle := *tag + relReleasePRTtileSuffix
+	prBody := "This is a generated PR that triggers release job, and will be automatically merged "
+	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
+	srcBranch := "relRelease_" + timestamp
+	edit := func() error {
+		path := filepath.Join(dstBranch, *pipelineType)
+		copyCmd := fmt.Sprintf(copyEnvToReleaseCmd, path, path)
+		_, err := u.Shell(copyCmd)
+		return err
+	}
+	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, masterBranch, pipelineRepo, prTitle, prBody, edit)
+	return err
+}
+
 // DailyReleaseQualification triggers test jobs buy creating a PR that generates
 // a GitHub notification. It blocks until PR status is known and returns nonzero
 // value if failure. Links to test logs will also be logged to console.
@@ -192,7 +276,7 @@ func DailyReleaseQualification(baseBranch *string) error {
 		dstBranch = masterBranch
 	}
 	glog.Infof("Creating PR to trigger release qualifications on %s branch\n", dstBranch)
-	prTitle := fmt.Sprintf("%s - %s", relQualificationPRTtilePrefix, *tag)
+	prTitle := *tag + relQualificationPRTtileSuffix
 	prBody := "This is a generated PR that triggers release qualification tests, and will be automatically merged " +
 		"if all tests pass. In case some test fails, you can manually rerun the failing tests using /test. Force " +
 		"merging this PR will suppress the test failures and let the release pipeline continue."
@@ -310,6 +394,22 @@ func main() {
 		if err := fastForward(repo, baseBranch, refSHA); err != nil {
 			glog.Infof("Error during fastForward: %v\n", err)
 		}
+	// the following three cases are related to release pipeline
+	case "relPipelineBuild":
+		if err := ReleasePipelineBuild(baseBranch); err != nil {
+			glog.Infof("Error during ReleasePipelineBuild: %v\n", err)
+			os.Exit(1)
+		}
+	case "relPipelineQual":
+		if err := ReleasePipelineQualification(baseBranch); err != nil {
+			glog.Infof("Error during ReleasePipelineQualification: %v\n", err)
+			os.Exit(1)
+		}
+	case "relPipelineRelease":
+		if err := ReleasePipelineRelease(baseBranch); err != nil {
+			glog.Infof("Error during ReleasePipelineRelease: %v\n", err)
+			os.Exit(1)
+		}
 	case "dailyRelQual":
 		if err := DailyReleaseQualification(baseBranch); err != nil {
 			glog.Infof("Error during DailyReleaseQualification: %v\n", err)
@@ -322,6 +422,13 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Printf("%s", latestGreenSHA)
+	case "getBaseSHA":
+		baseSha, err := getBaseSha(repo, *prNum)
+		if err != nil {
+			glog.Info(err)
+			os.Exit(1)
+		}
+		fmt.Print(baseSha)
 	default:
 		glog.Infof("Unsupported operation: %s\n", *op)
 	}

@@ -11,6 +11,7 @@ triggers:
   - istio/test-infra
   - istio/proxy
   - istio-releases/daily-release
+  - istio-releases/pipeline
   trusted_org: istio
 
 config_updater:
@@ -45,6 +46,7 @@ lgtm:
   - istio/test-infra
   - istio/proxy
   - istio-releases/daily-release
+  - istio-releases/pipeline
   trusted_team_for_sticky_lgtm: "Istio Hackers"
 
 approve:
@@ -55,6 +57,7 @@ approve:
   - istio/test-infra
   - istio/proxy
   - istio-releases/daily-release
+  - istio-releases/pipeline
   implicit_self_approve: true
   lgtm_acts_as_approve: true
 
@@ -86,6 +89,10 @@ plugins:
   - yuks
 
   istio-releases/daily-release:
+  - lifecycle
+  - trigger
+
+  istio-releases/pipeline:
   - lifecycle
   - trigger
 
