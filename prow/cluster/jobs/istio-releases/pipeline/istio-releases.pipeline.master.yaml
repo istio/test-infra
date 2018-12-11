@@ -53,7 +53,7 @@ presubmits:
         command:
         - entrypoint
         - rel_scripts/pipeline_runner.sh
-        - run_daily_build.sh
+        - run_build.sh
 
   - name: release-daily-release
     <<: *job_template
@@ -68,7 +68,8 @@ presubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/run_daily_release.sh
+        - rel_scripts/pipeline_runner.sh
+        - run_daily_release.sh
 
   - name: release-monthly-build
     <<: *job_template
@@ -83,7 +84,8 @@ presubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/run_monthly_build.sh
+        - rel_scripts/pipeline_runner.sh
+        - run_build.sh
 
   - name: release-monthly-release
     <<: *job_template
@@ -98,7 +100,8 @@ presubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/run_monthly_release.sh
+        - rel_scripts/pipeline_runner.sh
+        - run_monthly_release.sh
 
   - name: release-upgrade-tests-1.0.1
     <<: *job_template
@@ -252,7 +255,8 @@ postsubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/trigger_daily_test.sh
+        - rel_scripts/pipeline_runner.sh
+        - trigger_test.sh
 
   - name: release-trigger-daily-release
     <<: *job_template
@@ -265,7 +269,8 @@ postsubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/trigger_daily_release.sh
+        - rel_scripts/pipeline_runner.sh
+        - trigger_release.sh
 
   - name: release-trigger-monthly-test
     <<: *job_template
@@ -278,7 +283,8 @@ postsubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/trigger_monthly_test.sh
+        - rel_scripts/pipeline_runner.sh
+        - trigger_test.sh
 
   - name: release-trigger-monthly-release
     <<: *job_template
@@ -291,4 +297,5 @@ postsubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/trigger_monthly_release.sh
+        - rel_scripts/pipeline_runner.sh
+        - trigger_release.sh
