@@ -63,7 +63,7 @@ const (
 	relQualificationPRTtileSuffix = " - Qualification"
 	relReleasePRTtileSuffix       = " - Release"
 	greenBuildVersionFile         = "test/greenBuild.VERSION"
-	createBuildParametersCmd      = "./rel_scripts/create_release_build_parameters.sh -b %s -p %s -v %s"
+	createBuildParametersCmd      = "./rel_scripts/create_release_build_parameters.sh -b %s -c %s -p %s -v %s"
 	copyEnvToTestCmd              = "cp %s/build/build_parameters.sh %s/test/build_parameters.sh"
 	copyEnvToReleaseCmd           = "cp %s/test/build_parameters.sh %s/release/build_parameters.sh"
 	dailyRepo                     = "daily-release"
@@ -197,6 +197,7 @@ func ReleasePipelineBuild(baseBranch *string) error {
 	u.AssertNotEmpty("pipeline", pipelineType)
 	u.AssertNotEmpty("tag", tag)
 	u.AssertNotEmpty("base_branch", baseBranch)
+	u.AssertNotEmpty("ref_sha", refSHA)
 	dstBranch := *baseBranch
 	glog.Infof("Creating PR to trigger build on %s branch\n", dstBranch)
 	prTitle := *tag + relBuildPRTtileSuffix
@@ -204,7 +205,7 @@ func ReleasePipelineBuild(baseBranch *string) error {
 	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
 	srcBranch := "relQual_" + timestamp
 	edit := func() error {
-		createParametersCmd := fmt.Sprintf(createBuildParametersCmd, dstBranch, *pipelineType, *tag)
+		createParametersCmd := fmt.Sprintf(createBuildParametersCmd, dstBranch, *refSHA, *pipelineType, *tag)
 		glog.Infof("Running cmd: %s", createParametersCmd)
 		_, err := u.Shell(createParametersCmd)
 		return err
