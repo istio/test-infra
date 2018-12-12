@@ -174,8 +174,8 @@ periodics:
     nodeSelector:
       testing: build-pool
 
-- cron: "30 18 * * *" # every day at 10:30 am PST
-  name: release-trigger-daily-build
+- cron: "40 18 * * *" # every day at 10:40 am PST
+  name: release-trigger-daily-build-master
   branches: master
   decorate: true
   extra_refs:
@@ -199,7 +199,7 @@ periodics:
       - rel_scripts/trigger_daily_build.sh
 
 - cron: "15 9 * * *" # every day at 1:15 am PST
-  name: release-trigger-daily-build
+  name: release-trigger-daily-build-release-1.0
   branches: release-1.0
   decorate: true
   extra_refs:
@@ -223,7 +223,7 @@ periodics:
       - rel_scripts/trigger_daily_build.sh
 
 - cron: "15 9 * * *" # every day at 1:15 am PST
-  name: release-trigger-daily-build
+  name: release-trigger-daily-build-release-1.1
   branches: release-1.1
   decorate: true
   extra_refs:
