@@ -41,8 +41,7 @@ presubmits:
 
   - name: release-build
     <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/.*"
+    always_run: true
     optional: false
     labels:
       preset-release-pipeline: "true"
@@ -54,150 +53,143 @@ presubmits:
         - entrypoint
         - rel_scripts/pipeline_runner.sh
         - release/gcb/run_build.sh
-
-  - name: release-upgrade-tests-1.0.1
-    <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/.*"
-    optional: false
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/daily-upgrade-tests-1.0.1.sh
+    run_after_success:
+    - name: release-upgrade-tests-1.0.1
+      <<: *job_template
+      always_run: true
+      optional: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - scripts/run-test.sh
+          - prow/upgrade-tests-1.0.1.sh
       nodeSelector:
         testing: test-pool
 
-  - name: release-upgrade-tests-1.0.2
-    <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/.*"
-    optional: false
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/daily-upgrade-tests-1.0.2.sh
-      nodeSelector:
-        testing: test-pool
+    - name: release-upgrade-tests-1.0.2
+      <<: *job_template
+      always_run: true
+      optional: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypointa
+          - scripts/run-test.sh
+          - prow/upgrade-tests-1.0.2.sh
+        nodeSelector:
+          testing: test-pool
 
-  - name: release-unit-tests
-    <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/.*"
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/run-test.sh
-        - prow/istio-unit-tests.sh
-      nodeSelector:
-        testing: test-pool
+    - name: release-unit-tests
+      <<: *job_template
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - scripts/run-test.sh
+          - prow/istio-unit-tests.sh
+        nodeSelector:
+          testing: test-pool
 
-  - name: release-istioctl-tests
-    <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/.*"
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/run-test.sh
-        - prow/istioctl-tests.sh
-      nodeSelector:
-        testing: test-pool
+    - name: release-istioctl-tests
+      <<: *job_template
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - scripts/run-test.sh
+          - prow/istioctl-tests.sh
+        nodeSelector:
+          testing: test-pool
 
-  - name: release-e2e-pilot-no_auth
-    <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/.*"
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/run-test.sh
-        - prow/e2e-pilot-no_auth.sh
-      nodeSelector:
-        testing: test-pool
+    - name: release-e2e-pilot-no_auth
+      <<: *job_template
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - scripts/run-test.sh
+          - prow/e2e-pilot-no_auth.sh
+        nodeSelector:
+          testing: test-pool
 
-  - name: release-e2e-bookinfoTests
-    <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/.*"
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/run-test.sh
-        - prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
-      nodeSelector:
-        testing: test-pool
+    - name: release-e2e-bookinfoTests
+      <<: *job_template
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - scripts/run-test.sh
+          - prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
+        nodeSelector:
+          testing: test-pool
 
-  - name: release-e2e-simpleTests
-    <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/.*"
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/run-test.sh
-        - prow/e2e-simpleTests.sh
-      nodeSelector:
-        testing: test-pool
+    - name: release-e2e-simpleTests
+      <<: *job_template
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - scripts/run-test.sh
+          - prow/e2e-simpleTests.sh
+        nodeSelector:
+          testing: test-pool
 
-  - name: release-e2e-mixer-no_auth
-    <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/.*"
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/run-test.sh
-        - prow/e2e-mixer-no_auth.sh
-      nodeSelector:
-        testing: test-pool
+    - name: release-e2e-mixer-no_auth
+      <<: *job_template
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - scripts/run-test.sh
+          - prow/e2e-mixer-no_auth.sh
+        nodeSelector:
+          testing: test-pool
 
-  - name: release-e2e-dashboard
-    <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/.*"
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/run-test.sh
-        - prow/e2e-dashboard.sh
-      nodeSelector:
-        testing: test-pool
+    - name: release-e2e-dashboard
+      <<: *job_template
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - scripts/run-test.sh
+          - prow/e2e-dashboard.sh
+        nodeSelector:
+          testing: test-pool
 
 postsubmits:
 
