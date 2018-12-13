@@ -41,7 +41,8 @@ presubmits:
 
   - name: release-build
     <<: *job_template
-    always_run: true
+    always_run: false
+    run_if_changed: "(daily|monthly)/.*"
     optional: false
     labels:
       preset-release-pipeline: "true"
