@@ -39,10 +39,9 @@ presubmits:
 
   istio-releases/pipeline:
 
-  - name: release-daily-build
+  - name: release-build
     <<: *job_template
-    always_run: false
-    run_if_changed: "daily/build/.*"
+    always_run: true
     optional: false
     labels:
       preset-release-pipeline: "true"
@@ -52,201 +51,171 @@ presubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/pipeline_runner.sh
-        - run_build.sh
+        - scripts/pipeline_runner.sh
+        - release/gcb/run_build.sh
+    run_after_success:
+    - name: release-upgrade-tests-1.0.1
+      <<: *job_template
+      always_run: true
+      optional: true
+      context: prow/upgrade-tests-1.0.1.sh
+      max_concurrency: 5
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - scripts/run-test.sh
+          - prow/upgrade-tests-1.0.1.sh
+        nodeSelector:
+          testing: test-pool
 
-  - name: release-daily-release
-    <<: *job_template
-    always_run: false
-    run_if_changed: "daily/release/.*"
-    optional: false
-    labels:
-      preset-release-pipeline: "true"
-    spec:
-      <<: *istio_rel_pipeline_spec
-      containers:
-      - <<: *istio_rel_pipeline_container
-        command:
-        - entrypoint
-        - rel_scripts/pipeline_runner.sh
-        - run_daily_release.sh
+    - name: release-upgrade-tests-1.0.2
+      <<: *job_template
+      always_run: true
+      optional: true
+      context: prow/upgrade-tests-1.0.2.sh
+      max_concurrency: 5
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypointa
+          - scripts/run-test.sh
+          - prow/upgrade-tests-1.0.2.sh
+        nodeSelector:
+          testing: test-pool
 
-  - name: release-monthly-build
-    <<: *job_template
-    always_run: false
-    run_if_changed: "monthly/build/.*"
-    optional: false
-    labels:
-      preset-release-pipeline: "true"
-    spec:
-      <<: *istio_rel_pipeline_spec
-      containers:
-      - <<: *istio_rel_pipeline_container
-        command:
-        - entrypoint
-        - rel_scripts/pipeline_runner.sh
-        - run_build.sh
+    - name: release-unit-tests
+      <<: *job_template
+      always_run: true
+      context: prow/istio-unit-tests.sh
+      max_concurrency: 5
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - scripts/run-test.sh
+          - prow/istio-unit-tests.sh
+        nodeSelector:
+          testing: test-pool
 
-  - name: release-monthly-release
-    <<: *job_template
-    always_run: false
-    run_if_changed: "monthly/release/.*"
-    optional: false
-    labels:
-      preset-release-pipeline: "true"
-    spec:
-      <<: *istio_rel_pipeline_spec
-      containers:
-      - <<: *istio_rel_pipeline_container
-        command:
-        - entrypoint
-        - rel_scripts/pipeline_runner.sh
-        - run_monthly_release.sh
+    - name: release-istioctl-tests
+      <<: *job_template
+      always_run: true
+      context: prow/istioctl-tests.sh
+      max_concurrency: 5
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - scripts/run-test.sh
+          - prow/istioctl-tests.sh
+        nodeSelector:
+          testing: test-pool
 
-  - name: release-upgrade-tests-1.0.1
-    <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/test/.*"
-    optional: false
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/daily-upgrade-tests-1.0.1.sh
-      nodeSelector:
-        testing: test-pool
+    - name: release-e2e-pilot-no_auth
+      <<: *job_template
+      always_run: true
+      context: prow/e2e-pilot-no-auth.sh
+      max_concurrency: 5
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - scripts/run-test.sh
+          - prow/e2e-pilot-no_auth.sh
+        nodeSelector:
+          testing: test-pool
 
-  - name: release-upgrade-tests-1.0.2
-    <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/test/.*"
-    optional: false
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/daily-upgrade-tests-1.0.2.sh
-      nodeSelector:
-        testing: test-pool
+    - name: release-e2e-bookinfoTests
+      <<: *job_template
+      always_run: true
+      context: prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
+      max_concurrency: 5
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - scripts/run-test.sh
+          - prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
+        nodeSelector:
+          testing: test-pool
 
-  - name: release-unit-tests
-    <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/test/.*"
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/daily-unit-tests.sh
-      nodeSelector:
-        testing: test-pool
+    - name: release-e2e-simpleTests
+      <<: *job_template
+      always_run: true
+      context: prow/e2e-simpleTests.sh
+      max_concurrency: 5
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - scripts/run-test.sh
+          - prow/e2e-simpleTests.sh
+        nodeSelector:
+          testing: test-pool
 
-  - name: release-istioctl-tests
-    <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/test/.*"
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/istioctl-tests.sh
-      nodeSelector:
-        testing: test-pool
+    - name: release-e2e-mixer-no_auth
+      <<: *job_template
+      always_run: true
+      context: prow/e2e-mixer-no_auth.sh
+      max_concurrency: 5
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - scripts/run-test.sh
+          - prow/e2e-mixer-no_auth.sh
+        nodeSelector:
+          testing: test-pool
 
-  - name: release-e2e-pilot-no_auth
-    <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/test/.*"
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/daily-e2e-pilot-no_auth.sh
-      nodeSelector:
-        testing: test-pool
-
-  - name: release-e2e-bookinfoTests
-    <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/test/.*"
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/daily-e2e-pilot-no_auth.sh
-      nodeSelector:
-        testing: test-pool
-
-  - name: release-e2e-simpleTests
-    <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/test/.*"
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/daily-e2e-pilot-no_auth.sh
-      nodeSelector:
-        testing: test-pool
-
-  - name: release-e2e-mixer-no_auth
-    <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/test/.*"
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/daily-e2e-pilot-no_auth.sh
-      nodeSelector:
-        testing: test-pool
-
-  - name: release-e2e-dashboard
-    <<: *job_template
-    always_run: false
-    run_if_changed: "(daily|monthly)/test/.*"
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/daily-e2e-pilot-no_auth.sh
-      nodeSelector:
-        testing: test-pool
+    - name: release-e2e-dashboard
+      <<: *job_template
+      always_run: true
+      context: prow/e2e-dashboard.sh
+      max_concurrency: 5
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - scripts/run-test.sh
+          - prow/e2e-dashboard.sh
+        nodeSelector:
+          testing: test-pool
 
 postsubmits:
 
   istio-releases/pipeline:
 
-  - name: release-trigger-daily-test
+  - name: release-daily
     <<: *job_template
-    run_if_changed: "daily/build/.*"
+    run_if_changed: "daily/.*"
     labels:
       preset-release-pipeline: "true"
     spec:
@@ -255,12 +224,12 @@ postsubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/pipeline_runner.sh
-        - trigger_test.sh
+        - scripts/pipeline_runner.sh
+        - release/gcb/run_daily_release.sh
 
-  - name: release-trigger-daily-release
+  - name: release-monthly
     <<: *job_template
-    run_if_changed: "daily/test/.*"
+    run_if_changed: "monthly/.*"
     labels:
       preset-release-pipeline: "true"
     spec:
@@ -269,33 +238,6 @@ postsubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/pipeline_runner.sh
-        - trigger_release.sh
+        - scripts/pipeline_runner.sh
+        - release/gcb/run_monthly_release.sh
 
-  - name: release-trigger-monthly-test
-    <<: *job_template
-    run_if_changed: "monthly/build/.*"
-    labels:
-      preset-release-pipeline: "true"
-    spec:
-      <<: *istio_rel_pipeline_spec
-      containers:
-      - <<: *istio_rel_pipeline_container
-        command:
-        - entrypoint
-        - rel_scripts/pipeline_runner.sh
-        - trigger_test.sh
-
-  - name: release-trigger-monthly-release
-    <<: *job_template
-    run_if_changed: "monthly/test/.*"
-    labels:
-      preset-release-pipeline: "true"
-    spec:
-      <<: *istio_rel_pipeline_spec
-      containers:
-      - <<: *istio_rel_pipeline_container
-        command:
-        - entrypoint
-        - rel_scripts/pipeline_runner.sh
-        - trigger_release.sh
