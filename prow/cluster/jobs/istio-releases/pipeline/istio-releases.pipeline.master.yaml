@@ -42,7 +42,7 @@ presubmits:
   - name: release-build
     <<: *job_template
     always_run: false
-    run_if_changed: "(daily|monthly)/build/.*"
+    run_if_changed: "(daily|monthly)/.*"
     optional: false
     labels:
       preset-release-pipeline: "true"
@@ -53,12 +53,12 @@ presubmits:
         command:
         - entrypoint
         - rel_scripts/pipeline_runner.sh
-        - run_build.sh
+        - release/gcb/run_build.sh
 
   - name: release-upgrade-tests-1.0.1
     <<: *job_template
     always_run: false
-    run_if_changed: "(daily|monthly)/build/.*"
+    run_if_changed: "(daily|monthly)/.*"
     optional: false
     labels:
       preset-service-account: "true"
@@ -74,7 +74,7 @@ presubmits:
   - name: release-upgrade-tests-1.0.2
     <<: *job_template
     always_run: false
-    run_if_changed: "(daily|monthly)/build/.*"
+    run_if_changed: "(daily|monthly)/.*"
     optional: false
     labels:
       preset-service-account: "true"
@@ -90,7 +90,7 @@ presubmits:
   - name: release-unit-tests
     <<: *job_template
     always_run: false
-    run_if_changed: "(daily|monthly)/build/.*"
+    run_if_changed: "(daily|monthly)/.*"
     labels:
       preset-service-account: "true"
     spec:
@@ -98,14 +98,15 @@ presubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/daily-unit-tests.sh
+        - prow/run-tests.sh
+        - prow/istio-unit-tests.sh
       nodeSelector:
         testing: test-pool
 
   - name: release-istioctl-tests
     <<: *job_template
     always_run: false
-    run_if_changed: "(daily|monthly)/build/.*"
+    run_if_changed: "(daily|monthly)/.*"
     labels:
       preset-service-account: "true"
     spec:
@@ -113,6 +114,7 @@ presubmits:
       - <<: *istio_container
         command:
         - entrypoint
+        - prow/run_test.sh
         - prow/istioctl-tests.sh
       nodeSelector:
         testing: test-pool
@@ -120,7 +122,7 @@ presubmits:
   - name: release-e2e-pilot-no_auth
     <<: *job_template
     always_run: false
-    run_if_changed: "(daily|monthly)/build/.*"
+    run_if_changed: "(daily|monthly)/.*"
     labels:
       preset-service-account: "true"
     spec:
@@ -128,14 +130,15 @@ presubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/daily-e2e-pilot-no_auth.sh
+        - prow/run_test.sh
+        - prow/e2e-pilot-no_auth.sh
       nodeSelector:
         testing: test-pool
 
   - name: release-e2e-bookinfoTests
     <<: *job_template
     always_run: false
-    run_if_changed: "(daily|monthly)/build/.*"
+    run_if_changed: "(daily|monthly)/.*"
     labels:
       preset-service-account: "true"
     spec:
@@ -143,14 +146,15 @@ presubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/daily-e2e-pilot-no_auth.sh
+        - prow/run_test.sh
+        - prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
       nodeSelector:
         testing: test-pool
 
   - name: release-e2e-simpleTests
     <<: *job_template
     always_run: false
-    run_if_changed: "(daily|monthly)/build/.*"
+    run_if_changed: "(daily|monthly)/.*"
     labels:
       preset-service-account: "true"
     spec:
@@ -158,14 +162,15 @@ presubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/daily-e2e-pilot-no_auth.sh
+        - prow/run_test.sh
+        - prow/e2e-simpleTests.sh
       nodeSelector:
         testing: test-pool
 
   - name: release-e2e-mixer-no_auth
     <<: *job_template
     always_run: false
-    run_if_changed: "(daily|monthly)/build/.*"
+    run_if_changed: "(daily|monthly)/.*"
     labels:
       preset-service-account: "true"
     spec:
@@ -173,14 +178,15 @@ presubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/daily-e2e-pilot-no_auth.sh
+        - prow/run_test.sh
+        - prow/e2e-mixer-no_auth.sh
       nodeSelector:
         testing: test-pool
 
   - name: release-e2e-dashboard
     <<: *job_template
     always_run: false
-    run_if_changed: "(daily|monthly)/build/.*"
+    run_if_changed: "(daily|monthly)/.*"
     labels:
       preset-service-account: "true"
     spec:
@@ -188,7 +194,8 @@ presubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/daily-e2e-pilot-no_auth.sh
+        - prow/run_test.sh
+        - prow/e2e-dashboard.sh
       nodeSelector:
         testing: test-pool
 
@@ -198,7 +205,7 @@ postsubmits:
 
   - name: release-daily
     <<: *job_template
-    run_if_changed: "daily/build/.*"
+    run_if_changed: "daily/.*"
     labels:
       preset-release-pipeline: "true"
     spec:
@@ -208,11 +215,11 @@ postsubmits:
         command:
         - entrypoint
         - rel_scripts/pipeline_runner.sh
-        - run_daily_release.sh
+        - release/gcb/run_daily_release.sh
 
   - name: release-monthly
     <<: *job_template
-    run_if_changed: "monthly/build/.*"
+    run_if_changed: "monthly/.*"
     labels:
       preset-release-pipeline: "true"
     spec:
@@ -222,5 +229,5 @@ postsubmits:
         command:
         - entrypoint
         - rel_scripts/pipeline_runner.sh
-        - run_monthly_release.sh
+        - release/gcb/run_monthly_release.sh
 
