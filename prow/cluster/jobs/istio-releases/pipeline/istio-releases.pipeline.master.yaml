@@ -51,7 +51,7 @@ presubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/pipeline_runner.sh
+        - scripts/pipeline_runner.sh
         - release/gcb/run_build.sh
     run_after_success:
     - name: release-upgrade-tests-1.0.1
@@ -206,7 +206,7 @@ postsubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/pipeline_runner.sh
+        - scripts/pipeline_runner.sh
         - release/gcb/run_daily_release.sh
 
   - name: release-monthly
@@ -220,6 +220,6 @@ postsubmits:
       - <<: *istio_rel_pipeline_container
         command:
         - entrypoint
-        - rel_scripts/pipeline_runner.sh
+        - scripts/pipeline_runner.sh
         - release/gcb/run_monthly_release.sh
 
