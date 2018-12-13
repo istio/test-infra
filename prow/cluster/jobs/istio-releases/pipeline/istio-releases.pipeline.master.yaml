@@ -58,6 +58,8 @@ presubmits:
       <<: *job_template
       always_run: true
       optional: true
+      context: prow/upgrade-tests-1.0.1.sh
+      max_concurrency: 5
       labels:
         preset-service-account: "true"
       spec:
@@ -74,6 +76,8 @@ presubmits:
       <<: *job_template
       always_run: true
       optional: true
+      context: prow/upgrade-tests-1.0.2.sh
+      max_concurrency: 5
       labels:
         preset-service-account: "true"
       spec:
@@ -89,6 +93,8 @@ presubmits:
     - name: release-unit-tests
       <<: *job_template
       always_run: true
+      context: prow/istio-unit-tests.sh
+      max_concurrency: 5
       labels:
         preset-service-account: "true"
       spec:
@@ -104,6 +110,8 @@ presubmits:
     - name: release-istioctl-tests
       <<: *job_template
       always_run: true
+      context: prow/istioctl-tests.sh
+      max_concurrency: 5
       labels:
         preset-service-account: "true"
       spec:
@@ -119,6 +127,8 @@ presubmits:
     - name: release-e2e-pilot-no_auth
       <<: *job_template
       always_run: true
+      context: prow/e2e-pilot-no-auth.sh
+      max_concurrency: 5
       labels:
         preset-service-account: "true"
       spec:
@@ -134,6 +144,8 @@ presubmits:
     - name: release-e2e-bookinfoTests
       <<: *job_template
       always_run: true
+      context: prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
+      max_concurrency: 5
       labels:
         preset-service-account: "true"
       spec:
@@ -149,6 +161,8 @@ presubmits:
     - name: release-e2e-simpleTests
       <<: *job_template
       always_run: true
+      context: prow/e2e-simpleTests.sh
+      max_concurrency: 5
       labels:
         preset-service-account: "true"
       spec:
@@ -164,6 +178,8 @@ presubmits:
     - name: release-e2e-mixer-no_auth
       <<: *job_template
       always_run: true
+      context: prow/e2e-mixer-no_auth.sh
+      max_concurrency: 5
       labels:
         preset-service-account: "true"
       spec:
@@ -179,6 +195,8 @@ presubmits:
     - name: release-e2e-dashboard
       <<: *job_template
       always_run: true
+      context: prow/e2e-dashboard.sh
+      max_concurrency: 5
       labels:
         preset-service-account: "true"
       spec:
