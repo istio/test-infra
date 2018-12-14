@@ -63,7 +63,7 @@ const (
 	relQualificationPRTtileSuffix = " - Qualification"
 	relReleasePRTtileSuffix       = " - Release"
 	greenBuildVersionFile         = "test/greenBuild.VERSION"
-	createBuildParametersCmd      = "./rel_scripts/create_release_build_parameters.sh -b %s -c %s -p %s -v %s"
+	createBuildParametersCmd      = "./scripts/create_release_build_parameters.sh -b %s -c %s -p %s -v %s"
 	copyEnvToTestCmd              = "cp %s/build/build_parameters.sh %s/test/build_parameters.sh"
 	copyEnvToReleaseCmd           = "cp %s/test/build_parameters.sh %s/release/build_parameters.sh"
 	dailyRepo                     = "daily-release"
