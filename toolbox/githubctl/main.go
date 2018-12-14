@@ -26,24 +26,24 @@ import (
 )
 
 var (
-	owner                 = flag.String("owner", "istio", "Github owner or org")
-	tokenFile             = flag.String("token_file", "", "File containing Github API Access Token.")
-	op                    = flag.String("op", "", "Operation to be performed")
-	repo                  = flag.String("repo", "", "Repository to which op is applied")
-	pipelineType          = flag.String("pipeline", "", "Pipeline type daily/monthly")
-	baseBranch            = flag.String("base_branch", "", "Branch to which op is applied")
-	refSHA                = flag.String("ref_sha", "", "Commit SHA used by the operation")
-	tag                   = flag.String("tag", "", "Tag of the release candidate")
-	releaseOrg            = flag.String("rel_org", "istio-releases", "GitHub Release Org")
-	prNum                 = flag.Int("pr_num", 0, "PR number")
+	owner        = flag.String("owner", "istio", "Github owner or org")
+	tokenFile    = flag.String("token_file", "", "File containing Github API Access Token.")
+	op           = flag.String("op", "", "Operation to be performed")
+	repo         = flag.String("repo", "", "Repository to which op is applied")
+	pipelineType = flag.String("pipeline", "", "Pipeline type daily/monthly")
+	baseBranch   = flag.String("base_branch", "", "Branch to which op is applied")
+	refSHA       = flag.String("ref_sha", "", "Commit SHA used by the operation")
+	tag          = flag.String("tag", "", "Tag of the release candidate")
+	releaseOrg   = flag.String("rel_org", "istio-releases", "GitHub Release Org")
+	prNum        = flag.Int("pr_num", 0, "PR number")
 
-	githubClnt            *u.GithubClient
-	ghClntRel             *u.GithubClient
+	githubClnt *u.GithubClient
+	ghClntRel  *u.GithubClient
 )
 
 const (
 	masterBranch = "master"
-	pipelineRepo                  = "pipeline"
+	pipelineRepo = "pipeline"
 )
 
 func fastForward(repo, baseBranch, refSHA *string) error {
@@ -87,18 +87,23 @@ func ReleasePipelineBuild(baseBranch *string) error {
 		if err != nil {
 			return err
 		}
-		defer f.Close()
+		defer func() {
+			cerr := f.Close()
+			if err == nil {
+				glog.Fatal(cerr)
+			}
+		}()
 
-		if _,err := f.WriteString("CB_BRANCH=" + *baseBranch + "\n"); err != nil {
+		if _, err := f.WriteString("CB_BRANCH=" + *baseBranch + "\n"); err != nil {
 			return err
 		}
-		if _,err := f.WriteString("CB_PIPELINE_TYPE=" + *pipelineType + "\n"); err != nil {
+		if _, err := f.WriteString("CB_PIPELINE_TYPE=" + *pipelineType + "\n"); err != nil {
 			return err
 		}
-		if _,err := f.WriteString("CB_VERSION=" + *tag + "\n"); err != nil {
+		if _, err := f.WriteString("CB_VERSION=" + *tag + "\n"); err != nil {
 			return err
 		}
-		if _,err := f.WriteString("CB_COMMIT=" + *refSHA + "\n"); err != nil {
+		if _, err := f.WriteString("CB_COMMIT=" + *refSHA + "\n"); err != nil {
 			return err
 		}
 		return nil
