@@ -89,8 +89,8 @@ func ReleasePipelineBuild(baseBranch *string) error {
 		}
 		defer func() {
 			cerr := f.Close()
-			if err == nil {
-				glog.Fatal(cerr)
+			if err != nil {
+				glog.Info(cerr)
 			}
 		}()
 
