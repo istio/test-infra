@@ -95,31 +95,6 @@ periodics:
       secret:
         secretName: rel-pipeline-github
 
-- name: periodic-release-closer
-  interval: 240m
-  spec:
-    containers:
-    - image: gcr.io/k8s-testimages/commenter:v20170808-abf66782
-      args:
-      - |-
-        --query=is:pr
-        label:needs-rebase
-        repo:istio-releases/pipeline
-      - --token=/etc/github/rel-pipeline-github
-      - |-
-        --comment=/close
-      - --template
-      - --ceiling=10
-      - --confirm
-      volumeMounts:
-      - name: rel-pipeline-github
-        mountPath: /etc/github
-        readOnly: true
-    volumes:
-    - name: rel-pipeline-github
-      secret:
-        secretName: rel-pipeline-github
-
 - interval: 24h
   name: gcr_cleanup_istio_testing
   labels:
@@ -177,8 +152,8 @@ periodics:
   branches: master
   decorate: true
   extra_refs:
-  - org: istio
-    repo: istio
+  - org: istio-releases
+    repo: pipeline
     base_ref: master
   labels:
     preset-release-pipeline: "true"
@@ -191,7 +166,7 @@ periodics:
         value: master
       command:
       - entrypoint
-      - release/gcb/trigger_daily_build.sh
+      - scripts/trigger_daily_release.sh
 
 - cron: "15 9 * * *" # every day at 1:15 am PST
   name: release-trigger-daily-build-release-1.0
@@ -210,12 +185,9 @@ periodics:
       env:
       - name: GIT_BRANCH
         value: release-1.0
-      - name: SKIP_SOURCE_PIPELINE_PARAM
-        value: "true"
       command:
       - entrypoint
-      - scripts/pipeline_runner.sh
-      - release/gcb/trigger_daily_build.sh
+      - scripts/trigger_daily_release.sh
 
 - cron: "15 9 * * *" # every day at 1:15 am PST
   name: release-trigger-daily-build-release-1.1
@@ -234,9 +206,6 @@ periodics:
       env:
       - name: GIT_BRANCH
         value: release-1.1
-      - name: SKIP_SOURCE_PIPELINE_PARAM
-        value: "true"
       command:
       - entrypoint
-      - scripts/pipeline_runner.sh
-      - release/gcb/trigger_daily_build.sh
+      - scripts/trigger_daily_release.sh
