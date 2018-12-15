@@ -151,8 +151,8 @@ periodics:
   branches: master
   decorate: true
   extra_refs:
-  - org: istio-releases
-    repo: pipeline
+  - org: istio
+    repo: istio
     base_ref: master
   labels:
     preset-release-pipeline: "true"
@@ -163,11 +163,8 @@ periodics:
       env:
       - name: GIT_BRANCH
         value: master
-      - name: SKIP_SOURCE_PIPELINE_PARAM
-        value: "true"
       command:
       - entrypoint
-      - scripts/pipeline_runner.sh
       - release/gcb/trigger_daily_build.sh
 
 - cron: "15 9 * * *" # every day at 1:15 am PST
