@@ -95,16 +95,16 @@ func CreateReleaseRequest(baseBranch *string) error {
 			}
 		}()
 
-		if _, err := f.WriteString("CB_BRANCH=" + *baseBranch + "\n"); err != nil {
+		if _, err := f.WriteString("export CB_BRANCH=" + *baseBranch + "\n"); err != nil {
 			return err
 		}
-		if _, err := f.WriteString("CB_PIPELINE_TYPE=" + *pipelineType + "\n"); err != nil {
+		if _, err := f.WriteString("export CB_PIPELINE_TYPE=" + *pipelineType + "\n"); err != nil {
 			return err
 		}
-		if _, err := f.WriteString("CB_VERSION=" + *tag + "\n"); err != nil {
+		if _, err := f.WriteString("export CB_VERSION=" + *tag + "\n"); err != nil {
 			return err
 		}
-		if _, err := f.WriteString("CB_COMMIT=" + *refSHA + "\n"); err != nil {
+		if _, err := f.WriteString("export CB_COMMIT=" + *refSHA + "\n"); err != nil {
 			return err
 		}
 		return nil
