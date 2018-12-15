@@ -67,7 +67,7 @@ periodics:
       testing: test-pool
 
 - name: periodic-release-retester
-  interval: 10m  # Retest at most 2 PR per 10m to not DOS Prow.
+  interval: 60m
   spec:
     containers:
     - image: gcr.io/k8s-testimages/commenter:v20170808-abf66782
@@ -75,6 +75,7 @@ periodics:
       - |-
         --query=is:pr
         -label:do-not-merge
+        -label:needs-rebase
         status:failure
         repo:istio-releases/pipeline
       - --token=/etc/github/rel-pipeline-github
@@ -84,6 +85,31 @@ periodics:
         Review the [full test history](https://k8s-gubernator.appspot.com/jobs/istio-prow/pr-logs/pull/istio_istio/{{.Number}}) for this PR.
       - --template
       - --ceiling=2
+      - --confirm
+      volumeMounts:
+      - name: rel-pipeline-github
+        mountPath: /etc/github
+        readOnly: true
+    volumes:
+    - name: rel-pipeline-github
+      secret:
+        secretName: rel-pipeline-github
+
+- name: periodic-release-closer
+  interval: 240m
+  spec:
+    containers:
+    - image: gcr.io/k8s-testimages/commenter:v20170808-abf66782
+      args:
+      - |-
+        --query=is:pr
+        label:needs-rebase
+        repo:istio-releases/pipeline
+      - --token=/etc/github/rel-pipeline-github
+      - |-
+        --comment=/close
+      - --template
+      - --ceiling=10
       - --confirm
       volumeMounts:
       - name: rel-pipeline-github
