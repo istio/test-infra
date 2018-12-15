@@ -18,6 +18,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/golang/glog"
@@ -70,18 +71,18 @@ func getBaseSha(repo *string, prNumber int) (string, error) {
 	return *pr.Base.SHA, nil
 }
 
-// ReleasePipelineBuild triggers build job by creating a PR that generates GitHub notification.
-func ReleasePipelineBuild(baseBranch *string) error {
+// CreateReleaseRequest triggers release pipeline by creating a PR.
+func CreateReleaseRequest(baseBranch *string) error {
 	u.AssertNotEmpty("pipeline", pipelineType)
 	u.AssertNotEmpty("tag", tag)
 	u.AssertNotEmpty("base_branch", baseBranch)
 	u.AssertNotEmpty("ref_sha", refSHA)
 	dstBranch := *baseBranch
 	glog.Infof("Creating PR to trigger build on %s branch\n", dstBranch)
-	prTitle := *tag
-	prBody := "This is a generated PR that triggers release build, and will be automatically merged "
+	prTitle := fmt.Sprintf("%s %s", strings.ToUpper(*pipelineType), *tag)
+	prBody := "This is a generated PR that triggers a release, and will be automatically merged when all required tests have passed."
 	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
-	srcBranch := "relQual_" + timestamp
+	srcBranch := "release_" + timestamp
 	edit := func() error {
 		f, err := os.Create("./" + *pipelineType + "/release_params.sh")
 		if err != nil {
@@ -131,8 +132,8 @@ func main() {
 			glog.Infof("Error during fastForward: %v\n", err)
 		}
 	// the following three cases are related to release pipeline
-	case "relPipelineBuild":
-		if err := ReleasePipelineBuild(baseBranch); err != nil {
+	case "newReleaseRequest":
+		if err := CreateReleaseRequest(baseBranch); err != nil {
 			glog.Infof("Error during ReleasePipelineBuild: %v\n", err)
 			os.Exit(1)
 		}
