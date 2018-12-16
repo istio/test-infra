@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"github.com/google/go-github/github"
-	"github.com/hashicorp/go-multierror"
+	multierror "github.com/hashicorp/go-multierror"
 	"golang.org/x/oauth2"
 )
 
@@ -246,14 +246,27 @@ func (g *GithubClient) ClosePRDeleteBranch(repo string, pr *github.PullRequest) 
 
 // MergePR force merges a PR
 func (g *GithubClient) MergePR(repo string, pr *github.PullRequest) error {
-	prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
 	if _, _, err := g.client.Repositories.Merge(
 		context.Background(), g.owner, repo, &github.RepositoryMergeRequest{
 			Base:          pr.Base.Ref,
 			Head:          pr.Head.Ref,
 			CommitMessage: nil,
 		}); err != nil {
+		prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
 		log.Printf("Failed to merge %s", prName)
+		return err
+	}
+	return nil
+}
+
+// CreateComment creates a new comment in an issue or PR.
+func (g *GithubClient) CreateComment(repo string, pr *github.Issue, comment string) error {
+	if _, _, err := g.client.Issues.CreateComment(
+		context.Background(), g.owner, repo, pr.GetNumber(), &github.IssueComment{
+			Body: &comment,
+		}); err != nil {
+		prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
+		log.Printf("Failed to comment %s", prName)
 		return err
 	}
 	return nil

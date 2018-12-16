@@ -66,35 +66,6 @@ periodics:
     nodeSelector:
       testing: test-pool
 
-- name: periodic-release-retester
-  interval: 60m
-  spec:
-    containers:
-    - image: gcr.io/k8s-testimages/commenter:v20170808-abf66782
-      args:
-      - |-
-        --query=is:pr
-        -label:do-not-merge
-        -label:needs-rebase
-        status:failure
-        repo:istio-releases/pipeline
-      - --token=/etc/github/rel-pipeline-github
-      - |-
-        --comment=/retest
-        This bot automatically retries jobs that failed/flaked on release PRs.
-        Review the [full test history](https://k8s-gubernator.appspot.com/jobs/istio-prow/pr-logs/pull/istio_istio/{{.Number}}) for this PR.
-      - --template
-      - --ceiling=2
-      - --confirm
-      volumeMounts:
-      - name: rel-pipeline-github
-        mountPath: /etc/github
-        readOnly: true
-    volumes:
-    - name: rel-pipeline-github
-      secret:
-        secretName: rel-pipeline-github
-
 - interval: 24h
   name: gcr_cleanup_istio_testing
   labels:
@@ -146,6 +117,29 @@ periodics:
           cpu: "7000m"
     nodeSelector:
       testing: build-pool
+
+- interval: 30m
+  name: release-requests-janitor
+  branches: master
+  decorate: true
+  extra_refs:
+  - org: istio-releases
+    repo: pipeline
+    base_ref: master
+  labels:
+    preset-release-pipeline: "true"
+  spec:
+    <<: *istio_rel_pipeline_spec
+    containers:
+    - <<: *istio_rel_pipeline_container
+      env:
+      - name: GIT_BRANCH
+        value: master
+      - name: RELEASE_BOT
+        value: foo
+      command:
+      - entrypoint
+      - scripts/clean_release_requests.sh
 
 - cron: "15 9 * * *" # every day at 1:15 am PST
   name: release-trigger-daily-build-master
