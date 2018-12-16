@@ -190,7 +190,7 @@ func main() {
 		u.AssertNotEmpty("base_branch", baseBranch)
 		u.AssertNotEmpty("ref_sha", refSHA)
 		err = CreateReleaseRequest(*repo, *pipelineType, *tag, *baseBranch, *refSHA)
-	case "CleanupReleaseRequests":
+	case "cleanupReleaseRequests":
 		err = CleanupReleaseRequests(*owner, *repo)
 	case "getBaseSHA":
 		var baseSha string
