@@ -35,36 +35,29 @@ var (
 	baseBranch   = flag.String("base_branch", "", "Branch to which op is applied")
 	refSHA       = flag.String("ref_sha", "", "Commit SHA used by the operation")
 	tag          = flag.String("tag", "", "Tag of the release candidate")
-	releaseOrg   = flag.String("rel_org", "istio-releases", "GitHub Release Org")
 	prNum        = flag.Int("pr_num", 0, "PR number")
 
 	githubClnt *u.GithubClient
-	ghClntRel  *u.GithubClient
 )
 
 const (
 	masterBranch = "master"
-	pipelineRepo = "pipeline"
 )
 
-func fastForward(repo, baseBranch, refSHA *string) error {
-	u.AssertNotEmpty("repo", repo)
-	u.AssertNotEmpty("base_branch", baseBranch)
-	u.AssertNotEmpty("ref_sha", refSHA)
-	isAncestor, err := githubClnt.SHAIsAncestorOfBranch(*repo, masterBranch, *refSHA)
+func fastForward(repo, baseBranch, refSHA string) error {
+	isAncestor, err := githubClnt.SHAIsAncestorOfBranch(repo, masterBranch, refSHA)
 	if err != nil {
 		return err
 	}
 	if !isAncestor {
-		glog.Infof("SHA %s is not an ancestor of branch %s, resorts to no-op\n", *refSHA, masterBranch)
+		glog.Infof("SHA %s is not an ancestor of branch %s, resorts to no-op\n", refSHA, masterBranch)
 		return nil
 	}
-	return githubClnt.FastForward(*repo, *baseBranch, *refSHA)
+	return githubClnt.FastForward(repo, baseBranch, refSHA)
 }
 
-func getBaseSha(repo *string, prNumber int) (string, error) {
-	u.AssertNotEmpty("repo", repo)
-	pr, err := githubClnt.GetPR(*repo, prNumber)
+func getBaseSha(repo string, prNumber int) (string, error) {
+	pr, err := githubClnt.GetPR(repo, prNumber)
 	if err != nil {
 		return "", err
 	}
@@ -72,19 +65,14 @@ func getBaseSha(repo *string, prNumber int) (string, error) {
 }
 
 // CreateReleaseRequest triggers release pipeline by creating a PR.
-func CreateReleaseRequest(baseBranch *string) error {
-	u.AssertNotEmpty("pipeline", pipelineType)
-	u.AssertNotEmpty("tag", tag)
-	u.AssertNotEmpty("base_branch", baseBranch)
-	u.AssertNotEmpty("ref_sha", refSHA)
-	dstBranch := *baseBranch
-	glog.Infof("Creating PR to trigger build on %s branch\n", dstBranch)
-	prTitle := fmt.Sprintf("%s %s", strings.ToUpper(*pipelineType), *tag)
+func CreateReleaseRequest(repo, pipelineType, tag, branch, sha string) error {
+	glog.Infof("Creating PR to trigger build on %s branch\n", branch)
+	prTitle := fmt.Sprintf("%s %s", strings.ToUpper(pipelineType), tag)
 	prBody := "This is a generated PR that triggers a release, and will be automatically merged when all required tests have passed."
 	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
 	srcBranch := "release_" + timestamp
 	edit := func() error {
-		f, err := os.Create("./" + *pipelineType + "/release_params.sh")
+		f, err := os.Create("./" + pipelineType + "/release_params.sh")
 		if err != nil {
 			return err
 		}
@@ -95,56 +83,127 @@ func CreateReleaseRequest(baseBranch *string) error {
 			}
 		}()
 
-		if _, err := f.WriteString("export CB_BRANCH=" + *baseBranch + "\n"); err != nil {
+		if _, err := f.WriteString("export CB_BRANCH=" + branch + "\n"); err != nil {
 			return err
 		}
-		if _, err := f.WriteString("export CB_PIPELINE_TYPE=" + *pipelineType + "\n"); err != nil {
+		if _, err := f.WriteString("export CB_PIPELINE_TYPE=" + pipelineType + "\n"); err != nil {
 			return err
 		}
-		if _, err := f.WriteString("export CB_VERSION=" + *tag + "\n"); err != nil {
+		if _, err := f.WriteString("export CB_VERSION=" + tag + "\n"); err != nil {
 			return err
 		}
-		if _, err := f.WriteString("export CB_COMMIT=" + *refSHA + "\n"); err != nil {
+		if _, err := f.WriteString("export CB_COMMIT=" + sha + "\n"); err != nil {
 			return err
 		}
 		return nil
 	}
-	_, err := ghClntRel.CreatePRUpdateRepo(srcBranch, dstBranch, pipelineRepo, prTitle, prBody, edit)
+	_, err := githubClnt.CreatePRUpdateRepo(srcBranch, branch, repo, prTitle, prBody, edit)
 	return err
+}
+
+// CleanupReleaseRequests merges tested release requests, and close the expired ones (not passing)
+func CleanupReleaseRequests(owner, repo string) error {
+	pullQueries := []string{
+		fmt.Sprintf("repo:%s/%s", owner, repo),
+		"type:pr",
+		"is:open",
+	}
+
+	allPulls, err := githubClnt.SearchIssues(pullQueries, "created", "desc")
+	if err != nil {
+		return err
+	}
+	utc, _ := time.LoadLocation("UTC")
+	for _, pull := range allPulls {
+		pr, err := githubClnt.GetPR(repo, *pull.Number)
+		if err != nil {
+			return err
+		}
+
+		// Close the PR if it is expired (after 1 day)
+		expiresAt := pr.CreatedAt.In(utc).Add(24 * time.Hour)
+		if time.Now().In(utc).After(expiresAt) {
+			if err2 := githubClnt.CreateComment(repo, pull, "Tests are still running, Will check again."); err != nil {
+				return err2
+			}
+			if err2 := githubClnt.ClosePRDeleteBranch(repo, pr); err != nil {
+				return err2
+			}
+			glog.Infof("Closed https://github.com/%s/%s/pull/%d.", owner, repo, *pr.Number)
+			break
+		}
+
+		status, err := githubClnt.GetPRTestResults(repo, pr, true)
+		if err != nil {
+			return err
+		}
+		ci := u.NewCIState()
+		switch status {
+		case ci.Success:
+			if err := githubClnt.MergePR(repo, pr); err != nil {
+				return err
+			}
+			if err := githubClnt.ClosePRDeleteBranch(repo, pr); err != nil {
+				return err
+			}
+			glog.Infof("Merged https://github.com/%s/%s/pull/%d. Skipping.", owner, repo, *pr.Number)
+
+		case ci.Pending:
+			glog.Infof("https://github.com/%s/%s/pull/%d is still being tested. Skipping.", owner, repo, *pr.Number)
+		case ci.Error:
+		case ci.Failure:
+			// Trigger a retest
+			if err := githubClnt.CreateComment(repo, pull, "/retest"); err != nil {
+				return err
+			}
+			glog.Infof("Retesting https://github.com/%s/%s/pull/%d.", owner, repo, *pr.Number)
+
+		}
+	}
+	return nil
 }
 
 func init() {
 	flag.Parse()
+	u.AssertNotEmpty("owner", owner)
 	u.AssertNotEmpty("token_file", tokenFile)
 	token, err := u.GetAPITokenFromFile(*tokenFile)
 	if err != nil {
 		glog.Fatalf("Error accessing user supplied token_file: %v\n", err)
 	}
 	githubClnt = u.NewGithubClient(*owner, token)
-	// a new github client is created for istio-releases org
-	ghClntRel = u.NewGithubClient(*releaseOrg, token)
 }
 
 func main() {
+	u.AssertNotEmpty("repo", repo)
+
+	var err error
 	switch *op {
 	case "fastForward":
-		if err := fastForward(repo, baseBranch, refSHA); err != nil {
-			glog.Infof("Error during fastForward: %v\n", err)
-		}
+		u.AssertNotEmpty("base_branch", baseBranch)
+		u.AssertNotEmpty("ref_sha", refSHA)
+		err = fastForward(*repo, *baseBranch, *refSHA)
 	// the following three cases are related to release pipeline
 	case "newReleaseRequest":
-		if err := CreateReleaseRequest(baseBranch); err != nil {
-			glog.Infof("Error during ReleasePipelineBuild: %v\n", err)
-			os.Exit(1)
-		}
+		u.AssertNotEmpty("pipeline", pipelineType)
+		u.AssertNotEmpty("tag", tag)
+		u.AssertNotEmpty("base_branch", baseBranch)
+		u.AssertNotEmpty("ref_sha", refSHA)
+		err = CreateReleaseRequest(*repo, *pipelineType, *tag, *baseBranch, *refSHA)
+	case "cleanupReleaseRequests":
+		err = CleanupReleaseRequests(*owner, *repo)
 	case "getBaseSHA":
-		baseSha, err := getBaseSha(repo, *prNum)
-		if err != nil {
-			glog.Info(err)
-			os.Exit(1)
+		var baseSha string
+		baseSha, err = getBaseSha(*repo, *prNum)
+		if err == nil {
+			fmt.Print(baseSha)
 		}
-		fmt.Print(baseSha)
 	default:
 		glog.Infof("Unsupported operation: %s\n", *op)
+	}
+
+	if err != nil {
+		glog.Info(err)
+		os.Exit(1)
 	}
 }
