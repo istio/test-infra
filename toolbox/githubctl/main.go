@@ -42,7 +42,7 @@ var (
 
 const (
 	masterBranch = "master"
-	retest       = "/retest"
+	testCommand  = "/test"
 	maxRetests   = 3
 )
 
@@ -74,7 +74,10 @@ func CreateReleaseRequest(repo, pipelineType, tag, branch, sha string) error {
 	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
 	srcBranch := "release_" + timestamp
 	edit := func() error {
-		f, err := os.Create("./" + pipelineType + "/release_params.sh")
+		// Ensure the dir exists
+		_ = os.MkdirAll(fmt.Sprintf("./%s/%s", pipelineType, branch), os.ModePerm)
+
+		f, err := os.Create(fmt.Sprintf("./%s/%s/release_params.sh", pipelineType, branch))
 		if err != nil {
 			return err
 		}
@@ -99,7 +102,7 @@ func CreateReleaseRequest(repo, pipelineType, tag, branch, sha string) error {
 		}
 		return nil
 	}
-	_, err := githubClnt.CreatePRUpdateRepo(srcBranch, branch, repo, prTitle, prBody, edit)
+	_, err := githubClnt.CreatePRUpdateRepo(srcBranch, masterBranch, repo, prTitle, prBody, edit)
 	return err
 }
 
@@ -135,7 +138,7 @@ func CleanupReleaseRequests(owner, repo string) error {
 			break
 		}
 
-		status, err := githubClnt.GetPRTestResults(repo, pr, true)
+		status, combinedStatus, err := githubClnt.GetPRTestResults(repo, pr, true)
 		if err != nil {
 			return err
 		}
@@ -161,12 +164,22 @@ func CleanupReleaseRequests(owner, repo string) error {
 			}
 			retestCount := 0
 			for _, comment := range comments {
-				if *comment.Body == retest {
+				if strings.Contains(*comment.Body, testCommand) {
 					retestCount++
 				}
 			}
 			if retestCount < maxRetests {
-				if err := githubClnt.CreateComment(repo, pull, retest); err != nil {
+				comment := ""
+				for _, status := range combinedStatus.Statuses {
+					if *status.State == ci.Error || *status.State == ci.Failure {
+						context := *status.Context
+						if strings.HasPrefix(context, "prow/") {
+							testName := context[5:]
+							comment += testCommand + " " + testName + "\n"
+						}
+					}
+				}
+				if err := githubClnt.CreateComment(repo, pull, comment); err != nil {
 					return err
 				}
 				glog.Infof("Retesting https://github.com/%s/%s/pull/%d.", owner, repo, *pr.Number)
