@@ -74,7 +74,7 @@ func CreateReleaseRequest(repo, pipelineType, tag, branch, sha string) error {
 	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
 	srcBranch := "release_" + timestamp
 	edit := func() error {
-		f, err := os.Create("./" + pipelineType + "/release_params.sh")
+		f, err := os.Create(fmt.Sprintf("./%s/%s/release_params.sh", pipelineType, branch))
 		if err != nil {
 			return err
 		}
