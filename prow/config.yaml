@@ -53,8 +53,6 @@ blocked_branches: &blocked_branches
     <<: *blocking_merge
   release-1.0:
     <<: *blocking_merge
-  release-1.0.0-snapshot.0:
-    <<: *blocking_merge
 
 branch-protection:
   allow_disabled_policies: true
@@ -172,24 +170,6 @@ branch-protection:
               protect: true
     istio-releases:
       repos:
-        daily-release:
-          protect: false
-          restrictions:
-          branches:
-            krishna-test:
-              protect: true
-            release-0.8:
-              protect: true
-            release-1.0:
-              protect: true
-            release-1.1:
-              protect: true
-            release-1.0.0-snapshot.0:
-              protect: true
-            collab-gcp-identity:
-              protect: true
-            master:
-              protect: true
         pipeline:
           protect: false
           restrictions:
@@ -237,7 +217,6 @@ tide:
     istio/istio: squash
     istio/proxy: squash
     istio/test-infra: squash
-    istio-releases/daily-release: squash
     istio-releases/pipeline: squash
   target_url: https://prow.istio.io/tide
 
