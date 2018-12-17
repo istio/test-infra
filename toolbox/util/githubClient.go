@@ -272,6 +272,28 @@ func (g *GithubClient) CreateComment(repo string, pr *github.Issue, comment stri
 	return nil
 }
 
+// ListIssueComments lists all comments in an issue
+func (g *GithubClient) ListIssueComments(repo string, pr *github.Issue) ([]*github.IssueComment, error) {
+	listOption := &github.IssueListCommentsOptions{
+		Sort: "created",
+	}
+	var allComments []*github.IssueComment
+
+	for {
+		result, resp, err := g.client.Issues.ListComments(context.Background(), g.owner, repo, pr.GetNumber(), listOption)
+		if err != nil {
+			log.Printf("Failed to list comments")
+			return nil, err
+		}
+		allComments = append(allComments, result...)
+		if resp.NextPage == 0 {
+			break
+		}
+		listOption.Page = resp.NextPage
+	}
+	return allComments, nil
+}
+
 // ListRepos returns a list of repos under the provided owner
 func (g *GithubClient) ListRepos() ([]string, error) {
 	opt := &github.RepositoryListOptions{Type: "owner"}
