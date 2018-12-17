@@ -75,7 +75,7 @@ func CreateReleaseRequest(repo, pipelineType, tag, branch, sha string) error {
 	srcBranch := "release_" + timestamp
 	edit := func() error {
 		// Ensure the dir exists
-		os.MkdirAll(fmt.Sprintf("./%s/%s", pipelineType, branch), os.ModePerm)
+		_ = os.MkdirAll(fmt.Sprintf("./%s/%s", pipelineType, branch), os.ModePerm)
 
 		f, err := os.Create(fmt.Sprintf("./%s/%s/release_params.sh", pipelineType, branch))
 		if err != nil {
@@ -170,7 +170,7 @@ func CleanupReleaseRequests(owner, repo string) error {
 			}
 			if retestCount < maxRetests {
 				comment := ""
-				for _,status := range combinedStatus.Statuses {
+				for _, status := range combinedStatus.Statuses {
 					if *status.State == ci.Error || *status.State == ci.Failure {
 						context := *status.Context
 						if strings.HasPrefix(context, "prow/") {
