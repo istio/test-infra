@@ -42,6 +42,8 @@ var (
 
 const (
 	masterBranch = "master"
+	retest       = "/retest"
+	maxRetests   = 3
 )
 
 func fastForward(repo, baseBranch, refSHA string) error {
@@ -123,7 +125,7 @@ func CleanupReleaseRequests(owner, repo string) error {
 		// Close the PR if it is expired (after 1 day)
 		expiresAt := pr.CreatedAt.In(utc).Add(24 * time.Hour)
 		if time.Now().In(utc).After(expiresAt) {
-			if err2 := githubClnt.CreateComment(repo, pull, "Tests are still running, Will check again."); err != nil {
+			if err2 := githubClnt.CreateComment(repo, pull, "Tests did not pass and this request has expired. Closing out."); err != nil {
 				return err2
 			}
 			if err2 := githubClnt.ClosePRDeleteBranch(repo, pr); err != nil {
@@ -153,11 +155,24 @@ func CleanupReleaseRequests(owner, repo string) error {
 		case ci.Error:
 		case ci.Failure:
 			// Trigger a retest
-			if err := githubClnt.CreateComment(repo, pull, "/retest"); err != nil {
+			comments, err := githubClnt.ListIssueComments(repo, pull)
+			if err != nil {
 				return err
 			}
-			glog.Infof("Retesting https://github.com/%s/%s/pull/%d.", owner, repo, *pr.Number)
-
+			retestCount := 0
+			for _, comment := range comments {
+				if *comment.Body == retest {
+					retestCount++
+				}
+			}
+			if retestCount < maxRetests {
+				if err := githubClnt.CreateComment(repo, pull, retest); err != nil {
+					return err
+				}
+				glog.Infof("Retesting https://github.com/%s/%s/pull/%d.", owner, repo, *pr.Number)
+			} else {
+				glog.Infof("Already retested https://github.com/%s/%s/pull/%d %d times. Skipping.", owner, repo, *pr.Number, retestCount)
+			}
 		}
 	}
 	return nil
@@ -199,7 +214,7 @@ func main() {
 			fmt.Print(baseSha)
 		}
 	default:
-		glog.Infof("Unsupported operation: %s\n", *op)
+		err = fmt.Errorf("unsupported operation: %s", *op)
 	}
 
 	if err != nil {
