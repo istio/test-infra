@@ -352,11 +352,11 @@ func (g *GithubClient) GetLatestChecks(repo string) ([]string, error) {
 }
 
 // GetPRTestResults return `success` if all *required* tests have passed
-func (g *GithubClient) GetPRTestResults(repo string, pr *github.PullRequest, verbose bool) (string, error) {
+func (g *GithubClient) GetPRTestResults(repo string, pr *github.PullRequest, verbose bool) (string, *github.CombinedStatus, error) {
 	combinedStatus, _, err := g.client.Repositories.GetCombinedStatus(
 		context.Background(), g.owner, repo, pr.Head.GetSHA(), nil)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	if verbose {
 		log.Printf("---------- The following jobs are triggered ----------\n")
@@ -367,7 +367,7 @@ func (g *GithubClient) GetPRTestResults(repo string, pr *github.PullRequest, ver
 	requiredChecks, _, err := g.client.Repositories.GetRequiredStatusChecks(
 		context.Background(), g.owner, repo, pr.Base.GetRef())
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	if verbose {
 		log.Printf("---------- The following jobs are required to pass ----------\n")
@@ -376,9 +376,9 @@ func (g *GithubClient) GetPRTestResults(repo string, pr *github.PullRequest, ver
 		}
 	}
 	if len(combinedStatus.Statuses) < len(requiredChecks.Contexts) {
-		return "", fmt.Errorf("some required tests are not successfully triggered")
+		return "", nil, fmt.Errorf("some required tests are not successfully triggered")
 	}
-	return GetReqquiredCIState(combinedStatus, requiredChecks, nil), nil
+	return GetReqquiredCIState(combinedStatus, requiredChecks, nil), combinedStatus, nil
 }
 
 // CloseIdlePullRequests checks all open PRs auto-created on baseBranch in repo,
