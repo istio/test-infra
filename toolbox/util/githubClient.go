@@ -216,19 +216,21 @@ func (g *GithubClient) RemoveLabelFromPR(
 	return nil
 }
 
-// ClosePRDeleteBranch closes a PR and deletes the branch from which the PR is made
-func (g *GithubClient) ClosePRDeleteBranch(repo string, pr *github.PullRequest) error {
-	prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
-	prBranch := *pr.Head.Ref
+// ClosePR closes a PR
+func (g *GithubClient) ClosePR(repo string, pr *github.PullRequest) error {
 	if *pr.State == "open" {
-		log.Printf("Closing PR %s", prName)
 		*pr.State = "closed"
 		if _, _, err := g.client.PullRequests.Edit(
 			context.Background(), g.owner, repo, pr.GetNumber(), pr); err != nil {
-			log.Printf("Failed to close %s", prName)
 			return err
 		}
 	}
+	return nil
+}
+
+// DeleteBranch deletes the branch from which the PR is made
+func (g *GithubClient) DeleteBranch(repo string, pr *github.PullRequest) error {
+	prBranch := *pr.Head.Ref
 	prBranchExists, err := g.ExistBranch(repo, prBranch)
 	if err != nil {
 		return err
@@ -245,18 +247,12 @@ func (g *GithubClient) ClosePRDeleteBranch(repo string, pr *github.PullRequest) 
 }
 
 // MergePR force merges a PR
-func (g *GithubClient) MergePR(repo string, pr *github.PullRequest) error {
-	if _, _, err := g.client.Repositories.Merge(
-		context.Background(), g.owner, repo, &github.RepositoryMergeRequest{
-			Base:          pr.Base.Ref,
-			Head:          pr.Head.Ref,
-			CommitMessage: nil,
-		}); err != nil {
-		prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
-		log.Printf("Failed to merge %s", prName)
-		return err
-	}
-	return nil
+func (g *GithubClient) MergePR(repo string, prNum int, commitMessage string) error {
+	_, _, err := g.client.PullRequests.Merge(
+		context.Background(), g.owner, repo, prNum, commitMessage, &github.PullRequestOptions{
+			MergeMethod: "squash",
+		})
+	return err
 }
 
 // CreateComment creates a new comment in an issue or PR.
@@ -403,9 +399,13 @@ func (g *GithubClient) CloseIdlePullRequests(prTitlePrefix, repo, baseBranch str
 				continue
 			}
 			if time.Since(*pr.CreatedAt).Nanoseconds() > idleTimeout.Nanoseconds() {
-				if err := g.ClosePRDeleteBranch(repo, pr); err != nil {
+				if err := g.ClosePR(repo, pr); err != nil {
 					multiErr = multierror.Append(multiErr, err)
 				}
+				if err := g.DeleteBranch(repo, pr); err != nil {
+					multiErr = multierror.Append(multiErr, err)
+				}
+
 			}
 		}
 	}

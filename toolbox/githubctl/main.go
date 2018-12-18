@@ -117,6 +117,8 @@ func CleanupReleaseRequests(owner, repo string) error {
 	if err != nil {
 		return err
 	}
+	log.Printf("Found %d PRs", len(allPulls))
+
 	utc, _ := time.LoadLocation("UTC")
 	for _, pull := range allPulls {
 		pr, err := githubClnt.GetPR(repo, *pull.Number)
@@ -132,14 +134,21 @@ func CleanupReleaseRequests(owner, repo string) error {
 			if err2 := githubClnt.CreateComment(repo, pull, "Tests did not pass and this request has expired. Closing out."); err != nil {
 				return err2
 			}
-			if err2 := githubClnt.ClosePRDeleteBranch(repo, pr); err != nil {
+			if err2 := githubClnt.ClosePR(repo, pr); err != nil {
 				return err2
 			}
-			log.Printf("Closed https://github.com/%s/%s/pull/%d.", owner, repo, *pr.Number)
+			log.Printf("Closed https://github.com/%s/%s/pull/%d and deleted branch.", owner, repo, *pr.Number)
+
+			if err2 := githubClnt.DeleteBranch(repo, pr); err != nil {
+				// Proceed to other PRs even if we cannot delete the branch.
+				log.Printf("Cannot delete branch: %v.", err2)
+			} else {
+				log.Print("Deleted branch")
+			}
 			break
 		}
 
-		status, combinedStatus, err := githubClnt.GetPRTestResults(repo, pr, false)
+		status, combinedStatus, err := githubClnt.GetPRTestResults(repo, pr, true)
 		if err != nil {
 			return err
 		}
@@ -147,7 +156,7 @@ func CleanupReleaseRequests(owner, repo string) error {
 		switch status {
 		case ci.Success:
 			log.Printf("Merging https://github.com/%s/%s/pull/%d.", owner, repo, *pr.Number)
-			if err := githubClnt.MergePR(repo, pr); err != nil {
+			if err = githubClnt.MergePR(repo, *pr.Number, "Testing"); err != nil {
 				return err
 			}
 			log.Printf("Merged https://github.com/%s/%s/pull/%d.", owner, repo, *pr.Number)
@@ -157,10 +166,12 @@ func CleanupReleaseRequests(owner, repo string) error {
 			if err != nil {
 				return err
 			}
-			if err := githubClnt.ClosePRDeleteBranch(repo, pr); err != nil {
-				return err
+			if err = githubClnt.DeleteBranch(repo, pr); err != nil {
+				// Proceed to other PRs even if we cannot delete the branch.
+				log.Printf("Cannot delete branch: %v.", err)
+			} else {
+				log.Print("Deleted branch")
 			}
-			log.Printf("Closed https://github.com/%s/%s/pull/%d and deleted branch.", owner, repo, *pr.Number)
 
 		case ci.Pending:
 			log.Printf("https://github.com/%s/%s/pull/%d is still being tested. Skipping.", owner, repo, *pr.Number)
