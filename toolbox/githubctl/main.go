@@ -153,7 +153,7 @@ func CleanupReleaseRequests(owner, repo string) error {
 		switch status {
 		case ci.Success:
 			log.Printf("Merging https://github.com/%s/%s/pull/%d.", owner, repo, *pr.Number)
-			if err = githubClnt.MergePR(repo, *pr.Number, "Testing"); err != nil {
+			if err = githubClnt.MergePR(repo, *pr.Number, "Release qualification passed"); err != nil {
 				return err
 			}
 			log.Printf("Merged https://github.com/%s/%s/pull/%d.", owner, repo, *pr.Number)
