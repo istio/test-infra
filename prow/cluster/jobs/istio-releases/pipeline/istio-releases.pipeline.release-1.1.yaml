@@ -210,6 +210,24 @@ presubmits:
         nodeSelector:
           testing: test-pool
 
+    - name: release-e2e-stackdriver
+      <<: *job_template
+      always_run: true
+      optional: true
+      context: prow/release-e2e-stackdriver
+      max_concurrency: 5
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - scripts/run-test.sh
+          - prow/e2e-stackdriver.sh
+        nodeSelector:
+          testing: test-pool
+
 postsubmits:
 
   istio-releases/pipeline:
