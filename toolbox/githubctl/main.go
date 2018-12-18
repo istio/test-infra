@@ -73,10 +73,7 @@ func CreateReleaseRequest(repo, pipelineType, tag, branch, sha string) error {
 	timestamp := fmt.Sprintf("%v", time.Now().UnixNano())
 	srcBranch := "release_" + timestamp
 	edit := func() error {
-		// Ensure the dir exists
-		_ = os.MkdirAll(fmt.Sprintf("./%s/%s", pipelineType, branch), os.ModePerm)
-
-		f, err := os.Create(fmt.Sprintf("./%s/%s/release_params.sh", pipelineType, branch))
+		f, err := os.Create(fmt.Sprintf("./%s/release_params.sh", pipelineType))
 		if err != nil {
 			return err
 		}
@@ -101,7 +98,7 @@ func CreateReleaseRequest(repo, pipelineType, tag, branch, sha string) error {
 		}
 		return nil
 	}
-	_, err := githubClnt.CreatePRUpdateRepo(srcBranch, masterBranch, repo, prTitle, prBody, edit)
+	_, err := githubClnt.CreatePRUpdateRepo(srcBranch, branch, repo, prTitle, prBody, edit)
 	return err
 }
 
