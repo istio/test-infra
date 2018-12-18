@@ -153,7 +153,7 @@ func CleanupReleaseRequests(owner, repo string) error {
 			log.Printf("Merged https://github.com/%s/%s/pull/%d.", owner, repo, *pr.Number)
 
 			// Re-fetch PR since it has been updated.
-			pr, err := githubClnt.GetPR(repo, *pull.Number)
+			pr, err = githubClnt.GetPR(repo, *pull.Number)
 			if err != nil {
 				return err
 			}
