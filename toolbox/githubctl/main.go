@@ -146,15 +146,17 @@ func CleanupReleaseRequests(owner, repo string) error {
 		ci := u.NewCIState()
 		switch status {
 		case ci.Success:
-			log.Printf("Merging https://github.com/%s/%s/pull/%d. Skipping.", owner, repo, *pr.Number)
-
+			log.Printf("Merging https://github.com/%s/%s/pull/%d.", owner, repo, *pr.Number)
 			if err := githubClnt.MergePR(repo, pr); err != nil {
 				return err
 			}
-			log.Print("Merged")
+			log.Printf("Merged https://github.com/%s/%s/pull/%d.", owner, repo, *pr.Number)
 
-			time.Sleep(5 * time.Second)
-
+			// Re-fetch PR since it has been updated.
+			pr, err := githubClnt.GetPR(repo, *pull.Number)
+			if err != nil {
+				return err
+			}
 			if err := githubClnt.ClosePRDeleteBranch(repo, pr); err != nil {
 				return err
 			}
