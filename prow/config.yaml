@@ -53,8 +53,6 @@ blocked_branches: &blocked_branches
     <<: *blocking_merge
   release-1.0:
     <<: *blocking_merge
-  release-1.0.0-snapshot.0:
-    <<: *blocking_merge
 
 branch-protection:
   allow_disabled_policies: true
@@ -99,17 +97,20 @@ branch-protection:
               protect: true
               required_status_checks:
                 contexts:
+                - "ci/circleci: codecov"
                 - "ci/circleci: shellcheck"
+                - "ci/circleci: e2e-galley"
                 - "ci/circleci: e2e-pilot-auth-v1alpha3-v2"
                 - "ci/circleci: e2e-pilot-noauth-v1alpha3-v2"
                 - "ci/circleci: e2e-mixer-noauth-v1alpha3-v2"
                 - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
-                - "ci/circleci: test-integration-local"
             master:
               protect: true
               required_status_checks:
                 contexts:
+                - "ci/circleci: codecov"
                 - "ci/circleci: shellcheck"
+                - "ci/circleci: e2e-galley"
                 - "ci/circleci: e2e-pilot-auth-v1alpha3-v2"
                 - "ci/circleci: e2e-pilot-noauth-v1alpha3-v2"
                 - "ci/circleci: e2e-mixer-noauth-v1alpha3-v2"
@@ -168,35 +169,21 @@ branch-protection:
               protect: true
     istio-releases:
       repos:
-        daily-release:
+        pipeline:
           protect: false
           restrictions:
           branches:
             krishna-test:
               protect: true
-            release-0.8:
-              protect: true
-            release-1.0:
+            master:
               protect: true
             release-1.1:
               protect: true
-            release-1.0.0-snapshot.0:
-              protect: true
-            collab-gcp-identity:
-              protect: true
-            master:
+            release-1.0:
               protect: true
 
 tide:
   queries:
-  - repos:
-    - istio-releases/daily-release
-    missingLabels:
-    - do-not-merge
-    - do-not-merge/hold
-    - do-not-merge/work-in-progress
-    - needs-ok-to-test
-    - needs-rebase
   - repos:
     - istio/api
     - istio/test-infra
@@ -223,21 +210,13 @@ tide:
     - do-not-merge/hold
     - do-not-merge/work-in-progress
     - needs-rebase
-  - repos:
-    - istio-releases/daily-release
-    labels:
-    missingLabels:
-    - do-not-merge
-    - do-not-merge/hold
-    - do-not-merge/work-in-progress
-    - needs-rebase
   merge_method:
     istio/api: squash
     istio/istio.io: squash
     istio/istio: squash
     istio/proxy: squash
     istio/test-infra: squash
-    istio-releases/daily-release: squash
+    istio-releases/pipeline: squash
   target_url: https://prow.istio.io/tide
 
   context_options:

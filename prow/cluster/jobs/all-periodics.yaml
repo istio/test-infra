@@ -118,15 +118,14 @@ periodics:
     nodeSelector:
       testing: build-pool
 
-- cron: "15 9 * * *" # every day at 1:15 am PST
-  name: release-pipeline-periodic
-  context: rel_scripts/trigger_daily_build.sh
-  branches: krishna-test
+- interval: 30m
+  name: release-requests-janitor
+  branches: master
   decorate: true
   extra_refs:
   - org: istio-releases
-    repo: daily-release
-    base_ref: krishna-test
+    repo: pipeline
+    base_ref: master
   labels:
     preset-release-pipeline: "true"
   spec:
@@ -135,7 +134,78 @@ periodics:
     - <<: *istio_rel_pipeline_container
       env:
       - name: GIT_BRANCH
-        value: krishna-test
+        value: master
+      - name: RELEASE_BOT
+        value: foo
       command:
       - entrypoint
-      - rel_scripts/trigger_daily_build.sh
+      - scripts/clean_release_requests.sh
+
+- cron: "15 9 * * *" # every day at 1:15 am PST
+  name: release-trigger-daily-build-master
+  branches: master
+  decorate: true
+  extra_refs:
+  - org: istio-releases
+    repo: pipeline
+    base_ref: master
+  labels:
+    preset-release-pipeline: "true"
+  spec:
+    <<: *istio_rel_pipeline_spec
+    containers:
+    - <<: *istio_rel_pipeline_container
+      env:
+      - name: GIT_BRANCH
+        value: master
+      - name: RELEASE_BOT
+        value: foo
+      command:
+      - entrypoint
+      - scripts/trigger_daily_release.sh
+
+- cron: "15 9 * * *" # every day at 1:15 am PST
+  name: release-trigger-daily-build-release-1.0
+  branches: release-1.0
+  decorate: true
+  extra_refs:
+  - org: istio-releases
+    repo: pipeline
+    base_ref: release-1.0
+  labels:
+    preset-release-pipeline: "true"
+  spec:
+    <<: *istio_rel_pipeline_spec
+    containers:
+    - <<: *istio_rel_pipeline_container
+      env:
+      - name: GIT_BRANCH
+        value: release-1.0
+      - name: RELEASE_BOT
+        value: foo
+      command:
+      - entrypoint
+      - scripts/trigger_daily_release.sh
+
+- cron: "15 9 * * *" # every day at 1:15 am PST
+  name: release-trigger-daily-build-release-1.1
+  branches: release-1.1
+  decorate: true
+  extra_refs:
+  - org: istio-releases
+    repo: pipeline
+    base_ref: release-1.1
+  labels:
+    preset-release-pipeline: "true"
+  spec:
+    <<: *istio_rel_pipeline_spec
+    containers:
+    - <<: *istio_rel_pipeline_container
+      env:
+      - name: GIT_BRANCH
+        value: release-1.1
+      - name: RELEASE_BOT
+        value: foo
+      command:
+      - entrypoint
+      - scripts/trigger_daily_release.sh

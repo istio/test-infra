@@ -10,7 +10,7 @@ triggers:
   - istio/istio.io
   - istio/test-infra
   - istio/proxy
-  - istio-releases/daily-release
+  - istio-releases/pipeline
   trusted_org: istio
 
 config_updater:
@@ -44,7 +44,7 @@ lgtm:
   - istio/istio.io
   - istio/test-infra
   - istio/proxy
-  - istio-releases/daily-release
+  - istio-releases/pipeline
   trusted_team_for_sticky_lgtm: "Istio Hackers"
 
 approve:
@@ -54,7 +54,7 @@ approve:
   - istio/istio.io
   - istio/test-infra
   - istio/proxy
-  - istio-releases/daily-release
+  - istio-releases/pipeline
   implicit_self_approve: true
   lgtm_acts_as_approve: true
 
@@ -85,7 +85,7 @@ plugins:
   - skip
   - yuks
 
-  istio-releases/daily-release:
+  istio-releases/pipeline:
   - lifecycle
   - trigger
 
@@ -106,3 +106,8 @@ external_plugins:
   - name: needs-rebase
     events:
       - pull_request
+  istio/pipeline:
+  - name: needs-rebase
+    events:
+      - pull_request
+
