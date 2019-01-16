@@ -206,7 +206,6 @@ presubmits:
       <<: *job_template
       always_run: true
       context: prow/e2e_pilotv2_auth_sds.sh
-      optional: true
       labels:
         preset-service-account: "true"
       max_concurrency: 5
@@ -388,9 +387,6 @@ postsubmits:
           testing: test-pool
     - name: istio_auth_sds_e2e
       <<: *job_template
-      always_run: true
-      context: prow/e2e_pilotv2_auth_sds.sh
-      optional: true
       labels:
         preset-service-account: "true"
       max_concurrency: 5
