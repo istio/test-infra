@@ -2,7 +2,7 @@
 
 set -eux
 
-GO_VERSION='1.10.4'
+GO_VERSION='1.11.4'
 GO_BASE_URL="https://storage.googleapis.com/golang"
 GO_ARCHIVE="go${GO_VERSION}.linux-amd64.tar.gz"
 GO_URL="${GO_BASE_URL}/${GO_ARCHIVE}"
