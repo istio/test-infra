@@ -15,6 +15,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -62,8 +63,22 @@ func getBaseSha(repo string, prNumber int) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// The first commit is the oldest, and its parent commit is the base.
-	return *commits[0].Parents[0].SHA, nil
+
+	var allCommitShas = make(map[string]bool)
+	for _, commit := range commits {
+		allCommitShas[*commit.SHA] = true
+	}
+
+	for i := len(commits) - 1; i >= 0; i-- {
+		for _, parent := range commits[i].Parents {
+			if _, found := allCommitShas[*parent.SHA]; !found {
+				// The first commmit in the tree that is not in this PR.
+				return *parent.SHA, nil
+			}
+		}
+	}
+	return "", errors.New("base cannot be found")
+
 }
 
 // CreateReleaseRequest triggers release pipeline by creating a PR.
