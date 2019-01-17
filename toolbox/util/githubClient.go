@@ -740,6 +740,12 @@ func (g *GithubClient) GetPR(repo string, number int) (*github.PullRequest, erro
 	return pr, nil
 }
 
+// ListPRCommits lists the first page of commmits in a PR
+func (g *GithubClient) ListPRCommits(repo string, number int) ([]*github.RepositoryCommit, error) {
+	commits, _, err := g.client.PullRequests.ListCommits(context.Background(), g.owner, repo, number, &github.ListOptions{})
+	return commits, err
+}
+
 // AddLabelToPRs add one label to PRs in a repo match the listOptions
 func (g *GithubClient) AddLabelToPRs(options github.PullRequestListOptions, repo string, label string) error {
 	prs, err := g.ListPRs(options, repo)
