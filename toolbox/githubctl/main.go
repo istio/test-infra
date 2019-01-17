@@ -58,23 +58,12 @@ func fastForward(repo, baseBranch, refSHA string) error {
 }
 
 func getBaseSha(repo string, prNumber int) (string, error) {
-	pr, err := githubClnt.GetPR(repo, prNumber)
+	commits, err := githubClnt.ListPRCommits(repo, prNumber)
 	if err != nil {
 		return "", err
 	}
-	// Walk up the parents from the latest PR commit SHA, to find the first commit that have already been merged.
-	commitSha := pr.Head.SHA
-	for {
-		commit, err := githubClnt.GetCommit(repo, *commitSha)
-		if err != nil {
-			return "", err
-		}
-		// TODO(hklai) Better handlig to find the right SHA
-		if len(commit.Parents) > 1 || strings.Contains(*commit.Message, "(#") {
-			return *commitSha, nil
-		}
-		commitSha = commit.Parents[0].SHA
-	}
+	// The first commit is the oldest, and its parent commit is the base.
+	return *commits[0].Parents[0].SHA, nil
 }
 
 // CreateReleaseRequest triggers release pipeline by creating a PR.
