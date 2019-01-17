@@ -62,7 +62,19 @@ func getBaseSha(repo string, prNumber int) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return *pr.Base.SHA, nil
+	// Walk up the parents from the latest PR commit SHA, to find the first commit that have already been merged.
+	commitSha := pr.Head.SHA
+	for {
+		commit, err := githubClnt.GetCommit(repo, *commitSha)
+		if err != nil {
+			return "", err
+		}
+		// TODO(hklai) Better handlig to find the right SHA
+		if len(commit.Parents) > 1 || strings.Contains(*commit.Message, "(#") {
+			return *commitSha, nil
+		}
+		commitSha = commit.Parents[0].SHA
+	}
 }
 
 // CreateReleaseRequest triggers release pipeline by creating a PR.
