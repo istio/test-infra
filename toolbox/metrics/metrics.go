@@ -60,7 +60,7 @@ func (p *Publisher) Update(ctx context.Context) {
 	for k, m := range p.suite {
 		glog.Infof("Updating metric %s", k)
 		if err := m.Update(nCtx); err != nil {
-			glog.Warning("failed to update metric for %s. %v", k, err)
+			glog.Warningf("failed to update metric for %s. %v", k, err)
 		}
 
 	}
