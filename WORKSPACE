@@ -1,62 +1,56 @@
-workspace(name = "com_github_istio_test_infra")
+workspace(name = "io_istio_test_infra")
 
-git_repository(
-    name = "bazel_skylib",
-    commit = "2169ae1c374aab4a09aa90e65efe1a3aad4e279b",
-    remote = "https://github.com/bazelbuild/bazel-skylib.git",
-)
-
-load("@bazel_skylib//:lib.bzl", "versions")
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 
 # buildifier is written in Go and hence needs rules_go to be built.
 # See https://github.com/bazelbuild/rules_go for the up to date setup instructions.
 http_archive(
     name = "io_bazel_rules_go",
-    sha256 = "c1f52b8789218bb1542ed362c4f7de7052abcf254d865d96fb7ba6d44bc15ee3",
-    url = "https://github.com/bazelbuild/rules_go/releases/download/0.12.0/rules_go-0.12.0.tar.gz",
+    sha256 = "7be7dc01f1e0afdba6c8eb2b43d2fa01c743be1b9273ab1eaf6c233df078d705",
+    urls = ["https://github.com/bazelbuild/rules_go/releases/download/0.16.5/rules_go-0.16.5.tar.gz"],
+)
+
+http_archive(
+    name = "bazel_gazelle",
+    sha256 = "7949fc6cc17b5b191103e97481cf8889217263acf52e00b560683413af204fcb",
+    urls = ["https://github.com/bazelbuild/bazel-gazelle/releases/download/0.16.0/bazel-gazelle-0.16.0.tar.gz"],
 )
 
 http_archive(
     name = "com_github_bazelbuild_buildtools",
-    strip_prefix = "buildtools-0.17.2",
-    url = "https://github.com/bazelbuild/buildtools/archive/0.17.2.zip",
+    strip_prefix = "buildtools-0.20.0",
+    url = "https://github.com/bazelbuild/buildtools/archive/0.20.0.zip",
 )
 
 load("@io_bazel_rules_go//go:def.bzl", "go_register_toolchains", "go_rules_dependencies")
-load("@com_github_bazelbuild_buildtools//buildifier:deps.bzl", "buildifier_dependencies")
 
 go_rules_dependencies()
 
-go_register_toolchains()
+go_register_toolchains(go_version = "1.11.4")
+
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
+
+gazelle_dependencies()
+
+load("@com_github_bazelbuild_buildtools//buildifier:deps.bzl", "buildifier_dependencies")
 
 buildifier_dependencies()
-
-go_register_toolchains(go_version = "1.10.2")
-
-load("@io_bazel_rules_go//proto:def.bzl", "proto_register_toolchains")
 
 ##
 ## docker
 ##
 
 # You *must* import the Go rules before setting up the go_image rules.
-git_repository(
+http_archive(
     name = "io_bazel_rules_docker",
-    remote = "https://github.com/bazelbuild/rules_docker.git",
-    tag = "v0.4.0",
+    sha256 = "aed1c249d4ec8f703edddf35cbe9dfaca0b5f5ea6e4cd9e83e99f3b0d1136c3d",
+    strip_prefix = "rules_docker-0.7.0",
+    urls = ["https://github.com/bazelbuild/rules_docker/archive/v0.7.0.tar.gz"],
 )
 
-load(
-    "@io_bazel_rules_docker//container:container.bzl",
-    "container_push",
-    container_repositories = "repositories",
-)
 load(
     "@io_bazel_rules_docker//go:image.bzl",
     _go_image_repos = "repositories",
 )
-
-container_repositories()
 
 _go_image_repos()

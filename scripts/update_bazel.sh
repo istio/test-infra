@@ -21,24 +21,7 @@ set -o xtrace
 cd "$(bazel info workspace)"
 trap 'echo "FAILED" >&2' ERR
 
-prune-vendor() {
-  find vendor -type f \
-    -not -iname "*.c" \
-    -not -iname "*.go" \
-    -not -iname "*.h" \
-    -not -iname "*.proto" \
-    -not -iname "*.s" \
-    -not -iname "AUTHORS*" \
-    -not -iname "CONTRIBUTORS*" \
-    -not -iname "COPYING*" \
-    -not -iname "LICENSE*" \
-    -not -iname "NOTICE*" \
-    -exec rm '{}' \;
-}
-
-rm -rf vendor
-export GO111MODULE=on
-bazel run @go_sdk//:bin/go -- mod tidy
-bazel run @go_sdk//:bin/go -- mod vendor
-prune-vendor
-bazel run //:gazelle -- update-repos --from_file=go.mod
+mkdir -p ./vendor
+#find vendor -type f -name BUILD -o -name BUILD.bazel -exec rm -rf {} \;
+touch ./vendor/BUILD.bazel
+bazel run //:gazelle

@@ -1,0 +1,55 @@
+module github.com/sebastienvas/test-infra
+
+require (
+	cloud.google.com/go v0.23.0
+	github.com/bazelbuild/buildtools v0.0.0-20180226164855-80c7f0d45d7e
+	github.com/beorn7/perks v0.0.0-20160804104726-4c0e84591b9a
+	github.com/bwmarrin/snowflake v0.0.0-20180412010544-68117e6bbede
+	github.com/deckarep/golang-set v0.0.0-20171013212420-1d4478f51bed
+	github.com/fsnotify/fsnotify v1.4.7
+	github.com/ghodss/yaml v1.0.0
+	github.com/gogo/protobuf v1.0.0
+	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
+	github.com/golang/lint v0.0.0-20180319214916-85993ffd0a6c
+	github.com/golang/protobuf v0.0.0-20171021043952-1643683e1b54
+	github.com/google/go-github v0.0.0-20171108000855-8c08f4fba5e0
+	github.com/google/go-querystring v0.0.0-20170111101155-53e6ce116135
+	github.com/google/gofuzz v0.0.0-20170612174753-24818f796faf
+	github.com/googleapis/gax-go v2.0.0+incompatible
+	github.com/gorilla/context v0.0.0-20160226214623-1ea25387ff6f
+	github.com/gorilla/securecookie v1.1.1
+	github.com/gorilla/sessions v0.0.0-20160922145804-ca9ada445741
+	github.com/hashicorp/errwrap v0.0.0-20141028054710-7554cd9344ce
+	github.com/hashicorp/go-multierror v0.0.0-20170622060955-83588e72410a
+	github.com/knative/build v0.1.0
+	github.com/mattn/go-zglob v0.0.0-20180627001149-c436403c742d
+	github.com/matttproud/golang_protobuf_extensions v1.0.0
+	github.com/prometheus/client_golang v0.8.0
+	github.com/prometheus/client_model v0.0.0-20170216185247-6f3806018612
+	github.com/prometheus/common v0.0.0-20171104095907-e3fb1a1acd76
+	github.com/prometheus/procfs v0.0.0-20171017214025-a6e9df898b13
+	github.com/satori/go.uuid v1.2.0
+	github.com/shurcooL/githubv4 v0.0.0-20180925043049-51d7b505e2e9
+	github.com/shurcooL/go v0.0.0-20180410215514-47fa5b7ceee6
+	github.com/shurcooL/graphql v0.0.0-20180302221403-3d276b9dcc6b
+	github.com/sirupsen/logrus v1.0.4
+	github.com/spf13/pflag v1.0.1
+	go.opencensus.io v0.13.0
+	golang.org/x/crypto v0.0.0-20180214000028-650f4a345ab4
+	golang.org/x/net v0.0.0-20171107184841-a337091b0525
+	golang.org/x/oauth2 v0.0.0-20171106152852-9ff8ebcc8e24
+	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f
+	golang.org/x/sys v0.0.0-20180202135801-37707fdb30a5
+	golang.org/x/text v0.0.0-20171102192421-88f656faf3f3
+	golang.org/x/tools v0.0.0-20180416195352-94b14834a201
+	google.golang.org/api v0.0.0-20180131010904-ffa5046912fd
+	google.golang.org/appengine v1.0.0
+	google.golang.org/genproto v0.0.0-20171103030625-11c7f9e547da
+	google.golang.org/grpc v1.7.2
+	gopkg.in/inf.v0 v0.9.1
+	gopkg.in/robfig/cron.v2 v2.0.0-20150107220207-be2e0b0deed5
+	gopkg.in/yaml.v2 v2.0.0
+	k8s.io/api v0.0.0-20180308224125-73d903622b73
+	k8s.io/apimachinery v0.0.0-20180228050457-302974c03f7e
+	k8s.io/test-infra v0.0.0-20181127230316-bfbc61258394
+)
