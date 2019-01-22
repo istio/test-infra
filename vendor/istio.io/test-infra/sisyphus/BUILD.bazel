@@ -1,0 +1,19 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "alert.go",
+        "branchProtector.go",
+        "ci.go",
+        "sisyphusd.go",
+        "storage.go",
+    ],
+    importmap = "istio.io/test-infra/vendor/istio.io/test-infra/sisyphus",
+    importpath = "istio.io/test-infra/sisyphus",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/golang/glog:go_default_library",
+        "//vendor/istio.io/test-infra/toolbox/util:go_default_library",
+    ],
+)
