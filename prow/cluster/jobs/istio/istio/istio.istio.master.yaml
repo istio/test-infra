@@ -203,6 +203,22 @@ presubmits:
           - entrypoint
           - prow/e2e-simpleTests-cni.sh
         nodeSelector:
+    - name: istio_auth_sds_e2e
+      <<: *job_template
+      always_run: true
+      context: prow/e2e_pilotv2_auth_sds.sh
+      optional: true
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e_pilotv2_auth_sds.sh
+        nodeSelector:
+          testing: test-pool
     - name: release-test
       <<: *job_template
       always_run: true
@@ -354,5 +370,18 @@ postsubmits:
           command:
           - entrypoint
           - prow/e2e-dashboard.sh
+        nodeSelector:
+          testing: test-pool
+    - name: istio_auth_sds_e2e
+      <<: *job_template
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e_pilotv2_auth_sds.sh
         nodeSelector:
           testing: test-pool
