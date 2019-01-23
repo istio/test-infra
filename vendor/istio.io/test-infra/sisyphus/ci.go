@@ -1,0 +1,245 @@
+// Copyright 2018 Istio Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package sisyphus
+
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/golang/glog"
+
+	u "istio.io/test-infra/toolbox/util"
+)
+
+// CI defines common accessors for continuous integration systems
+type CI interface {
+	GetLatestRun(jobName string) (int, error)
+	GetResult(jobName string, runNo int) (*Result, error)
+	Rerun(jobName string, runNo int) error
+	GetDetailsURL(jobName string, runNo int) string
+}
+
+// Result defines the output of each CI run
+type Result struct {
+	Passed bool   `json:"passed"`
+	SHA    string `json:"sha"`
+}
+
+const (
+	lastBuildTXT = "latest-build.txt"
+	finishedJSON = "finished.json"
+	startedJSON  = "started.json"
+)
+
+// ProwResult matches the structure published in finished.json
+type ProwResult struct {
+	TimeStamp  int64        `json:"timestamp"`
+	Version    string       `json:"version"`
+	Result     string       `json:"result"`
+	Passed     bool         `json:"passed"`
+	JobVersion string       `json:"job-version"`
+	Metadata   ProwMetadata `json:"metadata"`
+}
+
+// ProwMetadata matches the structure published in finished.json
+type ProwMetadata struct {
+	Repo       string `json:"repo"`
+	RepoCommit string `json:"repo-commit"`
+}
+
+// ProwJobConfig matches the structure published in started.json
+type ProwJobConfig struct {
+	Node        string            `json:"node"`
+	JenkinsNode string            `json:"jenkins-node"`
+	Version     string            `json:"version"`
+	TimeStamp   int64             `json:"timestamp"`
+	RepoVersion string            `json:"repo-version"`
+	Pull        string            `json:"pull"`
+	Repos       map[string]string `json:"repos"`
+}
+
+// ProwAccessor provides programmable access to Prow data on GCS
+type ProwAccessor struct {
+	prowProject   string
+	prowZone      string
+	gubernatorURL string
+	gcsBucket     string
+	gcsClient     u.IGCSClient
+	rerunCmd      func(node string) error
+	presubmitJobs map[string]struct{}
+}
+
+// NewProwAccessor creates a new ProwAccessor
+func NewProwAccessor(prowProject, prowZone, gubernatorURL, gcsBucket string, client u.IGCSClient) *ProwAccessor {
+	return &ProwAccessor{
+		prowProject:   prowProject,
+		prowZone:      prowZone,
+		gubernatorURL: gubernatorURL,
+		gcsClient:     client,
+		gcsBucket:     gcsBucket,
+		presubmitJobs: make(map[string]struct{}),
+		rerunCmd: func(node string) error {
+			_, e := u.Shell("kubectl create -f \"https://prow.istio.io/rerun?prowjob=%s\"", node)
+			return e
+		},
+	}
+}
+
+// RegisterPresubmitJobs marks `jobNames` as pre-submit jobs
+func (p *ProwAccessor) RegisterPresubmitJobs(presubmitJobNames []string) {
+	for _, jobName := range presubmitJobNames {
+		p.presubmitJobs[jobName] = struct{}{}
+	}
+}
+
+func (p *ProwAccessor) buildGCSPath(jobName string) string {
+	if _, containsKey := p.presubmitJobs[jobName]; containsKey {
+		return filepath.Join("directory", jobName)
+	}
+	// postsubmit path is just the job name
+	return jobName
+}
+
+func (p *ProwAccessor) buildGCSPathWithIndirection(jobName string, runNo int) (string, error) {
+	if _, containsKey := p.presubmitJobs[jobName]; containsKey {
+		redirect := filepath.Join("directory", jobName, fmt.Sprintf("%d.txt", runNo))
+		redirectURL, err := p.gcsClient.Read(redirect)
+		if err != nil {
+			return "", err
+		}
+		bucketPrefix := fmt.Sprintf("gs://%s/", p.gcsBucket)
+		return redirectURL[len(bucketPrefix):], nil
+	}
+	return filepath.Join(jobName, strconv.Itoa(runNo)), nil
+}
+
+// GetLatestRun reads latest run from "latest-build.txt" of a job under the gcs bucket.
+// This job is assumed to be a post-submit job unless registered through `RegisterPresubmitJobs()`.
+// Such distinction is critical as pre-submit and post-submit jobs have different GCS path
+func (p *ProwAccessor) GetLatestRun(jobName string) (int, error) {
+	lastBuildFile := filepath.Join(p.buildGCSPath(jobName), lastBuildTXT)
+	latestBuildString, err := p.gcsClient.Read(lastBuildFile)
+	if err != nil {
+		return 0, err
+	}
+	latestBuildInt, err := strconv.Atoi(latestBuildString)
+	if err != nil {
+		glog.V(1).Infof("Failed to convert %s to int: %v\n", latestBuildString, err)
+		return 0, err
+	}
+	return latestBuildInt, nil
+}
+
+// GetResult returns the Result of the job at a specific run
+func (p *ProwAccessor) GetResult(jobName string, runNo int) (*Result, error) {
+	gcsPath, err := p.buildGCSPathWithIndirection(jobName, runNo)
+	if err != nil {
+		return nil, err
+	}
+	jobFinishedFile := filepath.Join(gcsPath, finishedJSON)
+	prowResultString, err := p.gcsClient.Read(jobFinishedFile)
+	if err != nil {
+		glog.V(1).Infof("Cannot access %s on GCS: %v", jobFinishedFile, err)
+		return nil, err
+	}
+	prowResult := ProwResult{}
+	if err = json.Unmarshal([]byte(prowResultString), &prowResult); err != nil {
+		glog.V(1).Infof("Failed to unmarshal ProwResult %s: %v", prowResultString, err)
+		return nil, err
+	}
+	cfg, err := p.getProwJobConfig(jobName, runNo)
+	if err != nil {
+		return nil, err
+	}
+	/*	The .repos field in started.json is a string to string map that contains exactly
+		one kv pair. For example, a pre-submit run may look like
+			"repos": {
+				"repo": "master:1920a01a8df75baf71ae5fa38d68e4b055bad65c,554:cc02e59987163c8deb80db8bcc203c318c1b752e"
+			}
+		which records the PR number and sha, as well as the base branch and sha.
+		A post-submit run looks like
+			"repos": {
+				"repo": "master:241d69701ebf3c57c0d86d016937d23615dae390"
+			}
+	*/
+	if len(cfg.Repos) != 1 {
+		return nil, fmt.Errorf(
+			"the .repos field in started.json contains %d kv pairs and we expect only one",
+			len(cfg.Repos))
+	}
+	for _, baseSHAprSHA := range cfg.Repos {
+		splitted := strings.Split(baseSHAprSHA, ",")
+		// the PR sha is always the last one
+		sha := strings.Split(splitted[len(splitted)-1], ":")[1]
+		return &Result{
+			Passed: prowResult.Passed,
+			SHA:    sha,
+		}, nil
+	}
+	return nil, fmt.Errorf("the .repos field is ill-defined in started.json")
+}
+
+// GetDetailsURL returns the gubernator URL to that job at the run number
+func (p *ProwAccessor) GetDetailsURL(jobName string, runNo int) string {
+	return fmt.Sprintf("%s/%s/%d", p.gubernatorURL, jobName, runNo)
+}
+
+// Rerun starts on Prow the ONE rerun on the specified job
+func (p *ProwAccessor) Rerun(jobName string, runNo int) error {
+	cfg, err := p.getProwJobConfig(jobName, runNo)
+	if err != nil {
+		return err
+	}
+	if err = p.triggerRerun(jobName, cfg.Node); err != nil {
+		return err
+	}
+	return nil
+}
+
+// getProwJobConfig fetches the config of the job at runNo
+func (p *ProwAccessor) getProwJobConfig(jobName string, runNo int) (*ProwJobConfig, error) {
+	gcsPath, err := p.buildGCSPathWithIndirection(jobName, runNo)
+	if err != nil {
+		return nil, err
+	}
+	jobStartedFile := filepath.Join(gcsPath, startedJSON)
+	StartedFileString, err := p.gcsClient.Read(jobStartedFile)
+	if err != nil {
+		return nil, err
+	}
+	cfg := ProwJobConfig{}
+	if err = json.Unmarshal([]byte(StartedFileString), &cfg); err != nil {
+		glog.Infof("Failed to unmarshal ProwJobConfig %s: %v\n", StartedFileString, err)
+		return nil, err
+	}
+	return &cfg, nil
+}
+
+func (p *ProwAccessor) triggerRerun(jobName, node string) error {
+	log.Printf("Rerunning %s\n", jobName)
+	recess := 1 * time.Minute
+	maxRetry := 3
+	if err := u.Retry(recess, maxRetry, func() error {
+		return p.rerunCmd(node)
+	}); err != nil {
+		glog.Infof("Unable to trigger rerun of job %v", jobName)
+	}
+	return nil
+}

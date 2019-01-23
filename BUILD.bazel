@@ -1,5 +1,8 @@
+# gazelle:prefix istio.io/test-infra
+# gazelle:proto disable_global
+
 load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
-load("@io_bazel_rules_go//go:def.bzl", "gazelle")
+load("@bazel_gazelle//:def.bzl", "gazelle")
 
 buildifier(
     name = "buildifier",
@@ -7,5 +10,6 @@ buildifier(
 
 gazelle(
     name = "gazelle",
-    prefix = "istio.io/test-infra",
+    command = "fix",
+    external = "vendored",
 )
