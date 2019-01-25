@@ -12,7 +12,7 @@ Make sure you have helm installed.
 Create a ClusterRoleBinding such that tiller can can install deployments in
 every namespace:
 
-    kubectl apply -f rbac-config.yaml
+    kubectl apply -f prow/cluster/rbac-config.yaml
 
 Then install tiller
 
@@ -30,7 +30,7 @@ Once helm is installed properly, you can proceed by installing cert-manager
 We are using a cluster issuer to generate certs with Let's encrypt using DNS
 validation
 
-    kubectl apply -f cluster-issuer.yaml
+    kubectl apply -f prow/cluster/cluster-issuer.yaml
 
 We can now have create a cert
 

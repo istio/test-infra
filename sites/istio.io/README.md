@@ -19,33 +19,7 @@ Use `make test` to run unit tests to verify the various endpoints on the server.
 Deploying
 ===
 
-Use canary.sh to verify configuration changes. This creates a seperate
-nginx deployment in the `istio-io-canary` namespace of the istio-io
-GKE cluster and runs some basic tests.
-
-    ./canary.sh
-    NAME       TYPE      DATA      AGE
-    istio.io   Opaque    2         4h
-    configmap "nginx" configured
-    deployment "istio-io" configured
-    service "istio-io" configured
-    deployment "istio-io" scaled
-    deployment "istio-io" scaled
-    waiting for all replicas to be up
-    python test.py -q
-    GET: https://istio.io => 200
-    REDIR: http://istio.io => https://istio.io/
-    REDIR: http://istio.io/4385 => https://istio.io/4385
-    ----------------------------------------------------------------------
-    Ran 3 tests in 0.710s
-
-    OK
-
-The canary cluster has a separate load balanced IP which can be used
-for additional manual checks. Use steps in the testing section above
-to determine the ingress IP of the canary cluster.
-
-For the real deployment set kubectl to target the production cluster
+For the deployment set kubectl to target the production cluster
 and run `make deploy`. Nginx doesn't auto-detect configuration file
 changes so pods may need to be manually killed to force deployment to
 restart nginx with new configuration via ConfigMaps.
@@ -80,15 +54,10 @@ be easily integrated into cluster.
     istio.io.                          SOA    21600  ns-cloud-e1.googledomains.com. cloud-dns-hostmaster.google.com. 1 21600 3600 259200 300
     www.istio.io.                      CNAME  300    istio.io.
 
-Two public ipv4 addresses are used for istio.io: `istio-io-prod` for
-the *.istio.io sites and `istio-io-canary` for canary tests. The A
-records for the `istio.io` domain point to the `istio-io-prod`
-address.
 
     $ gcloud compute addresses list
     NAME             REGION    ADDRESS         STATUS
-    istio-io-canary  us-west1  104.198.5.229   IN_USE
-    istio-io-prod    us-west1  35.185.199.142  IN_USE
+    istio-io         us-west1  35.233.169.38   IN_USE
 
 ### Network load balancer and kubernetes services
 
@@ -97,9 +66,7 @@ accessible IP to the backend services. GKE does most of the work here
 and sets up the necessary GCP load balancer rules when the kubernetes
 service is created.
 
-- [`service-prod.yaml`](https://github.com/istio/istio.io/blob/master/istio.io/service-prod.yaml) handles *.istio.io.
-- [`service-canary.yaml`](https://github.com/istio/istio.io/blob/master/istio.io/service-prod.yaml) handles the `istio-io-canary` address and should be run in a seperate namespace.
-- [`service-dev.yaml`](https://github.com/istio/istio.io/blob/master/istio.io/service-prod.yaml) allows for developers to test configuration changes with an ephemeral address.
+- [`service.yaml`](https://github.com/istio/istio.io/test-infra/sites/istio.io/service.yaml) handles *.istio.io.
 
 ### TLS
 
