@@ -536,6 +536,186 @@ go_repository(
 
 go_repository(
     name = "org_golang_x_tools",
-    commit = "94b14834a201",
+    commit = "24cd39ecf745",
     importpath = "golang.org/x/tools",
+)
+
+go_repository(
+    name = "cc_mvdan_interfacer",
+    commit = "c20040233aed",
+    importpath = "mvdan.cc/interfacer",
+)
+
+go_repository(
+    name = "cc_mvdan_lint",
+    commit = "adc824a0674b",
+    importpath = "mvdan.cc/lint",
+)
+
+go_repository(
+    name = "cc_mvdan_unparam",
+    commit = "cc9d2fb52971",
+    importpath = "mvdan.cc/unparam",
+)
+
+go_repository(
+    name = "co_honnef_go_tools",
+    commit = "8e66885c52b0",
+    importpath = "honnef.co/go/tools",
+)
+
+go_repository(
+    name = "com_4d63_gochecknoglobals",
+    commit = "abbdf6ec0afb",
+    importpath = "4d63.com/gochecknoglobals",
+)
+
+go_repository(
+    name = "com_4d63_gochecknoinits",
+    commit = "14d5915061e5",
+    importpath = "4d63.com/gochecknoinits",
+)
+
+go_repository(
+    name = "com_github_alecthomas_gocyclo",
+    commit = "aa8f8b160214",
+    importpath = "github.com/alecthomas/gocyclo",
+)
+
+go_repository(
+    name = "com_github_alexflint_go_arg",
+    importpath = "github.com/alexflint/go-arg",
+    tag = "v1.0.0",
+)
+
+go_repository(
+    name = "com_github_alexflint_go_scalar",
+    importpath = "github.com/alexflint/go-scalar",
+    tag = "v1.0.0",
+)
+
+go_repository(
+    name = "com_github_alexkohler_nakedret",
+    commit = "c0e305a4f690",
+    importpath = "github.com/alexkohler/nakedret",
+)
+
+go_repository(
+    name = "com_github_burntsushi_toml",
+    importpath = "github.com/BurntSushi/toml",
+    tag = "v0.3.1",
+)
+
+go_repository(
+    name = "com_github_client9_misspell",
+    importpath = "github.com/client9/misspell",
+    tag = "v0.3.4",
+)
+
+go_repository(
+    name = "com_github_gordonklaus_ineffassign",
+    commit = "1003c8bd00dc",
+    importpath = "github.com/gordonklaus/ineffassign",
+)
+
+go_repository(
+    name = "com_github_jgautheron_goconst",
+    commit = "9740945f5dcb",
+    importpath = "github.com/jgautheron/goconst",
+)
+
+go_repository(
+    name = "com_github_kisielk_errcheck",
+    importpath = "github.com/kisielk/errcheck",
+    tag = "v1.2.0",
+)
+
+go_repository(
+    name = "com_github_kisielk_gotool",
+    commit = "0de1eaf82fa3",
+    importpath = "github.com/kisielk/gotool",
+)
+
+go_repository(
+    name = "com_github_mdempsky_maligned",
+    commit = "6e39bd26a8c8",
+    importpath = "github.com/mdempsky/maligned",
+)
+
+go_repository(
+    name = "com_github_mdempsky_unconvert",
+    commit = "2db5a8ead8e7",
+    importpath = "github.com/mdempsky/unconvert",
+)
+
+go_repository(
+    name = "com_github_mibk_dupl",
+    importpath = "github.com/mibk/dupl",
+    tag = "v1.0.0",
+)
+
+go_repository(
+    name = "com_github_mozilla_tls_observatory",
+    commit = "8791a200eb40",
+    importpath = "github.com/mozilla/tls-observatory",
+)
+
+go_repository(
+    name = "com_github_nbutton23_zxcvbn_go",
+    commit = "a22cb81b2ecd",
+    importpath = "github.com/nbutton23/zxcvbn-go",
+)
+
+go_repository(
+    name = "com_github_opennota_check",
+    commit = "0c771f5545ff",
+    importpath = "github.com/opennota/check",
+)
+
+go_repository(
+    name = "com_github_rogpeppe_go_internal",
+    importpath = "github.com/rogpeppe/go-internal",
+    tag = "v1.1.0",
+)
+
+go_repository(
+    name = "com_github_ryanuber_go_glob",
+    commit = "256dc444b735",
+    importpath = "github.com/ryanuber/go-glob",
+)
+
+go_repository(
+    name = "com_github_securego_gosec",
+    commit = "a966ff760c3a",
+    importpath = "github.com/securego/gosec",
+)
+
+go_repository(
+    name = "com_github_stripe_safesql",
+    commit = "cddf355596fe",
+    importpath = "github.com/stripe/safesql",
+)
+
+go_repository(
+    name = "com_github_tsenart_deadcode",
+    commit = "210d2dc333e9",
+    importpath = "github.com/tsenart/deadcode",
+)
+
+go_repository(
+    name = "com_github_walle_lll",
+    commit = "8b13b3fbf731",
+    importpath = "github.com/walle/lll",
+)
+
+go_repository(
+    name = "in_gopkg_errgo_v2",
+    importpath = "gopkg.in/errgo.v2",
+    tag = "v2.1.0",
+)
+
+go_repository(
+    name = "org_golang_x_lint",
+    commit = "8f45f776aaf1",
+    importpath = "golang.org/x/lint",
 )
