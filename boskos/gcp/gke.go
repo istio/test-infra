@@ -24,7 +24,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/container/v1"
-
 	"istio.io/test-infra/toolbox/util"
 )
 
@@ -136,7 +135,7 @@ func (cc *containerEngine) create(ctx context.Context, project string, config cl
 	}
 	clusterRequest := &container.CreateClusterRequest{
 		Cluster: &container.Cluster{
-			Name: name,
+			Name:                  name,
 			InitialClusterVersion: version,
 			InitialNodeCount:      config.NumNodes,
 			NodeConfig: &container.NodeConfig{

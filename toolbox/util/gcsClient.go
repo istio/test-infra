@@ -41,7 +41,7 @@ type GCSClient struct {
 func NewGCSClient(bucket string) *GCSClient {
 	gcsClient, err := storage.NewClient(context.Background())
 	if err != nil {
-		glog.Fatalf("Failed to create a gcs client, %v\n", err)
+		glog.Fatalf("Failed to create a gcs client, %v", err)
 		return nil
 	}
 	return &GCSClient{
@@ -61,7 +61,7 @@ func (gcs *GCSClient) Exists(obj string) (bool, error) {
 	if err == iterator.Done {
 		return false, nil
 	} else if err != nil {
-		glog.V(1).Infof("Failed to get a iterator on %s/%s from gcs, %v\n", gcs.bucket, obj, err)
+		glog.V(1).Infof("Failed to get a iterator on %s/%s from gcs, %v", gcs.bucket, obj, err)
 		return false, err
 	}
 	return true, nil
@@ -73,17 +73,17 @@ func (gcs *GCSClient) Read(obj string) (string, error) {
 
 	r, err := gcs.client.Object(obj).NewReader(ctx)
 	if err != nil {
-		glog.V(1).Infof("Failed to open a reader on file %s/%s from gcs, %v\n", gcs.bucket, obj, err)
+		glog.V(1).Infof("Failed to open a reader on file %s/%s from gcs, %v", gcs.bucket, obj, err)
 		return "", err
 	}
 	defer func() {
 		if err = r.Close(); err != nil {
-			glog.V(1).Infof("Failed to close gcs file reader, %v\n", err)
+			glog.V(1).Infof("Failed to close gcs file reader, %v", err)
 		}
 	}()
 	buf := new(bytes.Buffer)
 	if _, err = buf.ReadFrom(r); err != nil {
-		glog.V(1).Infof("Failed to read from gcs reader, %v\n", err)
+		glog.V(1).Infof("Failed to read from gcs reader, %v", err)
 		return "", err
 	}
 	return buf.String(), nil
@@ -93,8 +93,8 @@ func (gcs *GCSClient) Read(obj string) (string, error) {
 func (gcs *GCSClient) Write(obj, txt string) error {
 	ctx := context.Background()
 	w := gcs.client.Object(obj).NewWriter(ctx)
-	if _, err := fmt.Fprintf(w, txt); err != nil {
-		glog.V(1).Infof("Failed to write to gcs: %v\n", err)
+	if _, err := fmt.Fprint(w, txt); err != nil {
+		glog.V(1).Infof("Failed to write to gcs: %v", err)
 	}
 	return w.Close()
 }

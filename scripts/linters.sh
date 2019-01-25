@@ -8,7 +8,7 @@ GOPATH=${GOPATH:-${UNSET_GOPATH}}
 
 function install_gometalinter() {
   echo 'Installing gometalinter ...'
-  go get -u gopkg.in/alecthomas/gometalinter.v2
+  bazel run @go_sdk//:bin/go -- get -u gopkg.in/alecthomas/gometalinter.v2
   "${GOPATH}/bin/gometalinter.v2" --install
 }
 
