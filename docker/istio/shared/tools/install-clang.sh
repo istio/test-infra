@@ -2,7 +2,7 @@
 
 set -eux
 
-LLVM_VERSION=6.0
+LLVM_VERSION=7
 LLVM_REPO='xenial'
 
 echo "deb http://apt.llvm.org/${LLVM_REPO}/ llvm-toolchain-${LLVM_REPO}-${LLVM_VERSION} main" \
