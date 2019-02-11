@@ -1,7 +1,7 @@
 
 bazel_postsubmit_spec: &bazel_postsubmit_spec
   containers:
-  - image: gcr.io/istio-testing/prowbazel:0.4.13
+  - image: gcr.io/istio-testing/prowbazel:0.5.0
     args:
     - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
     - "--clean"
@@ -21,7 +21,7 @@ bazel_postsubmit_spec: &bazel_postsubmit_spec
 
 bazel_spec: &bazel_spec
   containers:
-  - image: gcr.io/istio-testing/prowbazel:0.4.13
+  - image: gcr.io/istio-testing/prowbazel:0.5.0
     args:
     - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"
     - "--clean"
