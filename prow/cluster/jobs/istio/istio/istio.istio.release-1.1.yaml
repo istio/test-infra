@@ -201,6 +201,21 @@ presubmits:
           - prow/istio-pilot-multicluster-e2e.sh
         nodeSelector:
           testing: test-pool
+    - name: e2e-simpleTests-cni
+      <<: *job_template
+      always_run: false
+      context: prow/e2e-simpleTests-cni.sh
+      optional: true
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-simpleTests-cni.sh
+        nodeSelector:
     - name: istio_auth_sds_e2e
       <<: *job_template
       always_run: true
