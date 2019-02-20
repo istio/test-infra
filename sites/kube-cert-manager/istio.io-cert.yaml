@@ -8,13 +8,13 @@ spec:
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
-  commonName: '*.istio.io'
   dnsNames:
-  - istio.io
+    - velodrome.istio.io
+    - gcsweb.istio.io
   acme:
     config:
     - dns01:
         provider: clouddns
       domains:
-      - '*.istio.io'
-      - istio.io
+        - gcsweb.istio.io
+        - velodrome.istio.io
