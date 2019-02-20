@@ -228,22 +228,6 @@ postsubmits:
         - scripts/pipeline_runner.sh
         - release/gcb/run_daily_release.sh
 
-  - name: perf-for-daily-release
-    <<: *job_template
-    run_if_changed: "daily/.*"
-    labels:
-      preset-release-pipeline: "true"
-    spec:
-      <<: *istio_rel_pipeline_spec
-      containers:
-      - <<: *istio_rel_pipeline_container
-        command:
-        - entrypoint
-        - scripts/pipeline_runner.sh
-        - scripts/get_perf_tools.sh
-        - prow/setup_perf_cluster_for_tests.sh
-        - prow/perf_service_graph_test.sh
-
   - name: release-monthly
     <<: *job_template
     run_if_changed: "monthly/.*"
