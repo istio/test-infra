@@ -21,6 +21,7 @@ USERS=(
 SERVICES=(
   'compute.googleapis.com'
   'container.googleapis.com'
+  'cloudtrace.googleapis.com'
 )
 
 CREATE_PROJECT=false
