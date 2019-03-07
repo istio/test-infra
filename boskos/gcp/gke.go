@@ -42,6 +42,7 @@ type clusterConfig struct {
 	Zone                  string                   `json:"zone,omitempty"`
 	EnableKubernetesAlpha bool                     `json:"enablekubernetesalpha"`
 	NetworkPolicy         *container.NetworkPolicy `json:"networkpolicy,omitempty"`
+	Scopes                []string                 `json:"scopes,omitempty"`
 }
 
 type containerEngine struct {
@@ -140,6 +141,7 @@ func (cc *containerEngine) create(ctx context.Context, project string, config cl
 			InitialNodeCount:      config.NumNodes,
 			NodeConfig: &container.NodeConfig{
 				MachineType: config.MachineType,
+				OauthScopes: config.Scopes,
 			},
 			NetworkPolicy:         config.NetworkPolicy,
 			EnableKubernetesAlpha: config.EnableKubernetesAlpha,

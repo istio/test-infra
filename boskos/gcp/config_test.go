@@ -38,6 +38,10 @@ func TestParseInvalidConfig(t *testing.T) {
 					NumNodes:    4,
 					Version:     "1.7",
 					Zone:        "us-central-1f",
+					Scopes: []string{
+						"https://www.googleapis.com/auth/cloud-platform",
+						"https://www.googleapis.com/auth/trace.append",
+					},
 				},
 			},
 			Vms: []virtualMachineConfig{
@@ -51,6 +55,7 @@ func TestParseInvalidConfig(t *testing.T) {
 					},
 					Scopes: []string{
 						"https://www.googleapis.com/auth/cloud-platform",
+						"https://www.googleapis.com/auth/trace.append",
 					},
 				},
 			},
@@ -65,6 +70,10 @@ func TestParseInvalidConfig(t *testing.T) {
 					Version:       "1.7",
 					Zone:          "us-central-1f",
 					NetworkPolicy: &container.NetworkPolicy{Enabled: true, Provider: "CALICO"},
+					Scopes: []string{
+						"https://www.googleapis.com/auth/cloud-platform",
+						"https://www.googleapis.com/auth/trace.append",
+					},
 				},
 			},
 			Vms: []virtualMachineConfig{
@@ -78,6 +87,7 @@ func TestParseInvalidConfig(t *testing.T) {
 					},
 					Scopes: []string{
 						"https://www.googleapis.com/auth/cloud-platform",
+						"https://www.googleapis.com/auth/trace.append",
 					},
 				},
 			},
@@ -211,7 +221,7 @@ func TestResourcesConfig_Construct(t *testing.T) {
 		info *ResourceInfo
 	}
 
-	testCases := []struct {
+	var testCases = []struct {
 		name      string
 		rc        resourceConfigs
 		res       common.Resource
@@ -228,6 +238,10 @@ func TestResourcesConfig_Construct(t *testing.T) {
 					Clusters: []clusterConfig{
 						{
 							Zone: "specified",
+							Scopes: []string{
+								"https://www.googleapis.com/auth/cloud-platform",
+								"https://www.googleapis.com/auth/trace.append",
+							},
 						},
 						{},
 						{},
