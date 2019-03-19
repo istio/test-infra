@@ -61,7 +61,6 @@ presubmits:
         - prow/istio-presubmit.sh
       nodeSelector:
         testing: build-pool
-
     run_after_success:
     - name: istio-integ-k8s-tests
       <<: *job_template
@@ -80,7 +79,6 @@ presubmits:
           - prow/istio-integ-k8s-tests.sh
         nodeSelector:
           testing: test-pool
-
     - name: test-e2e-mixer-no_auth
       <<: *job_template
       optional: true
@@ -97,7 +95,6 @@ presubmits:
           - prow/test-e2e-mixer-no_auth.sh
         nodeSelector:
           testing: test-pool
-
     - name: istio-pilot-e2e-envoyv2-v1alpha3
       <<: *job_template
       always_run: true
