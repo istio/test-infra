@@ -246,18 +246,6 @@ postsubmits:
         - prow/istio-integ-local-tests.sh
       nodeSelector:
         testing: test-pool
-  - name: istio-integ-k8s-tests
-    <<: *job_template
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/istio-integ-k8s-tests.sh
-      nodeSelector:
-        testing: test-pool
   - name: istio-postsubmit
     <<: *job_template
     labels:
@@ -271,6 +259,18 @@ postsubmits:
       nodeSelector:
         testing: test-pool
     run_after_success:
+    - name: istio-integ-k8s-tests
+      <<: *job_template
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/istio-integ-k8s-tests.sh
+        nodeSelector:
+          testing: test-pool
     - name: e2e-simpleTests
       <<: *job_template
       labels:
