@@ -88,6 +88,15 @@ presubmits:
       max_concurrency: 5
       spec:
         <<: *test_spec
+    - name: e2e-bookInfoTests-trustdomain
+      branches: *branch_spec
+      always_run: true
+      context: prow/e2e-bookInfoTests-trustdomain.sh
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        <<: *test_spec
     - name: e2e-simpleTests
       branches: *branch_spec
       always_run: true
