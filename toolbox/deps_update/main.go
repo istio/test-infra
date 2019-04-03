@@ -20,6 +20,8 @@ import (
 	"log"
 	"os"
 	"path"
+	"io/ioutil"
+	"strings"
 
 	u "istio.io/test-infra/toolbox/util"
 )
@@ -110,6 +112,38 @@ func generateArtifactURL(repo, ref, suffix string) string {
 	return fmt.Sprintf("%s/%s", baseURL, suffix)
 }
 
+func extraUpdateForProxy(file, key, value string) error {
+	newkey := "ISTIO_API_SHA256"
+	url := fmt.Sprintf("https://github.com/%s/api/archive/%s.tar.gz", *owner, value)
+	
+	if key == "ENVOY_SHA" {
+		newkey = "ENVOY_SHA256"
+		url = fmt.Sprintf("https://github.com/%s/envoy/archive/%s.tar.gz", envoyOwner, value)
+	}
+
+	tmpfile, err := ioutil.TempFile("", "")
+	if err != nil {
+		log.Fatalf("Error while creating tempfile: %v\n", err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	cmd := fmt.Sprintf("wget %s -O %s ", url, tmpfile.Name())
+
+	if _, err := u.Shell(cmd); err != nil {
+		return err
+	}
+
+	cmd = fmt.Sprintf("sha256sum %s | awk '{print $1}'", tmpfile.Name())
+	sha256_value, err := u.Shell(cmd)
+	if err != nil {
+		return nil
+	}
+	if err := u.UpdateKeyValueInFile(file, newkey, strings.TrimSuffix(sha256_value, "\n")); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Updates the list of dependencies in repo to the latest stable references
 func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency) error {
 	for _, dep := range *deps {
@@ -117,6 +151,12 @@ func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency
 			continue
 		}
 		if err := u.UpdateKeyValueInFile(dep.File, dep.Name, dep.LastStableSHA); err != nil {
+			return err
+		}
+		if repo != proxyRepo {
+			continue
+		}
+		if err := extraUpdateForProxy(dep.File, dep.Name, dep.LastStableSHA); err != nil {
 			return err
 		}
 	}
