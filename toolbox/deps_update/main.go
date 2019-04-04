@@ -139,11 +139,11 @@ func extraUpdateForProxy(file, key, value string) error {
 	}
 
 	cmd = fmt.Sprintf("sha256sum %s | awk '{print $1}'", tmpfile.Name())
-	sha256_value, err := u.Shell(cmd)
+	sha256Value, err := u.Shell(cmd)
 	if err != nil {
 		return nil
 	}
-	if err := u.UpdateKeyValueInFile(file, newkey, strings.TrimSuffix(sha256_value, "\n")); err != nil {
+	if err := u.UpdateKeyValueInFile(file, newkey, strings.TrimSuffix(sha256Value, "\n")); err != nil {
 		return err
 	}
 	return nil
