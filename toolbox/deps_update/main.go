@@ -121,9 +121,9 @@ func extraUpdateForProxy(file, key, value string) error {
 		url = fmt.Sprintf("https://github.com/%s/envoy/archive/%s.tar.gz", envoyOwner, value)
 	}
 
-	tmpfile, fileErr := ioutil.TempFile("", "")
-	if fileErr != nil {
-		log.Fatalf("Error while creating tempfile: %v\n", fileErr)
+	tmpfile, err := ioutil.TempFile("", "")
+	if err != nil {
+		log.Fatalf("Error while creating tempfile: %v\n", err)
 	}
 
 	defer func() {
