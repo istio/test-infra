@@ -121,13 +121,13 @@ func extraUpdateForProxy(file, key, value string) error {
 		url = fmt.Sprintf("https://github.com/%s/envoy/archive/%s.tar.gz", envoyOwner, value)
 	}
 
-	tmpfile, err := ioutil.TempFile("", "")
-	if err != nil {
-		log.Fatalf("Error while creating tempfile: %v\n", err)
+	tmpfile, fileErr := ioutil.TempFile("", "")
+	if fileErr != nil {
+		log.Fatalf("Error while creating tempfile: %v\n", fileErr)
 	}
 
 	defer func() {
-		if err = os.Remove(tmpfile.Name()); err != nil {
+		if err := os.Remove(tmpfile.Name()); err != nil {
 			log.Fatalf("Error during clean up: %v\n", err)
 		}
 	}()
@@ -139,9 +139,9 @@ func extraUpdateForProxy(file, key, value string) error {
 	}
 
 	cmd = fmt.Sprintf("sha256sum %s | awk '{print $1}'", tmpfile.Name())
-	sha256Value, err := u.Shell(cmd)
-	if err != nil {
-		return nil
+	sha256Value, commandErr := u.Shell(cmd)
+	if commandErr != nil {
+		return commandErr
 	}
 	if err := u.UpdateKeyValueInFile(file, newkey, strings.TrimSuffix(sha256Value, "\n")); err != nil {
 		return err
