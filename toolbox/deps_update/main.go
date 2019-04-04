@@ -17,10 +17,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path"
-	"io/ioutil"
 	"strings"
 
 	u "istio.io/test-infra/toolbox/util"
@@ -115,15 +115,15 @@ func generateArtifactURL(repo, ref, suffix string) string {
 func extraUpdateForProxy(file, key, value string) error {
 	newkey := "ISTIO_API_SHA256"
 	url := fmt.Sprintf("https://github.com/%s/api/archive/%s.tar.gz", *owner, value)
-	
+
 	if key == "ENVOY_SHA" {
 		newkey = "ENVOY_SHA256"
 		url = fmt.Sprintf("https://github.com/%s/envoy/archive/%s.tar.gz", envoyOwner, value)
 	}
 
-	tmpfile, err := ioutil.TempFile("", "")
-	if err != nil {
-		log.Fatalf("Error while creating tempfile: %v\n", err)
+	tmpfile, fileErr := ioutil.TempFile("", "")
+	if fileErr != nil {
+		log.Fatalf("Error while creating tempfile: %v\n", fileErr)
 	}
 
 	defer func() {
