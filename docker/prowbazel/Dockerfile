@@ -45,6 +45,7 @@ RUN sudo chmod +rx /usr/local/bin/entrypoint
 RUN mkdir -p /home/bootstrap/go/src
 ENV GOPATH=/home/bootstrap/go
 ENV PATH ${GOPATH}/bin:${PATH}
+RUN go get istio.io/test-infra/boskos/cmd/mason_client
 
 # Set CI variable which can be checked by test scripts to verify
 # if running in the continuous integration environment.
