@@ -125,7 +125,12 @@ func extraUpdateForProxy(file, key, value string) error {
 	if err != nil {
 		log.Fatalf("Error while creating tempfile: %v\n", err)
 	}
-	defer os.Remove(tmpfile.Name())
+
+	defer func() {
+		if err = os.Remove(tmpfile.Name()); err != nil {
+			log.Fatalf("Error during clean up: %v\n", err)
+		}
+	}()
 
 	cmd := fmt.Sprintf("wget %s -O %s ", url, tmpfile.Name())
 
