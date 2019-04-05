@@ -17,7 +17,6 @@ package util
 import (
 	"encoding/json"
 	"io/ioutil"
-	"os"
 )
 
 /*
