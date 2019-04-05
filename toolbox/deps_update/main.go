@@ -32,7 +32,7 @@ var (
 	tokenFile       = flag.String("token_file", "", "File containing Github API Access Token")
 	baseBranch      = flag.String("base_branch", "master", "Branch from which the deps update commit is based")
 	hub             = flag.String("hub", "", "Where the testing images are hosted")
-	updateExtDep    = flag.Bool("update_ext_dep", false, "Updates external dependences")
+	updateExtDep    = flag.Bool("update_ext_dep", false, "Updates external dependencies")
 	githubClnt      *u.GithubClient
 	githubEnvoyClnt *u.GithubClient
 )
@@ -168,6 +168,7 @@ func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency
 	if repo != istioRepo || len(*hub) == 0 {
 		return nil
 	}
+
 	args := ""
 	for _, updatedDep := range *depChangeList {
 		switch updatedDep.RepoName {
@@ -252,13 +253,19 @@ func updateDependenciesOf(repo string) error {
 	if err = u.SerializeDeps(istioDepsFile, &deps); err != nil {
 		return err
 	}
-	if repo == istioRepo && *updateExtDep {
-		// while depend update can introduce new changes,
-		// introduce them only when requested
+	if repo == istioRepo {
 		goPath := path.Join(repoDir, "../../..")
 		env := "GOPATH=" + goPath
-		if _, err = u.Shell(env + " make depend.update"); err != nil {
+		updateCommand := "; go get -u github.com/golang/dep/cmd/dep; dep ensure -update istio.io/api"
+		if _, err := u.Shell(env + updateCommand); err != nil {
 			return err
+		}
+		if *updateExtDep {
+		// while depend update can introduce new changes,
+		// introduce them only when requested
+			if _, err = u.Shell(env + " make depend.update"); err != nil {
+				return err
+			}
 		}
 	}
 	if _, err = u.Shell("git diff -w --quiet HEAD"); err == nil {
