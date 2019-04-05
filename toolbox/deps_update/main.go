@@ -215,8 +215,13 @@ func updateDependenciesOf(repo string) error {
 	}()
 	deps, err := u.DeserializeDeps(istioDepsFile)
 	// Don't fail if istio.deps file does not exist in the repo.
-	if err != nil && !os.IsNotExist(err) {
-		return err
+	if err != nil {
+		if os.IsNotExist(err) {
+			log.Printf("%s repo does not have istio.deps file to update.", repo)
+			return nil
+		} else {
+			return err
+		}
 	}
 	fingerPrint, depChangeList, err := updateDepSHAGetFingerPrint(repo, &deps)
 	if err != nil {
