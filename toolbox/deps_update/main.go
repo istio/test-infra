@@ -257,13 +257,13 @@ func updateDependenciesOf(repo string) error {
 		goPath := path.Join(repoDir, "../../..")
 		env := "GOPATH=" + goPath
 		updateCommand := "; go get -u github.com/golang/dep/cmd/dep; dep ensure -update istio.io/api"
-		if _, err := u.Shell(env + updateCommand); err != nil {
+		if _, err = u.Shell(env + updateCommand); err != nil {
 			return err
 		}
 		if *updateExtDep {
-		// while depend update can introduce new changes,
-		// introduce them only when requested
-			if _, err = u.Shell(env + " make depend.update"); err != nil {
+			// while depend update can introduce new changes,
+			// introduce them only when requested
+			if _, err = u.Shell("make depend.update"); err != nil {
 				return err
 			}
 		}
