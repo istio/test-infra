@@ -398,15 +398,3 @@ postsubmits:
           - prow/e2e_pilotv2_auth_sds.sh
         nodeSelector:
           testing: test-pool
-    - name: e2e-kind-simpleTests
-      <<: *job_template
-      labels:
-        preset-service-account: "true"
-      spec:
-        containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - prow/e2e-kind-simpleTests.sh
-        nodeSelector:
-          testing: test-pool
