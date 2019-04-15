@@ -79,23 +79,6 @@ presubmits:
           - prow/istio-integ-k8s-tests.sh
         nodeSelector:
           testing: test-pool
-    - name: istio-integ-race-k8s-tests
-      <<: *job_template
-      optional: true
-      context: prow/istio-integ-race-k8s-tests.sh
-      max_concurrency: 5
-      always_run: true
-      optional: true
-      labels:
-        preset-service-account: "true"
-      spec:
-        containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - prow/istio-integ-race-k8s-tests.sh
-        nodeSelector:
-          testing: test-pool
     - name: test-e2e-mixer-no_auth
       <<: *job_template
       optional: true
@@ -314,6 +297,18 @@ postsubmits:
           command:
           - entrypoint
           - prow/istio-integ-race-k8s-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: istio-integ-race-native-tests
+      <<: *job_template
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/istio-integ-race-native-tests.sh
         nodeSelector:
           testing: test-pool
     - name: e2e-simpleTests
