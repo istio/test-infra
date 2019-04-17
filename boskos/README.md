@@ -17,11 +17,11 @@ that Boskos runs in the same cluster where test jobs are running.
 
 ### Deployments
 
-1. [boskos](./boskos_deployment.yaml)     - Main component, handles and manage resource
-2. [janitor](./janitor_deployment.yaml)   - Clean dirty GCP project to free state
-3. [reaper](./reaper_deployment.yaml)     - Look for resources that
+1. [boskos](./boskos-deployment.yaml)     - Main component, handles and manage resource
+2. [janitor](./janitor-deployment.yaml)   - Clean dirty GCP project to free state
+3. [reaper](./reaper-deployment.yaml)     - Look for resources that
    are owned and not being updated, and mark them as dirty
-4. [mason](./mason_deployment.yaml)       - Transform dirty mason resources to
+4. [mason](./mason-deployment.yaml)       - Transform dirty mason resources to
    free
 
 Boskos is using boskos@istio-testing.iam.gserviceaccount.com from the
