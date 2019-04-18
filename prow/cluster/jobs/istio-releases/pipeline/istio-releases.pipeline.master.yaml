@@ -240,6 +240,8 @@ postsubmits:
         - scripts/get_tools_repo.sh
         - scripts/run-test.sh
         - prow/setup_perf_cluster_for_tests.sh
+      nodeSelector:
+        testing: test-pool
 
   - name: release-monthly
     <<: *job_template
