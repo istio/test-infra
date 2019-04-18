@@ -11,6 +11,8 @@ function update_gcc() {
   sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test \
   && sudo apt-get update \
   && sudo apt-get install -y gcc-6 g++-6 \
+  && sudo ln -s -f gcc-6 `which gcc` \
+  && sudo ln -s -f g++-6 `which g++` \
   && echo 'gcc-6/g++-6 installed' \
   && exit 0
 
