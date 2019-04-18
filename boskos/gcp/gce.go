@@ -35,7 +35,7 @@ const (
 type virtualMachineConfig struct {
 	MachineType string   `json:"machinetype,omitempty"`
 	SourceImage string   `json:"sourceimage,omitempty"`
-	Zone        string   `json:"zone,ompitempty"`
+	Zone        string   `json:"zone,omitempty"`
 	Tags        []string `json:"tags,omitempty"`
 	Scopes      []string `json:"scopes,omitempty"`
 }

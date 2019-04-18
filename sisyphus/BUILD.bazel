@@ -12,8 +12,8 @@ go_library(
     importpath = "istio.io/test-infra/sisyphus",
     visibility = ["//visibility:public"],
     deps = [
+        "//toolbox/util:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
-        "//vendor/istio.io/test-infra/toolbox/util:go_default_library",
     ],
 )
 
@@ -26,5 +26,5 @@ go_test(
     data = ["//sisyphus/test_data:testdata"],
     embed = [":go_default_library"],
     importpath = "istio.io/test-infra/sisyphus",
-    deps = ["//vendor/istio.io/test-infra/toolbox/util:go_default_library"],
+    deps = ["//toolbox/util:go_default_library"],
 )
