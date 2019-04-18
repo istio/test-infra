@@ -1,0 +1,21 @@
+#!/bin/bash
+# May require sudo login.
+
+if [[ "$(uname)" != "Linux" ]]; then
+  echo "Run on Linux only."
+  exit 1
+fi
+
+function update_gcc() {
+  echo 'Installing gcc-7/g++-7'
+  sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test \
+  && sudo apt-get update \
+  && sudo apt-get install -y gcc-7 g++-7 \
+  && sudo ln -s -f gcc-7 `which gcc` \
+  && sudo ln -s -f g++-7 `which g++` \
+  && echo 'gcc-7/g++-7 installed' \
+  && exit 0
+
+  echo 'failed to install gcc-7/g++-7'
+  exit 1
+}
