@@ -8,4 +8,4 @@
 * 0.5.8: update golang to 1.10.4 and docker to 18.06.1-CE
 * 0.5.9: update docker to use overlay2 fs for performance and update bazel to 0.16.1
 * 0.5.10: update entrpypoint
-* 0.5.11: update gcc/g++ to 6.0
+* 0.5.11: update gcc/g++ to 7.0
