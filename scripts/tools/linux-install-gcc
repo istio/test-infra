@@ -1,0 +1,19 @@
+#!/bin/bash
+# May require sudo login.
+
+if [[ "$(uname)" != "Linux" ]]; then
+  echo "Run on Linux only."
+  exit 1
+fi
+
+function update_gcc() {
+  echo 'Installing gcc-6/g++-6'
+  sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test \
+  && sudo apt-get update \
+  && sudo apt-get install -y gcc-6 g++-6 \
+  && echo 'gcc-6/g++-6 installed' \
+  && exit 0
+
+  echo 'failed to install gcc-6/g++-6'
+  exit 1
+}

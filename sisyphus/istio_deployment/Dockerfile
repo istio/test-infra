@@ -1,4 +1,4 @@
-FROM gcr.io/istio-testing/prowbazel:0.4.8
+FROM gcr.io/istio-testing/prowbazel:0.5.2
 
 RUN go get -u istio.io/test-infra/sisyphus/istio_deployment
 
