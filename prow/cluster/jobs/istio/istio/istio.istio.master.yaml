@@ -287,6 +287,18 @@ postsubmits:
           - prow/istio-integ-k8s-tests.sh
         nodeSelector:
           testing: test-pool
+    - name: istio-integ-race-native-tests
+      <<: *job_template
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/istio-integ-race-native-tests.sh
+        nodeSelector:
+          testing: test-pool
     - name: e2e-simpleTests
       <<: *job_template
       labels:
