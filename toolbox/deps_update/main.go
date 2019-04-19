@@ -40,7 +40,7 @@ var (
 const (
 	istioDepsFile         = "istio.deps"
 	prTitlePrefix         = "[BOT PR] to update dependencies of "
-	prBody                = "This PR will be merged automatically once checks are successful."
+	prBody                = "This PR will NOT be merged automatically once checks are successful. NEEDS approval from OWNERS."
 	dependencyUpdateLabel = "dependency-update"
 
 	// CI Artifacts URLs
