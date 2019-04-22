@@ -232,9 +232,8 @@ postsubmits:
     labels:
       preset-release-pipeline: "true"
     spec:
-      <<: *istio_rel_pipeline_spec
       containers:
-      - <<: *istio_rel_pipeline_container
+      - <<: *istio_container
         command:
         - entrypoint
         - scripts/get_tools_repo.sh
