@@ -2,9 +2,9 @@
 
 set -eux
 
-PROTOC_VERSION="3.5.0"
+PROTOC_VERSION="3.7.1"
 PROTOC_ARCHIVE="protoc-${PROTOC_VERSION}-linux-x86_64.zip"
-PROTOC_BASE_URL="https://github.com/google/protobuf/releases/download/v${PROTOC_VERSION}"
+PROTOC_BASE_URL="https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}"
 PROTOC_URL="${PROTOC_BASE_URL}/${PROTOC_ARCHIVE}"
 PROTOC_DIR="/tmp/protoc_install"
 
