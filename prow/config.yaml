@@ -143,35 +143,6 @@ branch-protection:
                   - "ci/circleci: e2e-pilot-noauth-v1alpha3-v2"
                   - "ci/circleci: e2e-mixer-noauth-v1alpha3-v2"
                   - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
-        istio.io:
-          protect: false
-          required_status_checks:
-            contexts:
-            - ci/circleci
-            - deploy/netlify
-          branches:
-            release-0.1:
-              protect: true
-            release-0.2:
-              protect: true
-            release-0.3:
-              protect: true
-            release-0.4:
-              protect: true
-            release-0.5:
-              protect: true
-            release-0.6:
-              protect: true
-            release-0.7:
-              protect: true
-            release-0.8:
-              protect: true
-            release-1.0:
-              protect: true
-            release-1.1:
-              protect: true
-            master:
-              protect: true
         proxy:
           protect: false
           required_status_checks:
@@ -240,7 +211,6 @@ tide:
     - needs-rebase
   merge_method:
     istio/api: squash
-    istio/istio.io: squash
     istio/istio: squash
     istio/proxy: squash
     istio/test-infra: squash
