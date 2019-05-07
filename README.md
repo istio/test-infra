@@ -21,8 +21,6 @@ are defined. Only once tests are passing and after review approval can a PR be m
 exists for that module, a new fastForward branch (based on HEAD of master) will be created and a PR will be automatically
 created for the stable branch. This will trigger qualification jobs.
 
-More details [here](doc/deployment.md).
-
 ## Tests Types ##
 
 * Unit tests: Should be done in specific modules for features implemented in a module. (PR to master)
