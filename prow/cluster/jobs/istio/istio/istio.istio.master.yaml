@@ -61,7 +61,7 @@ presubmits:
       nodeSelector:
         testing: build-pool
 
-  - name: integ-galley-local-presubmit-tests
+  - name: integ-galley-local-presubmit-tests-master
     <<: *job_template
     context: prow/integ-galley-local-presubmit-tests.sh
     optional: true
@@ -150,7 +150,7 @@ presubmits:
               - prow/integ-framework-k8s-presubmit-tests.sh
         nodeSelector:
           testing: test-pool
-    - name: integ-galley-k8s-presubmit-tests
+    - name: integ-galley-k8s-presubmit-tests-master
       <<: *job_template
       optional: true
       context: prow/integ-galley-k8s-presubmit-tests.sh
