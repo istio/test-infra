@@ -47,6 +47,20 @@ presubmits:
       nodeSelector:
         testing: build-pool
 
+  - name: integ-framework-local-presubmit-tests
+    <<: *job_template
+    context: prow/integ-framework-local-presubmit-tests.sh
+    optional: true
+    always_run: true
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-framework-local-presubmit-tests.sh
+      nodeSelector:
+        testing: build-pool
+
   - name: integ-galley-local-presubmit-tests
     <<: *job_template
     context: prow/integ-galley-local-presubmit-tests.sh
@@ -58,6 +72,34 @@ presubmits:
           command:
             - entrypoint
             - prow/integ-galley-local-presubmit-tests.sh
+      nodeSelector:
+        testing: build-pool
+
+  - name: integ-pilot-local-presubmit-tests
+    <<: *job_template
+    context: prow/integ-pilot-local-presubmit-tests.sh
+    optional: true
+    always_run: true
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-pilot-local-presubmit-tests.sh
+      nodeSelector:
+        testing: build-pool
+
+  - name: integ-security-local-presubmit-tests
+    <<: *job_template
+    context: prow/integ-security-local-presubmit-tests.sh
+    optional: true
+    always_run: true
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-security-local-presubmit-tests.sh
       nodeSelector:
         testing: build-pool
 
@@ -92,6 +134,22 @@ presubmits:
           - prow/istio-integ-k8s-tests.sh
         nodeSelector:
           testing: test-pool
+    - name: integ-framework-k8s-presubmit-tests
+      <<: *job_template
+      optional: true
+      context: prow/integ-framework-k8s-presubmit-tests.sh
+      max_concurrency: 5
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-framework-k8s-presubmit-tests.sh
+        nodeSelector:
+          testing: test-pool
     - name: integ-galley-k8s-presubmit-tests
       <<: *job_template
       optional: true
@@ -106,6 +164,38 @@ presubmits:
             command:
               - entrypoint
               - prow/integ-galley-k8s-presubmit-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: integ-pilot-k8s-presubmit-tests
+      <<: *job_template
+      optional: true
+      context: prow/integ-pilot-k8s-presubmit-tests.sh
+      max_concurrency: 5
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-pilot-k8s-presubmit-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: integ-security-k8s-presubmit-tests
+      <<: *job_template
+      optional: true
+      context: prow/integ-security-k8s-presubmit-tests.sh
+      max_concurrency: 5
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-security-k8s-presubmit-tests.sh
         nodeSelector:
           testing: test-pool
     - name: test-e2e-mixer-no_auth
