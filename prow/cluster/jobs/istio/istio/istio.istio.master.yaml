@@ -47,6 +47,20 @@ presubmits:
       nodeSelector:
         testing: build-pool
 
+  - name: integ-galley-local-presubmit-tests
+    <<: *job_template
+    context: prow/integ-galley-local-presubmit-tests.sh
+    optional: true
+    always_run: true
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-galley-local-presubmit-tests.sh
+      nodeSelector:
+        testing: build-pool
+
   - name: istio-presubmit
     <<: *job_template
     context: prow/istio-presubmit.sh
@@ -76,6 +90,22 @@ presubmits:
           command:
           - entrypoint
           - prow/istio-integ-k8s-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: integ-galley-k8s-presubmit-tests
+      <<: *job_template
+      optional: true
+      context: prow/integ-galley-k8s-presubmit-tests.sh
+      max_concurrency: 5
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-galley-k8s-presubmit-tests.sh
         nodeSelector:
           testing: test-pool
     - name: test-e2e-mixer-no_auth
