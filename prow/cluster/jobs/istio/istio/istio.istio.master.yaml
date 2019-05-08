@@ -21,7 +21,7 @@ presubmits:
 
   istio/istio:
 
-  - name: istio-unit-tests
+  - name: istio-unit-tests-master
     <<: *job_template
     context: prow/istio-unit-tests.sh
     always_run: true
@@ -34,7 +34,7 @@ presubmits:
       nodeSelector:
         testing: build-pool
 
-  - name: istio-integ-local-tests
+  - name: istio-integ-local-tests-master
     <<: *job_template
     context: prow/istio-integ-local-tests.sh
     always_run: true
@@ -61,7 +61,7 @@ presubmits:
       nodeSelector:
         testing: build-pool
 
-  - name: istio-presubmit
+  - name: istio-presubmit-master
     <<: *job_template
     context: prow/istio-presubmit.sh
     always_run: true
@@ -76,7 +76,7 @@ presubmits:
       nodeSelector:
         testing: build-pool
     run_after_success:
-    - name: istio-integ-k8s-tests
+    - name: istio-integ-k8s-tests-master
       <<: *job_template
       optional: true
       context: prow/istio-integ-k8s-tests.sh
@@ -108,7 +108,7 @@ presubmits:
               - prow/integ-galley-k8s-presubmit-tests.sh
         nodeSelector:
           testing: test-pool
-    - name: test-e2e-mixer-no_auth
+    - name: test-e2e-mixer-no_auth-master
       <<: *job_template
       optional: true
       skip_report: true
@@ -124,7 +124,7 @@ presubmits:
           - prow/test-e2e-mixer-no_auth.sh
         nodeSelector:
           testing: test-pool
-    - name: istio-pilot-e2e-envoyv2-v1alpha3
+    - name: istio-pilot-e2e-envoyv2-v1alpha3-master
       <<: *job_template
       always_run: true
       context: prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
@@ -139,7 +139,7 @@ presubmits:
           - prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
         nodeSelector:
           testing: test-pool
-    - name: e2e-mixer-no_auth
+    - name: e2e-mixer-no_auth-master
       <<: *job_template
       always_run: true
       context: prow/e2e-mixer-no_auth.sh
@@ -154,7 +154,7 @@ presubmits:
           - prow/e2e-mixer-no_auth.sh
         nodeSelector:
           testing: test-pool
-    - name: e2e-dashboard
+    - name: e2e-dashboard-master
       <<: *job_template
       always_run: true
       context: prow/e2e-dashboard.sh
@@ -169,7 +169,7 @@ presubmits:
           - prow/e2e-dashboard.sh
         nodeSelector:
           testing: test-pool
-    - name: e2e-bookInfoTests-envoyv2-v1alpha3
+    - name: e2e-bookInfoTests-envoyv2-v1alpha3-master
       <<: *job_template
       always_run: true
       context: prow/e2e-bookInfoTests-v1alpha3.sh
@@ -184,7 +184,7 @@ presubmits:
           - prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
         nodeSelector:
           testing: test-pool
-    - name: e2e-bookInfoTests-trustdomain
+    - name: e2e-bookInfoTests-trustdomain-master
       <<: *job_template
       always_run: true
       context: prow/e2e-bookInfoTests-trustdomain.sh
@@ -200,7 +200,7 @@ presubmits:
           - prow/e2e-bookInfoTests-trustdomain.sh
         nodeSelector:
           testing: test-pool
-    - name: e2e-simpleTests
+    - name: e2e-simpleTests-master
       <<: *job_template
       always_run: true
       context: prow/e2e-simpleTests.sh
@@ -215,7 +215,7 @@ presubmits:
           - prow/e2e-simpleTests.sh
         nodeSelector:
           testing: test-pool
-    - name: istio-pilot-multicluster-e2e
+    - name: istio-pilot-multicluster-e2e-master
       <<: *job_template
       always_run: true
       context: prow/istio-pilot-multicluster-e2e.sh
@@ -231,7 +231,7 @@ presubmits:
           - prow/istio-pilot-multicluster-e2e.sh
         nodeSelector:
           testing: test-pool
-    - name: e2e-simpleTests-cni
+    - name: e2e-simpleTests-cni-master
       <<: *job_template
       always_run: false
       context: prow/e2e-simpleTests-cni.sh
@@ -246,7 +246,7 @@ presubmits:
           - entrypoint
           - prow/e2e-simpleTests-cni.sh
         nodeSelector:
-    - name: istio_auth_sds_e2e
+    - name: istio_auth_sds_e2e-master
       <<: *job_template
       always_run: true
       context: prow/e2e_pilotv2_auth_sds.sh
@@ -261,7 +261,7 @@ presubmits:
           - prow/e2e_pilotv2_auth_sds.sh
         nodeSelector:
           testing: test-pool
-    - name: release-test
+    - name: release-test-master
       <<: *job_template
       always_run: true
       context: prow/release-test.sh
@@ -284,7 +284,7 @@ presubmits:
 postsubmits:
 
   istio/istio:
-  - name: istio-integ-local-tests
+  - name: istio-integ-local-tests-master
     <<: *job_template
     spec:
       containers:
@@ -294,7 +294,7 @@ postsubmits:
         - prow/istio-integ-local-tests.sh
       nodeSelector:
         testing: test-pool
-  - name: istio-postsubmit
+  - name: istio-postsubmit-master
     <<: *job_template
     labels:
       preset-service-account: "true"
@@ -307,7 +307,7 @@ postsubmits:
       nodeSelector:
         testing: test-pool
     run_after_success:
-    - name: istio-integ-k8s-tests
+    - name: istio-integ-k8s-tests-master
       <<: *job_template
       labels:
         preset-service-account: "true"
@@ -319,7 +319,7 @@ postsubmits:
           - prow/istio-integ-k8s-tests.sh
         nodeSelector:
           testing: test-pool
-    - name: istio-integ-race-native-tests
+    - name: istio-integ-race-native-tests-master
       <<: *job_template
       labels:
         preset-service-account: "true"
@@ -331,7 +331,7 @@ postsubmits:
           - prow/istio-integ-race-native-tests.sh
         nodeSelector:
           testing: test-pool
-    - name: e2e-simpleTests
+    - name: e2e-simpleTests-master
       <<: *job_template
       labels:
         preset-service-account: "true"
@@ -343,7 +343,7 @@ postsubmits:
           - prow/e2e-simpleTests.sh
         nodeSelector:
           testing: test-pool
-    - name: e2e-simpleTests-non-mcp
+    - name: e2e-simpleTests-non-mcp-master
       <<: *job_template
       labels:
         preset-service-account: "true"
@@ -356,7 +356,7 @@ postsubmits:
           - prow/e2e-simpleTests-non-mcp.sh
         nodeSelector:
           testing: test-pool
-    - name: e2e-bookInfoTests-envoyv2-v1alpha3
+    - name: e2e-bookInfoTests-envoyv2-v1alpha3-master
       <<: *job_template
       labels:
         preset-service-account: "true"
@@ -368,7 +368,7 @@ postsubmits:
           - prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
         nodeSelector:
           testing: test-pool
-    - name: istio-pilot-e2e-envoyv2-v1alpha3
+    - name: istio-pilot-e2e-envoyv2-v1alpha3-master
       <<: *job_template
       labels:
         preset-service-account: "true"
@@ -380,7 +380,7 @@ postsubmits:
           - prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
         nodeSelector:
           testing: test-pool
-    - name: istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest
+    - name: istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest-master
       <<: *job_template
       labels:
         preset-service-account: "true"
@@ -392,7 +392,7 @@ postsubmits:
           - prow/istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest.sh
         nodeSelector:
           testing: test-pool
-    - name: e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp
+    - name: e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp-master
       <<: *job_template
       labels:
         preset-service-account: "true"
@@ -405,7 +405,7 @@ postsubmits:
           - prow/e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp.sh
         nodeSelector:
           testing: test-pool
-    - name: e2e-mixer-no_auth
+    - name: e2e-mixer-no_auth-master
       <<: *job_template
       labels:
         preset-service-account: "true"
@@ -417,7 +417,7 @@ postsubmits:
           - prow/e2e-mixer-no_auth.sh
         nodeSelector:
           testing: test-pool
-    - name: e2e-dashboard
+    - name: e2e-dashboard-master
       <<: *job_template
       labels:
         preset-service-account: "true"
@@ -429,7 +429,7 @@ postsubmits:
           - prow/e2e-dashboard.sh
         nodeSelector:
           testing: test-pool
-    - name: istio_auth_sds_e2e
+    - name: istio_auth_sds_e2e-master
       <<: *job_template
       labels:
         preset-service-account: "true"
