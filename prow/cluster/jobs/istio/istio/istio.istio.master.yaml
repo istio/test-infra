@@ -47,6 +47,20 @@ presubmits:
       nodeSelector:
         testing: build-pool
 
+  - name: integ-galley-local-presubmit-tests
+    <<: *job_template
+    context: prow/integ-galley-local-presubmit-tests.sh
+    optional: true
+    always_run: true
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-galley-local-presubmit-tests.sh
+      nodeSelector:
+        testing: build-pool
+
   - name: istio-presubmit-master
     <<: *job_template
     context: prow/istio-presubmit.sh
@@ -68,7 +82,6 @@ presubmits:
       context: prow/istio-integ-k8s-tests.sh
       max_concurrency: 5
       always_run: true
-      optional: true
       labels:
         preset-service-account: "true"
       spec:
@@ -77,6 +90,22 @@ presubmits:
           command:
           - entrypoint
           - prow/istio-integ-k8s-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: integ-galley-k8s-presubmit-tests
+      <<: *job_template
+      optional: true
+      context: prow/integ-galley-k8s-presubmit-tests.sh
+      max_concurrency: 5
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-galley-k8s-presubmit-tests.sh
         nodeSelector:
           testing: test-pool
     - name: test-e2e-mixer-no_auth-master
@@ -236,6 +265,9 @@ presubmits:
       <<: *job_template
       always_run: true
       context: prow/release-test.sh
+      # TODO(https://github.com/istio/istio/issues/13823): The test is blocking check-ins. Once it is fixed, we can
+      # make it required again.
+      optional: true
       labels:
         preset-service-account: "true"
       max_concurrency: 5
