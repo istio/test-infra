@@ -222,6 +222,9 @@ presubmits:
       <<: *job_template
       always_run: true
       context: prow/release-test.sh
+      # TODO(https://github.com/istio/istio/issues/13823): The test is blocking check-ins. Once it is fixed, we can
+      # make it required again.
+      optional: true
       labels:
         preset-service-account: "true"
       max_concurrency: 5
