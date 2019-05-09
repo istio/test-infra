@@ -71,7 +71,7 @@ func main() {
 
 func createPushStartedJSON() {
 	u.AssertIntDefined("pr_number", prNum, unspecifiedInt)
-	cvt := ci2g.NewConverter(circleciBucket, *org, *repo, *job, *stage, *buildNum)
+	cvt := ci2g.NewConverter(circleciBucket, *org, *repo, *job, *stage, *branch, *buildNum)
 	if err := cvt.CreateUploadStartedJSON(*prNum, *sha); err != nil {
 		log.Fatalf("Failed to create started.json: %v", err)
 	}
@@ -79,7 +79,7 @@ func createPushStartedJSON() {
 
 func uploadArtifactsUpdateLatestBuild() {
 	u.AssertNotEmpty("junit_xml", junitXML)
-	cvt := ci2g.NewConverter(circleciBucket, *org, *repo, *job, *stage, *buildNum)
+	cvt := ci2g.NewConverter(circleciBucket, *org, *repo, *job, *stage, *branch, *buildNum)
 	if err := cvt.CreateUploadFinishedJSON(*exitCode, *sha); err != nil {
 		log.Fatalf("Failed to create started.json: %v", err)
 	}
