@@ -42,6 +42,7 @@ var (
 	buildLogTXT        = flag.String("build_log_txt", "", "Path to the build log")
 	serviceAccountJSON = flag.String("service_account", "", "Path to the service account key")
 	stage              = flag.String("stage", "", "Used to multiplex results on GCS")
+	branch             = flag.String("branch", "", "Separate test result per branch.")
 )
 
 func init() {

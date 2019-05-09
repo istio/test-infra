@@ -50,10 +50,10 @@ type Converter struct {
 }
 
 // NewConverter creates a Converter
-func NewConverter(bucket, org, repo, job, stage string, build int) *Converter {
+func NewConverter(bucket, org, repo, job, stage string, branch string, build int) *Converter {
 	return &Converter{
 		gcsClient:     u.NewGCSClient(bucket),
-		gcsPathPrefix: filepath.Join(stage, job, strconv.Itoa(build)),
+		gcsPathPrefix: filepath.Join(stage, branch, job, strconv.Itoa(build)),
 		bucket:        bucket,
 		org:           org,
 		repo:          repo,
