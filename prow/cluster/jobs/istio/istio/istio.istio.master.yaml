@@ -34,19 +34,6 @@ presubmits:
       nodeSelector:
         testing: build-pool
 
-  - name: istio-integ-local-tests-master
-    <<: *job_template
-    context: prow/istio-integ-local-tests.sh
-    always_run: true
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/istio-integ-local-tests.sh
-      nodeSelector:
-        testing: build-pool
-
   - name: integ-framework-local-presubmit-tests-master
     <<: *job_template
     context: prow/integ-framework-local-presubmit-tests.sh
@@ -118,22 +105,6 @@ presubmits:
       nodeSelector:
         testing: build-pool
     run_after_success:
-    - name: istio-integ-k8s-tests-master
-      <<: *job_template
-      optional: true
-      context: prow/istio-integ-k8s-tests.sh
-      max_concurrency: 5
-      always_run: true
-      labels:
-        preset-service-account: "true"
-      spec:
-        containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - prow/istio-integ-k8s-tests.sh
-        nodeSelector:
-          testing: test-pool
     - name: integ-framework-k8s-presubmit-tests-master
       <<: *job_template
       optional: true
