@@ -37,7 +37,6 @@ presubmits:
   - name: integ-framework-local-presubmit-tests-master
     <<: *job_template
     context: prow/integ-framework-local-presubmit-tests.sh
-    optional: true
     always_run: true
     spec:
       containers:
@@ -51,7 +50,6 @@ presubmits:
   - name: integ-galley-local-presubmit-tests-master
     <<: *job_template
     context: prow/integ-galley-local-presubmit-tests.sh
-    optional: true
     always_run: true
     spec:
       containers:
@@ -65,7 +63,6 @@ presubmits:
   - name: integ-pilot-local-presubmit-tests-master
     <<: *job_template
     context: prow/integ-pilot-local-presubmit-tests.sh
-    optional: true
     always_run: true
     spec:
       containers:
@@ -79,7 +76,6 @@ presubmits:
   - name: integ-security-local-presubmit-tests-master
     <<: *job_template
     context: prow/integ-security-local-presubmit-tests.sh
-    optional: true
     always_run: true
     spec:
       containers:
@@ -107,7 +103,6 @@ presubmits:
     run_after_success:
     - name: integ-framework-k8s-presubmit-tests-master
       <<: *job_template
-      optional: true
       context: prow/integ-framework-k8s-presubmit-tests.sh
       max_concurrency: 5
       always_run: true
@@ -123,7 +118,6 @@ presubmits:
           testing: test-pool
     - name: integ-galley-k8s-presubmit-tests-master
       <<: *job_template
-      optional: true
       context: prow/integ-galley-k8s-presubmit-tests.sh
       max_concurrency: 5
       always_run: true
