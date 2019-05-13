@@ -60,6 +60,19 @@ presubmits:
       nodeSelector:
         testing: build-pool
 
+  - name: integ-mixer-local-presubmit-tests-master
+    <<: *job_template
+    context: prow/integ-mixer-local-presubmit-tests.sh
+    always_run: true
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-mixer-local-presubmit-tests.sh
+      nodeSelector:
+        testing: build-pool
+
   - name: integ-pilot-local-presubmit-tests-master
     <<: *job_template
     context: prow/integ-pilot-local-presubmit-tests.sh
@@ -129,6 +142,21 @@ presubmits:
             command:
               - entrypoint
               - prow/integ-galley-k8s-presubmit-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: integ-mixer-k8s-presubmit-tests-master
+      <<: *job_template
+      context: prow/integ-mixer-k8s-presubmit-tests.sh
+      max_concurrency: 5
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-mixer-k8s-presubmit-tests.sh
         nodeSelector:
           testing: test-pool
     - name: integ-pilot-k8s-presubmit-tests-master
