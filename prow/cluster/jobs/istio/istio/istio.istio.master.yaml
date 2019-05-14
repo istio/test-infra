@@ -393,6 +393,16 @@ postsubmits:
         - prow/istio-integ-local-tests.sh
       nodeSelector:
         testing: test-pool
+  - name: istio-kind-simpleTest-master
+    <<: *job_template
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/e2e-kind-simpleTests.sh
+      nodeSelector:
+        testing: test-pool
   - name: istio-postsubmit-master
     <<: *job_template
     labels:
