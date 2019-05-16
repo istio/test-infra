@@ -62,6 +62,7 @@ presubmits:
 
   - name: integ-mixer-local-presubmit-tests-master
     <<: *job_template
+    optional: true
     context: prow/integ-mixer-local-presubmit-tests.sh
     always_run: true
     spec:
@@ -147,6 +148,7 @@ presubmits:
     - name: integ-mixer-k8s-presubmit-tests-master
       <<: *job_template
       context: prow/integ-mixer-k8s-presubmit-tests.sh
+      optional: true
       max_concurrency: 5
       always_run: true
       labels:
