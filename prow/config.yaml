@@ -181,6 +181,14 @@ branch-protection:
               protect: true
             release-1.0:
               protect: true
+    istio-ecosystem:
+      repos:
+        authservice:
+          protect: false
+          restrictions:
+          branches:
+            master:
+              protect: true
 
 tide:
   queries:
@@ -189,6 +197,7 @@ tide:
     - istio/test-infra
     - istio/istio
     - istio/proxy
+    - istio-ecosystem/authservice
     labels:
     - lgtm
     - approved
@@ -205,6 +214,7 @@ tide:
     istio/proxy: squash
     istio/test-infra: squash
     istio-releases/pipeline: squash
+    istio-ecosystem/authservice: squash
   target_url: https://prow.istio.io/tide
 
   context_options:

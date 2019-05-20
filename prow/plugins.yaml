@@ -11,6 +11,8 @@ triggers:
   - istio/proxy
   - istio-releases/pipeline
   trusted_org: istio
+- repos:
+  - istio-ecosystem/authservice
 
 config_updater:
   maps:
@@ -44,6 +46,8 @@ lgtm:
   - istio/proxy
   - istio-releases/pipeline
   trusted_team_for_sticky_lgtm: "Istio Hackers"
+- repos:
+  - istio-ecosystem/authservice
 
 approve:
 - repos:
@@ -52,6 +56,10 @@ approve:
   - istio/test-infra
   - istio/proxy
   - istio-releases/pipeline
+  implicit_self_approve: true
+  lgtm_acts_as_approve: true
+- repos:
+  - istio-ecosystem/authservice
   implicit_self_approve: true
   lgtm_acts_as_approve: true
 
@@ -123,6 +131,19 @@ plugins:
   - lifecycle
   - trigger
 
+  istio-ecosystem/authservice:
+  - approve
+  - assign
+  - blunderbuss
+  - golint
+  - help
+  - hold
+  - lgtm
+  - lifecycle
+  - slackevents
+  - trigger
+  - wip
+
 external_plugins:
   istio/istio:
   - name: needs-rebase
@@ -137,6 +158,10 @@ external_plugins:
     events:
       - pull_request
   istio/pipeline:
+  - name: needs-rebase
+    events:
+      - pull_request
+  istio-ecosystem/authservice:
   - name: needs-rebase
     events:
       - pull_request
