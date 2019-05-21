@@ -209,3 +209,25 @@ periodics:
       command:
       - entrypoint
       - scripts/trigger_daily_release.sh
+- cron: "15 9 * * *" # every day at 1:15 am PST
+  name: release-trigger-daily-build-release-1.2
+  branches: release-1.1
+  decorate: true
+  extra_refs:
+  - org: istio-releases
+    repo: pipeline
+    base_ref: release-1.2
+  labels:
+    preset-release-pipeline: "true"
+  spec:
+    <<: *istio_rel_pipeline_spec
+    containers:
+    - <<: *istio_rel_pipeline_container
+      env:
+      - name: GIT_BRANCH
+        value: release-1.2
+      - name: RELEASE_BOT
+        value: foo
+      command:
+      - entrypoint
+      - scripts/trigger_daily_release.sh
