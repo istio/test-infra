@@ -73,6 +73,9 @@ branch-protection:
             <<: *blocked_branches
             release-1.2:
               protect: true
+              required_status_checks:
+                contexts:
+                - "merges-blocked-needs-admin"
             release-1.1:
               protect: true
               required_status_checks:
@@ -123,6 +126,7 @@ branch-protection:
                 - "ci/circleci: e2e-pilot-noauth-v1alpha3-v2"
                 - "ci/circleci: e2e-mixer-noauth-v1alpha3-v2"
                 - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
+                - "merges-blocked-needs-admin"
             authz-v2:
               protect: true
               required_status_checks:
@@ -162,6 +166,9 @@ branch-protection:
                 - "merges-blocked-needs-admin"
             release-1.2:
               protect: true
+              required_status_checks:
+                contexts:
+                - "merges-blocked-needs-admin"
             master:
               protect: true
             wasm:

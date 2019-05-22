@@ -17,6 +17,19 @@ istio_container: &istio_container
       memory: "24Gi"
       cpu: "7000m"
 
+istio_container_with_kind: &istio_container_with_kind
+  image: gcr.io/istio-testing/istio-builder:v20190521-2f2d695
+  # Docker in Docker
+  securityContext:
+    privileged: true
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "24Gi"
+      cpu: "7000"
+
 presubmits:
 
   istio/istio:
@@ -34,16 +47,69 @@ presubmits:
       nodeSelector:
         testing: build-pool
 
-  - name: istio-integ-local-tests
+  - name: integ-framework-local-presubmit-tests
     <<: *job_template
-    context: prow/istio-integ-local-tests.sh
+    context: prow/integ-framework-local-presubmit-tests.sh
     always_run: true
     spec:
       containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/istio-integ-local-tests.sh
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-framework-local-presubmit-tests.sh
+      nodeSelector:
+        testing: build-pool
+
+  - name: integ-galley-local-presubmit-tests
+    <<: *job_template
+    context: prow/integ-galley-local-presubmit-tests.sh
+    always_run: true
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-galley-local-presubmit-tests.sh
+      nodeSelector:
+        testing: build-pool
+
+  - name: integ-mixer-local-presubmit-tests
+    <<: *job_template
+    optional: true
+    context: prow/integ-mixer-local-presubmit-tests.sh
+    always_run: true
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-mixer-local-presubmit-tests.sh
+      nodeSelector:
+        testing: build-pool
+
+  - name: integ-pilot-local-presubmit-tests
+    <<: *job_template
+    context: prow/integ-pilot-local-presubmit-tests.sh
+    always_run: true
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-pilot-local-presubmit-tests.sh
+      nodeSelector:
+        testing: build-pool
+
+  - name: integ-security-local-presubmit-tests
+    <<: *job_template
+    context: prow/integ-security-local-presubmit-tests.sh
+    always_run: true
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-security-local-presubmit-tests.sh
       nodeSelector:
         testing: build-pool
 
@@ -62,21 +128,82 @@ presubmits:
       nodeSelector:
         testing: build-pool
     run_after_success:
-    - name: istio-integ-k8s-tests
+    - name: integ-framework-k8s-presubmit-tests
       <<: *job_template
-      optional: true
-      context: prow/istio-integ-k8s-tests.sh
+      context: prow/integ-framework-k8s-presubmit-tests.sh
       max_concurrency: 5
       always_run: true
-      optional: true
       labels:
         preset-service-account: "true"
       spec:
         containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - prow/istio-integ-k8s-tests.sh
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-framework-k8s-presubmit-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: integ-galley-k8s-presubmit-tests
+      <<: *job_template
+      context: prow/integ-galley-k8s-presubmit-tests.sh
+      max_concurrency: 5
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-galley-k8s-presubmit-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: integ-mixer-k8s-presubmit-tests
+      <<: *job_template
+      context: prow/integ-mixer-k8s-presubmit-tests.sh
+      optional: true
+      max_concurrency: 5
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-mixer-k8s-presubmit-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: integ-pilot-k8s-presubmit-tests
+      <<: *job_template
+      optional: true
+      context: prow/integ-pilot-k8s-presubmit-tests.sh
+      max_concurrency: 5
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-pilot-k8s-presubmit-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: integ-security-k8s-presubmit-tests
+      <<: *job_template
+      optional: true
+      context: prow/integ-security-k8s-presubmit-tests.sh
+      max_concurrency: 5
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-security-k8s-presubmit-tests.sh
         nodeSelector:
           testing: test-pool
     - name: test-e2e-mixer-no_auth
@@ -186,6 +313,22 @@ presubmits:
           - prow/e2e-simpleTests.sh
         nodeSelector:
           testing: test-pool
+    - name: e2e-simpleTestsMinProfile
+      <<: *job_template
+      optional: true
+      context: prow/e2e-simpleTests-minProfile.sh
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-simpleTests-minProfile.sh
+        nodeSelector:
+          testing: test-pool
+
     - name: istio-pilot-multicluster-e2e
       <<: *job_template
       always_run: true
@@ -236,6 +379,9 @@ presubmits:
       <<: *job_template
       always_run: true
       context: prow/release-test.sh
+      # TODO(https://github.com/istio/istio/issues/13823): The test is blocking check-ins. Once it is fixed, we can
+      # make it required again.
+      optional: true
       labels:
         preset-service-account: "true"
       max_concurrency: 5
@@ -262,6 +408,16 @@ postsubmits:
         - prow/istio-integ-local-tests.sh
       nodeSelector:
         testing: test-pool
+  - name: istio-kind-simpleTest
+    <<: *job_template
+    spec:
+      containers:
+      - <<: *istio_container_with_kind
+        command:
+        - entrypoint
+        - prow/e2e-kind-simpleTests.sh
+      nodeSelector:
+        testing: test-pool
   - name: istio-postsubmit
     <<: *job_template
     labels:
@@ -285,6 +441,19 @@ postsubmits:
           command:
           - entrypoint
           - prow/istio-integ-k8s-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: e2e-simpleTestsMinProfile
+      <<: *job_template
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-simpleTests-minProfile.sh
         nodeSelector:
           testing: test-pool
     - name: istio-integ-race-native-tests
