@@ -27,8 +27,8 @@ istio_container_with_kind: &istio_container_with_kind
       memory: "512Mi"
       cpu: "500m"
     limits:
-      memory: "24Gi"
-      cpu: "7000m"
+      memory: "40Gi"
+      cpu: "8000m"
 
 presubmits:
 
@@ -417,7 +417,7 @@ postsubmits:
         - entrypoint
         - prow/e2e-kind-simpleTests.sh
       nodeSelector:
-        testing: test-pool
+        testing: build-pool
   - name: istio-unit-tests-master
     <<: *job_template
     context: prow/istio-unit-tests.sh
