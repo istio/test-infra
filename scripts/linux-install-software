@@ -11,6 +11,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # TOOLS
 . ${DIR}/tools/linux-install-bazel || error_exit "Cannot load Bazel install script"
 . ${DIR}/tools/linux-install-clang || error_exit "Cannot load Clang install script"
+. ${DIR}/tools/linux-install-cmake || error_exit "Cannot load cmake install script"
 . ${DIR}/tools/linux-install-docker || error_exit "Cannot load Docker install script"
 . ${DIR}/tools/linux-install-gcloud || error_exit "Cannot load gcloud install script"
 . ${DIR}/tools/linux-install-golang || error_exit "Cannot load golang install script"
@@ -31,7 +32,6 @@ function install_packages() {
     apt-transport-https \
     build-essential \
     ca-certificates \
-    cmake \
     curl \
     g++ \
     libtool \
@@ -92,6 +92,7 @@ update_bazel
 update_clang
 update_helm
 update_gcc
+install_cmake
 clear_apt
 
 echo "Software installation complete."
