@@ -21,7 +21,7 @@ RUN /tmp/istio_tmp/scripts/linux-install-software \
 VOLUME /var/lib/docker
 EXPOSE 2375
 
-ENV PATH /usr/local/go/bin:/usr/lib/google-cloud-sdk/bin:/opt/go/bin:${PATH}
+ENV PATH /usr/local/go/bin:/usr/local/cmake/bin:/usr/lib/google-cloud-sdk/bin:/opt/go/bin:${PATH}
 
 # Create bootstrap user
 ENV HOME /home/bootstrap

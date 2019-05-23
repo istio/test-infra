@@ -47,3 +47,4 @@ Our dependency on this script is because it appropariately writes test job resul
 * 0.5.0: Update bazel to 0.22 and clang to 7
 * 0.5.1: Add lld and libc++
 * 0.5.2: Update gcc and g++ to 7.0
+* 0.5.3: Update cmake to 3.8.0
