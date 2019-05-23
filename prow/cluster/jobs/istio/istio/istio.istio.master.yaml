@@ -418,19 +418,7 @@ postsubmits:
         - prow/e2e-kind-simpleTests.sh
       nodeSelector:
         testing: build-pool
-  - name: istio-unit-tests-master
-    <<: *job_template
-    context: prow/istio-unit-tests.sh
-    always_run: true
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/istio-unit-tests.sh
-      nodeSelector:
-        testing: build-pool
-  - name: istio-integ-k8s-tests-master
+  - name: istio-postsubmit-master
     <<: *job_template
     labels:
       preset-service-account: "true"
@@ -439,142 +427,155 @@ postsubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/istio-integ-k8s-tests.sh
+        - prow/istio-postsubmit.sh
       nodeSelector:
         testing: test-pool
-  - name: e2e-simpleTestsMinProfile-master
-    <<: *job_template
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/e2e-simpleTests-minProfile.sh
-      nodeSelector:
-        testing: test-pool
-  - name: istio-integ-race-native-tests-master
-    <<: *job_template
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/istio-integ-race-native-tests.sh
-      nodeSelector:
-        testing: test-pool
-  - name: e2e-simpleTests-master
-    <<: *job_template
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/e2e-simpleTests.sh
-      nodeSelector:
-        testing: test-pool
-  - name: e2e-simpleTests-non-mcp-master
-    <<: *job_template
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/e2e-simpleTests-non-mcp.sh
-      nodeSelector:
-        testing: test-pool
-  - name: e2e-bookInfoTests-envoyv2-v1alpha3-master
-    <<: *job_template
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
-      nodeSelector:
-        testing: test-pool
-  - name: istio-pilot-e2e-envoyv2-v1alpha3-master
-    <<: *job_template
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
-      nodeSelector:
-        testing: test-pool
-  - name: istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest-master
-    <<: *job_template
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest.sh
-      nodeSelector:
-        testing: test-pool
-  - name: e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp-master
-    <<: *job_template
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp.sh
-      nodeSelector:
-        testing: test-pool
-  - name: e2e-mixer-no_auth-master
-    <<: *job_template
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/e2e-mixer-no_auth.sh
-      nodeSelector:
-        testing: test-pool
-  - name: e2e-dashboard-master
-    <<: *job_template
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/e2e-dashboard.sh
-      nodeSelector:
-        testing: test-pool
-  - name: istio_auth_sds_e2e-master
-    <<: *job_template
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/e2e_pilotv2_auth_sds.sh
-      nodeSelector:
-        testing: test-pool
+    run_after_success:
+    - name: istio-integ-k8s-tests-master
+      <<: *job_template
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/istio-integ-k8s-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: e2e-simpleTestsMinProfile-master
+      <<: *job_template
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-simpleTests-minProfile.sh
+        nodeSelector:
+          testing: test-pool
+    - name: istio-integ-race-native-tests-master
+      <<: *job_template
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/istio-integ-race-native-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: e2e-simpleTests-master
+      <<: *job_template
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-simpleTests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: e2e-simpleTests-non-mcp-master
+      <<: *job_template
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-simpleTests-non-mcp.sh
+        nodeSelector:
+          testing: test-pool
+    - name: e2e-bookInfoTests-envoyv2-v1alpha3-master
+      <<: *job_template
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
+        nodeSelector:
+          testing: test-pool
+    - name: istio-pilot-e2e-envoyv2-v1alpha3-master
+      <<: *job_template
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
+        nodeSelector:
+          testing: test-pool
+    - name: istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest-master
+      <<: *job_template
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest.sh
+        nodeSelector:
+          testing: test-pool
+    - name: e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp-master
+      <<: *job_template
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp.sh
+        nodeSelector:
+          testing: test-pool
+    - name: e2e-mixer-no_auth-master
+      <<: *job_template
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-mixer-no_auth.sh
+        nodeSelector:
+          testing: test-pool
+    - name: e2e-dashboard-master
+      <<: *job_template
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e-dashboard.sh
+        nodeSelector:
+          testing: test-pool
+    - name: istio_auth_sds_e2e-master
+      <<: *job_template
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+        - <<: *istio_container
+          command:
+          - entrypoint
+          - prow/e2e_pilotv2_auth_sds.sh
+        nodeSelector:
+          testing: test-pool
