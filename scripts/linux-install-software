@@ -15,6 +15,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . ${DIR}/tools/linux-install-docker || error_exit "Cannot load Docker install script"
 . ${DIR}/tools/linux-install-gcloud || error_exit "Cannot load gcloud install script"
 . ${DIR}/tools/linux-install-golang || error_exit "Cannot load golang install script"
+. ${DIR}/tools/linux-install-ninja || error_exit "Cannot load ninja install script"
 . ${DIR}/tools/linux-install-repo || error_exit "Cannot load repo install script"
 . ${DIR}/tools/linux-install-wrk || error_exit "Cannot load wrk install script"
 . ${DIR}/tools/linux-install-protoc || error_exit "Cannot load protoc install script"
@@ -37,7 +38,6 @@ function install_packages() {
     libtool \
     lsb-release \
     m4 \
-    ninja-build \
     openjdk-8-jdk-headless \
     pkg-config \
     python \
@@ -82,6 +82,7 @@ if [[ -d "${TOOLS_DIR}" ]]; then
 else
   mkdir -p "${TOOLS_DIR}" -m 0777
 fi
+install_ninja
 update_docker "${PLATFORM}"
 update_protoc
 update_gcloud
