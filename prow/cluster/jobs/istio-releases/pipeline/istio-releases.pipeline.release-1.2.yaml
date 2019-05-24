@@ -67,39 +67,39 @@ presubmits:
         - scripts/pipeline_runner.sh
         - release/gcb/run_build.sh
     run_after_success:
-    - name: release-upgrade-tests-1.0.1
-      <<: *job_template
-      always_run: true
-      context: prow/release-upgrade-tests-1.0.1
-      max_concurrency: 5
-      labels:
-        preset-service-account: "true"
-      spec:
-        containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - scripts/run-test.sh
-          - prow/upgrade-tests-1.0.1.sh
-        nodeSelector:
-          testing: test-pool
+    # - name: release-upgrade-tests-1.0.1
+    #   <<: *job_template
+    #   always_run: true
+    #   context: prow/release-upgrade-tests-1.0.1
+    #   max_concurrency: 5
+    #   labels:
+    #     preset-service-account: "true"
+    #   spec:
+    #     containers:
+    #     - <<: *istio_container
+    #       command:
+    #       - entrypoint
+    #       - scripts/run-test.sh
+    #       - prow/upgrade-tests-1.0.1.sh
+    #     nodeSelector:
+    #       testing: test-pool
 
-    - name: release-upgrade-tests-1.0.2
-      <<: *job_template
-      always_run: true
-      context: prow/release-upgrade-tests-1.0.2
-      max_concurrency: 5
-      labels:
-        preset-service-account: "true"
-      spec:
-        containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - scripts/run-test.sh
-          - prow/upgrade-tests-1.0.2.sh
-        nodeSelector:
-          testing: test-pool
+    # - name: release-upgrade-tests-1.0.2
+    #   <<: *job_template
+    #   always_run: true
+    #   context: prow/release-upgrade-tests-1.0.2
+    #   max_concurrency: 5
+    #   labels:
+    #     preset-service-account: "true"
+    #   spec:
+    #     containers:
+    #     - <<: *istio_container
+    #       command:
+    #       - entrypoint
+    #       - scripts/run-test.sh
+    #       - prow/upgrade-tests-1.0.2.sh
+    #     nodeSelector:
+    #       testing: test-pool
 
     - name: release-unit-tests
       <<: *job_template
