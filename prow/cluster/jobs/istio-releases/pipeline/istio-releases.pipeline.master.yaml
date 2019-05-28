@@ -51,12 +51,29 @@ presubmits:
 
   istio-releases/pipeline:
 
+  - name: release-build-test-e2e-simpleTests
+    <<: *job_template
+    optional: true
+    always_run: true
+    context: prow/release-e2e-simpleTests
+    max_concurrency: 5
+    labels:
+      preset-service-account: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/e2e-simpleTests.sh
+      nodeSelector:
+        testing: test-pool
   - name: release-build
     <<: *job_template
     always_run: true
     optional: false
     context: prow/release-build
-    labels:
+    labels: 
       preset-release-pipeline: "true"
     spec:
       <<: *istio_rel_pipeline_spec
