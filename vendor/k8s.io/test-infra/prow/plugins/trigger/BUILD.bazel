@@ -1,4 +1,30 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
+package(default_visibility = ["//visibility:public"])
+
+load(
+    "@io_bazel_rules_go//go:def.bzl",
+    "go_library",
+    "go_test",
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = [
+        "generic-comment_test.go",
+        "pull-request_test.go",
+        "push_test.go",
+    ],
+    embed = [":go_default_library"],
+    deps = [
+        "//prow/config:go_default_library",
+        "//prow/github:go_default_library",
+        "//prow/github/fakegithub:go_default_library",
+        "//prow/kube:go_default_library",
+        "//prow/labels:go_default_library",
+        "//prow/plugins:go_default_library",
+        "//vendor/github.com/sirupsen/logrus:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/util/sets:go_default_library",
+    ],
+)
 
 go_library(
     name = "go_default_library",
@@ -8,19 +34,30 @@ go_library(
         "push.go",
         "trigger.go",
     ],
-    importmap = "istio.io/test-infra/vendor/k8s.io/test-infra/prow/plugins/trigger",
     importpath = "k8s.io/test-infra/prow/plugins/trigger",
-    visibility = ["//visibility:public"],
     deps = [
+        "//prow/config:go_default_library",
+        "//prow/errorutil:go_default_library",
+        "//prow/github:go_default_library",
+        "//prow/kube:go_default_library",
+        "//prow/labels:go_default_library",
+        "//prow/pjutil:go_default_library",
+        "//prow/pluginhelp:go_default_library",
+        "//prow/plugins:go_default_library",
         "//vendor/github.com/sirupsen/logrus:go_default_library",
         "//vendor/k8s.io/apimachinery/pkg/util/sets:go_default_library",
-        "//vendor/k8s.io/test-infra/prow/config:go_default_library",
-        "//vendor/k8s.io/test-infra/prow/errorutil:go_default_library",
-        "//vendor/k8s.io/test-infra/prow/github:go_default_library",
-        "//vendor/k8s.io/test-infra/prow/kube:go_default_library",
-        "//vendor/k8s.io/test-infra/prow/labels:go_default_library",
-        "//vendor/k8s.io/test-infra/prow/pjutil:go_default_library",
-        "//vendor/k8s.io/test-infra/prow/pluginhelp:go_default_library",
-        "//vendor/k8s.io/test-infra/prow/plugins:go_default_library",
     ],
+)
+
+filegroup(
+    name = "package-srcs",
+    srcs = glob(["**"]),
+    tags = ["automanaged"],
+    visibility = ["//visibility:private"],
+)
+
+filegroup(
+    name = "all-srcs",
+    srcs = [":package-srcs"],
+    tags = ["automanaged"],
 )

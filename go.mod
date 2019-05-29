@@ -2,7 +2,7 @@ module istio.io/test-infra
 
 require (
 	cloud.google.com/go v0.23.0
-	github.com/bazelbuild/buildtools v0.0.0-20180226164855-80c7f0d45d7e // indirect
+	github.com/bazelbuild/buildtools v0.0.0-20190213131114-55b64c3d2ddf // indirect
 	github.com/beorn7/perks v0.0.0-20160804104726-4c0e84591b9a // indirect
 	github.com/bwmarrin/snowflake v0.0.0-20180412010544-68117e6bbede // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -12,6 +12,7 @@ require (
 	github.com/gogo/protobuf v1.0.0 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/golang/lint v0.0.0-20180319214916-85993ffd0a6c // indirect
+	github.com/golang/protobuf v1.3.1 // indirect
 	github.com/google/btree v0.0.0-20180813153112-4030bb1f1f0c // indirect
 	github.com/google/go-cmp v0.2.0 // indirect
 	github.com/google/go-github v0.0.0-20171108000855-8c08f4fba5e0
@@ -33,8 +34,8 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
-	github.com/onsi/ginkgo v1.7.0 // indirect
-	github.com/onsi/gomega v1.4.3 // indirect
+	github.com/onsi/ginkgo v1.8.0 // indirect
+	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/prometheus/client_golang v0.8.0
 	github.com/prometheus/client_model v0.0.0-20170216185247-6f3806018612 // indirect
@@ -48,12 +49,12 @@ require (
 	github.com/spf13/pflag v1.0.1 // indirect
 	github.com/stretchr/testify v1.3.0 // indirect
 	go.opencensus.io v0.13.0 // indirect
-	golang.org/x/crypto v0.0.0-20180214000028-650f4a345ab4 // indirect
-	golang.org/x/net v0.0.0-20180906233101-161cd47e91fd
+	golang.org/x/net v0.0.0-20190420063019-afa5a82059c6
 	golang.org/x/oauth2 v0.0.0-20171106152852-9ff8ebcc8e24
 	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f
+	golang.org/x/sys v0.0.0-20190422165155-953cdadca894 // indirect
 	golang.org/x/time v0.0.0-20181108054448-85acf8d2951c // indirect
-	golang.org/x/tools v0.0.0-20190121143147-24cd39ecf745 // indirect
+	golang.org/x/tools v0.0.0-20190422233926-fe54fb35175b // indirect
 	google.golang.org/api v0.0.0-20180131010904-ffa5046912fd
 	google.golang.org/appengine v1.0.0 // indirect
 	google.golang.org/genproto v0.0.0-20171103030625-11c7f9e547da // indirect
@@ -63,7 +64,7 @@ require (
 	gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/robfig/cron.v2 v2.0.0-20150107220207-be2e0b0deed5 // indirect
-	gopkg.in/yaml.v2 v2.2.1
+	gopkg.in/yaml.v2 v2.2.2
 	k8s.io/api v0.0.0-20181221193117-173ce66c1e39 // indirect
 	k8s.io/apiextensions-apiserver v0.0.0-20190119024419-80a4532647cb // indirect
 	k8s.io/apimachinery v0.0.0-20180228050457-302974c03f7e // indirect

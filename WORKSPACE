@@ -6,27 +6,27 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file"
 # See https://github.com/bazelbuild/rules_go for the up to date setup instructions.
 http_archive(
     name = "io_bazel_rules_go",
-    sha256 = "ade51a315fa17347e5c31201fdc55aa5ffb913377aa315dceb56ee9725e620ee",
-    urls = ["https://github.com/bazelbuild/rules_go/releases/download/0.16.6/rules_go-0.16.6.tar.gz"],
+    url = "https://github.com/bazelbuild/rules_go/releases/download/0.18.5/rules_go-0.18.5.tar.gz",
+    sha256 = "a82a352bffae6bee4e95f68a8d80a70e87f42c4741e6a448bec11998fcc82329",
 )
 
 http_archive(
     name = "bazel_gazelle",
-    sha256 = "7949fc6cc17b5b191103e97481cf8889217263acf52e00b560683413af204fcb",
-    urls = ["https://github.com/bazelbuild/bazel-gazelle/releases/download/0.16.0/bazel-gazelle-0.16.0.tar.gz"],
+    sha256 = "3c681998538231a2d24d0c07ed5a7658cb72bfb5fd4bf9911157c0e9ac6a2687",
+    urls = ["https://github.com/bazelbuild/bazel-gazelle/releases/download/0.17.0/bazel-gazelle-0.17.0.tar.gz"],
 )
 
 http_archive(
     name = "com_github_bazelbuild_buildtools",
-    strip_prefix = "buildtools-0.20.0",
-    url = "https://github.com/bazelbuild/buildtools/archive/0.20.0.zip",
+    strip_prefix = "buildtools-0.22.0",
+    url = "https://github.com/bazelbuild/buildtools/archive/0.22.0.zip",
 )
 
-load("@io_bazel_rules_go//go:def.bzl", "go_register_toolchains", "go_rules_dependencies")
+load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 
 go_rules_dependencies()
 
-go_register_toolchains(go_version = "1.11.5")
+go_register_toolchains(go_version = "1.12.5")
 
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
 
@@ -119,7 +119,7 @@ go_repository(
 go_repository(
     name = "com_github_golang_protobuf",
     importpath = "github.com/golang/protobuf",
-    tag = "v1.2.0",
+    tag = "v1.3.1",
 )
 
 go_repository(
@@ -269,13 +269,13 @@ go_repository(
 go_repository(
     name = "com_github_onsi_ginkgo",
     importpath = "github.com/onsi/ginkgo",
-    tag = "v1.7.0",
+    tag = "v1.8.0",
 )
 
 go_repository(
     name = "com_github_onsi_gomega",
     importpath = "github.com/onsi/gomega",
-    tag = "v1.4.3",
+    tag = "v1.5.0",
 )
 
 go_repository(
@@ -413,7 +413,7 @@ go_repository(
 go_repository(
     name = "in_gopkg_yaml_v2",
     importpath = "gopkg.in/yaml.v2",
-    tag = "v2.2.1",
+    tag = "v2.2.2",
 )
 
 go_repository(
@@ -494,13 +494,13 @@ go_repository(
 
 go_repository(
     name = "org_golang_x_crypto",
-    commit = "650f4a345ab4",
+    commit = "c2843e01d9a2",
     importpath = "golang.org/x/crypto",
 )
 
 go_repository(
     name = "org_golang_x_net",
-    commit = "161cd47e91fd",
+    commit = "afa5a82059c6",
     importpath = "golang.org/x/net",
 )
 
@@ -518,7 +518,7 @@ go_repository(
 
 go_repository(
     name = "org_golang_x_sys",
-    commit = "d0be0721c37e",
+    commit = "953cdadca894",
     importpath = "golang.org/x/sys",
 )
 
@@ -536,7 +536,7 @@ go_repository(
 
 go_repository(
     name = "org_golang_x_tools",
-    commit = "24cd39ecf745",
+    commit = "fe54fb35175b",
     importpath = "golang.org/x/tools",
 )
 

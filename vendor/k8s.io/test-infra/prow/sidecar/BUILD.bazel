@@ -7,15 +7,28 @@ go_library(
         "options.go",
         "run.go",
     ],
-    importmap = "istio.io/test-infra/vendor/k8s.io/test-infra/prow/sidecar",
     importpath = "k8s.io/test-infra/prow/sidecar",
     visibility = ["//visibility:public"],
     deps = [
+        "//prow/gcsupload:go_default_library",
+        "//prow/pod-utils/downwardapi:go_default_library",
+        "//prow/pod-utils/gcs:go_default_library",
+        "//prow/pod-utils/wrapper:go_default_library",
         "//vendor/github.com/fsnotify/fsnotify:go_default_library",
         "//vendor/github.com/sirupsen/logrus:go_default_library",
-        "//vendor/k8s.io/test-infra/prow/gcsupload:go_default_library",
-        "//vendor/k8s.io/test-infra/prow/pod-utils/downwardapi:go_default_library",
-        "//vendor/k8s.io/test-infra/prow/pod-utils/gcs:go_default_library",
-        "//vendor/k8s.io/test-infra/prow/pod-utils/wrapper:go_default_library",
     ],
+)
+
+filegroup(
+    name = "package-srcs",
+    srcs = glob(["**"]),
+    tags = ["automanaged"],
+    visibility = ["//visibility:private"],
+)
+
+filegroup(
+    name = "all-srcs",
+    srcs = [":package-srcs"],
+    tags = ["automanaged"],
+    visibility = ["//visibility:public"],
 )
