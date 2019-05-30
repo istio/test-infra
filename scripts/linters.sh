@@ -8,25 +8,23 @@ GOPATH=${GOPATH:-${UNSET_GOPATH}}
 
 function install_gometalinter() {
   echo 'Installing gometalinter ...'
-  bazel run @go_sdk//:bin/go -- get -u gopkg.in/alecthomas/gometalinter.v2
-  "${GOPATH}/bin/gometalinter.v2" --install
+  curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.16.0
 }
 
 function run_gometalinter() {
   echo 'Running gometalinter ...'
-  "${GOPATH}/bin/gometalinter.v2" ./... \
+  "${GOPATH}/bin/golangci-lint" run ./... \
     --concurrency=4\
     --deadline=600s --disable-all\
     --enable=deadcode\
     --enable=errcheck\
-    --enable-gc\
     --enable=goconst\
     --enable=gofmt\
     --enable=goimports\
-    --enable=golint --min-confidence=0\
+    --enable=golint min-confidence=0\
     --enable=ineffassign\
     --enable=interfacer\
-    --enable=lll --line-length=160\
+    --enable=lll line-length=160\
     --enable=megacheck\
     --enable=misspell\
     --enable=structcheck\
@@ -36,8 +34,6 @@ function run_gometalinter() {
     --enable=vetshadow\
     --exclude='should have a package comment'\
     --exclude=.pb.go\
-    --vendor\
-    --vendored-linters\
     ./...
   echo 'gometalinter OK'
 }
