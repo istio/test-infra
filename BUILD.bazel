@@ -3,6 +3,8 @@
 
 load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
 load("@bazel_gazelle//:def.bzl", "gazelle")
+load("@com_github_atlassian_bazel_tools//golangcilint:def.bzl", "golangcilint")
+
 
 buildifier(
     name = "buildifier",
@@ -12,4 +14,13 @@ gazelle(
     name = "gazelle",
     command = "fix",
     external = "vendored",
+)
+
+golangcilint(
+    name = "golangcilint",
+    config = "//:.golangci.yml",
+    paths = [
+        "//...",
+    ],
+    prefix = "istio.io"
 )

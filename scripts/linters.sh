@@ -14,9 +14,8 @@ function install_golangcilint() {
 }
 
 function run_golangcilint() {
-  bazel run @go_sdk//:bin/go -- mod download
   echo 'Running golangcilint ...'
-  golangci-lint run --issues-exit-code=0  -v ./...
+  bazel run //:golangcilint -- run --issues-exit-code=0  -v ./...
   echo 'golangcilint OK'
 }
 

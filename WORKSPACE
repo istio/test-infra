@@ -22,6 +22,12 @@ http_archive(
     url = "https://github.com/bazelbuild/buildtools/archive/0.20.0.zip",
 )
 
+http_archive(
+    name = "com_github_atlassian_bazel_tools",
+    strip_prefix = "bazel-tools-864fde1c98ab943cf8bc61768bff5473d1277068",
+    urls = ["https://github.com/atlassian/bazel-tools/archive/864fde1c98ab943cf8bc61768bff5473d1277068.zip"],
+)
+
 load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 
 go_rules_dependencies()
@@ -36,6 +42,9 @@ load("@com_github_bazelbuild_buildtools//buildifier:deps.bzl", "buildifier_depen
 
 buildifier_dependencies()
 
+load("@com_github_atlassian_bazel_tools//golangcilint:deps.bzl", "golangcilint_dependencies")
+
+golangcilint_dependencies()
 ##
 ## docker
 ##
@@ -119,7 +128,7 @@ go_repository(
 go_repository(
     name = "com_github_golang_protobuf",
     importpath = "github.com/golang/protobuf",
-    tag = "v1.2.0",
+    tag = "v1.3.1",
 )
 
 go_repository(
@@ -269,13 +278,13 @@ go_repository(
 go_repository(
     name = "com_github_onsi_ginkgo",
     importpath = "github.com/onsi/ginkgo",
-    tag = "v1.7.0",
+    tag = "v1.8.0",
 )
 
 go_repository(
     name = "com_github_onsi_gomega",
     importpath = "github.com/onsi/gomega",
-    tag = "v1.4.3",
+    tag = "v1.5.0",
 )
 
 go_repository(
@@ -413,7 +422,7 @@ go_repository(
 go_repository(
     name = "in_gopkg_yaml_v2",
     importpath = "gopkg.in/yaml.v2",
-    tag = "v2.2.1",
+    tag = "v2.2.2",
 )
 
 go_repository(
@@ -496,13 +505,13 @@ go_repository(
 
 go_repository(
     name = "org_golang_x_crypto",
-    commit = "650f4a345ab4",
+    commit = "cbcb75029529",
     importpath = "golang.org/x/crypto",
 )
 
 go_repository(
     name = "org_golang_x_net",
-    commit = "161cd47e91fd",
+    commit = "afa5a82059c6",
     importpath = "golang.org/x/net",
 )
 
@@ -514,13 +523,13 @@ go_repository(
 
 go_repository(
     name = "org_golang_x_sync",
-    commit = "1d60e4601c6f",
+    commit = "112230192c58",
     importpath = "golang.org/x/sync",
 )
 
 go_repository(
     name = "org_golang_x_sys",
-    commit = "d0be0721c37e",
+    commit = "953cdadca894",
     importpath = "golang.org/x/sys",
 )
 
@@ -538,7 +547,7 @@ go_repository(
 
 go_repository(
     name = "org_golang_x_tools",
-    commit = "24cd39ecf745",
+    commit = "521d6ed310dd",
     importpath = "golang.org/x/tools",
 )
 
@@ -556,19 +565,19 @@ go_repository(
 
 go_repository(
     name = "cc_mvdan_unparam",
-    commit = "cc9d2fb52971",
+    commit = "1b9ccfa71afe",
     importpath = "mvdan.cc/unparam",
 )
 
 go_repository(
     name = "co_honnef_go_tools",
-    commit = "8e66885c52b0",
+    commit = "a1efa522b896",
     importpath = "honnef.co/go/tools",
 )
 
 go_repository(
     name = "com_4d63_gochecknoglobals",
-    commit = "abbdf6ec0afb",
+    commit = "7c3491d2b6ec",
     importpath = "4d63.com/gochecknoglobals",
 )
 
@@ -598,7 +607,7 @@ go_repository(
 
 go_repository(
     name = "com_github_alexkohler_nakedret",
-    commit = "c0e305a4f690",
+    commit = "98ae56e4e0f3",
     importpath = "github.com/alexkohler/nakedret",
 )
 
@@ -634,8 +643,8 @@ go_repository(
 
 go_repository(
     name = "com_github_kisielk_gotool",
-    commit = "0de1eaf82fa3",
     importpath = "github.com/kisielk/gotool",
+    tag = "v1.0.0",
 )
 
 go_repository(
@@ -646,7 +655,7 @@ go_repository(
 
 go_repository(
     name = "com_github_mdempsky_unconvert",
-    commit = "2db5a8ead8e7",
+    commit = "2f5dc3378ed3",
     importpath = "github.com/mdempsky/unconvert",
 )
 
@@ -658,13 +667,13 @@ go_repository(
 
 go_repository(
     name = "com_github_mozilla_tls_observatory",
-    commit = "8791a200eb40",
+    commit = "a3c1b6cfecfd",
     importpath = "github.com/mozilla/tls-observatory",
 )
 
 go_repository(
     name = "com_github_nbutton23_zxcvbn_go",
-    commit = "a22cb81b2ecd",
+    commit = "ae427f1e4c1d",
     importpath = "github.com/nbutton23/zxcvbn-go",
 )
 
@@ -677,18 +686,18 @@ go_repository(
 go_repository(
     name = "com_github_rogpeppe_go_internal",
     importpath = "github.com/rogpeppe/go-internal",
-    tag = "v1.1.0",
+    tag = "v1.3.0",
 )
 
 go_repository(
     name = "com_github_ryanuber_go_glob",
-    commit = "256dc444b735",
     importpath = "github.com/ryanuber/go-glob",
+    tag = "v1.0.0",
 )
 
 go_repository(
     name = "com_github_securego_gosec",
-    commit = "a966ff760c3a",
+    commit = "0ebfa2f8b7f8",
     importpath = "github.com/securego/gosec",
 )
 
@@ -718,6 +727,24 @@ go_repository(
 
 go_repository(
     name = "org_golang_x_lint",
-    commit = "8f45f776aaf1",
+    commit = "959b441ac422",
     importpath = "golang.org/x/lint",
+)
+
+go_repository(
+    name = "com_github_google_renameio",
+    importpath = "github.com/google/renameio",
+    tag = "v0.1.0",
+)
+
+go_repository(
+    name = "com_github_lib_pq",
+    importpath = "github.com/lib/pq",
+    tag = "v1.1.0",
+)
+
+go_repository(
+    name = "org_golang_x_mod",
+    commit = "4bf6d317e70e",
+    importpath = "golang.org/x/mod",
 )
