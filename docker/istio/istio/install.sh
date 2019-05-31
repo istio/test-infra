@@ -12,6 +12,7 @@ apt-get -qqy --no-install-recommends install \
   curl \
   lsb-release \
   python \
+  python-requests \
   ruby \
   rubygems \
   ruby-dev \
