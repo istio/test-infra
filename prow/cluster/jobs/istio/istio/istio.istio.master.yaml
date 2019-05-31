@@ -458,16 +458,91 @@ presubmits:
 postsubmits:
 
   istio/istio:
-  - name: istio-integ-local-tests-master
-    <<: *job_template
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/istio-integ-local-tests.sh
-      nodeSelector:
-        testing: test-pool
+    - name: integ-framework-local-postsubmit-tests-master
+      <<: *job_template
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - "${ROOT}/prow/integ-suite-k8s.sh"
+              - prow/integ-suite-local.sh
+              - test.integration.framework.local
+        nodeSelector:
+          testing: test-pool
+
+    - name: integ-galley-local-postsubmit-tests-master
+      <<: *job_template
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-suite-local.sh
+              - test.integration.galley.local
+        nodeSelector:
+          testing: test-pool
+
+    - name: integ-istioctl-local-postsubmit-tests-master
+      <<: *job_template
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-suite-local.sh
+              - test.integration.istioctl.local
+        nodeSelector:
+          testing: test-pool
+
+    - name: integ-mixer-local-postsubmit-tests-master
+      <<: *job_template
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-suite-local.sh
+              - test.integration.mixer.local
+        nodeSelector:
+          testing: test-pool
+
+    - name: integ-pilot-local-postsubmit-tests-master
+      <<: *job_template
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-suite-local.sh
+              - test.integration.pilot.local
+        nodeSelector:
+          testing: test-pool
+
+    - name: integ-security-local-postsubmit-tests-master
+      <<: *job_template
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-suite-local.sh
+              - test.integration.security.local
+        nodeSelector:
+          testing: test-pool
+
+    - name: integ-telemetry-local-postsubmit-tests-master
+      <<: *job_template
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-suite-local.sh
+              - test.integration.telemetry.local
+        nodeSelector:
+          testing: test-pool
+
   - name: istio-kind-simpleTest-master
     <<: *job_template
     spec:
@@ -490,7 +565,7 @@ postsubmits:
         - prow/istio-unit-tests.sh
       nodeSelector:
         testing: build-pool
-  - name: istio-integ-k8s-tests-master
+  - name: integ-framework-k8s-postsubmit-tests-master
     <<: *job_template
     labels:
       preset-service-account: "true"
@@ -499,7 +574,79 @@ postsubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/istio-integ-k8s-tests.sh
+        - prow/integ-suite-k8s.sh
+        - test.integration.framework.kube
+      nodeSelector:
+        testing: test-pool
+  - name: integ-galley-k8s-postsubmit-tests-master
+    <<: *job_template
+    labels:
+      preset-service-account: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/integ-suite-k8s.sh
+        - test.integration.galley.kube
+      nodeSelector:
+        testing: test-pool
+  - name: integ-istioctl-k8s-postsubmit-tests-master
+    <<: *job_template
+    labels:
+      preset-service-account: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/integ-suite-k8s.sh
+        - test.integration.istioctl.kube
+      nodeSelector:
+        testing: test-pool
+  - name: integ-mixer-k8s-postsubmit-tests-master
+    <<: *job_template
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/integ-suite-k8s.sh
+        - test.integration.mixer.kube
+      nodeSelector:
+        testing: test-pool
+  - name: integ-pilot-k8s-postsubmit-tests-master
+    <<: *job_template
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/integ-suite-k8s.sh
+        - test.integration.pilot.kube
+      nodeSelector:
+        testing: test-pool
+
+  - name: integ-security-k8s-postsubmit-tests-master
+    <<: *job_template
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/integ-suite-k8s.sh
+        - test.integration.security.kube
+      nodeSelector:
+        testing: test-pool
+  - name: integ-telemetry-k8s-postsubmit-tests-master
+    <<: *job_template
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/integ-suite-k8s.sh
+        - test.integration.telemetry.kube
       nodeSelector:
         testing: test-pool
   - name: e2e-simpleTestsMinProfile-master
