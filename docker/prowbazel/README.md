@@ -49,4 +49,4 @@ Our dependency on this script is because it appropariately writes test job resul
 * 0.5.2: Update gcc and g++ to 7.0
 * 0.5.3: Update cmake to 3.8.0
 * 0.5.4: Update ninja to 1.9.0
-* 0.5.5: Update golang to 1.12.5
+* 0.5.5: Update golang to 1.12.5 and bazel to 0.26.0
