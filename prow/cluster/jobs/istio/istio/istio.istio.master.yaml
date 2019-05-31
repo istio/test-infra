@@ -73,6 +73,19 @@ presubmits:
       nodeSelector:
         testing: build-pool
 
+  - name: integ-istioctl-local-presubmit-tests-master
+    <<: *job_template
+    context: prow/integ-istioctl-local-presubmit-tests.sh
+    always_run: true
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-istioctl-local-presubmit-tests.sh
+      nodeSelector:
+        testing: build-pool
+
   - name: integ-mixer-local-presubmit-tests-master
     <<: *job_template
     optional: true
@@ -110,6 +123,19 @@ presubmits:
           command:
             - entrypoint
             - prow/integ-security-local-presubmit-tests.sh
+      nodeSelector:
+        testing: build-pool
+
+  - name: integ-telemetry-local-presubmit-tests-master
+    <<: *job_template
+    context: prow/integ-telemetry-local-presubmit-tests.sh
+    always_run: true
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-telemetry-local-presubmit-tests.sh
       nodeSelector:
         testing: build-pool
 
@@ -158,6 +184,22 @@ presubmits:
               - prow/integ-galley-k8s-presubmit-tests.sh
         nodeSelector:
           testing: test-pool
+    - name: integ-istioctl-k8s-presubmit-tests-master
+      <<: *job_template
+      context: prow/integ-istioctl-k8s-presubmit-tests.sh
+      optional: true
+      max_concurrency: 5
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-istioctl-k8s-presubmit-tests.sh
+        nodeSelector:
+          testing: test-pool
     - name: integ-mixer-k8s-presubmit-tests-master
       <<: *job_template
       context: prow/integ-mixer-k8s-presubmit-tests.sh
@@ -204,6 +246,22 @@ presubmits:
             command:
               - entrypoint
               - prow/integ-security-k8s-presubmit-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: integ-telemetry-k8s-presubmit-tests-master
+      <<: *job_template
+      context: prow/integ-telemetry-k8s-presubmit-tests.sh
+      optional: true
+      max_concurrency: 5
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-telemetry-k8s-presubmit-tests.sh
         nodeSelector:
           testing: test-pool
     - name: test-e2e-mixer-no_auth-master
