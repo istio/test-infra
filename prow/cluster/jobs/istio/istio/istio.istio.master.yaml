@@ -458,90 +458,89 @@ presubmits:
 postsubmits:
 
   istio/istio:
-    - name: integ-framework-local-postsubmit-tests-master
-      <<: *job_template
-      spec:
-        containers:
-          - <<: *istio_container
-            command:
-              - entrypoint
-              - "${ROOT}/prow/integ-suite-k8s.sh"
-              - prow/integ-suite-local.sh
-              - test.integration.framework.local
-        nodeSelector:
-          testing: test-pool
+  - name: integ-framework-local-postsubmit-tests-master
+    <<: *job_template
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-suite-local.sh
+            - test.integration.framework.local
+      nodeSelector:
+        testing: test-pool
 
-    - name: integ-galley-local-postsubmit-tests-master
-      <<: *job_template
-      spec:
-        containers:
-          - <<: *istio_container
-            command:
-              - entrypoint
-              - prow/integ-suite-local.sh
-              - test.integration.galley.local
-        nodeSelector:
-          testing: test-pool
+  - name: integ-galley-local-postsubmit-tests-master
+    <<: *job_template
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-suite-local.sh
+            - test.integration.galley.local
+      nodeSelector:
+        testing: test-pool
 
-    - name: integ-istioctl-local-postsubmit-tests-master
-      <<: *job_template
-      spec:
-        containers:
-          - <<: *istio_container
-            command:
-              - entrypoint
-              - prow/integ-suite-local.sh
-              - test.integration.istioctl.local
-        nodeSelector:
-          testing: test-pool
+  - name: integ-istioctl-local-postsubmit-tests-master
+    <<: *job_template
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-suite-local.sh
+            - test.integration.istioctl.local
+      nodeSelector:
+        testing: test-pool
 
-    - name: integ-mixer-local-postsubmit-tests-master
-      <<: *job_template
-      spec:
-        containers:
-          - <<: *istio_container
-            command:
-              - entrypoint
-              - prow/integ-suite-local.sh
-              - test.integration.mixer.local
-        nodeSelector:
-          testing: test-pool
+  - name: integ-mixer-local-postsubmit-tests-master
+    <<: *job_template
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-suite-local.sh
+            - test.integration.mixer.local
+      nodeSelector:
+        testing: test-pool
 
-    - name: integ-pilot-local-postsubmit-tests-master
-      <<: *job_template
-      spec:
-        containers:
-          - <<: *istio_container
-            command:
-              - entrypoint
-              - prow/integ-suite-local.sh
-              - test.integration.pilot.local
-        nodeSelector:
-          testing: test-pool
+  - name: integ-pilot-local-postsubmit-tests-master
+    <<: *job_template
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-suite-local.sh
+            - test.integration.pilot.local
+      nodeSelector:
+        testing: test-pool
 
-    - name: integ-security-local-postsubmit-tests-master
-      <<: *job_template
-      spec:
-        containers:
-          - <<: *istio_container
-            command:
-              - entrypoint
-              - prow/integ-suite-local.sh
-              - test.integration.security.local
-        nodeSelector:
-          testing: test-pool
+  - name: integ-security-local-postsubmit-tests-master
+    <<: *job_template
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-suite-local.sh
+            - test.integration.security.local
+      nodeSelector:
+        testing: test-pool
 
-    - name: integ-telemetry-local-postsubmit-tests-master
-      <<: *job_template
-      spec:
-        containers:
-          - <<: *istio_container
-            command:
-              - entrypoint
-              - prow/integ-suite-local.sh
-              - test.integration.telemetry.local
-        nodeSelector:
-          testing: test-pool
+  - name: integ-telemetry-local-postsubmit-tests-master
+    <<: *job_template
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-suite-local.sh
+            - test.integration.telemetry.local
+      nodeSelector:
+        testing: test-pool
 
   - name: istio-kind-simpleTest-master
     <<: *job_template
