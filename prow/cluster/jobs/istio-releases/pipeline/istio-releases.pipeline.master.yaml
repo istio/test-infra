@@ -10,7 +10,7 @@ istio_rel_pipeline_spec: &istio_rel_pipeline_spec
     testing: build-pool
 
 istio_rel_pipeline_container: &istio_rel_pipeline_container
-  image: gcr.io/istio-testing/istio-builder:v20181008-db31a9fd
+  image: gcr.io/istio-testing/istio-builder:v20190531-aba3be6
   # Docker in Docker
   securityContext:
     privileged: true
@@ -23,7 +23,7 @@ istio_rel_pipeline_container: &istio_rel_pipeline_container
       cpu: "7000m"
 
 istio_container: &istio_container
-  image: gcr.io/istio-testing/istio-builder:v20181008-db31a9fd
+  image: gcr.io/istio-testing/istio-builder:v20190531-aba3be6
   # Docker in Docker
   securityContext:
     privileged: true
@@ -51,6 +51,23 @@ presubmits:
 
   istio-releases/pipeline:
 
+  - name: release-build-test-e2e-simpleTests
+    <<: *job_template
+    optional: true
+    always_run: true
+    context: prow/release-build-test-e2e-simpleTests
+    max_concurrency: 5
+    labels:
+      preset-service-account: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/e2e-simpleTests.sh
+      nodeSelector:
+        testing: test-pool
   - name: release-build
     <<: *job_template
     always_run: true
