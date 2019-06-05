@@ -54,7 +54,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class TotalFlakey {
 	
 	static String bucketName = "istio-flakey-test";
-	static String pathToReadInput = "readPastJunitCommand.sh";
+	//static String pathToReadInput = "readPastJunitCommand.sh";
+	static String pathToReadInput = "testCommand.sh";
 	static String dataFolder = "temp";
 	static String pathToDeleteTempCommand = "removeTempFolderCommand.sh";
 
@@ -76,21 +77,24 @@ public class TotalFlakey {
 	/*
 	 * Check the number of failures and values in xml elements to determine if the testsuite/testcase failed.
 	 */
-	public static void identifyFailures(HashMap<String, Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>>> flakey, Document doc) {
+	public static void identifyFailures(HashMap<String, HashMap<String, Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>>>> fullFlakey, Document doc, String branch) {
 		int tests;
 		NodeList nodeList = doc.getElementsByTagName("testsuite");
 	    for(int x=0,size= nodeList.getLength(); x<size; x++) {
 	    	Node curNode = nodeList.item(x);
 	    	
 	    	if (curNode.getNodeType() == Node.ELEMENT_NODE) {
-
+	    		HashMap<String, Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>>> flakey = new HashMap<>();
+    			if (fullFlakey.containsKey(branch)) {
+    				flakey = fullFlakey.get(branch);
+    			}
 	    		if (curNode.hasAttributes()) {
 	    			NamedNodeMap nodeMap = curNode.getAttributes();
 	    			String suiteName = nodeMap.getNamedItem("name").getNodeValue();
 	    			int numSuiteFailures = Integer.parseInt(nodeMap.getNamedItem("failures").getNodeValue());
 	    			int numSuiteTests = Integer.parseInt(nodeMap.getNamedItem("tests").getNodeValue());
-
-	    			if (flakey.containsKey(suiteName)) {
+	    			
+ 	    			if (flakey.containsKey(suiteName)) {
 	    				Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>> result = flakey.get(suiteName);
 	    				Pair<Integer, Integer> suiteResult = result.getFirst();
 	    				HashMap<String, Pair<Integer, Integer>> caseCollection = result.getSecond();
@@ -106,8 +110,10 @@ public class TotalFlakey {
 	    							Node testCase = childNodes.item(y);
 	    							if (testCase.getNodeType() == Node.ELEMENT_NODE && testCase.getNodeName().equals("testcase")) {
 	    								NamedNodeMap casemap = testCase.getAttributes();
-	    								String caseName = suiteName + "/" + casemap.getNamedItem("name").getNodeValue();
 	    								
+	    								String className = casemap.getNamedItem("classname").getNodeValue();
+	    								String method = casemap.getNamedItem("name").getNodeValue();
+	    								String caseName = suiteName + "*" + className + "|" + method;
 	    								NodeList caseChildren = testCase.getChildNodes();
     									Boolean containsFailure = false;
     									for (int k = 0; k < caseChildren.getLength(); k ++) {
@@ -143,7 +149,9 @@ public class TotalFlakey {
 	    							Node testCase = childNodes.item(y);
 	    							if (testCase.getNodeType() == Node.ELEMENT_NODE && testCase.getNodeName().equals("testcase")) {
 	    								NamedNodeMap casemap = testCase.getAttributes();
-	    								String caseName = suiteName + "/" + casemap.getNamedItem("name").getNodeValue();
+	    								String className = casemap.getNamedItem("classname").getNodeValue();
+	    								String method = casemap.getNamedItem("name").getNodeValue();
+	    								String caseName = suiteName + "*" + className + "|" + method;
 										caseCollection = addSuccessfulCase(caseCollection, caseName);
 									}
 								}
@@ -152,6 +160,7 @@ public class TotalFlakey {
 						result.setFirst(suiteResult);
 						result.setSecond(caseCollection);
 						flakey.put(suiteName, result);
+						fullFlakey.put(branch, flakey);
 
 					} else {
 						Pair<Integer, Integer> suiteResult = new Pair<>(0, 1);
@@ -165,7 +174,9 @@ public class TotalFlakey {
 	    							Node testCase = childNodes.item(y);
 	    							if (testCase.getNodeType() == Node.ELEMENT_NODE && testCase.getNodeName().equals("testcase")) {
 	    								NamedNodeMap casemap = testCase.getAttributes();
-	    								String caseName = suiteName + "/" + casemap.getNamedItem("name").getNodeValue();
+	    								String className = casemap.getNamedItem("classname").getNodeValue();
+	    								String method = casemap.getNamedItem("name").getNodeValue();
+	    								String caseName = suiteName + "*" + className + "|" + method;
 	    								
 	    								NodeList caseChildren = testCase.getChildNodes();
     									Boolean containsFailure = false;
@@ -192,7 +203,9 @@ public class TotalFlakey {
 	    							Node testCase = childNodes.item(y);
 	    							if (testCase.getNodeType() == Node.ELEMENT_NODE && testCase.getNodeName().equals("testcase")) {
 	    								NamedNodeMap casemap = testCase.getAttributes();
-	    								String caseName = suiteName + "/" + casemap.getNamedItem("name").getNodeValue();
+	    								String className = casemap.getNamedItem("classname").getNodeValue();
+	    								String method = casemap.getNamedItem("name").getNodeValue();
+	    								String caseName = suiteName + "*" + className + "|" + method;
 										caseCollection = addSuccessfulCase(caseCollection, caseName);
 									}
 								}
@@ -201,6 +214,7 @@ public class TotalFlakey {
 						
 						Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>> result = new Pair<>(suiteResult, caseCollection);
 						flakey.put(suiteName, result);
+						fullFlakey.put(branch, flakey);
 					}
 				}
 			}
@@ -230,7 +244,7 @@ public class TotalFlakey {
 	/*
 	 * Convert the HashMap of testsuites and testcases to xml format write into a file in google cloud.
 	 */
-	private static void printFlakey(HashMap<String, Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>>> flakey, Storage storage, String filePath, String bucketName) throws TransformerException, ParserConfigurationException{
+	private static void printFlakey(HashMap<String, HashMap<String, Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>>>> fullFlakey, Storage storage, String filePath, String bucketName) throws TransformerException, ParserConfigurationException{
 
 		String xmlPattern = "/^[a-zA-Z_:][a-zA-Z0-9\\.\\-_:]*$/";
 		Pattern pattern = Pattern.compile(xmlPattern);
@@ -244,48 +258,57 @@ public class TotalFlakey {
 
         Element root = document.createElement("testsuites");
         document.appendChild(root);
+        for (String branchName : fullFlakey.keySet()) {
+        	HashMap<String, Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>>> flakey = fullFlakey.get(branchName);
+        	Element branch = document.createElement("branch");
+        	Attr bran = document.createAttribute("name");
+        	bran.setValue(branchName);
+        	branch.setAttributeNode(bran);
+        	for (String suiteName : flakey.keySet()) {
 
-        for (String suiteName : flakey.keySet()) {
-
-        	Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>> result = flakey.get(suiteName);
-        	Pair<Integer, Integer> suiteResult = result.getFirst();
-        	HashMap<String, Pair<Integer, Integer>> caseCollection = result.getSecond();
-        	Element testsuite = document.createElement("testsuite");
-        	Attr attrName = document.createAttribute("name");
-        	attrName.setValue(suiteName);
-        	testsuite.setAttributeNode(attrName);
-        	//Element testsuite = document.createElement(suiteName);
-
-        	Attr suiteFailure = document.createAttribute("failures");
-            suiteFailure.setValue(Integer.toString(suiteResult.getFirst()));
-            testsuite.setAttributeNode(suiteFailure);
-
-            Attr suiteTotal = document.createAttribute("total");
-            suiteTotal.setValue(Integer.toString(suiteResult.getSecond()));
-            testsuite.setAttributeNode(suiteTotal);
+	        	Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>> result = flakey.get(suiteName);
+	        	Pair<Integer, Integer> suiteResult = result.getFirst();
+	        	HashMap<String, Pair<Integer, Integer>> caseCollection = result.getSecond();
+	        	
 
 
-            for (String caseName : caseCollection.keySet()) {
-            	Pair<Integer, Integer> caseResult = caseCollection.get(caseName);
-            	Element testcase = document.createElement("testcase");
-            	Attr testcaseName = document.createAttribute("name");
-	            testcaseName.setValue(caseName);
-	            testcase.setAttributeNode(testcaseName);
+	            for (String caseName : caseCollection.keySet()) {
+	            	Pair<Integer, Integer> caseResult = caseCollection.get(caseName);
+	            	String classAndMethod = caseName.substring(caseName.indexOf("*") + 1);
+	            	String className = classAndMethod.substring(0, classAndMethod.indexOf("|"));
+	            	String method = classAndMethod.substring(classAndMethod.indexOf("|") + 1);
+	            	Element testcase = document.createElement("testcase");
 
-            	Attr caseFailure = document.createAttribute("failures");
-	            caseFailure.setValue(Integer.toString(caseResult.getFirst()));
-	            testcase.setAttributeNode(caseFailure);
+	            	Attr testPathName = document.createAttribute("path");
+		            testPathName.setValue(suiteName);
+		            testcase.setAttributeNode(testPathName);
 
-	            Attr caseTotal = document.createAttribute("total");
-	            caseTotal.setValue(Integer.toString(caseResult.getSecond()));
-	            testcase.setAttributeNode(caseTotal);
+	            	Attr testClassName = document.createAttribute("class");
+		            testClassName.setValue(className);
+		            testcase.setAttributeNode(testClassName);
 
-	            testsuite.appendChild(testcase);
+		            Attr testMethodName = document.createAttribute("method");
+		            testMethodName.setValue(method);
+		            testcase.setAttributeNode(testMethodName);
 
-            }
+	            	Attr caseFailure = document.createAttribute("failures");
+		            caseFailure.setValue(Integer.toString(caseResult.getFirst()));
+		            testcase.setAttributeNode(caseFailure);
 
-        	root.appendChild(testsuite);
+		            Attr caseTotal = document.createAttribute("total");
+		            caseTotal.setValue(Integer.toString(caseResult.getSecond()));
+		            testcase.setAttributeNode(caseTotal);
+
+		            branch.appendChild(testcase);
+
+	            }
+
+	        	
+	        }
+	        root.appendChild(branch);
         }
+
+        
 
         String xmlString = toString(document);
 
@@ -371,7 +394,7 @@ public class TotalFlakey {
 			Process processToRead = Runtime.getRuntime().exec("sh " + pathToReadInput);
 			processToRead.waitFor();
 			System.out.println("finished running");
-			HashMap<String, Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>>> flakey = new HashMap<>();
+			HashMap<String, HashMap<String, Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>>>> fullFlakey = new HashMap<>();
 			
 			Storage storage = StorageOptions.getDefaultInstance().getService();
 
@@ -388,6 +411,8 @@ public class TotalFlakey {
 				String date = fileName.substring(fileName.indexOf("-") + 1);
 				date = date.substring(date.indexOf(" ") + 1);
 				date = date.substring(0, date.lastIndexOf(" "));
+				String branch = fileName.substring(fileName.lastIndexOf("-") + 1);
+				branch = branch.substring(0, branch.lastIndexOf(".xml"));
 				if (compareToPast(date, numDaysPast)) {
 					System.out.println(fileName);
 					DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance()
@@ -396,10 +421,10 @@ public class TotalFlakey {
 					is.setCharacterStream(new StringReader(fileContent));
 
 					Document doc = dBuilder.parse(is);
-					identifyFailures(flakey, doc);
+					identifyFailures(fullFlakey, doc, branch);
 				}
 			}
-			printFlakey(flakey, storage, outputFileName, bucketName);
+			printFlakey(fullFlakey, storage, outputFileName, bucketName);
 			String content = new String (Files.readAllBytes(Paths.get(pathToDeleteTempCommand)));
 			content = content.replace("$data_folder", dataFolder);
 			BufferedWriter writer = new BufferedWriter(new FileWriter(pathToDeleteTempCommand));
