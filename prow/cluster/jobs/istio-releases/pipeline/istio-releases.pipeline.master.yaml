@@ -68,6 +68,142 @@ presubmits:
         - prow/e2e-simpleTests.sh
       nodeSelector:
         testing: test-pool
+  - name: release-build-test-upgrade-tests-1.1.7
+    <<: *job_template
+    optional: true
+    always_run: true
+    context: prow/release-build-test-upgrade-tests-1.1.7
+    max_concurrency: 5
+    labels:
+      preset-release-build-test: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/upgrade-tests-1.1.7.sh
+      nodeSelector:
+        testing: test-pool
+  - name: release-build-test-istio-unit-tests
+    <<: *job_template
+    optional: true
+    always_run: true
+    context: prow/release-build-test-istio-unit-tests
+    max_concurrency: 5
+    labels:
+      preset-release-build-test: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/istio-unit-tests.sh
+      nodeSelector:
+        testing: test-pool
+  - name: release-build-test-istioctl-tests
+    <<: *job_template
+    optional: true
+    always_run: true
+    context: prow/release-build-test-istioctl-tests
+    max_concurrency: 5
+    labels:
+      preset-release-build-test: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/istioctl-tests.sh
+      nodeSelector:
+        testing: test-pool
+  - name: release-build-test-e2e-pilot-no_auth
+    <<: *job_template
+    optional: true
+    always_run: true
+    context: prow/release-build-test-e2e-pilot-no_auth
+    max_concurrency: 5
+    labels:
+      preset-release-build-test: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/e2e-pilot-no_auth.sh
+      nodeSelector:
+        testing: test-pool
+  - name: release-build-test-e2e-bookInfoTests
+    <<: *job_template
+    optional: true
+    always_run: true
+    context: prow/release-build-test-e2e-bookInfoTests
+    max_concurrency: 5
+    labels:
+      preset-release-build-test: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
+      nodeSelector:
+        testing: test-pool
+  - name: release-build-test-e2e-mixer-no_auth
+    <<: *job_template
+    optional: true
+    always_run: true
+    context: prow/release-build-test-e2e-mixer-no_auth
+    max_concurrency: 5
+    labels:
+      preset-release-build-test: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/e2e-mixer-no_auth.sh
+      nodeSelector:
+        testing: test-pool
+  - name: release-build-test-e2e-dashboard
+    <<: *job_template
+    optional: true
+    always_run: true
+    context: prow/release-build-test-e2e-dashboard
+    max_concurrency: 5
+    labels:
+      preset-release-build-test: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/e2e-dashboard.sh
+      nodeSelector:
+        testing: test-pool
+  - name: release-build-test-e2e-stackdriver
+    <<: *job_template
+    optional: true
+    always_run: true
+    context: prow/release-build-test-e2e-stackdriver
+    max_concurrency: 5
+    labels:
+      preset-release-build-test: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/e2e-stackdriver.sh
+      nodeSelector:
+        testing: test-pool
   - name: release-build
     <<: *job_template
     always_run: true
