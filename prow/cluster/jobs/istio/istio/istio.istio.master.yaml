@@ -47,20 +47,6 @@ presubmits:
       nodeSelector:
         testing: build-pool
 
-  - name: istio-lint-master
-    <<: *job_template
-    context: prow/istio-lint.sh
-    always_run: true
-    optional: true
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/istio-lint.sh
-      nodeSelector:
-        testing: test-pool
-
   - name: integ-framework-local-presubmit-tests-master
     <<: *job_template
     context: prow/integ-framework-local-presubmit-tests.sh
