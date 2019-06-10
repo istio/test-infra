@@ -1,0 +1,1 @@
+gsutil -m rm -r gs://istio-flakey-test/$data_folder
