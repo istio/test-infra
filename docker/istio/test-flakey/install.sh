@@ -17,12 +17,12 @@ apt-get -qqy --no-install-recommends install \
   unzip \
   wget
 
-./install-bazel.sh
+#./install-bazel.sh
 ./install-docker.sh
-./install-gcloud.sh
-./install-golang.sh
-./install-flakey.sh
-./install-javac.sh
+#./install-gcloud.sh
+#./install-golang.sh
+./install-java.sh
+./install-jars.sh
 
 apt-get clean
 rm -rf /var/lib/apt/lists/*
