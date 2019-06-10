@@ -8,13 +8,13 @@ fi
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 . ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
 
-GO_VERSION='1.11.4'
+GO_VERSION='1.12.5'
 GO_BASE_URL="https://storage.googleapis.com/golang"
 GO_ARCHIVE="go${GO_VERSION}.linux-amd64.tar.gz"
 GO_URL="${GO_BASE_URL}/${GO_ARCHIVE}"
 GO_DIRECTORY="${TOOLS_DIR}/go"
 
-KIND_RELEASE="https://github.com/kubernetes-sigs/kind/releases/download/v0.3.0/kind-linux-amd64"
+KIND_VERSION=v0.3.0
 
 export GOPATH=/opt/go
 mkdir -p ${GOPATH}/bin
@@ -23,7 +23,7 @@ function install_go_pkg() {
   go get github.com/github/hub
   go get github.com/golang/dep/cmd/dep
   go get github.com/jstemmer/go-junit-report
-  curl -L "${KIND_RELEASE}" > "${GOPATH}/bin/kind"
+  GO111MODULE="on" go get sigs.k8s.io/kind@${KIND_VERSION}
 }
 
 function update_go() {

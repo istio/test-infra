@@ -17,19 +17,6 @@ istio_container: &istio_container
       memory: "24Gi"
       cpu: "7000m"
 
-istio_container_with_kind: &istio_container_with_kind
-  image: gcr.io/istio-testing/istio-builder:v20190521-2f2d695
-  # Docker in Docker
-  securityContext:
-    privileged: true
-  resources:
-    requests:
-      memory: "512Mi"
-      cpu: "500m"
-    limits:
-      memory: "24Gi"
-      cpu: "7000"
-
 presubmits:
 
   istio/istio:
@@ -45,7 +32,7 @@ presubmits:
         - entrypoint
         - prow/istio-unit-tests.sh
       nodeSelector:
-        testing: build-pool
+        testing: test-pool
 
   - name: integ-framework-local-presubmit-tests-release-1.2
     <<: *job_template
@@ -58,7 +45,7 @@ presubmits:
             - entrypoint
             - prow/integ-framework-local-presubmit-tests.sh
       nodeSelector:
-        testing: build-pool
+        testing: test-pool
 
   - name: integ-galley-local-presubmit-tests-release-1.2
     <<: *job_template
@@ -71,7 +58,7 @@ presubmits:
             - entrypoint
             - prow/integ-galley-local-presubmit-tests.sh
       nodeSelector:
-        testing: build-pool
+        testing: test-pool
 
   - name: integ-mixer-local-presubmit-tests-release-1.2
     <<: *job_template
@@ -85,7 +72,7 @@ presubmits:
             - entrypoint
             - prow/integ-mixer-local-presubmit-tests.sh
       nodeSelector:
-        testing: build-pool
+        testing: test-pool
 
   - name: integ-pilot-local-presubmit-tests-release-1.2
     <<: *job_template
@@ -98,7 +85,7 @@ presubmits:
             - entrypoint
             - prow/integ-pilot-local-presubmit-tests.sh
       nodeSelector:
-        testing: build-pool
+        testing: test-pool
 
   - name: integ-security-local-presubmit-tests-release-1.2
     <<: *job_template
@@ -111,7 +98,7 @@ presubmits:
             - entrypoint
             - prow/integ-security-local-presubmit-tests.sh
       nodeSelector:
-        testing: build-pool
+        testing: test-pool
 
   - name: istio-presubmit-release-1.2
     <<: *job_template
@@ -379,9 +366,6 @@ presubmits:
       <<: *job_template
       always_run: true
       context: prow/release-test.sh
-      # TODO(https://github.com/istio/istio/issues/13823): The test is blocking check-ins. Once it is fixed, we can
-      # make it required again.
-      optional: true
       labels:
         preset-service-account: "true"
       max_concurrency: 5
@@ -406,16 +390,6 @@ postsubmits:
         command:
         - entrypoint
         - prow/istio-integ-local-tests.sh
-      nodeSelector:
-        testing: test-pool
-  - name: istio-kind-simpleTest-release-1.2
-    <<: *job_template
-    spec:
-      containers:
-      - <<: *istio_container_with_kind
-        command:
-        - entrypoint
-        - prow/e2e-kind-simpleTests.sh
       nodeSelector:
         testing: test-pool
   - name: istio-postsubmit-release-1.2

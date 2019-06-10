@@ -1,6 +1,6 @@
 job_template: &job_template
   branches:
-  - "^master$"
+  - "^prow-staging$"
   decorate: true
   path_alias: istio.io/istio
 
@@ -45,7 +45,7 @@ presubmits:
         - entrypoint
         - prow/istio-unit-tests.sh
       nodeSelector:
-        testing: test-pool
+        testing: build-pool
 
   - name: integ-framework-local-presubmit-tests-master
     <<: *job_template
@@ -58,7 +58,7 @@ presubmits:
             - entrypoint
             - prow/integ-framework-local-presubmit-tests.sh
       nodeSelector:
-        testing: test-pool
+        testing: build-pool
 
   - name: integ-galley-local-presubmit-tests-master
     <<: *job_template
@@ -71,7 +71,7 @@ presubmits:
             - entrypoint
             - prow/integ-galley-local-presubmit-tests.sh
       nodeSelector:
-        testing: test-pool
+        testing: build-pool
 
   - name: integ-istioctl-local-presubmit-tests-master
     <<: *job_template
@@ -99,7 +99,7 @@ presubmits:
             - entrypoint
             - prow/integ-mixer-local-presubmit-tests.sh
       nodeSelector:
-        testing: test-pool
+        testing: build-pool
 
   - name: integ-pilot-local-presubmit-tests-master
     <<: *job_template
@@ -112,7 +112,7 @@ presubmits:
             - entrypoint
             - prow/integ-pilot-local-presubmit-tests.sh
       nodeSelector:
-        testing: test-pool
+        testing: build-pool
 
   - name: integ-security-local-presubmit-tests-master
     <<: *job_template
@@ -125,7 +125,7 @@ presubmits:
             - entrypoint
             - prow/integ-security-local-presubmit-tests.sh
       nodeSelector:
-        testing: test-pool
+        testing: build-pool
 
   - name: integ-telemetry-local-presubmit-tests-master
     <<: *job_template
@@ -439,6 +439,9 @@ presubmits:
       <<: *job_template
       always_run: true
       context: prow/release-test.sh
+      # TODO(https://github.com/istio/istio/issues/13823): The test is blocking check-ins. Once it is fixed, we can
+      # make it required again.
+      optional: true
       labels:
         preset-service-account: "true"
       max_concurrency: 5
@@ -548,7 +551,7 @@ postsubmits:
         - entrypoint
         - prow/e2e-kind-simpleTests.sh
       nodeSelector:
-        testing: test-pool
+        testing: build-pool
   - name: istio-unit-tests-master
     <<: *job_template
     context: prow/istio-unit-tests.sh
@@ -560,7 +563,7 @@ postsubmits:
         - entrypoint
         - prow/istio-unit-tests.sh
       nodeSelector:
-        testing: test-pool
+        testing: build-pool
   - name: integ-framework-k8s-postsubmit-tests-master
     <<: *job_template
     labels:
