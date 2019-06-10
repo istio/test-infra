@@ -45,7 +45,7 @@ presubmits:
         - entrypoint
         - prow/istio-unit-tests.sh
       nodeSelector:
-        testing: build-pool
+        testing: test-pool
 
   - name: integ-framework-local-presubmit-tests-master
     <<: *job_template
@@ -58,7 +58,7 @@ presubmits:
             - entrypoint
             - prow/integ-framework-local-presubmit-tests.sh
       nodeSelector:
-        testing: build-pool
+        testing: test-pool
 
   - name: integ-galley-local-presubmit-tests-master
     <<: *job_template
@@ -71,7 +71,7 @@ presubmits:
             - entrypoint
             - prow/integ-galley-local-presubmit-tests.sh
       nodeSelector:
-        testing: build-pool
+        testing: test-pool
 
   - name: integ-istioctl-local-presubmit-tests-master
     <<: *job_template
@@ -99,7 +99,7 @@ presubmits:
             - entrypoint
             - prow/integ-mixer-local-presubmit-tests.sh
       nodeSelector:
-        testing: build-pool
+        testing: test-pool
 
   - name: integ-pilot-local-presubmit-tests-master
     <<: *job_template
@@ -112,7 +112,7 @@ presubmits:
             - entrypoint
             - prow/integ-pilot-local-presubmit-tests.sh
       nodeSelector:
-        testing: build-pool
+        testing: test-pool
 
   - name: integ-security-local-presubmit-tests-master
     <<: *job_template
@@ -125,7 +125,7 @@ presubmits:
             - entrypoint
             - prow/integ-security-local-presubmit-tests.sh
       nodeSelector:
-        testing: build-pool
+        testing: test-pool
 
   - name: integ-telemetry-local-presubmit-tests-master
     <<: *job_template
@@ -548,7 +548,7 @@ postsubmits:
         - entrypoint
         - prow/e2e-kind-simpleTests.sh
       nodeSelector:
-        testing: build-pool
+        testing: test-pool
   - name: istio-unit-tests-master
     <<: *job_template
     context: prow/istio-unit-tests.sh
@@ -560,7 +560,7 @@ postsubmits:
         - entrypoint
         - prow/istio-unit-tests.sh
       nodeSelector:
-        testing: build-pool
+        testing: test-pool
   - name: integ-framework-k8s-postsubmit-tests-master
     <<: *job_template
     labels:
