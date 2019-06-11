@@ -54,8 +54,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class TotalFlakey {
 	
 	static String bucketName = "istio-flakey-test";
-	static String pathToReadInput = "readPastJunitCommand.sh";
-	//static String pathToReadInput = "testCommand.sh";
+	//static String pathToReadInput = "readPastJunitCommand.sh";
+	static String pathToReadInput = "testCommand.sh";
 	static String dataFolder = "temp";
 	static String pathToDeleteTempCommand = "removeTempFolderCommand.sh";
 
