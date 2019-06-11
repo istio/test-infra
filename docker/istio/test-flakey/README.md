@@ -1,5 +1,0 @@
-###test-flakey###
-
-It is intended to serve as a test folder to test running install-xx.sh files for the flakeyTest project without inflating other jobs that need to be run. The image runs the install-xx.sh files in Shared folder to install java and java code required to run and calculate the flakey-ness of istio test cases. 
-
-To manually test the file, first one needs to make sure that docker is running and connected. Then one can run the command `make image` to create the image that will call install.sh and all the install-xx.sh files called within. To test the result of `make image`, one can run `docker run <image_id> <commands>` to see if the files and applications are correctly located in the intended directories. Finally, to make the image official, one can run `make push` to create globally available image.
