@@ -11,6 +11,19 @@ test_infra_container: &test_infra_container
       memory: "24Gi"
       cpu: "7000m"
 
+test_infra_container: &test_flakey_container
+  image: gcr.io/istio-testing/test-infra-builder:v20190531-6fbeace
+  # Bazel needs privileged mode in order to sandbox builds.
+  securityContext:
+    privileged: true
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "24Gi"
+      cpu: "7000m"
+
 branch_spec: &branch_spec
 - "^master$"
 
@@ -49,6 +62,24 @@ presubmits:
         command:
         - entrypoint
         - scripts/linters.sh
+      nodeSelector:
+        testing: build-pool
+
+  - name: flakey-test
+    context: "prow: flakey-test"
+    always_run: true
+    optional: true
+    decorate: true
+    path_alias: istio.io/test-infra
+    branches: *branch_spec
+    labels:
+      preset-bazel: "true"
+    spec:
+      containers:
+      - <<: *test_flakey_container
+        command:
+        - entrypoint
+        - flakeyTest/daily-flakey-test.sh
       nodeSelector:
         testing: build-pool
 
