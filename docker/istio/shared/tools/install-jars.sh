@@ -2,7 +2,6 @@
 
 set -eux
 
-
 JARS_DIR="/usr/local/bin/flakey_jars"
 mkdir -p "$JARS_DIR"
 wget -q -nc -O /usr/local/bin/flakey_jars/Pair.java https://raw.githubusercontent.com/istio/test-infra/master/flakeyTest/Pair.java
