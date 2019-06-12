@@ -448,12 +448,12 @@ public class TotalFlakey {
 			//Page<Blob> blobs =
 	     //storage.list(
 	         //bucketName, BlobListOption.currentDirectory(), BlobListOption.prefix(dataFolder + "/"));
-			//Page<Blob> blobs =
-	     //storage.list(
-	         //"istio-circleci", BlobListOption.currentDirectory(), BlobListOption.prefix("master/test-integration-kubernetes/413620/"));
-	     	Page<Blob> blobs =
+			Page<Blob> blobs =
 	     storage.list(
-	         "istio-flakey-test", BlobListOption.currentDirectory(), BlobListOption.prefix("temp/"));
+	         "istio-circleci", BlobListOption.currentDirectory(), BlobListOption.prefix("istio-circleci/release-1.2/e2e-galley/*/artifacts/"));
+	     	//Page<Blob> blobs =
+	     //storage.list(
+	         //"istio-flakey-test", BlobListOption.currentDirectory(), BlobListOption.prefix("temp/"));
 	     	System.out.println("get bucket and files of " + blobs);
 
 	     	testFlakey(storage, blobs, 30);
