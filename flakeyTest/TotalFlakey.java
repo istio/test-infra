@@ -396,7 +396,7 @@ public class TotalFlakey {
 				System.out.println(fileName);
 				
 				String fileContent = new String(blob.getContent());
-				System.out.println("get content of file");
+				System.out.println("get content of file " + fileContent);
 				String date = fileName.substring(fileName.indexOf("-") + 1);
 				date = date.substring(date.indexOf(" ") + 1);
 				date = date.substring(0, date.lastIndexOf(" "));
@@ -445,15 +445,15 @@ public class TotalFlakey {
 			Storage storage = StorageOptions.getDefaultInstance().getService();
 			System.out.println("get storage service");
 			
-			Page<Blob> blobs =
-	     storage.list(
-	         bucketName, BlobListOption.currentDirectory(), BlobListOption.prefix(dataFolder + "/"));
+			//Page<Blob> blobs =
+	     //storage.list(
+	         //bucketName, BlobListOption.currentDirectory(), BlobListOption.prefix(dataFolder + "/"));
 			//Page<Blob> blobs =
 	     //storage.list(
 	         //"istio-circleci", BlobListOption.currentDirectory(), BlobListOption.prefix("master/test-integration-kubernetes/413620/"));
-	     	//Page<Blob> blobs =
-	     //storage.list(
-	         //"istio-flakey-test", BlobListOption.currentDirectory(), BlobListOption.prefix("FlakeyTest/"));
+	     	Page<Blob> blobs =
+	     storage.list(
+	         "istio-flakey-test", BlobListOption.currentDirectory(), BlobListOption.prefix("temp/"));
 	     	System.out.println("get bucket and files of " + blobs);
 
 	     	testFlakey(storage, blobs, 30);
