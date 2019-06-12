@@ -450,7 +450,7 @@ public class TotalFlakey {
 	         //bucketName, BlobListOption.currentDirectory(), BlobListOption.prefix(dataFolder + "/"));
 			Page<Blob> blobs =
 	     storage.list(
-	         "istio-circleci", BlobListOption.currentDirectory(), BlobListOption.prefix("release-1.2/e2e-galley/*/artifacts/"));
+	         "istio-circleci", BlobListOption.currentDirectory(), BlobListOption.prefix("release-1.2/e2e-galley/433873/artifacts"));
 	     	//Page<Blob> blobs =
 	     //storage.list(
 	         //"istio-flakey-test", BlobListOption.currentDirectory(), BlobListOption.prefix("temp/"));
