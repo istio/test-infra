@@ -397,12 +397,12 @@ public class TotalFlakey {
 			HashMap<String, HashMap<String, Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>>>> fullFlakey = new HashMap<>();
 			
 			Storage storage = StorageOptions.getDefaultInstance().getService();
-
+			System.out.println("get storage service");
 			
 			Page<Blob> blobs =
 	     storage.list(
 	         bucketName, BlobListOption.currentDirectory(), BlobListOption.prefix(dataFolder + "/"));
-
+	     	System.out.println("get bucket and files");
 			for (Blob blob : blobs.iterateAll()) {
 				String fileName = blob.getName();
 				System.out.println(fileName);
@@ -425,18 +425,22 @@ public class TotalFlakey {
 				}
 			}
 			printFlakey(fullFlakey, storage, outputFileName, bucketName);
+			System.out.println("write to hash map");
 			String content = new String (Files.readAllBytes(Paths.get(pathToDeleteTempCommand)));
 			content = content.replace("$data_folder", dataFolder);
 			BufferedWriter writer = new BufferedWriter(new FileWriter(pathToDeleteTempCommand));
     		writer.write(content);
     		writer.close();
+    		System.out.println("write to storage file");
     		Process processToDelete = Runtime.getRuntime().exec("sh " + pathToDeleteTempCommand);
 			processToDelete.waitFor();
+			System.out.println("finish deleting temp files");
     		content = new String (Files.readAllBytes(Paths.get(pathToDeleteTempCommand)));
     		content = content.replace(dataFolder, "$data_folder");
     		BufferedWriter newWriter = new BufferedWriter(new FileWriter(pathToDeleteTempCommand));
     		newWriter.write(content);
     		newWriter.close();
+    		System.out.println("change the original files");
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
