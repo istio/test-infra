@@ -140,21 +140,6 @@ presubmits:
             - prow/integ-telemetry-local-presubmit-tests.sh
       nodeSelector:
         testing: test-pool
-
-  - name: istio-presubmit-master
-    <<: *job_template
-    context: prow/istio-presubmit.sh
-    always_run: true
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/istio-presubmit.sh
-      nodeSelector:
-        testing: build-pool
     
   - name: integ-framework-k8s-presubmit-tests-master
     <<: *job_template
