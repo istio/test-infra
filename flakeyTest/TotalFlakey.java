@@ -33,6 +33,9 @@ import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import java.io.BufferedOutputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 
 
 /**
@@ -427,6 +430,13 @@ public class TotalFlakey {
     		writerInput.close();
 			Process processToRead = Runtime.getRuntime().exec("sh " + pathToReadInput);
 			processToRead.waitFor();
+
+			OutputStream outputStream = processToRead.getOutputStream();
+			PrintStream printStream = new PrintStream(outputStream);
+			printStream.println();
+			printStream.flush();
+			printStream.close();
+
 			contentInput = contentInput.replace(dataFolder, "$data_folder");
 			BufferedWriter writerInput2 = new BufferedWriter(new FileWriter(pathToReadInput));
     		writerInput2.write(contentInput);
@@ -436,11 +446,14 @@ public class TotalFlakey {
 			Storage storage = StorageOptions.getDefaultInstance().getService();
 			System.out.println("get storage service");
 			
+			//Page<Blob> blobs =
+	     //storage.list(
+	         //bucketName, BlobListOption.currentDirectory(), BlobListOption.prefix(dataFolder + "/"));
 			Page<Blob> blobs =
 	     storage.list(
-	         bucketName, BlobListOption.currentDirectory(), BlobListOption.prefix(dataFolder + "/"));
+	         "istio-circleci", BlobListOption.currentDirectory(), BlobListOption.prefix("master/test-integration-kubernetes/413620/"));
 	     	System.out.println("get bucket and files of " + blobs);
-	     	
+
 	     	testFlakey(storage, blobs, 30);
 			testFlakey(storage, blobs, 7);
 
