@@ -382,27 +382,11 @@ public class TotalFlakey {
 	 * Write result to output file.
 	 * Delete the temp folder created with readInput command.
 	 */
-	public static void testFlakey(int numDaysPast) {
+	public static void testFlakey(Storage storage, Page<Blob> blobs, int numDaysPast) {
 		try {
 			String outputFileName = new SimpleDateFormat("dd_MM_yyyy").format(new Date()) + "_" + Integer.toString(numDaysPast) + ".xml";
-			// test command path for only with integration test: testCommand.sh
-			String contentInput = new String (Files.readAllBytes(Paths.get(pathToReadInput)));
-			contentInput = contentInput.replace("$data_folder", dataFolder);
-			BufferedWriter writerInput = new BufferedWriter(new FileWriter(pathToReadInput));
-    		writerInput.write(contentInput);
-    		writerInput.close();
-			Process processToRead = Runtime.getRuntime().exec("sh " + pathToReadInput);
-			processToRead.waitFor();
-			System.out.println("finished running");
 			HashMap<String, HashMap<String, Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>>>> fullFlakey = new HashMap<>();
-			
-			Storage storage = StorageOptions.getDefaultInstance().getService();
-			System.out.println("get storage service");
-			
-			Page<Blob> blobs =
-	     storage.list(
-	         bucketName, BlobListOption.currentDirectory(), BlobListOption.prefix(dataFolder + "/"));
-	     	System.out.println("get bucket and files of " + blobs);
+
 			for (Blob blob : blobs.iterateAll()) {
 				String fileName = blob.getName();
 				System.out.println("reading file name: " + fileName);
@@ -428,6 +412,38 @@ public class TotalFlakey {
 			}
 			printFlakey(fullFlakey, storage, outputFileName, bucketName);
 			System.out.println("write to hash map");
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	public static void main(String[] args) {
+		try{
+			// test command path for only with integration test: testCommand.sh
+			String contentInput = new String (Files.readAllBytes(Paths.get(pathToReadInput)));
+			contentInput = contentInput.replace("$data_folder", dataFolder);
+			BufferedWriter writerInput = new BufferedWriter(new FileWriter(pathToReadInput));
+    		writerInput.write(contentInput);
+    		writerInput.close();
+			Process processToRead = Runtime.getRuntime().exec("sh " + pathToReadInput);
+			processToRead.waitFor();
+			contentInput = contentInput.replace(dataFolder, "$data_folder");
+			BufferedWriter writerInput2 = new BufferedWriter(new FileWriter(pathToReadInput));
+    		writerInput2.write(contentInput);
+    		writerInput2.close();
+			System.out.println("finished running");
+			
+			Storage storage = StorageOptions.getDefaultInstance().getService();
+			System.out.println("get storage service");
+			
+			Page<Blob> blobs =
+	     storage.list(
+	         bucketName, BlobListOption.currentDirectory(), BlobListOption.prefix(dataFolder + "/"));
+	     	System.out.println("get bucket and files of " + blobs);
+	     	
+	     	testFlakey(storage, blobs, 30);
+			testFlakey(storage, blobs, 7);
+
 			String content = new String (Files.readAllBytes(Paths.get(pathToDeleteTempCommand)));
 			content = content.replace("$data_folder", dataFolder);
 			BufferedWriter writer = new BufferedWriter(new FileWriter(pathToDeleteTempCommand));
@@ -444,13 +460,10 @@ public class TotalFlakey {
     		newWriter.close();
     		System.out.println("change the original files");
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			System.out.println("get exception " + e.getMessage());
 		}
-	}
-
-	public static void main(String[] args) {
-		testFlakey(30);
-		testFlakey(7);
+		
+		
     }
 }
 
