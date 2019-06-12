@@ -34,7 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.BufferedOutputStream;
-import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 
 
@@ -431,9 +431,9 @@ public class TotalFlakey {
 			Process processToRead = Runtime.getRuntime().exec("sh " + pathToReadInput);
 			processToRead.waitFor();
 
-			InputStream errorStream = processToRead.getErrorStream();
-			for (int i = 0; i < errorStream.available(); i++) {
-	            System.out.println("" + errorStream.read());
+			OutputStream outputStream = processToRead.getOutputStream();
+			for (int i = 0; i < outputStream.available(); i++) {
+	            System.out.println("" + outputStream.read());
 	         }
 
 			contentInput = contentInput.replace(dataFolder, "$data_folder");
