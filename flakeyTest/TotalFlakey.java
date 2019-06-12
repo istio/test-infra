@@ -405,9 +405,11 @@ public class TotalFlakey {
 	     	System.out.println("get bucket and files");
 			for (Blob blob : blobs.iterateAll()) {
 				String fileName = blob.getName();
+				System.out.println("reading file name: " + fileName);
 				System.out.println(fileName);
 				
 				String fileContent = new String(blob.getContent());
+				System.out.println("get content of file");
 				String date = fileName.substring(fileName.indexOf("-") + 1);
 				date = date.substring(date.indexOf(" ") + 1);
 				date = date.substring(0, date.lastIndexOf(" "));
