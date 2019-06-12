@@ -431,10 +431,10 @@ public class TotalFlakey {
 			Process processToRead = Runtime.getRuntime().exec("sh " + pathToReadInput);
 			processToRead.waitFor();
 
-			OutputStream outputStream = processToRead.getOutputStream();
-			for (int i = 0; i < outputStream.available(); i++) {
-	            System.out.println("" + outputStream.read());
-	         }
+			// OutputStream outputStream = processToRead.getOutputStream();
+			// for (int i = 0; i < outputStream.available(); i++) {
+	  //           System.out.println("" + outputStream.read());
+	  //        }
 
 			contentInput = contentInput.replace(dataFolder, "$data_folder");
 			BufferedWriter writerInput2 = new BufferedWriter(new FileWriter(pathToReadInput));
