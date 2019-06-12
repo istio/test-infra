@@ -6,6 +6,8 @@
 # from prow daily to calculate the percentage of flakey-ness of 
 # test cases.
 
-/usr/local/bin/java/bin/javac -cp ".:/usr/local/bin/flakey_jars/jars/*" flakeyTest/Pair.java flakeyTest/TotalFlakey.java
+cd flakeyTest
 
-/usr/local/bin/java/bin/java -cp ".:/usr/local/bin/flakey_jars/jars/*" flakeyTest/TotalFlakey
+/usr/local/bin/java/bin/javac -cp ".:/usr/local/bin/flakey_jars/jars/*" Pair.java TotalFlakey.java
+
+/usr/local/bin/java/bin/java -cp ".:/usr/local/bin/flakey_jars/jars/*" TotalFlakey
