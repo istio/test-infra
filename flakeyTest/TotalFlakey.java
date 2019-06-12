@@ -402,7 +402,7 @@ public class TotalFlakey {
 			Page<Blob> blobs =
 	     storage.list(
 	         bucketName, BlobListOption.currentDirectory(), BlobListOption.prefix(dataFolder + "/"));
-	     	System.out.println("get bucket and files");
+	     	System.out.println("get bucket and files of " + blobs);
 			for (Blob blob : blobs.iterateAll()) {
 				String fileName = blob.getName();
 				System.out.println("reading file name: " + fileName);
