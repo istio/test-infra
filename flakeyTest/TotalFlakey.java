@@ -33,6 +33,11 @@ import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import java.util.regex.Pattern;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.List;
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -96,7 +101,7 @@ public class TotalFlakey {
 	    			String suiteName = nodeMap.getNamedItem("name").getNodeValue();
 	    			int numSuiteFailures = Integer.parseInt(nodeMap.getNamedItem("failures").getNodeValue());
 	    			int numSuiteTests = Integer.parseInt(nodeMap.getNamedItem("tests").getNodeValue());
-	    			
+	    			System.out.println("suite name = " + suiteName);
  	    			if (flakey.containsKey(suiteName)) {
 	    				Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>> result = flakey.get(suiteName);
 	    				Pair<Integer, Integer> suiteResult = result.getFirst();
@@ -355,11 +360,14 @@ public class TotalFlakey {
 	/*
 	 * Compare the date of file to the deadline specified in parameters.
 	 */
-	private static boolean compareToPast(String date, int days) {
-		int day = Integer.parseInt(date.substring(0, date.indexOf(" ")));
-		date = date.substring(date.indexOf(" ") + 1);
-		int month = convertMonth(date.substring(0, date.indexOf(" ")));
-		int year = Integer.parseInt(date.substring(date.indexOf(" ") + 1));
+	private static boolean compareToPast(Date date, int days) {
+		
+		Calendar c = Calendar.getInstance();
+		c.setTime(date);
+		int year = c.get(Calendar.YEAR);
+		int month = c.get(Calendar.MONTH) + 1;
+		int day = c.get(Calendar.DAY_OF_MONTH);
+		//System.out.println("date is " + date + " changed to " + year + " " + month + " " + day);
 
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, -days);
@@ -372,6 +380,7 @@ public class TotalFlakey {
 		int oldYear = Integer.parseInt(weekAgo.substring(weekAgo.lastIndexOf(" ") + 1));
 
 		if (year > oldYear || (year == oldYear && month > oldMonth) || (year == oldYear && month == oldMonth && day >= oldDay)){
+			//System.out.println("true");
 			return true;
 		}
 		return false;
@@ -385,25 +394,25 @@ public class TotalFlakey {
 	 * Write result to output file.
 	 * Delete the temp folder created with readInput command.
 	 */
-	public static void testFlakey(Storage storage, Page<Blob> blobs, int numDaysPast) {
+	public static void testFlakey(Storage storage, ArrayList<Blob> blobs, int numDaysPast) {
 		try {
 			String outputFileName = new SimpleDateFormat("dd_MM_yyyy").format(new Date()) + "_" + Integer.toString(numDaysPast) + ".xml";
 			HashMap<String, HashMap<String, Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>>>> fullFlakey = new HashMap<>();
 
-			for (Blob blob : blobs.iterateAll()) {
+			for (Blob blob : blobs) {
 				String fileName = blob.getName();
-				System.out.println("reading file name: " + fileName);
-				System.out.println(fileName);
+				//System.out.println("reading file name: " + fileName);
+				//System.out.println(fileName);
 				
+				Date blobDate = new Date(blob.getCreateTime());
+				//System.out.println("name is " + fileName + "date = " + blobDate);
 				String fileContent = new String(blob.getContent());
-				System.out.println("get content of file " + fileContent);
-				String date = fileName.substring(fileName.indexOf("-") + 1);
-				date = date.substring(date.indexOf(" ") + 1);
-				date = date.substring(0, date.lastIndexOf(" "));
-				String branch = fileName.substring(fileName.lastIndexOf("-") + 1);
-				branch = branch.substring(0, branch.lastIndexOf(".xml"));
-				if (compareToPast(date, numDaysPast)) {
-					System.out.println(fileName);
+				//System.out.println("get content of file " + fileContent);
+				
+				String branch = fileName.substring(0, fileName.indexOf("/"));
+				//branch = branch.substring(0, branch.lastIndexOf(".xml"));
+				if (compareToPast(blobDate, numDaysPast)) {
+					System.out.println("with in " + numDaysPast + " days " + fileName);
 					DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance()
 			                             .newDocumentBuilder();
 					InputSource is = new InputSource();
@@ -420,60 +429,228 @@ public class TotalFlakey {
 		}
 	}
 
+	private static ArrayList<Blob> listBlobs(Storage storage, ArrayList<String> fullPath)
+      throws IOException {
+      	
+      	BlobListOption listOptions = BlobListOption.currentDirectory();
+		HashMap<String, ArrayList<Blob>> allPossibleFiles = new HashMap<>();
+
+
+		for (String path : fullPath) {
+			int separator = path.indexOf("/");
+			String bucketName = path.substring(0, separator);
+			String originalPrefix = path.substring(separator + 1);
+
+			String[] listOfPrefix = originalPrefix.split("\\*");
+			int prefixLength = listOfPrefix.length;
+			
+			String preTillNow = "";
+			String firstPre = listOfPrefix[0];
+
+			preTillNow = preTillNow + firstPre;
+			String matchPattern = preTillNow + "*";
+			Pattern patternTillNow = Pattern.compile(matchPattern);
+			Matcher matcher;
+			Page<Blob> blobs = storage.list(bucketName, listOptions, BlobListOption.prefix(firstPre));
+			for (Blob firstBlob : blobs.iterateAll()) {
+				String firstlevel = firstBlob.getName();
+				//System.out.println("first level " + firstlevel);
+				matcher = patternTillNow.matcher(firstlevel);
+				//if (matcher.matches()) {
+					System.out.println("true " + matchPattern + " " + firstlevel);
+					if (allPossibleFiles.containsKey(firstPre)) {
+						ArrayList<Blob> firstPreList = allPossibleFiles.get(firstPre);
+						firstPreList.add(firstBlob);
+						allPossibleFiles.put(firstPre, firstPreList);
+					} else {
+						ArrayList<Blob> firstPreList = new ArrayList<>();
+						firstPreList.add(firstBlob);
+						allPossibleFiles.put(firstPre, firstPreList);
+					}
+				//}
+				
+				
+			}
+
+			for (int m = 1; m < prefixLength; m ++) {
+				String preElement = listOfPrefix[m];
+				String prevPre = listOfPrefix[m - 1];
+				ArrayList<Blob> pastPres = allPossibleFiles.get(prevPre);
+				ArrayList<Blob> curPres = new ArrayList<>();
+				if (preElement.indexOf(".xml") != -1) {
+					allPossibleFiles.put(".xml", curPres);
+				} else {
+					allPossibleFiles.put(preElement, curPres);
+				}
+				
+
+				//System.out.println("cur prefix = " + preElement + " prev element = " + prevPre);
+				
+				if (preElement.substring(0, 1).equals("/")) {
+
+					for (Blob longerPrefixBlob : pastPres) {
+						String longerPrefix = longerPrefixBlob.getName();
+						//System.out.println("longer prefix = " + longerPrefix);
+						if (!longerPrefix.substring(longerPrefix.length() - 1).equals("/")) {
+							;
+						} else {
+							String shorten = longerPrefix.substring(0, longerPrefix.length() - 1);
+							String curPrefix =  shorten + preElement;
+							
+
+							blobs = storage.list(bucketName, listOptions, BlobListOption.prefix(curPrefix));
+							//System.out.println("current prefix = " + curPrefix);
+
+							ArrayList<Blob> getPres = new ArrayList<>();
+							if (preElement.indexOf(".xml") != -1) {
+								getPres = allPossibleFiles.get(".xml");
+							} else {
+								getPres = allPossibleFiles.get(preElement);
+							}
+
+							for (Blob blob : blobs.iterateAll()) {
+
+								getPres.add(blob);
+							}
+
+							if (preElement.indexOf(".xml") != -1) {
+								
+								allPossibleFiles.put(".xml", getPres);
+							} else {
+								
+								allPossibleFiles.put(preElement, getPres);
+							}
+							//allPossibleFiles.put(preElement, getPres);
+						}
+						
+						
+					}
+
+				} else {
+
+					String tillNextSlash = preElement.substring(0, preElement.indexOf("/") + 1);
+					int endfixLen = tillNextSlash.length();
+					String nextSlash = preElement.substring(preElement.indexOf("/"));
+					listOfPrefix[m] = nextSlash;
+					
+
+					listOfPrefix[m - 1] = tillNextSlash;
+
+					m = m - 1;
+
+					//preTillNow = preTillNow + tillNextSlash;
+					System.out.println("current prefix is " + tillNextSlash);
+					//matchPattern = matchPattern + tillNextSlash;
+					//patternTillNow = Pattern.compile(matchPattern);
+					
+					allPossibleFiles.put(tillNextSlash, new ArrayList<>());
+					for (Blob checkBlob : pastPres) {
+						String nameToCheck = checkBlob.getName();
+						
+						System.out.println(preTillNow + " " + nameToCheck);
+						//matcher = patternTillNow.matcher(nameToCheck);
+						if (nameToCheck.length() >= endfixLen) {
+							String curEnd = nameToCheck.substring(nameToCheck.length() - endfixLen);
+							System.out.println(curEnd + " " + tillNextSlash);
+							if (curEnd.equals(tillNextSlash)) {
+								System.out.println("true " + preTillNow + " " + nameToCheck);
+								ArrayList<Blob> updated = allPossibleFiles.get(tillNextSlash);
+								updated.add(checkBlob);
+								allPossibleFiles.put(tillNextSlash,updated);
+							}
+						}
+						// if ((nameToCheck.length() >= endfixLen) && (curEnd.equals(tillNextSlash))) {
+						// 	System.out.println("true " + preTillNow + " " + nameToCheck);
+						// 	ArrayList<Blob> updated = allPossibleFiles.get(tillNextSlash);
+						// 	updated.add(checkBlob);
+						// 	allPossibleFiles.put(tillNextSlash,updated);
+						// }
+					}
+				}
+
+				
+				
+			}
+		}
+
+		
+		
+
+		return allPossibleFiles.get(".xml");
+	}
+
 	public static void main(String[] args) {
 		try{
-			// test command path for only with integration test: testCommand.sh
-			String contentInput = new String (Files.readAllBytes(Paths.get(pathToReadInput)));
-			contentInput = contentInput.replace("$data_folder", dataFolder);
-			BufferedWriter writerInput = new BufferedWriter(new FileWriter(pathToReadInput));
-    		writerInput.write(contentInput);
-    		writerInput.close();
-			Process processToRead = Runtime.getRuntime().exec("sh " + pathToReadInput);
-			processToRead.waitFor();
+			// // test command path for only with integration test: testCommand.sh
+			// String contentInput = new String (Files.readAllBytes(Paths.get(pathToReadInput)));
+			// contentInput = contentInput.replace("$data_folder", dataFolder);
+			// BufferedWriter writerInput = new BufferedWriter(new FileWriter(pathToReadInput));
+   //  		writerInput.write(contentInput);
+   //  		writerInput.close();
+			// Process processToRead = Runtime.getRuntime().exec("sh " + pathToReadInput);
+			// processToRead.waitFor();
 
-			// OutputStream outputStream = processToRead.getOutputStream();
-			// for (int i = 0; i < outputStream.available(); i++) {
-	  //           System.out.println("" + outputStream.read());
-	  //        }
+			// // OutputStream outputStream = processToRead.getOutputStream();
+			// // for (int i = 0; i < outputStream.available(); i++) {
+	  // //           System.out.println("" + outputStream.read());
+	  // //        }
 
-			contentInput = contentInput.replace(dataFolder, "$data_folder");
-			BufferedWriter writerInput2 = new BufferedWriter(new FileWriter(pathToReadInput));
-    		writerInput2.write(contentInput);
-    		writerInput2.close();
-			System.out.println("finished running");
+			// contentInput = contentInput.replace(dataFolder, "$data_folder");
+			// BufferedWriter writerInput2 = new BufferedWriter(new FileWriter(pathToReadInput));
+   //  		writerInput2.write(contentInput);
+   //  		writerInput2.close();
+			// System.out.println("finished running");
 			
 			Storage storage = StorageOptions.getDefaultInstance().getService();
 			System.out.println("get storage service");
+			ArrayList<String> masterAndRelease = new ArrayList<>();
+			//masterAndRelease.add("istio-circleci/master/*/*/artifacts/junit.xml");
+			//masterAndRelease.add("istio-circleci/release-1.2/*/*/artifacts/junit.xml");
+			//masterAndRelease.add("istio-prow/logs/*release-1.2/*/artifacts/junit.xml");
+			//masterAndRelease.add("istio-prow/logs/*master/*/artifacts/junit.xml");
+
+			masterAndRelease.add("istio-prow/logs/*-master/1915/artifacts/junit.xml");
+			ArrayList<Blob> blobs = listBlobs(storage, masterAndRelease);
+
+			for (Blob blob : blobs) {
+				System.out.println("found blobs " + blob.getName());
+			}
+
 			
-			//Page<Blob> blobs =
-	     //storage.list(
-	         //bucketName, BlobListOption.currentDirectory(), BlobListOption.prefix(dataFolder + "/"));
-			Page<Blob> blobs =
-	     storage.list(
-	         "istio-circleci", BlobListOption.currentDirectory(), BlobListOption.prefix("release-1.2/e2e-galley/*/artifacts/"));
-	     	//Page<Blob> blobs =
-	     //storage.list(
-	         //"istio-flakey-test", BlobListOption.currentDirectory(), BlobListOption.prefix("temp/"));
-	     	System.out.println("get bucket and files of " + blobs);
+			// //Page<Blob> blobs =
+	  //    //storage.list(
+	  //        //bucketName, BlobListOption.currentDirectory(), BlobListOption.prefix(dataFolder + "/"));
+			// List<String> results = listBlobs(storage, "istio-circleci", Pattern.compile("release-1.2/e2e-galley/*/artifacts/junit.xml"));
+		 //    System.out.println("Results: " + results.size() + " items.");
+		 //    for (String result : results) {
+		 //      System.out.println("Blob: " + result);
+		 //    }
+			// //Page<Blob> blobs =
+	  //    //storage.list(
+	  //        //"istio-circleci", BlobListOption.currentDirectory(), BlobListOption.prefix("release-1.2/e2e-galley/*/artifacts/"));
+	  //    	//Page<Blob> blobs =
+	  //    //storage.list(
+	  //        //"istio-flakey-test", BlobListOption.currentDirectory(), BlobListOption.prefix("temp/"));
+	  //    	System.out.println("get bucket and files of " + blobs);
 
 	     	testFlakey(storage, blobs, 30);
-			testFlakey(storage, blobs, 7);
+			//testFlakey(storage, blobs, 7);
 
-			String content = new String (Files.readAllBytes(Paths.get(pathToDeleteTempCommand)));
-			content = content.replace("$data_folder", dataFolder);
-			BufferedWriter writer = new BufferedWriter(new FileWriter(pathToDeleteTempCommand));
-    		writer.write(content);
-    		writer.close();
-    		System.out.println("write to storage file");
-    		Process processToDelete = Runtime.getRuntime().exec("sh " + pathToDeleteTempCommand);
-			processToDelete.waitFor();
-			System.out.println("finish deleting temp files");
-    		content = new String (Files.readAllBytes(Paths.get(pathToDeleteTempCommand)));
-    		content = content.replace(dataFolder, "$data_folder");
-    		BufferedWriter newWriter = new BufferedWriter(new FileWriter(pathToDeleteTempCommand));
-    		newWriter.write(content);
-    		newWriter.close();
-    		System.out.println("change the original files");
+			// String content = new String (Files.readAllBytes(Paths.get(pathToDeleteTempCommand)));
+			// content = content.replace("$data_folder", dataFolder);
+			// BufferedWriter writer = new BufferedWriter(new FileWriter(pathToDeleteTempCommand));
+   //  		writer.write(content);
+   //  		writer.close();
+   //  		System.out.println("write to storage file");
+   //  		Process processToDelete = Runtime.getRuntime().exec("sh " + pathToDeleteTempCommand);
+			// processToDelete.waitFor();
+			// System.out.println("finish deleting temp files");
+   //  		content = new String (Files.readAllBytes(Paths.get(pathToDeleteTempCommand)));
+   //  		content = content.replace(dataFolder, "$data_folder");
+   //  		BufferedWriter newWriter = new BufferedWriter(new FileWriter(pathToDeleteTempCommand));
+   //  		newWriter.write(content);
+   //  		newWriter.close();
+   //  		System.out.println("change the original files");
 		} catch (Exception e) {
 			System.out.println("get exception " + e.getMessage());
 		}
