@@ -322,6 +322,7 @@ public class TotalFlakey {
         System.out.println("create xml string " + xmlString);
         BlobId blobId = BlobId.of("istio-prow", "test-flakey-test_Jun13.xml");
 	    BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("text/xml").build();
+	    System.out.println("blob created for " + blobInfo.getGsObjectName());
 	    System.out.println("build blob");
 	    Blob blob = storage.create(blobInfo, xmlString.getBytes(UTF_8));
 	    System.out.println("create blob in sotrage");
