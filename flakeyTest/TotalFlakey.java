@@ -320,7 +320,7 @@ public class TotalFlakey {
 
         String xmlString = toString(document);
         System.out.println("create xml string " + xmlString);
-        BlobId blobId = BlobId.of("istio-flakey-tool", "test-prow.xml");
+        BlobId blobId = BlobId.of("istio-prow", "test-flakey-test_Jun13.xml");
 	    BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("text/xml").build();
 	    System.out.println("build blob");
 	    Blob blob = storage.create(blobInfo, xmlString.getBytes(UTF_8));
