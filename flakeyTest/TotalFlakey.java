@@ -41,6 +41,9 @@ import java.util.List;
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.ServiceAccountCredentials;
+import java.io.FileInputStream;
 
 
 /**
@@ -252,7 +255,7 @@ public class TotalFlakey {
 	/*
 	 * Convert the HashMap of testsuites and testcases to xml format write into a file in google cloud.
 	 */
-	private static void printFlakey(HashMap<String, HashMap<String, Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>>>> fullFlakey, Storage storage, String filePath, String bucketName) throws TransformerException, ParserConfigurationException{
+	private static void printFlakey(HashMap<String, HashMap<String, Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>>>> fullFlakey, Storage storage, String filePath, String bucketName) throws IOException, TransformerException, ParserConfigurationException{
 
 		String xmlPattern = "/^[a-zA-Z_:][a-zA-Z0-9\\.\\-_:]*$/";
 		Pattern pattern = Pattern.compile(xmlPattern);
@@ -322,8 +325,14 @@ public class TotalFlakey {
         System.out.println("create xml string " + xmlString);
         BlobId blobId = BlobId.of("istio-prow", "test-flakey-test_Jun13.xml");
 	    BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("text/xml").build();
-	    System.out.println("blob created for " + blobInfo.getGsObjectName());
+	    //System.out.println("blob created for " + blobInfo.getGsObjectName());
 	    System.out.println("build blob");
+	    storage = StorageOptions.newBuilder()
+		    .setCredentials(ServiceAccountCredentials.fromStream(
+		         new FileInputStream("/etc/service-account/service-account.json")))
+		    .build()
+		    .getService();
+
 	    Blob blob = storage.create(blobInfo, xmlString.getBytes(UTF_8));
 	    System.out.println("create blob in sotrage");
 	}
