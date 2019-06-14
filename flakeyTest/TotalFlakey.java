@@ -582,9 +582,10 @@ public class TotalFlakey {
 
 			// this string is a test string to see if the code works
 			masterAndRelease.add("istio-prow/logs/*-master/1915/artifacts/junit.xml");
-			ArrayList<Blob> blobs = listBlobs(storage, masterAndRelease);
+			ArrayList<Pair<Blob, String>> blobs = listBlobs(storage, masterAndRelease);
 
-			for (Blob blob : blobs) {
+			for (Pair<Blob, String> pair : blobs) {
+				Blob blob = pair.getFirst();
 				System.out.println("found blobs " + blob.getName());
 			}
 
