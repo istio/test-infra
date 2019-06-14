@@ -104,7 +104,6 @@ public class TotalFlakey {
 	    			String suiteName = nodeMap.getNamedItem("name").getNodeValue();
 	    			int numSuiteFailures = Integer.parseInt(nodeMap.getNamedItem("failures").getNodeValue());
 	    			int numSuiteTests = Integer.parseInt(nodeMap.getNamedItem("tests").getNodeValue());
-	    			System.out.println("suite name = " + suiteName);
  	    			if (flakey.containsKey(suiteName)) {
 	    				Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>> result = flakey.get(suiteName);
 	    				Pair<Integer, Integer> suiteResult = result.getFirst();
@@ -322,7 +321,6 @@ public class TotalFlakey {
         
 
         String xmlString = toString(document);
-        System.out.println("create xml string " + xmlString);
         BlobId blobId = BlobId.of("istio-prow", "test-flakey-test_Jun13.xml");
 	    BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("text/xml").build();
 	    //System.out.println("blob created for " + blobInfo.getGsObjectName());
@@ -418,7 +416,6 @@ public class TotalFlakey {
 				String fileContent = new String(blob.getContent());
 				
 				if (compareToPast(blobDate, numDaysPast)) {
-					System.out.println("with in " + numDaysPast + " days " + fileName);
 					DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance()
 			                             .newDocumentBuilder();
 					InputSource is = new InputSource();
