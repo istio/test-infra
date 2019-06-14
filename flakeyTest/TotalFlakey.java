@@ -451,7 +451,6 @@ public class TotalFlakey {
 			int separator = path.indexOf("/");
 			String bucketName = path.substring(0, separator);
 			String branchName = "";
-			System.out.println(bucketName);
 			if (path.indexOf("master") != -1) {
 				branchName = "master";
 			} else if (path.indexOf("release-1.2") != -1) {
@@ -541,19 +540,15 @@ public class TotalFlakey {
 					listOfPrefix[m - 1] = tillNextSlash;
 
 					m = m - 1;
-					System.out.println("current prefix is " + tillNextSlash);
 					
 					allPossibleFiles.put(tillNextSlash, new ArrayList<>());
 					for (Pair<Blob, String> checkPair : pastPres) {
 						Blob checkBlob = checkPair.getFirst();
 
 						String nameToCheck = checkBlob.getName();
-						System.out.println(preTillNow + " " + nameToCheck);
 						if (nameToCheck.length() >= endfixLen) {
 							String curEnd = nameToCheck.substring(nameToCheck.length() - endfixLen);
-							System.out.println(curEnd + " " + tillNextSlash);
 							if (curEnd.equals(tillNextSlash)) {
-								System.out.println("true " + preTillNow + " " + nameToCheck);
 								ArrayList<Pair<Blob, String>> updated = allPossibleFiles.get(tillNextSlash);
 								updated.add(new Pair<Blob, String> (checkBlob, branchName));
 								allPossibleFiles.put(tillNextSlash,updated);
@@ -566,7 +561,7 @@ public class TotalFlakey {
 				
 			}
 		}	
-
+		System.out.println("Find blobs with prefix");
 		return allPossibleFiles.get(".xml");
 	}
 
@@ -576,19 +571,14 @@ public class TotalFlakey {
 			Storage storage = StorageOptions.getDefaultInstance().getService();
 			System.out.println("get storage service");
 			ArrayList<String> masterAndRelease = new ArrayList<>();
-			// masterAndRelease.add("istio-circleci/master/*/*/artifacts/junit.xml");
-			// masterAndRelease.add("istio-circleci/release-1.2/*/*/artifacts/junit.xml");
-			// masterAndRelease.add("istio-prow/logs/*release-1.2/*/artifacts/junit.xml");
-			// masterAndRelease.add("istio-prow/logs/*master/*/artifacts/junit.xml");
+			masterAndRelease.add("istio-circleci/master/*/*/artifacts/junit.xml");
+			masterAndRelease.add("istio-circleci/release-1.2/*/*/artifacts/junit.xml");
+			masterAndRelease.add("istio-prow/logs/*release-1.2/*/artifacts/junit.xml");
+			masterAndRelease.add("istio-prow/logs/*master/*/artifacts/junit.xml");
 
-			// this string is a test string to see if the code works
-			masterAndRelease.add("istio-prow/logs/*-master/1915/artifacts/junit.xml");
+			// this string is a test string of shortened prefix to see if the code works
+			//masterAndRelease.add("istio-prow/logs/*-master/1915/artifacts/junit.xml");
 			ArrayList<Pair<Blob, String>> blobs = listBlobs(storage, masterAndRelease);
-
-			for (Pair<Blob, String> pair : blobs) {
-				Blob blob = pair.getFirst();
-				System.out.println("found blobs " + blob.getName());
-			}
 
 	     	testFlakey(storage, blobs, 30);
 			testFlakey(storage, blobs, 7);
