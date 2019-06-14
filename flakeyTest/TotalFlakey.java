@@ -329,7 +329,7 @@ public class TotalFlakey {
 	    System.out.println("build blob");
 	    storage = StorageOptions.newBuilder()
 		    .setCredentials(ServiceAccountCredentials.fromStream(
-		         new FileInputStream("/etc/service-account/service-account.json")))
+		         new FileInputStream("service-account.json")))
 		    .build()
 		    .getService();
 
