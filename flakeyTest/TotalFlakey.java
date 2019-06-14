@@ -451,9 +451,10 @@ public class TotalFlakey {
 			int separator = path.indexOf("/");
 			String bucketName = path.substring(0, separator);
 			String branchName = "";
-			if (bucketName.indexOf("master") != -1) {
+			System.out.println(bucketName);
+			if (path.indexOf("master") != -1) {
 				branchName = "master";
-			} else if (bucketName.indexOf("release-1.2") != -1) {
+			} else if (path.indexOf("release-1.2") != -1) {
 				branchName = "release-1.2";
 			}
 			String originalPrefix = path.substring(separator + 1);
