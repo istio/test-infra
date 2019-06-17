@@ -33,6 +33,17 @@ import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import java.util.regex.Pattern;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.List;
+import java.io.BufferedOutputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.ServiceAccountCredentials;
+import java.io.FileInputStream;
 
 
 /**
@@ -93,7 +104,6 @@ public class TotalFlakey {
 	    			String suiteName = nodeMap.getNamedItem("name").getNodeValue();
 	    			int numSuiteFailures = Integer.parseInt(nodeMap.getNamedItem("failures").getNodeValue());
 	    			int numSuiteTests = Integer.parseInt(nodeMap.getNamedItem("tests").getNodeValue());
-	    			
  	    			if (flakey.containsKey(suiteName)) {
 	    				Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>> result = flakey.get(suiteName);
 	    				Pair<Integer, Integer> suiteResult = result.getFirst();
@@ -244,7 +254,7 @@ public class TotalFlakey {
 	/*
 	 * Convert the HashMap of testsuites and testcases to xml format write into a file in google cloud.
 	 */
-	private static void printFlakey(HashMap<String, HashMap<String, Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>>>> fullFlakey, Storage storage, String filePath, String bucketName) throws TransformerException, ParserConfigurationException{
+	private static void printFlakey(HashMap<String, HashMap<String, Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>>>> fullFlakey, Storage storage, String filePath, String bucketName) throws IOException, TransformerException, ParserConfigurationException{
 
 		String xmlPattern = "/^[a-zA-Z_:][a-zA-Z0-9\\.\\-_:]*$/";
 		Pattern pattern = Pattern.compile(xmlPattern);
@@ -311,10 +321,18 @@ public class TotalFlakey {
         
 
         String xmlString = toString(document);
-
-        BlobId blobId = BlobId.of(bucketName, filePath);
+        BlobId blobId = BlobId.of("istio-prow", "test-flakey-test_Jun13.xml");
 	    BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("text/xml").build();
+	    //System.out.println("blob created for " + blobInfo.getGsObjectName());
+	    System.out.println("build blob");
+	    storage = StorageOptions.newBuilder()
+		    .setCredentials(ServiceAccountCredentials.fromStream(
+		         new FileInputStream("/etc/service-account/service-account.json")))
+		    .build()
+		    .getService();
+
 	    Blob blob = storage.create(blobInfo, xmlString.getBytes(UTF_8));
+	    System.out.println("create blob in sotrage");
 	}
 
 	/*
@@ -352,11 +370,13 @@ public class TotalFlakey {
 	/*
 	 * Compare the date of file to the deadline specified in parameters.
 	 */
-	private static boolean compareToPast(String date, int days) {
-		int day = Integer.parseInt(date.substring(0, date.indexOf(" ")));
-		date = date.substring(date.indexOf(" ") + 1);
-		int month = convertMonth(date.substring(0, date.indexOf(" ")));
-		int year = Integer.parseInt(date.substring(date.indexOf(" ") + 1));
+	private static boolean compareToPast(Date date, int days) {
+		
+		Calendar c = Calendar.getInstance();
+		c.setTime(date);
+		int year = c.get(Calendar.YEAR);
+		int month = c.get(Calendar.MONTH) + 1;
+		int day = c.get(Calendar.DAY_OF_MONTH);
 
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, -days);
@@ -382,39 +402,20 @@ public class TotalFlakey {
 	 * Write result to output file.
 	 * Delete the temp folder created with readInput command.
 	 */
-	public static void testFlakey(int numDaysPast) {
+	public static void testFlakey(Storage storage, ArrayList<Pair<Blob, String>> blobs, int numDaysPast) {
 		try {
 			String outputFileName = new SimpleDateFormat("dd_MM_yyyy").format(new Date()) + "_" + Integer.toString(numDaysPast) + ".xml";
-			// test command path for only with integration test: testCommand.sh
-			String contentInput = new String (Files.readAllBytes(Paths.get(pathToReadInput)));
-			contentInput = contentInput.replace("$data_folder", dataFolder);
-			BufferedWriter writerInput = new BufferedWriter(new FileWriter(pathToReadInput));
-    		writerInput.write(contentInput);
-    		writerInput.close();
-			Process processToRead = Runtime.getRuntime().exec("sh " + pathToReadInput);
-			processToRead.waitFor();
-			System.out.println("finished running");
 			HashMap<String, HashMap<String, Pair<Pair<Integer, Integer>, HashMap<String, Pair<Integer, Integer>>>>> fullFlakey = new HashMap<>();
-			
-			Storage storage = StorageOptions.getDefaultInstance().getService();
 
-			
-			Page<Blob> blobs =
-	     storage.list(
-	         bucketName, BlobListOption.currentDirectory(), BlobListOption.prefix(dataFolder + "/"));
-
-			for (Blob blob : blobs.iterateAll()) {
+			for (Pair<Blob, String> pair : blobs) {
+				Blob blob = pair.getFirst();
+				String branch = pair.getSecond();
 				String fileName = blob.getName();
-				System.out.println(fileName);
 				
+				Date blobDate = new Date(blob.getCreateTime());
 				String fileContent = new String(blob.getContent());
-				String date = fileName.substring(fileName.indexOf("-") + 1);
-				date = date.substring(date.indexOf(" ") + 1);
-				date = date.substring(0, date.lastIndexOf(" "));
-				String branch = fileName.substring(fileName.lastIndexOf("-") + 1);
-				branch = branch.substring(0, branch.lastIndexOf(".xml"));
-				if (compareToPast(date, numDaysPast)) {
-					System.out.println(fileName);
+				
+				if (compareToPast(blobDate, numDaysPast)) {
 					DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance()
 			                             .newDocumentBuilder();
 					InputSource is = new InputSource();
@@ -425,29 +426,164 @@ public class TotalFlakey {
 				}
 			}
 			printFlakey(fullFlakey, storage, outputFileName, bucketName);
-			String content = new String (Files.readAllBytes(Paths.get(pathToDeleteTempCommand)));
-			content = content.replace("$data_folder", dataFolder);
-			BufferedWriter writer = new BufferedWriter(new FileWriter(pathToDeleteTempCommand));
-    		writer.write(content);
-    		writer.close();
-    		Process processToDelete = Runtime.getRuntime().exec("sh " + pathToDeleteTempCommand);
-			processToDelete.waitFor();
-    		content = new String (Files.readAllBytes(Paths.get(pathToDeleteTempCommand)));
-    		content = content.replace(dataFolder, "$data_folder");
-    		BufferedWriter newWriter = new BufferedWriter(new FileWriter(pathToDeleteTempCommand));
-    		newWriter.write(content);
-    		newWriter.close();
+			System.out.println("write to hash map");
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
 
+	/*
+	 * Function to find all files in istio-testing project with branches of master and release-1.2 
+	 * based on prefix written in the format of regular expression.
+	 *
+	 */
+	private static ArrayList<Pair<Blob, String>> listBlobs(Storage storage, ArrayList<String> fullPath)
+      throws IOException {
+      	
+      	BlobListOption listOptions = BlobListOption.currentDirectory();
+		HashMap<String, ArrayList<Pair<Blob, String>>> allPossibleFiles = new HashMap<>();
+
+
+		for (String path : fullPath) {
+			int separator = path.indexOf("/");
+			String bucketName = path.substring(0, separator);
+			String branchName = "";
+			if (path.indexOf("master") != -1) {
+				branchName = "master";
+			} else if (path.indexOf("release-1.2") != -1) {
+				branchName = "release-1.2";
+			}
+			String originalPrefix = path.substring(separator + 1);
+
+			String[] listOfPrefix = originalPrefix.split("\\*");
+			int prefixLength = listOfPrefix.length;
+			
+			String preTillNow = "";
+			String firstPre = listOfPrefix[0];
+
+			preTillNow = preTillNow + firstPre;
+			String matchPattern = preTillNow + "*";
+
+			Page<Blob> blobs = storage.list(bucketName, listOptions, BlobListOption.prefix(firstPre));
+			for (Blob firstBlob : blobs.iterateAll()) {
+				String firstlevel = firstBlob.getName();
+				if (allPossibleFiles.containsKey(firstPre)) {
+					ArrayList<Pair<Blob, String>> firstPreList = allPossibleFiles.get(firstPre);
+					firstPreList.add(new Pair<Blob, String>(firstBlob, branchName));
+					allPossibleFiles.put(firstPre, firstPreList);
+				} else {
+					ArrayList<Pair<Blob, String>> firstPreList = new ArrayList<>();
+					firstPreList.add(new Pair<Blob, String> (firstBlob, branchName));
+					allPossibleFiles.put(firstPre, firstPreList);
+				}
+			}
+
+			for (int m = 1; m < prefixLength; m ++) {
+				String preElement = listOfPrefix[m];
+				String prevPre = listOfPrefix[m - 1];
+				ArrayList<Pair<Blob, String>> pastPres = allPossibleFiles.get(prevPre);
+				ArrayList<Pair<Blob, String>> curPres = new ArrayList<>();
+				if (preElement.indexOf(".xml") != -1) {
+					allPossibleFiles.put(".xml", curPres);
+				} else {
+					allPossibleFiles.put(preElement, curPres);
+				}
+				
+				
+				if (preElement.substring(0, 1).equals("/")) {
+
+					for (Pair<Blob, String> longerPrefixPair : pastPres) {
+						Blob longerPrefixBlob = longerPrefixPair.getFirst();
+
+						String longerPrefix = longerPrefixBlob.getName();
+						if (longerPrefix.substring(longerPrefix.length() - 1).equals("/")) {
+
+							String shorten = longerPrefix.substring(0, longerPrefix.length() - 1);
+							String curPrefix =  shorten + preElement;
+							
+
+							blobs = storage.list(bucketName, listOptions, BlobListOption.prefix(curPrefix));
+
+							ArrayList<Pair<Blob, String>> getPres = new ArrayList<>();
+							if (preElement.indexOf(".xml") != -1) {
+								getPres = allPossibleFiles.get(".xml");
+							} else {
+								getPres = allPossibleFiles.get(preElement);
+							}
+
+							for (Blob blob : blobs.iterateAll()) {
+
+								getPres.add(new Pair<Blob, String> (blob, branchName));
+							}
+
+							if (preElement.indexOf(".xml") != -1) {
+								
+								allPossibleFiles.put(".xml", getPres);
+							} else {
+								
+								allPossibleFiles.put(preElement, getPres);
+							}
+						}
+						
+						
+					}
+
+				} else {
+
+					String tillNextSlash = preElement.substring(0, preElement.indexOf("/") + 1);
+					int endfixLen = tillNextSlash.length();
+					String nextSlash = preElement.substring(preElement.indexOf("/"));
+					listOfPrefix[m] = nextSlash;
+					listOfPrefix[m - 1] = tillNextSlash;
+
+					m = m - 1;
+					
+					allPossibleFiles.put(tillNextSlash, new ArrayList<>());
+					for (Pair<Blob, String> checkPair : pastPres) {
+						Blob checkBlob = checkPair.getFirst();
+
+						String nameToCheck = checkBlob.getName();
+						if (nameToCheck.length() >= endfixLen) {
+							String curEnd = nameToCheck.substring(nameToCheck.length() - endfixLen);
+							if (curEnd.equals(tillNextSlash)) {
+								ArrayList<Pair<Blob, String>> updated = allPossibleFiles.get(tillNextSlash);
+								updated.add(new Pair<Blob, String> (checkBlob, branchName));
+								allPossibleFiles.put(tillNextSlash,updated);
+							}
+						}
+					}
+				}
+
+				
+				
+			}
+		}	
+		System.out.println("Find blobs with prefix");
+		return allPossibleFiles.get(".xml");
+	}
+
 	public static void main(String[] args) {
-		testFlakey(30);
-		testFlakey(7);
+		try{
+			
+			Storage storage = StorageOptions.getDefaultInstance().getService();
+			System.out.println("get storage service");
+			ArrayList<String> masterAndRelease = new ArrayList<>();
+			masterAndRelease.add("istio-circleci/master/*/*/artifacts/junit.xml");
+			masterAndRelease.add("istio-circleci/release-1.2/*/*/artifacts/junit.xml");
+			masterAndRelease.add("istio-prow/logs/*release-1.2/*/artifacts/junit.xml");
+			masterAndRelease.add("istio-prow/logs/*master/*/artifacts/junit.xml");
+
+			// this string is a test string of shortened prefix to see if the code works
+			//masterAndRelease.add("istio-prow/logs/*-master/1915/artifacts/junit.xml");
+			ArrayList<Pair<Blob, String>> blobs = listBlobs(storage, masterAndRelease);
+
+	     	testFlakey(storage, blobs, 30);
+			testFlakey(storage, blobs, 7);
+
+		} catch (Exception e) {
+			System.out.println("get exception " + e.getMessage());
+		}
+		
+		
     }
 }
-
-
-
-
