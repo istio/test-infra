@@ -60,6 +60,45 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
+  - name: istio-racetest-master
+    <<: *job_template
+    context: prow/racetest.sh
+    always_run: true
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/racetest.sh
+      nodeSelector:
+        testing: test-pool
+
+  - name: istio-shellcheck-master
+    <<: *job_template
+    context: prow/shellcheck.sh
+    always_run: true
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/shellcheck.sh
+      nodeSelector:
+        testing: test-pool
+
+  - name: istio-codecov-master
+    <<: *job_template
+    context: prow/codecov.sh
+    always_run: true
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/codecov.sh
+      nodeSelector:
+        testing: test-pool
+
   - name: integ-framework-local-presubmit-tests-master
     <<: *job_template
     context: prow/integ-framework-local-presubmit-tests.sh
@@ -293,6 +332,21 @@ presubmits:
         command:
         - entrypoint
         - prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
+      nodeSelector:
+        testing: test-pool
+  - name: istio-e2e-pilot-cloudfoundry-v1alpha3-v2-master
+    <<: *job_template
+    always_run: true
+    context: prow/e2e-pilot-cloudfoundry-v1alpha3-v2.sh
+    labels:
+      preset-service-account: "true"
+    max_concurrency: 5
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/e2e-pilot-cloudfoundry-v1alpha3-v2.sh
       nodeSelector:
         testing: test-pool
   - name: e2e-mixer-no_auth-master
