@@ -5,7 +5,7 @@ job_template: &job_template
   path_alias: istio.io/istio
 
 istio_container: &istio_container
-  image: gcr.io/istio-testing/istio-builder:v20190607-32702dcd
+  image: gcr.io/istio-testing/istio-builder:v20190619-72a31e48
   # Docker in Docker
   securityContext:
     privileged: true
@@ -57,6 +57,51 @@ presubmits:
         command:
         - entrypoint
         - prow/istio-lint.sh
+      nodeSelector:
+        testing: test-pool
+
+  - name: istio-racetest-master
+    <<: *job_template
+    context: prow/racetest.sh
+    always_run: true
+    # TODO: make required once tests are stable
+    optional: true
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/racetest.sh
+      nodeSelector:
+        testing: test-pool
+
+  - name: istio-shellcheck-master
+    <<: *job_template
+    context: prow/shellcheck.sh
+    always_run: true
+    # TODO: make required once tests are stable
+    optional: true
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/shellcheck.sh
+      nodeSelector:
+        testing: test-pool
+
+  - name: istio-codecov-master
+    <<: *job_template
+    context: prow/codecov.sh
+    always_run: true
+    # TODO: make required once tests are stable
+    optional: true
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/codecov.sh
       nodeSelector:
         testing: test-pool
 
