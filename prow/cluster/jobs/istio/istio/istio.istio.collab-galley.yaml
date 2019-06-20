@@ -141,9 +141,10 @@ presubmits:
         nodeSelector:
           testing: test-pool
 
-    - name: istio-presubmit
+    - name: integ-framework-k8s-presubmit-tests
       <<: *job_template
-      context: prow/istio-presubmit.sh
+      context: prow/integ-framework-k8s-presubmit-tests.sh
+      max_concurrency: 5
       always_run: true
       labels:
         preset-service-account: "true"
@@ -152,304 +153,288 @@ presubmits:
           - <<: *istio_container
             command:
               - entrypoint
-              - prow/istio-presubmit.sh
+              - prow/integ-framework-k8s-presubmit-tests.sh
         nodeSelector:
-          testing: build-pool
-      run_after_success:
-        - name: integ-framework-k8s-presubmit-tests
-          <<: *job_template
-          context: prow/integ-framework-k8s-presubmit-tests.sh
-          max_concurrency: 5
-          always_run: true
-          labels:
-            preset-service-account: "true"
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/integ-framework-k8s-presubmit-tests.sh
-            nodeSelector:
-              testing: test-pool
-        - name: integ-galley-k8s-presubmit-tests
-          <<: *job_template
-          context: prow/integ-galley-k8s-presubmit-tests.sh
-          max_concurrency: 5
-          always_run: true
-          labels:
-            preset-service-account: "true"
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/integ-galley-k8s-presubmit-tests.sh
-            nodeSelector:
-              testing: test-pool
-        - name: integ-istioctl-k8s-presubmit-tests
-          <<: *job_template
-          context: prow/integ-istioctl-k8s-presubmit-tests.sh
-          optional: true
-          max_concurrency: 5
-          always_run: true
-          labels:
-            preset-service-account: "true"
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/integ-istioctl-k8s-presubmit-tests.sh
-            nodeSelector:
-              testing: test-pool
-        - name: integ-mixer-k8s-presubmit-tests
-          <<: *job_template
-          context: prow/integ-mixer-k8s-presubmit-tests.sh
-          optional: true
-          max_concurrency: 5
-          always_run: true
-          labels:
-            preset-service-account: "true"
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/integ-mixer-k8s-presubmit-tests.sh
-            nodeSelector:
-              testing: test-pool
-        - name: integ-pilot-k8s-presubmit-tests
-          <<: *job_template
-          optional: true
-          context: prow/integ-pilot-k8s-presubmit-tests.sh
-          max_concurrency: 5
-          always_run: true
-          labels:
-            preset-service-account: "true"
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/integ-pilot-k8s-presubmit-tests.sh
-            nodeSelector:
-              testing: test-pool
-        - name: integ-security-k8s-presubmit-tests
-          <<: *job_template
-          optional: true
-          context: prow/integ-security-k8s-presubmit-tests.sh
-          max_concurrency: 5
-          always_run: true
-          labels:
-            preset-service-account: "true"
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/integ-security-k8s-presubmit-tests.sh
-            nodeSelector:
-              testing: test-pool
-        - name: integ-telemetry-k8s-presubmit-tests
-          <<: *job_template
-          context: prow/integ-telemetry-k8s-presubmit-tests.sh
-          optional: true
-          max_concurrency: 5
-          always_run: true
-          labels:
-            preset-service-account: "true"
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/integ-telemetry-k8s-presubmit-tests.sh
-            nodeSelector:
-              testing: test-pool
-        - name: test-e2e-mixer-no_auth
-          <<: *job_template
-          optional: true
-          skip_report: true
-          context: "prow: test-e2e-mixer-no_auth"
-          max_concurrency: 5
-          labels:
-            preset-service-account: "true"
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/test-e2e-mixer-no_auth.sh
-            nodeSelector:
-              testing: test-pool
-        - name: istio-pilot-e2e-envoyv2-v1alpha3
-          <<: *job_template
-          always_run: true
-          context: prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
-          labels:
-            preset-service-account: "true"
-          max_concurrency: 5
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
-            nodeSelector:
-              testing: test-pool
-        - name: e2e-mixer-no_auth
-          <<: *job_template
-          always_run: true
-          context: prow/e2e-mixer-no_auth.sh
-          labels:
-            preset-service-account: "true"
-          max_concurrency: 5
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/e2e-mixer-no_auth.sh
-            nodeSelector:
-              testing: test-pool
-        - name: e2e-dashboard
-          <<: *job_template
-          always_run: true
-          context: prow/e2e-dashboard.sh
-          labels:
-            preset-service-account: "true"
-          max_concurrency: 5
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/e2e-dashboard.sh
-            nodeSelector:
-              testing: test-pool
-        - name: e2e-bookInfoTests-envoyv2-v1alpha3
-          <<: *job_template
-          always_run: true
-          context: prow/e2e-bookInfoTests-v1alpha3.sh
-          labels:
-            preset-service-account: "true"
-          max_concurrency: 5
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
-            nodeSelector:
-              testing: test-pool
-        - name: e2e-bookInfoTests-trustdomain
-          <<: *job_template
-          always_run: true
-          context: prow/e2e-bookInfoTests-trustdomain.sh
-          optional: true
-          labels:
-            preset-service-account: "true"
-          max_concurrency: 5
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/e2e-bookInfoTests-trustdomain.sh
-            nodeSelector:
-              testing: test-pool
-        - name: e2e-simpleTests
-          <<: *job_template
-          always_run: true
-          context: prow/e2e-simpleTests.sh
-          labels:
-            preset-service-account: "true"
-          max_concurrency: 5
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/e2e-simpleTests.sh
-            nodeSelector:
-              testing: test-pool
-        - name: e2e-simpleTestsMinProfile
-          <<: *job_template
-          optional: true
-          context: prow/e2e-simpleTests-minProfile.sh
-          labels:
-            preset-service-account: "true"
-          max_concurrency: 5
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/e2e-simpleTests-minProfile.sh
-            nodeSelector:
-              testing: test-pool
+          testing: test-pool
+    - name: integ-galley-k8s-presubmit-tests
+      <<: *job_template
+      context: prow/integ-galley-k8s-presubmit-tests.sh
+      max_concurrency: 5
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-galley-k8s-presubmit-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: integ-istioctl-k8s-presubmit-tests
+      <<: *job_template
+      context: prow/integ-istioctl-k8s-presubmit-tests.sh
+      optional: true
+      max_concurrency: 5
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-istioctl-k8s-presubmit-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: integ-mixer-k8s-presubmit-tests
+      <<: *job_template
+      context: prow/integ-mixer-k8s-presubmit-tests.sh
+      optional: true
+      max_concurrency: 5
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-mixer-k8s-presubmit-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: integ-pilot-k8s-presubmit-tests
+      <<: *job_template
+      optional: true
+      context: prow/integ-pilot-k8s-presubmit-tests.sh
+      max_concurrency: 5
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-pilot-k8s-presubmit-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: integ-security-k8s-presubmit-tests
+      <<: *job_template
+      optional: true
+      context: prow/integ-security-k8s-presubmit-tests.sh
+      max_concurrency: 5
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-security-k8s-presubmit-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: integ-telemetry-k8s-presubmit-tests
+      <<: *job_template
+      context: prow/integ-telemetry-k8s-presubmit-tests.sh
+      optional: true
+      max_concurrency: 5
+      always_run: true
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/integ-telemetry-k8s-presubmit-tests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: test-e2e-mixer-no_auth
+      <<: *job_template
+      optional: true
+      skip_report: true
+      context: "prow: test-e2e-mixer-no_auth"
+      max_concurrency: 5
+      labels:
+        preset-service-account: "true"
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/test-e2e-mixer-no_auth.sh
+        nodeSelector:
+          testing: test-pool
+    - name: istio-pilot-e2e-envoyv2-v1alpha3
+      <<: *job_template
+      always_run: true
+      context: prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
+        nodeSelector:
+          testing: test-pool
+    - name: e2e-mixer-no_auth
+      <<: *job_template
+      always_run: true
+      context: prow/e2e-mixer-no_auth.sh
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/e2e-mixer-no_auth.sh
+        nodeSelector:
+          testing: test-pool
+    - name: e2e-dashboard
+      <<: *job_template
+      always_run: true
+      context: prow/e2e-dashboard.sh
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/e2e-dashboard.sh
+        nodeSelector:
+          testing: test-pool
+    - name: e2e-bookInfoTests-envoyv2-v1alpha3
+      <<: *job_template
+      always_run: true
+      context: prow/e2e-bookInfoTests-v1alpha3.sh
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
+        nodeSelector:
+          testing: test-pool
+    - name: e2e-bookInfoTests-trustdomain
+      <<: *job_template
+      always_run: true
+      context: prow/e2e-bookInfoTests-trustdomain.sh
+      optional: true
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/e2e-bookInfoTests-trustdomain.sh
+        nodeSelector:
+          testing: test-pool
+    - name: e2e-simpleTests
+      <<: *job_template
+      always_run: true
+      context: prow/e2e-simpleTests.sh
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/e2e-simpleTests.sh
+        nodeSelector:
+          testing: test-pool
+    - name: e2e-simpleTestsMinProfile
+      <<: *job_template
+      optional: true
+      context: prow/e2e-simpleTests-minProfile.sh
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/e2e-simpleTests-minProfile.sh
+        nodeSelector:
+          testing: test-pool
 
-        - name: istio-pilot-multicluster-e2e
-          <<: *job_template
-          always_run: true
-          context: prow/istio-pilot-multicluster-e2e.sh
-          optional: true
-          labels:
-            preset-service-account: "true"
-          max_concurrency: 5
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/istio-pilot-multicluster-e2e.sh
-            nodeSelector:
-              testing: test-pool
-        - name: e2e-simpleTests-cni
-          <<: *job_template
-          always_run: false
-          context: prow/e2e-simpleTests-cni.sh
-          optional: true
-          labels:
-            preset-service-account: "true"
-          max_concurrency: 5
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/e2e-simpleTests-cni.sh
-            nodeSelector:
-        - name: istio_auth_sds_e2e
-          <<: *job_template
-          always_run: true
-          context: prow/e2e_pilotv2_auth_sds.sh
-          labels:
-            preset-service-account: "true"
-          max_concurrency: 5
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/e2e_pilotv2_auth_sds.sh
-            nodeSelector:
-              testing: test-pool
-        - name: release-test
-          <<: *job_template
-          always_run: true
-          context: prow/release-test.sh
-          labels:
-            preset-service-account: "true"
-          max_concurrency: 5
-          spec:
-            containers:
-              - <<: *istio_container
-                command:
-                  - entrypoint
-                  - prow/release-test.sh
-            nodeSelector:
-              testing: test-pool
+    - name: istio-pilot-multicluster-e2e
+      <<: *job_template
+      always_run: true
+      context: prow/istio-pilot-multicluster-e2e.sh
+      optional: true
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/istio-pilot-multicluster-e2e.sh
+        nodeSelector:
+          testing: test-pool
+    - name: e2e-simpleTests-cni
+      <<: *job_template
+      always_run: false
+      context: prow/e2e-simpleTests-cni.sh
+      optional: true
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/e2e-simpleTests-cni.sh
+        nodeSelector:
+    - name: istio_auth_sds_e2e
+      <<: *job_template
+      always_run: true
+      context: prow/e2e_pilotv2_auth_sds.sh
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/e2e_pilotv2_auth_sds.sh
+        nodeSelector:
+          testing: test-pool
+    - name: release-test
+      <<: *job_template
+      always_run: true
+      context: prow/release-test.sh
+      labels:
+        preset-service-account: "true"
+      max_concurrency: 5
+      spec:
+        containers:
+          - <<: *istio_container
+            command:
+              - entrypoint
+              - prow/release-test.sh
+        nodeSelector:
+          testing: test-pool
 
 
 postsubmits:
