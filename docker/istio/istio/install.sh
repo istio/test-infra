@@ -19,7 +19,8 @@ apt-get -qqy --no-install-recommends install \
   software-properties-common \
   unzip \
   wget \
-  zip
+  zip \
+  yamllint
 
 gem install --no-ri --no-rdoc fpm
 
