@@ -85,9 +85,6 @@ branch-protection:
               protect: true
         istio:
           protect: false
-          required_status_checks:
-            contexts:
-            - "ci/circleci: build"
           branches:
             <<: *blocked_branches
             collab-galley:
@@ -107,6 +104,7 @@ branch-protection:
                 - "ci/circleci: shellcheck"
                 - "ci/circleci: lint"
                 - "ci/circleci: test"
+                - "ci/circleci: build"
                 - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
                 - "merges-blocked-needs-admin"
             release-1.2:
@@ -117,6 +115,7 @@ branch-protection:
                 - "ci/circleci: shellcheck"
                 - "ci/circleci: lint"
                 - "ci/circleci: test"
+                - "ci/circleci: build"
                 - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
                 - "merges-blocked-needs-admin"
             master:
