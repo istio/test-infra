@@ -509,6 +509,18 @@ presubmits:
 postsubmits:
 
   istio/istio:
+  - name: integ-conformance-local-postsubmit-tests-master
+    <<: *job_template
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-suite-local.sh
+            - test.integration.conformance.local
+      nodeSelector:
+        testing: test-pool
+
   - name: integ-framework-local-postsubmit-tests-master
     <<: *job_template
     spec:
@@ -615,17 +627,30 @@ postsubmits:
         - prow/istio-unit-tests.sh
       nodeSelector:
         testing: test-pool
+  - name: integ-conformance-k8s-postsubmit-tests-master
+    <<: *job_template
+    labels:
+      preset-service-account: "true"
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-suite-k8s.sh
+            - test.integration.conformance.kube
+      nodeSelector:
+        testing: test-pool
   - name: integ-framework-k8s-postsubmit-tests-master
     <<: *job_template
     labels:
       preset-service-account: "true"
     spec:
       containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - prow/integ-suite-k8s.sh
-        - test.integration.framework.kube
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-suite-k8s.sh
+            - test.integration.framework.kube
       nodeSelector:
         testing: test-pool
   - name: integ-galley-k8s-postsubmit-tests-master
