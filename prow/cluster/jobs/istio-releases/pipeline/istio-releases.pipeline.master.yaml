@@ -68,23 +68,6 @@ presubmits:
         - prow/e2e-simpleTests.sh
       nodeSelector:
         testing: test-pool
-  - name: release-build-test-e2e-simpleTests-distroless
-    <<: *job_template
-    always_run: true
-    optional: false
-    context: prow/release-build-test-e2e-simpleTests-distroless
-    max_concurrency: 5
-    labels:
-      preset-release-build-test: "true"
-    spec:
-      containers:
-      - <<: *istio_container
-        command:
-        - entrypoint
-        - scripts/build_test_presubmit.sh
-        - prow/e2e-simpleTests-distroless.sh
-      nodeSelector:
-        testing: test-pool
   - name: release-build-test-upgrade-tests-1.1.7
     <<: *job_template
     always_run: true
