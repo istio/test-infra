@@ -17,7 +17,8 @@ apt-get -qqy --no-install-recommends install \
   ruby-dev \
   software-properties-common \
   unzip \
-  wget
+  wget \
+  jq
 
 gem install --no-ri --no-rdoc fpm
 
