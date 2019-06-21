@@ -515,17 +515,17 @@ presubmits:
 postsubmits:
 
   istio/istio:
-    - name: integ-conformance-local-postsubmit-tests-master
-      <<: *job_template
-      spec:
-        containers:
-          - <<: *istio_container
-            command:
-              - entrypoint
-              - prow/integ-suite-local.sh
-              - test.integration.conformance.local
-        nodeSelector:
-          testing: test-pool
+  - name: integ-conformance-local-postsubmit-tests-master
+    <<: *job_template
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-suite-local.sh
+            - test.integration.conformance.local
+      nodeSelector:
+        testing: test-pool
 
   - name: integ-framework-local-postsubmit-tests-master
     <<: *job_template
