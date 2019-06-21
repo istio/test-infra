@@ -1,6 +1,6 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
-load("@io_bazel_rules_docker//go:image.bzl", "go_image")
 load("@io_bazel_rules_docker//container:container.bzl", "container_push")
+load("@io_bazel_rules_docker//go:image.bzl", "go_image")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 
 go_library(
     name = "go_default_library",
@@ -11,10 +11,10 @@ go_library(
         "//toolbox/metrics:go_default_library",
         "//toolbox/metrics/coverage:go_default_library",
         "//toolbox/metrics/flakes:go_default_library",
-        "//vendor/github.com/golang/glog:go_default_library",
-        "//vendor/github.com/prometheus/client_golang/prometheus/promhttp:go_default_library",
-        "//vendor/golang.org/x/net/context:go_default_library",
-        "//vendor/google.golang.org/api/option:go_default_library",
+        "@com_github_golang_glog//:go_default_library",
+        "@com_github_prometheus_client_golang//prometheus/promhttp:go_default_library",
+        "@org_golang_google_api//option:go_default_library",
+        "@org_golang_x_net//context:go_default_library",
     ],
 )
 
@@ -32,7 +32,6 @@ container_push(
     image = ":image",
     registry = "gcr.io",
     repository = "istio-testing/metrics_fetcher",
-    stamp = True,
     tag = "{BUILD_TIMESTAMP}",
 )
 

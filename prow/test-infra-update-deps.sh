@@ -42,16 +42,17 @@ function update_on_branch {
    local day_of_week=`date "+%u"` #(1..7)
 
    case ${CUR_BRANCH} in
-     release-0.8|master)
+     # No auto-update deps for release branches.
+     release-*)
        return
        ;;
-     release-*)
+     master)
        case ${hour24} in
-         10|20)
+         10)
            # List of repo where auto dependency update has been enabled excluding istio/istio
            repos=( proxy )
            ;;
-         12|22)
+         12)
 	   ${UPDATE_BINARY} \
 	   	--repo="istio" \
 	   	--base_branch=${CUR_BRANCH} \
@@ -63,7 +64,7 @@ function update_on_branch {
            return
            ;;
        esac
-       ;; # release-* branch end
+       ;; # master branch end
      *)
        echo error CUR_BRANCH:$CUR_BRANCH, all branches:$GIT_BRANCHES set incorrectly; exit 1
        ;;

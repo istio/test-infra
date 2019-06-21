@@ -34,11 +34,10 @@ import (
 
 const (
 	pluginName = "trigger"
-	lgtmLabel  = "lgtm"
 )
 
 func init() {
-	plugins.RegisterIssueCommentHandler(pluginName, handleIssueComment, helpProvider)
+	plugins.RegisterGenericCommentHandler(pluginName, handleGenericCommentEvent, helpProvider)
 	plugins.RegisterPullRequestHandler(pluginName, handlePullRequest, helpProvider)
 	plugins.RegisterPushEventHandler(pluginName, handlePush, helpProvider)
 }
@@ -100,6 +99,7 @@ type githubClient interface {
 	GetPullRequestChanges(org, repo string, number int) ([]github.PullRequestChange, error)
 	RemoveLabel(org, repo string, number int, label string) error
 	DeleteStaleComments(org, repo string, number int, comments []github.IssueComment, isStale func(github.IssueComment) bool) error
+	GetIssueLabels(org, repo string, number int) ([]github.Label, error)
 }
 
 type kubeClient interface {
@@ -111,6 +111,11 @@ type client struct {
 	KubeClient   kubeClient
 	Config       *config.Config
 	Logger       *logrus.Entry
+}
+
+type trustedUserClient interface {
+	IsCollaborator(org, repo, user string) (bool, error)
+	IsMember(org, user string) (bool, error)
 }
 
 func getClient(pc plugins.PluginClient) client {
@@ -127,19 +132,19 @@ func handlePullRequest(pc plugins.PluginClient, pr github.PullRequestEvent) erro
 	return handlePR(getClient(pc), pc.PluginConfig.TriggerFor(org, repo), pr)
 }
 
-func handleIssueComment(pc plugins.PluginClient, ic github.IssueCommentEvent) error {
-	return handleIC(getClient(pc), pc.PluginConfig.TriggerFor(ic.Repo.Owner.Login, ic.Repo.Name), ic)
+func handleGenericCommentEvent(pc plugins.PluginClient, gc github.GenericCommentEvent) error {
+	return handleGenericComment(getClient(pc), pc.PluginConfig.TriggerFor(gc.Repo.Owner.Login, gc.Repo.Name), gc)
 }
 
 func handlePush(pc plugins.PluginClient, pe github.PushEvent) error {
 	return handlePE(getClient(pc), pe)
 }
 
-// trustedUser returns true if user is trusted in repo.
+// TrustedUser returns true if user is trusted in repo.
 //
 // Trusted users are either repo collaborators, org members or trusted org members.
 // Whether repo collaborators and/or a second org is trusted is configured by trigger.
-func trustedUser(ghc githubClient, trigger *plugins.Trigger, user, org, repo string) (bool, error) {
+func TrustedUser(ghc trustedUserClient, trigger *plugins.Trigger, user, org, repo string) (bool, error) {
 	// First check if user is a collaborator, assuming this is allowed
 	allowCollaborators := trigger == nil || !trigger.OnlyOrgMembers
 	if allowCollaborators {

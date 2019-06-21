@@ -7,11 +7,12 @@ triggers:
   - istio/api
   - sebastienvas/core
   - istio/istio
-  - istio/istio.github.io
   - istio/test-infra
   - istio/proxy
-  - istio-releases/daily-release
+  - istio-releases/pipeline
   trusted_org: istio
+- repos:
+  - istio-ecosystem/authservice
 
 config_updater:
   maps:
@@ -37,19 +38,59 @@ slack:
     whitelist:
     - istio-testing
 
+lgtm:
+- repos:
+  - istio/api
+  - istio/istio
+  - istio/test-infra
+  - istio/proxy
+  - istio-releases/pipeline
+  trusted_team_for_sticky_lgtm: "Istio Hackers"
+- repos:
+  - istio-ecosystem/authservice
+
 approve:
 - repos:
   - istio/api
   - istio/istio
-  - istio/istio.github.io
   - istio/test-infra
   - istio/proxy
-  - istio-releases/daily-release
-  implicit_self_approve: false
+  - istio-releases/pipeline
+  implicit_self_approve: true
+  lgtm_acts_as_approve: true
+- repos:
+  - istio-ecosystem/authservice
+  implicit_self_approve: true
   lgtm_acts_as_approve: true
 
 plugins:
-  istio:
+  istio/istio:
+  - approve
+  - assign
+  - blunderbuss
+  - golint
+  - help
+  - hold
+  - lgtm
+  - lifecycle
+  - slackevents
+  - trigger
+  - wip
+
+  istio/api:
+  - approve
+  - assign
+  - blunderbuss
+  - golint
+  - help
+  - hold
+  - lgtm
+  - lifecycle
+  - slackevents
+  - trigger
+  - wip
+
+  istio/proxy:
   - approve
   - assign
   - blunderbuss
@@ -74,17 +115,38 @@ plugins:
   - shrug
   - skip
   - yuks
+  - approve
+  - assign
+  - blunderbuss
+  - golint
+  - help
+  - hold
+  - lgtm
+  - lifecycle
+  - slackevents
+  - trigger
+  - wip
 
-  istio-releases/daily-release:
+  istio-releases/pipeline:
   - lifecycle
   - trigger
+  - hold
+
+  istio-ecosystem/authservice:
+  - approve
+  - assign
+  - blunderbuss
+  - golint
+  - help
+  - hold
+  - lgtm
+  - lifecycle
+  - slackevents
+  - trigger
+  - wip
 
 external_plugins:
   istio/istio:
-  - name: needs-rebase
-    events:
-      - pull_request
-  istio/istio.github.io:
   - name: needs-rebase
     events:
       - pull_request
@@ -93,6 +155,14 @@ external_plugins:
     events:
       - pull_request
   istio/test-infra:
+  - name: needs-rebase
+    events:
+      - pull_request
+  istio-releases/pipeline:
+  - name: needs-rebase
+    events:
+      - pull_request
+  istio-ecosystem/authservice:
   - name: needs-rebase
     events:
       - pull_request

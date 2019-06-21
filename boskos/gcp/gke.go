@@ -24,7 +24,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/container/v1"
-
 	"istio.io/test-infra/toolbox/util"
 )
 
@@ -37,11 +36,13 @@ const (
 )
 
 type clusterConfig struct {
-	MachineType           string `json:"machinetype,omitempty"`
-	NumNodes              int64  `json:"numnodes,omitempty"`
-	Version               string `json:"version,omitempty"`
-	Zone                  string `json:"zone,ompitempty"`
-	EnableKubernetesAlpha bool   `json:"enablekubernetesalpha"`
+	MachineType           string                   `json:"machinetype,omitempty"`
+	NumNodes              int64                    `json:"numnodes,omitempty"`
+	Version               string                   `json:"version,omitempty"`
+	Zone                  string                   `json:"zone,omitempty"`
+	EnableKubernetesAlpha bool                     `json:"enablekubernetesalpha"`
+	NetworkPolicy         *container.NetworkPolicy `json:"networkpolicy,omitempty"`
+	Scopes                []string                 `json:"scopes,omitempty"`
 }
 
 type containerEngine struct {
@@ -135,12 +136,14 @@ func (cc *containerEngine) create(ctx context.Context, project string, config cl
 	}
 	clusterRequest := &container.CreateClusterRequest{
 		Cluster: &container.Cluster{
-			Name: name,
+			Name:                  name,
 			InitialClusterVersion: version,
 			InitialNodeCount:      config.NumNodes,
 			NodeConfig: &container.NodeConfig{
 				MachineType: config.MachineType,
+				OauthScopes: config.Scopes,
 			},
+			NetworkPolicy:         config.NetworkPolicy,
 			EnableKubernetesAlpha: config.EnableKubernetesAlpha,
 		},
 	}

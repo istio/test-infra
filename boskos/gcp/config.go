@@ -29,7 +29,7 @@ import (
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/container/v1"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 	"k8s.io/test-infra/boskos/common"
 	"k8s.io/test-infra/boskos/mason"
 )

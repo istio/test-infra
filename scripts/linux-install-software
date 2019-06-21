@@ -11,13 +11,16 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # TOOLS
 . ${DIR}/tools/linux-install-bazel || error_exit "Cannot load Bazel install script"
 . ${DIR}/tools/linux-install-clang || error_exit "Cannot load Clang install script"
+. ${DIR}/tools/linux-install-cmake || error_exit "Cannot load cmake install script"
 . ${DIR}/tools/linux-install-docker || error_exit "Cannot load Docker install script"
 . ${DIR}/tools/linux-install-gcloud || error_exit "Cannot load gcloud install script"
 . ${DIR}/tools/linux-install-golang || error_exit "Cannot load golang install script"
+. ${DIR}/tools/linux-install-ninja || error_exit "Cannot load ninja install script"
 . ${DIR}/tools/linux-install-repo || error_exit "Cannot load repo install script"
 . ${DIR}/tools/linux-install-wrk || error_exit "Cannot load wrk install script"
 . ${DIR}/tools/linux-install-protoc || error_exit "Cannot load protoc install script"
 . ${DIR}/tools/linux-install-helm || error_exit "Cannot load helm install script"
+. ${DIR}/tools/linux-install-gcc || error_exit "Cannot load gcc install script"
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -30,13 +33,11 @@ function install_packages() {
     apt-transport-https \
     build-essential \
     ca-certificates \
-    cmake \
     curl \
     g++ \
     libtool \
     lsb-release \
     m4 \
-    ninja-build \
     openjdk-8-jdk-headless \
     pkg-config \
     python \
@@ -90,6 +91,9 @@ update_wrk
 update_bazel
 update_clang
 update_helm
+update_gcc
+install_cmake
+install_ninja
 clear_apt
 
 echo "Software installation complete."

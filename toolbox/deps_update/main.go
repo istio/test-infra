@@ -17,9 +17,11 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path"
+	"strings"
 
 	u "istio.io/test-infra/toolbox/util"
 )
@@ -30,7 +32,7 @@ var (
 	tokenFile       = flag.String("token_file", "", "File containing Github API Access Token")
 	baseBranch      = flag.String("base_branch", "master", "Branch from which the deps update commit is based")
 	hub             = flag.String("hub", "", "Where the testing images are hosted")
-	updateExtDep    = flag.Bool("update_ext_dep", false, "Updates external dependences")
+	updateExtDep    = flag.Bool("update_ext_dep", false, "Updates external dependencies")
 	githubClnt      *u.GithubClient
 	githubEnvoyClnt *u.GithubClient
 )
@@ -38,7 +40,7 @@ var (
 const (
 	istioDepsFile         = "istio.deps"
 	prTitlePrefix         = "[BOT PR] to update dependencies of "
-	prBody                = "This PR will be merged automatically once checks are successful."
+	prBody                = "This PR will NOT be merged automatically once checks are successful. NEEDS approval from OWNERS."
 	dependencyUpdateLabel = "dependency-update"
 
 	// CI Artifacts URLs
@@ -110,6 +112,43 @@ func generateArtifactURL(repo, ref, suffix string) string {
 	return fmt.Sprintf("%s/%s", baseURL, suffix)
 }
 
+func extraUpdateForProxy(file, key, value string) error {
+	newkey := "ISTIO_API_SHA256"
+	url := fmt.Sprintf("https://github.com/%s/api/archive/%s.tar.gz", *owner, value)
+
+	if key == "ENVOY_SHA" {
+		newkey = "ENVOY_SHA256"
+		url = fmt.Sprintf("https://github.com/%s/envoy/archive/%s.tar.gz", envoyOwner, value)
+	}
+
+	tmpfile, fileErr := ioutil.TempFile("", "")
+	if fileErr != nil {
+		log.Fatalf("Error while creating tempfile: %v\n", fileErr)
+	}
+
+	defer func() {
+		if err := os.Remove(tmpfile.Name()); err != nil {
+			log.Fatalf("Error during clean up: %v\n", err)
+		}
+	}()
+
+	cmd := fmt.Sprintf("wget %s -O %s ", url, tmpfile.Name())
+
+	if _, err := u.Shell(cmd); err != nil {
+		return err
+	}
+
+	cmd = fmt.Sprintf("sha256sum %s | awk '{print $1}'", tmpfile.Name())
+	sha256Value, commandErr := u.Shell(cmd)
+	if commandErr != nil {
+		return commandErr
+	}
+	if err := u.UpdateKeyValueInFile(file, newkey, strings.TrimSuffix(sha256Value, "\n")); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Updates the list of dependencies in repo to the latest stable references
 func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency) error {
 	for _, dep := range *deps {
@@ -119,10 +158,17 @@ func updateDeps(repo string, deps *[]u.Dependency, depChangeList *[]u.Dependency
 		if err := u.UpdateKeyValueInFile(dep.File, dep.Name, dep.LastStableSHA); err != nil {
 			return err
 		}
+		if repo != proxyRepo {
+			continue
+		}
+		if err := extraUpdateForProxy(dep.File, dep.Name, dep.LastStableSHA); err != nil {
+			return err
+		}
 	}
 	if repo != istioRepo || len(*hub) == 0 {
 		return nil
 	}
+
 	args := ""
 	for _, updatedDep := range *depChangeList {
 		switch updatedDep.RepoName {
@@ -169,7 +215,12 @@ func updateDependenciesOf(repo string) error {
 		}
 	}()
 	deps, err := u.DeserializeDeps(istioDepsFile)
+	// Don't fail if istio.deps file does not exist in the repo.
 	if err != nil {
+		if os.IsNotExist(err) {
+			log.Printf("%s repo does not have istio.deps file to update.", repo)
+			return nil
+		}
 		return err
 	}
 	fingerPrint, depChangeList, err := updateDepSHAGetFingerPrint(repo, &deps)
@@ -202,13 +253,19 @@ func updateDependenciesOf(repo string) error {
 	if err = u.SerializeDeps(istioDepsFile, &deps); err != nil {
 		return err
 	}
-	if repo == istioRepo && *updateExtDep {
-		// while depend update can introduce new changes,
-		// introduce them only when requested
+	if repo == istioRepo {
 		goPath := path.Join(repoDir, "../../..")
 		env := "GOPATH=" + goPath
-		if _, err = u.Shell(env + " make depend.update"); err != nil {
+		updateCommand := "; go get -u github.com/golang/dep/cmd/dep; dep ensure -update istio.io/api"
+		if _, err = u.Shell(env + updateCommand); err != nil {
 			return err
+		}
+		if *updateExtDep {
+			// while depend update can introduce new changes,
+			// introduce them only when requested
+			if _, err = u.Shell("make depend.update"); err != nil {
+				return err
+			}
 		}
 	}
 	if _, err = u.Shell("git diff -w --quiet HEAD"); err == nil {

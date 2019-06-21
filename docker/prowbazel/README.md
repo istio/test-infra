@@ -44,3 +44,10 @@ Our dependency on this script is because it appropariately writes test job resul
 * 0.4.11: update clang to 6.0
 * 0.4.12: update golang to 1.10.4 and docker to 18.06.1-CE
 * 0.4.13: Update docker to use overlay2 fs for performance and bazel to 0.16.1
+* 0.5.0: Update bazel to 0.22 and clang to 7
+* 0.5.1: Add lld and libc++
+* 0.5.2: Update gcc and g++ to 7.0
+* 0.5.3: Update cmake to 3.8.0
+* 0.5.4: Update ninja to 1.9.0
+* 0.5.5: Update golang to 1.12.5 and bazel to 0.26.0
+* 0.5.6: Add kind v0.3.0

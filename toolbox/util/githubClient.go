@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"github.com/google/go-github/github"
-	"github.com/hashicorp/go-multierror"
+	multierror "github.com/hashicorp/go-multierror"
 	"golang.org/x/oauth2"
 )
 
@@ -216,19 +216,21 @@ func (g *GithubClient) RemoveLabelFromPR(
 	return nil
 }
 
-// ClosePRDeleteBranch closes a PR and deletes the branch from which the PR is made
-func (g *GithubClient) ClosePRDeleteBranch(repo string, pr *github.PullRequest) error {
-	prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
-	prBranch := *pr.Head.Ref
+// ClosePR closes a PR
+func (g *GithubClient) ClosePR(repo string, pr *github.PullRequest) error {
 	if *pr.State == "open" {
-		log.Printf("Closing PR %s", prName)
 		*pr.State = "closed"
 		if _, _, err := g.client.PullRequests.Edit(
 			context.Background(), g.owner, repo, pr.GetNumber(), pr); err != nil {
-			log.Printf("Failed to close %s", prName)
 			return err
 		}
 	}
+	return nil
+}
+
+// DeleteBranch deletes the branch from which the PR is made
+func (g *GithubClient) DeleteBranch(repo string, pr *github.PullRequest) error {
+	prBranch := *pr.Head.Ref
 	prBranchExists, err := g.ExistBranch(repo, prBranch)
 	if err != nil {
 		return err
@@ -245,18 +247,47 @@ func (g *GithubClient) ClosePRDeleteBranch(repo string, pr *github.PullRequest) 
 }
 
 // MergePR force merges a PR
-func (g *GithubClient) MergePR(repo string, pr *github.PullRequest) error {
-	prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
-	if _, _, err := g.client.Repositories.Merge(
-		context.Background(), g.owner, repo, &github.RepositoryMergeRequest{
-			Base:          pr.Base.Ref,
-			Head:          pr.Head.Ref,
-			CommitMessage: nil,
+func (g *GithubClient) MergePR(repo string, prNum int, commitMessage string) error {
+	_, _, err := g.client.PullRequests.Merge(
+		context.Background(), g.owner, repo, prNum, commitMessage, &github.PullRequestOptions{
+			MergeMethod: "squash",
+		})
+	return err
+}
+
+// CreateComment creates a new comment in an issue or PR.
+func (g *GithubClient) CreateComment(repo string, pr *github.Issue, comment string) error {
+	if _, _, err := g.client.Issues.CreateComment(
+		context.Background(), g.owner, repo, pr.GetNumber(), &github.IssueComment{
+			Body: &comment,
 		}); err != nil {
-		log.Printf("Failed to merge %s", prName)
+		prName := fmt.Sprintf("%s/%s#%d", g.owner, repo, pr.GetNumber())
+		log.Printf("Failed to comment %s", prName)
 		return err
 	}
 	return nil
+}
+
+// ListIssueComments lists all comments in an issue
+func (g *GithubClient) ListIssueComments(repo string, pr *github.Issue) ([]*github.IssueComment, error) {
+	listOption := &github.IssueListCommentsOptions{
+		Sort: "created",
+	}
+	var allComments []*github.IssueComment
+
+	for {
+		result, resp, err := g.client.Issues.ListComments(context.Background(), g.owner, repo, pr.GetNumber(), listOption)
+		if err != nil {
+			log.Printf("Failed to list comments")
+			return nil, err
+		}
+		allComments = append(allComments, result...)
+		if resp.NextPage == 0 {
+			break
+		}
+		listOption.Page = resp.NextPage
+	}
+	return allComments, nil
 }
 
 // ListRepos returns a list of repos under the provided owner
@@ -317,11 +348,11 @@ func (g *GithubClient) GetLatestChecks(repo string) ([]string, error) {
 }
 
 // GetPRTestResults return `success` if all *required* tests have passed
-func (g *GithubClient) GetPRTestResults(repo string, pr *github.PullRequest, verbose bool) (string, error) {
+func (g *GithubClient) GetPRTestResults(repo string, pr *github.PullRequest, verbose bool) (string, *github.CombinedStatus, error) {
 	combinedStatus, _, err := g.client.Repositories.GetCombinedStatus(
 		context.Background(), g.owner, repo, pr.Head.GetSHA(), nil)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	if verbose {
 		log.Printf("---------- The following jobs are triggered ----------\n")
@@ -332,7 +363,7 @@ func (g *GithubClient) GetPRTestResults(repo string, pr *github.PullRequest, ver
 	requiredChecks, _, err := g.client.Repositories.GetRequiredStatusChecks(
 		context.Background(), g.owner, repo, pr.Base.GetRef())
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	if verbose {
 		log.Printf("---------- The following jobs are required to pass ----------\n")
@@ -341,9 +372,9 @@ func (g *GithubClient) GetPRTestResults(repo string, pr *github.PullRequest, ver
 		}
 	}
 	if len(combinedStatus.Statuses) < len(requiredChecks.Contexts) {
-		return "", fmt.Errorf("some required tests are not successfully triggered")
+		return "", nil, fmt.Errorf("some required tests are not successfully triggered")
 	}
-	return GetReqquiredCIState(combinedStatus, requiredChecks, nil), nil
+	return GetReqquiredCIState(combinedStatus, requiredChecks, nil), combinedStatus, nil
 }
 
 // CloseIdlePullRequests checks all open PRs auto-created on baseBranch in repo,
@@ -368,9 +399,13 @@ func (g *GithubClient) CloseIdlePullRequests(prTitlePrefix, repo, baseBranch str
 				continue
 			}
 			if time.Since(*pr.CreatedAt).Nanoseconds() > idleTimeout.Nanoseconds() {
-				if err := g.ClosePRDeleteBranch(repo, pr); err != nil {
+				if err := g.ClosePR(repo, pr); err != nil {
 					multiErr = multierror.Append(multiErr, err)
 				}
+				if err := g.DeleteBranch(repo, pr); err != nil {
+					multiErr = multierror.Append(multiErr, err)
+				}
+
 			}
 		}
 	}
@@ -442,7 +477,7 @@ func (g *GithubClient) GetCommitCreationTimeByTag(repo, tag string) (time.Time, 
 func (g *GithubClient) GetReleaseTagCreationTime(repo, tag string) (time.Time, error) {
 	release, _, err := g.client.Repositories.GetReleaseByTag(context.Background(), g.owner, repo, tag)
 	if err != nil {
-		return time.Time{}, fmt.Errorf("failed to to get release tag: %s", err)
+		return time.Time{}, fmt.Errorf("failed to get release tag: %s", err)
 	}
 	return release.GetCreatedAt().Time, nil
 }
@@ -703,6 +738,25 @@ func (g *GithubClient) GetPR(repo string, number int) (*github.PullRequest, erro
 		return nil, err
 	}
 	return pr, nil
+}
+
+// ListPRCommits lists the first page of commmits in a PR
+func (g *GithubClient) ListPRCommits(repo string, number int) ([]*github.RepositoryCommit, error) {
+	listOption := &github.ListOptions{}
+	var allCommits []*github.RepositoryCommit
+	for {
+		commits, resp, err := g.client.PullRequests.ListCommits(context.Background(), g.owner, repo, number, listOption)
+		if err != nil {
+			log.Printf("Failed to list commits")
+			return nil, err
+		}
+		allCommits = append(allCommits, commits...)
+		if resp.NextPage == 0 {
+			break
+		}
+		listOption.Page = resp.NextPage
+	}
+	return allCommits, nil
 }
 
 // AddLabelToPRs add one label to PRs in a repo match the listOptions

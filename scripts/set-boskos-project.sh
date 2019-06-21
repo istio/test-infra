@@ -21,23 +21,26 @@ USERS=(
 SERVICES=(
   'compute.googleapis.com'
   'container.googleapis.com'
+  'cloudtrace.googleapis.com'
 )
 
 CREATE_PROJECT=false
 BILLING_ACCOUNT=
 
-while getopts :b:p:c arg; do
+while getopts :b:p:f:c arg; do
   case ${arg} in
     p) PROJECT_ID="${OPTARG}";;
     c) CREATE_PROJECT=true;;
     b) BILLING_ACCOUNT="${OPTARG}";;
+    f) FOLDER="${OPTARG}";;
     *) error_exit "Unrecognized argument -${OPTARG}";;
   esac
 done
 
 if [[ ${CREATE_PROJECT} == true ]]; then
   [[ -z "${BILLING_ACCOUNT}" ]] && { echo "use -b to set billing account"; exit 1; }
-  gcloud projects create "${PROJECT_ID}"
+  [[ -z "${FOLDER}" ]] && { echo "use -f to set folder"; exit 1; }
+  gcloud projects create --folder ${FOLDER} "${PROJECT_ID}"
   gcloud alpha billing projects link "${PROJECT_ID}" --billing-account "${BILLING_ACCOUNT}"
 fi
 

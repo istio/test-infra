@@ -64,7 +64,7 @@ func NewProwAccessorMock(gubernatorURL string) *ProwAccessorMock {
 		}
 		// intermediate step since json does not support integer as key
 		prowResultsForOneJobTmp := map[string]ProwResult{}
-		if err = json.Unmarshal([]byte(raw), &prowResultsForOneJobTmp); err != nil {
+		if err = json.Unmarshal(raw, &prowResultsForOneJobTmp); err != nil {
 			log.Fatalf("Failed to unmarshal test data for %s: %v", dataFile, err)
 		}
 		prowResultsForOneJob := map[int]ProwResult{}
@@ -136,7 +136,7 @@ func NewStorageMock(t *testing.T) *StorageMock {
 		log.Fatalf("Error reading %s:%v", dataFile, err)
 	}
 	var expectedStats []FlakeStat
-	if err = json.Unmarshal([]byte(raw), &expectedStats); err != nil {
+	if err = json.Unmarshal(raw, &expectedStats); err != nil {
 		log.Fatalf("Failed to unmarshal test data for %s: %v", dataFile, err)
 	}
 	return &StorageMock{

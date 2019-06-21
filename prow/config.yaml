@@ -7,10 +7,10 @@ plank:
     timeout: 7200000000000 # 2h
     grace_period: 15000000000 # 15s
     utility_images:
-      clonerefs: "registry.svc.ci.openshift.org/ci/clonerefs:latest"
-      initupload: "registry.svc.ci.openshift.org/ci/initupload:latest"
-      entrypoint: "registry.svc.ci.openshift.org/ci/entrypoint:latest"
-      sidecar: "registry.svc.ci.openshift.org/ci/sidecar:latest"
+      clonerefs: "gcr.io/k8s-prow/clonerefs:v20181017-d31417a"
+      initupload: "gcr.io/k8s-prow/initupload:v20181017-d31417a"
+      entrypoint: "gcr.io/k8s-prow/entrypoint:v20181017-d31417a"
+      sidecar: "gcr.io/k8s-prow/sidecar:v20181017-d31417a"
     gcs_configuration:
       bucket: "istio-prow"
       path_strategy: "explicit"
@@ -19,7 +19,7 @@ plank:
 sinker:
   resync_period: 1h
   max_prowjob_age: 168h
-  max_pod_age: 12h
+  max_pod_age: 6h
 
 deck:
   tide_update_period: 1s
@@ -53,8 +53,6 @@ blocked_branches: &blocked_branches
     <<: *blocking_merge
   release-1.0:
     <<: *blocking_merge
-  release-1.0.0-snapshot.0:
-    <<: *blocking_merge
 
 branch-protection:
   allow_disabled_policies: true
@@ -73,6 +71,16 @@ branch-protection:
           protect: false
           branches:
             <<: *blocked_branches
+            release-1.2:
+              protect: true
+              required_status_checks:
+                contexts:
+                - "merges-blocked-needs-admin"
+            release-1.1:
+              protect: true
+              required_status_checks:
+                contexts:
+                - "merges-blocked-needs-admin"
             master:
               protect: true
         istio:
@@ -80,60 +88,47 @@ branch-protection:
           required_status_checks:
             contexts:
             - "ci/circleci: build"
-            - "ci/circleci: e2e-simple"
-            - "ci/circleci: lint"
             - "ci/circleci: test"
           branches:
             <<: *blocked_branches
-            collab-gcp-identity:
+            collab-galley:
               protect: true
               restrictions:
                 teams:
                 - istio-hackers
-            release-0.8:
+            collab-gce-identity:  
+              protect: true
+            prow-staging:
+              protect: true
+            release-1.1:
               protect: true
               required_status_checks:
                 contexts:
-                - "ci/circleci: dependencies"
-                - "ci/circleci: e2e-pilot"
-                - "ci/circleci: e2e-pilot-noauth-v1alpha3-v2"
-            master:
-              protect: true
-              required_status_checks:
-                contexts:
+                - "ci/circleci: codecov"
                 - "ci/circleci: shellcheck"
-                - "ci/circleci: e2e-pilot-auth-v1alpha3-v2"
+                - "ci/circleci: lint"
                 - "ci/circleci: e2e-pilot-noauth-v1alpha3-v2"
-                - "ci/circleci: e2e-mixer-noauth-v1alpha3-v2"
                 - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
-
-        istio.github.io:
-          protect: false
-          required_status_checks:
-            contexts:
-            - ci/circleci
-            - deploy/netlify
-          branches:
-            release-0.1:
+                - "merges-blocked-needs-admin"
+            release-1.2:
               protect: true
-            release-0.2:
-              protect: true
-            release-0.3:
-              protect: true
-            release-0.4:
-              protect: true
-            release-0.5:
-              protect: true
-            release-0.6:
-              protect: true
-            release-0.7:
-              protect: true
-            release-0.8:
-              protect: true
-            release-1.0:
-              protect: true
+              required_status_checks:
+                contexts:
+                - "ci/circleci: codecov"
+                - "ci/circleci: shellcheck"
+                - "ci/circleci: lint"
+                - "ci/circleci: e2e-pilot-noauth-v1alpha3-v2"
+                - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
+                - "merges-blocked-needs-admin"
             master:
               protect: true
+              required_status_checks:
+                contexts:
+                - "ci/circleci: codecov"
+                - "ci/circleci: racetest"
+                - "ci/circleci: shellcheck"
+                - "ci/circleci: e2e-pilot-noauth-v1alpha3-v2"
+                - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
         proxy:
           protect: false
           required_status_checks:
@@ -143,7 +138,19 @@ branch-protection:
             <<: *blocked_branches
             endpoints-v1.1.x: *blocking_merge
             endpoints-v1.2.x: *blocking_merge
+            release-1.1:
+              protect: true
+              required_status_checks:
+                contexts:
+                - "merges-blocked-needs-admin"
+            release-1.2:
+              protect: true
+              required_status_checks:
+                contexts:
+                - "merges-blocked-needs-admin"
             master:
+              protect: true
+            wasm:
               protect: true
         test-infra:
           protect: false
@@ -152,25 +159,33 @@ branch-protection:
               protect: true
     istio-releases:
       repos:
-        daily-release:
+        pipeline:
           protect: false
           restrictions:
           branches:
-            release-0.8:
+            krishna-test:
+              protect: true
+            master:
+              protect: true
+            release-1.2:
+              protect: true
+            release-1.1:
               protect: true
             release-1.0:
               protect: true
-            release-1.0.0-snapshot.0:
-              protect: true
-            collab-gcp-identity:
-              protect: true
+    istio-ecosystem:
+      repos:
+        authservice:
+          protect: false
+          restrictions:
+          branches:
             master:
               protect: true
 
 tide:
   queries:
   - repos:
-    - istio-releases/daily-release
+    - istio-releases/pipeline
     missingLabels:
     - do-not-merge
     - do-not-merge/hold
@@ -182,6 +197,7 @@ tide:
     - istio/test-infra
     - istio/istio
     - istio/proxy
+    - istio-ecosystem/authservice
     labels:
     - lgtm
     - approved
@@ -192,33 +208,14 @@ tide:
     - do-not-merge/work-in-progress
     - needs-ok-to-test
     - needs-rebase
-  - repos:
-    - istio/istio.github.io
-    labels:
-    - lgtm
-    - approved
-    - "cla: yes"
-    missingLabels:
-    - do-not-merge
-    - do-not-merge/hold
-    - do-not-merge/work-in-progress
-    - needs-rebase
-  - repos:
-    - istio-releases/daily-release
-    labels:
-    missingLabels:
-    - do-not-merge
-    - do-not-merge/hold
-    - do-not-merge/work-in-progress
-    - needs-rebase
   merge_method:
     istio/api: squash
-    istio/istio.github.io: squash
     istio/istio: squash
     istio/proxy: squash
     istio/test-infra: squash
-    istio-releases/daily-release: squash
-  target_url: https://prow.istio.io/tide.html
+    istio-releases/pipeline: squash
+    istio-ecosystem/authservice: squash
+  target_url: https://prow.istio.io/tide
 
   context_options:
     from-branch-protection: true
@@ -259,24 +256,62 @@ presets:
     hostPath:
       path: /mnt/disks/ssd0/proxy
 - labels:
-    preset-istio-kubeconfig: "true"
+    preset-release-pipeline: "true"
   env:
-  - name: KUBECONFIG
-    value: /home/bootstrap/.kube/config
+  - name: DOCKER_CONFIG
+    value: /etc/rel-pipeline-docker-config
+  - name: GITHUB_TOKEN_FILE
+    value: /etc/github/rel-pipeline-github
+  - name: GOOGLE_APPLICATION_CREDENTIALS
+    value: /etc/service-account/rel-pipeline-service-account.json
   volumeMounts:
-  - name: kubeconfig
-    mountPath: /home/bootstrap/.kube
+  - name: rel-pipeline-docker-config
+    mountPath: /etc/rel-pipeline-docker-config
+    readOnly: true
+  - name: rel-pipeline-github
+    mountPath: /etc/github
+    readOnly: true
+  - name: rel-pipeline-service-account
+    mountPath: /etc/service-account
+    readOnly: true
   volumes:
-  - name: kubeconfig
+  - name: rel-pipeline-service-account
     secret:
-      secretName: istio-e2e-rbac-kubeconfig
+      secretName: rel-pipeline-service-account
+  - name: rel-pipeline-github
+    secret:
+      secretName: rel-pipeline-github
+  - name: rel-pipeline-docker-config
+    secret:
+      secretName: rel-pipeline-docker-config
 - labels:
-    preset-daily-kubeconfig: "true"
+    preset-release-build-test: "true"
+  env:
+  - name: DOCKER_CONFIG
+    value: /etc/rel-pipeline-docker-config
+  - name: GITHUB_TOKEN_FILE
+    value: /etc/github/rel-pipeline-github
+  - name: GOOGLE_APPLICATION_CREDENTIALS
+    value: /etc/service-account/service-account.json
+  - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
+    value: /etc/service-account/service-account.json
   volumeMounts:
-  - name: kubeconfig
-    mountPath: /home/bootstrap/.kube
+  - name: rel-pipeline-docker-config
+    mountPath: /etc/rel-pipeline-docker-config
+    readOnly: true
+  - name: rel-pipeline-github
+    mountPath: /etc/github
+    readOnly: true
+  - name: service
+    mountPath: /etc/service-account
+    readOnly: true
   volumes:
-  - name: kubeconfig
+  - name: service
     secret:
-      secretName: daily-release-e2e-rbac-kubeconfig
-
+      secretName: service-account
+  - name: rel-pipeline-docker-config
+    secret:
+      secretName: rel-pipeline-docker-config
+  - name: rel-pipeline-github
+    secret:
+      secretName: rel-pipeline-github

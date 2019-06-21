@@ -12,12 +12,15 @@ apt-get -qqy --no-install-recommends install \
   curl \
   lsb-release \
   python \
+  python-requests \
   ruby \
   rubygems \
   ruby-dev \
   software-properties-common \
   unzip \
   wget \
+  zip \
+  yamllint \
   jq
 
 gem install --no-ri --no-rdoc fpm

@@ -6,40 +6,17 @@ BIN_PATH="${ROOT}/scripts"
 UNSET_GOPATH="$(cd "$(dirname "${ROOT})")/../.." && pwd)"
 GOPATH=${GOPATH:-${UNSET_GOPATH}}
 
-function install_gometalinter() {
-  echo 'Installing gometalinter ...'
-  go get -u gopkg.in/alecthomas/gometalinter.v2
-  "${GOPATH}/bin/gometalinter.v2" --install
+function install_golangcilint() {
+    # if you want to update this version, also change the version number in .golangci.yml
+    GOLANGCI_VERSION="v1.16.0"
+    curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b "$GOPATH"/bin "$GOLANGCI_VERSION"
+    golangci-lint --version
 }
 
-function run_gometalinter() {
-  echo 'Running gometalinter ...'
-  "${GOPATH}/bin/gometalinter.v2" ./... \
-    --concurrency=4\
-    --deadline=600s --disable-all\
-    --enable=deadcode\
-    --enable=errcheck\
-    --enable-gc\
-    --enable=goconst\
-    --enable=gofmt\
-    --enable=goimports\
-    --enable=golint --min-confidence=0\
-    --enable=ineffassign\
-    --enable=interfacer\
-    --enable=lll --line-length=160\
-    --enable=megacheck\
-    --enable=misspell\
-    --enable=structcheck\
-    --enable=unconvert\
-    --enable=varcheck\
-    --enable=vet\
-    --enable=vetshadow\
-    --exclude='should have a package comment'\
-    --exclude=.pb.go\
-    --vendor\
-    --vendored-linters\
-    ./...
-  echo 'gometalinter OK'
+function run_golangcilint() {
+  echo 'Running golangcilint ...'
+  golangci-lint run --issues-exit-code=0  -v ./...
+  echo 'golangcilint OK'
 }
 
 function check_licences() {
@@ -48,22 +25,16 @@ function check_licences() {
   echo 'licences OK'
 }
 
-function install_buildifier() {
-  echo 'Installing bazelbuilder ...'
-  go get -u github.com/bazelbuild/buildtools/buildifier
-}
-
 function run_buildifier() {
-  "${GOPATH}/bin/buildifier" -showlog -mode=check $(git ls-files| grep -e BUILD -e WORKSPACE | grep -v vendor)
+  bazel run //:buildifier -- -showlog -mode=check $(git ls-files| grep -e BUILD -e WORKSPACE | grep -v vendor)
   echo 'buildifier OK'
 }
 
 echo "GOPATH is set to ${GOPATH}"
 
 pushd ${ROOT}
-install_gometalinter
-run_gometalinter
+install_golangcilint
+run_golangcilint
 check_licences
-install_buildifier
 run_buildifier
 popd

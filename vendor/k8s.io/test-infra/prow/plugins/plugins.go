@@ -35,6 +35,7 @@ import (
 	"k8s.io/test-infra/prow/git"
 	"k8s.io/test-infra/prow/github"
 	"k8s.io/test-infra/prow/kube"
+	"k8s.io/test-infra/prow/labels"
 	"k8s.io/test-infra/prow/pluginhelp"
 	"k8s.io/test-infra/prow/repoowners"
 	"k8s.io/test-infra/prow/slack"
@@ -178,7 +179,7 @@ type Configuration struct {
 	SigMention           SigMention             `json:"sigmention,omitempty"`
 	Size                 *Size                  `json:"size,omitempty"`
 	Triggers             []Trigger              `json:"triggers,omitempty"`
-	Welcome              Welcome                `json:"welcome,omitempty"`
+	Welcome              []Welcome              `json:"welcome,omitempty"`
 }
 
 // Golint holds configuration for the golint plugin
@@ -366,6 +367,15 @@ type Lgtm struct {
 	// ReviewActsAsLgtm indicates that a Github review of "approve" or "request changes"
 	// acts as adding or removing the lgtm label
 	ReviewActsAsLgtm bool `json:"review_acts_as_lgtm,omitempty"`
+	// StoreTreeHash indicates if tree_hash should be stored inside a comment to detect
+	// squashed commits before removing lgtm labels
+	StoreTreeHash bool `json:"store_tree_hash,omitempty"`
+	// WARNING: This disables the security mechanism that prevents a malicious member (or
+	// compromised GitHub account) from merging arbitrary code. Use with caution.
+	//
+	// StickyLgtmTeam specifies the Github team whose members are trusted with sticky LGTM,
+	// which eliminates the need to re-lgtm minor fixes/updates.
+	StickyLgtmTeam string `json:"trusted_team_for_sticky_lgtm,omitempty"`
 }
 
 type Cat struct {
@@ -392,6 +402,9 @@ type Trigger struct {
 	// OnlyOrgMembers requires PRs and/or /ok-to-test comments to come from org members.
 	// By default, trigger also include repo collaborators.
 	OnlyOrgMembers bool `json:"only_org_members,omitempty"`
+	// IgnoreOkToTest makes trigger ignore /ok-to-test comments.
+	// This is a security mitigation to only allow testing from trusted users.
+	IgnoreOkToTest bool `json:"ignore_ok_to_test,omitempty"`
 }
 
 type Heart struct {
@@ -450,7 +463,7 @@ type ConfigUpdater struct {
 
 // MergeWarning is a config for the slackevents plugin's manual merge warings.
 // If a PR is pushed to any of the repos listed in the config
-// then send messages to the all the  slack channels listed if pusher is NOT in the whitelist.
+// then send messages to the all the slack channels listed if pusher is NOT in the whitelist.
 type MergeWarning struct {
 	// Repos is either of the form org/repos or just org.
 	Repos []string `json:"repos,omitempty"`
@@ -464,9 +477,10 @@ type MergeWarning struct {
 
 // Welcome is config for the welcome plugin
 type Welcome struct {
+	// Repos is either of the form org/repos or just org.
+	Repos []string `json:"repos,omitempty"`
 	// MessageTemplate is the welcome message template to post on new-contributor PRs
 	// For the info struct see prow/plugins/welcome/welcome.go's PRInfo
-	// TODO(bentheelder): make this be configurable per-repo?
 	MessageTemplate string `json:"message_template,omitempty"`
 }
 
@@ -647,7 +661,7 @@ func (c *Configuration) setDefaults() {
 		c.SigMention.Regexp = `(?m)@kubernetes/sig-([\w-]*)-(misc|test-failures|bugs|feature-requests|proposals|pr-reviews|api-reviews)`
 	}
 	if c.Owners.LabelsBlackList == nil {
-		c.Owners.LabelsBlackList = []string{"approved", "lgtm"}
+		c.Owners.LabelsBlackList = []string{labels.Approved, labels.LGTM}
 	}
 	if c.CherryPickUnapproved.BranchRegexp == "" {
 		c.CherryPickUnapproved.BranchRegexp = `^release-.*$`
