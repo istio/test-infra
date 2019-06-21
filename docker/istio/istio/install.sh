@@ -20,7 +20,8 @@ apt-get -qqy --no-install-recommends install \
   unzip \
   wget \
   zip \
-  yamllint
+  yamllint \
+  jq
 
 gem install --no-ri --no-rdoc fpm
 
