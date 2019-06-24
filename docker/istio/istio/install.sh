@@ -20,7 +20,6 @@ apt-get -qqy --no-install-recommends install \
   unzip \
   wget \
   zip \
-  yamllint \
   jq
 
 gem install --no-ri --no-rdoc fpm
@@ -30,6 +29,7 @@ gem install --no-ri --no-rdoc fpm
 ./install-golang.sh
 ./install-helm.sh
 ./install-protoc.sh
+./install-yamllint.sh
 
 apt-get clean
 rm -rf /var/lib/apt/lists/*
