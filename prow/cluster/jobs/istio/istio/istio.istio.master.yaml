@@ -64,6 +64,8 @@ presubmits:
     <<: *job_template
     context: prow/racetest.sh
     always_run: true
+    # TODO(https://github.com/istio/istio/issues/15121) make required
+    optional: true
     spec:
       containers:
       - <<: *istio_container
