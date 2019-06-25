@@ -26,6 +26,7 @@ gem install --no-ri --no-rdoc fpm
 
 ./install-docker.sh
 ./install-gcloud.sh
+./install-kubectl.sh
 ./install-golang.sh
 ./install-helm.sh
 ./install-protoc.sh
