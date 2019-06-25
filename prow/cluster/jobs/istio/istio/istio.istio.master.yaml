@@ -257,23 +257,6 @@ presubmits:
             - prow/integ-mixer-k8s-presubmit-tests.sh
       nodeSelector:
         testing: test-pool
-  - name: integ-mixer-k8s-k8s-presubmit-tests-master
-    <<: *job_template
-    context: prow/integ-mixer-k8s-k8s-presubmit-tests.sh
-    optional: true
-    max_concurrency: 5
-    always_run: true
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-        - <<: *istio_container
-          command:
-            - entrypoint
-            - prow/integ-suite-k8s.sh
-            - test.integration.mixer.k8s.kube.presubmit
-      nodeSelector:
-        testing: test-pool
   - name: integ-pilot-k8s-presubmit-tests-master
     <<: *job_template
     optional: true
