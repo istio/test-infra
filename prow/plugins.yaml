@@ -7,6 +7,7 @@ triggers:
   - istio/api
   - sebastienvas/core
   - istio/istio
+  - istio/operator
   - istio/test-infra
   - istio/proxy
   - istio-releases/pipeline
@@ -42,6 +43,7 @@ lgtm:
 - repos:
   - istio/api
   - istio/istio
+  - istio/operator
   - istio/test-infra
   - istio/proxy
   - istio-releases/pipeline
@@ -53,6 +55,7 @@ approve:
 - repos:
   - istio/api
   - istio/istio
+  - istio/operator
   - istio/test-infra
   - istio/proxy
   - istio-releases/pipeline
@@ -78,6 +81,19 @@ plugins:
   - wip
 
   istio/api:
+  - approve
+  - assign
+  - blunderbuss
+  - golint
+  - help
+  - hold
+  - lgtm
+  - lifecycle
+  - slackevents
+  - trigger
+  - wip
+
+  istio/operator:
   - approve
   - assign
   - blunderbuss
