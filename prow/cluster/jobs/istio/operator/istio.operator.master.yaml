@@ -23,7 +23,7 @@ presubmits:
 
   - name: operator-lint-master
     <<: *job_template
-    context: prow/istio-lint.sh
+    context: prow/lint.sh
     always_run: true
   # TODO: make required once stable
     optional: true
@@ -32,10 +32,39 @@ presubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/istio-lint.sh
+        - prow/lint.sh
       nodeSelector:
         testing: test-pool
 
+  - name: operator-build-master
+    <<: *job_template
+    context: prow/build.sh
+    always_run: true
+  # TODO: make required once stable
+    optional: true
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/build.sh
+      nodeSelector:
+        testing: test-pool
+
+  - name: operator-test-master
+    <<: *job_template
+    context: prow/test.sh
+    always_run: true
+  # TODO: make required once stable
+    optional: true
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/test.sh
+      nodeSelector:
+        testing: test-pool
 postsubmits:
 
   istio/operator:
