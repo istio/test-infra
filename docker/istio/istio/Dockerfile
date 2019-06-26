@@ -21,4 +21,7 @@ RUN chmod +rx /usr/local/bin/entrypoint
 # if running in the continuous integration environment.
 ENV CI prow
 
+# Set GO module variable to use Go modules even though we are on the GOPATH
+ENV GO111MODULE on
+
 ENTRYPOINT ["entrypoint"]
