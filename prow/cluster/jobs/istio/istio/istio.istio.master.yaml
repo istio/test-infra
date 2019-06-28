@@ -317,6 +317,23 @@ presubmits:
             - test.integration.telemetry.kube.presubmit
       nodeSelector:
         testing: test-pool
+  - name: integ-new-install-k8s-presubmit-tests-master
+    <<: *job_template
+    context: prow/integ-new-installer-k8s-presubmit-tests.sh
+    optional: true
+    max_concurrency: 5
+    always_run: true
+    labels:
+      preset-service-account: "true"
+    spec:
+      containers:
+        - <<: *istio_container
+          command:
+            - entrypoint
+            - prow/integ-suite-k8s.sh
+            - test.integration.new.installer
+      nodeSelector:
+        testing: test-pool
 
   - name: test-e2e-mixer-no_auth-master
     <<: *job_template
