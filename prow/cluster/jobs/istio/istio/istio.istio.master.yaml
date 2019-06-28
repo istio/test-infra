@@ -108,7 +108,8 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-framework-local-presubmit-tests.sh
+            - prow/integ-suite-local.sh
+            - test.integration.framework.local.presubmit
       nodeSelector:
         testing: test-pool
 
@@ -121,7 +122,8 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-galley-local-presubmit-tests.sh
+            - prow/integ-suite-local.sh
+            - test.integration.galley.local.presubmit
       nodeSelector:
         testing: test-pool
 
@@ -135,7 +137,8 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-istioctl-local-presubmit-tests.sh
+            - prow/integ-suite-local.sh
+            - test.integration.istioctl.local.presubmit
       nodeSelector:
         testing: test-pool
 
@@ -149,7 +152,8 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-mixer-local-presubmit-tests.sh
+            - prow/integ-suite-local.sh
+            - test.integration.mixer.local.presubmit
       nodeSelector:
         testing: test-pool
 
@@ -162,7 +166,8 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-pilot-local-presubmit-tests.sh
+            - prow/integ-suite-local.sh
+            - test.integration.pilot.local.presubmit
       nodeSelector:
         testing: test-pool
 
@@ -175,7 +180,8 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-security-local-presubmit-tests.sh
+            - prow/integ-suite-local.sh
+            - test.integration.security.local.presubmit
       nodeSelector:
         testing: test-pool
 
@@ -189,7 +195,8 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-telemetry-local-presubmit-tests.sh
+            - prow/integ-suite-local.sh
+            - test.integration.telemetry.local.presubmit
       nodeSelector:
         testing: test-pool
 
@@ -205,7 +212,8 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-framework-k8s-presubmit-tests.sh
+            - prow/integ-suite-k8s.sh
+            - test.integration.framework.kube.presubmit
       nodeSelector:
         testing: test-pool
   - name: integ-galley-k8s-presubmit-tests-master
@@ -220,7 +228,8 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-galley-k8s-presubmit-tests.sh
+            - prow/integ-suite-k8s.sh
+            - test.integration.galley.kube.presubmit
       nodeSelector:
         testing: test-pool
   - name: integ-istioctl-k8s-presubmit-tests-master
@@ -236,7 +245,8 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-istioctl-k8s-presubmit-tests.sh
+            - prow/integ-suite-k8s.sh
+            - test.integration.istioctl.kube.presubmit
       nodeSelector:
         testing: test-pool
   - name: integ-mixer-k8s-presubmit-tests-master
@@ -252,7 +262,8 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-mixer-k8s-presubmit-tests.sh
+            - prow/integ-suite-k8s.sh
+            - test.integration.mixer.kube.presubmit
       nodeSelector:
         testing: test-pool
   - name: integ-pilot-k8s-presubmit-tests-master
@@ -268,7 +279,8 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-pilot-k8s-presubmit-tests.sh
+            - prow/integ-suite-k8s.sh
+            - test.integration.pilot.kube.presubmit
       nodeSelector:
         testing: test-pool
   - name: integ-security-k8s-presubmit-tests-master
@@ -284,7 +296,8 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-security-k8s-presubmit-tests.sh
+            - prow/integ-suite-k8s.sh
+            - test.integration.security.kube.presubmit
       nodeSelector:
         testing: test-pool
   - name: integ-telemetry-k8s-presubmit-tests-master
@@ -300,9 +313,11 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-telemetry-k8s-presubmit-tests.sh
+            - prow/integ-suite-k8s.sh
+            - test.integration.telemetry.kube.presubmit
       nodeSelector:
         testing: test-pool
+
   - name: test-e2e-mixer-no_auth-master
     <<: *job_template
     optional: true
