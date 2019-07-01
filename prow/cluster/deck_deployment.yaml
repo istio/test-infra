@@ -19,14 +19,15 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
       - name: deck
-        image: gcr.io/istio-testing/deck:v20181127-b0ca57e86
+        image: gcr.io/k8s-prow/deck:v20190628-eb4a10930
         ports:
           - name: http
             containerPort: 8080
         args:
-        - --tide-url=http://tide/
+        - --config-path=/etc/config/config.yaml
         - --hook-url=http://hook:8888/plugin-help
         - --job-config-path=/etc/job-config
+        - --tide-url=http://tide/
         volumeMounts:
         - name: config
           mountPath: /etc/config
