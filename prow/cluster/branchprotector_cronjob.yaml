@@ -14,7 +14,8 @@ spec:
         spec:
           containers:
           - name: branchprotector
-            image: gcr.io/istio-testing/branchprotector:v20181127-b0ca57e86
+            # TODO(fejta): migrate to trusted prowjob
+            image: gcr.io/k8s-prow/branchprotector:v20190628-ac9063df1
             args:
             - --config-path=/etc/config/config.yaml
             - --github-token-path=/etc/github/oauth
