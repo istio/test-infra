@@ -645,6 +645,22 @@ postsubmits:
         - prow/e2e-kind-simpleTests.sh
       nodeSelector:
         testing: test-pool
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+    volumes:
+    - hostPath:
+        path: /lib/modules
+        type: Directory
+      name: modules
+    - hostPath:
+        path: /sys/fs/cgroup
+        type: Directory
+      name: cgroup
+
   - name: istio-unit-tests-master
     <<: *job_template
     context: prow/istio-unit-tests.sh
