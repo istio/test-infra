@@ -6,5 +6,42 @@ build --host_force_python=PY2
 # enable data race detection, print errors for failing tests
 test --features=race --test_output=errors
 
+# Note needs an instance name
+# See --config=remote-fejta for a concrete example
+# https://github.com/bazelbuild/bazel-toolchains/blob/master/bazelrc/bazel-0.27.0.bazelrc
+build:remote --jobs=500
+build:remote --host_javabase=@rbe_default//java:jdk
+build:remote --javabase=@rbe_default//java:jdk
+build:remote --host_java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
+build:remote --java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
+build:remote --crosstool_top=@rbe_default//cc:toolchain
+build:remote --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+
+build:remote --extra_toolchains=@rbe_default//config:cc-toolchain
+build:remote --extra_execution_platforms=:rbe_with_network
+build:remote --host_platform=:rbe_with_network
+build:remote --platforms=:rbe_with_network
+
+build:remote --define=EXECUTOR=remote
+build:remote --remote_executor=grpcs://remotebuildexecution.googleapis.com
+build:remote --remote_timeout=3600
+
+# --google_credentials=some_file.json
+build:remote --google_default_credentials=true
+
+# Compose the remote configs with an instance name
+# A couple examples below:
+
+# --config=ci-instance adds the instance name
+build:ci-instance --remote_instance_name=projects/istio-testing/instances/default_instance
+
+build:remote26 --spawn_strategy=remote
+build:remote26 --strategy=Javac=remote
+build:remote26 --strategy=Closure=remote
+build:remote26 --strategy=Genrule=remote
+build:remote --config=remote26
+
 # TODO(fejta): remove this once --config=ci actually does something else
 build:ci --features=race
+# Config we want to use in ci
+#build:ci --config=remote --config=ci-instance --google_credentials=/etc/service-account/service-account.json
