@@ -442,6 +442,21 @@ presubmits:
         - prow/e2e-simpleTests.sh
       nodeSelector:
         testing: test-pool
+  - name: e2e-simpleTests-distroless-master
+    <<: *job_template
+    optional: true
+    context: prow/e2e-simpleTests-distroless.sh
+    labels:
+      preset-service-account: "true"
+    max_concurrency: 5
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/e2e-simpleTests-distroless.sh
+      nodeSelector:
+        testing: test-pool
   - name: e2e-simpleTestsMinProfile-master
     <<: *job_template
     optional: true
