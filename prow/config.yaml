@@ -26,6 +26,22 @@ sinker:
   max_pod_age: 6h
 
 deck:
+  spyglass:
+    size_limit: 500000000 # 500MB
+    gcs_browser_prefix: https://gcsweb.k8s.io/gcs/
+    testgrid_config: gs://k8s-testgrid/config
+    testgrid_root: https://testgrid.k8s.io/
+    viewers:
+      "started.json|finished.json":
+      - "metadata"
+      "build-log.txt":
+      - "buildlog"
+      "artifacts/junit.*\\.xml":
+      - "junit"
+      "artifacts/filtered.cov":
+      - "coverage"
+    announcement: "This page -- spyglass -- is the default viewer for prow.{{if .ArtifactPath}} For now, the deprecated gubernator page spyglass replaces <a href='https://gubernator.k8s.io/build/{{.ArtifactPath}}'>remains available</a>.{{end}}"
+
   tide_update_period: 1s
 
 prowjob_namespace: default
