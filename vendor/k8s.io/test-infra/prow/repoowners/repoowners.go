@@ -25,8 +25,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ghodss/yaml"
 	"github.com/sirupsen/logrus"
+	"sigs.k8s.io/yaml"
 
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/test-infra/prow/git"
@@ -38,11 +38,11 @@ import (
 const (
 	ownersFileName  = "OWNERS"
 	aliasesFileName = "OWNERS_ALIASES"
-	// Github's api uses "" (empty) string as basedir by convention but it's clearer to use "/"
+	// GitHub's api uses "" (empty) string as basedir by convention but it's clearer to use "/"
 	baseDirConvention = ""
 )
 
-var defaultDirBlacklist = sets.NewString(".git", "_output")
+var commonDirBlacklist = []string{"^\\.git$", "^_output$"}
 
 type dirOptions struct {
 	NoParentOwners bool `json:"no_parent_owners,omitempty"`
@@ -84,14 +84,18 @@ type cacheEntry struct {
 	owners  *RepoOwners
 }
 
-type configGetter interface {
-	Config() *prowConf.Config
+func (entry cacheEntry) matchesMDYAML(mdYAML bool) bool {
+	return entry.owners.enableMDYAML == mdYAML
+}
+
+func (entry cacheEntry) fullyLoaded() bool {
+	return entry.sha != "" && entry.aliases != nil && entry.owners != nil
 }
 
 // Interface is an interface to work with OWNERS files.
 type Interface interface {
 	LoadRepoAliases(org, repo, base string) (RepoAliases, error)
-	LoadRepoOwners(org, repo, base string) (RepoOwnerInterface, error)
+	LoadRepoOwners(org, repo, base string) (RepoOwner, error)
 }
 
 // Client is an implementation of the Interface.
@@ -99,14 +103,13 @@ var _ Interface = &Client{}
 
 // Client is the repoowners client
 type Client struct {
-	configGetter configGetter
-
 	git    *git.Client
 	ghc    githubClient
 	logger *logrus.Entry
 
-	mdYAMLEnabled     func(org, repo string) bool
-	skipCollaborators func(org, repo string) bool
+	mdYAMLEnabled      func(org, repo string) bool
+	skipCollaborators  func(org, repo string) bool
+	ownersDirBlacklist func() prowConf.OwnersDirBlacklist
 
 	lock  sync.Mutex
 	cache map[string]cacheEntry
@@ -115,10 +118,10 @@ type Client struct {
 // NewClient is the constructor for Client
 func NewClient(
 	gc *git.Client,
-	ghc *github.Client,
-	configGetter *prowConf.Agent,
+	ghc github.Client,
 	mdYAMLEnabled func(org, repo string) bool,
 	skipCollaborators func(org, repo string) bool,
+	ownersDirBlacklist func() prowConf.OwnersDirBlacklist,
 ) *Client {
 	return &Client{
 		git:    gc,
@@ -126,18 +129,17 @@ func NewClient(
 		logger: logrus.WithField("client", "repoowners"),
 		cache:  make(map[string]cacheEntry),
 
-		mdYAMLEnabled:     mdYAMLEnabled,
-		skipCollaborators: skipCollaborators,
-
-		configGetter: configGetter,
+		mdYAMLEnabled:      mdYAMLEnabled,
+		skipCollaborators:  skipCollaborators,
+		ownersDirBlacklist: ownersDirBlacklist,
 	}
 }
 
 // RepoAliases defines groups of people to be used in OWNERS files
 type RepoAliases map[string]sets.String
 
-// RepoOwnerInterface is an interface to work with repoowners
-type RepoOwnerInterface interface {
+// RepoOwner is an interface to work with repoowners
+type RepoOwner interface {
 	FindApproverOwnersForFile(path string) string
 	FindReviewersOwnersForFile(path string) string
 	FindLabelsForFile(path string) sets.String
@@ -149,10 +151,9 @@ type RepoOwnerInterface interface {
 	RequiredReviewers(path string) sets.String
 }
 
-// RepoOwners implements RepoOwnerInterface
-var _ RepoOwnerInterface = &RepoOwners{}
+var _ RepoOwner = &RepoOwners{}
 
-// RepoOwners contains the parsed OWNERS config
+// RepoOwners contains the parsed OWNERS config.
 type RepoOwners struct {
 	RepoAliases
 
@@ -164,7 +165,7 @@ type RepoOwners struct {
 
 	baseDir      string
 	enableMDYAML bool
-	dirBlacklist sets.String
+	dirBlacklist []*regexp.Regexp
 
 	log *logrus.Entry
 }
@@ -206,7 +207,7 @@ func (c *Client) LoadRepoAliases(org, repo, base string) (RepoAliases, error) {
 
 // LoadRepoOwners returns an up-to-date RepoOwners struct for the specified repo.
 // Note: The returned *RepoOwners should be treated as read only.
-func (c *Client) LoadRepoOwners(org, repo, base string) (RepoOwnerInterface, error) {
+func (c *Client) LoadRepoOwners(org, repo, base string) (RepoOwner, error) {
 	log := c.logger.WithFields(logrus.Fields{"org": org, "repo": repo, "base": base})
 	cloneRef := fmt.Sprintf("%s/%s", org, repo)
 	fullName := fmt.Sprintf("%s:%s", cloneRef, base)
@@ -220,36 +221,60 @@ func (c *Client) LoadRepoOwners(org, repo, base string) (RepoOwnerInterface, err
 	c.lock.Lock()
 	defer c.lock.Unlock()
 	entry, ok := c.cache[fullName]
-	if !ok || entry.sha != sha || entry.owners == nil || entry.owners.enableMDYAML != mdYaml {
+	if !ok || entry.sha != sha || entry.owners == nil || !entry.matchesMDYAML(mdYaml) {
 		gitRepo, err := c.git.Clone(cloneRef)
 		if err != nil {
 			return nil, fmt.Errorf("failed to clone %s: %v", cloneRef, err)
 		}
 		defer gitRepo.Clean()
-		if err := gitRepo.Checkout(base); err != nil {
-			return nil, err
-		}
 
-		if entry.aliases == nil || entry.sha != sha {
-			// aliases must be loaded
-			entry.aliases = loadAliasesFrom(gitRepo.Dir, log)
+		reusable := entry.fullyLoaded() && entry.matchesMDYAML(mdYaml)
+		// In most sha changed cases, the files associated with the owners are unchanged.
+		// The cached entry can continue to be used, so need do git diff
+		if reusable {
+			changes, err := gitRepo.Diff(sha, entry.sha)
+			if err != nil {
+				return nil, fmt.Errorf("failed to diff %s with %s", sha, entry.sha)
+			}
+			for _, change := range changes {
+				if mdYaml && strings.HasSuffix(change, ".md") ||
+					strings.HasSuffix(change, aliasesFileName) ||
+					strings.HasSuffix(change, ownersFileName) {
+					reusable = false
+					break
+				}
+			}
 		}
+		if reusable {
+			entry.sha = sha
+		} else {
+			if err := gitRepo.Checkout(base); err != nil {
+				return nil, err
+			}
 
-		blacklistConfig := c.configGetter.Config().OwnersDirBlacklist
+			if entry.aliases == nil || entry.sha != sha {
+				// aliases must be loaded
+				entry.aliases = loadAliasesFrom(gitRepo.Dir, log)
+			}
 
-		dirBlacklist := defaultDirBlacklist.Union(sets.NewString(blacklistConfig.Default...))
-		if bl, ok := blacklistConfig.Repos[org]; ok {
-			dirBlacklist.Insert(bl...)
+			dirBlacklistPatterns := append(c.ownersDirBlacklist().DirBlacklist(org, repo), commonDirBlacklist...)
+			var dirBlacklist []*regexp.Regexp
+			for _, pattern := range dirBlacklistPatterns {
+				re, err := regexp.Compile(pattern)
+				if err != nil {
+					log.WithError(err).Errorf("Invalid OWNERS dir blacklist regexp %q.", pattern)
+					continue
+				}
+				dirBlacklist = append(dirBlacklist, re)
+			}
+
+			entry.owners, err = loadOwnersFrom(gitRepo.Dir, mdYaml, entry.aliases, dirBlacklist, log)
+			if err != nil {
+				return nil, fmt.Errorf("failed to load RepoOwners for %s: %v", fullName, err)
+			}
+			entry.sha = sha
+			c.cache[fullName] = entry
 		}
-		if bl, ok := blacklistConfig.Repos[org+"/"+repo]; ok {
-			dirBlacklist.Insert(bl...)
-		}
-		entry.owners, err = loadOwnersFrom(gitRepo.Dir, mdYaml, entry.aliases, dirBlacklist, log)
-		if err != nil {
-			return nil, fmt.Errorf("failed to load RepoOwners for %s: %v", fullName, err)
-		}
-		entry.sha = sha
-		c.cache[fullName] = entry
 	}
 
 	if c.skipCollaborators(org, repo) {
@@ -320,7 +345,7 @@ func loadAliasesFrom(baseDir string, log *logrus.Entry) RepoAliases {
 	return result
 }
 
-func loadOwnersFrom(baseDir string, mdYaml bool, aliases RepoAliases, dirBlacklist sets.String, log *logrus.Entry) (*RepoOwners, error) {
+func loadOwnersFrom(baseDir string, mdYaml bool, aliases RepoAliases, dirBlacklist []*regexp.Regexp, log *logrus.Entry) (*RepoOwners, error) {
 	o := &RepoOwners{
 		RepoAliases:  aliases,
 		baseDir:      baseDir,
@@ -356,9 +381,19 @@ func (o *RepoOwners) walkFunc(path string, info os.FileInfo, err error) error {
 		return nil
 	}
 	filename := filepath.Base(path)
+	relPath, err := filepath.Rel(o.baseDir, path)
+	if err != nil {
+		log.WithError(err).Errorf("Unable to find relative path between baseDir: %q and path.", o.baseDir)
+		return err
+	}
+	relPathDir := canonicalize(filepath.Dir(relPath))
 
-	if info.Mode().IsDir() && o.dirBlacklist.Has(filename) {
-		return filepath.SkipDir
+	if info.Mode().IsDir() {
+		for _, re := range o.dirBlacklist {
+			if re.MatchString(relPath) {
+				return filepath.SkipDir
+			}
+		}
 	}
 	if !info.Mode().IsRegular() {
 		return nil
@@ -375,11 +410,6 @@ func (o *RepoOwners) walkFunc(path string, info os.FileInfo, err error) error {
 		}
 
 		// Set owners for this file (not the directory) using the relative path if they were found
-		relPath, err := filepath.Rel(o.baseDir, path)
-		if err != nil {
-			log.WithError(err).Errorf("Unable to find relative path between baseDir: %q and path.", o.baseDir)
-			return err
-		}
 		o.applyConfigToPath(relPath, nil, &simple.Config)
 		o.applyOptionsToPath(relPath, simple.Options)
 		return nil
@@ -394,13 +424,6 @@ func (o *RepoOwners) walkFunc(path string, info os.FileInfo, err error) error {
 		log.WithError(err).Errorf("Failed to read the OWNERS file.")
 		return nil
 	}
-
-	relPath, err := filepath.Rel(o.baseDir, path)
-	if err != nil {
-		log.WithError(err).Errorf("Unable to find relative path between baseDir: %q and path.", o.baseDir)
-		return err
-	}
-	relPathDir := canonicalize(filepath.Dir(relPath))
 
 	simple, err := ParseSimpleConfig(b)
 	if err != nil || simple.Empty() {
