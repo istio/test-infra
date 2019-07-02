@@ -64,11 +64,16 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/robfig/cron.v2 v2.0.0-20150107220207-be2e0b0deed5 // indirect
 	gopkg.in/yaml.v2 v2.2.1
-	k8s.io/api v0.0.0-20181221193117-173ce66c1e39 // indirect
-	k8s.io/apiextensions-apiserver v0.0.0-20190119024419-80a4532647cb // indirect
-	k8s.io/apimachinery v0.0.0-20180228050457-302974c03f7e // indirect
-	k8s.io/client-go v10.0.0+incompatible // indirect
-	k8s.io/klog v0.1.0 // indirect
-	k8s.io/test-infra v0.0.0-20181127230316-bfbc61258394
+	k8s.io/test-infra master
+	k8s.io/api v0.0.0-20181128191700-6db15a15d2d3
+	k8s.io/apiextensions-apiserver v0.0.0-20181128195303-1f84094d7e8e
+	k8s.io/apimachinery v0.0.0-20181128191346-49ce2735e507
+	k8s.io/client-go v9.0.0+incompatible
+	k8s.io/code-generator v0.0.0-20190301173042-b1289fc74931
+	k8s.io/gengo v0.0.0-20190306031000-7a1b7fb0289f // indirect
+	k8s.io/klog v0.1.0
+	k8s.io/kube-openapi v0.0.0-20180711000925-0cf8f7e6ed1d // indirect
+	k8s.io/kubernetes v1.14.3 // indirect
+	k8s.io/repo-infra v0.0.0-20190329054012-df02ded38f95
 	sigs.k8s.io/yaml v1.1.0 // indirect
 )
