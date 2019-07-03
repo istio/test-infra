@@ -53,7 +53,19 @@ presubmits:
     always_run: true
     spec:
       containers:
-      - <<: *istio_container
+      # Lint requires a large amount of memory
+      # See https://github.com/istio/istio/issues/14888 before lowering requests
+      - image: gcr.io/istio-testing/istio-builder:v20190628-31457b43
+        # Docker in Docker
+        securityContext:
+          privileged: true
+        resources:
+          requests:
+            memory: "16Gi"
+            cpu: "3000m"
+          limits:
+            memory: "24Gi"
+            cpu: "3000m"
         command:
         - entrypoint
         - prow/istio-lint.sh
