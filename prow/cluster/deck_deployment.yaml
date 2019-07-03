@@ -25,9 +25,10 @@ spec:
             containerPort: 8080
         args:
         - --config-path=/etc/config/config.yaml
+        - --hook-url=http://hook:8888/plugin-help
         - --job-config-path=/etc/job-config
         - --redirect-http-to=prow.istio.io
-        - --hook-url=http://hook:8888/plugin-help
+        - --spyglass
         - --tide-url=http://tide/
         volumeMounts:
         - name: config
