@@ -45,15 +45,16 @@ presubmits:
         - test
         - --config=ci
         - //...
-        volumeMounts:
-        - name: cache-ssd
-          mountPath: /root/.cache # run bazel info to determine
+        #olumeMounts:
+        # name: cache-ssd
+        # mountPath: /root/.cache # run bazel info to determine
       nodeSelector:
         testing: build-pool
-      volumes:
-      - name: cache-ssd
-        hostPath:
-          path: /mnt/disks/ssd0/test-infra
+      # TODO(fejta): consider adding this back after RBE migration
+      #olumes:
+      # name: cache-ssd
+      # hostPath:
+      #   path: /mnt/disks/ssd0/test-infra
 
   - name: lint-check
     context: "prow: lint-check"
