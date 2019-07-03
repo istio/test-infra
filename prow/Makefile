@@ -36,6 +36,10 @@ branch-protector-cronjob:
 deck-deployment: get-cluster-credentials
 	kubectl apply -f cluster/deck_deployment.yaml
 
+# This actually includes a deployment, service, and pvc, but it shouldn't matter.
+ghproxy-deployment: get-cluster-credentials
+	kubectl apply -f cluster/ghproxy.yaml
+
 hook-deployment: get-cluster-credentials
 	kubectl apply -f cluster/hook_deployment.yaml
 
@@ -57,7 +61,7 @@ tide-deployment: get-cluster-credentials
 tot-deployment: get-cluster-credentials
 	kubectl apply -f cluster/tot_deployment.yaml
 
-deployments: branch-protector-cronjob deck-deployment hook-deployment horologium-deployment needs-rebase-deployment plank-deployment sinker-deployment tide-deployment tot-deployment
+deployments: branch-protector-cronjob deck-deployment ghproxy-deployment hook-deployment horologium-deployment needs-rebase-deployment plank-deployment sinker-deployment tide-deployment tot-deployment
 
 .PHONY: branch-protector-cronjob deployments deck-deployment hook-deployment horologium-deployment needs-rebase-deployment plank-deployment sinker-deployment tide-deployment tot-deployment
 
