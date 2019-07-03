@@ -35,13 +35,12 @@ build:remote --google_default_credentials=true
 # --config=ci-instance adds the instance name
 build:ci-instance --remote_instance_name=projects/istio-testing/instances/default_instance
 
+# TODO(fejta): switch to 0.27.x and remove this section
 build:remote26 --spawn_strategy=remote
 build:remote26 --strategy=Javac=remote
 build:remote26 --strategy=Closure=remote
 build:remote26 --strategy=Genrule=remote
 build:remote --config=remote26
 
-# TODO(fejta): remove this once --config=ci actually does something else
-build:ci --features=race
 # Config we want to use in ci
-#build:ci --config=remote --config=ci-instance --google_credentials=/etc/service-account/service-account.json
+build:ci --config=remote --config=ci-instance --google_credentials=/etc/service-account/service-account.json
