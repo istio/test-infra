@@ -37,6 +37,29 @@ load("@com_github_bazelbuild_buildtools//buildifier:deps.bzl", "buildifier_depen
 buildifier_dependencies()
 
 ##
+## python
+##
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+git_repository(
+    name = "io_bazel_rules_python",
+    commit = "fdbb17a4118a1728d19e638a5291b4c4266ea5b8",
+    remote = "https://github.com/bazelbuild/rules_python.git",
+    shallow_since = "1557865590 -0400",
+)
+
+load("@io_bazel_rules_python//python:pip.bzl", "pip_import")
+
+pip_import(
+    name = "py_deps",
+    requirements = "//:requirements.txt",
+)
+
+load("@py_deps//:requirements.bzl", "pip_install")
+
+pip_install()
+
+##
 ## docker
 ##
 

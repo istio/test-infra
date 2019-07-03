@@ -1,0 +1,10 @@
+# https://github.com/kubernetes/test-infra/issues/13239
+# https://github.com/bazelbuild/rules_docker/issues/842
+# https://github.com/bazelbuild/bazel/issues/7899
+build --host_force_python=PY2
+
+# enable data race detection, print errors for failing tests
+test --features=race --test_output=errors
+
+# TODO(fejta): remove this once --config=ci actually does something else
+build:ci --features=race

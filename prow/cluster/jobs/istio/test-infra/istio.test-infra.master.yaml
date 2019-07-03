@@ -37,17 +37,23 @@ presubmits:
     always_run: true
     decorate: true
     path_alias: istio.io/test-infra
-    branches: *branch_spec
-    labels:
-      preset-prow-bazel: "true"
     spec:
       containers:
-      - <<: *test_infra_container
+      - image: launcher.gcr.io/google/bazel:0.26.1
         command:
-        - entrypoint
-        - prow/build-test.sh
+        - bazel
+        - test
+        - --config=ci
+        - //...
+        volumeMounts:
+        - name: cache-ssd
+          mountPath: /root/.cache # run bazel info to determine
       nodeSelector:
         testing: build-pool
+      volumes:
+      - name: cache-ssd
+        hostPath:
+          path: /mnt/disks/ssd0/test-infra
 
   - name: lint-check
     context: "prow: lint-check"
