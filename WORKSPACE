@@ -1,6 +1,21 @@
 workspace(name = "io_istio_test_infra")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+http_archive(
+    name = "bazel_toolchains",
+    sha256 = "28cb3666da80fbc62d4c46814f5468dd5d0b59f9064c0b933eee3140d706d330",
+    strip_prefix = "bazel-toolchains-0.27.1",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/0.27.1.tar.gz",
+        "https://github.com/bazelbuild/bazel-toolchains/archive/0.27.1.tar.gz",
+    ],
+)
+
+load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
+
+rbe_autoconfig(name = "rbe_default")
 
 # buildifier is written in Go and hence needs rules_go to be built.
 # See https://github.com/bazelbuild/rules_go for the up to date setup instructions.
@@ -18,6 +33,7 @@ http_archive(
 
 http_archive(
     name = "com_github_bazelbuild_buildtools",
+    sha256 = "68d66519edef4cb7e269af7e49fe3b50629f97af3e2192c5252c8d2bdfe63e7a",
     strip_prefix = "buildtools-0.25.1",
     url = "https://github.com/bazelbuild/buildtools/archive/0.25.1.zip",
 )
