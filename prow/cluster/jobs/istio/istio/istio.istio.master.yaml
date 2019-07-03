@@ -655,23 +655,25 @@ postsubmits:
         command:
         - entrypoint
         - prow/e2e-kind-simpleTests.sh
+        # Volumes needed to support KinD running in Kubernetes
+        # See https://github.com/kubernetes-sigs/kind/issues/303
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
-      volumeMounts:
-      - mountPath: /lib/modules
-        name: modules
-        readOnly: true
-      - mountPath: /sys/fs/cgroup
-        name: cgroup
-    volumes:
-    - hostPath:
-        path: /lib/modules
-        type: Directory
-      name: modules
-    - hostPath:
-        path: /sys/fs/cgroup
-        type: Directory
-      name: cgroup
 
   - name: istio-unit-tests-master
     <<: *job_template
