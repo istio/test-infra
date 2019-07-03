@@ -1,3 +1,5 @@
+load("@py_deps//:requirements.bzl", "requirement")
+
 filegroup(
     name = "test_jobs",
     srcs = glob([
@@ -12,4 +14,6 @@ py_test(
         "bootstrap_test.py",
     ],
     data = [":test_jobs"],
+    python_version = "PY2",
+    deps = [requirement("PyYAML")],
 )
