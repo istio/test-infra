@@ -39,6 +39,7 @@ prune-vendor() {
 rm -rf vendor
 export GO111MODULE=on
 bazel run @go_sdk//:bin/go -- mod tidy
+bazel run //:gazelle -- update-repos --from_file=go.mod --to_macro=repos.bzl%go_repositories
 bazel run @go_sdk//:bin/go -- mod vendor
 prune-vendor
-bazel run //:gazelle -- update-repos --from_file=go.mod --to_macro=repos.bzl%go_repositories
+"$(dirname "$0")"/update_bazel.sh
