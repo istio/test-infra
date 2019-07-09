@@ -1,0 +1,20 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "doc.go",
+        "target.go",
+        "upload.go",
+    ],
+    importmap = "istio.io/test-infra/vendor/k8s.io/test-infra/prow/pod-utils/gcs",
+    importpath = "k8s.io/test-infra/prow/pod-utils/gcs",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/cloud.google.com/go/storage:go_default_library",
+        "//vendor/github.com/sirupsen/logrus:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/errorutil:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/kube:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/pod-utils/downwardapi:go_default_library",
+    ],
+)

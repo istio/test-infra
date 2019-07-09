@@ -1,0 +1,26 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "plugins.go",
+        "respond.go",
+    ],
+    importmap = "istio.io/test-infra/vendor/k8s.io/test-infra/prow/plugins",
+    importpath = "k8s.io/test-infra/prow/plugins",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/ghodss/yaml:go_default_library",
+        "//vendor/github.com/sirupsen/logrus:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/util/sets:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/commentpruner:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/config:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/git:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/github:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/kube:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/labels:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/pluginhelp:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/repoowners:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/slack:go_default_library",
+    ],
+)
