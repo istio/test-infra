@@ -6,7 +6,7 @@ job_template: &job_template
   path_alias: istio.io/istio
 
 istio_container: &istio_container
-  image: gcr.io/istio-testing/istio-builder:v20190628-31457b43
+  image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
   # Docker in Docker
   securityContext:
     privileged: true
@@ -19,7 +19,7 @@ istio_container: &istio_container
       cpu: "3000m"
 
 istio_container_with_kind: &istio_container_with_kind
-  image: gcr.io/istio-testing/istio-builder:v20190628-31457b43
+  image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
   # Docker in Docker
   securityContext:
     privileged: true
@@ -225,7 +225,7 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.framework.kube.presubmit
       nodeSelector:
         testing: test-pool
@@ -241,7 +241,7 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.galley.kube.presubmit
       nodeSelector:
         testing: test-pool
@@ -258,7 +258,7 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.istioctl.kube.presubmit
       nodeSelector:
         testing: test-pool
@@ -275,7 +275,7 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.mixer.kube.presubmit
       nodeSelector:
         testing: test-pool
@@ -292,13 +292,12 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.pilot.kube.presubmit
       nodeSelector:
         testing: test-pool
   - name: integ-security-k8s-presubmit-tests-prow-staging
     <<: *job_template
-    optional: true
     context: prow/integ-security-k8s-presubmit-tests.sh
     max_concurrency: 5
     always_run: true
@@ -309,7 +308,7 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.security.kube.presubmit
       nodeSelector:
         testing: test-pool
@@ -326,7 +325,7 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.telemetry.kube.presubmit
       nodeSelector:
         testing: test-pool
@@ -343,7 +342,7 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.new.installer
       nodeSelector:
         testing: test-pool
@@ -547,7 +546,19 @@ presubmits:
         - prow/release-test.sh
       nodeSelector:
         testing: test-pool
-
+  - name: istio_e2e_cloudfoundry-prow-staging
+    <<: *job_template
+    always_run: true
+    optional: true
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - make
+        - e2e_cloudfoundry
+      nodeSelector:
+        testing: test-pool
 
 postsubmits:
 
@@ -697,7 +708,7 @@ postsubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.conformance.kube
       nodeSelector:
         testing: test-pool
@@ -710,7 +721,7 @@ postsubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.framework.kube
       nodeSelector:
         testing: test-pool
@@ -723,7 +734,7 @@ postsubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/integ-suite-k8s.sh
+        - prow/integ-suite-kind.sh
         - test.integration.galley.kube
       nodeSelector:
         testing: test-pool
@@ -736,7 +747,7 @@ postsubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/integ-suite-k8s.sh
+        - prow/integ-suite-kind.sh
         - test.integration.istioctl.kube
       nodeSelector:
         testing: test-pool
@@ -749,7 +760,7 @@ postsubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/integ-suite-k8s.sh
+        - prow/integ-suite-kind.sh
         - test.integration.mixer.kube
       nodeSelector:
         testing: test-pool
@@ -762,7 +773,7 @@ postsubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/integ-suite-k8s.sh
+        - prow/integ-suite-kind.sh
         - test.integration.pilot.kube
       nodeSelector:
         testing: test-pool
@@ -776,7 +787,7 @@ postsubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/integ-suite-k8s.sh
+        - prow/integ-suite-kind.sh
         - test.integration.security.kube
       nodeSelector:
         testing: test-pool
@@ -789,7 +800,7 @@ postsubmits:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/integ-suite-k8s.sh
+        - prow/integ-suite-kind.sh
         - test.integration.telemetry.kube
       nodeSelector:
         testing: test-pool
@@ -927,5 +938,18 @@ postsubmits:
         command:
         - entrypoint
         - prow/e2e_pilotv2_auth_sds.sh
+      nodeSelector:
+        testing: test-pool
+  - name: istio_e2e_cloudfoundry-prow-staging
+    <<: *job_template
+    always_run: true
+    optional: true
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - make
+        - e2e_cloudfoundry
       nodeSelector:
         testing: test-pool
