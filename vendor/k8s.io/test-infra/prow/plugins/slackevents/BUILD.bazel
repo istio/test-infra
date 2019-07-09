@@ -1,0 +1,14 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["slackevents.go"],
+    importmap = "istio.io/test-infra/vendor/k8s.io/test-infra/prow/plugins/slackevents",
+    importpath = "k8s.io/test-infra/prow/plugins/slackevents",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/k8s.io/test-infra/prow/github:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/pluginhelp:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/plugins:go_default_library",
+    ],
+)

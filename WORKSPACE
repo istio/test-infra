@@ -21,14 +21,16 @@ rbe_autoconfig(name = "rbe_default")
 # See https://github.com/bazelbuild/rules_go for the up to date setup instructions.
 http_archive(
     name = "io_bazel_rules_go",
-    sha256 = "a82a352bffae6bee4e95f68a8d80a70e87f42c4741e6a448bec11998fcc82329",
-    urls = ["https://github.com/bazelbuild/rules_go/releases/download/0.18.5/rules_go-0.18.5.tar.gz"],
+    sha256 = "45409e6c4f748baa9e05f8f6ab6efaa05739aa064e3ab94e5a1a09849c51806a",
+    urls = ["https://github.com/bazelbuild/rules_go/releases/download/0.18.7/rules_go-0.18.7.tar.gz"],
 )
 
-http_archive(
+git_repository(
     name = "bazel_gazelle",
-    sha256 = "3c681998538231a2d24d0c07ed5a7658cb72bfb5fd4bf9911157c0e9ac6a2687",
-    urls = ["https://github.com/bazelbuild/bazel-gazelle/releases/download/0.17.0/bazel-gazelle-0.17.0.tar.gz"],
+    commit = "e530fae7ce5cfda701f450ab2d7c4619b87f4df9",  # TODO(fejta): 0.17.0 is old, from Feb and doesn't support the -to_macro flag
+    remote = "https://github.com/bazelbuild/bazel-gazelle",
+    shallow_since = "1554245619 -0400",
+    # tag = latest
 )
 
 http_archive(
@@ -42,7 +44,7 @@ load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_depe
 
 go_rules_dependencies()
 
-go_register_toolchains(go_version = "1.12.5")
+go_register_toolchains(go_version = "1.12.7")
 
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
 
@@ -55,7 +57,6 @@ buildifier_dependencies()
 ##
 ## python
 ##
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 git_repository(
     name = "io_bazel_rules_python",
