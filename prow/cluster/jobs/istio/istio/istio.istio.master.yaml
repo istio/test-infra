@@ -545,7 +545,18 @@ presubmits:
         - prow/release-test.sh
       nodeSelector:
         testing: test-pool
-
+  - name: istio_e2e_cloudfoundry-master
+    <<: *job_template
+    always_run: true
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - make
+        - e2e_cloudfoundry
+      nodeSelector:
+        testing: test-pool
 
 postsubmits:
 
@@ -925,5 +936,17 @@ postsubmits:
         command:
         - entrypoint
         - prow/e2e_pilotv2_auth_sds.sh
+      nodeSelector:
+        testing: test-pool
+  - name: istio_e2e_cloudfoundry-master
+    <<: *job_template
+    always_run: true
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - make
+        - e2e_cloudfoundry
       nodeSelector:
         testing: test-pool
