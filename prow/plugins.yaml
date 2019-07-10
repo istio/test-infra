@@ -5,12 +5,17 @@
 triggers:
 - repos:
   - istio/api
-  - sebastienvas/core
+  - istio/common-files
+  - istio/cni
+  - istio/installer
   - istio/istio
+  - istio/istio.io
   - istio/operator
-  - istio/test-infra
+  - istio/pkg
   - istio/proxy
+  - istio/test-infra
   - istio-releases/pipeline
+  - sebastienvas/core
   trusted_org: istio
 - repos:
   - istio-ecosystem/authservice
@@ -29,6 +34,9 @@ config_updater:
       namespace: boskos
     prow/cluster/jobs/**/*.yaml:
       name: job-config
+    label_sync/labels.yaml:
+      name: label-config
+      namespace: test-pods
 
 slack:
   mergewarnings:
@@ -44,9 +52,7 @@ lgtm:
   - istio
   review_acts_as_lgtm: true
 - repos:
-  - istio/api
   - istio/istio
-  - istio/operator
   - istio/test-infra
   - istio/proxy
   - istio-releases/pipeline
@@ -60,9 +66,7 @@ lgtm:
 
 approve:
 - repos:
-  - istio/api
   - istio/istio
-  - istio/operator
   - istio/test-infra
   - istio/proxy
   - istio-releases/pipeline
