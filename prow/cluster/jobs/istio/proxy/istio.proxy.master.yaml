@@ -22,6 +22,10 @@ bazel_postsubmit_spec: &bazel_postsubmit_spec
 bazel_spec: &bazel_spec
   containers:
   - image: gcr.io/istio-testing/prowbazel:0.5.7
+    args:	
+    - "--repo=github.com/$(REPO_OWNER)/$(REPO_NAME)=$(PULL_REFS)"	
+    - "--clean"	
+    - "--timeout=60"
     # Bazel needs privileged mode in order to sandbox builds.
     securityContext:
       privileged: true
@@ -76,7 +80,6 @@ presubmits:
       preset-service-account: "true"
     spec:
       <<: *bazel_spec
-
 
   - name: proxy-presubmit-tsan
     context: prow/proxy-presubmit-tsan.sh
