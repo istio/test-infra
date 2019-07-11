@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/ghodss/yaml"
+	"github.com/hashicorp/go-multierror"
 	"github.com/kr/pretty"
 	"io/ioutil"
 	"k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/test-infra/prow/config"
 	"k8s.io/test-infra/prow/kube"
 	"os"
@@ -25,23 +25,47 @@ func writeConfig(c interface{}) {
 	fmt.Println(string(bytes))
 }
 
+const (
+	DefaultResource = "default"
+)
+
 type JobConfig struct {
-	Jobs     []Job    `json:"jobs"`
-	Repo     string   `json:"repo"`
-	Branches []string `json:"branches"`
+	Jobs      []Job                              `json:"jobs"`
+	Repo      string                             `json:"repo"`
+	Branches  []string                           `json:"branches"`
+	Resources map[string]v1.ResourceRequirements `json:"resources"`
 }
 
 type Job struct {
-	Name    string   `json:"name"`
-	Command []string `json:"command"`
+	Name      string   `json:"name"`
+	Command   []string `json:"command"`
+	Resources string   `json:"resources"`
 }
 
 func main() {
 	jobs := readJobConfig("jobs.yaml")
+	validateConfig(jobs)
 	result := convertJobConfig(jobs)
 	writeConfig(result)
 
 	diffConfig(result)
+}
+
+func validateConfig(jobConfig JobConfig) {
+	var err error
+	if _, f := jobConfig.Resources[DefaultResource]; !f {
+		err = multierror.Append(err, fmt.Errorf("'%v' resource must be provided", DefaultResource))
+	}
+	for _, job := range jobConfig.Jobs {
+		if job.Resources != "" {
+			if _, f := jobConfig.Resources[job.Resources]; !f {
+				err = multierror.Append(err, fmt.Errorf("job '%v' has nonexistant resource '%v'", job.Name, job.Resources))
+			}
+		}
+	}
+	if err != nil {
+		exit(err, "validation failed")
+	}
 }
 
 func diffConfig(result config.JobConfig) {
@@ -60,6 +84,21 @@ func diffConfig(result config.JobConfig) {
 	}
 }
 
+func createContainer(config JobConfig, job Job) []v1.Container {
+	c := v1.Container{
+		Image:           "gcr.io/istio-testing/istio-builder:v20190709-959ee177",
+		SecurityContext: &v1.SecurityContext{Privileged: newTrue()},
+		Command:         job.Command,
+	}
+	resource := DefaultResource
+	if job.Resources != "" {
+		resource = job.Resources
+	}
+	c.Resources = config.Resources[resource]
+
+	return []v1.Container{c}
+}
+
 func convertJobConfig(jobConfig JobConfig) config.JobConfig {
 	result := config.JobConfig{
 		Presubmits:  make(map[string][]config.Presubmit),
@@ -74,17 +113,7 @@ func convertJobConfig(jobConfig JobConfig) config.JobConfig {
 					Agent: string(kube.KubernetesAgent),
 					Spec: &v1.PodSpec{
 						NodeSelector: map[string]string{"testing": "test-pool"},
-						Containers: []v1.Container{{
-							Image:           "gcr.io/istio-testing/istio-builder:v20190709-959ee177",
-							SecurityContext: &v1.SecurityContext{Privileged: newTrue()},
-							Resources: v1.ResourceRequirements{
-								Requests: v1.ResourceList{
-									"cpu":    resource.MustParse("3000m"),
-									"memory": resource.MustParse("3Gi"),
-								},
-							},
-							Command: job.Command,
-						}},
+						Containers:   createContainer(jobConfig, job),
 					},
 					UtilityConfig: config.UtilityConfig{
 						Decorate:  true,

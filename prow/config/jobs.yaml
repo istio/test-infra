@@ -1,9 +1,25 @@
+resources:
+  default:
+    requests:
+      memory: "3Gi"
+      cpu: "3000m"
+    limits:
+      memory: "24Gi"
+      cpu: "3000m"
+  lint:
+    requests:
+      memory: "16Gi"
+      cpu: "3000m"
+    limits:
+      memory: "24Gi"
+      cpu: "3000m"
 repo: istio/istio
 branches:
   - master
-  - prow-staging
+#  - prow-staging
 jobs:
   - name: istio-unit-tests
     command: [prow/istio-unit-tests.sh]
   - name: istio-lint
+    resources: lint
     command: [prow/istio-lint.sh]
