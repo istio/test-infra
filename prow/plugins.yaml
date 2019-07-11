@@ -4,17 +4,8 @@
 ---
 triggers:
 - repos:
-  - istio/api
-  - istio/common-files
-  - istio/cni
-  - istio/installer
-  - istio/istio
-  - istio/istio.io
-  - istio/operator
-  - istio/pkg
-  - istio/proxy
-  - istio/test-infra
-  - istio-releases/pipeline
+  - istio
+  - istio-releases
   - sebastienvas/core
   trusted_org: istio
 - repos:
@@ -34,9 +25,6 @@ config_updater:
       namespace: boskos
     prow/cluster/jobs/**/*.yaml:
       name: job-config
-    label_sync/labels.yaml:
-      name: label-config
-      namespace: test-pods
 
 slack:
   mergewarnings:
