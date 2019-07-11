@@ -1,3 +1,33 @@
+repo: istio/istio
+branches:
+  - master
+
+jobs:
+  - name: istio-unit-tests
+    command: [prow/istio-unit-tests.sh]
+  - name: istio-lint
+    resources: lint
+    command: [prow/istio-lint.sh]
+  - name: istio-racetest
+    command: [prow/racetest.sh]
+  - name: istio-shellcheck
+    command: [prow/shellcheck.sh]
+  - name: istio-codecov
+    command: [prow/codecov.sh]
+
+  - name: integ-framework-local-presubmit-tests
+    command: [prow/integ-suite-local.sh, test.integration.framework.local.presubmit]
+  - name: integ-istioctl-local-presubmit-tests
+    command: [prow/integ-suite-local.sh, test.integration.istioctl.local.presubmit]
+    status: optional
+  - name: integ-galley-local-presubmit-tests
+    command: [prow/integ-suite-local.sh, test.integration.galley.local.presubmit]
+  - name: integ-mixer-local-presubmit-tests
+    command: [prow/integ-suite-local.sh, test.integration.mixer.local.presubmit]
+    status: optional
+  - name: integ-pilot-local-presubmit-tests
+    command: [prow/integ-suite-local.sh, test.integration.pilot.local.presubmit]
+
 resources:
   default:
     requests:
@@ -13,13 +43,3 @@ resources:
     limits:
       memory: "24Gi"
       cpu: "3000m"
-repo: istio/istio
-branches:
-  - master
-#  - prow-staging
-jobs:
-  - name: istio-unit-tests
-    command: [prow/istio-unit-tests.sh]
-  - name: istio-lint
-    resources: lint
-    command: [prow/istio-lint.sh]

@@ -8,8 +8,8 @@ import (
 	"io/ioutil"
 	"k8s.io/api/core/v1"
 	"k8s.io/test-infra/prow/config"
-	"k8s.io/test-infra/prow/kube"
 	"os"
+	"strings"
 )
 
 func exit(err error, context string) {
@@ -27,6 +27,10 @@ func writeConfig(c interface{}) {
 
 const (
 	DefaultResource = "default"
+
+	StatusHidden   = "hidden"
+	StatusOptional = "optional"
+	StatusRequired = "required"
 )
 
 type JobConfig struct {
@@ -40,6 +44,7 @@ type Job struct {
 	Name      string   `json:"name"`
 	Command   []string `json:"command"`
 	Resources string   `json:"resources"`
+	Status    string   `json:"status"`
 }
 
 func main() {
@@ -49,6 +54,19 @@ func main() {
 	writeConfig(result)
 
 	diffConfig(result)
+}
+
+func validate(input string, options []string, description string) error {
+	valid := false
+	for _, opt := range options {
+		if input == opt {
+			valid = true
+		}
+	}
+	if !valid {
+		return fmt.Errorf("'%v' is not a valid %v. Must be one of %v", input, description, strings.Join(options, ","))
+	}
+	return nil
 }
 
 func validateConfig(jobConfig JobConfig) {
@@ -61,6 +79,9 @@ func validateConfig(jobConfig JobConfig) {
 			if _, f := jobConfig.Resources[job.Resources]; !f {
 				err = multierror.Append(err, fmt.Errorf("job '%v' has nonexistant resource '%v'", job.Name, job.Resources))
 			}
+		}
+		if e := validate(job.Status, []string{StatusHidden, StatusOptional, StatusRequired, ""}, "status"); err != nil {
+			err = multierror.Append(err, e)
 		}
 	}
 	if err != nil {
@@ -77,7 +98,7 @@ func diffConfig(result config.JobConfig) {
 			continue
 		}
 		diff := pretty.Diff(current, &job)
-		fmt.Println("Diff for", job.Name)
+		fmt.Println("\nDiff for", job.Name)
 		for _, d := range diff {
 			fmt.Println(d)
 		}
@@ -109,8 +130,7 @@ func convertJobConfig(jobConfig JobConfig) config.JobConfig {
 			job.Command = append([]string{"entrypoint"}, job.Command...)
 			presubmit := config.Presubmit{
 				JobBase: config.JobBase{
-					Name:  fmt.Sprintf("%s-%s", job.Name, branch),
-					Agent: string(kube.KubernetesAgent),
+					Name: fmt.Sprintf("%s-%s", job.Name, branch),
 					Spec: &v1.PodSpec{
 						NodeSelector: map[string]string{"testing": "test-pool"},
 						Containers:   createContainer(jobConfig, job),
@@ -125,10 +145,20 @@ func convertJobConfig(jobConfig JobConfig) config.JobConfig {
 					Branches: []string{fmt.Sprintf("^%s$", branch)},
 				},
 			}
+			applyStatus(&presubmit, job.Status)
 			result.Presubmits[jobConfig.Repo] = append(result.Presubmits[jobConfig.Repo], presubmit)
 		}
 	}
 	return result
+}
+
+func applyStatus(presubmit *config.Presubmit, jobStatus string) {
+	if jobStatus == StatusOptional {
+		presubmit.Optional = true
+	} else if jobStatus == StatusHidden {
+		presubmit.SkipReport = true
+	}
+	// By default, test is required and no setting is set
 }
 
 func readProwJobConfig(file string) config.JobConfig {
