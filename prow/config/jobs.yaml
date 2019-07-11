@@ -27,6 +27,27 @@ jobs:
     status: optional
   - name: integ-pilot-local-presubmit-tests
     command: [prow/integ-suite-local.sh, test.integration.pilot.local.presubmit]
+  - name: integ-security-local-presubmit-tests
+    command: [prow/integ-suite-local.sh, test.integration.security.local.presubmit]
+  - name: integ-telemetry-local-presubmit-tests
+    command: [prow/integ-suite-local.sh, test.integration.telemetry.local.presubmit]
+
+  - name: integ-framework-k8s-presubmit-tests
+    command: [prow/integ-suite-kube.sh, test.integration.framework.kube.presubmit]
+  - name: integ-istioctl-k8s-presubmit-tests
+    command: [prow/integ-suite-kube.sh, test.integration.istioctl.kube.presubmit]
+    status: optional
+  - name: integ-galley-k8s-presubmit-tests
+    command: [prow/integ-suite-kube.sh, test.integration.galley.kube.presubmit]
+  - name: integ-mixer-k8s-presubmit-tests
+    command: [prow/integ-suite-kube.sh, test.integration.mixer.kube.presubmit]
+    status: optional
+  - name: integ-pilot-k8s-presubmit-tests
+    command: [prow/integ-suite-kube.sh, test.integration.pilot.kube.presubmit]
+  - name: integ-security-k8s-presubmit-tests
+    command: [prow/integ-suite-kube.sh, test.integration.security.kube.presubmit]
+  - name: integ-telemetry-k8s-presubmit-tests
+    command: [prow/integ-suite-kube.sh, test.integration.telemetry.kube.presubmit]
 
 resources:
   default:
