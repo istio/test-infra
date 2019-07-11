@@ -31,6 +31,9 @@ const (
 	StatusHidden   = "hidden"
 	StatusOptional = "optional"
 	StatusRequired = "required"
+
+	RequirementRoot = "root"
+	RequirementKind = "kind"
 )
 
 type JobConfig struct {
@@ -41,10 +44,11 @@ type JobConfig struct {
 }
 
 type Job struct {
-	Name      string   `json:"name"`
-	Command   []string `json:"command"`
-	Resources string   `json:"resources"`
-	Status    string   `json:"status"`
+	Name         string   `json:"name"`
+	Command      []string `json:"command"`
+	Resources    string   `json:"resources"`
+	Status       string   `json:"status"`
+	Requirements []string `json:"requirements"`
 }
 
 func main() {
@@ -80,8 +84,13 @@ func validateConfig(jobConfig JobConfig) {
 				err = multierror.Append(err, fmt.Errorf("job '%v' has nonexistant resource '%v'", job.Name, job.Resources))
 			}
 		}
-		if e := validate(job.Status, []string{StatusHidden, StatusOptional, StatusRequired, ""}, "status"); err != nil {
+		if e := validate(job.Status, []string{StatusHidden, StatusOptional, StatusRequired, ""}, "status"); e != nil {
 			err = multierror.Append(err, e)
+		}
+		for _, req := range job.Requirements {
+			if e := validate(req, []string{RequirementKind, RequirementRoot, ""}, "requirements"); e != nil {
+				err = multierror.Append(err, e)
+			}
 		}
 	}
 	if err != nil {
@@ -146,10 +155,42 @@ func convertJobConfig(jobConfig JobConfig) config.JobConfig {
 				},
 			}
 			applyStatus(&presubmit, job.Status)
+			applyRequirements(&presubmit, job.Requirements)
 			result.Presubmits[jobConfig.Repo] = append(result.Presubmits[jobConfig.Repo], presubmit)
 		}
 	}
 	return result
+}
+
+func applyRequirements(presubmit *config.Presubmit, requirements []string) {
+	for _, req := range requirements {
+		switch req {
+		case RequirementRoot:
+			presubmit.JobBase.Spec.Containers[0].SecurityContext.Privileged = newTrue()
+		case RequirementKind:
+			dir := v1.HostPathDirectory
+			presubmit.JobBase.Spec.Volumes = append(presubmit.JobBase.Spec.Volumes,
+				v1.Volume{
+					Name: "modules",
+					VolumeSource: v1.VolumeSource{
+						HostPath: &v1.HostPathVolumeSource{
+							Path: "/lib/modules",
+							Type: &dir,
+						},
+					},
+				},
+				v1.Volume{
+					Name: "cgroup",
+					VolumeSource: v1.VolumeSource{
+						HostPath: &v1.HostPathVolumeSource{
+							Path: "/sys/fs/cgroup",
+							Type: &dir,
+						},
+					},
+				},
+			)
+		}
+	}
 }
 
 func applyStatus(presubmit *config.Presubmit, jobStatus string) {
