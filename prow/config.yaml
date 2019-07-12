@@ -66,12 +66,68 @@ branch-protection:
         - cla/google
       required_pull_request_reviews:
         required_approving_review_count: 1
+        require_code_owner_reviews: true
       restrictions:
       repos:
         api:
           protect: false
           branches:
             <<: *blocked_branches
+            master:
+              protect: true
+        cni:
+          protect: false
+          branches:
+            <<: *blocked_branches
+            master:
+              protect: true
+        common-files:
+          protect: false
+          branches:
+            <<: *blocked_branches
+            master:
+              protect: true
+        installer:
+          protect: false
+          branches:
+            <<: *blocked_branches
+            master:
+              protect: true
+        istio:
+          protect: false
+          branches:
+            <<: *blocked_branches
+            collab-galley:
+              protect: true
+              restrictions:
+                teams:
+                  - istio-hackers
+            collab-gce-identity:
+              protect: true
+            prow-staging:
+              protect: true
+            release-1.1:
+              protect: true
+              required_status_checks:
+                contexts:
+                  - "ci/circleci: codecov"
+                  - "ci/circleci: shellcheck"
+                  - "ci/circleci: lint"
+                  - "ci/circleci: test"
+                  - "ci/circleci: build"
+                  - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
+                  - "merges-blocked-needs-admin"
+            release-1.2:
+              protect: true
+              required_status_checks:
+                contexts:
+                  - "ci/circleci: codecov"
+                  - "ci/circleci: shellcheck"
+                  - "ci/circleci: lint"
+                  - "ci/circleci: test"
+                  - "ci/circleci: build"
+                  - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
+                  - "merges-blocked-needs-admin"
             master:
               protect: true
         istio.io:
@@ -86,72 +142,17 @@ branch-protection:
             <<: *blocked_branches
             master:
               protect: true
-        cni:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            master:
-              protect: true
-        installer:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            master:
-              protect: true
         pkg:
           protect: false
           branches:
             <<: *blocked_branches
             master:
               protect: true
-        common-files:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            master:
-              protect: true
-        istio:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            collab-galley:
-              protect: true
-              restrictions:
-                teams:
-                - istio-hackers
-            collab-gce-identity:
-              protect: true
-            prow-staging:
-              protect: true
-            release-1.1:
-              protect: true
-              required_status_checks:
-                contexts:
-                - "ci/circleci: codecov"
-                - "ci/circleci: shellcheck"
-                - "ci/circleci: lint"
-                - "ci/circleci: test"
-                - "ci/circleci: build"
-                - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
-                - "merges-blocked-needs-admin"
-            release-1.2:
-              protect: true
-              required_status_checks:
-                contexts:
-                - "ci/circleci: codecov"
-                - "ci/circleci: shellcheck"
-                - "ci/circleci: lint"
-                - "ci/circleci: test"
-                - "ci/circleci: build"
-                - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
-                - "merges-blocked-needs-admin"
-            master:
-              protect: true
         proxy:
           protect: false
           required_status_checks:
             contexts:
-            - "ci/circleci: build"
+              - "ci/circleci: build"
           branches:
             <<: *blocked_branches
             endpoints-v1.1.x: *blocking_merge
@@ -160,15 +161,21 @@ branch-protection:
               protect: true
               required_status_checks:
                 contexts:
-                - "merges-blocked-needs-admin"
+                  - "merges-blocked-needs-admin"
             release-1.2:
               protect: true
               required_status_checks:
                 contexts:
-                - "merges-blocked-needs-admin"
+                  - "merges-blocked-needs-admin"
             master:
               protect: true
             wasm:
+              protect: true
+        tools:
+          protect: false
+          branches:
+            <<: *blocked_branches
+            master:
               protect: true
         test-infra:
           protect: false
