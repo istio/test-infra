@@ -202,14 +202,18 @@ branch-protection:
 
 tide:
   queries:
+  # TODO(fejta): enable at the org level
   - repos:
     - istio-releases/pipeline
     missingLabels:
     - do-not-merge
     - do-not-merge/hold
     - do-not-merge/work-in-progress
-    - needs-ok-to-test
     - needs-rebase
+    labels:
+    - lgtm
+    - approved
+    - "cla: yes"
   - repos:
     - istio/test-infra
     - istio/istio
