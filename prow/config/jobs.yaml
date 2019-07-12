@@ -19,12 +19,12 @@ jobs:
     command: [prow/integ-suite-local.sh, test.integration.framework.local.presubmit]
   - name: integ-istioctl-local-presubmit-tests
     command: [prow/integ-suite-local.sh, test.integration.istioctl.local.presubmit]
-    status: optional
+    modifiers: [optional]
   - name: integ-galley-local-presubmit-tests
     command: [prow/integ-suite-local.sh, test.integration.galley.local.presubmit]
   - name: integ-mixer-local-presubmit-tests
     command: [prow/integ-suite-local.sh, test.integration.mixer.local.presubmit]
-    status: optional
+    modifiers: [optional]
   - name: integ-pilot-local-presubmit-tests
     command: [prow/integ-suite-local.sh, test.integration.pilot.local.presubmit]
   - name: integ-security-local-presubmit-tests
@@ -38,24 +38,30 @@ jobs:
   - name: integ-istioctl-k8s-presubmit-tests
     command: [prow/integ-suite-kind.sh, test.integration.istioctl.kube.presubmit]
     requirements: [kind]
-    status: optional
+    modifiers: [optional]
   - name: integ-galley-k8s-presubmit-tests
     command: [prow/integ-suite-kind.sh, test.integration.galley.kube.presubmit]
     requirements: [kind]
   - name: integ-mixer-k8s-presubmit-tests
     command: [prow/integ-suite-kind.sh, test.integration.mixer.kube.presubmit]
     requirements: [kind]
-    status: optional
+    modifiers: [optional]
   - name: integ-pilot-k8s-presubmit-tests
     command: [prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
     requirements: [kind]
+    modifiers: [optional]
   - name: integ-security-k8s-presubmit-tests
     command: [prow/integ-suite-kind.sh, test.integration.security.kube.presubmit]
     requirements: [kind]
   - name: integ-telemetry-k8s-presubmit-tests
     command: [prow/integ-suite-kind.sh, test.integration.telemetry.kube.presubmit]
     requirements: [kind]
-    status: optional
+    modifiers: [optional]
+
+  - name: test-e2e-mixer-no_auth
+    command: [prow/test-e2e-mixer-no_auth.sh]
+    modifiers: [optional, hidden, skipped]
+
 
 resources:
   default:

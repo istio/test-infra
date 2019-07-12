@@ -28,9 +28,9 @@ func writeConfig(c interface{}) {
 const (
 	DefaultResource = "default"
 
-	StatusHidden   = "hidden"
-	StatusOptional = "optional"
-	StatusRequired = "required"
+	ModifierHidden   = "hidden"
+	ModifierOptional = "optional"
+	ModifierSkipped  = "skipped"
 
 	RequirementRoot = "root"
 	RequirementKind = "kind"
@@ -47,7 +47,7 @@ type Job struct {
 	Name         string   `json:"name"`
 	Command      []string `json:"command"`
 	Resources    string   `json:"resources"`
-	Status       string   `json:"status"`
+	Modifiers    []string `json:"modifiers"`
 	Requirements []string `json:"requirements"`
 }
 
@@ -84,11 +84,13 @@ func validateConfig(jobConfig JobConfig) {
 				err = multierror.Append(err, fmt.Errorf("job '%v' has nonexistant resource '%v'", job.Name, job.Resources))
 			}
 		}
-		if e := validate(job.Status, []string{StatusHidden, StatusOptional, StatusRequired, ""}, "status"); e != nil {
-			err = multierror.Append(err, e)
+		for _, mod := range job.Modifiers {
+			if e := validate(mod, []string{ModifierHidden, ModifierOptional, ModifierSkipped}, "status"); e != nil {
+				err = multierror.Append(err, e)
+			}
 		}
 		for _, req := range job.Requirements {
-			if e := validate(req, []string{RequirementKind, RequirementRoot, ""}, "requirements"); e != nil {
+			if e := validate(req, []string{RequirementKind, RequirementRoot}, "requirements"); e != nil {
 				err = multierror.Append(err, e)
 			}
 		}
@@ -154,7 +156,9 @@ func convertJobConfig(jobConfig JobConfig) config.JobConfig {
 					Branches: []string{fmt.Sprintf("^%s$", branch)},
 				},
 			}
-			applyStatus(&presubmit, job.Status)
+			for _, modifier := range job.Modifiers {
+				applyModifier(&presubmit, modifier)
+			}
 			applyRequirements(&presubmit, job.Requirements)
 			result.Presubmits[jobConfig.Repo] = append(result.Presubmits[jobConfig.Repo], presubmit)
 		}
@@ -189,17 +193,29 @@ func applyRequirements(presubmit *config.Presubmit, requirements []string) {
 					},
 				},
 			)
+			presubmit.JobBase.Spec.Containers[0].VolumeMounts = append(presubmit.JobBase.Spec.Containers[0].VolumeMounts,
+				v1.VolumeMount{
+					MountPath: "/lib/modules",
+					Name:      "modules",
+					ReadOnly:  true,
+				},
+				v1.VolumeMount{
+					MountPath: "/sys/fs/cgroup",
+					Name:      "cgroup",
+				},
+			)
 		}
 	}
 }
 
-func applyStatus(presubmit *config.Presubmit, jobStatus string) {
-	if jobStatus == StatusOptional {
+func applyModifier(presubmit *config.Presubmit, jobModifier string) {
+	if jobModifier == ModifierOptional {
 		presubmit.Optional = true
-	} else if jobStatus == StatusHidden {
+	} else if jobModifier == ModifierHidden {
 		presubmit.SkipReport = true
+	} else if jobModifier == ModifierSkipped {
+		presubmit.AlwaysRun = false
 	}
-	// By default, test is required and no setting is set
 }
 
 func readProwJobConfig(file string) config.JobConfig {
