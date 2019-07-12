@@ -1,19 +1,14 @@
-# Plugin repository whitelist.
-# Keys: Full repo name: "org/repo".
-# Values: List of plugins to run against the repo.
----
+# Plugin configuration
+# Documentation:
+#   https://prow.istio.io/plugins
+#   https://github.com/kubernetes/test-infra/tree/master/prow/plugins#readme
+#   https://github.com/kubernetes/test-infra/blob/master/prow/plugins/config.go
 triggers:
 - repos:
-  - istio/api
-  - sebastienvas/core
-  - istio/istio
-  - istio/operator
-  - istio/test-infra
-  - istio/proxy
-  - istio-releases/pipeline
+  - istio
+  - istio-ecosystem
+  - istio-releases
   trusted_org: istio
-- repos:
-  - istio-ecosystem/authservice
 
 config_updater:
   maps:
@@ -42,96 +37,20 @@ slack:
 lgtm:
 - repos:
   - istio
-  review_acts_as_lgtm: true
-- repos:
-  - istio/api
-  - istio/istio
-  - istio/operator
-  - istio/test-infra
-  - istio/proxy
-  - istio-releases/pipeline
-  lgtm_acts_as_approve: true # TODO(fejta): delete https://github.com/istio/test-infra/issues/1433
+  - istio-ecosystem
+  - istio-releases
   review_acts_as_lgtm: true
   trusted_team_for_sticky_lgtm: "Istio Hackers"
-- repos:
-  - istio-ecosystem/authservice
-  lgtm_acts_as_approve: true # TODO(fejta): delete https://github.com/istio/test-infra/issues/1433
-  review_acts_as_lgtm: true
 
 approve:
 - repos:
-  - istio/api
-  - istio/istio
-  - istio/operator
-  - istio/test-infra
-  - istio/proxy
-  - istio-releases/pipeline
-  implicit_self_approve: true
-- repos:
-  - istio-ecosystem/authservice
+  - istio
+  - istio-ecosystem
+  - istio-releases
   implicit_self_approve: true
 
 plugins:
-  istio/istio:
-  - approve
-  - assign
-  - blunderbuss
-  - golint
-  - help
-  - hold
-  - lgtm
-  - lifecycle
-  - slackevents
-  - trigger
-  - verify-owners
-  - wip
-
-  istio/api:
-  - approve
-  - assign
-  - blunderbuss
-  - golint
-  - help
-  - hold
-  - lgtm
-  - lifecycle
-  - slackevents
-  - trigger
-  - verify-owners
-  - wip
-
-  istio/installer:
-  - trigger
-
-  istio/operator:
-  - assign
-  - hold
-  - slackevents
-  - trigger
-  - wip
-
-  istio/proxy:
-  - approve
-  - assign
-  - blunderbuss
-  - golint
-  - help
-  - hold
-  - lgtm
-  - lifecycle
-  - slackevents
-  - trigger
-  - verify-owners
-  - wip
-
-  sebastienvas/core:
-  - assign
-  - hold
-  - lgtm
-  - lifecycle
-  - trigger
-
-  istio/test-infra:
+  istio:
   - approve
   - assign
   - blunderbuss
@@ -141,23 +60,36 @@ plugins:
   - hold
   - lgtm
   - lifecycle
-  - shrug
-  - skip
   - slackevents
   - trigger
   - verify-owners
   - wip
+
+  istio/test-infra: # TODO(fejta): enable these at org level
+  - shrug
+  - skip
   - yuks
 
-  istio-releases/pipeline:
-  - lifecycle
-  - trigger
-  - hold
-
-  istio-ecosystem/authservice:
+  istio-releases:
   - approve
   - assign
   - blunderbuss
+  - config-updater
+  - golint
+  - help
+  - hold
+  - lgtm
+  - lifecycle
+  - slackevents
+  - trigger
+  - verify-owners
+  - wip
+
+  istio-ecosystem:
+  - approve
+  - assign
+  - blunderbuss
+  - config-updater
   - golint
   - help
   - hold
@@ -169,23 +101,15 @@ plugins:
   - wip
 
 external_plugins:
-  istio/istio:
+  istio:
   - name: needs-rebase
     events:
       - pull_request
-  istio/proxy:
+  istio-releases:
   - name: needs-rebase
     events:
       - pull_request
-  istio/test-infra:
-  - name: needs-rebase
-    events:
-      - pull_request
-  istio-releases/pipeline:
-  - name: needs-rebase
-    events:
-      - pull_request
-  istio-ecosystem/authservice:
+  istio-ecosystem:
   - name: needs-rebase
     events:
       - pull_request
