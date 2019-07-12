@@ -51,31 +51,11 @@ github_reporter:
   - postsubmit
 
 blocked_branches: &blocked_branches
-  release-0.1: &blocking_merge
+  release-*: &blocking_merge
     required_status_checks:
       contexts:
       - "merges-blocked-needs-admin"
     protect: true
-  release-0.2:
-    <<: *blocking_merge
-  release-0.3:
-    <<: *blocking_merge
-  release-0.3.0:
-    <<: *blocking_merge
-  release-0.4:
-    <<: *blocking_merge
-  release-0.4.0:
-    <<: *blocking_merge
-  release-0.5:
-    <<: *blocking_merge
-  release-0.6:
-    <<: *blocking_merge
-  release-0.7:
-    <<: *blocking_merge
-  release-0.8:
-    <<: *blocking_merge
-  release-1.0:
-    <<: *blocking_merge
 
 branch-protection:
   allow_disabled_policies: true
@@ -87,23 +67,47 @@ branch-protection:
       required_pull_request_reviews:
         required_approving_review_count: 1
       restrictions:
-        teams:
-        - repo-admins
       repos:
         api:
           protect: false
           branches:
             <<: *blocked_branches
-            release-1.2:
+            master:
               protect: true
-              required_status_checks:
-                contexts:
-                - "merges-blocked-needs-admin"
-            release-1.1:
+        istio.io:
+          protect: false
+          branches:
+            <<: *blocked_branches
+            master:
               protect: true
-              required_status_checks:
-                contexts:
-                - "merges-blocked-needs-admin"
+        operator:
+          protect: false
+          branches:
+            <<: *blocked_branches
+            master:
+              protect: true
+        cni:
+          protect: false
+          branches:
+            <<: *blocked_branches
+            master:
+              protect: true
+        installer:
+          protect: false
+          branches:
+            <<: *blocked_branches
+            master:
+              protect: true
+        pkg:
+          protect: false
+          branches:
+            <<: *blocked_branches
+            master:
+              protect: true
+        common-files:
+          protect: false
+          branches:
+            <<: *blocked_branches
             master:
               protect: true
         istio:
@@ -207,7 +211,6 @@ tide:
     - needs-ok-to-test
     - needs-rebase
   - repos:
-    - istio/api
     - istio/test-infra
     - istio/istio
     - istio/proxy
@@ -222,7 +225,6 @@ tide:
     - do-not-merge/work-in-progress
     - needs-rebase
   merge_method:
-    istio/api: squash
     istio/istio: squash
     istio/proxy: squash
     istio/test-infra: squash
