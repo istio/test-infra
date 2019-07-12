@@ -32,8 +32,9 @@ const (
 	ModifierOptional = "optional"
 	ModifierSkipped  = "skipped"
 
-	RequirementRoot = "root"
-	RequirementKind = "kind"
+	RequirementRoot   = "root"
+	RequirementKind   = "kind"
+	RequirementBoskos = "boskos"
 )
 
 type JobConfig struct {
@@ -90,7 +91,7 @@ func validateConfig(jobConfig JobConfig) {
 			}
 		}
 		for _, req := range job.Requirements {
-			if e := validate(req, []string{RequirementKind, RequirementRoot}, "requirements"); e != nil {
+			if e := validate(req, []string{RequirementKind, RequirementRoot, RequirementBoskos}, "requirements"); e != nil {
 				err = multierror.Append(err, e)
 			}
 		}
@@ -102,7 +103,9 @@ func validateConfig(jobConfig JobConfig) {
 
 func diffConfig(result config.JobConfig) {
 	pj := readProwJobConfig("../cluster/jobs/istio/istio/istio.istio.master.yaml")
+	known := make(map[string]struct{})
 	for _, job := range result.AllPresubmits([]string{"istio/istio"}) {
+		known[job.Name] = struct{}{}
 		current := pj.GetPresubmit("istio/istio", job.Name)
 		if current == nil {
 			fmt.Println("Could not find job", job.Name)
@@ -114,6 +117,12 @@ func diffConfig(result config.JobConfig) {
 			fmt.Println(d)
 		}
 	}
+	for _, job := range pj.AllPresubmits([]string{"istio/istio"}) {
+		if _, f := known[job.Name]; !f {
+			fmt.Println("Missing", job.Name)
+		}
+	}
+
 }
 
 func createContainer(config JobConfig, job Job) []v1.Container {
@@ -150,6 +159,7 @@ func convertJobConfig(jobConfig JobConfig) config.JobConfig {
 						Decorate:  true,
 						PathAlias: "istio.io/istio",
 					},
+					Labels: make(map[string]string),
 				},
 				AlwaysRun: true,
 				Brancher: config.Brancher{
@@ -169,6 +179,9 @@ func convertJobConfig(jobConfig JobConfig) config.JobConfig {
 func applyRequirements(presubmit *config.Presubmit, requirements []string) {
 	for _, req := range requirements {
 		switch req {
+		case RequirementBoskos:
+			presubmit.MaxConcurrency = 5
+			presubmit.Labels["preset-service-account"] = "true"
 		case RequirementRoot:
 			presubmit.JobBase.Spec.Containers[0].SecurityContext.Privileged = newTrue()
 		case RequirementKind:
