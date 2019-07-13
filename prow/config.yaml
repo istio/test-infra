@@ -50,15 +50,67 @@ github_reporter:
   - presubmit
   - postsubmit
 
-blocked_branches: &blocked_branches
-  release-*: &blocking_merge
+protected_branches: &protected_branches
+  release-0.1: &blocking_merge
     required_status_checks:
       contexts:
       - "merges-blocked-needs-admin"
     protect: true
+  release-0.2: &blocking_merge
+    required_status_checks:
+      contexts:
+        - "merges-blocked-needs-admin"
+    protect: true
+  release-0.3: &blocking_merge
+    required_status_checks:
+      contexts:
+        - "merges-blocked-needs-admin"
+    protect: true
+  release-0.4: &blocking_merge
+    required_status_checks:
+      contexts:
+        - "merges-blocked-needs-admin"
+    protect: true
+  release-0.5: &blocking_merge
+    required_status_checks:
+      contexts:
+        - "merges-blocked-needs-admin"
+    protect: true
+  release-0.6: &blocking_merge
+    required_status_checks:
+      contexts:
+        - "merges-blocked-needs-admin"
+    protect: true
+  release-0.7: &blocking_merge
+    required_status_checks:
+      contexts:
+        - "merges-blocked-needs-admin"
+    protect: true
+  release-0.8: &blocking_merge
+    required_status_checks:
+      contexts:
+        - "merges-blocked-needs-admin"
+    protect: true
+  release-1.0: &blocking_merge
+    required_status_checks:
+      contexts:
+        - "merges-blocked-needs-admin"
+    protect: true
+  release-1.1: &blocking_merge
+    required_status_checks:
+      contexts:
+        - "merges-blocked-needs-admin"
+    protect: true
+  release-1.2: &blocking_merge
+    required_status_checks:
+      contexts:
+        - "merges-blocked-needs-admin"
+    protect: true
+  master:
+    protect: true
 
 branch-protection:
-  allow_disabled_policies: true
+  protect: false
   orgs:
     istio:
       required_status_checks:
@@ -70,33 +122,20 @@ branch-protection:
       restrictions:
       repos:
         api:
-          protect: false
           branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+            <<: *protected_branches
         cni:
-          protect: false
           branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+            <<: *protected_branches
         common-files:
-          protect: false
           branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+            <<: *protected_branches
         installer:
-          protect: false
           branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+            <<: *protected_branches
         istio:
-          protect: false
           branches:
-            <<: *blocked_branches
+            <<: *protected_branches
             collab-galley:
               protect: true
               restrictions:
@@ -107,7 +146,6 @@ branch-protection:
             prow-staging:
               protect: true
             release-1.1:
-              protect: true
               required_status_checks:
                 contexts:
                   - "ci/circleci: codecov"
@@ -118,7 +156,6 @@ branch-protection:
                   - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
                   - "merges-blocked-needs-admin"
             release-1.2:
-              protect: true
               required_status_checks:
                 contexts:
                   - "ci/circleci: codecov"
@@ -128,57 +165,37 @@ branch-protection:
                   - "ci/circleci: build"
                   - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
                   - "merges-blocked-needs-admin"
-            master:
-              protect: true
         istio.io:
-          protect: false
           branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+            <<: *protected_branches
         operator:
-          protect: false
           branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+            <<: *protected_branches
         pkg:
-          protect: false
           branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+            <<: *protected_branches
         proxy:
-          protect: false
           required_status_checks:
             contexts:
               - "ci/circleci: build"
           branches:
-            <<: *blocked_branches
+            <<: *protected_branches
             endpoints-v1.1.x: *blocking_merge
             endpoints-v1.2.x: *blocking_merge
             release-1.1:
-              protect: true
               required_status_checks:
                 contexts:
                   - "merges-blocked-needs-admin"
             release-1.2:
-              protect: true
               required_status_checks:
                 contexts:
                   - "merges-blocked-needs-admin"
-            master:
-              protect: true
             wasm:
               protect: true
         tools:
-          protect: false
           branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+            <<: *protected_branches
         test-infra:
-          protect: false
           branches:
             master:
               protect: true
