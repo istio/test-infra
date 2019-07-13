@@ -202,23 +202,10 @@ branch-protection:
 
 tide:
   queries:
-  # TODO(fejta): enable at the org level
-  - repos:
-    - istio-releases/pipeline
-    missingLabels:
-    - do-not-merge
-    - do-not-merge/hold
-    - do-not-merge/work-in-progress
-    - needs-rebase
-    labels:
-    - lgtm
-    - approved
-    - "cla: yes"
-  - repos:
-    - istio/test-infra
-    - istio/istio
-    - istio/proxy
-    - istio-ecosystem/authservice
+  - orgs:
+    - istio
+    - istio-ecosystem
+    - istio-releases
     labels:
     - lgtm
     - approved
@@ -229,14 +216,18 @@ tide:
     - do-not-merge/work-in-progress
     - needs-rebase
   merge_method:
-    istio/istio: squash
-    istio/proxy: squash
-    istio/test-infra: squash
-    istio-releases/pipeline: squash
-    istio-ecosystem/authservice: squash
+    istio: squash
+    istio-releases: squash
+    istio-ecosystem: squash
   target_url: https://prow.istio.io/tide
-
+  # Do not merge anything if there is an open issue with this label
+  blocker_label: tide/merge-blocker
+  # Allow users to override the default method to use to merge a PR
+  squash_label: tide/merge-method-squash
+  rebase_label: tide/merge-method-rebase
+  merge_lebel: tide/merge-method-merge
   context_options:
+    # Configures which contexts to require
     from-branch-protection: true
     skip-unknown-contexts: true
 
