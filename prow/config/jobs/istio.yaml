@@ -15,6 +15,11 @@ jobs:
   - name: istio-codecov
     command: [prow/codecov.sh]
 
+    # TODO this probably doesn't need boskos
+  - name: release-test
+    command: [prow/release-test.sh]
+    requirements: [boskos]
+
   - name: integ-framework-local-presubmit-tests
     command: [prow/integ-suite-local.sh, test.integration.framework.local.presubmit]
   - name: integ-istioctl-local-presubmit-tests
@@ -31,6 +36,7 @@ jobs:
     command: [prow/integ-suite-local.sh, test.integration.security.local.presubmit]
   - name: integ-telemetry-local-presubmit-tests
     command: [prow/integ-suite-local.sh, test.integration.telemetry.local.presubmit]
+    modifiers: [optional]
 
   - name: integ-framework-k8s-presubmit-tests
     command: [prow/integ-suite-kind.sh, test.integration.framework.kube.presubmit]
@@ -57,11 +63,63 @@ jobs:
     command: [prow/integ-suite-kind.sh, test.integration.telemetry.kube.presubmit]
     requirements: [kind]
     modifiers: [optional]
+  - name: integ-new-install-k8s-presubmit-tests
+    command: [prow/integ-suite-kind.sh, test.integration.new.installer]
+    requirements: [kind]
+    modifiers: [optional]
 
+    # TODO: remove this test, it is a duplicate
   - name: test-e2e-mixer-no_auth
     command: [prow/test-e2e-mixer-no_auth.sh]
     requirements: [boskos]
     modifiers: [optional, hidden, skipped]
+  - name: e2e-mixer-no_auth
+    command: [prow/e2e-mixer-no_auth.sh]
+    requirements: [boskos]
+
+  - name: istio-pilot-e2e-envoyv2-v1alpha3
+    command: [prow/istio-pilot-e2e-envoyv2-v1alpha3.sh]
+    requirements: [boskos]
+
+  - name: istio_auth_sds_e2e
+    command: [prow/e2e_pilotv2_auth_sds.sh]
+    requirements: [boskos]
+
+  - name: e2e-dashboard
+    command: [prow/e2e-dashboard.sh]
+    requirements: [boskos]
+
+  - name: e2e-bookInfoTests-envoyv2-v1alpha3
+    command: [prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh]
+    requirements: [boskos]
+  - name: e2e-bookInfoTests-trustdomain
+    command: [prow/e2e-bookInfoTests-trustdomain.sh]
+    requirements: [boskos]
+    modifiers: [optional]
+
+  - name: e2e-simpleTests
+    command: [prow/e2e-simpleTests.sh]
+    requirements: [boskos]
+  - name: e2e-simpleTests-distroless
+    command: [prow/e2e-simpleTests-distroless.sh]
+    requirements: [boskos]
+    modifiers: [optional, skipped]
+  - name: e2e-simpleTestsMinProfile
+    command: [prow/e2e-simpleTests-minProfile.sh]
+    requirements: [boskos]
+    modifiers: [optional, skipped]
+  - name: e2e-simpleTests-cni
+    command: [prow/e2e-simpleTests-cni.sh]
+    requirements: [boskos]
+    modifiers: [optional, skipped]
+
+  - name: istio-pilot-multicluster-e2e
+    command: [prow/istio-pilot-multicluster-e2e.sh]
+    requirements: [boskos]
+    modifiers: [optional]
+
+  - name: istio_e2e_cloudfoundry
+    command: [make, e2e_cloudfoundry]
 
 resources:
   default:

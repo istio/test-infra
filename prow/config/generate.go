@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/ghodss/yaml"
 	"github.com/hashicorp/go-multierror"
@@ -17,12 +18,12 @@ func exit(err error, context string) {
 	os.Exit(1)
 }
 
-func writeConfig(c interface{}) {
+func printConfig(c interface{}) {
 	bytes, err := yaml.Marshal(c)
 	if err != nil {
 		exit(err, "failed to write result")
 	}
-	fmt.Println(string(bytes))
+	return string(bytes)
 }
 
 const (
@@ -53,11 +54,17 @@ type Job struct {
 }
 
 func main() {
-	jobs := readJobConfig("jobs.yaml")
+	dryRun := flag.Bool("dry-run", false, "Just write config to stdout")
+	flag.Parse()
+
+	jobs := readJobConfig("jobs/istio.yaml")
 	validateConfig(jobs)
 	result := convertJobConfig(jobs)
-	writeConfig(result)
-
+	if *dryRun {
+		printConfig(result)
+	} else {
+		panic("not implemented")
+	}
 	diffConfig(result)
 }
 
@@ -69,7 +76,7 @@ func validate(input string, options []string, description string) error {
 		}
 	}
 	if !valid {
-		return fmt.Errorf("'%v' is not a valid %v. Must be one of %v", input, description, strings.Join(options, ","))
+		return fmt.Errorf("'%v' is not a valid %v. Must be one of %v", input, description, strings.Join(options, ", "))
 	}
 	return nil
 }
@@ -111,8 +118,11 @@ func diffConfig(result config.JobConfig) {
 			fmt.Println("Could not find job", job.Name)
 			continue
 		}
+		current.Context = ""
 		diff := pretty.Diff(current, &job)
-		fmt.Println("\nDiff for", job.Name)
+		if len(diff) > 0 {
+			fmt.Println("\nDiff for", job.Name)
+		}
 		for _, d := range diff {
 			fmt.Println(d)
 		}
