@@ -1,7 +1,7 @@
 package main
 
 import (
-	"flag"
+	"errors"
 	"fmt"
 	"github.com/ghodss/yaml"
 	"github.com/hashicorp/go-multierror"
@@ -15,7 +15,11 @@ import (
 )
 
 func exit(err error, context string) {
-	_, _ = fmt.Fprint(os.Stderr, fmt.Sprintf("%v: %v", context, err))
+	if context == "" {
+		_, _ = fmt.Fprint(os.Stderr, fmt.Sprintf("%v", err))
+	} else {
+		_, _ = fmt.Fprint(os.Stderr, fmt.Sprintf("%v: %v", context, err))
+	}
 	os.Exit(1)
 }
 
@@ -55,9 +59,9 @@ type Job struct {
 }
 
 func main() {
-	dryRun := flag.Bool("dry-run", false, "Just write config to stdout")
-	flag.Parse()
-
+	if len(os.Args) != 2 {
+		exit(errors.New("must provide one of write, diff, check, print"), "")
+	}
 	jobs := readJobConfig("jobs/istio.yaml")
 	for _, branch := range jobs.Branches {
 		validateConfig(jobs)
@@ -68,12 +72,18 @@ func main() {
 		}
 		output.Presubmits[jobs.Repo] = result
 
-		if *dryRun {
-			printConfig(output)
-		} else {
+		switch os.Args[1] {
+		case "write":
 			writeConfig(output, jobs.Repo, branch)
+		case "diff":
+			diffConfig(output)
+		case "check":
+			panic("not implemented")
+		case "print":
+			fallthrough
+		default:
+			printConfig(output)
 		}
-		diffConfig(output)
 	}
 }
 
