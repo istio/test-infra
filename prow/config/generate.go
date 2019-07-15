@@ -78,7 +78,7 @@ func main() {
 		case "diff":
 			diffConfig(output)
 		case "check":
-			panic("not implemented")
+			//panic("not implemented")
 		case "print":
 			fallthrough
 		default:
@@ -214,10 +214,8 @@ func convertJobConfig(jobs []Job, branch string, resources map[string]v1.Resourc
 				Branches: []string{fmt.Sprintf("^%s$", branch)},
 			},
 		}
-		for _, modifier := range job.Modifiers {
-			applyModifier(&presubmit, modifier)
-			applyRequirements(&presubmit, job.Requirements)
-		}
+		applyModifiers(&presubmit, job.Modifiers)
+		applyRequirements(&presubmit, job.Requirements)
 		result = append(result, presubmit)
 	}
 	return result
@@ -268,13 +266,15 @@ func applyRequirements(presubmit *config.Presubmit, requirements []string) {
 	}
 }
 
-func applyModifier(presubmit *config.Presubmit, jobModifier string) {
-	if jobModifier == ModifierOptional {
-		presubmit.Optional = true
-	} else if jobModifier == ModifierHidden {
-		presubmit.SkipReport = true
-	} else if jobModifier == ModifierSkipped {
-		presubmit.AlwaysRun = false
+func applyModifiers(presubmit *config.Presubmit, jobModifiers []string) {
+	for _, modifier := range jobModifiers {
+		if modifier == ModifierOptional {
+			presubmit.Optional = true
+		} else if modifier == ModifierHidden {
+			presubmit.SkipReport = true
+		} else if modifier == ModifierSkipped {
+			presubmit.AlwaysRun = false
+		}
 	}
 }
 
