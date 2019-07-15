@@ -38,6 +38,9 @@ const (
 	ModifierOptional = "optional"
 	ModifierSkipped  = "skipped"
 
+	TypePostsubmit = "postsubmit"
+	TypePresubmit  = "presubmit"
+
 	RequirementRoot   = "root"
 	RequirementKind   = "kind"
 	RequirementBoskos = "boskos"
@@ -51,11 +54,13 @@ type JobConfig struct {
 }
 
 type Job struct {
-	Name         string   `json:"name"`
-	Command      []string `json:"command"`
-	Resources    string   `json:"resources"`
-	Modifiers    []string `json:"modifiers"`
-	Requirements []string `json:"requirements"`
+	Name           string   `json:"name"`
+	PostsubmitName string   `json:"postsubmit"`
+	Command        []string `json:"command"`
+	Resources      string   `json:"resources"`
+	Modifiers      []string `json:"modifiers"`
+	Requirements   []string `json:"requirements"`
+	Type           string   `json:"type"`
 }
 
 func main() {
@@ -65,18 +70,20 @@ func main() {
 	jobs := readJobConfig("jobs/istio.yaml")
 	for _, branch := range jobs.Branches {
 		validateConfig(jobs)
-		result := convertJobConfig(jobs.Jobs, branch, jobs.Resources)
+		presubmit, postsubmit := convertJobConfig(jobs.Jobs, branch, jobs.Resources)
 		output := config.JobConfig{
-			Presubmits:  make(map[string][]config.Presubmit),
-			Postsubmits: make(map[string][]config.Postsubmit),
+			Presubmits:  map[string][]config.Presubmit{jobs.Repo: presubmit},
+			Postsubmits: map[string][]config.Postsubmit{jobs.Repo: postsubmit},
 		}
-		output.Presubmits[jobs.Repo] = result
 
 		switch os.Args[1] {
 		case "write":
 			writeConfig(output, jobs.Repo, branch)
 		case "diff":
-			diffConfig(output)
+			fmt.Println("Presubmit diff:")
+			diffConfigPresubmit(output)
+			fmt.Println("\n\nPostsubmit diff:")
+			diffConfigPostsubmit(output)
 		case "check":
 			//panic("not implemented")
 		case "print":
@@ -144,20 +151,23 @@ func validateConfig(jobConfig JobConfig) {
 				err = multierror.Append(err, e)
 			}
 		}
+		if e := validate(job.Type, []string{TypePostsubmit, TypePresubmit, ""}, "type"); e != nil {
+			err = multierror.Append(err, e)
+		}
 	}
 	if err != nil {
 		exit(err, "validation failed")
 	}
 }
 
-func diffConfig(result config.JobConfig) {
+func diffConfigPresubmit(result config.JobConfig) {
 	pj := readProwJobConfig("../cluster/jobs/istio/istio/istio.istio.master.yaml")
 	known := make(map[string]struct{})
 	for _, job := range result.AllPresubmits([]string{"istio/istio"}) {
 		known[job.Name] = struct{}{}
 		current := pj.GetPresubmit("istio/istio", job.Name)
 		if current == nil {
-			fmt.Println("Could not find job", job.Name)
+			fmt.Println("\nCreated unknown presubmit job", job.Name)
 			continue
 		}
 		current.Context = ""
@@ -170,6 +180,40 @@ func diffConfig(result config.JobConfig) {
 		}
 	}
 	for _, job := range pj.AllPresubmits([]string{"istio/istio"}) {
+		if _, f := known[job.Name]; !f {
+			fmt.Println("Missing", job.Name)
+		}
+	}
+}
+
+func diffConfigPostsubmit(result config.JobConfig) {
+	pj := readProwJobConfig("../cluster/jobs/istio/istio/istio.istio.master.yaml")
+	known := make(map[string]struct{})
+	allCurrentPostsubmits := pj.AllPostsubmits([]string{"istio/istio"})
+	for _, job := range result.AllPostsubmits([]string{"istio/istio"}) {
+		known[job.Name] = struct{}{}
+		var current *config.Postsubmit
+		for _, ps := range allCurrentPostsubmits {
+			if ps.Name == job.Name {
+				current = &ps
+				break
+			}
+		}
+		if current == nil {
+			fmt.Println("\nCreated unknown job:", job.Name)
+			continue
+
+		}
+		diff := pretty.Diff(current, &job)
+		if len(diff) > 0 {
+			fmt.Println("\nDiff for", job.Name)
+		}
+		for _, d := range diff {
+			fmt.Println(d)
+		}
+	}
+
+	for _, job := range pj.AllPostsubmits([]string{"istio/istio"}) {
 		if _, f := known[job.Name]; !f {
 			fmt.Println("Missing", job.Name)
 		}
@@ -192,36 +236,59 @@ func createContainer(job Job, resources map[string]v1.ResourceRequirements) []v1
 	return []v1.Container{c}
 }
 
-func convertJobConfig(jobs []Job, branch string, resources map[string]v1.ResourceRequirements) []config.Presubmit {
-	result := []config.Presubmit{}
+func convertJobConfig(jobs []Job, branch string, resources map[string]v1.ResourceRequirements) ([]config.Presubmit, []config.Postsubmit) {
+	presubmits := []config.Presubmit{}
+	postsubmits := []config.Postsubmit{}
+
 	for _, job := range jobs {
-		job.Command = append([]string{"entrypoint"}, job.Command...)
-		presubmit := config.Presubmit{
-			JobBase: config.JobBase{
-				Name: fmt.Sprintf("%s-%s", job.Name, branch),
-				Spec: &v1.PodSpec{
-					NodeSelector: map[string]string{"testing": "test-pool"},
-					Containers:   createContainer(job, resources),
-				},
-				UtilityConfig: config.UtilityConfig{
-					Decorate:  true,
-					PathAlias: "istio.io/istio",
-				},
-				Labels: make(map[string]string),
-			},
-			AlwaysRun: true,
-			Brancher: config.Brancher{
-				Branches: []string{fmt.Sprintf("^%s$", branch)},
-			},
+		brancher := config.Brancher{
+			Branches: []string{fmt.Sprintf("^%s$", branch)},
 		}
-		applyModifiers(&presubmit, job.Modifiers)
-		applyRequirements(&presubmit, job.Requirements)
-		result = append(result, presubmit)
+		if job.Type == TypePresubmit || job.Type == "" {
+			job.Command = append([]string{"entrypoint"}, job.Command...)
+			presubmit := config.Presubmit{
+				JobBase:   createJobBase(job, fmt.Sprintf("%s-%s", job.Name, branch), resources),
+				AlwaysRun: true,
+				Brancher:  brancher,
+			}
+			applyModifiersPresubmit(&presubmit, job.Modifiers)
+			applyRequirementsPresubmit(&presubmit, job.Requirements)
+			presubmits = append(presubmits, presubmit)
+		}
+
+		if job.Type == TypePostsubmit || job.Type == "" {
+			postName := job.PostsubmitName
+			if postName == "" {
+				postName = job.Name
+			}
+			postsubmit := config.Postsubmit{
+				JobBase:  createJobBase(job, fmt.Sprintf("%s-%s", postName, branch), resources),
+				Brancher: brancher,
+			}
+			applyModifiersPostsubmit(&postsubmit, job.Modifiers)
+			applyRequirementsPostsubmit(&postsubmit, job.Requirements)
+			postsubmits = append(postsubmits, postsubmit)
+		}
 	}
-	return result
+	return presubmits, postsubmits
 }
 
-func applyRequirements(presubmit *config.Presubmit, requirements []string) {
+func createJobBase(job Job, name string, resources map[string]v1.ResourceRequirements) config.JobBase {
+	return config.JobBase{
+		Name: name,
+		Spec: &v1.PodSpec{
+			NodeSelector: map[string]string{"testing": "test-pool"},
+			Containers:   createContainer(job, resources),
+		},
+		UtilityConfig: config.UtilityConfig{
+			Decorate:  true,
+			PathAlias: "istio.io/istio",
+		},
+		Labels: make(map[string]string),
+	}
+}
+
+func applyRequirementsPresubmit(presubmit *config.Presubmit, requirements []string) {
 	for _, req := range requirements {
 		switch req {
 		case RequirementBoskos:
@@ -266,7 +333,7 @@ func applyRequirements(presubmit *config.Presubmit, requirements []string) {
 	}
 }
 
-func applyModifiers(presubmit *config.Presubmit, jobModifiers []string) {
+func applyModifiersPresubmit(presubmit *config.Presubmit, jobModifiers []string) {
 	for _, modifier := range jobModifiers {
 		if modifier == ModifierOptional {
 			presubmit.Optional = true
@@ -277,6 +344,23 @@ func applyModifiers(presubmit *config.Presubmit, jobModifiers []string) {
 		}
 	}
 }
+
+func applyRequirementsPostsubmit(postsubmit *config.Postsubmit, Requirements []string) {
+
+}
+
+func applyModifiersPostsubmit(postsubmit *config.Postsubmit, jobModifiers []string) {
+	//for _, modifier := range jobModifiers {
+	//	if modifier == ModifierOptional {
+	//		postsubmit.Optional = true
+	//	} else if modifier == ModifierHidden {
+	//		postsubmit.SkipReport = true
+	//	} else if modifier == ModifierSkipped {
+	//		postsubmit.AlwaysRun = false
+	//	}
+	//}
+}
+
 
 func readProwJobConfig(file string) config.JobConfig {
 	yamlFile, err := ioutil.ReadFile(file)

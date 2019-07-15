@@ -4,66 +4,87 @@ branches:
 
 jobs:
   - name: istio-unit-tests
+    type: presubmit
     command: [prow/istio-unit-tests.sh]
   - name: istio-lint
+    type: presubmit
     resources: lint
     command: [prow/istio-lint.sh]
   - name: istio-racetest
+    type: presubmit
     command: [prow/racetest.sh]
   - name: istio-shellcheck
+    type: presubmit
     command: [prow/shellcheck.sh]
   - name: istio-codecov
+    type: presubmit
     command: [prow/codecov.sh]
 
     # TODO this probably doesn't need boskos
   - name: release-test
     command: [prow/release-test.sh]
     requirements: [boskos]
+    type: presubmit
 
   - name: integ-framework-local-presubmit-tests
+    type: presubmit
     command: [prow/integ-suite-local.sh, test.integration.framework.local.presubmit]
   - name: integ-istioctl-local-presubmit-tests
+    type: presubmit
     command: [prow/integ-suite-local.sh, test.integration.istioctl.local.presubmit]
     modifiers: [optional]
   - name: integ-galley-local-presubmit-tests
+    type: presubmit
     command: [prow/integ-suite-local.sh, test.integration.galley.local.presubmit]
   - name: integ-mixer-local-presubmit-tests
+    type: presubmit
     command: [prow/integ-suite-local.sh, test.integration.mixer.local.presubmit]
     modifiers: [optional]
   - name: integ-pilot-local-presubmit-tests
+    type: presubmit
     command: [prow/integ-suite-local.sh, test.integration.pilot.local.presubmit]
   - name: integ-security-local-presubmit-tests
+    type: presubmit
     command: [prow/integ-suite-local.sh, test.integration.security.local.presubmit]
   - name: integ-telemetry-local-presubmit-tests
+    type: presubmit
     command: [prow/integ-suite-local.sh, test.integration.telemetry.local.presubmit]
     modifiers: [optional]
 
   - name: integ-framework-k8s-presubmit-tests
+    postsubmit: integ-framework-k8s-postsubmit-tests
     command: [prow/integ-suite-kind.sh, test.integration.framework.kube.presubmit]
     requirements: [kind]
   - name: integ-istioctl-k8s-presubmit-tests
+    postsubmit: integ-istioctl-k8s-postsubmit-tests
     command: [prow/integ-suite-kind.sh, test.integration.istioctl.kube.presubmit]
     requirements: [kind]
     modifiers: [optional]
   - name: integ-galley-k8s-presubmit-tests
+    postsubmit: integ-galley-k8s-postsubmit-tests
     command: [prow/integ-suite-kind.sh, test.integration.galley.kube.presubmit]
     requirements: [kind]
   - name: integ-mixer-k8s-presubmit-tests
+    postsubmit: integ-mixer-k8s-postsubmit-tests
     command: [prow/integ-suite-kind.sh, test.integration.mixer.kube.presubmit]
     requirements: [kind]
     modifiers: [optional]
   - name: integ-pilot-k8s-presubmit-tests
+    postsubmit: integ-pilot-k8s-postsubmit-tests
     command: [prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
     requirements: [kind]
     modifiers: [optional]
   - name: integ-security-k8s-presubmit-tests
+    postsubmit: integ-security-k8s-postsubmit-tests
     command: [prow/integ-suite-kind.sh, test.integration.security.kube.presubmit]
     requirements: [kind]
   - name: integ-telemetry-k8s-presubmit-tests
+    postsubmit: integ-telemetry-k8s-postsubmit-tests
     command: [prow/integ-suite-kind.sh, test.integration.telemetry.kube.presubmit]
     requirements: [kind]
     modifiers: [optional]
   - name: integ-new-install-k8s-presubmit-tests
+    type: presubmit
     command: [prow/integ-suite-kind.sh, test.integration.new.installer]
     requirements: [kind]
     modifiers: [optional]
@@ -72,6 +93,7 @@ jobs:
   - name: test-e2e-mixer-no_auth
     command: [prow/test-e2e-mixer-no_auth.sh]
     requirements: [boskos]
+    type: presubmit
     modifiers: [optional, hidden, skipped]
   - name: e2e-mixer-no_auth
     command: [prow/e2e-mixer-no_auth.sh]
@@ -93,6 +115,7 @@ jobs:
     command: [prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh]
     requirements: [boskos]
   - name: e2e-bookInfoTests-trustdomain
+    type: presubmit
     command: [prow/e2e-bookInfoTests-trustdomain.sh]
     requirements: [boskos]
     modifiers: [optional]
@@ -101,6 +124,7 @@ jobs:
     command: [prow/e2e-simpleTests.sh]
     requirements: [boskos]
   - name: e2e-simpleTests-distroless
+    type: presubmit
     command: [prow/e2e-simpleTests-distroless.sh]
     requirements: [boskos]
     modifiers: [optional, skipped]
@@ -111,9 +135,11 @@ jobs:
   - name: e2e-simpleTests-cni
     command: [prow/e2e-simpleTests-cni.sh]
     requirements: [boskos]
+    type: presubmit
     modifiers: [optional, skipped]
 
   - name: istio-pilot-multicluster-e2e
+    type: presubmit
     command: [prow/istio-pilot-multicluster-e2e.sh]
     requirements: [boskos]
     modifiers: [optional]
