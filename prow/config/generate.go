@@ -41,9 +41,9 @@ const (
 	TypePostsubmit = "postsubmit"
 	TypePresubmit  = "presubmit"
 
-	RequirementRoot   = "root"
-	RequirementKind   = "kind"
-	RequirementBoskos = "boskos"
+	RequirementRoot = "root"
+	RequirementKind = "kind"
+	RequirementGCP  = "gcp"
 )
 
 type JobConfig struct {
@@ -147,7 +147,7 @@ func validateConfig(jobConfig JobConfig) {
 			}
 		}
 		for _, req := range job.Requirements {
-			if e := validate(req, []string{RequirementKind, RequirementRoot, RequirementBoskos}, "requirements"); e != nil {
+			if e := validate(req, []string{RequirementKind, RequirementRoot, RequirementGCP}, "requirements"); e != nil {
 				err = multierror.Append(err, e)
 			}
 		}
@@ -293,7 +293,7 @@ func createJobBase(job Job, name string, resources map[string]v1.ResourceRequire
 func applyRequirementsPresubmit(presubmit *config.Presubmit, requirements []string) {
 	for _, req := range requirements {
 		switch req {
-		case RequirementBoskos:
+		case RequirementGCP:
 			presubmit.MaxConcurrency = 5
 			presubmit.Labels["preset-service-account"] = "true"
 		case RequirementRoot:
@@ -350,7 +350,7 @@ func applyModifiersPresubmit(presubmit *config.Presubmit, jobModifiers []string)
 func applyRequirementsPostsubmit(postsubmit *config.Postsubmit, requirements []string) {
 	for _, req := range requirements {
 		switch req {
-		case RequirementBoskos:
+		case RequirementGCP:
 			postsubmit.MaxConcurrency = 5
 			postsubmit.Labels["preset-service-account"] = "true"
 		case RequirementRoot:

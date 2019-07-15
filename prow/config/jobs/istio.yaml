@@ -19,10 +19,9 @@ jobs:
     type: presubmit
     command: [prow/codecov.sh]
 
-    # TODO this probably doesn't need boskos
   - name: release-test
     command: [prow/release-test.sh]
-    requirements: [boskos]
+    requirements: [gcp]
     type: presubmit
 
   - name: integ-framework-local-presubmit-tests
@@ -91,59 +90,59 @@ jobs:
     # TODO: remove this test, it is a duplicate
   - name: test-e2e-mixer-no_auth
     command: [prow/test-e2e-mixer-no_auth.sh]
-    requirements: [boskos]
+    requirements: [gcp]
     type: presubmit
     modifiers: [optional, hidden, skipped]
   - name: e2e-mixer-no_auth
     command: [prow/e2e-mixer-no_auth.sh]
-    requirements: [boskos]
+    requirements: [gcp]
 
   - name: istio-pilot-e2e-envoyv2-v1alpha3
     command: [prow/istio-pilot-e2e-envoyv2-v1alpha3.sh]
-    requirements: [boskos]
+    requirements: [gcp]
 
   - name: istio_auth_sds_e2e
     command: [prow/e2e_pilotv2_auth_sds.sh]
-    requirements: [boskos]
+    requirements: [gcp]
 
   - name: e2e-dashboard
     command: [prow/e2e-dashboard.sh]
-    requirements: [boskos]
+    requirements: [gcp]
 
   - name: e2e-bookInfoTests-envoyv2-v1alpha3
     command: [prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh]
-    requirements: [boskos]
+    requirements: [gcp]
   - name: e2e-bookInfoTests-trustdomain
     type: presubmit
     command: [prow/e2e-bookInfoTests-trustdomain.sh]
-    requirements: [boskos]
+    requirements: [gcp]
     modifiers: [optional]
   - name: e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp
     type: postsubmit
     command: [prow/e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp.sh]
-    requirements: [boskos]
+    requirements: [gcp]
 
   - name: e2e-simpleTests
     command: [prow/e2e-simpleTests.sh]
-    requirements: [boskos]
+    requirements: [gcp]
   - name: e2e-simpleTests-distroless
     type: presubmit
     command: [prow/e2e-simpleTests-distroless.sh]
-    requirements: [boskos]
+    requirements: [gcp]
     modifiers: [optional, skipped]
   - name: e2e-simpleTestsMinProfile
     command: [prow/e2e-simpleTests-minProfile.sh]
-    requirements: [boskos]
+    requirements: [gcp]
     modifiers: [optional, skipped]
   - name: e2e-simpleTests-cni
     command: [prow/e2e-simpleTests-cni.sh]
-    requirements: [boskos]
+    requirements: [gcp]
     type: presubmit
     modifiers: [optional, skipped]
   - name: e2e-simpleTests-non-mcp
     type: postsubmit
     command: [prow/e2e-simpleTests-non-mcp.sh]
-    requirements: [boskos]
+    requirements: [gcp]
   - name: istio-kind-simpleTest
     type: postsubmit
     command: [prow/e2e-kind-simpleTests.sh]
@@ -152,7 +151,7 @@ jobs:
   - name: istio-pilot-multicluster-e2e
     type: presubmit
     command: [prow/istio-pilot-multicluster-e2e.sh]
-    requirements: [boskos]
+    requirements: [gcp]
     modifiers: [optional]
 
   - name: istio_e2e_cloudfoundry
@@ -225,7 +224,7 @@ jobs:
   - name: istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest
     type: postsubmit
     command: [prow/istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest.sh]
-    requirements: [boskos]
+    requirements: [gcp]
 
 resources:
   default:
