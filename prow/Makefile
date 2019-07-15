@@ -80,6 +80,9 @@ tide-service: get-cluster-credentials
 tot-service: get-cluster-credentials
 	kubectl apply -f cluster/tot_service.yaml
 
+statusreconciler-deployment: get-cluster-credentials
+	kubectl apply -f cluster/statusreconciler_deployment.yaml
+
 services: deck-service hook-service needs-rebase-service tide-service tot-service
 
 .PHONY: services deck-service hook-service needs-rebase-service tide-service tot-service
