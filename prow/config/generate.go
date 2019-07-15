@@ -350,15 +350,15 @@ func applyRequirementsPostsubmit(postsubmit *config.Postsubmit, Requirements []s
 }
 
 func applyModifiersPostsubmit(postsubmit *config.Postsubmit, jobModifiers []string) {
-	//for _, modifier := range jobModifiers {
-	//	if modifier == ModifierOptional {
-	//		postsubmit.Optional = true
-	//	} else if modifier == ModifierHidden {
-	//		postsubmit.SkipReport = true
-	//	} else if modifier == ModifierSkipped {
-	//		postsubmit.AlwaysRun = false
-	//	}
-	//}
+	for _, modifier := range jobModifiers {
+		if modifier == ModifierOptional {
+			// Does not exist on postsubmit
+		} else if modifier == ModifierHidden {
+			postsubmit.SkipReport = true
+		} else if modifier == ModifierSkipped {
+			// Cannot skip a postsubmit; instead just make `type: presubmit`
+		}
+	}
 }
 
 
