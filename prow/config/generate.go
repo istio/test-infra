@@ -345,8 +345,49 @@ func applyModifiersPresubmit(presubmit *config.Presubmit, jobModifiers []string)
 	}
 }
 
-func applyRequirementsPostsubmit(postsubmit *config.Postsubmit, Requirements []string) {
-
+func applyRequirementsPostsubmit(postsubmit *config.Postsubmit, requirements []string) {
+	for _, req := range requirements {
+		switch req {
+		case RequirementBoskos:
+			postsubmit.MaxConcurrency = 5
+			postsubmit.Labels["preset-service-account"] = "true"
+		case RequirementRoot:
+			postsubmit.JobBase.Spec.Containers[0].SecurityContext.Privileged = newTrue()
+		case RequirementKind:
+			dir := v1.HostPathDirectory
+			postsubmit.JobBase.Spec.Volumes = append(postsubmit.JobBase.Spec.Volumes,
+				v1.Volume{
+					Name: "modules",
+					VolumeSource: v1.VolumeSource{
+						HostPath: &v1.HostPathVolumeSource{
+							Path: "/lib/modules",
+							Type: &dir,
+						},
+					},
+				},
+				v1.Volume{
+					Name: "cgroup",
+					VolumeSource: v1.VolumeSource{
+						HostPath: &v1.HostPathVolumeSource{
+							Path: "/sys/fs/cgroup",
+							Type: &dir,
+						},
+					},
+				},
+			)
+			postsubmit.JobBase.Spec.Containers[0].VolumeMounts = append(postsubmit.JobBase.Spec.Containers[0].VolumeMounts,
+				v1.VolumeMount{
+					MountPath: "/lib/modules",
+					Name:      "modules",
+					ReadOnly:  true,
+				},
+				v1.VolumeMount{
+					MountPath: "/sys/fs/cgroup",
+					Name:      "cgroup",
+				},
+			)
+		}
+	}
 }
 
 func applyModifiersPostsubmit(postsubmit *config.Postsubmit, jobModifiers []string) {
@@ -360,7 +401,6 @@ func applyModifiersPostsubmit(postsubmit *config.Postsubmit, jobModifiers []stri
 		}
 	}
 }
-
 
 func readProwJobConfig(file string) config.JobConfig {
 	yamlFile, err := ioutil.ReadFile(file)
