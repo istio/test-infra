@@ -204,6 +204,7 @@ func diffConfigPostsubmit(result config.JobConfig) {
 			continue
 
 		}
+		current.Context = ""
 		diff := pretty.Diff(current, &job)
 		if len(diff) > 0 {
 			fmt.Println("\nDiff for", job.Name)
@@ -244,8 +245,9 @@ func convertJobConfig(jobs []Job, branch string, resources map[string]v1.Resourc
 		brancher := config.Brancher{
 			Branches: []string{fmt.Sprintf("^%s$", branch)},
 		}
+		job.Command = append([]string{"entrypoint"}, job.Command...)
+
 		if job.Type == TypePresubmit || job.Type == "" {
-			job.Command = append([]string{"entrypoint"}, job.Command...)
 			presubmit := config.Presubmit{
 				JobBase:   createJobBase(job, fmt.Sprintf("%s-%s", job.Name, branch), resources),
 				AlwaysRun: true,
