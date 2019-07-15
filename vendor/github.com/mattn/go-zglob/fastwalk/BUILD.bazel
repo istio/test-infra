@@ -1,0 +1,15 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "fastwalk.go",
+        "fastwalk_dirent_fileno.go",
+        "fastwalk_dirent_ino.go",
+        "fastwalk_portable.go",
+        "fastwalk_unix.go",
+    ],
+    importmap = "istio.io/test-infra/vendor/github.com/mattn/go-zglob/fastwalk",
+    importpath = "github.com/mattn/go-zglob/fastwalk",
+    visibility = ["//visibility:public"],
+)

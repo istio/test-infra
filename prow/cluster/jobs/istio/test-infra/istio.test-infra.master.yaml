@@ -27,6 +27,23 @@ presubmits:
       # hostPath:
       #   path: /mnt/disks/ssd0/test-infra
 
+  - name: pull-test-infra-prow-checkconfig
+    decorate: true
+    run_if_changed: '^prow/(config|plugins|cluster/jobs/.*)\.yaml$'
+    spec:
+      containers:
+      - image: gcr.io/k8s-prow/checkconfig:v20190703-1f4d61631
+        command:
+        - /checkconfig
+        args:
+        - --config-path=prow/config.yaml
+        - --job-config-path=prow/cluster/jobs
+        - --plugin-config=prow/plugins.yaml
+        - --strict
+        - --exclude-warning=mismatched-tide
+        - --exclude-warning=unknown-fields
+        - --exclude-warning=non-decorated-jobs
+
   - name: lint-check
     context: "prow: lint-check"
     always_run: true

@@ -1,9 +1,54 @@
+bazel_postsubmit_spec: &bazel_postsubmit_spec
+  containers:
+  - image: gcr.io/istio-testing/prowbazel:0.5.7
+    resources:
+      requests:
+        memory: "8Gi"
+        cpu: "8000m"
+      limits:
+        memory: "60Gi"
+        cpu: "16000m"
+  nodeSelector:
+    testing: build-pool
+
+bazel_spec: &bazel_spec
+  containers:
+  - image: gcr.io/istio-testing/prowbazel:0.5.7
+    resources:
+      requests:
+        memory: "8Gi"
+        cpu: "8000m"
+      limits:
+        memory: "60Gi"
+        cpu: "16000m"
+  nodeSelector:
+    testing: build-pool
+
 branch_spec: &branch_spec
 - "^master$"
 
 presubmits:
 
   istio/proxy:
+
+  - name: proxy-presubmit
+    context: prow/proxy-presubmit.sh
+    branches: *branch_spec
+    always_run: true
+    decorate: true
+    path_alias: istio.io/proxy
+    timeout: 60m
+    extra_refs:
+    - org: istio
+      repo: istio
+      base_ref: master
+      path_alias: istio.io/istio
+    labels:
+      preset-service-account: "true"
+    spec: &bazel_spec 
+      containers:
+        - command:
+          - ./prow/proxy-presubmit.sh
 
   - name: proxy-presubmit-asan
     context: prow/proxy-presubmit-asan.sh
@@ -13,25 +58,16 @@ presubmits:
     path_alias: istio.io/proxy
     timeout: 60m
     extra_refs:
-    - org: istio.io
+    - org: istio
       repo: istio
       base_ref: master
+      path_alias: istio.io/istio
     labels:
       preset-service-account: "true"
-    spec:
+    spec: &bazel_spec
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.5.7
-        command:
+      - command:
         - ./prow/proxy-presubmit-asan.sh
-        resources:
-          requests:
-            memory: "8Gi"
-            cpu: "8000m"
-          limits:
-            memory: "60Gi"
-            cpu: "16000m"
-      nodeSelector:
-        testing: build-pool
 
   - name: proxy-presubmit-tsan
     context: prow/proxy-presubmit-tsan.sh
@@ -41,26 +77,16 @@ presubmits:
     path_alias: istio.io/proxy
     timeout: 60m
     extra_refs:
-    - org: istio.io
+    - org: istio
       repo: istio
       base_ref: master
+      path_alias: istio.io/istio
     labels:
       preset-service-account: "true"
-    spec:
+    spec: &bazel_spec
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.5.7
-        command:
+      - command:
         - ./prow/proxy-presubmit-tsan.sh
-        resources:
-          requests:
-            memory: "8Gi"
-            cpu: "8000m"
-          limits:
-            memory: "60Gi"
-            cpu: "16000m"
-      nodeSelector:
-        testing: build-pool
-
 
 postsubmits:
 
@@ -74,25 +100,13 @@ postsubmits:
     path_alias: istio.io/proxy
     timeout: 60m
     extra_refs:
-    - org: istio.io
+    - org: istio
       repo: istio
       base_ref: master
-
+      path_alias: istio.io/istio
     labels:
       preset-service-account: "true"
-    spec:
+    spec: &bazel_postsubmit_spec
       containers:
-      - image: gcr.io/istio-testing/prowbazel:0.5.7
-        command:
+      - command:
         - ./prow/proxy-postsubmit.sh
-        resources:
-          requests:
-            memory: "8Gi"
-            cpu: "8000m"
-          limits:
-            memory: "60Gi"
-            cpu: "16000m"
-      nodeSelector:
-        testing: build-pool
-
-

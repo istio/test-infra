@@ -55,7 +55,7 @@ presubmits:
       containers:
       # Lint requires a large amount of memory
       # See https://github.com/istio/istio/issues/14888 before lowering requests
-      - image: gcr.io/istio-testing/istio-builder:v20190628-31457b43
+      - image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
         # Docker in Docker
         securityContext:
           privileged: true
@@ -215,134 +215,246 @@ presubmits:
   - name: integ-framework-k8s-presubmit-tests-master
     <<: *job_template
     context: prow/integ-framework-k8s-presubmit-tests.sh
-    max_concurrency: 5
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.framework.kube.presubmit
+          # Volumes needed to support KinD running in Kubernetes
+          # See https://github.com/kubernetes-sigs/kind/issues/303
+          volumeMounts:
+          - mountPath: /lib/modules
+            name: modules
+            readOnly: true
+          - mountPath: /sys/fs/cgroup
+            name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-galley-k8s-presubmit-tests-master
     <<: *job_template
     context: prow/integ-galley-k8s-presubmit-tests.sh
-    max_concurrency: 5
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.galley.kube.presubmit
+          # Volumes needed to support KinD running in Kubernetes
+          # See https://github.com/kubernetes-sigs/kind/issues/303
+          volumeMounts:
+          - mountPath: /lib/modules
+            name: modules
+            readOnly: true
+          - mountPath: /sys/fs/cgroup
+            name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-istioctl-k8s-presubmit-tests-master
     <<: *job_template
     context: prow/integ-istioctl-k8s-presubmit-tests.sh
     optional: true
-    max_concurrency: 5
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.istioctl.kube.presubmit
+          # Volumes needed to support KinD running in Kubernetes
+          # See https://github.com/kubernetes-sigs/kind/issues/303
+          volumeMounts:
+          - mountPath: /lib/modules
+            name: modules
+            readOnly: true
+          - mountPath: /sys/fs/cgroup
+            name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-mixer-k8s-presubmit-tests-master
     <<: *job_template
     context: prow/integ-mixer-k8s-presubmit-tests.sh
     optional: true
-    max_concurrency: 5
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.mixer.kube.presubmit
+          # Volumes needed to support KinD running in Kubernetes
+          # See https://github.com/kubernetes-sigs/kind/issues/303
+          volumeMounts:
+          - mountPath: /lib/modules
+            name: modules
+            readOnly: true
+          - mountPath: /sys/fs/cgroup
+            name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-pilot-k8s-presubmit-tests-master
     <<: *job_template
     optional: true
     context: prow/integ-pilot-k8s-presubmit-tests.sh
-    max_concurrency: 5
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.pilot.kube.presubmit
+          # Volumes needed to support KinD running in Kubernetes
+          # See https://github.com/kubernetes-sigs/kind/issues/303
+          volumeMounts:
+          - mountPath: /lib/modules
+            name: modules
+            readOnly: true
+          - mountPath: /sys/fs/cgroup
+            name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-security-k8s-presubmit-tests-master
     <<: *job_template
     context: prow/integ-security-k8s-presubmit-tests.sh
-    max_concurrency: 5
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.security.kube.presubmit
+          # Volumes needed to support KinD running in Kubernetes
+          # See https://github.com/kubernetes-sigs/kind/issues/303
+          volumeMounts:
+          - mountPath: /lib/modules
+            name: modules
+            readOnly: true
+          - mountPath: /sys/fs/cgroup
+            name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-telemetry-k8s-presubmit-tests-master
     <<: *job_template
     context: prow/integ-telemetry-k8s-presubmit-tests.sh
     optional: true
-    max_concurrency: 5
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.telemetry.kube.presubmit
+          # Volumes needed to support KinD running in Kubernetes
+          # See https://github.com/kubernetes-sigs/kind/issues/303
+          volumeMounts:
+          - mountPath: /lib/modules
+            name: modules
+            readOnly: true
+          - mountPath: /sys/fs/cgroup
+            name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-new-install-k8s-presubmit-tests-master
     <<: *job_template
     context: prow/integ-new-installer-k8s-presubmit-tests.sh
     optional: true
-    max_concurrency: 5
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.new.installer
+          # Volumes needed to support KinD running in Kubernetes
+          # See https://github.com/kubernetes-sigs/kind/issues/303
+          volumeMounts:
+          - mountPath: /lib/modules
+            name: modules
+            readOnly: true
+          - mountPath: /sys/fs/cgroup
+            name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
 
@@ -515,6 +627,7 @@ presubmits:
         - entrypoint
         - prow/e2e-simpleTests-cni.sh
       nodeSelector:
+        testing: test-pool
   - name: istio_auth_sds_e2e-master
     <<: *job_template
     always_run: true
@@ -536,7 +649,6 @@ presubmits:
     context: prow/release-test.sh
     labels:
       preset-service-account: "true"
-    max_concurrency: 5
     spec:
       containers:
       - <<: *istio_container
@@ -548,7 +660,6 @@ presubmits:
   - name: istio_e2e_cloudfoundry-master
     <<: *job_template
     always_run: true
-    optional: true
     spec:
       containers:
       - <<: *istio_container
@@ -700,107 +811,227 @@ postsubmits:
         testing: test-pool
   - name: integ-conformance-k8s-postsubmit-tests-master
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.conformance.kube
+          # Volumes needed to support KinD running in Kubernetes
+          # See https://github.com/kubernetes-sigs/kind/issues/303
+          volumeMounts:
+          - mountPath: /lib/modules
+            name: modules
+            readOnly: true
+          - mountPath: /sys/fs/cgroup
+            name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-framework-k8s-postsubmit-tests-master
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-k8s.sh
+            - prow/integ-suite-kind.sh
             - test.integration.framework.kube
+          # Volumes needed to support KinD running in Kubernetes
+          # See https://github.com/kubernetes-sigs/kind/issues/303
+          volumeMounts:
+          - mountPath: /lib/modules
+            name: modules
+            readOnly: true
+          - mountPath: /sys/fs/cgroup
+            name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-galley-k8s-postsubmit-tests-master
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/integ-suite-k8s.sh
+        - prow/integ-suite-kind.sh
         - test.integration.galley.kube
+        # Volumes needed to support KinD running in Kubernetes
+        # See https://github.com/kubernetes-sigs/kind/issues/303
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-istioctl-k8s-postsubmit-tests-master
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/integ-suite-k8s.sh
+        - prow/integ-suite-kind.sh
         - test.integration.istioctl.kube
+        # Volumes needed to support KinD running in Kubernetes
+        # See https://github.com/kubernetes-sigs/kind/issues/303
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-mixer-k8s-postsubmit-tests-master
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/integ-suite-k8s.sh
+        - prow/integ-suite-kind.sh
         - test.integration.mixer.kube
+        # Volumes needed to support KinD running in Kubernetes
+        # See https://github.com/kubernetes-sigs/kind/issues/303
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-pilot-k8s-postsubmit-tests-master
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/integ-suite-k8s.sh
+        - prow/integ-suite-kind.sh
         - test.integration.pilot.kube
+        # Volumes needed to support KinD running in Kubernetes
+        # See https://github.com/kubernetes-sigs/kind/issues/303
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
 
   - name: integ-security-k8s-postsubmit-tests-master
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/integ-suite-k8s.sh
+        - prow/integ-suite-kind.sh
         - test.integration.security.kube
+        # Volumes needed to support KinD running in Kubernetes
+        # See https://github.com/kubernetes-sigs/kind/issues/303
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-telemetry-k8s-postsubmit-tests-master
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
         command:
         - entrypoint
-        - prow/integ-suite-k8s.sh
+        - prow/integ-suite-kind.sh
         - test.integration.telemetry.kube
+        # Volumes needed to support KinD running in Kubernetes
+        # See https://github.com/kubernetes-sigs/kind/issues/303
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: e2e-simpleTestsMinProfile-master
@@ -818,8 +1049,6 @@ postsubmits:
         testing: test-pool
   - name: istio-integ-race-native-tests-master
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
