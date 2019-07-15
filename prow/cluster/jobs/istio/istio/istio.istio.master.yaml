@@ -215,7 +215,6 @@ presubmits:
   - name: integ-framework-k8s-presubmit-tests-master
     <<: *job_template
     context: prow/integ-framework-k8s-presubmit-tests.sh
-    max_concurrency: 5
     always_run: true
     labels:
       preset-service-account: "true"
@@ -248,7 +247,6 @@ presubmits:
   - name: integ-galley-k8s-presubmit-tests-master
     <<: *job_template
     context: prow/integ-galley-k8s-presubmit-tests.sh
-    max_concurrency: 5
     always_run: true
     labels:
       preset-service-account: "true"
@@ -282,7 +280,6 @@ presubmits:
     <<: *job_template
     context: prow/integ-istioctl-k8s-presubmit-tests.sh
     optional: true
-    max_concurrency: 5
     always_run: true
     labels:
       preset-service-account: "true"
@@ -316,7 +313,6 @@ presubmits:
     <<: *job_template
     context: prow/integ-mixer-k8s-presubmit-tests.sh
     optional: true
-    max_concurrency: 5
     always_run: true
     labels:
       preset-service-account: "true"
@@ -350,7 +346,6 @@ presubmits:
     <<: *job_template
     optional: true
     context: prow/integ-pilot-k8s-presubmit-tests.sh
-    max_concurrency: 5
     always_run: true
     labels:
       preset-service-account: "true"
@@ -383,7 +378,6 @@ presubmits:
   - name: integ-security-k8s-presubmit-tests-master
     <<: *job_template
     context: prow/integ-security-k8s-presubmit-tests.sh
-    max_concurrency: 5
     always_run: true
     labels:
       preset-service-account: "true"
@@ -417,7 +411,6 @@ presubmits:
     <<: *job_template
     context: prow/integ-telemetry-k8s-presubmit-tests.sh
     optional: true
-    max_concurrency: 5
     always_run: true
     labels:
       preset-service-account: "true"
@@ -451,7 +444,6 @@ presubmits:
     <<: *job_template
     context: prow/integ-new-installer-k8s-presubmit-tests.sh
     optional: true
-    max_concurrency: 5
     always_run: true
     labels:
       preset-service-account: "true"
@@ -673,7 +665,6 @@ presubmits:
     context: prow/release-test.sh
     labels:
       preset-service-account: "true"
-    max_concurrency: 5
     spec:
       containers:
       - <<: *istio_container
