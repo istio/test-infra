@@ -216,8 +216,6 @@ presubmits:
     <<: *job_template
     context: prow/integ-framework-k8s-presubmit-tests.sh
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -248,8 +246,6 @@ presubmits:
     <<: *job_template
     context: prow/integ-galley-k8s-presubmit-tests.sh
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -281,8 +277,6 @@ presubmits:
     context: prow/integ-istioctl-k8s-presubmit-tests.sh
     optional: true
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -314,8 +308,6 @@ presubmits:
     context: prow/integ-mixer-k8s-presubmit-tests.sh
     optional: true
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -347,8 +339,6 @@ presubmits:
     optional: true
     context: prow/integ-pilot-k8s-presubmit-tests.sh
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -379,8 +369,6 @@ presubmits:
     <<: *job_template
     context: prow/integ-security-k8s-presubmit-tests.sh
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -412,8 +400,6 @@ presubmits:
     context: prow/integ-telemetry-k8s-presubmit-tests.sh
     optional: true
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -445,8 +431,6 @@ presubmits:
     context: prow/integ-new-installer-k8s-presubmit-tests.sh
     optional: true
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -827,8 +811,6 @@ postsubmits:
         testing: test-pool
   - name: integ-conformance-k8s-postsubmit-tests-master
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -857,8 +839,6 @@ postsubmits:
         testing: test-pool
   - name: integ-framework-k8s-postsubmit-tests-master
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -887,8 +867,6 @@ postsubmits:
         testing: test-pool
   - name: integ-galley-k8s-postsubmit-tests-master
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
@@ -945,8 +923,6 @@ postsubmits:
         testing: test-pool
   - name: integ-mixer-k8s-postsubmit-tests-master
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
@@ -975,8 +951,6 @@ postsubmits:
         testing: test-pool
   - name: integ-pilot-k8s-postsubmit-tests-master
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
@@ -1006,8 +980,6 @@ postsubmits:
 
   - name: integ-security-k8s-postsubmit-tests-master
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
@@ -1036,8 +1008,6 @@ postsubmits:
         testing: test-pool
   - name: integ-telemetry-k8s-postsubmit-tests-master
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
@@ -1079,8 +1049,6 @@ postsubmits:
         testing: test-pool
   - name: istio-integ-race-native-tests-master
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
