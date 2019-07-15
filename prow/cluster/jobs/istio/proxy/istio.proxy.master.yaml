@@ -1,30 +1,3 @@
-bazel_postsubmit_spec: &bazel_postsubmit_spec
-  containers:
-  - image: gcr.io/istio-testing/prowbazel:0.5.7
-    
-    resources:
-      requests:
-        memory: "8Gi"
-        cpu: "8000m"
-      limits:
-        memory: "60Gi"
-        cpu: "16000m"
-  nodeSelector:
-    testing: build-pool
-
-bazel_spec: &bazel_spec
-  containers:
-  - image: gcr.io/istio-testing/prowbazel:0.5.7
-    resources:
-      requests:
-        memory: "8Gi"
-        cpu: "8000m"
-      limits:
-        memory: "60Gi"
-        cpu: "16000m"
-  nodeSelector:
-    testing: build-pool
-
 branch_spec: &branch_spec
 - "^master$"
 
@@ -50,14 +23,14 @@ presubmits:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.5.7
         command:
-        - ./prow/proxy-presubmit.sh 
+        - ./prow/proxy-presubmit.sh
         resources:
           requests:
-          memory: "8Gi"
-          cpu: "8000m"
-        limits:
-          memory: "60Gi"
-          cpu: "16000m"
+            memory: "8Gi"
+            cpu: "8000m"
+          limits:
+            memory: "60Gi"
+            cpu: "16000m"
       nodeSelector:
         testing: build-pool
 
@@ -82,11 +55,11 @@ presubmits:
         - ./prow/proxy-presubmit-asan.sh
         resources:
           requests:
-          memory: "8Gi"
-          cpu: "8000m"
-        limits:
-          memory: "60Gi"
-          cpu: "16000m"
+            memory: "8Gi"
+            cpu: "8000m"
+          limits:
+            memory: "60Gi"
+            cpu: "16000m"
       nodeSelector:
         testing: build-pool
 
@@ -111,11 +84,11 @@ presubmits:
         - ./prow/proxy-presubmit-tsan.sh
         resources:
           requests:
-          memory: "8Gi"
-          cpu: "8000m"
-        limits:
-          memory: "60Gi"
-          cpu: "16000m"
+            memory: "8Gi"
+            cpu: "8000m"
+          limits:
+            memory: "60Gi"
+            cpu: "16000m"
       nodeSelector:
         testing: build-pool
 
@@ -144,10 +117,10 @@ postsubmits:
         - ./prow/proxy-postsubmit.sh
         resources:
           requests:
-          memory: "8Gi"
-          cpu: "8000m"
-        limits:
-          memory: "60Gi"
-          cpu: "16000m"
+            memory: "8Gi"
+            cpu: "8000m"
+          limits:
+            memory: "60Gi"
+            cpu: "16000m"
       nodeSelector:
         testing: build-pool
