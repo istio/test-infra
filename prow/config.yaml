@@ -98,6 +98,16 @@ branch-protection:
             <<: *blocked_branches
             master:
               protect: true
+              required_status_checks:
+                contexts:
+                # Keep in sync with .mergify.yml required
+                - "ci/circleci: build"
+                - "ci/circleci: install-demo"
+                - "ci/circleci: install-minikube"
+                - "ci/circleci: integration-old-kind"
+                - "ci/circleci: integration-presubmit-isolated-namespaces-kind"
+                - "ci/circleci: integration-presubmit-one-namespace-kind"
+                - "ci/circleci: noauth"
         pkg:
           protect: false
           branches:
