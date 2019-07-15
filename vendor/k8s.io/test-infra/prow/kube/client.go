@@ -20,9 +20,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -31,10 +29,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ghodss/yaml"
 	"github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/util/sets"
+	"sigs.k8s.io/yaml"
+
+	prowapi "k8s.io/test-infra/prow/apis/prowjobs/v1"
 )
 
 const (
@@ -49,8 +48,10 @@ const (
 	// EmptySelector selects everything
 	EmptySelector = ""
 
-	// DefaultClusterAlias specifies the default cluster key to schedule jobs.
-	DefaultClusterAlias = "default"
+	// DefaultClusterAlias specifies the default context for resources owned by jobs (pods/builds).
+	DefaultClusterAlias = "default" // TODO(fejta): rename to context
+	// InClusterContext specifies the context for prowjob resources.
+	InClusterContext = ""
 )
 
 // newClient is used to allow mocking out the behavior of 'NewClient' while testing.
@@ -72,17 +73,6 @@ type Client struct {
 	token     string
 	namespace string
 	fake      bool
-
-	hiddenReposProvider func() []string
-	hiddenOnly          bool
-}
-
-// SetHiddenReposProvider takes a continuation that fetches a list of orgs and repos for
-// which PJs should not be returned.
-// NOTE: This function is not thread safe and should be called before the client is in use.
-func (c *Client) SetHiddenReposProvider(p func() []string, hiddenOnly bool) {
-	c.hiddenReposProvider = p
-	c.hiddenOnly = hiddenOnly
 }
 
 // Namespace returns a copy of the client pointing at the specified namespace.
@@ -217,7 +207,9 @@ func (c *Client) requestRetry(r *request) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if resp.StatusCode == 409 {
+	if resp.StatusCode == 404 {
+		return nil, NewNotFoundError(fmt.Errorf("body: %s", string(rb)))
+	} else if resp.StatusCode == 409 {
 		return nil, NewConflictError(fmt.Errorf("body: %s", string(rb)))
 	} else if resp.StatusCode == 422 {
 		return nil, NewUnprocessableEntityError(fmt.Errorf("body: %s", string(rb)))
@@ -316,12 +308,12 @@ type Cluster struct {
 	Endpoint string `json:"endpoint"`
 	// Base64-encoded public cert used by clients to authenticate to the
 	// cluster endpoint.
-	ClientCertificate string `json:"clientCertificate"`
+	ClientCertificate []byte `json:"clientCertificate"`
 	// Base64-encoded private key used by clients..
-	ClientKey string `json:"clientKey"`
+	ClientKey []byte `json:"clientKey"`
 	// Base64-encoded public certificate that is the root of trust for the
 	// cluster.
-	ClusterCACertificate string `json:"clusterCaCertificate"`
+	ClusterCACertificate []byte `json:"clusterCaCertificate"`
 }
 
 // NewClientFromFile reads a Cluster object at clusterPath and returns an
@@ -391,18 +383,11 @@ func ClientMapFromFile(clustersPath, namespace string) (map[string]*Client, erro
 
 // NewClient returns an authenticated Client using the keys in the Cluster.
 func NewClient(c *Cluster, namespace string) (*Client, error) {
-	cc, err := base64.StdEncoding.DecodeString(c.ClientCertificate)
-	if err != nil {
-		return nil, err
-	}
-	ck, err := base64.StdEncoding.DecodeString(c.ClientKey)
-	if err != nil {
-		return nil, err
-	}
-	ca, err := base64.StdEncoding.DecodeString(c.ClusterCACertificate)
-	if err != nil {
-		return nil, err
-	}
+	// Relies on json encoding/decoding []byte as base64
+	// https://golang.org/pkg/encoding/json/#Marshal
+	cc := c.ClientCertificate
+	ck := c.ClientKey
+	ca := c.ClusterCACertificate
 
 	cert, err := tls.X509KeyPair(cc, ck)
 	if err != nil {
@@ -464,7 +449,7 @@ func (c *Client) DeletePod(name string) error {
 // CreateProwJob creates a prowjob in the client's specified namespace.
 //
 // Analogous to kubectl create prowjob --namespace=client.namespace
-func (c *Client) CreateProwJob(j ProwJob) (ProwJob, error) {
+func (c *Client) CreateProwJob(j prowapi.ProwJob) (prowapi.ProwJob, error) {
 	var representation string
 	if out, err := json.Marshal(j); err == nil {
 		representation = string(out[:])
@@ -472,7 +457,7 @@ func (c *Client) CreateProwJob(j ProwJob) (ProwJob, error) {
 		representation = fmt.Sprintf("%v", j)
 	}
 	c.log("CreateProwJob", representation)
-	var retJob ProwJob
+	var retJob prowapi.ProwJob
 	err := c.request(&request{
 		method:      http.MethodPost,
 		path:        fmt.Sprintf("/apis/prow.k8s.io/v1/namespaces/%s/prowjobs", c.namespace),
@@ -481,52 +466,25 @@ func (c *Client) CreateProwJob(j ProwJob) (ProwJob, error) {
 	return retJob, err
 }
 
-func (c *Client) getHiddenRepos() sets.String {
-	if c.hiddenReposProvider == nil {
-		return nil
-	}
-	return sets.NewString(c.hiddenReposProvider()...)
-}
-
-func shouldHide(pj *ProwJob, hiddenRepos sets.String, showHiddenOnly bool) bool {
-	if pj.Spec.Refs == nil {
-		// periodic jobs do not have refs and therefore cannot be
-		// hidden by the org/repo mechanism
-		return false
-	}
-	shouldHide := hiddenRepos.HasAny(fmt.Sprintf("%s/%s", pj.Spec.Refs.Org, pj.Spec.Refs.Repo), pj.Spec.Refs.Org)
-	if showHiddenOnly {
-		return !shouldHide
-	}
-	return shouldHide
-}
-
 // GetProwJob returns the prowjob at name in the client's specified namespace.
 //
 // Analogous to kubectl get prowjob/NAME --namespace=client.namespace
-func (c *Client) GetProwJob(name string) (ProwJob, error) {
+func (c *Client) GetProwJob(name string) (prowapi.ProwJob, error) {
 	c.log("GetProwJob", name)
-	var pj ProwJob
+	var pj prowapi.ProwJob
 	err := c.request(&request{
 		path: fmt.Sprintf("/apis/prow.k8s.io/v1/namespaces/%s/prowjobs/%s", c.namespace, name),
 	}, &pj)
-	if err == nil && shouldHide(&pj, c.getHiddenRepos(), c.hiddenOnly) {
-		pj = ProwJob{}
-		// Revealing the existence of this prow job is ok because the pj name cannot be used to
-		// retrieve the pj itself. Furthermore, a timing attack could differentiate true 404s from
-		// 404s returned when a hidden pj is queried so returning a 404 wouldn't hide the pj's existence.
-		err = errors.New("403 ProwJob is hidden")
-	}
 	return pj, err
 }
 
 // ListProwJobs lists prowjobs using the specified labelSelector in the client's specified namespace.
 //
 // Analogous to kubectl get prowjobs --selector=SELECTOR --namespace=client.namespace
-func (c *Client) ListProwJobs(selector string) ([]ProwJob, error) {
+func (c *Client) ListProwJobs(selector string) ([]prowapi.ProwJob, error) {
 	c.log("ListProwJobs", selector)
 	var jl struct {
-		Items []ProwJob `json:"items"`
+		Items []prowapi.ProwJob `json:"items"`
 	}
 	err := c.request(&request{
 		path:     fmt.Sprintf("/apis/prow.k8s.io/v1/namespaces/%s/prowjobs", c.namespace),
@@ -534,12 +492,9 @@ func (c *Client) ListProwJobs(selector string) ([]ProwJob, error) {
 		query:    map[string]string{"labelSelector": selector},
 	}, &jl)
 	if err == nil {
-		hidden := c.getHiddenRepos()
-		var pjs []ProwJob
+		var pjs []prowapi.ProwJob
 		for _, pj := range jl.Items {
-			if !shouldHide(&pj, hidden, c.hiddenOnly) {
-				pjs = append(pjs, pj)
-			}
+			pjs = append(pjs, pj)
 		}
 		jl.Items = pjs
 	}
@@ -560,9 +515,9 @@ func (c *Client) DeleteProwJob(name string) error {
 // ReplaceProwJob will replace name with job in the client's specified namespace.
 //
 // Analogous to kubectl replace prowjobs/NAME --namespace=client.namespace
-func (c *Client) ReplaceProwJob(name string, job ProwJob) (ProwJob, error) {
+func (c *Client) ReplaceProwJob(name string, job prowapi.ProwJob) (prowapi.ProwJob, error) {
 	c.log("ReplaceProwJob", name, job)
-	var retJob ProwJob
+	var retJob prowapi.ProwJob
 	err := c.request(&request{
 		method:      http.MethodPut,
 		path:        fmt.Sprintf("/apis/prow.k8s.io/v1/namespaces/%s/prowjobs/%s", c.namespace, name),
