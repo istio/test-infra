@@ -52,34 +52,34 @@ jobs:
     modifiers: [optional]
 
   - name: integ-framework-k8s-presubmit-tests
-    postsubmit: integ-framework-k8s-postsubmit-tests
+    type: presubmit
     command: [prow/integ-suite-kind.sh, test.integration.framework.kube.presubmit]
     requirements: [kind]
   - name: integ-istioctl-k8s-presubmit-tests
-    postsubmit: integ-istioctl-k8s-postsubmit-tests
+    type: presubmit
     command: [prow/integ-suite-kind.sh, test.integration.istioctl.kube.presubmit]
     requirements: [kind]
     modifiers: [optional]
   - name: integ-galley-k8s-presubmit-tests
-    postsubmit: integ-galley-k8s-postsubmit-tests
+    type: presubmit
     command: [prow/integ-suite-kind.sh, test.integration.galley.kube.presubmit]
     requirements: [kind]
   - name: integ-mixer-k8s-presubmit-tests
-    postsubmit: integ-mixer-k8s-postsubmit-tests
+    type: presubmit
     command: [prow/integ-suite-kind.sh, test.integration.mixer.kube.presubmit]
     requirements: [kind]
     modifiers: [optional]
   - name: integ-pilot-k8s-presubmit-tests
-    postsubmit: integ-pilot-k8s-postsubmit-tests
+    type: presubmit
     command: [prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
     requirements: [kind]
     modifiers: [optional]
   - name: integ-security-k8s-presubmit-tests
-    postsubmit: integ-security-k8s-postsubmit-tests
+    type: presubmit
     command: [prow/integ-suite-kind.sh, test.integration.security.kube.presubmit]
     requirements: [kind]
   - name: integ-telemetry-k8s-presubmit-tests
-    postsubmit: integ-telemetry-k8s-postsubmit-tests
+    type: presubmit
     command: [prow/integ-suite-kind.sh, test.integration.telemetry.kube.presubmit]
     requirements: [kind]
     modifiers: [optional]
@@ -146,6 +146,62 @@ jobs:
 
   - name: istio_e2e_cloudfoundry
     command: [make, e2e_cloudfoundry]
+
+## Post Submits
+
+  - name: integ-framework-local-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-local.sh, test.integration.framework.local.postsubmit]
+  - name: integ-istioctl-local-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-local.sh, test.integration.istioctl.local.postsubmit]
+    modifiers: [optional]
+  - name: integ-galley-local-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-local.sh, test.integration.galley.local.postsubmit]
+  - name: integ-mixer-local-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-local.sh, test.integration.mixer.local.postsubmit]
+    modifiers: [optional]
+  - name: integ-pilot-local-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-local.sh, test.integration.pilot.local.postsubmit]
+  - name: integ-security-local-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-local.sh, test.integration.security.local.postsubmit]
+  - name: integ-telemetry-local-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-local.sh, test.integration.telemetry.local.postsubmit]
+    modifiers: [optional]
+
+  - name: integ-framework-k8s-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-kind.sh, test.integration.framework.kube.postsubmit]
+    requirements: [kind]
+  - name: integ-istioctl-k8s-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-kind.sh, test.integration.istioctl.kube.postsubmit]
+    requirements: [kind]
+  - name: integ-galley-k8s-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-kind.sh, test.integration.galley.kube.postsubmit]
+    requirements: [kind]
+  - name: integ-mixer-k8s-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-kind.sh, test.integration.mixer.kube.postsubmit]
+    requirements: [kind]
+  - name: integ-pilot-k8s-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-kind.sh, test.integration.pilot.kube.postsubmit]
+    requirements: [kind]
+  - name: integ-security-k8s-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-kind.sh, test.integration.security.kube.postsubmit]
+    requirements: [kind]
+  - name: integ-telemetry-k8s-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-kind.sh, test.integration.telemetry.kube.postsubmit]
+    requirements: [kind]
 
 resources:
   default:
