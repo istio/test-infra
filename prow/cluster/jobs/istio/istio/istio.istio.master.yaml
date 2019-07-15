@@ -55,7 +55,7 @@ presubmits:
       containers:
       # Lint requires a large amount of memory
       # See https://github.com/istio/istio/issues/14888 before lowering requests
-      - image: gcr.io/istio-testing/istio-builder:v20190628-31457b43
+      - image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
         # Docker in Docker
         securityContext:
           privileged: true
@@ -651,6 +651,7 @@ presubmits:
         - entrypoint
         - prow/e2e-simpleTests-cni.sh
       nodeSelector:
+        testing: test-pool
   - name: istio_auth_sds_e2e-master
     <<: *job_template
     always_run: true
