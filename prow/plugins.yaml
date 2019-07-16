@@ -4,7 +4,12 @@
 ---
 triggers:
 - repos:
-  - istio
+  - istio/api
+  - sebastienvas/core
+  - istio/istio
+  - istio/operator
+  - istio/test-infra
+  - istio/proxy
   - istio-releases/pipeline
   trusted_org: istio
 - repos:
@@ -39,7 +44,9 @@ lgtm:
   - istio
   review_acts_as_lgtm: true
 - repos:
+  - istio/api
   - istio/istio
+  - istio/operator
   - istio/test-infra
   - istio/proxy
   - istio-releases/pipeline
@@ -51,7 +58,9 @@ lgtm:
 
 approve:
 - repos:
+  - istio/api
   - istio/istio
+  - istio/operator
   - istio/test-infra
   - istio/proxy
   - istio-releases/pipeline
@@ -61,26 +70,64 @@ approve:
   implicit_self_approve: true
 
 plugins:
-  istio:
-  - size
-  - trigger
-  - wip
-
   istio/istio:
   - approve
   - assign
   - blunderbuss
+  - golint
+  - help
+  - hold
   - lgtm
   - lifecycle
+  - slackevents
+  - trigger
   - verify-owners
+  - wip
+
+  istio/api:
+  - approve
+  - assign
+  - blunderbuss
+  - golint
+  - help
+  - hold
+  - lgtm
+  - lifecycle
+  - slackevents
+  - trigger
+  - verify-owners
+  - wip
+
+  istio/installer:
+  - trigger
+
+  istio/operator:
+  - assign
+  - hold
+  - slackevents
+  - trigger
+  - wip
 
   istio/proxy:
   - approve
   - assign
   - blunderbuss
+  - golint
+  - help
+  - hold
   - lgtm
   - lifecycle
+  - slackevents
+  - trigger
   - verify-owners
+  - wip
+
+  sebastienvas/core:
+  - assign
+  - hold
+  - lgtm
+  - lifecycle
+  - trigger
 
   istio/test-infra:
   - approve
@@ -88,12 +135,17 @@ plugins:
   - blunderbuss
   - config-updater
   - golint
+  - help
   - hold
   - lgtm
   - lifecycle
+  - shrug
   - skip
   - slackevents
+  - trigger
   - verify-owners
+  - wip
+  - yuks
 
   istio-releases/pipeline:
   - lifecycle
@@ -115,7 +167,15 @@ plugins:
   - wip
 
 external_plugins:
-  istio:
+  istio/istio:
+  - name: needs-rebase
+    events:
+      - pull_request
+  istio/proxy:
+  - name: needs-rebase
+    events:
+      - pull_request
+  istio/test-infra:
   - name: needs-rebase
     events:
       - pull_request
