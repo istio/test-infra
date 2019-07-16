@@ -5,10 +5,9 @@
 triggers:
 - repos:
   - istio
-  - istio-releases/pipeline
+  - istio-ecosystem
+  - istio-releases
   trusted_org: istio
-- repos:
-  - istio-ecosystem/authservice
 
 config_updater:
   maps:
@@ -66,6 +65,16 @@ plugins:
   - trigger
   - wip
 
+  istio-ecosystem:
+  - size
+  - trigger
+  - wip
+
+  istio-releases:
+  - size
+  - trigger
+  - wip
+
   istio/istio:
   - approve
   - assign
@@ -97,7 +106,6 @@ plugins:
 
   istio-releases/pipeline:
   - lifecycle
-  - trigger
   - hold
 
   istio-ecosystem/authservice:
@@ -110,9 +118,7 @@ plugins:
   - lgtm
   - lifecycle
   - slackevents
-  - trigger
   - verify-owners
-  - wip
 
 external_plugins:
   istio:
