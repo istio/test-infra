@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: statusreconciler
+  labels:
+    app: statusreconciler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: statusreconciler
+  template:
+    metadata:
+      labels:
+        app: statusreconciler
+    spec:
+      # serviceAccountName: "statusreconciler" # Uncomment for use with RBAC
+      terminationGracePeriodSeconds: 180
+      containers:
+        - name: statusreconciler
+          image: gcr.io/k8s-prow/status-reconciler:v20190715-1dacc7e01
+          imagePullPolicy: Always
+          args:
+            - --dry-run=false
+            - --continue-on-error=true
+            - --plugin-config=/etc/plugins/plugins.yaml
+            - --config-path=/etc/config/config.yaml
+            - --github-token-path=/etc/github/oauth
+            - --job-config-path=/etc/job-config
+          volumeMounts:
+            - name: oauth
+              mountPath: /etc/github
+              readOnly: true
+            - name: config
+              mountPath: /etc/config
+              readOnly: true
+            - name: job-config
+              mountPath: /etc/job-config
+              readOnly: true
+            - name: plugins
+              mountPath: /etc/plugins
+              readOnly: true
+      volumes:
+        - name: oauth
+          secret:
+            secretName: oauth-token
+        - name: config
+          configMap:
+            name: config
+        - name: job-config
+          configMap:
+            name: job-config
+        - name: plugins
+          configMap:
+            name: plugins
