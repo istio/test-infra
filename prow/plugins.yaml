@@ -61,39 +61,35 @@ approve:
   implicit_self_approve: true
 
 plugins:
-  istio:
-  - size
-  - trigger
-  - wip
+  istio: # TODO(fejta): make this the same for other orgs
+  - assign # manage assignees/reviewers via email
+  # blunderbuss TODO(fejta): teach blunderbuss to read CODEOWNERS, or is this just unnecssary?
+  - config-updater # auto-update requested configmaps
+  - golint # inline golint auto-review
+  - hold # manual hold command
+  - lifecycle # close or mark issues as stale via email
+  - override # admins can force a context to pass
+  - size # search for PRs with a small label to review quickly
+  - skip # cleans up non-blocking statuses from old commits
+  - slackevents # post requested messages to slack, if any
+  - trigger # run tests
+  - verify-owners # ensures any OWNERS changes are valid
+  - wip # wip label based on title/draft status
 
   istio/istio:
-  - approve
-  - assign
+  - approve # TODO(fejta): consider using tide + review:approved and dropping this everywhere
   - blunderbuss
-  - lgtm
-  - lifecycle
-  - verify-owners
+  - lgtm # TODO(fejta): consider using tide + review:approved instead
 
   istio/proxy:
   - approve
-  - assign
   - blunderbuss
   - lgtm
-  - lifecycle
-  - verify-owners
 
   istio/test-infra:
   - approve
-  - assign
   - blunderbuss
-  - config-updater
-  - golint
-  - hold
   - lgtm
-  - lifecycle
-  - skip
-  - slackevents
-  - verify-owners
 
   istio-releases/pipeline:
   - lifecycle
