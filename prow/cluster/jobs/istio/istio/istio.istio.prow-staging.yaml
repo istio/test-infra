@@ -198,21 +198,6 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
-  - name: integ-telemetry-local-presubmit-tests-prow-staging
-    <<: *job_template
-    context: prow/integ-telemetry-local-presubmit-tests.sh
-    always_run: true
-    optional: true
-    spec:
-      containers:
-        - <<: *istio_container
-          command:
-            - entrypoint
-            - prow/integ-suite-local.sh
-            - test.integration.telemetry.local.presubmit
-      nodeSelector:
-        testing: test-pool
-
   - name: integ-framework-k8s-presubmit-tests-prow-staging
     <<: *job_template
     context: prow/integ-framework-k8s-presubmit-tests.sh
@@ -780,18 +765,6 @@ postsubmits:
             - entrypoint
             - prow/integ-suite-local.sh
             - test.integration.security.local
-      nodeSelector:
-        testing: test-pool
-
-  - name: integ-telemetry-local-postsubmit-tests-prow-staging
-    <<: *job_template
-    spec:
-      containers:
-        - <<: *istio_container
-          command:
-            - entrypoint
-            - prow/integ-suite-local.sh
-            - test.integration.telemetry.local
       nodeSelector:
         testing: test-pool
 
