@@ -61,9 +61,9 @@ tide-deployment: get-cluster-credentials
 tot-deployment: get-cluster-credentials
 	kubectl apply -f cluster/tot_deployment.yaml
 
-deployments: branch-protector-cronjob deck-deployment ghproxy-deployment hook-deployment horologium-deployment needs-rebase-deployment plank-deployment sinker-deployment tide-deployment tot-deployment
+deployments: branch-protector-cronjob deck-deployment ghproxy-deployment hook-deployment horologium-deployment needs-rebase-deployment plank-deployment sinker-deployment tide-deployment tot-deployment statusreconciler-deployment
 
-.PHONY: branch-protector-cronjob deployments deck-deployment hook-deployment horologium-deployment needs-rebase-deployment plank-deployment sinker-deployment tide-deployment tot-deployment
+.PHONY: branch-protector-cronjob deployments deck-deployment hook-deployment horologium-deployment needs-rebase-deployment plank-deployment sinker-deployment tide-deployment tot-deployment statusreconciler-deployment
 
 deck-service: get-cluster-credentials
 	kubectl apply -f cluster/deck_service.yaml
