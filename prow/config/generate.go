@@ -195,7 +195,6 @@ func diffConfigPresubmit(result config.JobConfig) {
 			fmt.Println("\nCreated unknown presubmit job", job.Name)
 			continue
 		}
-		current.Context = ""
 		diff := pretty.Diff(current, &job)
 		if len(diff) > 0 {
 			fmt.Println("\nDiff for", job.Name)
@@ -229,7 +228,6 @@ func diffConfigPostsubmit(result config.JobConfig) {
 			continue
 
 		}
-		current.Context = ""
 		diff := pretty.Diff(current, &job)
 		if len(diff) > 0 {
 			fmt.Println("\nDiff for", job.Name)
