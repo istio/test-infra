@@ -12,13 +12,10 @@ import (
 
 // Label represents a GitHub label on an Issue
 type Label struct {
-	ID          *int64  `json:"id,omitempty"`
-	URL         *string `json:"url,omitempty"`
-	Name        *string `json:"name,omitempty"`
-	Color       *string `json:"color,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Default     *bool   `json:"default,omitempty"`
-	NodeID      *string `json:"node_id,omitempty"`
+	ID    *int    `json:"id,omitempty"`
+	URL   *string `json:"url,omitempty"`
+	Name  *string `json:"name,omitempty"`
+	Color *string `json:"color,omitempty"`
 }
 
 func (l Label) String() string {
@@ -40,9 +37,6 @@ func (s *IssuesService) ListLabels(ctx context.Context, owner string, repo strin
 		return nil, nil, err
 	}
 
-	// TODO: remove custom Accept header when this API fully launches.
-	req.Header.Set("Accept", mediaTypeLabelDescriptionSearchPreview)
-
 	var labels []*Label
 	resp, err := s.client.Do(ctx, req, &labels)
 	if err != nil {
@@ -61,9 +55,6 @@ func (s *IssuesService) GetLabel(ctx context.Context, owner string, repo string,
 	if err != nil {
 		return nil, nil, err
 	}
-
-	// TODO: remove custom Accept header when this API fully launches.
-	req.Header.Set("Accept", mediaTypeLabelDescriptionSearchPreview)
 
 	label := new(Label)
 	resp, err := s.client.Do(ctx, req, label)
@@ -84,9 +75,6 @@ func (s *IssuesService) CreateLabel(ctx context.Context, owner string, repo stri
 		return nil, nil, err
 	}
 
-	// TODO: remove custom Accept header when this API fully launches.
-	req.Header.Set("Accept", mediaTypeLabelDescriptionSearchPreview)
-
 	l := new(Label)
 	resp, err := s.client.Do(ctx, req, l)
 	if err != nil {
@@ -105,9 +93,6 @@ func (s *IssuesService) EditLabel(ctx context.Context, owner string, repo string
 	if err != nil {
 		return nil, nil, err
 	}
-
-	// TODO: remove custom Accept header when this API fully launches.
-	req.Header.Set("Accept", mediaTypeLabelDescriptionSearchPreview)
 
 	l := new(Label)
 	resp, err := s.client.Do(ctx, req, l)
@@ -145,9 +130,6 @@ func (s *IssuesService) ListLabelsByIssue(ctx context.Context, owner string, rep
 		return nil, nil, err
 	}
 
-	// TODO: remove custom Accept header when this API fully launches.
-	req.Header.Set("Accept", mediaTypeLabelDescriptionSearchPreview)
-
 	var labels []*Label
 	resp, err := s.client.Do(ctx, req, &labels)
 	if err != nil {
@@ -167,9 +149,6 @@ func (s *IssuesService) AddLabelsToIssue(ctx context.Context, owner string, repo
 		return nil, nil, err
 	}
 
-	// TODO: remove custom Accept header when this API fully launches.
-	req.Header.Set("Accept", mediaTypeLabelDescriptionSearchPreview)
-
 	var l []*Label
 	resp, err := s.client.Do(ctx, req, &l)
 	if err != nil {
@@ -188,10 +167,6 @@ func (s *IssuesService) RemoveLabelForIssue(ctx context.Context, owner string, r
 	if err != nil {
 		return nil, err
 	}
-
-	// TODO: remove custom Accept header when this API fully launches.
-	req.Header.Set("Accept", mediaTypeLabelDescriptionSearchPreview)
-
 	return s.client.Do(ctx, req, nil)
 }
 
@@ -204,9 +179,6 @@ func (s *IssuesService) ReplaceLabelsForIssue(ctx context.Context, owner string,
 	if err != nil {
 		return nil, nil, err
 	}
-
-	// TODO: remove custom Accept header when this API fully launches.
-	req.Header.Set("Accept", mediaTypeLabelDescriptionSearchPreview)
 
 	var l []*Label
 	resp, err := s.client.Do(ctx, req, &l)
@@ -226,10 +198,6 @@ func (s *IssuesService) RemoveLabelsForIssue(ctx context.Context, owner string, 
 	if err != nil {
 		return nil, err
 	}
-
-	// TODO: remove custom Accept header when this API fully launches.
-	req.Header.Set("Accept", mediaTypeLabelDescriptionSearchPreview)
-
 	return s.client.Do(ctx, req, nil)
 }
 
@@ -247,9 +215,6 @@ func (s *IssuesService) ListLabelsForMilestone(ctx context.Context, owner string
 	if err != nil {
 		return nil, nil, err
 	}
-
-	// TODO: remove custom Accept header when this API fully launches.
-	req.Header.Set("Accept", mediaTypeLabelDescriptionSearchPreview)
 
 	var labels []*Label
 	resp, err := s.client.Do(ctx, req, &labels)

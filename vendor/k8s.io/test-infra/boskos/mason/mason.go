@@ -108,16 +108,14 @@ func ParseConfig(configPath string) ([]common.ResourcesConfig, error) {
 
 // ValidateConfig validates config with existing resources
 // In: configs   - a list of resources configs
-//     masonConfig - a list of Mason config
-//     boskosConfig - a boskos config defining resources
+//     resources - a list of resources
 // Out: nil on success, error on failure
-func ValidateConfig(masonConfig []common.ResourcesConfig, boskosConfig *common.BoskosConfig) error {
+func ValidateConfig(configs []common.ResourcesConfig, resources []common.Resource) error {
 	resourcesNeeds := map[string]int{}
 	actualResources := map[string]int{}
-	resourcesTypes := map[string]bool{}
 
 	configNames := map[string]map[string]int{}
-	for _, c := range masonConfig {
+	for _, c := range configs {
 		_, alreadyExists := configNames[c.Name]
 		if alreadyExists {
 			return fmt.Errorf("config %s already exists", c.Name)
@@ -125,24 +123,21 @@ func ValidateConfig(masonConfig []common.ResourcesConfig, boskosConfig *common.B
 		configNames[c.Name] = c.Needs
 	}
 
-	for _, e := range boskosConfig.Resources {
-		resourcesTypes[e.Type] = true
-		numRes := len(e.Names) + e.MaxCount
-		if c, useConfig := configNames[e.Type]; useConfig {
+	for _, res := range resources {
+		_, useConfig := configNames[res.Type]
+		if useConfig {
+			c, ok := configNames[res.Type]
+			if !ok {
+				err := fmt.Errorf("resource type %s does not have associated config", res.Type)
+				logrus.WithError(err).Error("using useconfig implies associated config")
+				return err
+			}
 			// Updating resourceNeeds
 			for k, v := range c {
-				resourcesNeeds[k] += v * numRes
+				resourcesNeeds[k] += v
 			}
 		}
-		actualResources[e.Type] += numRes
-	}
-
-	for rType := range configNames {
-		if !resourcesTypes[rType] {
-			err := fmt.Errorf("resource type %s does not have associated config", rType)
-			logrus.WithError(err).Error("using useconfig implies associated config")
-			return err
-		}
+		actualResources[res.Type]++
 	}
 
 	for rType, needs := range resourcesNeeds {

@@ -13,7 +13,7 @@ import (
 
 // IssueEvent represents an event that occurred around an Issue or Pull Request.
 type IssueEvent struct {
-	ID  *int64  `json:"id,omitempty"`
+	ID  *int    `json:"id,omitempty"`
 	URL *string `json:"url,omitempty"`
 
 	// The User that generated this event.
@@ -34,12 +34,8 @@ type IssueEvent struct {
 	//       The Actor committed to master a commit mentioning the issue in its commit message.
 	//       CommitID holds the SHA1 of the commit.
 	//
-	//     reopened, unlocked
+	//     reopened, locked, unlocked
 	//       The Actor did that to the issue.
-	//
-	//     locked
-	//       The Actor locked the issue.
-	//       LockReason holds the reason of locking the issue (if provided while locking).
 	//
 	//     renamed
 	//       The Actor changed the issue title from Rename.From to Rename.To.
@@ -68,13 +64,12 @@ type IssueEvent struct {
 	Issue     *Issue     `json:"issue,omitempty"`
 
 	// Only present on certain events; see above.
-	Assignee   *User      `json:"assignee,omitempty"`
-	Assigner   *User      `json:"assigner,omitempty"`
-	CommitID   *string    `json:"commit_id,omitempty"`
-	Milestone  *Milestone `json:"milestone,omitempty"`
-	Label      *Label     `json:"label,omitempty"`
-	Rename     *Rename    `json:"rename,omitempty"`
-	LockReason *string    `json:"lock_reason,omitempty"`
+	Assignee  *User      `json:"assignee,omitempty"`
+	Assigner  *User      `json:"assigner,omitempty"`
+	CommitID  *string    `json:"commit_id,omitempty"`
+	Milestone *Milestone `json:"milestone,omitempty"`
+	Label     *Label     `json:"label,omitempty"`
+	Rename    *Rename    `json:"rename,omitempty"`
 }
 
 // ListIssueEvents lists events for the specified issue.
@@ -91,8 +86,6 @@ func (s *IssuesService) ListIssueEvents(ctx context.Context, owner, repo string,
 	if err != nil {
 		return nil, nil, err
 	}
-
-	req.Header.Set("Accept", mediaTypeLockReasonPreview)
 
 	var events []*IssueEvent
 	resp, err := s.client.Do(ctx, req, &events)
@@ -130,7 +123,7 @@ func (s *IssuesService) ListRepositoryEvents(ctx context.Context, owner, repo st
 // GetEvent returns the specified issue event.
 //
 // GitHub API docs: https://developer.github.com/v3/issues/events/#get-a-single-event
-func (s *IssuesService) GetEvent(ctx context.Context, owner, repo string, id int64) (*IssueEvent, *Response, error) {
+func (s *IssuesService) GetEvent(ctx context.Context, owner, repo string, id int) (*IssueEvent, *Response, error) {
 	u := fmt.Sprintf("repos/%v/%v/issues/events/%v", owner, repo, id)
 
 	req, err := s.client.NewRequest("GET", u, nil)

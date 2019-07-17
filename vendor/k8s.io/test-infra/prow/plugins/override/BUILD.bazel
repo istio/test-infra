@@ -1,0 +1,20 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["override.go"],
+    importmap = "istio.io/test-infra/vendor/k8s.io/test-infra/prow/plugins/override",
+    importpath = "k8s.io/test-infra/prow/plugins/override",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/sirupsen/logrus:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/apis/meta/v1:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/util/sets:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/config:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/github:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/kube:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/pjutil:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/pluginhelp:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/plugins:go_default_library",
+    ],
+)

@@ -1,0 +1,26 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "generic-comment.go",
+        "pull-request.go",
+        "push.go",
+        "trigger.go",
+    ],
+    importmap = "istio.io/test-infra/vendor/k8s.io/test-infra/prow/plugins/trigger",
+    importpath = "k8s.io/test-infra/prow/plugins/trigger",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/sirupsen/logrus:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/util/sets:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/config:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/errorutil:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/github:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/kube:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/labels:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/pjutil:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/pluginhelp:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/plugins:go_default_library",
+    ],
+)

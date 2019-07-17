@@ -51,8 +51,7 @@ func (s *Storage) DeleteConfig(name string) error {
 
 // UpdateConfig updates a given if it exists or fail otherwise
 func (s *Storage) UpdateConfig(conf common.ResourcesConfig) error {
-	_, err := s.configs.Update(conf)
-	return err
+	return s.configs.Update(conf)
 }
 
 // GetConfig returns an existing if it exists errors out otherwise

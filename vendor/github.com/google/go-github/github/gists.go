@@ -30,7 +30,6 @@ type Gist struct {
 	GitPushURL  *string                   `json:"git_push_url,omitempty"`
 	CreatedAt   *time.Time                `json:"created_at,omitempty"`
 	UpdatedAt   *time.Time                `json:"updated_at,omitempty"`
-	NodeID      *string                   `json:"node_id,omitempty"`
 }
 
 func (g Gist) String() string {
@@ -61,7 +60,6 @@ type GistCommit struct {
 	User         *User        `json:"user,omitempty"`
 	ChangeStatus *CommitStats `json:"change_status,omitempty"`
 	CommittedAt  *Timestamp   `json:"committed_at,omitempty"`
-	NodeID       *string      `json:"node_id,omitempty"`
 }
 
 func (gc GistCommit) String() string {
@@ -75,7 +73,6 @@ type GistFork struct {
 	ID        *string    `json:"id,omitempty"`
 	CreatedAt *Timestamp `json:"created_at,omitempty"`
 	UpdatedAt *Timestamp `json:"updated_at,omitempty"`
-	NodeID    *string    `json:"node_id,omitempty"`
 }
 
 func (gf GistFork) String() string {
@@ -178,7 +175,6 @@ func (s *GistsService) Get(ctx context.Context, id string) (*Gist, *Response, er
 	if err != nil {
 		return nil, nil, err
 	}
-
 	gist := new(Gist)
 	resp, err := s.client.Do(ctx, req, gist)
 	if err != nil {
@@ -197,7 +193,6 @@ func (s *GistsService) GetRevision(ctx context.Context, id, sha string) (*Gist, 
 	if err != nil {
 		return nil, nil, err
 	}
-
 	gist := new(Gist)
 	resp, err := s.client.Do(ctx, req, gist)
 	if err != nil {
@@ -216,7 +211,6 @@ func (s *GistsService) Create(ctx context.Context, gist *Gist) (*Gist, *Response
 	if err != nil {
 		return nil, nil, err
 	}
-
 	g := new(Gist)
 	resp, err := s.client.Do(ctx, req, g)
 	if err != nil {
@@ -235,7 +229,6 @@ func (s *GistsService) Edit(ctx context.Context, id string, gist *Gist) (*Gist, 
 	if err != nil {
 		return nil, nil, err
 	}
-
 	g := new(Gist)
 	resp, err := s.client.Do(ctx, req, g)
 	if err != nil {

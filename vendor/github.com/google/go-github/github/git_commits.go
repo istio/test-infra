@@ -31,7 +31,6 @@ type Commit struct {
 	HTMLURL      *string                `json:"html_url,omitempty"`
 	URL          *string                `json:"url,omitempty"`
 	Verification *SignatureVerification `json:"verification,omitempty"`
-	NodeID       *string                `json:"node_id,omitempty"`
 
 	// CommentCount is the number of GitHub comments on the commit. This
 	// is only populated for requests that fetch GitHub data like
@@ -68,7 +67,7 @@ func (s *GitService) GetCommit(ctx context.Context, owner string, repo string, s
 		return nil, nil, err
 	}
 
-	// TODO: remove custom Accept headers when APIs fully launch.
+	// TODO: remove custom Accept header when this API fully launches.
 	req.Header.Set("Accept", mediaTypeGitSigningPreview)
 
 	c := new(Commit)
