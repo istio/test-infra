@@ -15,6 +15,7 @@
 package main
 
 import (
+	"bufio"
 	con "context"
 	"encoding/csv"
 	"encoding/json"
@@ -151,22 +152,28 @@ func NewErrorFinder(client *storage.Client, bucketName string) (*ErrorFinder, er
 	}, nil
 }
 
-func (f *ErrorFinder) query(ctx context.Context, prefix string) (string, error) {
+func (f *ErrorFinder) query(ctx context.Context, prefix string) ([]string, error) {
 	client := f.client
 	bucket := client.Bucket(f.bucketName)
 	buildFile := bucket.Object(prefix + "build-log.txt")
 
 	rc, err := buildFile.NewReader(ctx)
 	if err != nil {
-		return "", err
+		return []string{}, err
 	}
 	defer rc.Close()
+	lines := []string{}
 
-	data, err := ioutil.ReadAll(rc)
-	if err != nil {
-		return "", err
+	scanner := bufio.NewScanner(rc)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if len(line) != 0 {
+			lines = append(lines, line)
+		}
 	}
-	return string(data), nil
+
+	return lines, nil
 }
 
 func (f *ErrorFinder) getContent(ctx context.Context, filePaths []string) (map[string]string, map[string][]string, map[string][]string, error) {
@@ -174,12 +181,11 @@ func (f *ErrorFinder) getContent(ctx context.Context, filePaths []string) (map[s
 	warningMap := map[string][]string{}
 	contentMap := map[string]string{}
 	for _, filePath := range filePaths {
-		fileContent, err := f.query(ctx, filePath)
+		fileSlice, err := f.query(ctx, filePath)
 		if err != nil {
 			continue
 		}
 
-		fileSlice := strings.Split(fileContent, "\n")
 		output := []string{}
 		for _, line := range fileSlice {
 			if !strings.Contains(line, "+") {
@@ -293,8 +299,9 @@ func (f *ErrorFinder) getContent(ctx context.Context, filePaths []string) (map[s
 func (f *ErrorFinder) generalizeDigits(content string) string {
 	reg, _ := regexp.Compile("[0-9]+")
 	newContent := reg.ReplaceAllString(content, "\\d")
-	reg, _ = regexp.Compile("\\\"(.*?)\\\"", "\\'(.*?)\\'"...)
+	reg, _ = regexp.Compile("\\\"(.*?)\\\"|'(.*?)'")
 	newContent = reg.ReplaceAllString(newContent, "\\s")
+
 	return newContent
 }
 
