@@ -1,0 +1,26 @@
+repo: istio/istio
+branches:
+  - master
+
+jobs:
+  - name: test
+    command: [prow/command.sh]
+
+  - name: presubmit-kind
+    type: presubmit
+    resources: custom
+    requirements: [kind]
+    command: [prow/istio-lint.sh]
+
+resources:
+  default:
+    requests:
+      memory: "1Gi"
+      cpu: "1000m"
+  custom:
+    requests:
+      memory: "3Gi"
+      cpu: "3000m"
+    limits:
+      memory: "5Gi"
+      cpu: "5000m"
