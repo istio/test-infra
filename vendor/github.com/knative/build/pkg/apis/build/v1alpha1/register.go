@@ -38,10 +38,8 @@ func Resource(resource string) schema.GroupResource {
 }
 
 var (
-	schemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
-
-	// AddToScheme adds Build types to the scheme.
-	AddToScheme = schemeBuilder.AddToScheme
+	SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
+	AddToScheme   = SchemeBuilder.AddToScheme
 )
 
 // Adds the list of known types to Scheme.
@@ -51,8 +49,6 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&BuildList{},
 		&BuildTemplate{},
 		&BuildTemplateList{},
-		&ClusterBuildTemplate{},
-		&ClusterBuildTemplateList{},
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

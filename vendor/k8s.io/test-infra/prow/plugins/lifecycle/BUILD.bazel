@@ -1,0 +1,20 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "close.go",
+        "lifecycle.go",
+        "reopen.go",
+    ],
+    importmap = "istio.io/test-infra/vendor/k8s.io/test-infra/prow/plugins/lifecycle",
+    importpath = "k8s.io/test-infra/prow/plugins/lifecycle",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/sirupsen/logrus:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/github:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/labels:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/pluginhelp:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/plugins:go_default_library",
+    ],
+)

@@ -24,31 +24,22 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Delta represents the before and after states of a Config change detected by the Agent.
-type Delta struct {
-	Before, After Config
-}
-
-// DeltaChan is a channel to receive config delta events when config changes.
-type DeltaChan = chan<- Delta
-
 // Agent watches a path and automatically loads the config stored
 // therein.
 type Agent struct {
-	mut           sync.RWMutex // do not export Lock, etc methods
-	c             *Config
-	subscriptions []DeltaChan
+	sync.Mutex
+	c *Config
 }
 
 // Start will begin polling the config file at the path. If the first load
-// fails, Start will return the error and abort. Future load failures will log
+// fails, Start with return the error and abort. Future load failures will log
 // the failure message but continue attempting to load.
 func (ca *Agent) Start(prowConfig, jobConfig string) error {
 	c, err := Load(prowConfig, jobConfig)
 	if err != nil {
 		return err
 	}
-	ca.Set(c)
+	ca.c = c
 	go func() {
 		var lastModTime time.Time
 		// Rarely, if two changes happen in the same second, mtime will
@@ -92,53 +83,25 @@ func (ca *Agent) Start(prowConfig, jobConfig string) error {
 					WithError(err).Error("Error loading config.")
 			} else {
 				skips = 0
-				ca.Set(c)
+				ca.Lock()
+				ca.c = c
+				ca.Unlock()
 			}
 		}
 	}()
 	return nil
 }
 
-// Subscribe registers the channel for messages on config reload.
-// The caller can expect a copy of the previous and current config
-// to be sent down the subscribed channel when a new configuration
-// is loaded.
-func (ca *Agent) Subscribe(subscription DeltaChan) {
-	ca.mut.Lock()
-	defer ca.mut.Unlock()
-	ca.subscriptions = append(ca.subscriptions, subscription)
-}
-
-// Getter returns the current Config in a thread-safe manner.
-type Getter func() *Config
-
 // Config returns the latest config. Do not modify the config.
 func (ca *Agent) Config() *Config {
-	ca.mut.RLock()
-	defer ca.mut.RUnlock()
+	ca.Lock()
+	defer ca.Unlock()
 	return ca.c
 }
 
 // Set sets the config. Useful for testing.
 func (ca *Agent) Set(c *Config) {
-	ca.mut.Lock()
-	defer ca.mut.Unlock()
-	var oldConfig Config
-	if ca.c != nil {
-		oldConfig = *ca.c
-	}
-	delta := Delta{oldConfig, *c}
+	ca.Lock()
+	defer ca.Unlock()
 	ca.c = c
-	for _, subscription := range ca.subscriptions {
-		go func(sub DeltaChan) { // wait a minute to send each event
-			end := time.NewTimer(time.Minute)
-			select {
-			case sub <- delta:
-			case <-end.C:
-			}
-			if !end.Stop() { // prevent new events
-				<-end.C // drain the pending event
-			}
-		}(subscription)
-	}
 }

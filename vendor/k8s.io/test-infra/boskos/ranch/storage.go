@@ -22,41 +22,26 @@ import (
 	"os"
 	"sort"
 	"sync"
-	"time"
 
+	"github.com/ghodss/yaml"
 	"github.com/hashicorp/go-multierror"
 	"github.com/sirupsen/logrus"
+
 	"k8s.io/test-infra/boskos/common"
 	"k8s.io/test-infra/boskos/storage"
 )
 
 // Storage is used to decouple ranch functionality with the resource persistence layer
 type Storage struct {
-	resources, dynamicResourceLifeCycles storage.PersistenceLayer
-	resourcesLock                        sync.RWMutex
-
-	// For testing
-	now          func() time.Time
-	generateName func() string
-}
-
-// NewTestingStorage is used only for testing.
-func NewTestingStorage(res, lf storage.PersistenceLayer, updateTime func() time.Time) *Storage {
-	return &Storage{
-		resources:                 res,
-		dynamicResourceLifeCycles: lf,
-		now:                       updateTime,
-	}
+	resources     storage.PersistenceLayer
+	resourcesLock sync.RWMutex
 }
 
 // NewStorage instantiates a new Storage with a PersistenceLayer implementation
 // If storage string is not empty, it will read resource data from the file
-func NewStorage(res, lf storage.PersistenceLayer, storage string) (*Storage, error) {
+func NewStorage(r storage.PersistenceLayer, storage string) (*Storage, error) {
 	s := &Storage{
-		resources:                 res,
-		dynamicResourceLifeCycles: lf,
-		now:                       func() time.Time { return time.Now() },
-		generateName:              common.GenerateDynamicResourceName,
+		resources: r,
 	}
 
 	if storage != "" {
@@ -74,11 +59,12 @@ func NewStorage(res, lf storage.PersistenceLayer, storage string) (*Storage, err
 			return nil, err
 		}
 
+		logrus.Info("Before adding resource loop")
 		for _, res := range data.Resources {
 			if err := s.AddResource(res); err != nil {
-				logrus.WithError(err).Errorf("Failed Adding Resource: %s - %s.", res.Name, res.State)
+				logrus.WithError(err).Errorf("Failed Adding Resources: %s - %s.", res.Name, res.State)
 			}
-			logrus.Infof("Successfully Added Resource: %s - %s.", res.Name, res.State)
+			logrus.Infof("Successfully Added Resources: %s - %s.", res.Name, res.State)
 		}
 	}
 	return s, nil
@@ -95,18 +81,8 @@ func (s *Storage) DeleteResource(name string) error {
 }
 
 // UpdateResource updates a resource if it exists, errors otherwise
-func (s *Storage) UpdateResource(resource common.Resource) (common.Resource, error) {
-	resource.LastUpdate = s.now()
-	i, err := s.resources.Update(resource)
-	if err != nil {
-		return common.Resource{}, err
-	}
-	var res common.Resource
-	res, err = common.ItemToResource(i)
-	if err != nil {
-		return common.Resource{}, err
-	}
-	return res, nil
+func (s *Storage) UpdateResource(resource common.Resource) error {
+	return s.resources.Update(resource)
 }
 
 // GetResource gets an existing resource, errors otherwise
@@ -142,71 +118,12 @@ func (s *Storage) GetResources() ([]common.Resource, error) {
 	return resources, nil
 }
 
-// AddDynamicResourceLifeCycle adds a new dynamic resource life cycle
-func (s *Storage) AddDynamicResourceLifeCycle(resource common.DynamicResourceLifeCycle) error {
-	return s.dynamicResourceLifeCycles.Add(resource)
-}
-
-// DeleteDynamicResourceLifeCycle deletes a dynamic resource life cycle if it exists, errors otherwise
-func (s *Storage) DeleteDynamicResourceLifeCycle(name string) error {
-	return s.dynamicResourceLifeCycles.Delete(name)
-}
-
-// UpdateDynamicResourceLifeCycle updates a dynamic resource life cycle. if it exists, errors otherwise
-func (s *Storage) UpdateDynamicResourceLifeCycle(resource common.DynamicResourceLifeCycle) (common.DynamicResourceLifeCycle, error) {
-	i, err := s.dynamicResourceLifeCycles.Update(resource)
-	if err != nil {
-		return common.DynamicResourceLifeCycle{}, err
-	}
-	var res common.DynamicResourceLifeCycle
-	res, err = common.ItemToDynamicResourceLifeCycle(i)
-	if err != nil {
-		return common.DynamicResourceLifeCycle{}, err
-	}
-	return res, nil
-}
-
-// GetDynamicResourceLifeCycle gets an existing dynamic resource life cycle, errors otherwise
-func (s *Storage) GetDynamicResourceLifeCycle(name string) (common.DynamicResourceLifeCycle, error) {
-	i, err := s.dynamicResourceLifeCycles.Get(name)
-	if err != nil {
-		return common.DynamicResourceLifeCycle{}, err
-	}
-	var res common.DynamicResourceLifeCycle
-	res, err = common.ItemToDynamicResourceLifeCycle(i)
-	if err != nil {
-		return common.DynamicResourceLifeCycle{}, err
-	}
-	return res, nil
-}
-
-// GetDynamicResourceLifeCycles list all dynamic resource life cycle
-func (s *Storage) GetDynamicResourceLifeCycles() ([]common.DynamicResourceLifeCycle, error) {
-	var resources []common.DynamicResourceLifeCycle
-	items, err := s.dynamicResourceLifeCycles.List()
-	if err != nil {
-		return resources, err
-	}
-	for _, i := range items {
-		var res common.DynamicResourceLifeCycle
-		res, err = common.ItemToDynamicResourceLifeCycle(i)
-		if err != nil {
-			return nil, err
-		}
-		resources = append(resources, res)
-	}
-	return resources, nil
-}
-
-// SyncResources will update static and dynamic resources periodically.
-// It will add new resources to storage and try to remove newly deleted resources
-// from storage.
+// SyncResources will update resources every 10 mins.
+// It will append newly added resources to ranch.Resources,
+// And try to remove newly deleted resources from ranch.Resources.
 // If the newly deleted resource is currently held by a user, the deletion will
 // yield to next update cycle.
-func (s *Storage) SyncResources(config *common.BoskosConfig) error {
-	var newSR, existingSR, existingDR []common.Resource
-	var newDRLC []common.DynamicResourceLifeCycle
-
+func (s *Storage) SyncResources(data []common.Resource) error {
 	s.resourcesLock.Lock()
 	defer s.resourcesLock.Unlock()
 
@@ -215,266 +132,81 @@ func (s *Storage) SyncResources(config *common.BoskosConfig) error {
 		logrus.WithError(err).Error("cannot find resources")
 		return err
 	}
-	existingDRLC, err := s.GetDynamicResourceLifeCycles()
-	if err != nil {
-		logrus.WithError(err).Error("cannot find dynamicResourceLifeCycles")
-		return err
-	}
 
-	// Split resources between static and dynamic resources
-	lifeCycleTypes := map[string]bool{}
-	for _, lc := range existingDRLC {
-		lifeCycleTypes[lc.Type] = true
-	}
-	for _, res := range resources {
-		if lifeCycleTypes[res.Type] {
-			existingDR = append(existingDR, res)
-		} else {
-			existingSR = append(existingSR, res)
-		}
-	}
-
-	if config != nil {
-		for _, entry := range config.Resources {
-			if len(entry.Names) > 0 {
-				newSR = append(newSR, common.NewResourcesFromConfig(entry)...)
-			} else {
-				newDRLC = append(newDRLC, common.NewDynamicResourceLifeCycleFromConfig(entry))
-			}
-		}
-		if err := s.syncStaticResources(newSR, existingSR); err != nil {
-			return err
-		}
-		if err := s.syncDynamicResources(newDRLC, existingDRLC, existingDR); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// updateDynamicResources will update dynamic resource based on existing on a dynamic resource life cycle.
-// It will make sure than MinCount of resource exists, and attempt to delete expired and resources over MaxCount.
-// If resources are held by another user than Boskos, they will be deleted in a following cycle.
-func (s *Storage) updateDynamicResources(lifecycle common.DynamicResourceLifeCycle, resources []common.Resource) (toUpdate, toAdd, toDelete []common.Resource) {
-	var notInUseRes []common.Resource
-	count := 0
-	for _, r := range resources {
-		// We can only delete resources not in use
-		if !r.IsInUse() {
-			// deleting resources already marked for deletion, and not including them in the count.
-			if r.State == common.Tombstone || r.State == common.ToBeDeleted {
-				// those will be deleted, not counting
-				toDelete = append(toDelete, r)
-			} else {
-				// Those resources will be deleted at next iteration counting
-				count++
-				// Expired
-				if r.ExpirationDate != nil && s.now().After(*r.ExpirationDate) {
-					toDelete = append(toDelete, r)
-				} else {
-					notInUseRes = append(notInUseRes, r)
-				}
-			}
-
-		} else {
-			count++
-		}
-	}
-
-	for i := count; i < lifecycle.MinCount; i++ {
-		res := common.NewResource(s.generateName(), lifecycle.Type, lifecycle.InitialState, "", s.now())
-		toAdd = append(toAdd, res)
-		count++
-	}
-
-	numberOfResToDelete := count - lifecycle.MaxCount
-	// Sorting to get consistent deletion mechanism (ease testing)
-	sort.Stable(sort.Reverse(common.ResourceByName(notInUseRes)))
-	for i := 0; i < len(notInUseRes); i++ {
-		res := notInUseRes[i]
-		if i < numberOfResToDelete {
-			toDelete = append(toDelete, res)
-		} else {
-			toUpdate = append(toUpdate, res)
-		}
-	}
-	return
-}
-
-func (s *Storage) syncDynamicResources(newConfig, existingConfig []common.DynamicResourceLifeCycle, existingResources []common.Resource) error {
 	var finalError error
-	var resToUpdate, resToAdd, resToDelete []common.Resource
-	var dRLCToUpdate, dRLCToAdd, dRLCToDelete []common.DynamicResourceLifeCycle
-
-	newLFSet := map[string]common.DynamicResourceLifeCycle{}
-	for _, lc := range newConfig {
-		newLFSet[lc.Type] = lc
-	}
-
-	// classifying existing resources by type
-	existingResByType := map[string][]common.Resource{}
-	for _, r := range existingResources {
-		existingResByType[r.Type] = append(existingResByType[r.Type], r)
-	}
-
-	for _, existingDRLC := range existingConfig {
-		newDRLC, exists := newLFSet[existingDRLC.Type]
-		if exists {
-			dRLCToUpdate = append(dRLCToUpdate, newDRLC)
-			moreToUpdate, moreToAdd, moreToDelete := s.updateDynamicResources(newDRLC, existingResByType[newDRLC.Type])
-			resToUpdate = append(resToUpdate, moreToUpdate...)
-			resToAdd = append(resToAdd, moreToAdd...)
-			resToDelete = append(resToDelete, moreToDelete...)
-		} else {
-			dRLCToDelete = append(dRLCToDelete, existingDRLC)
-			for _, res := range existingResByType[existingDRLC.Type] {
-				resToDelete = append(resToDelete, res)
-			}
-		}
-	}
-
-	for _, newDRLC := range newConfig {
-		_, exists := existingResByType[newDRLC.Type]
-		if !exists {
-			dRLCToAdd = append(dRLCToAdd, newDRLC)
-			moreToUpdate, moreToAdd, moreToDelete := s.updateDynamicResources(newDRLC, existingResByType[newDRLC.Type])
-			resToUpdate = append(resToUpdate, moreToUpdate...)
-			resToAdd = append(resToAdd, moreToAdd...)
-			resToDelete = append(resToDelete, moreToDelete...)
-		}
-	}
-
-	if err := s.persistResources(resToUpdate, resToAdd, resToDelete, true); err != nil {
-		finalError = multierror.Append(finalError, err)
-	}
-
-	if err := s.persistDynamicResourceLifeCycles(dRLCToUpdate, dRLCToAdd, dRLCToDelete); err != nil {
-		finalError = multierror.Append(finalError, err)
-	}
-
-	return finalError
-}
-
-func (s *Storage) persistResources(resToUpdate, resToAdd, resToDelete []common.Resource, dynamic bool) error {
-	var finalError error
-
-	for _, r := range resToDelete {
-		// If currently busy, yield deletion to later cycles.
-		if !r.IsInUse() {
-			if dynamic {
-				// Only delete resource in tombsone state and mark the other as to deleted
-				// This is necessary for dynamic resources that depends on other resources
-				// as they need to be released to prevent leak.
-				if r.State == common.Tombstone {
-					logrus.Infof("Deleting resource %s", r.Name)
-					if err := s.DeleteResource(r.Name); err != nil {
-						finalError = multierror.Append(finalError, err)
-						logrus.WithError(err).Errorf("unable to delete resource %s", r.Name)
-					}
-				} else {
-					r.State = common.ToBeDeleted
-					resToUpdate = append(resToUpdate, r)
-				}
-			} else {
-				// Static resources can be deleted right away.
-				logrus.Infof("Deleting resource %s", r.Name)
-				if err := s.DeleteResource(r.Name); err != nil {
-					finalError = multierror.Append(finalError, err)
-					logrus.WithError(err).Errorf("unable to delete resource %s", r.Name)
-				}
-			}
-		}
-	}
-
-	for _, r := range resToAdd {
-		logrus.Infof("Adding resource %s", r.Name)
-		r.LastUpdate = s.now()
-		if err := s.AddResource(r); err != nil {
-			finalError = multierror.Append(finalError, err)
-			logrus.WithError(err).Errorf("unable to delete resource %s", r.Name)
-		}
-	}
-
-	for _, r := range resToUpdate {
-		if !r.IsInUse() {
-			logrus.Infof("Updating resource %s", r.Name)
-			if _, err := s.UpdateResource(r); err != nil {
-				finalError = multierror.Append(finalError, err)
-				logrus.WithError(err).Errorf("unable to updateresource %s", r.Name)
-			}
-		}
-	}
-	return finalError
-}
-
-func (s *Storage) persistDynamicResourceLifeCycles(dRLCToUpdate, dRLCToAdd, dRLCToDelelete []common.DynamicResourceLifeCycle) error {
-	var finalError error
-	remainingTypes := map[string]bool{}
-	updatedResources, err := s.GetResources()
-	if err != nil {
-		return err
-	}
-	for _, res := range updatedResources {
-		remainingTypes[res.Type] = true
-	}
-
-	for _, dRLC := range dRLCToDelelete {
-		// Only delete a dynamic resource if all resources are gone
-		if !remainingTypes[dRLC.Type] {
-			logrus.Infof("Deleting resource type life cycle %s", dRLC.Type)
-			if err := s.DeleteDynamicResourceLifeCycle(dRLC.Type); err != nil {
-				finalError = multierror.Append(finalError, err)
-				logrus.WithError(err).Errorf("unable to delete resource type life cycle %s", dRLC.Type)
-			}
-		}
-	}
-
-	for _, DRLC := range dRLCToAdd {
-		logrus.Infof("Adding resource type life cycle %s", DRLC.Type)
-		if err := s.AddDynamicResourceLifeCycle(DRLC); err != nil {
-			finalError = multierror.Append(finalError, err)
-			logrus.WithError(err).Errorf("unable to add resource type life cycle %s", DRLC.Type)
-		}
-	}
-
-	for _, dRLC := range dRLCToUpdate {
-		logrus.Infof("Updating resource type life cycle %s", dRLC.Type)
-		if _, err := s.UpdateDynamicResourceLifeCycle(dRLC); err != nil {
-			finalError = multierror.Append(finalError, err)
-			logrus.WithError(err).Errorf("unable to update resource type life cycle %s", dRLC.Type)
-		}
-	}
-
-	return finalError
-}
-
-func (s *Storage) syncStaticResources(newConfig, existingResources []common.Resource) error {
-	var resToUpdate, resToAdd, resToDelete []common.Resource
 
 	// delete non-exist resource
-	newResSet := map[string]bool{}
-	remainingSet := map[string]bool{}
-
-	for _, r := range newConfig {
-		newResSet[r.Name] = true
-	}
-
-	for _, res := range existingResources {
-		if newResSet[res.Name] {
-			remainingSet[res.Name] = true
-			// This is a resource owned by Boskos, Need to update it.
-			resToUpdate = append(resToUpdate, res)
-		} else {
-			resToDelete = append(resToDelete, res)
+	valid := 0
+	for _, res := range resources {
+		// If currently busy, yield deletion to later cycles.
+		if res.Owner != "" {
+			resources[valid] = res
+			valid++
+			continue
+		}
+		toDelete := true
+		for _, newRes := range data {
+			if res.Name == newRes.Name {
+				resources[valid] = res
+				valid++
+				toDelete = false
+				break
+			}
+		}
+		if toDelete {
+			logrus.Infof("Deleting resource %s", res.Name)
+			if err := s.DeleteResource(res.Name); err != nil {
+				finalError = multierror.Append(finalError, err)
+				logrus.WithError(err).Errorf("unable to delete resource %s", res.Name)
+			}
 		}
 	}
+	resources = resources[:valid]
 
 	// add new resource
-	for _, p := range newConfig {
-		if !remainingSet[p.Name] {
-			resToAdd = append(resToAdd, p)
+	for _, p := range data {
+		found := false
+		for idx := range resources {
+			exist := resources[idx]
+			if p.Name == exist.Name {
+				found = true
+				logrus.Infof("Keeping resource %s", p.Name)
+				break
+			}
+		}
+
+		if !found {
+			if p.State == "" {
+				p.State = common.Free
+			}
+			logrus.Infof("Adding resource %s", p.Name)
+			resources = append(resources, p)
+			if err := s.AddResource(p); err != nil {
+				logrus.WithError(err).Errorf("unable to add resource %s", p.Name)
+				finalError = multierror.Append(finalError, err)
+			}
 		}
 	}
-	return s.persistResources(resToUpdate, resToAdd, resToDelete, false)
+	return finalError
+}
+
+// ParseConfig reads in configPath and returns a list of resource objects
+// on success.
+func ParseConfig(configPath string) ([]common.Resource, error) {
+	file, err := ioutil.ReadFile(configPath)
+	if err != nil {
+		return nil, err
+	}
+
+	var data common.BoskosConfig
+	err = yaml.Unmarshal(file, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	var resources []common.Resource
+	for _, entry := range data.Resources {
+		resources = append(resources, common.NewResourcesFromConfig(entry)...)
+	}
+	return resources, nil
 }

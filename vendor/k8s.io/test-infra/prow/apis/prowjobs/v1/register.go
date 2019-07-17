@@ -38,13 +38,11 @@ func Resource(resource string) schema.GroupResource {
 }
 
 var (
-	// SchemeBuilder collects functions that add things to a scheme.
 	SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
-	// AddToScheme applies all the stored functions to the scheme.
-	AddToScheme = SchemeBuilder.AddToScheme
+	AddToScheme   = SchemeBuilder.AddToScheme
 )
 
-// Adds the list of known types to the Scheme.
+// Adds the list of known types to Scheme.
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&ProwJob{},

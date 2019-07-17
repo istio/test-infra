@@ -32,8 +32,8 @@ import (
 type Ranch struct {
 	Storage       *Storage
 	resourcesLock sync.RWMutex
-	//
-	now func() time.Time
+	// For testing
+	UpdateTime func() time.Time
 }
 
 func updateTime() time.Time {
@@ -49,15 +49,6 @@ type ResourceNotFound struct {
 
 func (r ResourceNotFound) Error() string {
 	return fmt.Sprintf("Resource %s not exist", r.name)
-}
-
-// ResourceTypeNotFound will be returned if requested resource type does not exist.
-type ResourceTypeNotFound struct {
-	rType string
-}
-
-func (r ResourceTypeNotFound) Error() string {
-	return fmt.Sprintf("Resource Type %s not exist", r.rType)
 }
 
 // OwnerNotMatch will be returned if request owner does not match current owner for target resource.
@@ -77,7 +68,7 @@ type StateNotMatch struct {
 }
 
 func (s StateNotMatch) Error() string {
-	return fmt.Sprintf("StateNotMatch - expected %v, current %v", s.expect, s.current)
+	return fmt.Sprintf("StateNotMatch - expect %v, current %v", s.expect, s.current)
 }
 
 // NewRanch creates a new Ranch object.
@@ -86,8 +77,8 @@ func (s StateNotMatch) Error() string {
 // Out: A Ranch object, loaded from config/storage, or error
 func NewRanch(config string, s *Storage) (*Ranch, error) {
 	newRanch := &Ranch{
-		Storage: s,
-		now:     time.Now,
+		Storage:    s,
+		UpdateTime: updateTime,
 	}
 	if config != "" {
 		if err := newRanch.SyncConfig(config); err != nil {
@@ -116,27 +107,20 @@ func (r *Ranch) Acquire(rType, state, dest, owner string) (*common.Resource, err
 		return nil, &ResourceNotFound{rType}
 	}
 
-	foundType := false
 	for idx := range resources {
 		res := resources[idx]
-		if rType == res.Type {
-			foundType = true
-			if state == res.State && res.Owner == "" {
-				res.Owner = owner
-				res.State = dest
-				updatedRes, err := r.Storage.UpdateResource(res)
-				if err != nil {
-					logrus.WithError(err).Errorf("could not update resource %s", res.Name)
-					return nil, err
-				}
-				return &updatedRes, nil
+		if rType == res.Type && state == res.State && res.Owner == "" {
+			res.LastUpdate = r.UpdateTime()
+			res.Owner = owner
+			res.State = dest
+			if err := r.Storage.UpdateResource(res); err != nil {
+				logrus.WithError(err).Errorf("could not update resource %s", res.Name)
+				return nil, err
 			}
+			return &res, nil
 		}
 	}
-	if foundType {
-		return nil, &ResourceNotFound{rType}
-	}
-	return nil, &ResourceTypeNotFound{rType}
+	return nil, &ResourceNotFound{rType}
 }
 
 // AcquireByState checks out resources of a given type without an owner,
@@ -175,14 +159,14 @@ func (r *Ranch) AcquireByState(state, dest, owner string, names []string) ([]com
 				continue
 			}
 			if rNames[res.Name] {
+				res.LastUpdate = r.UpdateTime()
 				res.Owner = owner
 				res.State = dest
-				updatedRes, err := r.Storage.UpdateResource(res)
-				if err != nil {
+				if err := r.Storage.UpdateResource(res); err != nil {
 					logrus.WithError(err).Errorf("could not update resource %s", res.Name)
 					return nil, err
 				}
-				resources = append(resources, updatedRes)
+				resources = append(resources, res)
 				delete(rNames, res.Name)
 			}
 		}
@@ -216,24 +200,12 @@ func (r *Ranch) Release(name, dest, owner string) error {
 		return &ResourceNotFound{name}
 	}
 	if owner != res.Owner {
-		return &OwnerNotMatch{owner: owner, request: res.Owner}
+		return &OwnerNotMatch{res.Owner, owner}
 	}
-
+	res.LastUpdate = r.UpdateTime()
 	res.Owner = ""
 	res.State = dest
-
-	if lf, err := r.Storage.GetDynamicResourceLifeCycle(res.Type); err == nil {
-		// Assuming error means not existing as the only way to differentiate would be to list
-		// all resources and find the right one which is more costly.
-		if lf.LifeSpan != nil {
-			expirationTime := r.now().Add(*lf.LifeSpan)
-			res.ExpirationDate = &expirationTime
-		}
-	} else {
-		res.ExpirationDate = nil
-	}
-
-	if _, err := r.Storage.UpdateResource(res); err != nil {
+	if err := r.Storage.UpdateResource(res); err != nil {
 		logrus.WithError(err).Errorf("could not update resource %s", res.Name)
 		return err
 	}
@@ -259,7 +231,7 @@ func (r *Ranch) Update(name, owner, state string, ud *common.UserData) error {
 		return &ResourceNotFound{name}
 	}
 	if owner != res.Owner {
-		return &OwnerNotMatch{owner: owner, request: res.Owner}
+		return &OwnerNotMatch{owner, res.Owner}
 	}
 	if state != res.State {
 		return &StateNotMatch{res.State, state}
@@ -268,7 +240,8 @@ func (r *Ranch) Update(name, owner, state string, ud *common.UserData) error {
 		res.UserData = &common.UserData{}
 	}
 	res.UserData.Update(ud)
-	if _, err := r.Storage.UpdateResource(res); err != nil {
+	res.LastUpdate = r.UpdateTime()
+	if err := r.Storage.UpdateResource(res); err != nil {
 		logrus.WithError(err).Errorf("could not update resource %s", res.Name)
 		return err
 	}
@@ -296,11 +269,12 @@ func (r *Ranch) Reset(rtype, state string, expire time.Duration, dest string) (m
 	for idx := range resources {
 		res := resources[idx]
 		if rtype == res.Type && state == res.State && res.Owner != "" {
-			if r.now().Sub(res.LastUpdate) > expire {
+			if time.Since(res.LastUpdate) > expire {
+				res.LastUpdate = r.UpdateTime()
 				ret[res.Name] = res.Owner
 				res.Owner = ""
 				res.State = dest
-				if _, err := r.Storage.UpdateResource(res); err != nil {
+				if err := r.Storage.UpdateResource(res); err != nil {
 					logrus.WithError(err).Errorf("could not update resource %s", res.Name)
 					return ret, err
 				}
@@ -326,15 +300,12 @@ func (r *Ranch) LogStatus() {
 }
 
 // SyncConfig updates resource list from a file
-func (r *Ranch) SyncConfig(configPath string) error {
-	config, err := common.ParseConfig(configPath)
+func (r *Ranch) SyncConfig(config string) error {
+	resources, err := ParseConfig(config)
 	if err != nil {
 		return err
 	}
-	if err := common.ValidateConfig(config); err != nil {
-		return err
-	}
-	if err := r.Storage.SyncResources(config); err != nil {
+	if err := r.Storage.SyncResources(resources); err != nil {
 		return err
 	}
 	return nil
