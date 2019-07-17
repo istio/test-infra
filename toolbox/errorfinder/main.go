@@ -98,7 +98,10 @@ func saveToken(path string, token *oauth2.Token) {
 		log.Fatalf("Unable to cache oauth token: %v", err)
 	}
 	defer f.Close()
-	json.NewEncoder(f).Encode(token)
+	err = json.NewEncoder(f).Encode(token)
+	if err != nil {
+		log.Fatalf("Unable to encode token to file path: %v", err)
+	}
 }
 
 func readSpreadSheet(credentialsPath string, spreadsheetID string, readRange string) []string {
@@ -179,7 +182,7 @@ func (f *ErrorFinder) getContent(ctx context.Context, filePaths []string) (map[s
 		fileSlice := strings.Split(fileContent, "\n")
 		output := []string{}
 		for _, line := range fileSlice {
-			if strings.Index(line, "+") == -1 {
+			if !strings.Contains(line, "+") {
 				output = append(output, line)
 			}
 		}
@@ -218,18 +221,17 @@ func (f *ErrorFinder) getContent(ctx context.Context, filePaths []string) (map[s
 
 			for _, line := range total {
 				if strings.Contains(line, "error") || strings.Contains(line, "fail") {
-					line = strings.TrimLeft(line, "\\d-\\d-\\dT\\d:\\d:\\d.\\dZ	info")
+					line = strings.TrimLeft(line, "\\d-T:.Z	info")
 					lineSplit := strings.Split(line, " ")
 					newLineSplit := []string{}
 
 					for indexD, section := range lineSplit {
-						if strings.Compare(section, "") != 0 && strings.Index(section, "error") == -1 && strings.Index(section, "fail") == -1 {
+						if strings.Compare(section, "") != 0 && !strings.Contains(section, "error") && !strings.Contains(section, "fail") {
 							if indexD > 0 && strings.Compare(lineSplit[indexD-1], "container") == 0 {
 								newLineSplit = append(newLineSplit, "\\s")
-							} else if strings.Index(section, "\\d") != -1 {
-								// fmt.Println("find element with \\d")
+							} else if strings.Contains(section, "\\d") {
 								newLineSplit = append(newLineSplit, "\\s")
-							} else if strings.Index(section, "/") != -1 {
+							} else if strings.Contains(section, "/") {
 								newLineSplit = append(newLineSplit, "\\s")
 							} else {
 								newLineSplit = append(newLineSplit, section)
@@ -240,11 +242,11 @@ func (f *ErrorFinder) getContent(ctx context.Context, filePaths []string) (map[s
 					}
 
 					line = strings.Join(newLineSplit, " ")
-					if strings.Index(line, ":") != -1 {
+					if strings.Contains(line, ":") {
 						indexColon := strings.Index(line, ":")
 						if indexColon < 20 {
 							newLine := strings.Replace(line, ":", "<", 1)
-							if strings.Index(newLine, ":") != -1 {
+							if strings.Contains(newLine, ":") {
 								indColon := strings.Index(newLine, ":")
 								line = line[:indColon]
 							}
@@ -254,8 +256,8 @@ func (f *ErrorFinder) getContent(ctx context.Context, filePaths []string) (map[s
 					}
 					errorLines = append(errorLines, line)
 
-					if strings.Index(line, "warn") != -1 {
-						warningPrs := []string{}
+					if strings.Contains(line, "warn") {
+						var warningPrs []string
 						if warningMap[line] == nil {
 							warningPrs = []string{filePath}
 						} else {
@@ -266,7 +268,7 @@ func (f *ErrorFinder) getContent(ctx context.Context, filePaths []string) (map[s
 						}
 						warningMap[line] = warningPrs
 					} else {
-						prSlice := []string{}
+						var prSlice []string
 						if errorMap[line] == nil {
 							prSlice = []string{filePath}
 						} else {
@@ -291,9 +293,7 @@ func (f *ErrorFinder) getContent(ctx context.Context, filePaths []string) (map[s
 func (f *ErrorFinder) generalizeDigits(content string) string {
 	reg, _ := regexp.Compile("[0-9]+")
 	newContent := reg.ReplaceAllString(content, "\\d")
-	reg, _ = regexp.Compile("\\\"(.*?)\\\"")
-	newContent = reg.ReplaceAllString(newContent, "\\s")
-	reg, _ = regexp.Compile("\\'(.*?)\\'")
+	reg, _ = regexp.Compile("\\\"(.*?)\\\"", "\\'(.*?)\\'"...)
 	newContent = reg.ReplaceAllString(newContent, "\\s")
 	return newContent
 }
@@ -348,7 +348,7 @@ func main() {
 	var fileName string
 	flag.StringVar(&fileName, "OutputFileName", "", "A file name for output csv file with .csv at the end.")
 	var spreadsheetID string
-	flag.StringVar(&spreadsheetID, "SpreadsheetId", "", "Spreadsheet ID for the spreadsheet containing file path")
+	flag.StringVar(&spreadsheetID, "SpreadsheetID", "", "Spreadsheet ID for the spreadsheet containing file path")
 	var credentialsPath string
 	flag.StringVar(&credentialsPath, "CredentialsPath", "", "Path to Credentials.json file.")
 	var readRange string
@@ -382,9 +382,13 @@ func main() {
 	context := con.Background()
 	client, err := storage.NewClient(context)
 	if err != nil {
-		return
+		log.Fatalf("Unable to create new client: %v", err)
 	}
+
 	errorFinder, err := NewErrorFinder(client, bucketName)
+	if err != nil {
+		log.Fatalf("Unable to create new error finder: %v", err)
+	}
 
 	_, errorMap, warningMap, err := errorFinder.getContent(context, listOfPrs)
 	if err != nil {
