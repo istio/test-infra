@@ -38,6 +38,7 @@ prune-vendor() {
 
 rm -rf vendor
 export GO111MODULE=on
+bazel run @go_sdk//:bin/go -- get k8s.io/test-infra@96e3ee3331191629386a5c3cce1b5ed6c7a33602
 bazel run @go_sdk//:bin/go -- mod tidy
 bazel run //:gazelle -- update-repos --from_file=go.mod --to_macro=repos.bzl%go_repositories
 bazel run @go_sdk//:bin/go -- mod vendor
