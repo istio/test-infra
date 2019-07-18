@@ -15,9 +15,10 @@
 package main
 
 import (
+	"flag"
 	"io/ioutil"
 	"log"
-	"os"
+	"regexp"
 	"strings"
 )
 
@@ -36,133 +37,141 @@ func countLeadingSpace(line string) int {
 
 // Add element to the slice at the indexed position and move all the strings from
 // the index one position to the right.
-func appendAtIndex(original []string, element string, index int) []string {
-	original = append(original, "")
-	copy(original[index+1:], original[index:])
-	original[index] = element
-
-	return original
-}
-
-// Copy the content of one slice to another.
-func copySlice(input []string) []string {
-	newSlice := []string{}
-	newSlice = append(newSlice, input...)
-
-	return newSlice
+func appendAtIndex(original string, element string, index int) string {
+	prev := original[:index]
+	apres := original[index:]
+	return prev + element + apres
 }
 
 // Find index of master section in each branch split for the new branch and
 // get content from master section with mandatory "merges-blocked-needs-admin" part.
-func getContentOfNewBranch(branchLines []string, newBranch string) (int, string) {
+func getContentOfNewBranch(branchContent string, newBranch string) (int, string) {
+	branchLines := strings.Split(branchContent, "\n")
 	if len(branchLines) < 2 {
 		return -1, ""
 	}
+
 	firstBranchLine := branchLines[1]
-	spacesForBranch := countLeadingSpace(firstBranchLine)
-	masterStart := -1
-	masterStop := -1
-	for j := 1; j < len(branchLines); j++ {
-		line := branchLines[j]
-		if len(line) > spacesForBranch-1 {
-			checkForMaster := line[spacesForBranch:]
-			if strings.Contains(checkForMaster, "master:") {
-				masterStart = j + 1
-			}
-		}
+	spacesForBranchNum := countLeadingSpace(firstBranchLine)
 
-		if masterStart != -1 && masterStop == -1 && j > masterStart {
-			if countLeadingSpace(line) <= spacesForBranch {
-				masterStop = j - 1
-			}
-		}
+	spacesForBranch := strings.Repeat(" ", spacesForBranchNum)
+	masterLine := spacesForBranch + "master:\n"
+	masterStart := strings.Index(branchContent, masterLine)
+
+	nonMasterContent := branchContent[masterStart+1:]
+
+	generalBranchRe := regexp.MustCompile("\n" + spacesForBranch + "\\S+:\n")
+	otherBranches := generalBranchRe.FindStringSubmatchIndex(nonMasterContent)
+
+	var masterContent string
+	if otherBranches == nil {
+		masterContent = branchContent[masterStart:]
+	} else {
+		masterContent = branchContent[masterStart:otherBranches[0]]
 	}
 
-	if masterStart != -1 && masterStop == -1 {
-		masterStop = len(branchLines) - 1
-	}
-
-	if masterStart != -1 && masterStop != -1 {
-
-		contextStart := -1
-		contextStop := -1
-		contextStrings := -1
-
-		secondBranchSpaces := countLeadingSpace(branchLines[masterStart])
-
-		for m := 0; m < masterStop-masterStart+1; m++ {
-			masterLine := branchLines[m+masterStart]
-			if strings.Contains(masterLine, "contexts:") {
-				contextStart = m + 1
-				contextStrings = countLeadingSpace(masterLine)
-			}
-
-			if contextStart != -1 && contextStrings != -1 && contextStop == -1 && m > contextStart {
-
-				if strings.Compare(string(masterLine[contextStrings]), "-") != 0 {
-					contextStop = m
-				}
+	masterContent = strings.Join(strings.Split(masterContent, "\n")[1:], "\n")
+	contextRe := regexp.MustCompile("\\s+contexts:\n")
+	contextInd := contextRe.FindStringSubmatchIndex(masterContent)
+	if contextInd != nil {
+		contextStart := contextInd[0] + 1
+		contextContent := masterContent[contextStart:]
+		if !strings.Contains(contextContent, "- \"merges-blocked-needs-admin\"") {
+			contextSpaces := countLeadingSpace(masterContent[contextStart:contextInd[1]])
+			adminLine := strings.Repeat(" ", contextSpaces) + "- \"merges-blocked-needs-admin\""
+			if strings.Compare(string(masterContent[len(masterContent)-1]), "\n") == 0 {
+				masterContent = masterContent + adminLine + "\n"
+			} else {
+				masterContent = masterContent + "\n" + adminLine + "\n"
 			}
 		}
 
-		if contextStart != -1 && contextStop == -1 {
-			contextStop = masterStop - masterStart + 1
-		}
-		containsNeedsAdmin := false
-		newBranchSlice := copySlice(branchLines[masterStart : masterStop+1])
-		if contextStart != -1 && contextStop != -1 {
-			for n := contextStart; n < contextStop; n++ {
-				contextLine := branchLines[n+masterStart]
+	} else {
 
-				if strings.Contains(contextLine, "merges-blocked-needs-admin") {
-					containsNeedsAdmin = true
-					break
-				}
-			}
+		masterContentSplit := strings.Split(masterContent, "\n")
+		masterContentLine := masterContentSplit[0]
 
-			if !containsNeedsAdmin {
-				numSpaces := countLeadingSpace(newBranchSlice[contextStart])
-				stringAdmin := strings.Repeat(" ", numSpaces) + "- \"merges-blocked-needs-admin\""
-
-				newBranchSlice = appendAtIndex(newBranchSlice, stringAdmin, contextStop-1)
-			}
-
+		spacesInMaster := countLeadingSpace(masterContentLine)
+		statusCheckString := strings.Repeat(" ", spacesInMaster) + "required_status_checks:\n"
+		contextsString := strings.Repeat(" ", spacesInMaster+2) + "contexts:\n"
+		needsAdminString := strings.Repeat(" ", spacesInMaster+2) + "- \"merges-blocked-needs-admin\""
+		admins := statusCheckString + contextsString + needsAdminString
+		if strings.Compare(string(masterContent[len(masterContent)-1]), "\n") == 0 {
+			masterContent = masterContent + admins + "\n"
 		} else {
-
-			if len(newBranchSlice[len(newBranchSlice)-1]) == countLeadingSpace(newBranchSlice[len(newBranchSlice)-1]) {
-				newBranchSlice = newBranchSlice[:len(newBranchSlice)-1]
-			}
-			statusCheckString := strings.Repeat(" ", secondBranchSpaces) + "required_status_checks:"
-			contextsString := strings.Repeat(" ", secondBranchSpaces+2) + "contexts:"
-			needsAdminString := strings.Repeat(" ", secondBranchSpaces+2) + "- \"merges-blocked-needs-admin\""
-			newBranchSlice = append(newBranchSlice, statusCheckString, contextsString, needsAdminString)
+			masterContent = masterContent + "\n" + admins + "\n"
 		}
-
-		newBranchLine := strings.Repeat(" ", spacesForBranch) + newBranch + ":"
-		newBranchSlice = appendAtIndex(newBranchSlice, newBranchLine, 0)
-		masterBranch := strings.Join(newBranchSlice, "\n")
-		return masterStart - 1, masterBranch
 	}
-	return -1, ""
+
+	withinMaster := spacesForBranch + newBranch + ":\n" + masterContent
+	return masterStart, withinMaster
+}
+
+func findRepo(source []byte, repos []string, newBranch string) string {
+	sourceString := string(source)
+	eachRepos := strings.Split(sourceString, "repos:")
+	if len(eachRepos) < 1 {
+		return sourceString
+	}
+	for i := 1; i < len(eachRepos); i++ {
+		repoSection := eachRepos[i]
+		repoLines := strings.Split(repoSection, "\n")
+		var numSpaceForRepo int
+		if strings.Compare(repoLines[0], "") == 0 && len(repoLines) > 1 {
+			numSpaceForRepo = countLeadingSpace(repoLines[1])
+		} else {
+			numSpaceForRepo = countLeadingSpace(repoLines[0])
+		}
+		leadingSpace := strings.Repeat(" ", numSpaceForRepo)
+		for _, repo := range repos {
+			repoLine := leadingSpace + repo + ":\n"
+			repoSplit := strings.Split(repoSection, repoLine)
+			if len(repoSplit) == 1 {
+				continue
+			}
+
+			generalReposRe := regexp.MustCompile("\n" + leadingSpace + "\\S+:\n")
+			for j := 1; j < len(repoSplit); j++ {
+				curRepoContent := repoSplit[j]
+				otherRepos := generalReposRe.FindStringSubmatchIndex(curRepoContent)
+
+				endIndex := len(curRepoContent)
+				if otherRepos != nil {
+					endIndex = otherRepos[0]
+				}
+				restContent := ""
+				if endIndex != len(curRepoContent) {
+					restContent = curRepoContent[endIndex:]
+				}
+
+				validRepoContent := curRepoContent[:endIndex]
+				validRepoContent = findMaster(validRepoContent, newBranch)
+				curRepoContent = validRepoContent + restContent
+				repoSplit[j] = curRepoContent
+			}
+			repoSection = strings.Join(repoSplit, repoLine)
+		}
+		eachRepos[i] = repoSection
+	}
+
+	resultString := strings.Join(eachRepos, "repos:")
+	return resultString
 }
 
 // Convert read result into string and split it based on "branches:" to make it
 // simpler to find "master:" and its contents. Get output from getContentOfNewBranch().
 // Add new branch content before master section and rejoin the string.
-func findMaster(source []byte, newBranch string) string {
-	sourceString := string(source)
+// Only add new branches to repos proxy, istio, istio-releases
+func findMaster(sourceString string, newBranch string) string {
 	eachBranches := strings.Split(sourceString, "branches:")
 	for i := 0; i < len(eachBranches); i++ {
 		branch := eachBranches[i]
-		branchLines := strings.Split(branch, "\n")
-		index, branchContent := getContentOfNewBranch(branchLines, newBranch)
+		index, branchContent := getContentOfNewBranch(branch, newBranch)
 		if index == -1 {
 			continue
 		}
-		branchLines = appendAtIndex(branchLines, branchContent, index)
-
-		branchString := strings.Join(branchLines, "\n")
-		eachBranches[i] = branchString
+		branch = appendAtIndex(branch, branchContent, index)
+		eachBranches[i] = branch
 	}
 
 	resultString := strings.Join(eachBranches, "branches:")
@@ -171,24 +180,35 @@ func findMaster(source []byte, newBranch string) string {
 
 // Call function with go run rewriteConfig.go <new_branch_name>.
 func main() {
-	if len(os.Args) < 2 {
-		log.Println("Please provide new branch name")
-		os.Exit(1)
-	}
-	newBranch := os.Args[1]
-	filename := "config.yaml"
+	var fileName string
+	flag.StringVar(&fileName, "InputFileName", "", "A file with original config information.")
+	var branchName string
+	flag.StringVar(&branchName, "NewBranchName", "", "A new branch to add to the original file.")
+	var repoNames string
+	flag.StringVar(&repoNames, "ReposeToAdd", "proxy, istio, istio-releases", "Repo names to add new branch to, separated by `,`.")
 
-	source, err := ioutil.ReadFile(filename)
+	flag.Parse()
+
+	if strings.Compare(fileName, "") == 0 {
+		log.Fatal("Please enter an input file name.")
+	}
+
+	if strings.Compare(branchName, "") == 0 {
+		log.Fatal("Please enter a new branch name to add to original file.")
+	}
+
+	repos := strings.Split(repoNames, ",")
+
+	source, err := ioutil.ReadFile(fileName)
 	if err != nil {
-		log.Println("error when reading file")
-		os.Exit(1)
+		log.Fatalf("Unable to read input file: %v", err)
 	}
 
-	resultString := findMaster(source, newBranch)
+	resultString := findRepo(source, repos, branchName)
 	resultBytes := []byte(resultString)
 
-	err = ioutil.WriteFile("config.yaml", resultBytes, 0600)
+	err = ioutil.WriteFile(fileName, resultBytes, 0600)
 	if err != nil {
-		log.Println("error when writing file")
+		log.Fatalf("Error when writing file: %v", err)
 	}
 }

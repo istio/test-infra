@@ -50,15 +50,31 @@ github_reporter:
   - presubmit
   - postsubmit
 
-blocked_branches: &blocked_branches
-  release-*: &blocking_merge
+blocked_branches: &blocked_branches_base
+  master:
+    protect: true
+  release-0.1: &blocking_merge
     required_status_checks:
       contexts:
       - "merges-blocked-needs-admin"
     protect: true
+  release-0.2: *blocking_merge
+  release-0.3: *blocking_merge
+  release-0.4: *blocking_merge
+  release-0.5: *blocking_merge
+  release-0.6: *blocking_merge
+  release-0.7: *blocking_merge
+  release-0.8: *blocking_merge
+  release-1.0: *blocking_merge
+
+blocked_branches: &blocked_branches
+  <<: *blocked_branches_base
+  release-1.1: *blocking_merge
+  release-1.2: *blocking_merge
 
 branch-protection:
   allow_disabled_policies: true
+  protect: false
   orgs:
     istio:
       required_status_checks:
@@ -69,61 +85,22 @@ branch-protection:
       restrictions:
       repos:
         api:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+          branches: *blocked_branches
         istio.io:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+          branches: *blocked_branches
         operator:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+          branches: *blocked_branches
         cni:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+          branches: *blocked_branches
         installer:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            master:
-              protect: true
-              required_status_checks:
-                contexts:
-                # Keep in sync with .mergify.yml required
-                - "ci/circleci: build"
-                - "ci/circleci: install-demo"
-                - "ci/circleci: install-minikube"
-                - "ci/circleci: integration-old-kind"
-                - "ci/circleci: integration-presubmit-isolated-namespaces-kind"
-                - "ci/circleci: integration-presubmit-one-namespace-kind"
-                - "ci/circleci: noauth"
+          branches: *blocked_branches
         pkg:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+          branches: *blocked_branches
         common-files:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+          branches: *blocked_branches
         istio:
-          protect: false
           branches:
-            <<: *blocked_branches
+            <<: *blocked_branches_base
             collab-galley:
               protect: true
               restrictions:
@@ -155,10 +132,7 @@ branch-protection:
                 - "ci/circleci: build"
                 - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
                 - "merges-blocked-needs-admin"
-            master:
-              protect: true
         proxy:
-          protect: false
           required_status_checks:
             contexts:
             - "ci/circleci: build"
@@ -166,29 +140,13 @@ branch-protection:
             <<: *blocked_branches
             endpoints-v1.1.x: *blocking_merge
             endpoints-v1.2.x: *blocking_merge
-            release-1.1:
-              protect: true
-              required_status_checks:
-                contexts:
-                - "merges-blocked-needs-admin"
-            release-1.2:
-              protect: true
-              required_status_checks:
-                contexts:
-                - "merges-blocked-needs-admin"
-            master:
-              protect: true
             wasm:
               protect: true
         test-infra:
-          protect: false
-          branches:
-            master:
-              protect: true
+          protect: true
     istio-releases:
       repos:
         pipeline:
-          protect: false
           restrictions:
           branches:
             krishna-test:
@@ -204,7 +162,6 @@ branch-protection:
     istio-ecosystem:
       repos:
         authservice:
-          protect: false
           restrictions:
           branches:
             master:

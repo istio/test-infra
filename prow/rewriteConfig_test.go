@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.package main
 
+package main
+
 import (
 	"strings"
 	"testing"
@@ -19,43 +21,43 @@ import (
 
 func TestFindMaster(t *testing.T) {
 	testingInput := []byte(`
-branches:
-    <<: *blocked_branches
-    master:
-      protect: true
-branches:
-    <<: *blocked_branches
-    master:
-      protect: true
-      required_status_checks:
-        contexts:
-        - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
+repos:
+  istio:
+    branches:
+        <<: *blocked_branches
+        master:
+          protect: true
+  b:
+    branches:
+        <<: *blocked_branches
+        master:
+          protect: true
+          required_status_checks:
+            contexts:
+            - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
 `)
 
-	output := findMaster(testingInput, "a")
+	output := findRepo(testingInput, []string{"istio"}, "a")
 	correctOutput := []byte(`
-branches:
-    <<: *blocked_branches
-    a:
-      protect: true
-      required_status_checks:
-        contexts:
-        - "merges-blocked-needs-admin"
-    master:
-      protect: true
-branches:
-    <<: *blocked_branches
-    a:
-      protect: true
-      required_status_checks:
-        contexts:
-        - "merges-blocked-needs-admin"
-        - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
-    master:
-      protect: true
-      required_status_checks:
-        contexts:
-        - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
+repos:
+  istio:
+    branches:
+        <<: *blocked_branches
+        a:
+          protect: true
+          required_status_checks:
+            contexts:
+            - "merges-blocked-needs-admin"
+        master:
+          protect: true
+  b:
+    branches:
+        <<: *blocked_branches
+        master:
+          protect: true
+          required_status_checks:
+            contexts:
+            - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
 `)
 	if strings.Compare(output, string(correctOutput)) != 0 {
 		t.Fail()
