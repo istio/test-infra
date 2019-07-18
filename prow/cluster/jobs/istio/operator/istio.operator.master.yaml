@@ -22,28 +22,32 @@ presubmits:
   istio/operator:
 
   - name: operator-lint-master
-    <<: *job_template
-    context: prow/lint.sh
+    path_alias: istio.io/operator
+    decorate: true
     always_run: true
     spec:
       containers:
-      - <<: *istio_container
+      - image: golang:1.12.7
         command:
-        - entrypoint
-        - prow/lint.sh
+        - make
+        - lint
       nodeSelector:
         testing: test-pool
 
   - name: operator-build-master
-    <<: *job_template
-    context: prow/build.sh
+    path_alias: istio.io/operator
+    decorate: true
     always_run: true
     spec:
       containers:
-      - <<: *istio_container
+      - image: golang:1.12.7
         command:
-        - entrypoint
-        - prow/build.sh
+        - go
+        - build
+        - ./...
+        env:
+        - name: GO11MODULE
+          value: "on"
       nodeSelector:
         testing: build-pool
 
