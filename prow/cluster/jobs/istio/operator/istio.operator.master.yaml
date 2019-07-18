@@ -31,6 +31,9 @@ presubmits:
         command:
         - make
         - lint
+        env:
+        - name: GO111MODULE
+          value: "on"
       nodeSelector:
         testing: test-pool
 
@@ -46,7 +49,7 @@ presubmits:
         - build
         - ./...
         env:
-        - name: GO11MODULE
+        - name: GO111MODULE
           value: "on"
       nodeSelector:
         testing: build-pool
