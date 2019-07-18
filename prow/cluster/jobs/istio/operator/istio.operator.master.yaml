@@ -71,6 +71,19 @@ presubmits:
           value: "on"
       nodeSelector:
         testing: test-pool
+
+  - name: operator-mandiff-master
+    <<: *job_template
+    context: prow/mandiff.sh
+    always_run: true
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/mandiff.sh
+      nodeSelector:
+        testing: test-pool
 postsubmits:
 
   istio/operator:
