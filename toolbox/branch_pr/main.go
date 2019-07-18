@@ -108,10 +108,7 @@ func main() {
 
 func createIssueQuery(repo string) []string {
 	var queries []string
-	queries = append(queries, fmt.Sprintf("repo:%s/%s", *org, repo))
-	queries = append(queries, "type:pr")
-	queries = append(queries, "merged:>="+*startDate)
-	queries = append(queries, "base:"+*branch)
+	queries = append(queries, fmt.Sprintf("repo:%s/%s", *org, repo), "type:pr", "merged:>="+*startDate, "base:"+*branch)
 
 	return queries
 }

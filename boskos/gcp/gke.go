@@ -24,6 +24,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/container/v1"
+
 	"istio.io/test-infra/toolbox/util"
 )
 
@@ -49,13 +50,13 @@ type containerEngine struct {
 	service *container.Service
 }
 
-func findVersionMatch(version string, supportedVersion []string) (string, error) {
+func findVersionMatch(version string, supportedVersion []string) string {
 	for _, v := range supportedVersion {
 		if strings.HasPrefix(v, version) {
-			return v, nil
+			return v
 		}
 	}
-	return "", nil
+	return ""
 }
 
 func checkCluster(kubeconfig string) error {
@@ -129,10 +130,7 @@ func (cc *containerEngine) create(ctx context.Context, project string, config cl
 	if config.Version == "" {
 		version = serverConfig.DefaultClusterVersion
 	} else {
-		version, err = findVersionMatch(config.Version, serverConfig.ValidMasterVersions)
-		if err != nil {
-			return nil, err
-		}
+		version = findVersionMatch(config.Version, serverConfig.ValidMasterVersions)
 	}
 	clusterRequest := &container.CreateClusterRequest{
 		Cluster: &container.Cluster{

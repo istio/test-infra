@@ -191,7 +191,7 @@ func sh(format string, muted bool, args ...interface{}) (string, error) {
 	c := exec.Command("sh", "-c", command) // #nosec
 	b, err := c.CombinedOutput()
 	if !muted {
-		log.Printf("Command output: \n%s", string(b[:]))
+		log.Printf("Command output: \n%s", string(b))
 	}
 	if err != nil {
 		return "", fmt.Errorf("command failed: %q %v", string(b), err)
