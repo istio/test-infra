@@ -52,15 +52,20 @@ presubmits:
         testing: build-pool
 
   - name: operator-test-master
-    <<: *job_template
-    context: prow/test.sh
+    path_alias: istio.io/operator
+    decorate: true
     always_run: true
     spec:
       containers:
-      - <<: *istio_container
+      - image: golang:1.12.7
         command:
-        - entrypoint
-        - prow/test.sh
+        - go
+        - test
+        - -race
+        - ./...
+        env:
+        - name: GO111MODULE
+          value: "on"
       nodeSelector:
         testing: test-pool
 postsubmits:
