@@ -94,6 +94,18 @@ func TestConfig(t *testing.T) {
 			branch: "master",
 		},
 		{
+			name:   "operator protects release-0.1",
+			org:    "istio",
+			repo:   "operator",
+			branch: "release-0.1",
+		},
+		{
+			name:   "operator protects release-1.1",
+			org:    "istio",
+			repo:   "operator",
+			branch: "release-1.1",
+		},
+		{
 			name:   "test-infra protects all branches",
 			org:    "istio",
 			repo:   "test-infra",
@@ -147,7 +159,7 @@ func TestConfig(t *testing.T) {
 				t.Error("undefined protection")
 				return
 			case *bp.Protect == tc.unprotected:
-				t.Errorf("protect: %t is reversed", *bp.Protect)
+				t.Errorf("protect: %t (actual) but we expect %t", *bp.Protect, !tc.unprotected)
 			}
 
 			if bp.RequiredStatusChecks == nil {
