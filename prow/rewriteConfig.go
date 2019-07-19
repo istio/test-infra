@@ -73,34 +73,34 @@ func getContentOfNewBranch(branchContent string, newBranch string) (int, string)
 	masterContent = strings.Join(strings.Split(masterContent, "\n")[1:], "\n")
 	contextRe := regexp.MustCompile("\\s+contexts:\n")
 	contextInd := contextRe.FindStringSubmatchIndex(masterContent)
-	if contextInd != nil {
-		contextStart := contextInd[0] + 1
-		contextContent := masterContent[contextStart:]
-		if !strings.Contains(contextContent, "- \"merges-blocked-needs-admin\"") {
-			contextSpaces := countLeadingSpace(masterContent[contextStart:contextInd[1]])
-			adminLine := strings.Repeat(" ", contextSpaces) + "- \"merges-blocked-needs-admin\""
-			if strings.Compare(string(masterContent[len(masterContent)-1]), "\n") == 0 {
-				masterContent = masterContent + adminLine + "\n"
-			} else {
-				masterContent = masterContent + "\n" + adminLine + "\n"
-			}
-		}
-
-	} else {
-
+	if contextInd == nil {
 		masterContentSplit := strings.Split(masterContent, "\n")
 		masterContentLine := masterContentSplit[0]
-
 		spacesInMaster := countLeadingSpace(masterContentLine)
+
+		tab := spacesInMaster - spacesForBranchNum
 		statusCheckString := strings.Repeat(" ", spacesInMaster) + "required_status_checks:\n"
-		contextsString := strings.Repeat(" ", spacesInMaster+2) + "contexts:\n"
-		needsAdminString := strings.Repeat(" ", spacesInMaster+2) + "- \"merges-blocked-needs-admin\""
-		admins := statusCheckString + contextsString + needsAdminString
-		if strings.Compare(string(masterContent[len(masterContent)-1]), "\n") == 0 {
-			masterContent = masterContent + admins + "\n"
-		} else {
-			masterContent = masterContent + "\n" + admins + "\n"
+		contextsString := strings.Repeat(" ", spacesInMaster+tab) + "contexts:\n"
+
+		if strings.Compare(masterContentSplit[len(masterContentSplit)-1], "") != 0 {
+			masterContent = masterContent + "\n"
 		}
+
+		masterContent = masterContent + statusCheckString + contextsString
+	}
+
+	contextInd = contextRe.FindStringSubmatchIndex(masterContent)
+	contextStart := contextInd[0] + 1
+	contextContent := masterContent[contextStart:]
+	if !strings.Contains(contextContent, "- \"merges-blocked-needs-admin\"") {
+		contextSpaces := countLeadingSpace(masterContent[contextStart:contextInd[1]])
+		adminLine := strings.Repeat(" ", contextSpaces) + "- \"merges-blocked-needs-admin\"\n"
+
+		if strings.Compare(string(masterContent[len(masterContent)-1]), "\n") != 0 {
+			masterContent = masterContent + "\n"
+		}
+
+		masterContent = masterContent + adminLine
 	}
 
 	withinMaster := spacesForBranch + newBranch + ":\n" + masterContent

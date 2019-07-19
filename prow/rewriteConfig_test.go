@@ -19,7 +19,7 @@ import (
 	"testing"
 )
 
-func TestFindMaster(t *testing.T) {
+func TestMasterOnlyAddToSpecifiedRepos(t *testing.T) {
 	testingInput := []byte(`
 repos:
   istio:
@@ -62,5 +62,108 @@ repos:
 	if strings.Compare(output, string(correctOutput)) != 0 {
 		t.Fail()
 	}
+}
 
+func TestMasterWithNoContext(t *testing.T) {
+	testingInput := []byte(`
+repos:
+  istio:
+    branches:
+        <<: *blocked_branches
+        master:
+          protect: true
+`)
+
+	output := findRepo(testingInput, []string{"istio"}, "a")
+	correctOutput := []byte(`
+repos:
+  istio:
+    branches:
+        <<: *blocked_branches
+        a:
+          protect: true
+          required_status_checks:
+            contexts:
+            - "merges-blocked-needs-admin"
+        master:
+          protect: true
+`)
+	if strings.Compare(output, string(correctOutput)) != 0 {
+		t.Fail()
+	}
+
+}
+
+func TestMasterForMasterWithConentsNoNeedsAdmin(t *testing.T) {
+	testingInput := []byte(`
+repos:
+  istio:
+    branches:
+        <<: *blocked_branches
+        master:
+          protect: true
+          required_status_checks:
+            contexts:
+            - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
+`)
+
+	output := findRepo(testingInput, []string{"istio"}, "a")
+	correctOutput := []byte(`
+repos:
+  istio:
+    branches:
+        <<: *blocked_branches
+        a:
+          protect: true
+          required_status_checks:
+            contexts:
+            - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
+            - "merges-blocked-needs-admin"
+        master:
+          protect: true
+          required_status_checks:
+            contexts:
+            - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
+`)
+	if strings.Compare(output, string(correctOutput)) != 0 {
+		t.Fail()
+	}
+}
+
+func TestMasterForMasterWithConentsNeedsAdmin(t *testing.T) {
+	testingInput := []byte(`
+repos:
+  istio:
+    branches:
+        <<: *blocked_branches
+        master:
+          protect: true
+          required_status_checks:
+            contexts:
+            - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
+            - "merges-blocked-needs-admin"
+`)
+
+	output := findRepo(testingInput, []string{"istio"}, "a")
+	correctOutput := []byte(`
+repos:
+  istio:
+    branches:
+        <<: *blocked_branches
+        a:
+          protect: true
+          required_status_checks:
+            contexts:
+            - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
+            - "merges-blocked-needs-admin"
+        master:
+          protect: true
+          required_status_checks:
+            contexts:
+            - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
+            - "merges-blocked-needs-admin"
+`)
+	if strings.Compare(output, string(correctOutput)) != 0 {
+		t.Fail()
+	}
 }
