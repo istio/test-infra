@@ -54,15 +54,21 @@ func getContentOfNewBranch(branchContent string, newBranch string) (int, string)
 	firstBranchLine := branchLines[1]
 	spacesForBranchNum := countLeadingSpace(firstBranchLine)
 
+	// Find branch line with the branch name of "master" as the start of the master content.
 	spacesForBranch := strings.Repeat(" ", spacesForBranchNum)
 	masterLine := spacesForBranch + "master:\n"
 	masterStart := strings.Index(branchContent, masterLine)
 
 	nonMasterContent := branchContent[masterStart+1:]
 
+	// The end of master content is the start of other branch with the same number of spaces before branch name
+	// and names not being the master name.
 	generalBranchRe := regexp.MustCompile("\n" + spacesForBranch + "\\S+:\n")
 	otherBranches := generalBranchRe.FindStringSubmatchIndex(nonMasterContent)
 
+	// Get master content between start of master branch line and other branch line.
+	// If no other branch lines are found then the end of master content is the end of the
+	// branch section.
 	var masterContent string
 	if otherBranches == nil {
 		masterContent = branchContent[masterStart:]
@@ -70,7 +76,11 @@ func getContentOfNewBranch(branchContent string, newBranch string) (int, string)
 		masterContent = branchContent[masterStart:otherBranches[0]]
 	}
 
+	// Eliminate the first line (the master brach name line) in master content.
 	masterContent = strings.Join(strings.Split(masterContent, "\n")[1:], "\n")
+
+	// Check if master content contains the line "contexts:", if not, add lines of
+	// "required_status_checks:" and "contexts:".
 	contextRe := regexp.MustCompile("\\s+contexts:\n")
 	contextInd := contextRe.FindStringSubmatchIndex(masterContent)
 	if contextInd == nil {
@@ -89,10 +99,12 @@ func getContentOfNewBranch(branchContent string, newBranch string) (int, string)
 		masterContent = masterContent + statusCheckString + contextsString
 	}
 
-	// Find new context index after adding context lines to original master content
+	// Find new context index after adding context lines to original master content.
 	contextInd = contextRe.FindStringSubmatchIndex(masterContent)
 	contextStart := contextInd[0] + 1
 	contextContent := masterContent[contextStart:]
+
+	// Check if master content contains "merges-blocked-needs-admin", if not, add line to master content.
 	if !strings.Contains(contextContent, "- \"merges-blocked-needs-admin\"") {
 		contextSpaces := countLeadingSpace(masterContent[contextStart:contextInd[1]])
 		adminLine := strings.Repeat(" ", contextSpaces) + "- \"merges-blocked-needs-admin\"\n"
@@ -104,59 +116,92 @@ func getContentOfNewBranch(branchContent string, newBranch string) (int, string)
 		masterContent += adminLine
 	}
 
+	// Rebuild content with new branch name line and new content for the branch.
 	withinMaster := spacesForBranch + newBranch + ":\n" + masterContent
 	return masterStart, withinMaster
 }
 
 // Process source byte slice to extract only the repos specified by users to add new branches to.
-func findRepo(source []byte, repos []string, newBranch string) string {
+func findRepo(source []byte, reposToAddNewBranch []string, newBranch string) string {
 	sourceString := string(source)
-	eachRepos := strings.Split(sourceString, "repos:")
-	if len(eachRepos) < 1 {
+	// Split the source string by "repos:\n" to get the content between each "repos:\n" line.
+	contentBetweenReposLines := strings.Split(sourceString, "repos:\n")
+	if len(contentBetweenReposLines) < 1 {
+		// If source string does not contain "repos:\n" line, then there is nowhere in source string
+		// to add new branch content. Return source string without changing it.
 		return sourceString
 	}
-	for i := 1; i < len(eachRepos); i++ {
-		repoSection := eachRepos[i]
-		repoLines := strings.Split(repoSection, "\n")
-		var numSpaceForRepo int
-		if strings.Compare(repoLines[0], "") == 0 && len(repoLines) > 1 {
-			numSpaceForRepo = countLeadingSpace(repoLines[1])
-		} else {
-			numSpaceForRepo = countLeadingSpace(repoLines[0])
-		}
-		leadingSpace := strings.Repeat(" ", numSpaceForRepo)
-		for _, repo := range repos {
-			repoLine := leadingSpace + repo + ":\n"
-			repoSplit := strings.Split(repoSection, repoLine)
-			if len(repoSplit) == 1 {
+
+	// The first element in `contentBetweenReposLines` does not contain content between repos, ignore it.
+	for i := 1; i < len(contentBetweenReposLines); i++ {
+		repoSection := contentBetweenReposLines[i]
+
+		// Trim leading "\n"s from repo section.
+		repoSectionWithLeadingLineFeedsTrimed := strings.Trim(repoSection, "\n")
+		repoLines := strings.Split(repoSectionWithLeadingLineFeedsTrimed, "\n")
+
+		// Count the number of spaces before lines for each specific repo name under the "repos:\n" line.
+		numSpaceForEachRepoName := countLeadingSpace(repoLines[0])
+		leadingSpaceForEachRepoName := strings.Repeat(" ", numSpaceForEachRepoName)
+
+		// Loop through each repo from user input slice as interesting repo to add new branch content to.
+		for _, repoToAddNewBranch := range reposToAddNewBranch {
+			// The leading repo name line for interesting repo `repoToAddNewBranch` has the same number of
+			// spaces as all other repo name lines.
+			interestingRepoNameLine := leadingSpaceForEachRepoName + repoToAddNewBranch + ":\n"
+			// Split the repo section by the interesting repo name line.
+			splitRepoByInterestingRepoNameLine := strings.Split(repoSection, interestingRepoNameLine)
+			if len(splitRepoByInterestingRepoNameLine) == 1 {
+				// Current repoSection does not contain the current interesting repo line.
+				// Skip the rest of the loop to find current interesting repo line in the next repo section.
 				continue
 			}
 
-			generalReposRe := regexp.MustCompile("\n" + leadingSpace + "\\S+:\n")
-			for j := 1; j < len(repoSplit); j++ {
-				curRepoContent := repoSplit[j]
-				otherRepos := generalReposRe.FindStringSubmatchIndex(curRepoContent)
+			// After splitted by the current interesting repo line, none of the sections inside `repoSplit`
+			// contains the current interesting repo line. The next line containing the same number of spaces
+			// as the current interesting repo line, repo name and ":\n" would be for a different non-interesting
+			// repo.
+			generalReposRe := regexp.MustCompile("\n" + leadingSpaceForEachRepoName + "\\S+:\n")
+			// Skip the first element in `splitRepoByInterestingRepoNameLine` because it does not contain
+			// the interesting repo name line.
+			for j := 1; j < len(splitRepoByInterestingRepoNameLine); j++ {
+				// Get each section that has the interesting repo name line before its first line.
+				curRepoContentWithLeadingInterestingRepoContent := splitRepoByInterestingRepoNameLine[j]
+				// Find the first occurrence of a non-interesting repo name line.
+				nonInterestingRepoNameLineSlice := generalReposRe.FindStringSubmatchIndex(curRepoContentWithLeadingInterestingRepoContent)
+				// If there is no non-interesting repo name line, the whole `curRepoContentWithLeadingInterestingRepoContent` is interesting repo.
+				endIndex := len(curRepoContentWithLeadingInterestingRepoContent)
 
-				endIndex := len(curRepoContent)
-				if otherRepos != nil {
-					endIndex = otherRepos[0]
-				}
-				restContent := ""
-				if endIndex != len(curRepoContent) {
-					restContent = curRepoContent[endIndex:]
+				// If there is non-interesting repo name line in `curRepoContentWithLeadingInterestingRepoContent`,
+				// the end of the interesting repo section is before the first occurrence of non-interesting repo name line.
+				if nonInterestingRepoNameLineSlice != nil {
+					endIndex = nonInterestingRepoNameLineSlice[0]
 				}
 
-				validRepoContent := curRepoContent[:endIndex]
-				validRepoContent = findMaster(validRepoContent, newBranch)
-				curRepoContent = validRepoContent + restContent
-				repoSplit[j] = curRepoContent
+				// Get the non-interesting repo content in `curRepoContentWithLeadingInterestingRepoContent`
+				// that begins with the `endIndex` of the interesting repo content.
+				// If the `endIndex` for current interesting repo is the length of `curRepoContentWithLeadingInterestingRepoContent`
+				// the non-interesting repo content is empty string.
+				nonInterestingContentInCurRepoSection := ""
+				if endIndex != len(curRepoContentWithLeadingInterestingRepoContent) {
+					nonInterestingContentInCurRepoSection = curRepoContentWithLeadingInterestingRepoContent[endIndex:]
+				}
+
+				// Interesting repo content comes between the start of the `curRepoContentWithLeadingInterestingRepoContent`
+				// and the `endIndex`.
+				interestingRepoContent := curRepoContentWithLeadingInterestingRepoContent[:endIndex]
+				// Get new repo content with new branch content coming from master branch in the interesting repo content.
+				interestingRepoContent = findMaster(interestingRepoContent, newBranch)
+				// Rebuild `curRepoContentWithLeadingInterestingRepoContent` with new interesting repo content.
+				curRepoContentWithLeadingInterestingRepoContent = interestingRepoContent + nonInterestingContentInCurRepoSection
+				splitRepoByInterestingRepoNameLine[j] = curRepoContentWithLeadingInterestingRepoContent
 			}
-			repoSection = strings.Join(repoSplit, repoLine)
+			repoSection = strings.Join(splitRepoByInterestingRepoNameLine, interestingRepoNameLine)
 		}
-		eachRepos[i] = repoSection
+		contentBetweenReposLines[i] = repoSection
 	}
 
-	resultString := strings.Join(eachRepos, "repos:")
+	resultString := strings.Join(contentBetweenReposLines, "repos:\n")
 	return resultString
 }
 
