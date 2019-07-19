@@ -83,12 +83,13 @@ func getContentOfNewBranch(branchContent string, newBranch string) (int, string)
 		contextsString := strings.Repeat(" ", spacesInMaster+tab) + "contexts:\n"
 
 		if strings.Compare(masterContentSplit[len(masterContentSplit)-1], "") != 0 {
-			masterContent = masterContent + "\n"
+			masterContent += "\n"
 		}
 
 		masterContent = masterContent + statusCheckString + contextsString
 	}
 
+	// Find new context index after adding context lines to original master content
 	contextInd = contextRe.FindStringSubmatchIndex(masterContent)
 	contextStart := contextInd[0] + 1
 	contextContent := masterContent[contextStart:]
@@ -97,16 +98,17 @@ func getContentOfNewBranch(branchContent string, newBranch string) (int, string)
 		adminLine := strings.Repeat(" ", contextSpaces) + "- \"merges-blocked-needs-admin\"\n"
 
 		if strings.Compare(string(masterContent[len(masterContent)-1]), "\n") != 0 {
-			masterContent = masterContent + "\n"
+			masterContent += "\n"
 		}
 
-		masterContent = masterContent + adminLine
+		masterContent += adminLine
 	}
 
 	withinMaster := spacesForBranch + newBranch + ":\n" + masterContent
 	return masterStart, withinMaster
 }
 
+// Process source byte slice to extract only the repos specified by users to add new branches to.
 func findRepo(source []byte, repos []string, newBranch string) string {
 	sourceString := string(source)
 	eachRepos := strings.Split(sourceString, "repos:")
