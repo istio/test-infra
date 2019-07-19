@@ -66,18 +66,14 @@ func NewAlert(gmailAppPass, identity, senderAddr, receiverAddr string,
 
 // Send uses gmail smtp server to send out email.
 func (a *Alert) Send(body string) error {
-	timestamp, err := a.now()
-	if err != nil {
-		log.Printf("Failed to read current time when sending alert\n")
-		return err
-	}
+	timestamp := a.now()
 	msg := fmt.Sprintf("From: %s\nTo: %s\nSubject: %s\n\n%s\n",
 		a.senderAddr, a.receiverAddrs,
 		a.alertConfig.Subject+timestamp,
 		a.alertConfig.Prologue+body+a.alertConfig.Epilogue)
 	gmailSMTPAddr := fmt.Sprintf("%s:%d", gmailSMTPServer, gmailSMTPPort)
 	smtpAuth := smtp.PlainAuth(a.identity, a.senderAddr, a.gmailAppPass, gmailSMTPServer)
-	err = smtp.SendMail(gmailSMTPAddr, smtpAuth, a.senderAddr, a.receiverAddrs, []byte(msg))
+	err := smtp.SendMail(gmailSMTPAddr, smtpAuth, a.senderAddr, a.receiverAddrs, []byte(msg))
 	if err != nil {
 		log.Printf("Alert failed to be sent\n")
 		return err
@@ -85,6 +81,6 @@ func (a *Alert) Send(body string) error {
 	return nil
 }
 
-func (a *Alert) now() (string, error) {
-	return time.Now().In(a.location).Format("2006-01-02 15:04:05 PST"), nil
+func (a *Alert) now() string {
+	return time.Now().In(a.location).Format("2006-01-02 15:04:05 PST")
 }

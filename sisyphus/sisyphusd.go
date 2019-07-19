@@ -282,18 +282,16 @@ func (d *Daemon) processResult(job *jobStatus, runNo int, result *Result) *failu
 					}
 				}
 			}
-		} else { // no reruns exist on this SHA
-			if !result.Passed {
-				log.Printf("Starting new rerun task on job [%s] at sha [%s]\n", job.name, result.SHA)
-				job.rerunJobStats[result.SHA] = &FlakeStat{
-					TestName: job.name,
-					SHA:      result.SHA,
-				}
-				// start the first rerun
-				log.Printf("Starting the first rerun on job [%s] at sha [%s]", job.name, result.SHA)
-				if err := d.ci.Rerun(job.name, runNo); err != nil {
-					log.Printf("failed when starting reruns on [%s]: %v\n", job.name, err)
-				}
+		} else if !result.Passed { // no reruns exist on this SHA
+			log.Printf("Starting new rerun task on job [%s] at sha [%s]\n", job.name, result.SHA)
+			job.rerunJobStats[result.SHA] = &FlakeStat{
+				TestName: job.name,
+				SHA:      result.SHA,
+			}
+			// start the first rerun
+			log.Printf("Starting the first rerun on job [%s] at sha [%s]", job.name, result.SHA)
+			if err := d.ci.Rerun(job.name, runNo); err != nil {
+				log.Printf("failed when starting reruns on [%s]: %v\n", job.name, err)
 			}
 		}
 	}
