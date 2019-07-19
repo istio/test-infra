@@ -82,10 +82,13 @@ branch-protection:
         - cla/google
       required_pull_request_reviews:
         required_approving_review_count: 1
+        require_code_owner_reviews: true
       restrictions:
       repos:
         api:
           branches: *blocked_branches
+          required_pull_request_reviews:
+            required_approving_review_count: 2
         istio.io:
           branches: *blocked_branches
         operator:
@@ -99,6 +102,9 @@ branch-protection:
         common-files:
           branches: *blocked_branches
         istio:
+          admins: true
+          required_pull_request_reviews:
+            require_code_owner_reviews: false
           branches:
             <<: *blocked_branches_base
             collab-galley:
@@ -133,6 +139,9 @@ branch-protection:
                 - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
                 - "merges-blocked-needs-admin"
         proxy:
+          admins: true
+          required_pull_request_reviews:
+            require_code_owner_reviews: false
           required_status_checks:
             contexts:
             - "ci/circleci: build"
@@ -143,8 +152,11 @@ branch-protection:
             wasm:
               protect: true
         test-infra:
+          admins: true
           protect: true
-    istio-releases:
+          required_pull_request_reviews:
+            require_code_owner_reviews: false
+      istio-releases:
       repos:
         pipeline:
           restrictions:
