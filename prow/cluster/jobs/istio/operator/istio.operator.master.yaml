@@ -73,15 +73,18 @@ presubmits:
         testing: test-pool
 
   - name: operator-mandiff-master
-    <<: *job_template
-    context: prow/mandiff.sh
+    path_alias: istio.io/operator
+    decorate: true
     always_run: true
     spec:
       containers:
-      - <<: *istio_container
+      - image: gcr.io/istio-testing/istio-builder:v20190624-478286dc
         command:
-        - entrypoint
-        - prow/mandiff.sh
+        - make
+        - mandiff
+        env:
+        - name: GO111MODULE
+          value: "on"
       nodeSelector:
         testing: test-pool
 postsubmits:
