@@ -71,6 +71,10 @@ blocked_branches: &blocked_branches
   <<: *blocked_branches_base
   release-1.1: *blocking_merge
   release-1.2: *blocking_merge
+  #  <<: *blocking_merge
+  #  restrictions:
+  #    teams:
+  #    - release-managers-1-2
 
 branch-protection:
   allow_disabled_policies: true
@@ -80,11 +84,14 @@ branch-protection:
       required_status_checks:
         contexts:
         - cla/google
-      required_pull_request_reviews:
+      required_pull_request_reviews: &mergify_reviews
         required_approving_review_count: 1
+        require_code_owner_reviews: true
       restrictions:
       repos:
         api:
+          required_pull_request_reviews:
+            required_approving_review_count: 2
           branches: *blocked_branches
         istio.io:
           branches: *blocked_branches
@@ -99,6 +106,8 @@ branch-protection:
         common-files:
           branches: *blocked_branches
         istio:
+          required_pull_request_reviews: &tide_reviews
+            require_code_owner_reviews: false
           branches:
             <<: *blocked_branches_base
             collab-galley:
@@ -133,6 +142,7 @@ branch-protection:
                 - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
                 - "merges-blocked-needs-admin"
         proxy:
+          required_pull_request_reviews: *tide_reviews
           required_status_checks:
             contexts:
             - "ci/circleci: build"
@@ -143,10 +153,12 @@ branch-protection:
             wasm:
               protect: true
         test-infra:
+          required_pull_request_reviews: *tide_reviews
           protect: true
     istio-releases:
       repos:
         pipeline:
+          required_pull_request_reviews: *tide_reviews
           restrictions:
           branches:
             krishna-test:
@@ -162,6 +174,7 @@ branch-protection:
     istio-ecosystem:
       repos:
         authservice:
+          required_pull_request_reviews: *tide_reviews
           restrictions:
           branches:
             master:
@@ -170,17 +183,9 @@ branch-protection:
 tide:
   queries:
   - repos:
-    - istio-releases/pipeline
-    missingLabels:
-    - do-not-merge
-    - do-not-merge/hold
-    - do-not-merge/work-in-progress
-    - needs-ok-to-test
-    - needs-rebase
-  - repos:
-    - istio/test-infra
     - istio/istio
     - istio/proxy
+    - istio/test-infra
     - istio-ecosystem/authservice
     labels:
     - lgtm
@@ -190,6 +195,14 @@ tide:
     - do-not-merge
     - do-not-merge/hold
     - do-not-merge/work-in-progress
+    - needs-rebase
+  - repos:
+    - istio-releases/pipeline
+    missingLabels:
+    - do-not-merge
+    - do-not-merge/hold
+    - do-not-merge/work-in-progress
+    - needs-ok-to-test
     - needs-rebase
   merge_method:
     istio/istio: squash

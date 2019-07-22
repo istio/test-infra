@@ -28,12 +28,19 @@ func TestConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not read configs: %v", err)
 	}
+	one := 1
+	two := 2
+	yes := true
+	var no bool
+
 	cases := []struct {
 		name               string
 		org                string
 		repo               string
 		branch             string
 		unprotected        bool
+		approvers          *int
+		codeOwners         *bool
 		expectedContexts   []string
 		unexpectedContexts []string
 		teams              []string
@@ -46,6 +53,41 @@ func TestConfig(t *testing.T) {
 			expectedContexts: []string{
 				"cla/google",
 			},
+		},
+		{
+			name:       "api requires code owner reviews",
+			org:        "istio",
+			repo:       "api",
+			branch:     "master",
+			codeOwners: &yes,
+		},
+		{
+			name:       "test-infra does not require code owners",
+			org:        "istio",
+			repo:       "test-infra",
+			codeOwners: &no,
+		},
+		{
+			name:      "api requires 2 approvers",
+			org:       "istio",
+			repo:      "api",
+			branch:    "master",
+			approvers: &two,
+		},
+		{
+			name:      "test-infra requires 1 approving review",
+			org:       "istio",
+			repo:      "test-infra",
+			branch:    "master",
+			approvers: &one,
+		},
+		{
+			name:       "operator requires 1 approving review and code owners",
+			org:        "istio",
+			repo:       "operator",
+			branch:     "master",
+			approvers:  &one,
+			codeOwners: &yes,
 		},
 		{
 			name:        "istio unprotected by default",
@@ -156,6 +198,9 @@ func TestConfig(t *testing.T) {
 			if bp.Restrictions == nil {
 				bp.Restrictions = &config.Restrictions{}
 			}
+			if bp.RequiredPullRequestReviews == nil {
+				bp.RequiredPullRequestReviews = &config.ReviewPolicy{}
+			}
 
 			actual := sets.NewString(bp.RequiredStatusChecks.Contexts...)
 			if missing := sets.NewString(tc.expectedContexts...).Difference(actual); len(missing) > 0 {
@@ -167,6 +212,12 @@ func TestConfig(t *testing.T) {
 			actual = sets.NewString(bp.Restrictions.Teams...)
 			if missing := sets.NewString(tc.teams...).Difference(actual); len(missing) > 0 {
 				t.Errorf("missing teams: %v", missing.List())
+			}
+			if tc.approvers != nil && *tc.approvers != *bp.RequiredPullRequestReviews.Approvals {
+				t.Errorf("%d actual approvers != expected %d", *bp.RequiredPullRequestReviews.Approvals, *tc.approvers)
+			}
+			if tc.codeOwners != nil && *tc.codeOwners != *bp.RequiredPullRequestReviews.RequireOwners {
+				t.Errorf("%t actual codeOwners != expected %t", *bp.RequiredPullRequestReviews.RequireOwners, *tc.codeOwners)
 			}
 		})
 	}
