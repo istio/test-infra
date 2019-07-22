@@ -32,7 +32,6 @@ func TestConfig(t *testing.T) {
 	two := 2
 	yes := true
 	var no bool
-
 	cases := []struct {
 		name               string
 		org                string
@@ -106,12 +105,13 @@ func TestConfig(t *testing.T) {
 			},
 		},
 		{
-			name:   "istio 1.2 requires circleci",
+			name:   "istio 1.2 requires circleci and admin merges",
 			org:    "istio",
 			repo:   "istio",
 			branch: "release-1.2",
 			expectedContexts: []string{
 				"ci/circleci: build",
+				"merges-blocked-needs-admin",
 			},
 		},
 		{
@@ -174,7 +174,36 @@ func TestConfig(t *testing.T) {
 			repo:   "authservice",
 			branch: "master",
 		},
+		{
+			name:   "release-1.1 team can merge into api",
+			org:    "istio",
+			repo:   "api",
+			branch: "release-1.1",
+			teams:  []string{"release-managers-1-1"},
+		},
+		{
+			name:   "release-1.1 team can merge into istio",
+			org:    "istio",
+			repo:   "istio",
+			branch: "release-1.1",
+			teams:  []string{"release-managers-1-1"},
+		},
+		{
+			name:   "release-1.2 team can merge into api",
+			org:    "istio",
+			repo:   "api",
+			branch: "release-1.2",
+			teams:  []string{"release-managers-1-2"},
+		},
+		{
+			name:   "release-1.2 team can merge into istio",
+			org:    "istio",
+			repo:   "istio",
+			branch: "release-1.2",
+			teams:  []string{"release-managers-1-2"},
+		},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			bp, err := cfg.GetBranchProtection(tc.org, tc.repo, tc.branch)
