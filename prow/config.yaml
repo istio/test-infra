@@ -110,6 +110,9 @@ branch-protection:
         istio:
           required_pull_request_reviews: &tide_reviews
             require_code_owner_reviews: false
+          restrictions: &tide_restrictions
+            teams:
+            - repo-admins
           branches:
             <<: *blocked_branches
             collab-galley:
@@ -146,6 +149,7 @@ branch-protection:
             # TODO: release-1.3 once it exists
         proxy:
           required_pull_request_reviews: *tide_reviews
+          restrictions: *tide_restrictions
           required_status_checks:
             contexts:
             - "ci/circleci: build"
@@ -156,8 +160,9 @@ branch-protection:
             wasm:
               protect: true
         test-infra:
-          required_pull_request_reviews: *tide_reviews
           protect: true
+          required_pull_request_reviews: *tide_reviews
+          restrictions: *tide_restrictions
     istio-releases:
       repos:
         pipeline:

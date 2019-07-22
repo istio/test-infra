@@ -43,6 +43,7 @@ func TestConfig(t *testing.T) {
 		expectedContexts   []string
 		unexpectedContexts []string
 		teams              []string
+		anyoneCanMerge     *bool
 	}{
 		{
 			name:   "protect istio master",
@@ -200,7 +201,28 @@ func TestConfig(t *testing.T) {
 			org:    "istio",
 			repo:   "istio",
 			branch: "release-1.2",
-			teams:  []string{"release-managers-1-2"},
+			teams:  []string{"release-managers-1-2", "repo-admins"},
+		},
+		{
+			name:           "master mergify branches allow anyone to merge",
+			org:            "istio",
+			repo:           "api",
+			branch:         "master",
+			anyoneCanMerge: &yes,
+		},
+		{
+			name:   "test-infra master restricts merges to admins",
+			org:    "istio",
+			repo:   "test-infra",
+			branch: "master",
+			teams:  []string{"repo-admins"},
+		},
+		{
+			name:   "istio master restricts merges to admins",
+			org:    "istio",
+			repo:   "istio",
+			branch: "master",
+			teams:  []string{"repo-admins"},
 		},
 	}
 
@@ -237,6 +259,12 @@ func TestConfig(t *testing.T) {
 			}
 			if unexpected := sets.NewString(tc.unexpectedContexts...).Intersection(actual); len(unexpected) > 0 {
 				t.Errorf("unexpected contexts: %v", unexpected.List())
+			}
+			if tc.anyoneCanMerge != nil && *tc.anyoneCanMerge && bp.Restrictions.Users != nil {
+				t.Errorf("should allow anyone to merge, but restricting to %v", bp.Restrictions.Users)
+			}
+			if tc.anyoneCanMerge != nil && *tc.anyoneCanMerge && bp.Restrictions.Teams != nil {
+				t.Errorf("should allow anyone to merge, but restricting to %v", bp.Restrictions.Teams)
 			}
 			actual = sets.NewString(bp.Restrictions.Teams...)
 			if missing := sets.NewString(tc.teams...).Difference(actual); len(missing) > 0 {
