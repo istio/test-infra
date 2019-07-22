@@ -215,3 +215,41 @@ Prow should respond:
 ```
 prowjob "e810668f-9435-11e7-9a4d-784f43915c4d" created
 ```
+
+### Update Config File
+
+File `rewriteConfig.go` rewrites config file with new branches to be added under the field of `repos:` for specific repos based on the config content already existing in `master` branch. Content in new branch would be identical to the content in `master` branch with additional lines to restrict merge blocks to admin approval if it is not already present in the `master` content. 
+
+The file requires the following flags:
+
+-`InputFileName` - The name and path to the config file that requires to be rewritten.
+-`NewBranchName` - Name of new branch to be added to the config file.
+-`ReposeToAdd` - Names of repos the new branch should be added to separated by ','. Default to be "proxy,istio,istio-releases".
+
+The file should be run with `go build`, `go test` (for test file rewriteConfig_test.go) and `go run`.
+
+For an original section of config.yaml
+
+```
+repos:
+  istio:
+    branches:
+        <<: *blocked_branches
+        master:
+          protect: true
+```
+when `InputFileName=config.yaml`, `NewBranchName=newBranch` and `ReposeToAdd=istio`, the result of adding new branch to the original section would be:
+
+```
+repos:
+  istio:
+    branches:
+        <<: *blocked_branches
+        master:
+          protect: true
+        newBranch:
+          protect: true
+          required_status_checks:
+            contexts:
+            - "merges-blocked-needs-admin"
+```

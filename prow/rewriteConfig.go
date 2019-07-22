@@ -232,7 +232,7 @@ func main() {
 	var branchName string
 	flag.StringVar(&branchName, "NewBranchName", "", "A new branch to add to the original file.")
 	var repoNames string
-	flag.StringVar(&repoNames, "ReposeToAdd", "proxy, istio, istio-releases", "Repo names to add new branch to, separated by `,`.")
+	flag.StringVar(&repoNames, "ReposeToAdd", "proxy,istio,istio-releases", "Repo names to add new branch to, separated by `,`.")
 
 	flag.Parse()
 
