@@ -190,7 +190,7 @@ branch-protection:
 
 tide:
   queries:
-  - repos:
+   - repos:
     - istio/istio
     - istio/proxy
     - istio/test-infra
@@ -212,26 +212,23 @@ tide:
     - do-not-merge/work-in-progress
     - needs-ok-to-test
     - needs-rebase
+  - repos:
+    - istio/operator
+    labels:
+    - cla: "yes"
+    missingLabels:
+    - do-not-merge
+    - do-not-merge/hold
+    - do-not-merge/work-in-progress
+    reviewApprovedRequired: true
   merge_method:
     istio/istio: squash
+    istio/operator: squash
     istio/proxy: squash
     istio/test-infra: squash
     istio-releases/pipeline: squash
     istio-ecosystem/authservice: squash
   target_url: https://prow.istio.io/tide
-
-tide:
-  queries:
-  - repos:
-    - istio/operator
-    labels:
-    - review:approved
-    missingLabels:
-    - do-not-merge
-    - do-not-merge/hold
-    - do-not-merge/work-in-progress
-  merge_method:
-    istio/operator: squash
 
   context_options:
     from-branch-protection: true
