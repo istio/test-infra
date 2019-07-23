@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package cat adds cat images to issues in response to a /meow comment
+// Package cat adds cat images to an issue or PR in response to a /meow comment
 package cat
 
 import (
@@ -37,14 +37,16 @@ import (
 )
 
 var (
-	match = regexp.MustCompile(`(?mi)^/meow(vie)?(?: (.+))?\s*$`)
-	meow  = &realClowder{
-		url: "https://api.thecatapi.com/api/images/get?format=json&results_per_page=1",
+	match          = regexp.MustCompile(`(?mi)^/meow(vie)?(?: (.+))?\s*$`)
+	grumpyKeywords = regexp.MustCompile(`(?mi)^(no|grumpy)\s*$`)
+	meow           = &realClowder{
+		url: "https://api.thecatapi.com/v1/images/search?format=json&results_per_page=1",
 	}
 )
 
 const (
 	pluginName = "cat"
+	grumpyURL  = "https://upload.wikimedia.org/wikipedia/commons/e/ee/Grumpy_Cat_by_Gage_Skidmore.jpg"
 )
 
 func init() {
@@ -52,13 +54,15 @@ func init() {
 }
 
 func helpProvider(config *plugins.Configuration, enabledRepos []string) (*pluginhelp.PluginHelp, error) {
-	// The Config field is omitted because this plugin is not configurable.
 	pluginHelp := &pluginhelp.PluginHelp{
-		Description: "The cat plugin adds a cat image to an issue in response to the `/meow` command.",
+		Description: "The cat plugin adds a cat image to an issue or PR in response to the `/meow` command.",
+		Config: map[string]string{
+			"": fmt.Sprintf("The cat plugin uses an api key for thecatapi.com stored in %s.", config.Cat.KeyPath),
+		},
 	}
 	pluginHelp.AddCommand(pluginhelp.Command{
 		Usage:       "/meow(vie) [CATegory]",
-		Description: "Add a cat image to the issue",
+		Description: "Add a cat image to the issue or PR",
 		Featured:    false,
 		WhoCanUse:   "Anyone",
 		Examples:    []string{"/meow", "/meow caturday", "/meowvie clothes"},
@@ -103,38 +107,30 @@ func (c *realClowder) setKey(keyPath string, log *logrus.Entry) {
 }
 
 type catResult struct {
-	Source string `json:"source_url"`
-	Image  string `json:"url"`
+	Image string `json:"url"`
 }
 
 func (cr catResult) Format() (string, error) {
-	if cr.Source == "" {
-		return "", errors.New("empty source_url")
-	}
 	if cr.Image == "" {
 		return "", errors.New("empty image url")
-	}
-	src, err := url.Parse(cr.Source)
-	if err != nil {
-		return "", fmt.Errorf("invalid source_url %s: %v", cr.Source, err)
 	}
 	img, err := url.Parse(cr.Image)
 	if err != nil {
 		return "", fmt.Errorf("invalid image url %s: %v", cr.Image, err)
 	}
 
-	return fmt.Sprintf("[![cat image](%s)](%s)", img, src), nil
+	return fmt.Sprintf("![cat image](%s)", img), nil
 }
 
-func (r *realClowder) Url(category string, movieCat bool) string {
-	r.lock.RLock()
-	defer r.lock.RUnlock()
-	uri := string(r.url)
+func (c *realClowder) URL(category string, movieCat bool) string {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+	uri := string(c.url)
 	if category != "" {
 		uri += "&category=" + url.QueryEscape(category)
 	}
-	if r.key != "" {
-		uri += "&api_key=" + url.QueryEscape(r.key)
+	if c.key != "" {
+		uri += "&api_key=" + url.QueryEscape(c.key)
 	}
 	if movieCat {
 		uri += "&mime_types=gif"
@@ -142,22 +138,26 @@ func (r *realClowder) Url(category string, movieCat bool) string {
 	return uri
 }
 
-func (r *realClowder) readCat(category string, movieCat bool) (string, error) {
-	uri := r.Url(category, movieCat)
-	resp, err := http.Get(uri)
-	if err != nil {
-		return "", fmt.Errorf("could not read cat from %s: %v", uri, err)
-	}
-	defer resp.Body.Close()
-	if sc := resp.StatusCode; sc > 299 || sc < 200 {
-		return "", fmt.Errorf("failing %d response from %s", sc, uri)
-	}
+func (c *realClowder) readCat(category string, movieCat bool) (string, error) {
 	cats := make([]catResult, 0)
-	if err = json.NewDecoder(resp.Body).Decode(&cats); err != nil {
-		return "", err
-	}
-	if len(cats) < 1 {
-		return "", fmt.Errorf("no cats in response from %s", uri)
+	uri := c.URL(category, movieCat)
+	if grumpyKeywords.MatchString(category) {
+		cats = append(cats, catResult{grumpyURL})
+	} else {
+		resp, err := http.Get(uri)
+		if err != nil {
+			return "", fmt.Errorf("could not read cat from %s: %v", uri, err)
+		}
+		defer resp.Body.Close()
+		if sc := resp.StatusCode; sc > 299 || sc < 200 {
+			return "", fmt.Errorf("failing %d response from %s", sc, uri)
+		}
+		if err = json.NewDecoder(resp.Body).Decode(&cats); err != nil {
+			return "", err
+		}
+		if len(cats) < 1 {
+			return "", fmt.Errorf("no cats in response from %s", uri)
+		}
 	}
 	a := cats[0]
 	if a.Image == "" {
@@ -173,7 +173,7 @@ func (r *realClowder) readCat(category string, movieCat bool) (string, error) {
 	return a.Format()
 }
 
-func handleGenericComment(pc plugins.PluginClient, e github.GenericCommentEvent) error {
+func handleGenericComment(pc plugins.Agent, e github.GenericCommentEvent) error {
 	return handle(
 		pc.GitHubClient,
 		pc.Logger,

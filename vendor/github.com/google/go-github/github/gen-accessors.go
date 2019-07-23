@@ -25,7 +25,6 @@ import (
 	"sort"
 	"strings"
 	"text/template"
-	"time"
 )
 
 const (
@@ -37,14 +36,18 @@ var (
 
 	sourceTmpl = template.Must(template.New("source").Parse(source))
 
-	// blacklist lists which "struct.method" combos to not generate.
-	blacklist = map[string]bool{
+	// blacklistStructMethod lists "struct.method" combos to skip.
+	blacklistStructMethod = map[string]bool{
 		"RepositoryContent.GetContent":    true,
 		"Client.GetBaseURL":               true,
 		"Client.GetUploadURL":             true,
 		"ErrorResponse.GetResponse":       true,
 		"RateLimitError.GetResponse":      true,
 		"AbuseRateLimitError.GetResponse": true,
+	}
+	// blacklistStruct lists structs to skip.
+	blacklistStruct = map[string]bool{
+		"Client": true,
 	}
 )
 
@@ -67,7 +70,7 @@ func main() {
 	for pkgName, pkg := range pkgs {
 		t := &templateData{
 			filename: pkgName + fileSuffix,
-			Year:     time.Now().Year(),
+			Year:     2017,
 			Package:  pkgName,
 			Imports:  map[string]string{},
 		}
@@ -95,6 +98,16 @@ func (t *templateData) processAST(f *ast.File) error {
 			if !ok {
 				continue
 			}
+			// Skip unexported identifiers.
+			if !ts.Name.IsExported() {
+				logf("Struct %v is unexported; skipping.", ts.Name)
+				continue
+			}
+			// Check if the struct is blacklisted.
+			if blacklistStruct[ts.Name.Name] {
+				logf("Struct %v is blacklisted; skipping.", ts.Name)
+				continue
+			}
 			st, ok := ts.Type.(*ast.StructType)
 			if !ok {
 				continue
@@ -106,8 +119,14 @@ func (t *templateData) processAST(f *ast.File) error {
 				}
 
 				fieldName := field.Names[0]
-				if key := fmt.Sprintf("%v.Get%v", ts.Name, fieldName); blacklist[key] {
-					logf("Method %v blacklisted; skipping.", key)
+				// Skip unexported identifiers.
+				if !fieldName.IsExported() {
+					logf("Field %v is unexported; skipping.", fieldName)
+					continue
+				}
+				// Check if "struct.method" is blacklisted.
+				if key := fmt.Sprintf("%v.Get%v", ts.Name, fieldName); blacklistStructMethod[key] {
+					logf("Method %v is blacklisted; skipping.", key)
 					continue
 				}
 
@@ -139,7 +158,7 @@ func (t *templateData) dump() error {
 		return nil
 	}
 
-	// Sort getters by ReceiverType.FieldName
+	// Sort getters by ReceiverType.FieldName.
 	sort.Sort(byName(t.Getters))
 
 	var buf bytes.Buffer
@@ -184,7 +203,7 @@ func (t *templateData) addIdent(x *ast.Ident, receiverType, fieldName string) {
 	var zeroValue string
 	var namedStruct = false
 	switch x.String() {
-	case "int":
+	case "int", "int64":
 		zeroValue = "0"
 	case "string":
 		zeroValue = `""`
@@ -225,7 +244,7 @@ func (t *templateData) addMapType(x *ast.MapType, receiverType, fieldName string
 }
 
 func (t *templateData) addSelectorExpr(x *ast.SelectorExpr, receiverType, fieldName string) {
-	if strings.ToLower(fieldName[:1]) == fieldName[:1] { // non-exported field
+	if strings.ToLower(fieldName[:1]) == fieldName[:1] { // Non-exported field.
 		return
 	}
 
@@ -261,13 +280,13 @@ type templateData struct {
 }
 
 type getter struct {
-	sortVal      string // lower-case version of "ReceiverType.FieldName"
-	ReceiverVar  string // the one-letter variable name to match the ReceiverType
+	sortVal      string // Lower-case version of "ReceiverType.FieldName".
+	ReceiverVar  string // The one-letter variable name to match the ReceiverType.
 	ReceiverType string
 	FieldName    string
 	FieldType    string
 	ZeroValue    string
-	NamedStruct  bool // getter for named struct
+	NamedStruct  bool // Getter for named struct.
 }
 
 type byName []*getter

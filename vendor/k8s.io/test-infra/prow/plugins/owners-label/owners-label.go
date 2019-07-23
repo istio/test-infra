@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	// PluginName is the name of this plugin
+	// PluginName defines this plugin's registered name.
 	PluginName = "owners-label"
 )
 
@@ -54,7 +54,7 @@ type githubClient interface {
 	GetPullRequestChanges(org, repo string, number int) ([]github.PullRequestChange, error)
 }
 
-func handlePullRequest(pc plugins.PluginClient, pre github.PullRequestEvent) error {
+func handlePullRequest(pc plugins.Agent, pre github.PullRequestEvent) error {
 	if pre.Action != github.PullRequestActionOpened && pre.Action != github.PullRequestActionReopened && pre.Action != github.PullRequestActionSynchronize {
 		return nil
 	}
@@ -72,6 +72,20 @@ func handle(ghc githubClient, oc ownersClient, log *logrus.Entry, pre *github.Pu
 	repo := pre.Repo.Name
 	number := pre.Number
 
+	// First see if there are any labels requested based on the files changed.
+	changes, err := ghc.GetPullRequestChanges(org, repo, number)
+	if err != nil {
+		return fmt.Errorf("error getting PR changes: %v", err)
+	}
+	neededLabels := sets.NewString()
+	for _, change := range changes {
+		neededLabels.Insert(oc.FindLabelsForFile(change.Filename).List()...)
+	}
+	if neededLabels.Len() == 0 {
+		// No labels requested for the given files. Return now to save API tokens.
+		return nil
+	}
+
 	repoLabels, err := ghc.GetRepoLabels(org, repo)
 	if err != nil {
 		return err
@@ -85,28 +99,19 @@ func handle(ghc githubClient, oc ownersClient, log *logrus.Entry, pre *github.Pu
 	for _, label := range repoLabels {
 		RepoLabelsExisting.Insert(label.Name)
 	}
-	changes, err := ghc.GetPullRequestChanges(org, repo, number)
-	if err != nil {
-		return fmt.Errorf("error getting PR changes: %v", err)
-	}
 	currentLabels := sets.NewString()
 	for _, label := range issuelabels {
 		currentLabels.Insert(label.Name)
 	}
-	neededLabels := sets.NewString()
-	for _, change := range changes {
-		neededLabels.Insert(oc.FindLabelsForFile(change.Filename).List()...)
-	}
 
 	nonexistent := sets.NewString()
-
 	for _, labelToAdd := range neededLabels.Difference(currentLabels).List() {
 		if !RepoLabelsExisting.Has(labelToAdd) {
 			nonexistent.Insert(labelToAdd)
 			continue
 		}
 		if err := ghc.AddLabel(org, repo, number, labelToAdd); err != nil {
-			log.WithError(err).Errorf("Github failed to add the following label: %s", labelToAdd)
+			log.WithError(err).Errorf("GitHub failed to add the following label: %s", labelToAdd)
 		}
 	}
 
