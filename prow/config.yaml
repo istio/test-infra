@@ -212,8 +212,18 @@ tide:
     - do-not-merge/work-in-progress
     - needs-ok-to-test
     - needs-rebase
+  - repos:
+    - istio/operator
+    labels:
+    - "cla: yes"
+    missingLabels:
+    - do-not-merge
+    - do-not-merge/hold
+    - do-not-merge/work-in-progress
+    reviewApprovedRequired: true
   merge_method:
     istio/istio: squash
+    istio/operator: squash
     istio/proxy: squash
     istio/test-infra: squash
     istio-releases/pipeline: squash
