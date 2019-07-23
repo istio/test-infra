@@ -1,0 +1,16 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "gitattributes.go",
+        "pattern.go",
+    ],
+    importmap = "istio.io/test-infra/vendor/k8s.io/test-infra/prow/gitattributes",
+    importpath = "k8s.io/test-infra/prow/gitattributes",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/k8s.io/apimachinery/pkg/util/sets:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/github:go_default_library",
+    ],
+)
