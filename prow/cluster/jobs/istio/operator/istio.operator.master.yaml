@@ -4,19 +4,6 @@ job_template: &job_template
   decorate: true
   path_alias: istio.io/operator
 
-istio_container: &istio_container
-  image: gcr.io/istio-testing/istio-builder:v20190624-478286dc
-  # Docker in Docker
-  securityContext:
-    privileged: true
-  resources:
-    requests:
-      memory: "2Gi"
-      cpu: "3000m"
-    limits:
-      memory: "24Gi"
-      cpu: "3000m"
-
 presubmits:
 
   istio/operator:
@@ -87,6 +74,3 @@ presubmits:
           value: "on"
       nodeSelector:
         testing: test-pool
-postsubmits:
-
-  istio/operator:
