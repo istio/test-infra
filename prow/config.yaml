@@ -8,10 +8,10 @@ plank:
     timeout: 7200000000000 # 2h
     grace_period: 15000000000 # 15s
     utility_images:
-      clonerefs: "gcr.io/k8s-prow/clonerefs:v20190715-1dacc7e01"
-      initupload: "gcr.io/k8s-prow/initupload:v20190715-1dacc7e01"
-      entrypoint: "gcr.io/k8s-prow/entrypoint:v20190715-1dacc7e01"
-      sidecar: "gcr.io/k8s-prow/sidecar:v20190715-1dacc7e01"
+      clonerefs: "gcr.io/k8s-prow/clonerefs:v20190722-4f2588df3"
+      initupload: "gcr.io/k8s-prow/initupload:v20190722-4f2588df3"
+      entrypoint: "gcr.io/k8s-prow/entrypoint:v20190722-4f2588df3"
+      sidecar: "gcr.io/k8s-prow/sidecar:v20190722-4f2588df3"
     gcs_configuration:
       bucket: "istio-prow"
       path_strategy: "explicit"
@@ -51,77 +51,68 @@ github_reporter:
   - postsubmit
 
 blocked_branches: &blocked_branches
-  release-*: &blocking_merge
+  master:
+    protect: true
+  release-0.1: &blocking_merge
     required_status_checks:
       contexts:
       - "merges-blocked-needs-admin"
     protect: true
+  release-0.2: *blocking_merge
+  release-0.3: *blocking_merge
+  release-0.4: *blocking_merge
+  release-0.5: *blocking_merge
+  release-0.6: *blocking_merge
+  release-0.7: *blocking_merge
+  release-0.8: *blocking_merge
+  release-1.0: *blocking_merge
+  release-1.1: &release11
+    <<: *blocking_merge
+    restrictions:
+      teams:
+      - release-managers-1-1
+  release-1.2: &release12
+    <<: *blocking_merge
+    restrictions:
+      teams:
+      - release-managers-1-2
+  # TODO: release-1.3 once it exists
 
 branch-protection:
   allow_disabled_policies: true
+  protect: false
   orgs:
     istio:
       required_status_checks:
         contexts:
         - cla/google
-      required_pull_request_reviews:
+      required_pull_request_reviews: &mergify_reviews
         required_approving_review_count: 1
+        require_code_owner_reviews: true
       restrictions:
       repos:
         api:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+          required_pull_request_reviews:
+            required_approving_review_count: 2
+          branches: *blocked_branches
         istio.io:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+          branches: *blocked_branches
         operator:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+          branches: *blocked_branches
         cni:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+          branches: *blocked_branches
         installer:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            master:
-              protect: true
-              required_status_checks:
-                contexts:
-                # Keep in sync with .mergify.yml required
-                - "ci/circleci: build"
-                - "ci/circleci: install-demo"
-                - "ci/circleci: install-minikube"
-                - "ci/circleci: integration-old-kind"
-                - "ci/circleci: integration-presubmit-isolated-namespaces-kind"
-                - "ci/circleci: integration-presubmit-one-namespace-kind"
-                - "ci/circleci: noauth"
+          branches: *blocked_branches
         pkg:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+          branches: *blocked_branches
         common-files:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            master:
-              protect: true
+          branches: *blocked_branches
         istio:
-          protect: false
+          required_pull_request_reviews: &tide_reviews
+            require_code_owner_reviews: false
+          restrictions: &tide_restrictions
+            teams:
+            - repo-admins
           branches:
             <<: *blocked_branches
             collab-galley:
@@ -134,7 +125,7 @@ branch-protection:
             prow-staging:
               protect: true
             release-1.1:
-              protect: true
+              <<: *release11
               required_status_checks:
                 contexts:
                 - "ci/circleci: codecov"
@@ -145,7 +136,7 @@ branch-protection:
                 - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
                 - "merges-blocked-needs-admin"
             release-1.2:
-              protect: true
+              <<: *release12
               required_status_checks:
                 contexts:
                 - "ci/circleci: codecov"
@@ -155,10 +146,10 @@ branch-protection:
                 - "ci/circleci: build"
                 - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
                 - "merges-blocked-needs-admin"
-            master:
-              protect: true
+            # TODO: release-1.3 once it exists
         proxy:
-          protect: false
+          required_pull_request_reviews: *tide_reviews
+          restrictions: *tide_restrictions
           required_status_checks:
             contexts:
             - "ci/circleci: build"
@@ -166,29 +157,16 @@ branch-protection:
             <<: *blocked_branches
             endpoints-v1.1.x: *blocking_merge
             endpoints-v1.2.x: *blocking_merge
-            release-1.1:
-              protect: true
-              required_status_checks:
-                contexts:
-                - "merges-blocked-needs-admin"
-            release-1.2:
-              protect: true
-              required_status_checks:
-                contexts:
-                - "merges-blocked-needs-admin"
-            master:
-              protect: true
             wasm:
               protect: true
         test-infra:
-          protect: false
-          branches:
-            master:
-              protect: true
+          protect: true
+          required_pull_request_reviews: *tide_reviews
+          restrictions: *tide_restrictions
     istio-releases:
       repos:
         pipeline:
-          protect: false
+          required_pull_request_reviews: *tide_reviews
           restrictions:
           branches:
             krishna-test:
@@ -204,7 +182,7 @@ branch-protection:
     istio-ecosystem:
       repos:
         authservice:
-          protect: false
+          required_pull_request_reviews: *tide_reviews
           restrictions:
           branches:
             master:
@@ -213,17 +191,9 @@ branch-protection:
 tide:
   queries:
   - repos:
-    - istio-releases/pipeline
-    missingLabels:
-    - do-not-merge
-    - do-not-merge/hold
-    - do-not-merge/work-in-progress
-    - needs-ok-to-test
-    - needs-rebase
-  - repos:
-    - istio/test-infra
     - istio/istio
     - istio/proxy
+    - istio/test-infra
     - istio-ecosystem/authservice
     labels:
     - lgtm
@@ -234,8 +204,26 @@ tide:
     - do-not-merge/hold
     - do-not-merge/work-in-progress
     - needs-rebase
+  - repos:
+    - istio-releases/pipeline
+    missingLabels:
+    - do-not-merge
+    - do-not-merge/hold
+    - do-not-merge/work-in-progress
+    - needs-ok-to-test
+    - needs-rebase
+  - repos:
+    - istio/operator
+    labels:
+    - "cla: yes"
+    missingLabels:
+    - do-not-merge
+    - do-not-merge/hold
+    - do-not-merge/work-in-progress
+    reviewApprovedRequired: true
   merge_method:
     istio/istio: squash
+    istio/operator: squash
     istio/proxy: squash
     istio/test-infra: squash
     istio-releases/pipeline: squash

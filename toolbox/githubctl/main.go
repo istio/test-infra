@@ -144,17 +144,17 @@ func CleanupReleaseRequests(owner, repo string) error {
 		if time.Now().In(utc).After(expiresAt) {
 			log.Printf("Closing expired https://github.com/%s/%s/pull/%d..", owner, repo, *pr.Number)
 
-			if err2 := githubClnt.CreateComment(repo, pull, "Tests did not pass and this request has expired. Closing out."); err != nil {
-				return err2
+			if err := githubClnt.CreateComment(repo, pull, "Tests did not pass and this request has expired. Closing out."); err != nil {
+				return err
 			}
-			if err2 := githubClnt.ClosePR(repo, pr); err != nil {
-				return err2
+			if err := githubClnt.ClosePR(repo, pr); err != nil {
+				return err
 			}
 			log.Printf("Closed https://github.com/%s/%s/pull/%d and deleted branch.", owner, repo, *pr.Number)
 
-			if err2 := githubClnt.DeleteBranch(repo, pr); err != nil {
+			if err := githubClnt.DeleteBranch(repo, pr); err != nil {
 				// Proceed to other PRs even if we cannot delete the branch.
-				log.Printf("Cannot delete branch: %v.", err2)
+				log.Printf("Cannot delete branch: %v.", err)
 			} else {
 				log.Print("Deleted branch")
 			}

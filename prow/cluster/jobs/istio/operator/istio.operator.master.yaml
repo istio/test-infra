@@ -22,41 +22,69 @@ presubmits:
   istio/operator:
 
   - name: operator-lint-master
-    <<: *job_template
-    context: prow/lint.sh
+    path_alias: istio.io/operator
+    decorate: true
     always_run: true
     spec:
       containers:
-      - <<: *istio_container
+      - image: gcr.io/istio-testing/istio-builder:v20190624-478286dc
         command:
-        - entrypoint
-        - prow/lint.sh
+        - make
+        - lint
+        env:
+        - name: GO111MODULE
+          value: "on"
       nodeSelector:
         testing: test-pool
 
   - name: operator-build-master
-    <<: *job_template
-    context: prow/build.sh
+    path_alias: istio.io/operator
+    decorate: true
     always_run: true
     spec:
       containers:
-      - <<: *istio_container
+      - image: gcr.io/istio-testing/istio-builder:v20190624-478286dc
         command:
-        - entrypoint
-        - prow/build.sh
+        - go
+        - build
+        - ./...
+        env:
+        - name: GO111MODULE
+          value: "on"
       nodeSelector:
         testing: build-pool
 
   - name: operator-test-master
-    <<: *job_template
-    context: prow/test.sh
+    path_alias: istio.io/operator
+    decorate: true
     always_run: true
     spec:
       containers:
-      - <<: *istio_container
+      - image: gcr.io/istio-testing/istio-builder:v20190624-478286dc
         command:
-        - entrypoint
-        - prow/test.sh
+        - go
+        - test
+        - -race
+        - ./...
+        env:
+        - name: GO111MODULE
+          value: "on"
+      nodeSelector:
+        testing: test-pool
+
+  - name: operator-mandiff-master
+    path_alias: istio.io/operator
+    decorate: true
+    always_run: true
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/istio-builder:v20190624-478286dc
+        command:
+        - make
+        - mandiff
+        env:
+        - name: GO111MODULE
+          value: "on"
       nodeSelector:
         testing: test-pool
 postsubmits:

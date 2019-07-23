@@ -15,7 +15,7 @@ istio_container: &istio_container
       cpu: "3000m"
     limits:
       memory: "24Gi"
-      cpu: "3000m"
+      cpu: "5000m"
 
 istio_container_with_kind: &istio_container_with_kind
   image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
@@ -63,7 +63,7 @@ presubmits:
             cpu: "3000m"
           limits:
             memory: "24Gi"
-            cpu: "3000m"
+            cpu: "5000m"
         command:
         - entrypoint
         - prow/istio-lint.sh
@@ -183,20 +183,6 @@ presubmits:
             - entrypoint
             - prow/integ-suite-local.sh
             - test.integration.security.local.presubmit
-      nodeSelector:
-        testing: test-pool
-
-  - name: integ-telemetry-local-presubmit-tests-master
-    <<: *job_template
-    always_run: true
-    optional: true
-    spec:
-      containers:
-        - <<: *istio_container
-          command:
-            - entrypoint
-            - prow/integ-suite-local.sh
-            - test.integration.telemetry.local.presubmit
       nodeSelector:
         testing: test-pool
 
@@ -540,6 +526,7 @@ presubmits:
         testing: test-pool
   - name: e2e-simpleTests-distroless-master
     <<: *job_template
+    always_run: true
     optional: true
     labels:
       preset-service-account: "true"
@@ -721,18 +708,6 @@ postsubmits:
             - entrypoint
             - prow/integ-suite-local.sh
             - test.integration.security.local
-      nodeSelector:
-        testing: test-pool
-
-  - name: integ-telemetry-local-postsubmit-tests-master
-    <<: *job_template
-    spec:
-      containers:
-        - <<: *istio_container
-          command:
-            - entrypoint
-            - prow/integ-suite-local.sh
-            - test.integration.telemetry.local
       nodeSelector:
         testing: test-pool
 

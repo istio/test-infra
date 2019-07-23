@@ -128,7 +128,7 @@ func GetPasswordFromFile(file string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	token := strings.TrimSpace(string(b[:]))
+	token := strings.TrimSpace(string(b))
 	if token == "" {
 		return "", fmt.Errorf("%s is empty", file)
 	}
