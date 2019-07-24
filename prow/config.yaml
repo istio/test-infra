@@ -98,13 +98,28 @@ branch-protection:
         istio.io:
           branches: *blocked_branches
         operator:
-          branches: *blocked_branches
+          branches:
+            <<: *blocked_branches
+            master:
+              required_status_checks:
+                contexts:
+                  - operator-lint-master
+                  - operator-build-master
+                  - operator-test-master
+                  - operator-mandiff-master
         cni:
           branches: *blocked_branches
         installer:
           branches: *blocked_branches
         pkg:
-          branches: *blocked_branches
+          branches:
+            <<: *blocked_branches
+            master:
+              required_status_checks:
+                contexts:
+                  - pkg-lint-master
+                  - pkg-build-master
+                  - pkg-test-master
         common-files:
           branches: *blocked_branches
         istio:
