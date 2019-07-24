@@ -1188,3 +1188,14 @@ postsubmits:
         name: cgroup
       nodeSelector:
         testing: test-pool
+  - name: istio-codecov-master
+    <<: *job_template
+    always_run: true
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/codecov.sh
+      nodeSelector:
+        testing: test-pool
