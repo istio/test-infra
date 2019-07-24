@@ -1122,6 +1122,72 @@ postsubmits:
         - e2e_cloudfoundry
       nodeSelector:
         testing: test-pool
+  - name: integ-k8s-113-postsubmit-master
+    <<: *job_template
+    spec:
+      containers:
+      - <<: *istio_container
+        # The node image must be kept in sync with the kind version we use.
+        # See docker/istio/shared/tools/install-golang.sh for the kind image
+        # https://github.com/kubernetes-sigs/kind/releases for node corresponding node image
+        command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - kindest/node:v1.13.6
+        - test.integration.kube
+        # Volumes needed to support KinD running in Kubernetes
+        # See https://github.com/kubernetes-sigs/kind/issues/303
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      nodeSelector:
+        testing: test-pool
+  - name: integ-k8s-112-postsubmit-master
+    <<: *job_template
+    spec:
+      containers:
+      - <<: *istio_container
+        # The node image must be kept in sync with the kind version we use.
+        # See docker/istio/shared/tools/install-golang.sh for the kind image
+        # https://github.com/kubernetes-sigs/kind/releases for node corresponding node image
+        command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - kindest/node:v1.12.8
+        - test.integration.kube
+        # Volumes needed to support KinD running in Kubernetes
+        # See https://github.com/kubernetes-sigs/kind/issues/303
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      nodeSelector:
+        testing: test-pool
   - name: istio-codecov-master
     <<: *job_template
     always_run: true
