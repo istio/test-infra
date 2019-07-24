@@ -12,10 +12,11 @@ spec:
         app: boskos
       namespace: boskos
     spec:
+      serviceAccountName: boskos-admin
       terminationGracePeriodSeconds: 30
       containers:
       - name: boskos
-        image: gcr.io/k8s-testimages/boskos:v20180405-12e892d69
+        image: gcr.io/istio-testing/boskos/boskos:v20190724-b761e1677
         args:
         - --config=/etc/config/resources.yaml
         - --namespace=boskos
