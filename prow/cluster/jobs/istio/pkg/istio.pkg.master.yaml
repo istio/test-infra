@@ -43,12 +43,8 @@ presubmits:
         containers:
           - image: gcr.io/istio-testing/istio-builder:v20190624-478286dc
             command:
-              - go
-              - test
-              - -race
-              - -coverprofile=coverage.txt
-              - -covermode=atomic
-              - ./...
+              - make
+              - test_with_coverage
             env:
               - name: GO111MODULE
                 value: "on"
