@@ -49,7 +49,9 @@ var (
 func main() {
 	kubeClientOptions.AddFlags(flag.CommandLine)
 	flag.Parse()
-	kubeClientOptions.Validate()
+	if err := kubeClientOptions.Validate(); err != nil {
+		logrus.WithError(err).Fatal("Bad kube client options")
+	}
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 	if *serviceAccount != "" {
 		if err := gcp.ActivateServiceAccount(*serviceAccount); err != nil {
