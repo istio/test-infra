@@ -1124,6 +1124,8 @@ postsubmits:
         testing: test-pool
   - name: integ-k8s-113-postsubmit-master
     <<: *job_template
+    decoration_config:
+      timeout: 14400000000000 # 4 hours
     spec:
       containers:
       - <<: *istio_container
@@ -1157,6 +1159,8 @@ postsubmits:
         testing: test-pool
   - name: integ-k8s-112-postsubmit-master
     <<: *job_template
+    decoration_config:
+      timeout: 14400000000000 # 4 hours
     spec:
       containers:
       - <<: *istio_container
