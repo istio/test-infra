@@ -98,14 +98,23 @@ branch-protection:
         istio.io:
           branches: *blocked_branches
         operator:
+          required_pull_request_reviews: &tide_withcodeowners_reviews
+            require_code_owner_reviews: true
+          restrictions: &tide_withcodeowners_restrictions
+            teams:
+              - repo-admins
           branches: *blocked_branches
         cni:
           branches: *blocked_branches
         installer:
           branches: *blocked_branches
         pkg:
+          required_pull_request_reviews: *tide_withcodeowners_reviews
+          restrictions: *tide_withcodeowners_restrictions
           branches: *blocked_branches
         common-files:
+          required_pull_request_reviews: *tide_withcodeowners_reviews
+          restrictions: *tide_withcodeowners_restrictions
           branches: *blocked_branches
         istio:
           required_pull_request_reviews: &tide_reviews
