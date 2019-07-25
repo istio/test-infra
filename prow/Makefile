@@ -30,7 +30,7 @@ update-configs: update-config update-plugins
 
 .PHONY: update-config update-plugins get-cluster-credentials update-configs
 
-branch-protector-cronjob:
+branch-protector-cronjob: get-cluster-credentials
 	kubectl apply -f cluster/branchprotector_cronjob.yaml
 
 deck-deployment: get-cluster-credentials
