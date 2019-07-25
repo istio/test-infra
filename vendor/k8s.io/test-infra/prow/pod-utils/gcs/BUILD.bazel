@@ -4,6 +4,7 @@ go_library(
     name = "go_default_library",
     srcs = [
         "doc.go",
+        "metadata.go",
         "target.go",
         "upload.go",
     ],
@@ -13,8 +14,9 @@ go_library(
     deps = [
         "//vendor/cloud.google.com/go/storage:go_default_library",
         "//vendor/github.com/sirupsen/logrus:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/apis/prowjobs/v1:go_default_library",
         "//vendor/k8s.io/test-infra/prow/errorutil:go_default_library",
-        "//vendor/k8s.io/test-infra/prow/kube:go_default_library",
         "//vendor/k8s.io/test-infra/prow/pod-utils/downwardapi:go_default_library",
+        "//vendor/k8s.io/test-infra/testgrid/metadata:go_default_library",
     ],
 )

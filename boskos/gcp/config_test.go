@@ -26,7 +26,6 @@ import (
 
 	"k8s.io/test-infra/boskos/common"
 	"k8s.io/test-infra/boskos/mason"
-	"k8s.io/test-infra/boskos/ranch"
 )
 
 func TestParseInvalidConfig(t *testing.T) {
@@ -94,15 +93,15 @@ func TestParseInvalidConfig(t *testing.T) {
 		}},
 	}
 
-	conf, err := mason.ParseConfig("test-configs.yaml")
+	conf, err := common.ParseConfig("test-configs.yaml")
 	if err != nil {
 		t.Error("could not parse config")
 	}
-	config, err := ConfigConverter(conf[0].Config.Content)
+	config, err := ConfigConverter(conf.Resources[0].Config.Content)
 	if err != nil {
 		t.Errorf("cannot parse object")
 	}
-	configCni, err := ConfigConverter(conf[1].Config.Content)
+	configCni, err := ConfigConverter(conf.Resources[1].Config.Content)
 	if err != nil {
 		t.Errorf("cannot parse networkpolicy object")
 	}
@@ -115,18 +114,17 @@ func TestParseInvalidConfig(t *testing.T) {
 }
 
 func TestParseConfig(t *testing.T) {
-	configs, err := mason.ParseConfig("../configs.yaml")
+	configs, err := common.ParseConfig("../resources.yaml")
 	if err != nil {
-		t.Error(err.Error())
+		t.Error(err)
 	} else {
-
-		for _, config := range configs {
+		for _, config := range configs.Resources {
 			switch config.Config.Type {
 			case ResourceConfigType:
 				var m mason.Masonable
 				m, err = ConfigConverter(config.Config.Content)
 				if err != nil {
-					t.Errorf("unable to parse config %s %v", config.Name, err)
+					t.Errorf("unable to parse config %s %v", config.Type, err)
 				}
 				needs := common.ResourceNeeds{}
 				rc, ok := m.(*resourceConfigs)
@@ -137,7 +135,7 @@ func TestParseConfig(t *testing.T) {
 						needs[rType] = len(reqs)
 					}
 					if !reflect.DeepEqual(needs, config.Needs) {
-						t.Errorf("Needs do not match for config %s. Expected %v found %v", config.Name, config.Needs, needs)
+						t.Errorf("Needs do not match for config %s. Expected %v found %v", config.Type, config.Needs, needs)
 					}
 				}
 
@@ -146,12 +144,8 @@ func TestParseConfig(t *testing.T) {
 		}
 	}
 
-	resources, err := ranch.ParseConfig("../resources.yaml")
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	if err = mason.ValidateConfig(configs, resources); err != nil {
-		t.Errorf(err.Error())
+	if err = common.ValidateConfig(configs); err != nil {
+		t.Error(err)
 	}
 }
 

@@ -18,6 +18,7 @@ package hook
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
+	"k8s.io/test-infra/prow/plugins"
 )
 
 var (
@@ -37,14 +38,25 @@ func init() {
 	prometheus.MustRegister(responseCounter)
 }
 
+// Metrics is a set of metrics gathered by hook.
 type Metrics struct {
 	WebhookCounter  *prometheus.CounterVec
 	ResponseCounter *prometheus.CounterVec
+	*plugins.Metrics
 }
 
+// PluginMetrics is a set of metrics that are gathered by plugins.
+// It is up the the consumers of these metrics to ensure that they
+// update the values in a thread-safe manner.
+type PluginMetrics struct {
+	ConfigMapGauges *prometheus.GaugeVec
+}
+
+// NewMetrics creates a new set of metrics for the hook server.
 func NewMetrics() *Metrics {
 	return &Metrics{
 		WebhookCounter:  webhookCounter,
 		ResponseCounter: responseCounter,
+		Metrics:         plugins.NewMetrics(),
 	}
 }

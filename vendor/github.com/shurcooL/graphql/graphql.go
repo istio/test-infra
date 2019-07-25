@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/shurcooL/go/ctxhttp"
@@ -70,20 +71,25 @@ func (c *Client) do(ctx context.Context, op operationType, v interface{}, variab
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status: %v", resp.Status)
+		body, _ := ioutil.ReadAll(resp.Body)
+		return fmt.Errorf("non-200 OK status code: %v body: %q", resp.Status, body)
 	}
 	var out struct {
-		Data   json.RawMessage
+		Data   *json.RawMessage
 		Errors errors
 		//Extensions interface{} // Unused.
 	}
 	err = json.NewDecoder(resp.Body).Decode(&out)
 	if err != nil {
+		// TODO: Consider including response body in returned error, if deemed helpful.
 		return err
 	}
-	err = jsonutil.UnmarshalGraphQL(out.Data, v)
-	if err != nil {
-		return err
+	if out.Data != nil {
+		err := jsonutil.UnmarshalGraphQL(*out.Data, v)
+		if err != nil {
+			// TODO: Consider including response body in returned error, if deemed helpful.
+			return err
+		}
 	}
 	if len(out.Errors) > 0 {
 		return out.Errors

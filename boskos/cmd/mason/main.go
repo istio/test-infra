@@ -16,20 +16,23 @@ package main
 
 import (
 	"flag"
+
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/sirupsen/logrus"
+
 	"k8s.io/test-infra/boskos/client"
+	"k8s.io/test-infra/boskos/crds"
 	"k8s.io/test-infra/boskos/mason"
+	"k8s.io/test-infra/boskos/ranch"
 
 	"istio.io/test-infra/boskos/gcp"
 )
 
 const (
-	defaultUpdatePeriod      = time.Minute
 	defaultCleanerCount      = 15
 	defaultBoskosRetryPeriod = 15 * time.Second
 	defaultBoskosSyncPeriod  = 10 * time.Minute
@@ -37,18 +40,19 @@ const (
 )
 
 var (
-	boskosURL      = flag.String("boskos-url", "http://boskos", "Boskos Server URL")
-	cleanerCount   = flag.Int("cleaner-count", defaultCleanerCount, "Number of threads running cleanup")
-	configPath     = flag.String("config", "", "Path to persistent volume to load configs")
-	serviceAccount = flag.String("service-account", "", "Path to projects service account")
+	boskosURL         = flag.String("boskos-url", "http://boskos", "Boskos Server URL")
+	cleanerCount      = flag.Int("cleaner-count", defaultCleanerCount, "Number of threads running cleanup")
+	serviceAccount    = flag.String("service-account", "", "Path to projects service account")
+	kubeClientOptions crds.KubernetesClientOptions
 )
 
 func main() {
+	kubeClientOptions.AddFlags(flag.CommandLine)
 	flag.Parse()
-	logrus.SetFormatter(&logrus.JSONFormatter{})
-	if *configPath == "" {
-		logrus.Fatalf("--config must be set")
+	if err := kubeClientOptions.Validate(); err != nil {
+		logrus.WithError(err).Fatal("Bad kube client options")
 	}
+	logrus.SetFormatter(&logrus.JSONFormatter{})
 	if *serviceAccount != "" {
 		if err := gcp.ActivateServiceAccount(*serviceAccount); err != nil {
 			logrus.WithError(err).Fatal("cannot activate service account")
@@ -61,23 +65,20 @@ func main() {
 		logrus.WithError(err).Fatal("unable to create gcp client")
 	}
 	gcp.SetClient(gcpClient)
+	dc, err := kubeClientOptions.Client(crds.DRLCType)
+	if err != nil {
+		logrus.WithError(err).Fatal("unable to create a DynamicResourceLifeCycle CRD client")
+	}
 
-	mason := mason.NewMason(*cleanerCount, client, defaultBoskosRetryPeriod, defaultBoskosSyncPeriod)
+	dRLCStorage := crds.NewCRDStorage(dc)
+	st, _ := ranch.NewStorage(nil, dRLCStorage, "")
+
+	mason := mason.NewMason(*cleanerCount, client, defaultBoskosRetryPeriod, defaultBoskosSyncPeriod, st)
 
 	// Registering Masonable Converters
 	if err := mason.RegisterConfigConverter(gcp.ResourceConfigType, gcp.ConfigConverter); err != nil {
 		logrus.WithError(err).Fatalf("unable tp register config converter")
 	}
-	if err := mason.UpdateConfigs(*configPath); err != nil {
-		logrus.WithError(err).Fatalf("failed to update mason config")
-	}
-	go func() {
-		for range time.NewTicker(defaultUpdatePeriod).C {
-			if err := mason.UpdateConfigs(*configPath); err != nil {
-				logrus.WithError(err).Warning("failed to update mason config")
-			}
-		}
-	}()
 
 	mason.Start()
 	defer mason.Stop()
