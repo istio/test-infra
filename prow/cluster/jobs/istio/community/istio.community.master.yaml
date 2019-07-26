@@ -1,0 +1,15 @@
+presubmits:
+
+  istio/community:
+
+    - name: community-lint-master
+      path_alias: istio.io/community
+      decorate: true
+      always_run: true
+      spec:
+        containers:
+          - image: gcr.io/istio-testing/website-tools:2019-07-25
+            command:
+              - prow/community-lint.sh
+        nodeSelector:
+          testing: test-pool

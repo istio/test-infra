@@ -116,6 +116,10 @@ branch-protection:
           required_pull_request_reviews: *tide_withcodeowners_reviews
           restrictions: *tide_withcodeowners_restrictions
           branches: *blocked_branches
+        community:
+          required_pull_request_reviews: *tide_withcodeowners_reviews
+          restrictions: *tide_withcodeowners_restrictions
+          branches: *blocked_branches
         istio:
           required_pull_request_reviews: &tide_reviews
             require_code_owner_reviews: false
@@ -225,6 +229,7 @@ tide:
     - istio/operator
     - istio/pkg
     - istio/common-files
+    - istio/community
     labels:
     - "cla: yes"
     missingLabels:
@@ -237,6 +242,7 @@ tide:
     istio/operator: squash
     istio/pkg: squash
     istio/common-files: squash
+    istio/community: squash
     istio/proxy: squash
     istio/test-infra: squash
     istio-releases/pipeline: squash
