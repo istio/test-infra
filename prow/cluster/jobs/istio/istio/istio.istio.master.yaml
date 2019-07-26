@@ -37,6 +37,8 @@ presubmits:
   - name: istio-unit-tests-master
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-master
     spec:
       containers:
       - <<: *istio_container
@@ -49,6 +51,8 @@ presubmits:
   - name: istio-lint-master
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-master
     spec:
       containers:
       # Lint requires a large amount of memory
@@ -73,6 +77,8 @@ presubmits:
   - name: istio-racetest-master
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-master
     spec:
       containers:
       - <<: *istio_container
@@ -85,6 +91,8 @@ presubmits:
   - name: istio-shellcheck-master
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-master
     spec:
       containers:
       - <<: *istio_container
@@ -105,6 +113,8 @@ presubmits:
         - prow/codecov.sh
       nodeSelector:
         testing: test-pool
+    annotations:
+      testgrid-dashboards: istio-presubmits-master
 
   - name: integ-framework-local-presubmit-tests-master
     <<: *job_template
