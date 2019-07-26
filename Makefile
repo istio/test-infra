@@ -5,7 +5,6 @@ lint:
 
 .PHONY: testgrid
 testgrid:
-	configurator --prow-config prow/config.yaml --prow-job-config prow/cluster/jobs --output-yaml --yaml testgrid/default.yaml --oneshot --validate-config-file
 	configurator --prow-config prow/config.yaml --prow-job-config prow/cluster/jobs --output-yaml --yaml testgrid/default.yaml --oneshot --output testgrid/istio-generated.yaml
 
 include Makefile.common.mk

@@ -28,7 +28,23 @@ default_test_group:
   tests_name_policy: 2
   use_kubernetes_client: true
 dashboards:
-- name: istio-presubmits-master
+- dashboard_tab:
+  - description: istio-unit-tests-master
+    name: istio-unit-tests-master
+    test_group_name: istio-unit-tests-master
+  - description: istio-lint-master
+    name: istio-lint-master
+    test_group_name: istio-lint-master
+  - description: istio-racetest-master
+    name: istio-racetest-master
+    test_group_name: istio-racetest-master
+  - description: istio-shellcheck-master
+    name: istio-shellcheck-master
+    test_group_name: istio-shellcheck-master
+  - description: istio-codecov-master
+    name: istio-codecov-master
+    test_group_name: istio-codecov-master
+  name: istio-presubmits-master
 - name: istio-postsubmits-master
 test_groups:
 - gcs_prefix: istio-prow/logs/test-infra-cleanup-GKE
@@ -49,16 +65,6 @@ test_groups:
   name: release-trigger-daily-build-release-1.2
 - gcs_prefix: istio-prow/logs/monitoring-verify-gcsweb
   name: monitoring-verify-gcsweb
-- gcs_prefix: istio-prow/logs/proxy-postsubmit
-  name: proxy-postsubmit
-- gcs_prefix: istio-prow/logs/api-postsubmit
-  name: api-postsubmit
-- gcs_prefix: istio-prow/logs/release-daily
-  name: release-daily
-- gcs_prefix: istio-prow/logs/perf-for-daily-release
-  name: perf-for-daily-release
-- gcs_prefix: istio-prow/logs/release-monthly
-  name: release-monthly
 - gcs_prefix: istio-prow/logs/integ-framework-local-postsubmit-tests
   name: integ-framework-local-postsubmit-tests
 - gcs_prefix: istio-prow/logs/integ-galley-local-postsubmit-tests
@@ -304,4 +310,23 @@ test_groups:
   num_columns_recent: 20
 - gcs_prefix: istio-prow/logs/istio_auth_sds_e2e-release-1.2
   name: istio_auth_sds_e2e-release-1.2
+  num_columns_recent: 20
+- gcs_prefix: istio-prow/logs/api-postsubmit
+  name: api-postsubmit
+- gcs_prefix: istio-prow/logs/release-daily
+  name: release-daily
+- gcs_prefix: istio-prow/logs/perf-for-daily-release
+  name: perf-for-daily-release
+- gcs_prefix: istio-prow/logs/release-monthly
+  name: release-monthly
+- gcs_prefix: istio-prow/logs/proxy-postsubmit
+  name: proxy-postsubmit
+- gcs_prefix: istio-prow/pr-logs/directory/istio-lint-master
+  name: istio-lint-master
+  num_columns_recent: 20
+- gcs_prefix: istio-prow/pr-logs/directory/istio-racetest-master
+  name: istio-racetest-master
+  num_columns_recent: 20
+- gcs_prefix: istio-prow/pr-logs/directory/istio-shellcheck-master
+  name: istio-shellcheck-master
   num_columns_recent: 20
