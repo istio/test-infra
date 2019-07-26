@@ -17,18 +17,15 @@ package gcp
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
-	"net/http"
 	"sync"
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"golang.org/x/oauth2/google"
-	"golang.org/x/oauth2/jwt"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/container/v1"
+	"google.golang.org/api/option"
 	yaml "gopkg.in/yaml.v2"
 	"k8s.io/test-infra/boskos/common"
 	"k8s.io/test-infra/boskos/mason"
@@ -58,33 +55,16 @@ func SetClient(c *Client) {
 
 // NewClient creates a new client
 func NewClient(serviceAccount string) (*Client, error) {
-	var (
-		oauthClient *http.Client
-		err         error
-	)
+	ctx := context.Background() // TODO(fejta): move this into call signature
+	opts := []option.ClientOption{option.WithScopes(compute.CloudPlatformScope)}
 	if serviceAccount != "" {
-		var data []byte
-		data, err = ioutil.ReadFile(serviceAccount)
-		if err != nil {
-			return nil, err
-		}
-		var conf *jwt.Config
-		conf, err = google.JWTConfigFromJSON(data, compute.CloudPlatformScope)
-		if err != nil {
-			return nil, err
-		}
-		oauthClient = conf.Client(context.Background())
-	} else {
-		oauthClient, err = google.DefaultClient(context.Background(), compute.CloudPlatformScope)
-		if err != nil {
-			return nil, err
-		}
+		opts = append(opts, option.WithCredentialsFile(serviceAccount))
 	}
-	gkeService, err := container.New(oauthClient)
+	gkeService, err := container.NewService(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
-	gceService, err := compute.New(oauthClient)
+	gceService, err := compute.NewService(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

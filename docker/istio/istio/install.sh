@@ -19,15 +19,19 @@ apt-get -qqy --no-install-recommends install \
   software-properties-common \
   unzip \
   wget \
-  zip
+  zip \
+  jq \
+  iptables
 
 gem install --no-ri --no-rdoc fpm
 
 ./install-docker.sh
 ./install-gcloud.sh
+./install-kubectl.sh
 ./install-golang.sh
 ./install-helm.sh
 ./install-protoc.sh
+./install-yamllint.sh
 
 apt-get clean
 rm -rf /var/lib/apt/lists/*

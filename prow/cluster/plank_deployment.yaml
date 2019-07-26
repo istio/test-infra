@@ -13,11 +13,14 @@ spec:
     spec:
       containers:
       - name: plank
-        image: gcr.io/istio-testing/plank:v20181127-b0ca57e86
+        image: gcr.io/k8s-prow/plank:v20190726-02a6152d3
         args:
-        - --tot-url=http://tot
+        - --config-path=/etc/config/config.yaml
         - --dry-run=false
         - --job-config-path=/etc/job-config
+        - --tot-url=http://tot
+        - --github-endpoint=http://ghproxy
+        - --github-endpoint=https://api.github.com
         volumeMounts:
         - name: oauth
           mountPath: /etc/github

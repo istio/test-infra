@@ -16,8 +16,8 @@ istio_rel_pipeline_container: &istio_rel_pipeline_container
     privileged: true
   resources:
     requests:
-      memory: "512Mi"
-      cpu: "500m"
+      memory: "2Gi"
+      cpu: "4000m"
     limits:
       memory: "24Gi"
       cpu: "7000m"
@@ -29,8 +29,8 @@ istio_container: &istio_container
     privileged: true
   resources:
     requests:
-      memory: "512Mi"
-      cpu: "500m"
+      memory: "2Gi"
+      cpu: "4000m"
     limits:
       memory: "24Gi"
       cpu: "7000m"
@@ -54,162 +54,167 @@ presubmits:
         - entrypoint
         - scripts/pipeline_runner.sh
         - release/gcb/run_build.sh
-    run_after_success:
-    - name: release-upgrade-tests-1.0.1
-      <<: *job_template
-      always_run: true
-      optional: true
-      context: prow/release-upgrade-tests-1.0.1
-      max_concurrency: 5
-      labels:
-        preset-service-account: "true"
-      spec:
-        containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - scripts/run-test.sh
-          - prow/upgrade-tests-1.0.1.sh
-        nodeSelector:
-          testing: test-pool
+  - name: release-upgrade-tests-1.0.1
+    <<: *job_template
+    always_run: true
+    optional: true
+    context: prow/release-upgrade-tests-1.0.1
+    max_concurrency: 5
+    labels:
+      preset-release-build-test: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/upgrade-tests-1.0.1.sh
+      nodeSelector:
+        testing: test-pool
 
-    - name: release-upgrade-tests-1.0.2
-      <<: *job_template
-      always_run: true
-      optional: true
-      context: prow/release-upgrade-tests-1.0.2
-      max_concurrency: 5
-      labels:
-        preset-service-account: "true"
-      spec:
-        containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - scripts/run-test.sh
-          - prow/upgrade-tests-1.0.2.sh
-        nodeSelector:
-          testing: test-pool
+  - name: release-upgrade-tests-1.0.2
+    <<: *job_template
+    always_run: true
+    optional: true
+    context: prow/release-upgrade-tests-1.0.2
+    max_concurrency: 5
+    labels:
+      preset-release-build-test: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/upgrade-tests-1.0.2.sh
+      nodeSelector:
+        testing: test-pool
 
-    - name: release-unit-tests
-      <<: *job_template
-      always_run: true
-      context: prow/release-unit-tests
-      max_concurrency: 5
-      labels:
-        preset-service-account: "true"
-      spec:
-        containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - scripts/run-test.sh
-          - prow/istio-unit-tests.sh
-        nodeSelector:
-          testing: test-pool
+  - name: release-unit-tests
+    <<: *job_template
+    always_run: true
+    optional: false
+    context: prow/release-unit-tests
+    max_concurrency: 5
+    labels:
+      preset-release-build-test: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/istio-unit-tests.sh
+      nodeSelector:
+        testing: test-pool
 
-    - name: release-istioctl-tests
-      <<: *job_template
-      always_run: true
-      context: prow/release-istioctl-tests
-      max_concurrency: 5
-      labels:
-        preset-service-account: "true"
-      spec:
-        containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - scripts/run-test.sh
-          - prow/istioctl-tests.sh
-        nodeSelector:
-          testing: test-pool
+  - name: release-istioctl-tests
+    <<: *job_template
+    always_run: true
+    optional: false
+    context: prow/release-istioctl-tests
+    max_concurrency: 5
+    labels:
+      preset-release-build-test: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/istioctl-tests.sh
+      nodeSelector:
+        testing: test-pool
 
-    - name: release-e2e-pilot-no_auth
-      <<: *job_template
-      always_run: true
-      context: prow/release-e2e-pilot-no_auth
-      max_concurrency: 5
-      labels:
-        preset-service-account: "true"
-      spec:
-        containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - scripts/run-test.sh
-          - prow/e2e-pilot-no_auth.sh
-        nodeSelector:
-          testing: test-pool
+  - name: release-e2e-pilot-no_auth
+    <<: *job_template
+    always_run: true
+    optional: false
+    context: prow/release-e2e-pilot-no_auth
+    max_concurrency: 5
+    labels:
+      preset-release-build-test: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/e2e-pilot-no_auth.sh
+      nodeSelector:
+        testing: test-pool
 
-    - name: release-e2e-bookinfoTests
-      <<: *job_template
-      always_run: true
-      context: prow/release-e2e-bookinfoTests
-      max_concurrency: 5
-      labels:
-        preset-service-account: "true"
-      spec:
-        containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - scripts/run-test.sh
-          - prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
-        nodeSelector:
-          testing: test-pool
+  - name: release-e2e-bookinfoTests
+    <<: *job_template
+    always_run: true
+    optional: false
+    context: prow/release-e2e-bookinfoTests
+    max_concurrency: 5
+    labels:
+      preset-release-build-test: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
+      nodeSelector:
+        testing: test-pool
 
-    - name: release-e2e-simpleTests
-      <<: *job_template
-      always_run: true
-      context: prow/release-e2e-simpleTests
-      max_concurrency: 5
-      labels:
-        preset-service-account: "true"
-      spec:
-        containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - scripts/run-test.sh
-          - prow/e2e-simpleTests.sh
-        nodeSelector:
-          testing: test-pool
+  - name: release-e2e-simpleTests
+    <<: *job_template
+    always_run: true
+    optional: false
+    context: prow/release-e2e-simpleTests
+    max_concurrency: 5
+    labels:
+      preset-release-build-test: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/e2e-simpleTests.sh
+      nodeSelector:
+        testing: test-pool
 
-    - name: release-e2e-mixer-no_auth
-      <<: *job_template
-      optional: true
-      always_run: true
-      context: prow/release-e2e-mixer-no_auth
-      max_concurrency: 5
-      labels:
-        preset-service-account: "true"
-      spec:
-        containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - scripts/run-test.sh
-          - prow/e2e-mixer-no_auth.sh
-        nodeSelector:
-          testing: test-pool
+  - name: release-e2e-mixer-no_auth
+    <<: *job_template
+    always_run: true
+    optional: true
+    context: prow/release-e2e-mixer-no_auth
+    max_concurrency: 5
+    labels:
+      preset-release-build-test: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/e2e-mixer-no_auth.sh
+      nodeSelector:
+        testing: test-pool
 
-    - name: release-e2e-dashboard
-      <<: *job_template
-      always_run: true
-      context: prow/release-e2e-dashboard
-      max_concurrency: 5
-      labels:
-        preset-service-account: "true"
-      spec:
-        containers:
-        - <<: *istio_container
-          command:
-          - entrypoint
-          - scripts/run-test.sh
-          - prow/e2e-dashboard.sh
-        nodeSelector:
-          testing: test-pool
+  - name: release-e2e-dashboard
+    <<: *job_template
+    always_run: true
+    optional: false
+    context: prow/release-e2e-dashboard
+    max_concurrency: 5
+    labels:
+      preset-release-build-test: "true"
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - scripts/build_test_presubmit.sh
+        - prow/e2e-dashboard.sh
+      nodeSelector:
+        testing: test-pool
 
 postsubmits:
 

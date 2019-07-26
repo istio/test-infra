@@ -18,18 +18,18 @@ package trigger
 
 import (
 	"fmt"
-	"regexp"
 
+	"github.com/sirupsen/logrus"
+
+	"k8s.io/apimachinery/pkg/util/sets"
+	"k8s.io/test-infra/prow/config"
 	"k8s.io/test-infra/prow/github"
 	"k8s.io/test-infra/prow/labels"
+	"k8s.io/test-infra/prow/pjutil"
 	"k8s.io/test-infra/prow/plugins"
 )
 
-var okToTestRe = regexp.MustCompile(`(?m)^/ok-to-test\s*$`)
-var testAllRe = regexp.MustCompile(`(?m)^/test all,?($|\s.*)`)
-var retestRe = regexp.MustCompile(`(?m)^/retest\s*$`)
-
-func handleGenericComment(c client, trigger *plugins.Trigger, gc github.GenericCommentEvent) error {
+func handleGenericComment(c Client, trigger plugins.Trigger, gc github.GenericCommentEvent) error {
 	org := gc.Repo.Owner.Login
 	repo := gc.Repo.Name
 	number := gc.Number
@@ -40,44 +40,28 @@ func handleGenericComment(c client, trigger *plugins.Trigger, gc github.GenericC
 	if gc.Action != github.GenericCommentActionCreated || !gc.IsPR || gc.IssueState != "open" {
 		return nil
 	}
+	// Skip comments not germane to this plugin
+	if !pjutil.RetestRe.MatchString(gc.Body) && !pjutil.OkToTestRe.MatchString(gc.Body) && !pjutil.TestAllRe.MatchString(gc.Body) {
+		matched := false
+		for _, presubmit := range c.Config.Presubmits[gc.Repo.FullName] {
+			matched = matched || presubmit.TriggerMatches(gc.Body)
+			if matched {
+				break
+			}
+		}
+		if !matched {
+			c.Logger.Debug("Comment doesn't match any triggering regex, skipping.")
+			return nil
+		}
+	}
+
 	// Skip bot comments.
 	botName, err := c.GitHubClient.BotName()
 	if err != nil {
 		return err
 	}
 	if commentAuthor == botName {
-		return nil
-	}
-
-	// Which jobs does the comment want us to run?
-	allowOkToTest := trigger == nil || !trigger.IgnoreOkToTest
-	isOkToTest := okToTestRe.MatchString(gc.Body) && allowOkToTest
-	testAll := isOkToTest || testAllRe.MatchString(gc.Body)
-	shouldRetestFailed := retestRe.MatchString(gc.Body)
-	requestedJobs := c.Config.MatchingPresubmits(gc.Repo.FullName, gc.Body, testAll)
-	if !shouldRetestFailed && len(requestedJobs) == 0 {
-		// If a trusted member has commented "/ok-to-test",
-		// eventually add ok-to-test and remove needs-ok-to-test.
-		l, err := c.GitHubClient.GetIssueLabels(org, repo, number)
-		if err != nil {
-			return err
-		}
-		if isOkToTest && !github.HasLabel(labels.OkToTest, l) {
-			trusted, err := TrustedUser(c.GitHubClient, trigger, commentAuthor, org, repo)
-			if err != nil {
-				return err
-			}
-			if trusted {
-				if err := c.GitHubClient.AddLabel(org, repo, number, labels.OkToTest); err != nil {
-					return err
-				}
-				if github.HasLabel(labels.NeedsOkToTest, l) {
-					if err := c.GitHubClient.RemoveLabel(org, repo, number, labels.NeedsOkToTest); err != nil {
-						return err
-					}
-				}
-			}
-		}
+		c.Logger.Debug("Comment is made by the bot, skipping.")
 		return nil
 	}
 
@@ -94,7 +78,7 @@ func handleGenericComment(c client, trigger *plugins.Trigger, gc github.GenericC
 	var l []github.Label
 	if !trusted {
 		// Skip untrusted PRs.
-		l, trusted, err = trustedPullRequest(c.GitHubClient, trigger, gc.IssueAuthor.Login, org, repo, number, nil)
+		l, trusted, err = TrustedPullRequest(c.GitHubClient, trigger, gc.IssueAuthor.Login, org, repo, number, nil)
 		if err != nil {
 			return err
 		}
@@ -106,7 +90,7 @@ func handleGenericComment(c client, trigger *plugins.Trigger, gc github.GenericC
 	}
 
 	// At this point we can trust the PR, so we eventually update labels.
-	// Ensure we have labels before test, because trustedPullRequest() won't be called
+	// Ensure we have labels before test, because TrustedPullRequest() won't be called
 	// when commentAuthor is trusted.
 	if l == nil {
 		l, err = c.GitHubClient.GetIssueLabels(org, repo, number)
@@ -114,6 +98,7 @@ func handleGenericComment(c client, trigger *plugins.Trigger, gc github.GenericC
 			return err
 		}
 	}
+	isOkToTest := HonorOkToTest(trigger) && pjutil.OkToTestRe.MatchString(gc.Body)
 	if isOkToTest && !github.HasLabel(labels.OkToTest, l) {
 		if err := c.GitHubClient.AddLabel(org, repo, number, labels.OkToTest); err != nil {
 			return err
@@ -125,26 +110,69 @@ func handleGenericComment(c client, trigger *plugins.Trigger, gc github.GenericC
 		}
 	}
 
-	// Do we have to run some tests?
-	var forceRunContexts map[string]bool
-	if shouldRetestFailed {
-		combinedStatus, err := c.GitHubClient.GetCombinedStatus(org, repo, pr.Head.SHA)
+	toTest, toSkip, err := FilterPresubmits(HonorOkToTest(trigger), c.GitHubClient, gc.Body, pr, c.Config.Presubmits[gc.Repo.FullName], c.Logger)
+	if err != nil {
+		return err
+	}
+	return RunAndSkipJobs(c, pr, toTest, toSkip, gc.GUID, trigger.ElideSkippedContexts)
+}
+
+func HonorOkToTest(trigger plugins.Trigger) bool {
+	return !trigger.IgnoreOkToTest
+}
+
+type GitHubClient interface {
+	GetCombinedStatus(org, repo, ref string) (*github.CombinedStatus, error)
+	GetPullRequestChanges(org, repo string, number int) ([]github.PullRequestChange, error)
+}
+
+// FilterPresubmits determines which presubmits should run. We only want to
+// trigger jobs that should run, but the pool of jobs we filter to those that
+// should run depends on the type of trigger we just got:
+//  - if we get a /test foo, we only want to consider those jobs that match;
+//    jobs will default to run unless we can determine they shouldn't
+//  - if we got a /retest, we only want to consider those jobs that have
+//    already run and posted failing contexts to the PR or those jobs that
+//    have not yet run but would otherwise match /test all; jobs will default
+//    to run unless we can determine they shouldn't
+//  - if we got a /test all or an /ok-to-test, we want to consider any job
+//    that doesn't explicitly require a human trigger comment; jobs will
+//    default to not run unless we can determine that they should
+// If a comment that we get matches more than one of the above patterns, we
+// consider the set of matching presubmits the union of the results from the
+// matching cases.
+func FilterPresubmits(honorOkToTest bool, gitHubClient GitHubClient, body string, pr *github.PullRequest, presubmits []config.Presubmit, logger *logrus.Entry) ([]config.Presubmit, []config.Presubmit, error) {
+	org, repo, sha := pr.Base.Repo.Owner.Login, pr.Base.Repo.Name, pr.Head.SHA
+
+	contextGetter := func() (sets.String, sets.String, error) {
+		combinedStatus, err := gitHubClient.GetCombinedStatus(org, repo, sha)
 		if err != nil {
-			return err
+			return nil, nil, err
 		}
-		skipContexts := make(map[string]bool)    // these succeeded or are running
-		forceRunContexts = make(map[string]bool) // these failed and should be re-run
-		for _, status := range combinedStatus.Statuses {
-			state := status.State
-			if state == github.StatusSuccess || state == github.StatusPending {
-				skipContexts[status.Context] = true
-			} else if state == github.StatusError || state == github.StatusFailure {
-				forceRunContexts[status.Context] = true
-			}
-		}
-		retests := c.Config.RetestPresubmits(gc.Repo.FullName, skipContexts, forceRunContexts)
-		requestedJobs = append(requestedJobs, retests...)
+		failedContexts, allContexts := getContexts(combinedStatus)
+		return failedContexts, allContexts, nil
 	}
 
-	return runOrSkipRequested(c, pr, requestedJobs, forceRunContexts, gc.Body, gc.GUID)
+	filter, err := pjutil.PresubmitFilter(honorOkToTest, contextGetter, body, logger)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	number, branch := pr.Number, pr.Base.Ref
+	changes := config.NewGitHubDeferredChangedFilesProvider(gitHubClient, org, repo, number)
+	return pjutil.FilterPresubmits(filter, changes, branch, presubmits, logger)
+}
+
+func getContexts(combinedStatus *github.CombinedStatus) (sets.String, sets.String) {
+	allContexts := sets.String{}
+	failedContexts := sets.String{}
+	if combinedStatus != nil {
+		for _, status := range combinedStatus.Statuses {
+			allContexts.Insert(status.Context)
+			if status.State == github.StatusError || status.State == github.StatusFailure {
+				failedContexts.Insert(status.Context)
+			}
+		}
+	}
+	return failedContexts, allContexts
 }

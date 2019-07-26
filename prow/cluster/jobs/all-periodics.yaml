@@ -231,3 +231,16 @@ periodics:
       command:
       - entrypoint
       - scripts/trigger_daily_release.sh
+- interval: 5m
+  name: monitoring-verify-gcsweb
+  decorate: true
+  spec:
+    containers:
+      - image: alpine:3.10.1
+        command:
+        - wget
+        args:
+        - --spider
+        - https://gcsweb.istio.io/gcs/istio-release/
+    nodeSelector:
+      testing: test-pool

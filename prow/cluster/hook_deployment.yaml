@@ -16,14 +16,19 @@ spec:
       labels:
         app: hook
     spec:
+      # TODO(fejta): enable this?
+      # serviceAccountName: "hook" # Uncomment for use with RBAC
       terminationGracePeriodSeconds: 180
       containers:
       - name: hook
-        image: gcr.io/istio-testing/hook:v20181127-b0ca57e86
+        image: gcr.io/k8s-prow/hook:v20190726-02a6152d3
         args:
+        - --config-path=/etc/config/config.yaml
         - --dry-run=false
-        - --slack-token-file=/etc/slack/token
         - --job-config-path=/etc/job-config
+        - --slack-token-file=/etc/slack/token
+        - --github-endpoint=http://ghproxy
+        - --github-endpoint=https://api.github.com
         ports:
           - name: http
             containerPort: 8888
@@ -46,6 +51,7 @@ spec:
         - name: job-config
           mountPath: /etc/job-config
           readOnly: true
+        # TODO(fejta): catapi token
       volumes:
       - name: slack
         secret:

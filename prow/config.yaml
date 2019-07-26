@@ -1,16 +1,17 @@
 ---
 plank:
-  job_url_template: 'https://k8s-gubernator.appspot.com/build/istio-prow/{{if eq .Spec.Type "presubmit"}}pull/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else}}.{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}/'
-  job_url_prefix: https://k8s-gubernator.appspot.com/build/
+  job_url_template: 'https://prow.istio.io/view/gcs/istio-prow{{if eq .Spec.Type "presubmit"}}/pr-logs/pull/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if .Spec.Type "batch"}}/pr-logs/pull/batch{{else}}/logs{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}'
+  job_url_prefix: https://prow.istio.io/view/gcs/
   pod_pending_timeout: 60m
   default_decoration_config:
+    # TODO(fejta): use 2h, 15s instead
     timeout: 7200000000000 # 2h
     grace_period: 15000000000 # 15s
     utility_images:
-      clonerefs: "gcr.io/k8s-prow/clonerefs:v20181017-d31417a"
-      initupload: "gcr.io/k8s-prow/initupload:v20181017-d31417a"
-      entrypoint: "gcr.io/k8s-prow/entrypoint:v20181017-d31417a"
-      sidecar: "gcr.io/k8s-prow/sidecar:v20181017-d31417a"
+      clonerefs: "gcr.io/k8s-prow/clonerefs:v20190726-02a6152d3"
+      initupload: "gcr.io/k8s-prow/initupload:v20190726-02a6152d3"
+      entrypoint: "gcr.io/k8s-prow/entrypoint:v20190726-02a6152d3"
+      sidecar: "gcr.io/k8s-prow/sidecar:v20190726-02a6152d3"
     gcs_configuration:
       bucket: "istio-prow"
       path_strategy: "explicit"
@@ -22,75 +23,105 @@ sinker:
   max_pod_age: 6h
 
 deck:
+  spyglass:
+    size_limit: 500000000 # 500MB
+    gcs_browser_prefix: https://gcsweb.k8s.io/gcs/
+    testgrid_config: gs://k8s-testgrid/config
+    testgrid_root: https://testgrid.k8s.io/
+    viewers:
+      "started.json|finished.json":
+      - "metadata"
+      "build-log.txt":
+      - "buildlog"
+      "artifacts/junit.*\\.xml":
+      - "junit"
+      "artifacts/filtered.cov":
+      - "coverage"
+    announcement: "This page -- spyglass -- is the default viewer for prow.{{if .ArtifactPath}} For now, the deprecated gubernator page spyglass replaces <a href='https://gubernator.k8s.io/build/{{.ArtifactPath}}'>remains available</a>.{{end}}"
+
   tide_update_period: 1s
 
 prowjob_namespace: default
 pod_namespace: test-pods
 
+# Report job status for presubmit and postsubmit
+github_reporter:
+  job_types_to_report:
+  - presubmit
+  - postsubmit
+
 blocked_branches: &blocked_branches
+  master:
+    protect: true
   release-0.1: &blocking_merge
     required_status_checks:
       contexts:
       - "merges-blocked-needs-admin"
     protect: true
-  release-0.2:
+  release-0.2: *blocking_merge
+  release-0.3: *blocking_merge
+  release-0.4: *blocking_merge
+  release-0.5: *blocking_merge
+  release-0.6: *blocking_merge
+  release-0.7: *blocking_merge
+  release-0.8: *blocking_merge
+  release-1.0: *blocking_merge
+  release-1.1: &release11
     <<: *blocking_merge
-  release-0.3:
+    restrictions:
+      teams:
+      - release-managers-1-1
+  release-1.2: &release12
     <<: *blocking_merge
-  release-0.3.0:
-    <<: *blocking_merge
-  release-0.4:
-    <<: *blocking_merge
-  release-0.4.0:
-    <<: *blocking_merge
-  release-0.5:
-    <<: *blocking_merge
-  release-0.6:
-    <<: *blocking_merge
-  release-0.7:
-    <<: *blocking_merge
-  release-0.8:
-    <<: *blocking_merge
-  release-1.0:
-    <<: *blocking_merge
+    restrictions:
+      teams:
+      - release-managers-1-2
+  # TODO: release-1.3 once it exists
 
 branch-protection:
   allow_disabled_policies: true
+  protect: false
   orgs:
     istio:
       required_status_checks:
         contexts:
         - cla/google
-      required_pull_request_reviews:
+      required_pull_request_reviews: &mergify_reviews
         required_approving_review_count: 1
+        require_code_owner_reviews: true
       restrictions:
-        teams:
-        - repo-admins
       repos:
         api:
-          protect: false
-          branches:
-            <<: *blocked_branches
-            release-1.2:
-              protect: true
-              required_status_checks:
-                contexts:
-                - "merges-blocked-needs-admin"
-            release-1.1:
-              protect: true
-              required_status_checks:
-                contexts:
-                - "merges-blocked-needs-admin"
-            master:
-              protect: true
+          required_pull_request_reviews:
+            required_approving_review_count: 2
+          branches: *blocked_branches
+        istio.io:
+          branches: *blocked_branches
+        operator:
+          required_pull_request_reviews: &tide_withcodeowners_reviews
+            require_code_owner_reviews: true
+          restrictions: &tide_withcodeowners_restrictions
+            teams:
+              - repo-admins
+          branches: *blocked_branches
+        cni:
+          branches: *blocked_branches
+        installer:
+          branches: *blocked_branches
+        pkg:
+          required_pull_request_reviews: *tide_withcodeowners_reviews
+          restrictions: *tide_withcodeowners_restrictions
+          branches: *blocked_branches
+        common-files:
+          required_pull_request_reviews: *tide_withcodeowners_reviews
+          restrictions: *tide_withcodeowners_restrictions
+          branches: *blocked_branches
         istio:
-          protect: false
-          required_status_checks:
-            contexts:
-            - "ci/circleci: build"
-            - "ci/circleci: e2e-simple"
-            - "ci/circleci: lint"
-            - "ci/circleci: test"
+          required_pull_request_reviews: &tide_reviews
+            require_code_owner_reviews: false
+          restrictions: &tide_restrictions
+            teams:
+            - repo-admins
           branches:
             <<: *blocked_branches
             collab-galley:
@@ -98,63 +129,36 @@ branch-protection:
               restrictions:
                 teams:
                 - istio-hackers
-            collab-gcp-identity:
-              protect: true
-              restrictions:
-                teams:
-                - istio-hackers
-            collab-gce-identity:  
+            collab-gce-identity:
               protect: true
             prow-staging:
               protect: true
             release-1.1:
-              protect: true
+              <<: *release11
               required_status_checks:
                 contexts:
                 - "ci/circleci: codecov"
                 - "ci/circleci: shellcheck"
-                - "ci/circleci: e2e-galley"
-                - "ci/circleci: e2e-pilot-auth-v1alpha3-v2"
-                - "ci/circleci: e2e-pilot-noauth-v1alpha3-v2"
-                - "ci/circleci: e2e-mixer-noauth-v1alpha3-v2"
+                - "ci/circleci: lint"
+                - "ci/circleci: test"
+                - "ci/circleci: build"
                 - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
                 - "merges-blocked-needs-admin"
             release-1.2:
-              protect: true
+              <<: *release12
               required_status_checks:
                 contexts:
                 - "ci/circleci: codecov"
                 - "ci/circleci: shellcheck"
-                - "ci/circleci: e2e-galley"
-                - "ci/circleci: e2e-pilot-auth-v1alpha3-v2"
-                - "ci/circleci: e2e-pilot-noauth-v1alpha3-v2"
-                - "ci/circleci: e2e-mixer-noauth-v1alpha3-v2"
+                - "ci/circleci: lint"
+                - "ci/circleci: test"
+                - "ci/circleci: build"
                 - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
                 - "merges-blocked-needs-admin"
-            authz-v2:
-              protect: true
-              required_status_checks:
-                contexts:
-                - "ci/circleci: codecov"
-                - "ci/circleci: shellcheck"
-                - "ci/circleci: e2e-galley"
-                - "ci/circleci: e2e-pilot-auth-v1alpha3-v2"
-                - "ci/circleci: e2e-pilot-noauth-v1alpha3-v2"
-                - "ci/circleci: e2e-mixer-noauth-v1alpha3-v2"
-                - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
-            master:
-              protect: true
-              required_status_checks:
-                contexts:
-                - "ci/circleci: codecov"
-                - "ci/circleci: racetest"
-                - "ci/circleci: shellcheck"
-                - "ci/circleci: e2e-pilot-auth-v1alpha3-v2"
-                - "ci/circleci: e2e-pilot-noauth-v1alpha3-v2"
-                - "ci/circleci: e2e-mixer-noauth-v1alpha3-v2"
-                - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
+            # TODO: release-1.3 once it exists
         proxy:
-          protect: false
+          required_pull_request_reviews: *tide_reviews
+          restrictions: *tide_restrictions
           required_status_checks:
             contexts:
             - "ci/circleci: build"
@@ -162,29 +166,16 @@ branch-protection:
             <<: *blocked_branches
             endpoints-v1.1.x: *blocking_merge
             endpoints-v1.2.x: *blocking_merge
-            release-1.1:
-              protect: true
-              required_status_checks:
-                contexts:
-                - "merges-blocked-needs-admin"
-            release-1.2:
-              protect: true
-              required_status_checks:
-                contexts:
-                - "merges-blocked-needs-admin"
-            master:
-              protect: true
             wasm:
               protect: true
         test-infra:
-          protect: false
-          branches:
-            master:
-              protect: true
+          protect: true
+          required_pull_request_reviews: *tide_reviews
+          restrictions: *tide_restrictions
     istio-releases:
       repos:
         pipeline:
-          protect: false
+          required_pull_request_reviews: *tide_reviews
           restrictions:
           branches:
             krishna-test:
@@ -200,7 +191,7 @@ branch-protection:
     istio-ecosystem:
       repos:
         authservice:
-          protect: false
+          required_pull_request_reviews: *tide_reviews
           restrictions:
           branches:
             master:
@@ -209,18 +200,9 @@ branch-protection:
 tide:
   queries:
   - repos:
-    - istio-releases/pipeline
-    missingLabels:
-    - do-not-merge
-    - do-not-merge/hold
-    - do-not-merge/work-in-progress
-    - needs-ok-to-test
-    - needs-rebase
-  - repos:
-    - istio/api
-    - istio/test-infra
     - istio/istio
     - istio/proxy
+    - istio/test-infra
     - istio-ecosystem/authservice
     labels:
     - lgtm
@@ -230,11 +212,31 @@ tide:
     - do-not-merge
     - do-not-merge/hold
     - do-not-merge/work-in-progress
+    - needs-rebase
+  - repos:
+    - istio-releases/pipeline
+    missingLabels:
+    - do-not-merge
+    - do-not-merge/hold
+    - do-not-merge/work-in-progress
     - needs-ok-to-test
     - needs-rebase
+  - repos:
+    - istio/operator
+    - istio/pkg
+    - istio/common-files
+    labels:
+    - "cla: yes"
+    missingLabels:
+    - do-not-merge
+    - do-not-merge/hold
+    - do-not-merge/work-in-progress
+    reviewApprovedRequired: true
   merge_method:
-    istio/api: squash
     istio/istio: squash
+    istio/operator: squash
+    istio/pkg: squash
+    istio/common-files: squash
     istio/proxy: squash
     istio/test-infra: squash
     istio-releases/pipeline: squash
@@ -261,15 +263,6 @@ presets:
   - name: service
     secret:
       secretName: service-account
-- labels:
-    preset-prow-bazel: "true"
-  volumeMounts:
-  - name: cache-ssd
-    mountPath: /home/prow/.cache
-  volumes:
-  - name: cache-ssd
-    hostPath:
-      path: /mnt/disks/ssd0/test-infra
 - labels:
     preset-bazel: "true"
   volumeMounts:

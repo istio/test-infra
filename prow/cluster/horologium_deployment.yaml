@@ -14,9 +14,12 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
       - name: horologium
-        image: gcr.io/istio-testing/horologium:v20181127-b0ca57e86
+        image: gcr.io/k8s-prow/horologium:v20190726-02a6152d3
         args:
+        - --config-path=/etc/config/config.yaml
+        - --dry-run=false
         - --job-config-path=/etc/job-config
+        # TODO(fejta): ghproxy
         volumeMounts:
         - name: config
           mountPath: /etc/config

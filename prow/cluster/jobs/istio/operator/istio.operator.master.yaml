@@ -1,0 +1,55 @@
+presubmits:
+
+  istio/operator:
+
+  - name: operator-lint-master
+    path_alias: istio.io/operator
+    decorate: true
+    always_run: true
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/istio-builder:v20190624-478286dc
+        command:
+        - make
+        - lint
+        env:
+        - name: GO111MODULE
+          value: "on"
+      nodeSelector:
+        testing: test-pool
+
+  - name: operator-build-master
+    path_alias: istio.io/operator
+    decorate: true
+    always_run: true
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/istio-builder:v20190624-478286dc
+        command:
+        - go
+        - build
+        - ./...
+        env:
+        - name: GO111MODULE
+          value: "on"
+      nodeSelector:
+        testing: build-pool
+
+  - name: operator-test-master
+    path_alias: istio.io/operator
+    decorate: true
+    always_run: true
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/istio-builder:v20190624-478286dc
+        command:
+        - go
+        - test
+        - -race
+        - ./...
+        env:
+        - name: GO111MODULE
+          value: "on"
+      nodeSelector:
+        testing: test-pool
+

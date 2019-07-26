@@ -51,3 +51,5 @@ Our dependency on this script is because it appropariately writes test job resul
 * 0.5.4: Update ninja to 1.9.0
 * 0.5.5: Update golang to 1.12.5 and bazel to 0.26.0
 * 0.5.6: Add kind v0.3.0
+* 0.5.7: Update bazel to 0.27.0 and clang to 8
+* 0.5.8: Update bazel to 0.28.0

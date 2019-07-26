@@ -49,7 +49,7 @@ func (f *fakeStorage) GetLabel() string {
 
 func TestMetric_Update(t *testing.T) {
 	m := NewMetric(&fakeStorage{data: fakeData})
-	//before := m.coverage.WithLabelValues()
+
 	c, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	errc := make(chan error)

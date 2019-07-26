@@ -1,0 +1,17 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "clone.go",
+        "format.go",
+        "types.go",
+    ],
+    importmap = "istio.io/test-infra/vendor/k8s.io/test-infra/prow/pod-utils/clone",
+    importpath = "k8s.io/test-infra/prow/pod-utils/clone",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/sirupsen/logrus:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/apis/prowjobs/v1:go_default_library",
+    ],
+)

@@ -28,9 +28,11 @@ spec:
       terminationGracePeriodSeconds: 180
       containers:
       - name: needs-rebase
-        image: gcr.io/istio-testing/needs-rebase:v20181127-b0ca57e86
+        image: gcr.io/k8s-prow/needs-rebase:v20190726-02a6152d3
         args:
         - --dry-run=false
+        - --github-endpoint=http://ghproxy
+        - --github-endpoint=https://api.github.com
         ports:
           - name: http
             containerPort: 8888
