@@ -11,32 +11,6 @@ test_infra_master_spec: &test_infra_master_spec
   nodeSelector:
     testing: test-pool
 
-test_flakey_master_spec: &test_flakey_master_spec
-  containers:
-  - image: gcr.io/istio-testing/test-flakey-builder:v20190611-65b6bb45
-    args:
-    - "--repo=github.com/istio/test-infra=master"
-    - "--clean"
-    # Bazel needs privileged mode in order to sandbox builds.
-    securityContext:
-      privileged: true
-  nodeSelector:
-    testing: test-pool
-
-test_infra_container: &test_flakey_container
-  image: gcr.io/istio-testing/test-flakey-builder:v20190611-65b6bb45
-  # Bazel needs privileged mode in order to sandbox builds.
-  securityContext:
-    privileged: true
-  resources:
-    requests:
-      memory: "512Mi"
-      cpu: "500m"
-    limits:
-      memory: "24Gi"
-      cpu: "7000m"
-
-
 istio_rel_pipeline_spec: &istio_rel_pipeline_spec
   nodeSelector:
     testing: build-pool
@@ -143,24 +117,6 @@ periodics:
           cpu: "7000m"
     nodeSelector:
       testing: build-pool
-
-  name: istio-flakey-test-periodic
-  context: flakeyTest/daily-flakey-test.sh
-  branches: master
-  labels:
-    preset-service-account: "true"
-  spec:
-    <<: *test_flakey_master_spec
-    containers:
-    - <<: *test_flakey_container
-      args:
-      - "--repo=github.com/istio/test-infra=master"
-      - "--clean"
-      command:
-        - entrypoint
-        - flakeyTest/daily-flakey-test.sh
-    nodeSelector:
-      testing: test-pool
 
 - interval: 30m
   name: release-requests-janitor
