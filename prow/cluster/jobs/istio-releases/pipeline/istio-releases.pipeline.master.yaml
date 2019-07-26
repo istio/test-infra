@@ -102,6 +102,8 @@ presubmits:
         - prow/istio-unit-tests.sh
       nodeSelector:
         testing: test-pool
+    decoration_config:
+      timeout: 14400000000000 # 4 hours
   - name: release-build-test-istioctl-tests
     <<: *job_template
     always_run: true
