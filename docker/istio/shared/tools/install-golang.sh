@@ -20,7 +20,7 @@ go version
 
 go get github.com/github/hub
 go get github.com/golang/dep/cmd/dep
-go get -u google.golang.org/api/sheets/v4
+GO111MODULE="on" go get -u google.golang.org/api/sheets/v4
 go get github.com/jstemmer/go-junit-report
 GO111MODULE="on" go get sigs.k8s.io/kind@${KIND_VERSION}
 
