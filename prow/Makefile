@@ -68,6 +68,16 @@ deployments: branch-protector-cronjob cherrypicker-deployment deck-deployment gh
 
 .PHONY: branch-protector-cronjob deployments deck-deployment hook-deployment horologium-deployment needs-rebase-deployment plank-deployment sinker-deployment tide-deployment tot-deployment statusreconciler-deployment
 
+hook-rbac: get-cluster-credentials
+	kubectl apply -f cluster/hook_rbac.yaml
+
+deck-rbac: get-cluster-credentials
+	kubectl apply -f cluster/deck_rbac.yaml
+
+rbacs: hook-rbac deck-rbac
+
+.PHONY: rbacs hook-rbac deck-rbac
+
 cherrypicker-service: get-cluster-credentials
 	kubectl apply -f cluster/cherrypicker_service.yaml
 
@@ -93,4 +103,4 @@ services: cherrypicker-service deck-service hook-service needs-rebase-service ti
 
 .PHONY: services deck-service hook-service needs-rebase-service tide-service tot-service
 
-deploy: deployments services
+deploy: deployments rbacs services
