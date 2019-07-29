@@ -146,11 +146,11 @@ func readSpreadSheet(credentialsPath string, spreadsheetID string, readRange str
 	return filePaths
 }
 
-func NewErrorFinder(client *storage.Client, bucketName string) (*ErrorFinder, error) {
+func NewErrorFinder(client *storage.Client, bucketName string) *ErrorFinder {
 	return &ErrorFinder{
 		client:     client,
 		bucketName: bucketName,
-	}, nil
+	}
 }
 
 // Read from gcs the build-log.txt files into slice of lines.
@@ -180,7 +180,7 @@ func (f *ErrorFinder) query(ctx context.Context, prefix string) ([]string, error
 
 // Get error contents of files to update error map and warning map with new errors/warnings and path to build logs.
 func (f *ErrorFinder) getContent(
-	ctx context.Context, filePaths []string, errorMap map[string][]string, warningMap map[string][]string) (map[string][]string, map[string][]string, error) {
+	ctx context.Context, filePaths []string, errorMap map[string][]string, warningMap map[string][]string) (map[string][]string, map[string][]string) {
 	for _, filePath := range filePaths {
 		fileSlice, err := f.query(ctx, filePath)
 		if err != nil {
@@ -249,10 +249,8 @@ func (f *ErrorFinder) getContent(
 							}
 
 						}
-					} else {
-						if strings.Contains(line[:indexColon], "error") || strings.Contains(line[:indexColon], "warn") || strings.Contains(line[:indexColon], "fail") {
-							line = line[:indexColon]
-						}
+					} else if strings.Contains(line[:indexColon], "error") || strings.Contains(line[:indexColon], "warn") || strings.Contains(line[:indexColon], "fail") {
+						line = line[:indexColon]
 					}
 				}
 
@@ -284,7 +282,7 @@ func (f *ErrorFinder) getContent(
 			}
 		}
 	}
-	return errorMap, warningMap, nil
+	return errorMap, warningMap
 }
 
 // Read destination csv file to get previously generated errors and warnings.
@@ -356,8 +354,8 @@ func readCSV(fileName string) (map[string][]string, map[string][]string, error) 
 
 // For each spliter section of file paths, read previously generated errors and warnings.
 // Process contents in new files and update the csv.
-func (f *ErrorFinder) findErrorForEachSection(ctx context.Context, gcsFilePaths []string, OutputFileName string, startInd int, endInd int) {
-	curErrors, curWarnings, err := readCSV(OutputFileName)
+func (f *ErrorFinder) findErrorForEachSection(ctx context.Context, gcsFilePaths []string, outputFileName string, startInd int, endInd int) {
+	curErrors, curWarnings, err := readCSV(outputFileName)
 
 	// If csv file does not contain anything yet, initialize curErrors and curWarnings to be empty maps.
 	if err != nil {
@@ -367,18 +365,14 @@ func (f *ErrorFinder) findErrorForEachSection(ctx context.Context, gcsFilePaths 
 	filesToProcess := append([]string{}, gcsFilePaths[startInd:endInd]...)
 
 	// Get errors and warnings from newly read build logs and update maps of errors and warnings.
-	newErrors, newWarnings, err := f.getContent(ctx, filesToProcess, curErrors, curWarnings)
-
-	if err != nil {
-		return
-	}
+	newErrors, newWarnings := f.getContent(ctx, filesToProcess, curErrors, curWarnings)
 
 	// Write new errors and warnings to output csv file.
-	writeCSV(newErrors, newWarnings, OutputFileName)
+	writeCSV(newErrors, newWarnings, outputFileName)
 }
 
 // Divide the list of file paths read in gcs storage to several spliters to avoid overflooding memory.
-func (f *ErrorFinder) divideToSections(ctx context.Context, spliter int, gcsFilePaths []string, OutputFileName string) {
+func (f *ErrorFinder) divideToSections(ctx context.Context, spliter int, gcsFilePaths []string, outputFileName string) {
 	n := 1
 	for {
 		if n*spliter > len(gcsFilePaths) {
@@ -386,22 +380,22 @@ func (f *ErrorFinder) divideToSections(ctx context.Context, spliter int, gcsFile
 		}
 		startInd := (n - 1) * spliter
 		endInd := n*spliter - 1
-		f.findErrorForEachSection(ctx, gcsFilePaths, OutputFileName, startInd, endInd)
+		f.findErrorForEachSection(ctx, gcsFilePaths, outputFileName, startInd, endInd)
 		n++
 	}
 	startInd := (n - 1) * spliter
 	endInd := len(gcsFilePaths)
-	f.findErrorForEachSection(ctx, gcsFilePaths, OutputFileName, startInd, endInd)
+	f.findErrorForEachSection(ctx, gcsFilePaths, outputFileName, startInd, endInd)
 }
 
 // Generalize messages from build file.
 func (f *ErrorFinder) generalizeDigits(content string) string {
 	// Generalize unique numbers in build-log.txt to character '\d'
-	reg, _ := regexp.Compile("[0-9]+")
+	reg := regexp.MustCompile("[0-9]+")
 	newContent := reg.ReplaceAllString(content, "\\d")
 
 	// Generalize unique messages in build-log.txt surrounded by quotations to character '\d'
-	reg, _ = regexp.Compile("\\\"(.*?)\\\"|'(.*?)'")
+	reg = regexp.MustCompile("\\\"(.*?)\\\"|'(.*?)'")
 	newContent = reg.ReplaceAllString(newContent, "\\s")
 
 	return newContent
@@ -429,8 +423,8 @@ func writeCSV(errorMap map[string][]string, warningMap map[string][]string, file
 
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
-	error := []string{"error"}
-	err = writer.Write(error)
+	errorSlice := []string{"error"}
+	err = writer.Write(errorSlice)
 	if err != nil {
 		log.Fatal("cannot write line", err)
 	}
@@ -510,9 +504,6 @@ func main() {
 		log.Fatalf("Unable to create new client: %v", err)
 	}
 
-	errorFinder, err := NewErrorFinder(client, bucketName)
-	if err != nil {
-		log.Fatalf("Unable to create new error finder: %v", err)
-	}
+	errorFinder := NewErrorFinder(client, bucketName)
 	errorFinder.divideToSections(context, 2, listOfPrs, fileName)
 }
