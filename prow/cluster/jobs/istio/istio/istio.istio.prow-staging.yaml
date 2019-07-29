@@ -16,47 +16,41 @@ istio_container: &istio_container
       cpu: "3000m"
     limits:
       memory: "24Gi"
-      cpu: "3000m"
-
-istio_container_with_kind: &istio_container_with_kind
-  image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
-  # Docker in Docker
-  securityContext:
-    privileged: true
-  resources:
-    requests:
-      memory: "2Gi"
-      cpu: "3000m"
-    limits:
-      memory: "24Gi"
-      cpu: "3000m"
-
+      cpu: "5000m"
+  env:
+  - name: "T"
+    value: "-v"
 presubmits:
 
   istio/istio:
 
   - name: istio-unit-tests-prow-staging
     <<: *job_template
-    context: prow/istio-unit-tests.sh
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-prow-staging
     spec:
       containers:
       - <<: *istio_container
         command:
-        - entrypoint
-        - prow/istio-unit-tests.sh
+        - make
+        - build
+        - localTestEnv
+        - test
+        - binaries-test
       nodeSelector:
         testing: test-pool
 
   - name: istio-lint-prow-staging
     <<: *job_template
-    context: prow/istio-lint.sh
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-prow-staging
     spec:
       containers:
       # Lint requires a large amount of memory
       # See https://github.com/istio/istio/issues/14888 before lowering requests
-      - image: gcr.io/istio-testing/istio-builder:v20190628-31457b43
+      - image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
         # Docker in Docker
         securityContext:
           privileged: true
@@ -66,83 +60,85 @@ presubmits:
             cpu: "3000m"
           limits:
             memory: "24Gi"
-            cpu: "3000m"
+            cpu: "5000m"
         command:
-        - entrypoint
-        - prow/istio-lint.sh
+        - make
+        - lint
       nodeSelector:
         testing: test-pool
 
   - name: istio-racetest-prow-staging
     <<: *job_template
-    context: prow/racetest.sh
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-prow-staging
     spec:
       containers:
       - <<: *istio_container
         command:
-        - entrypoint
-        - prow/racetest.sh
+        - make
+        - localTestEnv
+        - racetest
       nodeSelector:
         testing: test-pool
 
   - name: istio-shellcheck-prow-staging
     <<: *job_template
-    context: prow/shellcheck.sh
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-prow-staging
     spec:
       containers:
       - <<: *istio_container
         command:
-        - entrypoint
-        - prow/shellcheck.sh
+        - make
+        - shellcheck
       nodeSelector:
         testing: test-pool
 
   - name: istio-codecov-prow-staging
     <<: *job_template
-    context: prow/codecov.sh
     always_run: true
     spec:
       containers:
       - <<: *istio_container
         command:
-        - entrypoint
-        - prow/codecov.sh
+        - make
+        - localTestEnv
+        - coverage-diff
       nodeSelector:
         testing: test-pool
+    annotations:
+      testgrid-dashboards: istio-presubmits-prow-staging
 
   - name: integ-framework-local-presubmit-tests-prow-staging
     <<: *job_template
-    context: prow/integ-framework-local-presubmit-tests.sh
     always_run: true
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-local.sh
+            - make
             - test.integration.framework.local.presubmit
       nodeSelector:
         testing: test-pool
 
   - name: integ-galley-local-presubmit-tests-prow-staging
     <<: *job_template
-    context: prow/integ-galley-local-presubmit-tests.sh
     always_run: true
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-local.sh
+            - make
             - test.integration.galley.local.presubmit
       nodeSelector:
         testing: test-pool
 
   - name: integ-istioctl-local-presubmit-tests-prow-staging
     <<: *job_template
-    context: prow/integ-istioctl-local-presubmit-tests.sh
     always_run: true
     optional: true
     spec:
@@ -150,7 +146,7 @@ presubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-local.sh
+            - make
             - test.integration.istioctl.local.presubmit
       nodeSelector:
         testing: test-pool
@@ -158,53 +154,46 @@ presubmits:
   - name: integ-mixer-local-presubmit-tests-prow-staging
     <<: *job_template
     optional: true
-    context: prow/integ-mixer-local-presubmit-tests.sh
     always_run: true
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-local.sh
+            - make
             - test.integration.mixer.local.presubmit
       nodeSelector:
         testing: test-pool
 
   - name: integ-pilot-local-presubmit-tests-prow-staging
     <<: *job_template
-    context: prow/integ-pilot-local-presubmit-tests.sh
     always_run: true
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-local.sh
+            - make
             - test.integration.pilot.local.presubmit
       nodeSelector:
         testing: test-pool
 
   - name: integ-security-local-presubmit-tests-prow-staging
     <<: *job_template
-    context: prow/integ-security-local-presubmit-tests.sh
     always_run: true
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-local.sh
+            - make
             - test.integration.security.local.presubmit
       nodeSelector:
         testing: test-pool
 
   - name: integ-framework-k8s-presubmit-tests-prow-staging
     <<: *job_template
-    context: prow/integ-framework-k8s-presubmit-tests.sh
-    max_concurrency: 5
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -233,11 +222,7 @@ presubmits:
         testing: test-pool
   - name: integ-galley-k8s-presubmit-tests-prow-staging
     <<: *job_template
-    context: prow/integ-galley-k8s-presubmit-tests.sh
-    max_concurrency: 5
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -266,12 +251,8 @@ presubmits:
         testing: test-pool
   - name: integ-istioctl-k8s-presubmit-tests-prow-staging
     <<: *job_template
-    context: prow/integ-istioctl-k8s-presubmit-tests.sh
     optional: true
-    max_concurrency: 5
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -300,12 +281,8 @@ presubmits:
         testing: test-pool
   - name: integ-mixer-k8s-presubmit-tests-prow-staging
     <<: *job_template
-    context: prow/integ-mixer-k8s-presubmit-tests.sh
     optional: true
-    max_concurrency: 5
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -335,11 +312,7 @@ presubmits:
   - name: integ-pilot-k8s-presubmit-tests-prow-staging
     <<: *job_template
     optional: true
-    context: prow/integ-pilot-k8s-presubmit-tests.sh
-    max_concurrency: 5
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -368,11 +341,7 @@ presubmits:
         testing: test-pool
   - name: integ-security-k8s-presubmit-tests-prow-staging
     <<: *job_template
-    context: prow/integ-security-k8s-presubmit-tests.sh
-    max_concurrency: 5
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -401,12 +370,8 @@ presubmits:
         testing: test-pool
   - name: integ-telemetry-k8s-presubmit-tests-prow-staging
     <<: *job_template
-    context: prow/integ-telemetry-k8s-presubmit-tests.sh
     optional: true
-    max_concurrency: 5
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -435,12 +400,8 @@ presubmits:
         testing: test-pool
   - name: integ-new-install-k8s-presubmit-tests-prow-staging
     <<: *job_template
-    context: prow/integ-new-installer-k8s-presubmit-tests.sh
     optional: true
-    max_concurrency: 5
     always_run: true
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -472,7 +433,6 @@ presubmits:
     <<: *job_template
     optional: true
     skip_report: true
-    context: "prow: test-e2e-mixer-no_auth"
     max_concurrency: 5
     labels:
       preset-service-account: "true"
@@ -487,7 +447,6 @@ presubmits:
   - name: istio-pilot-e2e-envoyv2-v1alpha3-prow-staging
     <<: *job_template
     always_run: true
-    context: prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -502,7 +461,6 @@ presubmits:
   - name: e2e-mixer-no_auth-prow-staging
     <<: *job_template
     always_run: true
-    context: prow/e2e-mixer-no_auth.sh
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -517,7 +475,6 @@ presubmits:
   - name: e2e-dashboard-prow-staging
     <<: *job_template
     always_run: true
-    context: prow/e2e-dashboard.sh
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -532,7 +489,6 @@ presubmits:
   - name: e2e-bookInfoTests-envoyv2-v1alpha3-prow-staging
     <<: *job_template
     always_run: true
-    context: prow/e2e-bookInfoTests-v1alpha3.sh
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -547,7 +503,6 @@ presubmits:
   - name: e2e-bookInfoTests-trustdomain-prow-staging
     <<: *job_template
     always_run: true
-    context: prow/e2e-bookInfoTests-trustdomain.sh
     optional: true
     labels:
       preset-service-account: "true"
@@ -563,7 +518,6 @@ presubmits:
   - name: e2e-simpleTests-prow-staging
     <<: *job_template
     always_run: true
-    context: prow/e2e-simpleTests.sh
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -577,8 +531,8 @@ presubmits:
         testing: test-pool
   - name: e2e-simpleTests-distroless-prow-staging
     <<: *job_template
+    always_run: true
     optional: true
-    context: prow/e2e-simpleTests-distroless.sh
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -593,7 +547,6 @@ presubmits:
   - name: e2e-simpleTestsMinProfile-prow-staging
     <<: *job_template
     optional: true
-    context: prow/e2e-simpleTests-minProfile.sh
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -609,7 +562,6 @@ presubmits:
   - name: istio-pilot-multicluster-e2e-prow-staging
     <<: *job_template
     always_run: true
-    context: prow/istio-pilot-multicluster-e2e.sh
     optional: true
     labels:
       preset-service-account: "true"
@@ -625,7 +577,6 @@ presubmits:
   - name: e2e-simpleTests-cni-prow-staging
     <<: *job_template
     always_run: false
-    context: prow/e2e-simpleTests-cni.sh
     optional: true
     labels:
       preset-service-account: "true"
@@ -637,10 +588,10 @@ presubmits:
         - entrypoint
         - prow/e2e-simpleTests-cni.sh
       nodeSelector:
+        testing: test-pool
   - name: istio_auth_sds_e2e-prow-staging
     <<: *job_template
     always_run: true
-    context: prow/e2e_pilotv2_auth_sds.sh
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -655,10 +606,8 @@ presubmits:
   - name: release-test-prow-staging
     <<: *job_template
     always_run: true
-    context: prow/release-test.sh
     labels:
       preset-service-account: "true"
-    max_concurrency: 5
     spec:
       containers:
       - <<: *istio_container
@@ -670,7 +619,6 @@ presubmits:
   - name: istio_e2e_cloudfoundry-prow-staging
     <<: *job_template
     always_run: true
-    optional: true
     spec:
       containers:
       - <<: *istio_container
@@ -691,7 +639,8 @@ postsubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-local.sh
+            - make
+            - init
             - test.integration.conformance.local
       nodeSelector:
         testing: test-pool
@@ -703,7 +652,8 @@ postsubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-local.sh
+            - make
+            - init
             - test.integration.framework.local
       nodeSelector:
         testing: test-pool
@@ -715,7 +665,8 @@ postsubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-local.sh
+            - make
+            - init
             - test.integration.galley.local
       nodeSelector:
         testing: test-pool
@@ -727,7 +678,8 @@ postsubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-local.sh
+            - make
+            - init
             - test.integration.istioctl.local
       nodeSelector:
         testing: test-pool
@@ -739,7 +691,8 @@ postsubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-local.sh
+            - make
+            - init
             - test.integration.mixer.local
       nodeSelector:
         testing: test-pool
@@ -751,7 +704,8 @@ postsubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-local.sh
+            - make
+            - init
             - test.integration.pilot.local
       nodeSelector:
         testing: test-pool
@@ -763,7 +717,8 @@ postsubmits:
         - <<: *istio_container
           command:
             - entrypoint
-            - prow/integ-suite-local.sh
+            - make
+            - init
             - test.integration.security.local
       nodeSelector:
         testing: test-pool
@@ -772,7 +727,7 @@ postsubmits:
     <<: *job_template
     spec:
       containers:
-      - <<: *istio_container_with_kind
+      - <<: *istio_container
         command:
         - entrypoint
         - prow/e2e-kind-simpleTests.sh
@@ -798,7 +753,6 @@ postsubmits:
 
   - name: istio-unit-tests-prow-staging
     <<: *job_template
-    context: prow/istio-unit-tests.sh
     always_run: true
     spec:
       containers:
@@ -810,8 +764,6 @@ postsubmits:
         testing: test-pool
   - name: integ-conformance-k8s-postsubmit-tests-prow-staging
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -819,12 +771,27 @@ postsubmits:
             - entrypoint
             - prow/integ-suite-kind.sh
             - test.integration.conformance.kube
+          # Volumes needed to support KinD running in Kubernetes
+          # See https://github.com/kubernetes-sigs/kind/issues/303
+          volumeMounts:
+          - mountPath: /lib/modules
+            name: modules
+            readOnly: true
+          - mountPath: /sys/fs/cgroup
+            name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-framework-k8s-postsubmit-tests-prow-staging
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
         - <<: *istio_container
@@ -832,12 +799,27 @@ postsubmits:
             - entrypoint
             - prow/integ-suite-kind.sh
             - test.integration.framework.kube
+          # Volumes needed to support KinD running in Kubernetes
+          # See https://github.com/kubernetes-sigs/kind/issues/303
+          volumeMounts:
+          - mountPath: /lib/modules
+            name: modules
+            readOnly: true
+          - mountPath: /sys/fs/cgroup
+            name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-galley-k8s-postsubmit-tests-prow-staging
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
@@ -845,12 +827,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.galley.kube
+        # Volumes needed to support KinD running in Kubernetes
+        # See https://github.com/kubernetes-sigs/kind/issues/303
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-istioctl-k8s-postsubmit-tests-prow-staging
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
@@ -858,12 +855,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.istioctl.kube
+        # Volumes needed to support KinD running in Kubernetes
+        # See https://github.com/kubernetes-sigs/kind/issues/303
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-mixer-k8s-postsubmit-tests-prow-staging
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
@@ -871,12 +883,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.mixer.kube
+        # Volumes needed to support KinD running in Kubernetes
+        # See https://github.com/kubernetes-sigs/kind/issues/303
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-pilot-k8s-postsubmit-tests-prow-staging
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
@@ -884,13 +911,28 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.pilot.kube
+        # Volumes needed to support KinD running in Kubernetes
+        # See https://github.com/kubernetes-sigs/kind/issues/303
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
 
   - name: integ-security-k8s-postsubmit-tests-prow-staging
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
@@ -898,12 +940,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.security.kube
+        # Volumes needed to support KinD running in Kubernetes
+        # See https://github.com/kubernetes-sigs/kind/issues/303
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: integ-telemetry-k8s-postsubmit-tests-prow-staging
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
@@ -911,6 +968,23 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.telemetry.kube
+        # Volumes needed to support KinD running in Kubernetes
+        # See https://github.com/kubernetes-sigs/kind/issues/303
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
       nodeSelector:
         testing: test-pool
   - name: e2e-simpleTestsMinProfile-prow-staging
@@ -928,8 +1002,6 @@ postsubmits:
         testing: test-pool
   - name: istio-integ-race-native-tests-prow-staging
     <<: *job_template
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
       - <<: *istio_container
@@ -1060,5 +1132,86 @@ postsubmits:
         - entrypoint
         - make
         - e2e_cloudfoundry
+      nodeSelector:
+        testing: test-pool
+  - name: integ-k8s-113-postsubmit-prow-staging
+    <<: *job_template
+    decoration_config:
+      timeout: 14400000000000 # 4 hours
+    spec:
+      containers:
+      - <<: *istio_container
+        # The node image must be kept in sync with the kind version we use.
+        # See docker/istio/shared/tools/install-golang.sh for the kind image
+        # https://github.com/kubernetes-sigs/kind/releases for node corresponding node image
+        command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - kindest/node:v1.13.6
+        - test.integration.kube
+        # Volumes needed to support KinD running in Kubernetes
+        # See https://github.com/kubernetes-sigs/kind/issues/303
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      nodeSelector:
+        testing: test-pool
+  - name: integ-k8s-112-postsubmit-prow-staging
+    <<: *job_template
+    decoration_config:
+      timeout: 14400000000000 # 4 hours
+    spec:
+      containers:
+      - <<: *istio_container
+        # The node image must be kept in sync with the kind version we use.
+        # See docker/istio/shared/tools/install-golang.sh for the kind image
+        # https://github.com/kubernetes-sigs/kind/releases for node corresponding node image
+        command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - kindest/node:v1.12.8
+        - test.integration.kube
+        # Volumes needed to support KinD running in Kubernetes
+        # See https://github.com/kubernetes-sigs/kind/issues/303
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      nodeSelector:
+        testing: test-pool
+  - name: istio-codecov-prow-staging
+    <<: *job_template
+    always_run: true
+    spec:
+      containers:
+      - <<: *istio_container
+        command:
+        - entrypoint
+        - prow/codecov.sh
       nodeSelector:
         testing: test-pool
