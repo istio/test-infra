@@ -33,6 +33,9 @@ update-configs: update-config update-plugins
 branch-protector-cronjob: get-cluster-credentials
 	kubectl apply -f cluster/branchprotector_cronjob.yaml
 
+cherrypicker-deployment: get-cluster-credentials
+	kubectl apply -f cluster/cherrypicker_deployment.yaml
+
 deck-deployment: get-cluster-credentials
 	kubectl apply -f cluster/deck_deployment.yaml
 
@@ -61,9 +64,12 @@ tide-deployment: get-cluster-credentials
 tot-deployment: get-cluster-credentials
 	kubectl apply -f cluster/tot_deployment.yaml
 
-deployments: branch-protector-cronjob deck-deployment ghproxy-deployment hook-deployment horologium-deployment needs-rebase-deployment plank-deployment sinker-deployment tide-deployment tot-deployment statusreconciler-deployment
+deployments: branch-protector-cronjob cherrypicker-deployment deck-deployment ghproxy-deployment hook-deployment horologium-deployment needs-rebase-deployment plank-deployment sinker-deployment tide-deployment tot-deployment statusreconciler-deployment
 
 .PHONY: branch-protector-cronjob deployments deck-deployment hook-deployment horologium-deployment needs-rebase-deployment plank-deployment sinker-deployment tide-deployment tot-deployment statusreconciler-deployment
+
+cherrypicker-service: get-cluster-credentials
+	kubectl apply -f cluster/cherrypicker_service.yaml
 
 deck-service: get-cluster-credentials
 	kubectl apply -f cluster/deck_service.yaml
@@ -83,7 +89,7 @@ tot-service: get-cluster-credentials
 statusreconciler-deployment: get-cluster-credentials
 	kubectl apply -f cluster/statusreconciler_deployment.yaml
 
-services: deck-service hook-service needs-rebase-service tide-service tot-service
+services: cherrypicker-service deck-service hook-service needs-rebase-service tide-service tot-service
 
 .PHONY: services deck-service hook-service needs-rebase-service tide-service tot-service
 
