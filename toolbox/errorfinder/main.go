@@ -178,6 +178,22 @@ func (f *ErrorFinder) query(ctx context.Context, prefix string) ([]string, error
 	return lines, nil
 }
 
+// Eliminate unnecessary duplicate '\\s' characters in word slice.
+func unduplicate(inputSlice []string) []string {
+	output := []string{}
+	outputInd := 0
+	for ind, element := range inputSlice {
+		if ind > 0 && strings.Compare(output[outputInd], "\\s") != 0 {
+			outputInd++
+			output[outputInd] = element
+			continue
+		} else if ind == 0 {
+			output[outputInd] = element
+		}
+	}
+	return output
+}
+
 // Get error contents of files to update error map and warning map with new errors/warnings and path to build logs.
 func (f *ErrorFinder) getContent(
 	ctx context.Context, filePaths []string, errorMap map[string][]string, warningMap map[string][]string) (map[string][]string, map[string][]string) {
@@ -220,22 +236,18 @@ func (f *ErrorFinder) getContent(
 					// If word does not contain key words, generalize word to characters necessary.
 					if !strings.Contains(strings.ToLower(section), "error") &&
 						!strings.Contains(strings.ToLower(section), "fail") && !strings.Contains(strings.ToLower(section), "warn") {
-						if indexD > 0 && strings.Compare(lineSplit[indexD-1], "container") == 0 {
-							newLineSplit = append(newLineSplit, "\\s")
-						} else if strings.Contains(section, "\\d") {
-							newLineSplit = append(newLineSplit, "\\s")
-						} else if strings.Contains(section, "/") {
+						if (indexD > 0 && strings.Compare(lineSplit[indexD-1], "container") == 0) ||
+							strings.Contains(section, "\\d") || strings.Contains(section, "/") {
 							newLineSplit = append(newLineSplit, "\\s")
 						} else {
 							newLineSplit = append(newLineSplit, section)
 						}
 					} else {
-
 						// If word contains keyword, append it to list.
 						newLineSplit = append(newLineSplit, section)
 					}
 				}
-
+				newLineSplit = unduplicate(newLineSplit)
 				// Get general error message not the detailed eplanation that usually comes after colon.
 				line = strings.Join(newLineSplit, " ")
 				if strings.Contains(line, ":") {
