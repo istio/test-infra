@@ -637,7 +637,107 @@ dashboards:
     description: istio_auth_sds_e2e-release-1.2
     name: istio_auth_sds_e2e-release-1.2
     test_group_name: istio_auth_sds_e2e-release-1.2
+  - alert_options:
+      alert_mail_to_addresses: istio-oncall@googlegroups.com
+    code_search_url_template:
+      url: https://github.com/istio-releases/pipeline/compare/<start-custom-0>...<end-custom-0>
+    description: release-daily
+    name: release-daily
+    test_group_name: release-daily
+  - alert_options:
+      alert_mail_to_addresses: istio-oncall@googlegroups.com
+    code_search_url_template:
+      url: https://github.com/istio-releases/pipeline/compare/<start-custom-0>...<end-custom-0>
+    description: perf-for-daily-release
+    name: perf-for-daily-release
+    test_group_name: perf-for-daily-release
+  - alert_options:
+      alert_mail_to_addresses: istio-oncall@googlegroups.com
+    code_search_url_template:
+      url: https://github.com/istio-releases/pipeline/compare/<start-custom-0>...<end-custom-0>
+    description: release-monthly
+    name: release-monthly
+    test_group_name: release-monthly
+  - alert_options:
+      alert_mail_to_addresses: istio-oncall@googlegroups.com
+    code_search_url_template:
+      url: https://github.com/istio-releases/pipeline/compare/<start-custom-0>...<end-custom-0>
+    description: release-build-test-upgrade-tests-1.1.7
+    name: release-build-test-upgrade-tests-1.1.7
+    test_group_name: release-build-test-upgrade-tests-1.1.7
+  - alert_options:
+      alert_mail_to_addresses: istio-oncall@googlegroups.com
+    code_search_url_template:
+      url: https://github.com/istio-releases/pipeline/compare/<start-custom-0>...<end-custom-0>
+    description: release-build-test-istio-unit-tests
+    name: release-build-test-istio-unit-tests
+    test_group_name: release-build-test-istio-unit-tests
+  - alert_options:
+      alert_mail_to_addresses: istio-oncall@googlegroups.com
+    code_search_url_template:
+      url: https://github.com/istio-releases/pipeline/compare/<start-custom-0>...<end-custom-0>
+    description: release-build-test-istioctl-tests
+    name: release-build-test-istioctl-tests
+    test_group_name: release-build-test-istioctl-tests
+  - alert_options:
+      alert_mail_to_addresses: istio-oncall@googlegroups.com
+    code_search_url_template:
+      url: https://github.com/istio-releases/pipeline/compare/<start-custom-0>...<end-custom-0>
+    description: release-build-test-e2e-pilot-no_auth
+    name: release-build-test-e2e-pilot-no_auth
+    test_group_name: release-build-test-e2e-pilot-no_auth
+  - alert_options:
+      alert_mail_to_addresses: istio-oncall@googlegroups.com
+    code_search_url_template:
+      url: https://github.com/istio-releases/pipeline/compare/<start-custom-0>...<end-custom-0>
+    description: release-build-test-e2e-bookInfoTests
+    name: release-build-test-e2e-bookInfoTests
+    test_group_name: release-build-test-e2e-bookInfoTests
+  - alert_options:
+      alert_mail_to_addresses: istio-oncall@googlegroups.com
+    code_search_url_template:
+      url: https://github.com/istio-releases/pipeline/compare/<start-custom-0>...<end-custom-0>
+    description: release-build-test-e2e-mixer-no_auth
+    name: release-build-test-e2e-mixer-no_auth
+    test_group_name: release-build-test-e2e-mixer-no_auth
+  - alert_options:
+      alert_mail_to_addresses: istio-oncall@googlegroups.com
+    code_search_url_template:
+      url: https://github.com/istio-releases/pipeline/compare/<start-custom-0>...<end-custom-0>
+    description: release-build-test-e2e-dashboard
+    name: release-build-test-e2e-dashboard
+    test_group_name: release-build-test-e2e-dashboard
+  - alert_options:
+      alert_mail_to_addresses: istio-oncall@googlegroups.com
+    code_search_url_template:
+      url: https://github.com/istio-releases/pipeline/compare/<start-custom-0>...<end-custom-0>
+    description: release-build-test-e2e-stackdriver
+    name: release-build-test-e2e-stackdriver
+    test_group_name: release-build-test-e2e-stackdriver
+  - alert_options:
+      alert_mail_to_addresses: istio-oncall@googlegroups.com
+    code_search_url_template:
+      url: https://github.com/istio-releases/pipeline/compare/<start-custom-0>...<end-custom-0>
+    description: release-build
+    name: release-build
+    test_group_name: release-build
   name: istio-postsubmits-release-1.2
+- dashboard_tab:
+  - alert_options:
+      alert_mail_to_addresses: istio-oncall@googlegroups.com
+    code_search_url_template:
+      url: https://github.com/istio-releases/pipeline/compare/<start-custom-0>...<end-custom-0>
+    description: release-build-test-e2e-simpleTests
+    name: release-build-test-e2e-simpleTests
+    test_group_name: release-build-test-e2e-simpleTests
+  name: istio-release
+- dashboard_tab:
+  - alert_options:
+      alert_mail_to_addresses: istio-oncall@googlegroups.com
+    description: monitoring-verify-gcsweb
+    name: monitoring-verify-gcsweb
+    test_group_name: monitoring-verify-gcsweb
+  name: istio-infrastructure
 test_groups:
 - gcs_prefix: istio-prow/logs/test-infra-cleanup-GKE
   name: test-infra-cleanup-GKE
@@ -657,6 +757,7 @@ test_groups:
   name: release-trigger-daily-build-release-1.2
 - gcs_prefix: istio-prow/logs/monitoring-verify-gcsweb
   name: monitoring-verify-gcsweb
+  num_failures_to_alert: 1
 - gcs_prefix: istio-prow/logs/integ-framework-local-postsubmit-tests
   name: integ-framework-local-postsubmit-tests
 - gcs_prefix: istio-prow/logs/integ-galley-local-postsubmit-tests
@@ -949,16 +1050,19 @@ test_groups:
   name: istio_auth_sds_e2e-release-1.2
   num_columns_recent: 20
   num_failures_to_alert: 1
-- gcs_prefix: istio-prow/logs/release-daily
-  name: release-daily
-- gcs_prefix: istio-prow/logs/perf-for-daily-release
-  name: perf-for-daily-release
-- gcs_prefix: istio-prow/logs/release-monthly
-  name: release-monthly
-- gcs_prefix: istio-prow/logs/api-postsubmit
-  name: api-postsubmit
 - gcs_prefix: istio-prow/logs/proxy-postsubmit
   name: proxy-postsubmit
+- gcs_prefix: istio-prow/logs/release-daily
+  name: release-daily
+  num_failures_to_alert: 1
+- gcs_prefix: istio-prow/logs/perf-for-daily-release
+  name: perf-for-daily-release
+  num_failures_to_alert: 1
+- gcs_prefix: istio-prow/logs/release-monthly
+  name: release-monthly
+  num_failures_to_alert: 1
+- gcs_prefix: istio-prow/logs/api-postsubmit
+  name: api-postsubmit
 - gcs_prefix: istio-prow/pr-logs/directory/istio-lint-master
   name: istio-lint-master
   num_columns_recent: 20
@@ -1076,3 +1180,43 @@ test_groups:
 - gcs_prefix: istio-prow/pr-logs/directory/release-test-release-1.2
   name: release-test-release-1.2
   num_columns_recent: 20
+- gcs_prefix: istio-prow/pr-logs/directory/release-build-test-e2e-simpleTests
+  name: release-build-test-e2e-simpleTests
+  num_columns_recent: 20
+  num_failures_to_alert: 1
+- gcs_prefix: istio-prow/pr-logs/directory/release-build-test-upgrade-tests-1.1.7
+  name: release-build-test-upgrade-tests-1.1.7
+  num_columns_recent: 20
+  num_failures_to_alert: 1
+- gcs_prefix: istio-prow/pr-logs/directory/release-build-test-istio-unit-tests
+  name: release-build-test-istio-unit-tests
+  num_columns_recent: 20
+  num_failures_to_alert: 1
+- gcs_prefix: istio-prow/pr-logs/directory/release-build-test-istioctl-tests
+  name: release-build-test-istioctl-tests
+  num_columns_recent: 20
+  num_failures_to_alert: 1
+- gcs_prefix: istio-prow/pr-logs/directory/release-build-test-e2e-pilot-no_auth
+  name: release-build-test-e2e-pilot-no_auth
+  num_columns_recent: 20
+  num_failures_to_alert: 1
+- gcs_prefix: istio-prow/pr-logs/directory/release-build-test-e2e-bookInfoTests
+  name: release-build-test-e2e-bookInfoTests
+  num_columns_recent: 20
+  num_failures_to_alert: 1
+- gcs_prefix: istio-prow/pr-logs/directory/release-build-test-e2e-mixer-no_auth
+  name: release-build-test-e2e-mixer-no_auth
+  num_columns_recent: 20
+  num_failures_to_alert: 1
+- gcs_prefix: istio-prow/pr-logs/directory/release-build-test-e2e-dashboard
+  name: release-build-test-e2e-dashboard
+  num_columns_recent: 20
+  num_failures_to_alert: 1
+- gcs_prefix: istio-prow/pr-logs/directory/release-build-test-e2e-stackdriver
+  name: release-build-test-e2e-stackdriver
+  num_columns_recent: 20
+  num_failures_to_alert: 1
+- gcs_prefix: istio-prow/pr-logs/directory/release-build
+  name: release-build
+  num_columns_recent: 20
+  num_failures_to_alert: 1
