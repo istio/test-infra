@@ -25,6 +25,8 @@ presubmits:
     <<: *job_template
     context: prow/istio-unit-tests.sh
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     spec:
       containers:
       - <<: *istio_container
@@ -38,6 +40,8 @@ presubmits:
     <<: *job_template
     context: prow/integ-framework-local-presubmit-tests.sh
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     spec:
       containers:
         - <<: *istio_container
@@ -51,6 +55,8 @@ presubmits:
     <<: *job_template
     context: prow/integ-galley-local-presubmit-tests.sh
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     spec:
       containers:
         - <<: *istio_container
@@ -65,6 +71,8 @@ presubmits:
     optional: true
     context: prow/integ-mixer-local-presubmit-tests.sh
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     spec:
       containers:
         - <<: *istio_container
@@ -78,6 +86,8 @@ presubmits:
     <<: *job_template
     context: prow/integ-pilot-local-presubmit-tests.sh
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     spec:
       containers:
         - <<: *istio_container
@@ -91,6 +101,8 @@ presubmits:
     <<: *job_template
     context: prow/integ-security-local-presubmit-tests.sh
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     spec:
       containers:
         - <<: *istio_container
@@ -105,6 +117,8 @@ presubmits:
     context: prow/integ-framework-k8s-presubmit-tests.sh
     max_concurrency: 5
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     labels:
       preset-service-account: "true"
     spec:
@@ -120,6 +134,8 @@ presubmits:
     context: prow/integ-galley-k8s-presubmit-tests.sh
     max_concurrency: 5
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     labels:
       preset-service-account: "true"
     spec:
@@ -136,6 +152,8 @@ presubmits:
     optional: true
     max_concurrency: 5
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     labels:
       preset-service-account: "true"
     spec:
@@ -152,6 +170,8 @@ presubmits:
     context: prow/integ-pilot-k8s-presubmit-tests.sh
     max_concurrency: 5
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     labels:
       preset-service-account: "true"
     spec:
@@ -168,6 +188,8 @@ presubmits:
     context: prow/integ-security-k8s-presubmit-tests.sh
     max_concurrency: 5
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     labels:
       preset-service-account: "true"
     spec:
@@ -182,6 +204,8 @@ presubmits:
     <<: *job_template
     optional: true
     skip_report: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     context: "prow: test-e2e-mixer-no_auth"
     max_concurrency: 5
     labels:
@@ -197,6 +221,8 @@ presubmits:
   - name: istio-pilot-e2e-envoyv2-v1alpha3-release-1.2
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     context: prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
     labels:
       preset-service-account: "true"
@@ -212,6 +238,8 @@ presubmits:
   - name: e2e-mixer-no_auth-release-1.2
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     context: prow/e2e-mixer-no_auth.sh
     labels:
       preset-service-account: "true"
@@ -227,6 +255,8 @@ presubmits:
   - name: e2e-dashboard-release-1.2
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     context: prow/e2e-dashboard.sh
     labels:
       preset-service-account: "true"
@@ -242,6 +272,8 @@ presubmits:
   - name: e2e-bookInfoTests-envoyv2-v1alpha3-release-1.2
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     context: prow/e2e-bookInfoTests-v1alpha3.sh
     labels:
       preset-service-account: "true"
@@ -257,6 +289,8 @@ presubmits:
   - name: e2e-bookInfoTests-trustdomain-release-1.2
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     context: prow/e2e-bookInfoTests-trustdomain.sh
     optional: true
     labels:
@@ -273,6 +307,8 @@ presubmits:
   - name: e2e-simpleTests-release-1.2
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     context: prow/e2e-simpleTests.sh
     labels:
       preset-service-account: "true"
@@ -288,6 +324,8 @@ presubmits:
   - name: e2e-simpleTestsMinProfile-release-1.2
     <<: *job_template
     optional: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     context: prow/e2e-simpleTests-minProfile.sh
     labels:
       preset-service-account: "true"
@@ -304,6 +342,8 @@ presubmits:
   - name: istio-pilot-multicluster-e2e-release-1.2
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     context: prow/istio-pilot-multicluster-e2e.sh
     optional: true
     labels:
@@ -322,6 +362,8 @@ presubmits:
     always_run: false
     context: prow/e2e-simpleTests-cni.sh
     optional: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -335,6 +377,8 @@ presubmits:
   - name: istio_auth_sds_e2e-release-1.2
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     context: prow/e2e_pilotv2_auth_sds.sh
     labels:
       preset-service-account: "true"
@@ -350,6 +394,8 @@ presubmits:
   - name: release-test-release-1.2
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-presubmits-release-1.2
     context: prow/release-test.sh
     labels:
       preset-service-account: "true"
@@ -368,6 +414,10 @@ postsubmits:
 
   istio/istio:
   - name: istio-integ-local-tests-release-1.2
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     <<: *job_template
     spec:
       containers:
@@ -381,6 +431,10 @@ postsubmits:
     <<: *job_template
     context: prow/istio-unit-tests.sh
     always_run: true
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     spec:
       containers:
       - <<: *istio_container
@@ -392,6 +446,10 @@ postsubmits:
 
   - name: istio-integ-k8s-tests-release-1.2
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     labels:
       preset-service-account: "true"
     spec:
@@ -404,6 +462,10 @@ postsubmits:
         testing: test-pool
   - name: e2e-simpleTestsMinProfile-release-1.2
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -417,6 +479,10 @@ postsubmits:
         testing: test-pool
   - name: istio-integ-race-native-tests-release-1.2
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     labels:
       preset-service-account: "true"
     spec:
@@ -429,6 +495,10 @@ postsubmits:
         testing: test-pool
   - name: e2e-simpleTests-release-1.2
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     labels:
       preset-service-account: "true"
     spec:
@@ -441,6 +511,10 @@ postsubmits:
         testing: test-pool
   - name: e2e-simpleTests-non-mcp-release-1.2
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -454,6 +528,10 @@ postsubmits:
         testing: test-pool
   - name: e2e-bookInfoTests-envoyv2-v1alpha3-release-1.2
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     labels:
       preset-service-account: "true"
     spec:
@@ -466,6 +544,10 @@ postsubmits:
         testing: test-pool
   - name: istio-pilot-e2e-envoyv2-v1alpha3-release-1.2
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     labels:
       preset-service-account: "true"
     spec:
@@ -478,6 +560,10 @@ postsubmits:
         testing: test-pool
   - name: istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest-release-1.2
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     labels:
       preset-service-account: "true"
     spec:
@@ -490,6 +576,10 @@ postsubmits:
         testing: test-pool
   - name: e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp-release-1.2
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -503,6 +593,10 @@ postsubmits:
         testing: test-pool
   - name: e2e-mixer-no_auth-release-1.2
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     labels:
       preset-service-account: "true"
     spec:
@@ -515,6 +609,10 @@ postsubmits:
         testing: test-pool
   - name: e2e-dashboard-release-1.2
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     labels:
       preset-service-account: "true"
     spec:
@@ -527,6 +625,10 @@ postsubmits:
         testing: test-pool
   - name: istio_auth_sds_e2e-release-1.2
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     labels:
       preset-service-account: "true"
     max_concurrency: 5
