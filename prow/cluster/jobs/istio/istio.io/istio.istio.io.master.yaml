@@ -1,0 +1,16 @@
+presubmits:
+
+  istio/istio.io:
+
+    - name: presubmit-master
+      path_alias: istio.io/istio.io
+      decorate: true
+      always_run: true
+      spec:
+        containers:
+          - image: gcr.io/istio-testing/website-tools:2019-07-25
+            command:
+              - make
+              - prow
+        nodeSelector:
+          testing: test-pool
