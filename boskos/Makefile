@@ -14,10 +14,13 @@ mason-image:
 mason-client:
 	go build -o cmd/mason_client/mason_client istio.io/test-infra/boskos/cmd/mason_client
 
-deploy: boskos-deployment reaper-deployment janitor-deployment mason-deployment metrics-deployment boskos-service metrics-service
+deploy: boskos-deployment cleaner-deployment reaper-deployment janitor-deployment mason-deployment metrics-deployment boskos-service metrics-service
 
 boskos-deployment:
 	kubectl apply -f boskos-deployment.yaml
+
+cleaner-deployment:
+	kubectl apply -f cleaner-deployment.yaml
 
 reaper-deployment:
 	kubectl apply -f reaper-deployment.yaml
@@ -37,20 +40,13 @@ boskos-service:
 metrics-service:
 	kubectl apply -f metrics-service.yaml
 
-config: serviceaccount boskos-config mason-config
+config: serviceaccount boskos-config
 
 boskos-config:
 	kubectl create configmap boskos-config\
 		--from-file=resources.yaml\
 		-n $(NAMESPACE) --dry-run -o yaml\
 		| kubectl apply -f -
-
-mason-config:
-	kubectl create configmap mason-config\
-		--from-file=configs.yaml\
-		-n $(NAMESPACE) --dry-run -o yaml\
-		| kubectl apply -f -
-
 serviceaccount:
 
 ifndef SERVICE-ACCOUNT-JSON
@@ -70,4 +66,4 @@ namespace:
 
 init: get-cluster-credentials namespace
 
-.PHONY: mason-image boskos-deployment reaper-deployment janitor-deployment mason-deployment metrics-deployment boskos-service metrics-service mason-config boskos-config get-cluster-credentials namespace serviceaccount deploy init config
+.PHONY: mason-image boskos-deployment cleaner-deployement reaper-deployment janitor-deployment mason-deployment metrics-deployment boskos-service metrics-service boskos-config get-cluster-credentials namespace serviceaccount deploy init config
