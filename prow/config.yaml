@@ -94,6 +94,9 @@ branch-protection:
         api:
           required_pull_request_reviews:
             required_approving_review_count: 2
+          restrictions: &tide_withcodeowners_restrictions
+            teams:
+              - repo-admins
           branches: *blocked_branches
         istio.io:
           branches: *blocked_branches
@@ -102,9 +105,7 @@ branch-protection:
         operator:
           required_pull_request_reviews: &tide_withcodeowners_reviews
             require_code_owner_reviews: true
-          restrictions: &tide_withcodeowners_restrictions
-            teams:
-              - repo-admins
+          restrictions: *tide_withcodeowners_restrictions
           branches: *blocked_branches
         cni:
           branches: *blocked_branches
@@ -230,6 +231,7 @@ tide:
   - repos:
     - istio/operator
     - istio/pkg
+    - istio/api
     - istio/common-files
     - istio/community
     labels:
@@ -243,6 +245,7 @@ tide:
     istio/istio: squash
     istio/operator: squash
     istio/pkg: squash
+    istio/api: squash
     istio/common-files: squash
     istio/community: squash
     istio/proxy: squash
