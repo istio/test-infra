@@ -234,6 +234,10 @@ periodics:
 - interval: 5m
   name: monitoring-verify-gcsweb
   decorate: true
+  annotations:
+    testgrid-dashboards: istio-infrastructure
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
   spec:
     containers:
       - image: alpine:3.10.1

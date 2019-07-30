@@ -53,6 +53,10 @@ presubmits:
 
   - name: release-build-test-e2e-simpleTests
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-release
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     always_run: true
     optional: false
     context: prow/release-build-test-e2e-simpleTests
@@ -70,6 +74,10 @@ presubmits:
         testing: test-pool
   - name: release-build-test-upgrade-tests-1.1.7
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     always_run: true
     optional: false
     context: prow/release-build-test-upgrade-tests-1.1.7
@@ -87,6 +95,10 @@ presubmits:
         testing: test-pool
   - name: release-build-test-istio-unit-tests
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     always_run: true
     optional: false
     context: prow/release-build-test-istio-unit-tests
@@ -104,6 +116,10 @@ presubmits:
         testing: test-pool
   - name: release-build-test-istioctl-tests
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     always_run: true
     optional: false
     context: prow/release-build-test-istioctl-tests
@@ -121,6 +137,10 @@ presubmits:
         testing: test-pool
   - name: release-build-test-e2e-pilot-no_auth
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     always_run: true
     optional: false
     context: prow/release-build-test-e2e-pilot-no_auth
@@ -138,6 +158,10 @@ presubmits:
         testing: test-pool
   - name: release-build-test-e2e-bookInfoTests
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     always_run: true
     optional: false
     context: prow/release-build-test-e2e-bookInfoTests
@@ -155,6 +179,10 @@ presubmits:
         testing: test-pool
   - name: release-build-test-e2e-mixer-no_auth
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     always_run: true
     optional: false
     context: prow/release-build-test-e2e-mixer-no_auth
@@ -172,6 +200,10 @@ presubmits:
         testing: test-pool
   - name: release-build-test-e2e-dashboard
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     always_run: true
     optional: false
     context: prow/release-build-test-e2e-dashboard
@@ -189,6 +221,10 @@ presubmits:
         testing: test-pool
   - name: release-build-test-e2e-stackdriver
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     always_run: true
     optional: false
     context: prow/release-build-test-e2e-stackdriver
@@ -206,6 +242,10 @@ presubmits:
         testing: test-pool
   - name: release-build
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     always_run: true
     optional: false
     context: prow/release-build
@@ -226,6 +266,10 @@ postsubmits:
 
   - name: release-daily
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     run_if_changed: "daily/.*"
     labels:
       preset-release-pipeline: "true"
@@ -240,6 +284,10 @@ postsubmits:
 
   - name: perf-for-daily-release
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     run_if_changed: "daily/.*"
     labels:
       preset-service-account: "true"
@@ -256,6 +304,10 @@ postsubmits:
 
   - name: release-monthly
     <<: *job_template
+    annotations:
+      testgrid-dashboards: istio-postsubmits-release-1.2
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     run_if_changed: "monthly/.*"
     labels:
       preset-release-pipeline: "true"
