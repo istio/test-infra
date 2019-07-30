@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -183,12 +184,12 @@ func unduplicate(inputSlice []string) []string {
 	output := []string{}
 	outputInd := 0
 	for ind, element := range inputSlice {
-		if ind > 0 && strings.Compare(output[outputInd], "\\s") != 0 {
+		if ind == 0 {
+			output = append(output, element)
+		} else if strings.Compare(output[outputInd], "\\s") != 0 {
 			outputInd++
-			output[outputInd] = element
+			output = append(output, element)
 			continue
-		} else if ind == 0 {
-			output[outputInd] = element
 		}
 	}
 	return output
@@ -398,6 +399,7 @@ func (f *ErrorFinder) divideToSections(ctx context.Context, spliter int, gcsFile
 	startInd := (n - 1) * spliter
 	endInd := len(gcsFilePaths)
 	f.findErrorForEachSection(ctx, gcsFilePaths, outputFileName, startInd, endInd)
+
 }
 
 // Generalize messages from build file.
@@ -475,6 +477,52 @@ func writeCSV(errorMap map[string][]string, warningMap map[string][]string, file
 	}
 }
 
+// Optional on whether or not to copy and share output file to gcs.
+func (f *ErrorFinder) CopyToGCS(ctx context.Context, source, bucketName, fileName string, public bool) {
+	r, err := os.Open(source)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer r.Close()
+
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		log.Fatalf("Unable to create new client: %v", err)
+	}
+
+	bh := client.Bucket(bucketName)
+	// Next check if the bucket exists
+	if _, err = bh.Attrs(ctx); err != nil {
+		log.Fatalf("Bucket does not exist: %v", err)
+	}
+
+	obj := bh.Object(fileName)
+	w := obj.NewWriter(ctx)
+	if _, err := io.Copy(w, r); err != nil {
+		log.Fatalf("Cannot copy file to GCS: %v", err)
+	}
+	if err := w.Close(); err != nil {
+		log.Fatalf("Unable to close writer: %v", err)
+	}
+
+	if public {
+		if err := obj.ACL().Set(ctx, storage.AllUsers, storage.RoleReader); err != nil {
+			log.Fatalf("Unable to set object to public: %v", err)
+		}
+	}
+
+	_, err = obj.Attrs(ctx)
+	if err != nil {
+		switch err {
+		case storage.ErrBucketNotExist:
+			log.Fatal("Please create the bucket first e.g. with `gsutil mb`")
+		default:
+			log.Fatal(err)
+		}
+	}
+
+}
+
 func main() {
 	var fileName string
 	flag.StringVar(&fileName, "OutputFileName", "output.csv", "A file name for output csv file with .csv at the end.")
@@ -486,6 +534,12 @@ func main() {
 	flag.StringVar(&readRange, "ReadRange", "A1:A5", "ReadRange from the spread sheet such as Sheet1!A1:A reads all elements in column A sheet 1.")
 	var bucketName string
 	flag.StringVar(&bucketName, "BucketName", "istio-prow", "Bucket Name to read from in GCS.")
+
+	var public bool
+	flag.BoolVar(&public, "Public", true, "Whether or not the file should be public in GCS")
+
+	var outputBucketName string
+	flag.StringVar(&outputBucketName, "OutputBucketName", "istio-prow", "Bucket Name to write file to in GCS.")
 
 	flag.Parse()
 
@@ -507,6 +561,10 @@ func main() {
 
 	if strings.Compare(bucketName, "") == 0 {
 		log.Fatal("Please enter a bucket name.")
+	}
+
+	if strings.Compare(outputBucketName, "") == 0 {
+		log.Fatal("Please enter an output bucket name.")
 	}
 
 	listOfPrs := readSpreadSheet(credentialsPath, spreadsheetID, readRange)
