@@ -27,8 +27,6 @@ presubmits:
   - name: istio-unit-tests-prow-staging
     <<: *job_template
     always_run: true
-    annotations:
-      testgrid-dashboards: istio-presubmits-prow-staging
     spec:
       containers:
       - <<: *istio_container
@@ -44,8 +42,6 @@ presubmits:
   - name: istio-lint-prow-staging
     <<: *job_template
     always_run: true
-    annotations:
-      testgrid-dashboards: istio-presubmits-prow-staging
     spec:
       containers:
       # Lint requires a large amount of memory
@@ -70,8 +66,6 @@ presubmits:
   - name: istio-racetest-prow-staging
     <<: *job_template
     always_run: true
-    annotations:
-      testgrid-dashboards: istio-presubmits-prow-staging
     spec:
       containers:
       - <<: *istio_container
@@ -85,8 +79,6 @@ presubmits:
   - name: istio-shellcheck-prow-staging
     <<: *job_template
     always_run: true
-    annotations:
-      testgrid-dashboards: istio-presubmits-prow-staging
     spec:
       containers:
       - <<: *istio_container
@@ -108,8 +100,6 @@ presubmits:
         - coverage-diff
       nodeSelector:
         testing: test-pool
-    annotations:
-      testgrid-dashboards: istio-presubmits-prow-staging
 
   - name: integ-framework-local-presubmit-tests-prow-staging
     <<: *job_template
