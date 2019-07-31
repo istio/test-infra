@@ -208,7 +208,7 @@ func TestConfig(t *testing.T) {
 			org:            "istio",
 			repo:           "api",
 			branch:         "master",
-			anyoneCanMerge: &yes,
+			anyoneCanMerge: &no,
 		},
 		{
 			name:   "test-infra master restricts merges to admins",
