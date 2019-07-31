@@ -109,8 +109,6 @@ branch-protection:
             teams:
               - repo-admins
           branches: *blocked_branches
-        istio.io:
-          branches: *blocked_branches
         bots:
           branches: *blocked_branches
         operator:
@@ -118,6 +116,13 @@ branch-protection:
             require_code_owner_reviews: true
           restrictions: *tide_withcodeowners_restrictions
           branches: *blocked_branches
+        istio.io:
+          required_pull_request_reviews: *tide_withcodeowners_reviews
+          restrictions: *tide_withcodeowners_restrictions
+          branches: *blocked_branches
+          required_status_checks:
+            contexts:
+            - deploy/netlify
         cni:
           branches: *blocked_branches
         installer:
@@ -245,6 +250,7 @@ tide:
     - istio/api
     - istio/common-files
     - istio/community
+    - istio/istio.io
     labels:
     - "cla: yes"
     missingLabels:
@@ -259,6 +265,7 @@ tide:
     istio/api: squash
     istio/common-files: squash
     istio/community: squash
+    istio/istio.io: squash
     istio/proxy: squash
     istio/test-infra: squash
     istio-releases/pipeline: squash
