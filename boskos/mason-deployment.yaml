@@ -15,24 +15,18 @@ spec:
       terminationGracePeriodSeconds: 300
       containers:
       - name: boskos-mason
-        image: gcr.io/istio-testing/mason:v20190417-87a1e7f
+        image: gcr.io/istio-testing/mason:v20190730-d9b359d8
         args:
-        - --config=/etc/config/configs.yaml
         - --service-account=/etc/service-account/service-account.json
         - --cleaner-count=25
+        - --namespace=boskos
         volumeMounts:
         - mountPath: /etc/service-account
           name: service-account
-          readOnly: true
-        - mountPath: /etc/config
-          name: config
           readOnly: true
       volumes:
       - name: service-account
         secret:
           secretName: boskos-service-account
-      - name: config
-        configMap:
-          name: mason-config
       nodeSelector:
         prod: prow

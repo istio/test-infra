@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: boskos
@@ -6,6 +6,9 @@ metadata:
 spec:
   serviceName: "boskos"
   replicas: 1  # one canonical source of resources
+  selector:
+    matchLabels:
+      app: boskos
   template:
     metadata:
       labels:
@@ -16,7 +19,7 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
       - name: boskos
-        image: gcr.io/istio-testing/boskos/boskos:v20190724-b761e1677
+        image: gcr.io/k8s-prow/boskos/boskos:v20190730-dbac84bd7
         args:
         - --config=/etc/config/resources.yaml
         - --namespace=boskos
