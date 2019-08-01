@@ -1,0 +1,257 @@
+repo: istio/istio
+branches:
+  - master
+
+jobs:
+  - name: istio-unit-tests
+    command: [prow/istio-unit-tests.sh]
+  - name: istio-lint
+    type: presubmit
+    resources: lint
+    command: [prow/istio-lint.sh]
+  - name: istio-racetest
+    type: presubmit
+    command: [prow/racetest.sh]
+  - name: istio-shellcheck
+    type: presubmit
+    command: [prow/shellcheck.sh]
+  - name: istio-codecov
+    command: [prow/codecov.sh]
+
+  - name: release-test
+    command: [prow/release-test.sh]
+    requirements: [gcp]
+    type: presubmit
+
+  - name: integ-framework-local-presubmit-tests
+    type: presubmit
+    command: [prow/integ-suite-local.sh, test.integration.framework.local.presubmit]
+  - name: integ-istioctl-local-presubmit-tests
+    type: presubmit
+    command: [prow/integ-suite-local.sh, test.integration.istioctl.local.presubmit]
+    modifiers: [optional]
+  - name: integ-galley-local-presubmit-tests
+    type: presubmit
+    command: [prow/integ-suite-local.sh, test.integration.galley.local.presubmit]
+  - name: integ-mixer-local-presubmit-tests
+    type: presubmit
+    command: [prow/integ-suite-local.sh, test.integration.mixer.local.presubmit]
+    modifiers: [optional]
+  - name: integ-pilot-local-presubmit-tests
+    type: presubmit
+    command: [prow/integ-suite-local.sh, test.integration.pilot.local.presubmit]
+  - name: integ-security-local-presubmit-tests
+    type: presubmit
+    command: [prow/integ-suite-local.sh, test.integration.security.local.presubmit]
+
+  - name: integ-framework-k8s-presubmit-tests
+    type: presubmit
+    command: [prow/integ-suite-kind.sh, test.integration.framework.kube.presubmit]
+    requirements: [kind]
+  - name: integ-istioctl-k8s-presubmit-tests
+    type: presubmit
+    command: [prow/integ-suite-kind.sh, test.integration.istioctl.kube.presubmit]
+    requirements: [kind]
+    modifiers: [optional]
+  - name: integ-galley-k8s-presubmit-tests
+    type: presubmit
+    command: [prow/integ-suite-kind.sh, test.integration.galley.kube.presubmit]
+    requirements: [kind]
+  - name: integ-mixer-k8s-presubmit-tests
+    type: presubmit
+    command: [prow/integ-suite-kind.sh, test.integration.mixer.kube.presubmit]
+    requirements: [kind]
+    modifiers: [optional]
+  - name: integ-pilot-k8s-presubmit-tests
+    type: presubmit
+    command: [prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
+    requirements: [kind]
+    modifiers: [optional]
+  - name: integ-security-k8s-presubmit-tests
+    type: presubmit
+    command: [prow/integ-suite-kind.sh, test.integration.security.kube.presubmit]
+    requirements: [kind]
+  - name: integ-telemetry-k8s-presubmit-tests
+    type: presubmit
+    command: [prow/integ-suite-kind.sh, test.integration.telemetry.kube.presubmit]
+    requirements: [kind]
+    modifiers: [optional]
+  - name: integ-new-install-k8s-presubmit-tests
+    type: presubmit
+    command: [prow/integ-suite-kind.sh, test.integration.new.installer]
+    requirements: [kind]
+    modifiers: [optional]
+
+    # TODO: remove this test, it is a duplicate
+  - name: test-e2e-mixer-no_auth
+    command: [prow/test-e2e-mixer-no_auth.sh]
+    requirements: [gcp]
+    type: presubmit
+    modifiers: [optional, hidden, skipped]
+  - name: e2e-mixer-no_auth
+    command: [prow/e2e-mixer-no_auth.sh]
+    requirements: [gcp]
+
+  - name: istio-pilot-e2e-envoyv2-v1alpha3
+    command: [prow/istio-pilot-e2e-envoyv2-v1alpha3.sh]
+    requirements: [gcp]
+
+  - name: istio_auth_sds_e2e
+    command: [prow/e2e_pilotv2_auth_sds.sh]
+    requirements: [gcp]
+
+  - name: e2e-dashboard
+    command: [prow/e2e-dashboard.sh]
+    requirements: [gcp]
+
+  - name: e2e-bookInfoTests-envoyv2-v1alpha3
+    command: [prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh]
+    requirements: [gcp]
+  - name: e2e-bookInfoTests-trustdomain
+    type: presubmit
+    command: [prow/e2e-bookInfoTests-trustdomain.sh]
+    requirements: [gcp]
+    modifiers: [optional]
+  - name: e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp
+    type: postsubmit
+    command: [prow/e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp.sh]
+    requirements: [gcp]
+
+  - name: e2e-simpleTests
+    command: [prow/e2e-simpleTests.sh]
+    requirements: [gcp]
+  - name: e2e-simpleTests-distroless
+    type: presubmit
+    command: [prow/e2e-simpleTests-distroless.sh]
+    requirements: [gcp]
+    modifiers: [optional]
+  - name: e2e-simpleTestsMinProfile
+    command: [prow/e2e-simpleTests-minProfile.sh]
+    requirements: [gcp]
+    modifiers: [optional, skipped]
+  - name: e2e-simpleTests-cni
+    command: [prow/e2e-simpleTests-cni.sh]
+    requirements: [gcp]
+    type: presubmit
+    modifiers: [optional, skipped]
+  - name: e2e-simpleTests-non-mcp
+    type: postsubmit
+    command: [prow/e2e-simpleTests-non-mcp.sh]
+    requirements: [gcp]
+  - name: istio-kind-simpleTest
+    type: postsubmit
+    command: [prow/e2e-kind-simpleTests.sh]
+    requirements: [kind]
+
+  - name: istio-pilot-multicluster-e2e
+    type: presubmit
+    command: [prow/istio-pilot-multicluster-e2e.sh]
+    requirements: [gcp]
+    modifiers: [optional]
+
+  - name: istio_e2e_cloudfoundry
+    command: [make, e2e_cloudfoundry]
+
+  - name: integ-framework-local-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-local.sh, test.integration.framework.local]
+  - name: integ-istioctl-local-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-local.sh, test.integration.istioctl.local]
+    modifiers: [optional]
+  - name: integ-galley-local-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-local.sh, test.integration.galley.local]
+  - name: integ-mixer-local-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-local.sh, test.integration.mixer.local]
+    modifiers: [optional]
+  - name: integ-pilot-local-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-local.sh, test.integration.pilot.local]
+  - name: integ-security-local-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-local.sh, test.integration.security.local]
+  - name: integ-conformance-local-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-local.sh, test.integration.conformance.local]
+  - name: istio-integ-race-native-tests
+    type: postsubmit
+    command: [prow/istio-integ-race-native-tests.sh]
+
+  - name: integ-framework-k8s-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-kind.sh, test.integration.framework.kube]
+    requirements: [kind]
+  - name: integ-istioctl-k8s-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-kind.sh, test.integration.istioctl.kube]
+    requirements: [kind]
+  - name: integ-galley-k8s-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-kind.sh, test.integration.galley.kube]
+    requirements: [kind]
+  - name: integ-mixer-k8s-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-kind.sh, test.integration.mixer.kube]
+    requirements: [kind]
+  - name: integ-pilot-k8s-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-kind.sh, test.integration.pilot.kube]
+    requirements: [kind]
+  - name: integ-security-k8s-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-kind.sh, test.integration.security.kube]
+    requirements: [kind]
+  - name: integ-telemetry-k8s-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-kind.sh, test.integration.telemetry.kube]
+    requirements: [kind]
+  - name: integ-conformance-k8s-postsubmit-tests
+    type: postsubmit
+    command: [prow/integ-suite-kind.sh, test.integration.conformance.kube]
+    requirements: [kind]
+
+  - name: istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest
+    type: postsubmit
+    command: [prow/istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest.sh]
+    requirements: [gcp]
+
+
+    # The node image must be kept in sync with the kind version we use.
+    # See docker/istio/shared/tools/install-golang.sh for the kind image
+    # https://github.com/kubernetes-sigs/kind/releases for node corresponding node image
+  - name: integ-k8s-112-postsubmit
+    type: postsubmit
+    command:
+    - prow/integ-suite-kind.sh
+    - --node-image
+    - kindest/node:v1.12.8
+    - test.integration.kube
+    requirements: [kind]
+    timeout: 4h
+  - name: integ-k8s-113-postsubmit
+    type: postsubmit
+    command:
+    - prow/integ-suite-kind.sh
+    - --node-image
+    - kindest/node:v1.13.6
+    - test.integration.kube
+    requirements: [kind]
+    timeout: 4h
+
+resources:
+  default:
+    requests:
+      memory: "3Gi"
+      cpu: "3000m"
+    limits:
+      memory: "24Gi"
+      cpu: "5000m"
+  lint:
+    requests:
+      memory: "16Gi"
+      cpu: "3000m"
+    limits:
+      memory: "24Gi"
+      cpu: "5000m"
