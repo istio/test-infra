@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"strings"
 
 	"istio.io/test-infra/prow/config"
 )
@@ -34,9 +33,7 @@ func exit(err error, context string) {
 	os.Exit(1)
 }
 
-func GetFileName(fqRepo string, branch string) string {
-	r := strings.Split(fqRepo, "/")
-	org, repo := r[0], r[1]
+func GetFileName(repo string, org string, branch string) string {
 	key := fmt.Sprintf("%s.%s.%s.yaml", org, repo, branch)
 	return path.Join(ConfigOutput, org, repo, key)
 }
@@ -49,7 +46,7 @@ func main() {
 	for _, branch := range jobs.Branches {
 		config.ValidateJobConfig(jobs)
 		output := config.ConvertJobConfig(jobs, branch)
-		fname := GetFileName(jobs.Repo, branch)
+		fname := GetFileName(jobs.Repo, jobs.Org, branch)
 		existing := config.ReadProwJobConfig(fname)
 		switch os.Args[1] {
 		case "write":
