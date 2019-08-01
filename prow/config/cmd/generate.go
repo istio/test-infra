@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path"
 
@@ -42,23 +43,29 @@ func main() {
 	if len(os.Args) != 2 {
 		panic("must provide one of write, diff, check, print")
 	}
-	jobs := config.ReadJobConfig("../jobs/istio.yaml")
-	for _, branch := range jobs.Branches {
-		config.ValidateJobConfig(jobs)
-		output := config.ConvertJobConfig(jobs, branch)
-		fname := GetFileName(jobs.Repo, jobs.Org, branch)
-		existing := config.ReadProwJobConfig(fname)
-		switch os.Args[1] {
-		case "write":
-			config.WriteConfig(output, fname)
-		case "diff":
-			config.DiffConfig(output, existing)
-		case "check":
-			if err := config.CheckConfig(output, fname); err != nil {
-				exit(err, "check failed")
+	files, err := ioutil.ReadDir("../jobs")
+	if err != nil {
+		exit(err, "failed to read jobs")
+	}
+	for _, file := range files {
+		jobs := config.ReadJobConfig(path.Join("..", "jobs", file.Name()))
+		for _, branch := range jobs.Branches {
+			config.ValidateJobConfig(jobs)
+			output := config.ConvertJobConfig(jobs, branch)
+			fname := GetFileName(jobs.Repo, jobs.Org, branch)
+			existing := config.ReadProwJobConfig(fname)
+			switch os.Args[1] {
+			case "write":
+				config.WriteConfig(output, fname)
+			case "diff":
+				config.DiffConfig(output, existing)
+			case "check":
+				if err := config.CheckConfig(output, fname); err != nil {
+					exit(err, "check failed")
+				}
+			default:
+				config.PrintConfig(output)
 			}
-		default:
-			config.PrintConfig(output)
 		}
 	}
 }
