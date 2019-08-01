@@ -37,13 +37,13 @@ const (
 )
 
 type clusterConfig struct {
+	Scopes                 []string                 `json:"scopes,omitempty"`
 	MachineType            string                   `json:"machinetype,omitempty"`
-	NumNodes               int64                    `json:"numnodes,omitempty"`
 	Version                string                   `json:"version,omitempty"`
 	Zone                   string                   `json:"zone,omitempty"`
-	EnableKubernetesAlpha  bool                     `json:"enablekubernetesalpha"`
+	NumNodes               int64                    `json:"numnodes,omitempty"`
 	NetworkPolicy          *container.NetworkPolicy `json:"networkpolicy,omitempty"`
-	Scopes                 []string                 `json:"scopes,omitempty"`
+	EnableKubernetesAlpha  bool                     `json:"enablekubernetesalpha"`
 	EnableWorkloadIdentity bool                     `json:"enableworkloadidentity"`
 }
 

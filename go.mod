@@ -2,10 +2,12 @@ module istio.io/test-infra
 
 require (
 	cloud.google.com/go v0.43.0
+	github.com/ghodss/yaml v1.0.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/hashicorp/go-multierror v0.0.0-20171204182908-b7773ae21874
 	github.com/hashicorp/golang-lru v0.5.3 // indirect
+	github.com/kr/pretty v0.1.0
 	github.com/onsi/ginkgo v1.7.0 // indirect
 	github.com/onsi/gomega v1.4.3 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect

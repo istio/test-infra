@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	"google.golang.org/api/container/v1beta1"
+	container "google.golang.org/api/container/v1beta1"
 
 	"k8s.io/test-infra/boskos/common"
 	"k8s.io/test-infra/boskos/mason"
