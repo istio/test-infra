@@ -23,7 +23,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"google.golang.org/api/container/v1"
+	container "google.golang.org/api/container/v1beta1"
 
 	"istio.io/test-infra/toolbox/util"
 )
@@ -37,13 +37,14 @@ const (
 )
 
 type clusterConfig struct {
-	MachineType           string                   `json:"machinetype,omitempty"`
-	NumNodes              int64                    `json:"numnodes,omitempty"`
-	Version               string                   `json:"version,omitempty"`
-	Zone                  string                   `json:"zone,omitempty"`
-	EnableKubernetesAlpha bool                     `json:"enablekubernetesalpha"`
-	NetworkPolicy         *container.NetworkPolicy `json:"networkpolicy,omitempty"`
-	Scopes                []string                 `json:"scopes,omitempty"`
+	MachineType            string                   `json:"machinetype,omitempty"`
+	NumNodes               int64                    `json:"numnodes,omitempty"`
+	Version                string                   `json:"version,omitempty"`
+	Zone                   string                   `json:"zone,omitempty"`
+	EnableKubernetesAlpha  bool                     `json:"enablekubernetesalpha"`
+	NetworkPolicy          *container.NetworkPolicy `json:"networkpolicy,omitempty"`
+	Scopes                 []string                 `json:"scopes,omitempty"`
+	EnableWorkloadIdentity bool                     `json:"enableworkloadidentity"`
 }
 
 type containerEngine struct {
@@ -144,6 +145,12 @@ func (cc *containerEngine) create(ctx context.Context, project string, config cl
 			NetworkPolicy:         config.NetworkPolicy,
 			EnableKubernetesAlpha: config.EnableKubernetesAlpha,
 		},
+	}
+	// Since Boskos can pick any project in the pool, we need to make sure the identity namespace ties
+	// to the correct project id.
+	if config.EnableWorkloadIdentity {
+		clusterRequest.Cluster.WorkloadIdentityConfig.IdentityNamespace =
+				fmt.Sprintf("%s.svc.id.goog", project)
 	}
 
 	op, err := cc.service.Projects.Zones.Clusters.Create(project, config.Zone, clusterRequest).Context(ctx).Do()

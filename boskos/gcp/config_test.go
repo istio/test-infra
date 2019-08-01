@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	"google.golang.org/api/container/v1"
+	container "google.golang.org/api/container/v1beta1"
 
 	"k8s.io/test-infra/boskos/common"
 	"k8s.io/test-infra/boskos/mason"
@@ -41,6 +41,7 @@ func TestParseInvalidConfig(t *testing.T) {
 						"https://www.googleapis.com/auth/cloud-platform",
 						"https://www.googleapis.com/auth/trace.append",
 					},
+					EnableWorkloadIdentity: true,
 				},
 			},
 			Vms: []virtualMachineConfig{
