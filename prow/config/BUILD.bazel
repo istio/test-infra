@@ -1,11 +1,20 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
+filegroup(
+    name = "testdata",
+    srcs = glob(["testdata/*.yaml"]),
+)
+
 go_test(
     name = "go_default_test",
-    srcs = ["config_test.go"],
+    srcs = [
+        "config_test.go",
+        "generate_test.go",
+    ],
     data = [
         "//prow:configs",
         "//prow/cluster:configs",
+        "testdata",
     ],
     embed = [":go_default_library"],
     importpath = "istio.io/test-infra/prow/config",
