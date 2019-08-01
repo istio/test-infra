@@ -276,9 +276,7 @@ func diffConfigPostsubmit(result config.JobConfig, pj config.JobConfig) {
 	known := make(map[string]struct{})
 	allCurrentPostsubmits := []config.Postsubmit{}
 	for _, jobs := range pj.Postsubmits {
-		for _, job := range jobs {
-			allCurrentPostsubmits = append(allCurrentPostsubmits, job)
-		}
+		allCurrentPostsubmits = append(allCurrentPostsubmits, jobs...)
 	}
 	for _, jobs := range result.Postsubmits {
 		for _, job := range jobs {
@@ -335,7 +333,7 @@ func createJobBase(job Job, name string, repo string, resources map[string]v1.Re
 			Containers:   createContainer(job, resources),
 		},
 		UtilityConfig: config.UtilityConfig{
-			Decorate: true,
+			Decorate:  true,
 			PathAlias: fmt.Sprintf("istio.io/%s", repo),
 		},
 		Labels:      make(map[string]string),
