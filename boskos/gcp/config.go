@@ -24,7 +24,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/api/compute/v1"
-	"google.golang.org/api/container/v1"
+	"google.golang.org/api/container/v1beta1"
 	"google.golang.org/api/option"
 	yaml "gopkg.in/yaml.v2"
 	"k8s.io/test-infra/boskos/common"
