@@ -115,10 +115,7 @@ postsubmits:
       - image: gcr.io/istio-testing/prowbazel:0.5.8
         command:
         - ./prow/proxy-postsubmit.sh
-        volumeMounts:
-        - name: service
-          mountPath: /etc/service-account
-          readOnly: true
+
         securityContext:
           privileged: true
         resources:
