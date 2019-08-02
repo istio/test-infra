@@ -115,7 +115,6 @@ postsubmits:
       - image: gcr.io/istio-testing/prowbazel:0.5.8
         command:
         - ./prow/proxy-postsubmit.sh
-
         securityContext:
           privileged: true
         resources:
@@ -125,5 +124,9 @@ postsubmits:
           limits:
             memory: "60Gi"
             cpu: "16000m"
+      volumes:
+      - name: service
+        secret:
+          secretName: service-account
       nodeSelector:
         testing: build-pool
