@@ -185,9 +185,8 @@ branch-protection:
                 - "merges-blocked-needs-admin"
             # TODO: release-1.3 once it exists
         proxy:
-          required_pull_request_reviews: &tide_reviews
-            require_code_owner_reviews: false
-          restrictions: *tide_restrictions
+          required_pull_request_reviews: *tide_withcodeowners_reviews
+          restrictions: *tide_withcodeowners_restrictions
           required_status_checks:
             contexts:
             - "ci/circleci: build"
@@ -199,7 +198,8 @@ branch-protection:
               protect: true
         test-infra:
           protect: true
-          required_pull_request_reviews: *tide_reviews
+          required_pull_request_reviews: &tide_reviews
+            require_code_owner_reviews: false
           restrictions: *tide_restrictions
     istio-releases:
       repos:
@@ -229,8 +229,6 @@ branch-protection:
 tide:
   queries:
   - repos:
-    - istio/istio
-    - istio/proxy
     - istio/test-infra
     - istio-ecosystem/authservice
     labels:
@@ -251,6 +249,8 @@ tide:
     - needs-ok-to-test
     - needs-rebase
   - repos:
+    - istio/istio
+    - istio/proxy
     - istio/operator
     - istio/pkg
     - istio/bots
