@@ -8,7 +8,7 @@ presubmits:
       always_run: true
       spec:
         containers:
-          - image: gcr.io/istio-testing/circleci:2019-04-22
+          - image: gcr.io/istio-testing/istio-builder:v20190624-478286dc
             command:
               - make
               - lint
@@ -44,8 +44,8 @@ presubmits:
           - image: gcr.io/istio-testing/circleci:2019-04-22
             command:
               - go
-              - -race
               - test
+              - -race
               - ./...
             env:
               - name: GO111MODULE
