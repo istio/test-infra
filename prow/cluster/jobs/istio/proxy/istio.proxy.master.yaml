@@ -113,8 +113,15 @@ postsubmits:
     spec:
       containers:
       - image: gcr.io/istio-testing/prowbazel:0.5.8
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/service-account.json
         command:
         - ./prow/proxy-postsubmit.sh
+        volumeMounts:
+        - name: service
+          mountPath: /etc/service-account
+          readOnly: true
         securityContext:
           privileged: true
         resources:
@@ -124,5 +131,9 @@ postsubmits:
           limits:
             memory: "60Gi"
             cpu: "16000m"
+    volumes:
+    - name: service
+      secret:
+        secretName: service-account
       nodeSelector:
         testing: build-pool
