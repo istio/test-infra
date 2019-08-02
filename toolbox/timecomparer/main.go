@@ -35,7 +35,7 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
-type ErrorFinder struct {
+type TimeComparer struct {
 	client     *storage.Client
 	bucketName string
 }
@@ -69,17 +69,17 @@ func readSpreadSheet(ctx con.Context, apiKey string, spreadsheetID string, readR
 	return filePaths
 }
 
-func NewErrorFinder(client *storage.Client, bucketName string) *ErrorFinder {
-	return &ErrorFinder{
+func NewTimeComparer(client *storage.Client, bucketName string) *TimeComparer {
+	return &TimeComparer{
 		client:     client,
 		bucketName: bucketName,
 	}
 }
 
 // Read from gcs the build-log.txt files into slice of lines.
-func (f *ErrorFinder) query(ctx context.Context, prefix string) ([]string, error) {
-	client := f.client
-	bucket := client.Bucket(f.bucketName)
+func (tc *TimeComparer) query(ctx context.Context, prefix string) ([]string, error) {
+	client := tc.client
+	bucket := client.Bucket(tc.bucketName)
 	buildFile := bucket.Object(prefix + "build-log.txt")
 
 	rc, err := buildFile.NewReader(ctx)
@@ -321,14 +321,14 @@ func getAverageTime(realTime, userTime, sysTime runPair) float64 {
 }
 
 // Get error contents of files to update command-time map with commands and path to build logs.
-func (f *ErrorFinder) findTimeCommands(
+func (tc *TimeComparer) findTimeCommands(
 	ctx context.Context, filePaths []string, commandToTime map[string]runCombination) map[string]runCombination {
 	timeCommand := regexp.MustCompile(`^time (.*);`)
 	realOutput := regexp.MustCompile(`^real(\s)*([0-9])*m([0-9])*\.([0-9])*s`)
 	userOutput := regexp.MustCompile(`^user(\s)*([0-9])*m([0-9])*\.([0-9])*s`)
 	sysOutput := regexp.MustCompile(`^sys(\s)*([0-9])*m([0-9])*\.([0-9])*s`)
 	for _, filePath := range filePaths {
-		fileSlice, err := f.query(ctx, filePath)
+		fileSlice, err := tc.query(ctx, filePath)
 		if err != nil {
 			continue
 		}
@@ -399,7 +399,7 @@ func quicksort(timesArray []float64) []float64 {
 
 // For each spliter section of file paths, read previously generated errors and warnings.
 // Process contents in new files and update the csv.
-func (f *ErrorFinder) findErrorForEachSection(ctx context.Context, gcsFilePaths []string, outputFileName string, startInd int, endInd int) {
+func (tc *TimeComparer) findErrorForEachSection(ctx context.Context, gcsFilePaths []string, outputFileName string, startInd int, endInd int) {
 	readResult, commandToTime, err := readCSV(outputFileName)
 
 	// If csv file does not contain anything yet, initialize curErrors and curWarnings to be empty maps.
@@ -410,7 +410,7 @@ func (f *ErrorFinder) findErrorForEachSection(ctx context.Context, gcsFilePaths 
 	filesToProcess := append([]string{}, gcsFilePaths[startInd:endInd]...)
 
 	// Get time/command and pull request paths from build log.
-	commandToTime = f.findTimeCommands(ctx, filesToProcess, commandToTime)
+	commandToTime = tc.findTimeCommands(ctx, filesToProcess, commandToTime)
 
 	sortedArray, timeMap := processCommand(commandToTime)
 
@@ -421,7 +421,7 @@ func (f *ErrorFinder) findErrorForEachSection(ctx context.Context, gcsFilePaths 
 }
 
 // Divide the list of file paths read in gcs storage to several spliters to avoid overflooding memory.
-func (f *ErrorFinder) divideToSections(ctx context.Context, spliter int, gcsFilePaths []string, outputFileName string) {
+func (tc *TimeComparer) divideToSections(ctx context.Context, spliter int, gcsFilePaths []string, outputFileName string) {
 	n := 1
 	for {
 		if n*spliter > len(gcsFilePaths) {
@@ -429,17 +429,17 @@ func (f *ErrorFinder) divideToSections(ctx context.Context, spliter int, gcsFile
 		}
 		startInd := (n - 1) * spliter
 		endInd := n*spliter - 1
-		f.findErrorForEachSection(ctx, gcsFilePaths, outputFileName, startInd, endInd)
+		tc.findErrorForEachSection(ctx, gcsFilePaths, outputFileName, startInd, endInd)
 		n++
 	}
 	startInd := (n - 1) * spliter
 	endInd := len(gcsFilePaths)
-	f.findErrorForEachSection(ctx, gcsFilePaths, outputFileName, startInd, endInd)
+	tc.findErrorForEachSection(ctx, gcsFilePaths, outputFileName, startInd, endInd)
 
 }
 
 // Optional on whether or not to copy and share output file to gcs.
-func (f *ErrorFinder) CopyToGCS(ctx context.Context, source, bucketName, fileName string, public bool) {
+func (tc *TimeComparer) CopyToGCS(ctx context.Context, source, bucketName, fileName string, public bool) {
 	r, err := os.Open(source)
 	if err != nil {
 		log.Fatal(err)
@@ -546,6 +546,6 @@ func main() {
 		log.Fatalf("Unable to create new client: %v", err)
 	}
 
-	errorFinder := NewErrorFinder(client, bucketName)
-	errorFinder.divideToSections(context, spliter, listOfPrs, fileName)
+	timeComparer := NewTimeComparer(client, bucketName)
+	timeComparer.divideToSections(context, spliter, listOfPrs, fileName)
 }
