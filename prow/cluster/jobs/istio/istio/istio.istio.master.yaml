@@ -35,6 +35,33 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
+    name: istio-racetest-master
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/racetest.sh
+        image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "3"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio-postsubmits-master
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
     name: istio-codecov-master
     path_alias: istio.io/istio
     spec:
@@ -42,6 +69,36 @@ postsubmits:
       - command:
         - entrypoint
         - prow/codecov.sh
+        image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "3"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio-postsubmits-master
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    max_concurrency: 5
+    name: release-test-master
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/release-test.sh
         image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
         name: ""
         resources:
@@ -215,6 +272,36 @@ postsubmits:
     labels:
       preset-service-account: "true"
     max_concurrency: 5
+    name: e2e-bookInfoTests-trustdomain-master
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/e2e-bookInfoTests-trustdomain.sh
+        image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "3"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio-postsubmits-master
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    max_concurrency: 5
     name: e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp-master
     path_alias: istio.io/istio
     spec:
@@ -275,6 +362,36 @@ postsubmits:
     labels:
       preset-service-account: "true"
     max_concurrency: 5
+    name: e2e-simpleTests-distroless-master
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/e2e-simpleTests-distroless.sh
+        image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "3"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio-postsubmits-master
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    max_concurrency: 5
     name: e2e-simpleTestsMinProfile-master
     path_alias: istio.io/istio
     spec:
@@ -282,6 +399,36 @@ postsubmits:
       - command:
         - entrypoint
         - prow/e2e-simpleTests-minProfile.sh
+        image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "3"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio-postsubmits-master
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    max_concurrency: 5
+    name: e2e-simpleTests-cni-master
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/e2e-simpleTests-cni.sh
         image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
         name: ""
         resources:
@@ -374,6 +521,36 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
+    labels:
+      preset-service-account: "true"
+    max_concurrency: 5
+    name: istio-pilot-multicluster-e2e-master
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/istio-pilot-multicluster-e2e.sh
+        image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "3"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio-postsubmits-master
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
     name: istio_e2e_cloudfoundry-master
     path_alias: istio.io/istio
     spec:
@@ -410,34 +587,6 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.framework.local
-        image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "3"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-master
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
-    name: integ-istioctl-local-postsubmit-tests-master
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-local.sh
-        - test.integration.istioctl.local
         image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
         name: ""
         resources:
@@ -1280,34 +1429,6 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    name: integ-istioctl-local-presubmit-tests-master
-    optional: true
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-local.sh
-        - test.integration.istioctl.local.presubmit
-        image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "3"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio-presubmits-master
-    branches:
-    - ^master$
-    decorate: true
     name: integ-galley-local-presubmit-tests-master
     path_alias: istio.io/istio
     spec:
@@ -1336,7 +1457,6 @@ presubmits:
     - ^master$
     decorate: true
     name: integ-mixer-local-presubmit-tests-master
-    optional: true
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1460,7 +1580,6 @@ presubmits:
     - ^master$
     decorate: true
     name: integ-istioctl-k8s-presubmit-tests-master
-    optional: true
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1588,7 +1707,6 @@ presubmits:
     - ^master$
     decorate: true
     name: integ-pilot-k8s-presubmit-tests-master
-    optional: true
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1752,37 +1870,6 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
-  - always_run: false
-    annotations:
-      testgrid-dashboards: istio-presubmits-master
-    branches:
-    - ^master$
-    decorate: true
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
-    name: test-e2e-mixer-no_auth-master
-    optional: true
-    path_alias: istio.io/istio
-    skip_report: true
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/test-e2e-mixer-no_auth.sh
-        image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "3"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
   - always_run: true
     annotations:
       testgrid-dashboards: istio-presubmits-master
@@ -2017,7 +2104,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
-  - always_run: false
+  - always_run: true
     annotations:
       testgrid-dashboards: istio-presubmits-master
     branches:
@@ -2047,7 +2134,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
-  - always_run: false
+  - always_run: true
     annotations:
       testgrid-dashboards: istio-presubmits-master
     branches:
