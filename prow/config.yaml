@@ -109,8 +109,6 @@ branch-protection:
             teams:
               - repo-admins
           branches: *blocked_branches
-        bots:
-          branches: *blocked_branches
         operator:
           required_pull_request_reviews: &tide_withcodeowners_reviews
             require_code_owner_reviews: true
@@ -128,6 +126,14 @@ branch-protection:
         installer:
           branches: *blocked_branches
         pkg:
+          required_pull_request_reviews: *tide_withcodeowners_reviews
+          restrictions: *tide_withcodeowners_restrictions
+          branches: *blocked_branches
+        bots:
+          required_pull_request_reviews: *tide_withcodeowners_reviews
+          restrictions: *tide_withcodeowners_restrictions
+          branches: *blocked_branches
+        gogo-genproto:
           required_pull_request_reviews: *tide_withcodeowners_reviews
           restrictions: *tide_withcodeowners_restrictions
           branches: *blocked_branches
@@ -247,10 +253,12 @@ tide:
   - repos:
     - istio/operator
     - istio/pkg
+    - istio/bots
     - istio/api
     - istio/common-files
     - istio/community
     - istio/istio.io
+    - istio/gogo-genproto
     labels:
     - "cla: yes"
     missingLabels:
@@ -259,15 +267,7 @@ tide:
     - do-not-merge/work-in-progress
     reviewApprovedRequired: true
   merge_method:
-    istio/istio: squash
-    istio/operator: squash
-    istio/pkg: squash
-    istio/api: squash
-    istio/common-files: squash
-    istio/community: squash
-    istio/istio.io: squash
-    istio/proxy: squash
-    istio/test-infra: squash
+    istio: squash
     istio-releases/pipeline: squash
     istio-ecosystem/authservice: squash
   target_url: https://prow.istio.io/tide
