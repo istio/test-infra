@@ -18,13 +18,10 @@ import (
 	"bufio"
 	con "context"
 	"encoding/csv"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"regexp"
 	"strconv"
@@ -32,8 +29,7 @@ import (
 
 	"cloud.google.com/go/storage"
 	"golang.org/x/net/context"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
+	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
 )
 
@@ -51,76 +47,9 @@ type ErrorFinder struct {
 	bucketName string
 }
 
-// Retrieve a token, saves the token, then returns the generated client.
-func getClient(config *oauth2.Config) *http.Client {
-	tokFile := "token.json"
-	tok, err := tokenFromFile(tokFile)
-	if err != nil {
-		tok = getTokenFromWeb(config)
-		saveToken(tokFile, tok)
-	}
-	return config.Client(context.Background(), tok)
-}
-
-// Request a token from the web, then returns the retrieved token.
-func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
-	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	fmt.Printf("Go to the following link in your browser then type the "+
-		"authorization code: \n%v\n", authURL)
-
-	var authCode string
-	if _, err := fmt.Scan(&authCode); err != nil {
-		log.Fatalf("Unable to read authorization code: %v", err)
-	}
-
-	tok, err := config.Exchange(context.TODO(), authCode)
-	if err != nil {
-		log.Fatalf("Unable to retrieve token from web: %v", err)
-	}
-	return tok
-}
-
-// Retrieves a token from a local file.
-func tokenFromFile(file string) (*oauth2.Token, error) {
-	f, err := os.Open(file)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	tok := &oauth2.Token{}
-	err = json.NewDecoder(f).Decode(tok)
-	return tok, err
-}
-
-// Saves a token to a file path.
-func saveToken(path string, token *oauth2.Token) {
-	fmt.Printf("Saving credential file to: %s\n", path)
-	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		log.Fatalf("Unable to cache oauth token: %v", err)
-	}
-	defer f.Close()
-	err = json.NewEncoder(f).Encode(token)
-	if err != nil {
-		log.Fatalf("Unable to encode token to file path: %v", err)
-	}
-}
-
 // Read google spreadsheets with credentials, spreadsheet ID and read range to get slice of file paths to build-logs.
-func readSpreadSheet(credentialsPath string, spreadsheetID string, readRange string) []string {
-	b, err := ioutil.ReadFile(credentialsPath)
-	if err != nil {
-		log.Fatalf("Unable to read client secret file: %v", err)
-	}
-
-	// If modifying these scopes, delete your previously saved token.json.
-	config, err := google.ConfigFromJSON(b, "https://www.googleapis.com/auth/spreadsheets")
-	if err != nil {
-		log.Fatalf("Unable to parse client secret file to config: %v", err)
-	}
-	client := getClient(config)
-
-	srv, err := sheets.New(client)
+func readSpreadSheet(ctx con.Context, apiKey string, spreadsheetID string, readRange string) []string {
+	srv, err := sheets.NewService(ctx, option.WithAPIKey(apiKey))
 	if err != nil {
 		log.Fatalf("Unable to retrieve Sheets client: %v", err)
 	}
@@ -528,8 +457,8 @@ func main() {
 	flag.StringVar(&fileName, "OutputFileName", "output.csv", "A file name for output csv file with .csv at the end.")
 	var spreadsheetID string
 	flag.StringVar(&spreadsheetID, "SpreadsheetID", "1XK4Nbq7nwqwXMC7waMsEqhe_wOf1J1rqwbECrop9fQI", "Spreadsheet ID for the spreadsheet containing file path")
-	var credentialsPath string
-	flag.StringVar(&credentialsPath, "CredentialsPath", "credentials.json", "Path to Credentials.json file.")
+	var apiKey string
+	flag.StringVar(&apiKey, "APIKey", "", "API key to access google sheets.")
 	var readRange string
 	flag.StringVar(&readRange, "ReadRange", "A1:A5", "ReadRange from the spread sheet such as Sheet1!A1:A reads all elements in column A sheet 1.")
 	var bucketName string
@@ -551,8 +480,8 @@ func main() {
 		log.Fatal("Please enter a spreadsheet id with paths to the folder containing build-log.txt.")
 	}
 
-	if strings.Compare(credentialsPath, "") == 0 {
-		log.Fatal("Please enter the path to credentials file.")
+	if strings.Compare(apiKey, "") == 0 {
+		log.Fatal("Please enter a valid API key.")
 	}
 
 	if strings.Compare(readRange, "") == 0 {
@@ -567,8 +496,8 @@ func main() {
 		log.Fatal("Please enter an output bucket name.")
 	}
 
-	listOfPrs := readSpreadSheet(credentialsPath, spreadsheetID, readRange)
 	context := con.Background()
+	listOfPrs := readSpreadSheet(context, apiKey, spreadsheetID, readRange)
 	client, err := storage.NewClient(context)
 	if err != nil {
 		log.Fatalf("Unable to create new client: %v", err)
