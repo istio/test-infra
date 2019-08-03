@@ -2,6 +2,45 @@ presubmits:
 
   istio/operator:
 
+  - name: operator-lint-dind
+    path_alias: istio.io/operator
+    decorate: true
+    always_run: true
+    optional: true
+    spec:
+      containers:
+      - image: docker.io/sdake/prow-launcher:2019-08-03
+        command:
+        - entrypoint
+        - make
+        - lint
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "3"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      nodeSelector:
+        testing: test-pool
+
   - name: operator-lint
     path_alias: istio.io/operator
     decorate: true
