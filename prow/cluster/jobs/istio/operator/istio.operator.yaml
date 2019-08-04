@@ -41,6 +41,23 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
+  - name: operator-lint-no-dind
+    path_alias: istio.io/operator
+    decorate: true
+    always_run: true
+    optional: true
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/build-tools:2019-08-02
+        command:
+        - make
+        - lint
+        env:
+        - name: USE_LOCAL_TOOLCHAIN
+          value: "1"
+      nodeSelector:
+        testing: test-pool
+
   - name: operator-lint
     path_alias: istio.io/operator
     decorate: true
