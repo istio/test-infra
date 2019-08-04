@@ -10,7 +10,6 @@ presubmits:
     spec:
       containers:
       - image: docker.io/sdake/prow-launcher:2019-08-03
-        imagePullPolicy: Always
         command:
         - entrypoint
         - make
@@ -24,21 +23,6 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
-        volumeMounts:
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
       nodeSelector:
         testing: test-pool
 
