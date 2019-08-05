@@ -3,6 +3,7 @@
 
 load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
 load("@bazel_gazelle//:def.bzl", "gazelle")
+load("@io_bazel_rules_go//go:def.bzl", "nogo")
 
 buildifier(
     name = "buildifier",
@@ -24,4 +25,10 @@ platform(
       }
       {PARENT_REMOTE_EXECUTION_PROPERTIES}
     """,
+)
+
+nogo(
+    name = "nogo_vet",
+    vet = True,
+    visibility = ["//visibility:public"],
 )
