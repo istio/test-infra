@@ -17,9 +17,20 @@ istio_container: &istio_container
     limits:
       memory: "24Gi"
       cpu: "5000m"
-  env:
-  - name: "T"
-    value: "-v"
+
+istio_container_with_kind: &istio_container_with_kind
+  image: gcr.io/istio-testing/istio-builder:v20190709-959ee177
+  # Docker in Docker
+  securityContext:
+    privileged: true
+  resources:
+    requests:
+      memory: "2Gi"
+      cpu: "3000m"
+    limits:
+      memory: "24Gi"
+      cpu: "3000m"
+
 presubmits:
 
   istio/istio:
@@ -28,16 +39,13 @@ presubmits:
     <<: *job_template
     always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-prow-staging
+      testgrid-create-test-group: "false"
     spec:
       containers:
       - <<: *istio_container
         command:
-        - make
-        - build
-        - localTestEnv
-        - test
-        - binaries-test
+        - entrypoint
+        - prow/istio-unit-tests.sh
       nodeSelector:
         testing: test-pool
 
@@ -45,7 +53,7 @@ presubmits:
     <<: *job_template
     always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-prow-staging
+      testgrid-create-test-group: "false"
     spec:
       containers:
       # Lint requires a large amount of memory
@@ -62,8 +70,8 @@ presubmits:
             memory: "24Gi"
             cpu: "5000m"
         command:
-        - make
-        - lint
+        - entrypoint
+        - prow/istio-lint.sh
       nodeSelector:
         testing: test-pool
 
@@ -71,14 +79,13 @@ presubmits:
     <<: *job_template
     always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-prow-staging
+      testgrid-create-test-group: "false"
     spec:
       containers:
       - <<: *istio_container
         command:
-        - make
-        - localTestEnv
-        - racetest
+        - entrypoint
+        - prow/racetest.sh
       nodeSelector:
         testing: test-pool
 
@@ -86,40 +93,41 @@ presubmits:
     <<: *job_template
     always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-prow-staging
+      testgrid-create-test-group: "false"
     spec:
       containers:
       - <<: *istio_container
         command:
-        - make
-        - shellcheck
+        - entrypoint
+        - prow/shellcheck.sh
       nodeSelector:
         testing: test-pool
 
   - name: istio-codecov-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
       - <<: *istio_container
         command:
-        - make
-        - localTestEnv
-        - coverage-diff
+        - entrypoint
+        - prow/codecov.sh
       nodeSelector:
         testing: test-pool
-    annotations:
-      testgrid-dashboards: istio-presubmits-prow-staging
 
   - name: integ-framework-local-presubmit-tests-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - make
+            - prow/integ-suite-local.sh
             - test.integration.framework.local.presubmit
       nodeSelector:
         testing: test-pool
@@ -127,12 +135,14 @@ presubmits:
   - name: integ-galley-local-presubmit-tests-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - make
+            - prow/integ-suite-local.sh
             - test.integration.galley.local.presubmit
       nodeSelector:
         testing: test-pool
@@ -140,13 +150,15 @@ presubmits:
   - name: integ-istioctl-local-presubmit-tests-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     optional: true
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - make
+            - prow/integ-suite-local.sh
             - test.integration.istioctl.local.presubmit
       nodeSelector:
         testing: test-pool
@@ -155,12 +167,14 @@ presubmits:
     <<: *job_template
     optional: true
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - make
+            - prow/integ-suite-local.sh
             - test.integration.mixer.local.presubmit
       nodeSelector:
         testing: test-pool
@@ -168,12 +182,14 @@ presubmits:
   - name: integ-pilot-local-presubmit-tests-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - make
+            - prow/integ-suite-local.sh
             - test.integration.pilot.local.presubmit
       nodeSelector:
         testing: test-pool
@@ -181,12 +197,14 @@ presubmits:
   - name: integ-security-local-presubmit-tests-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - make
+            - prow/integ-suite-local.sh
             - test.integration.security.local.presubmit
       nodeSelector:
         testing: test-pool
@@ -194,6 +212,8 @@ presubmits:
   - name: integ-framework-k8s-presubmit-tests-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
@@ -223,6 +243,8 @@ presubmits:
   - name: integ-galley-k8s-presubmit-tests-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
@@ -253,6 +275,8 @@ presubmits:
     <<: *job_template
     optional: true
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
@@ -283,6 +307,8 @@ presubmits:
     <<: *job_template
     optional: true
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
@@ -313,6 +339,8 @@ presubmits:
     <<: *job_template
     optional: true
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
@@ -342,6 +370,8 @@ presubmits:
   - name: integ-security-k8s-presubmit-tests-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
@@ -372,6 +402,8 @@ presubmits:
     <<: *job_template
     optional: true
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
@@ -402,6 +434,8 @@ presubmits:
     <<: *job_template
     optional: true
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
@@ -433,6 +467,8 @@ presubmits:
     <<: *job_template
     optional: true
     skip_report: true
+    annotations:
+      testgrid-create-test-group: "false"
     max_concurrency: 5
     labels:
       preset-service-account: "true"
@@ -447,6 +483,8 @@ presubmits:
   - name: istio-pilot-e2e-envoyv2-v1alpha3-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -461,6 +499,8 @@ presubmits:
   - name: e2e-mixer-no_auth-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -475,6 +515,8 @@ presubmits:
   - name: e2e-dashboard-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -489,6 +531,8 @@ presubmits:
   - name: e2e-bookInfoTests-envoyv2-v1alpha3-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -503,6 +547,8 @@ presubmits:
   - name: e2e-bookInfoTests-trustdomain-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     optional: true
     labels:
       preset-service-account: "true"
@@ -518,6 +564,8 @@ presubmits:
   - name: e2e-simpleTests-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -532,6 +580,8 @@ presubmits:
   - name: e2e-simpleTests-distroless-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     optional: true
     labels:
       preset-service-account: "true"
@@ -547,6 +597,8 @@ presubmits:
   - name: e2e-simpleTestsMinProfile-prow-staging
     <<: *job_template
     optional: true
+    annotations:
+      testgrid-create-test-group: "false"
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -562,6 +614,8 @@ presubmits:
   - name: istio-pilot-multicluster-e2e-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     optional: true
     labels:
       preset-service-account: "true"
@@ -577,6 +631,8 @@ presubmits:
   - name: e2e-simpleTests-cni-prow-staging
     <<: *job_template
     always_run: false
+    annotations:
+      testgrid-create-test-group: "false"
     optional: true
     labels:
       preset-service-account: "true"
@@ -592,6 +648,8 @@ presubmits:
   - name: istio_auth_sds_e2e-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -606,6 +664,8 @@ presubmits:
   - name: release-test-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     labels:
       preset-service-account: "true"
     spec:
@@ -619,6 +679,8 @@ presubmits:
   - name: istio_e2e_cloudfoundry-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
       - <<: *istio_container
@@ -634,100 +696,109 @@ postsubmits:
   istio/istio:
   - name: integ-conformance-local-postsubmit-tests-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - make
-            - init
+            - prow/integ-suite-local.sh
             - test.integration.conformance.local
       nodeSelector:
         testing: test-pool
 
   - name: integ-framework-local-postsubmit-tests-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - make
-            - init
+            - prow/integ-suite-local.sh
             - test.integration.framework.local
       nodeSelector:
         testing: test-pool
 
   - name: integ-galley-local-postsubmit-tests-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - make
-            - init
+            - prow/integ-suite-local.sh
             - test.integration.galley.local
       nodeSelector:
         testing: test-pool
 
   - name: integ-istioctl-local-postsubmit-tests-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - make
-            - init
+            - prow/integ-suite-local.sh
             - test.integration.istioctl.local
       nodeSelector:
         testing: test-pool
 
   - name: integ-mixer-local-postsubmit-tests-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - make
-            - init
+            - prow/integ-suite-local.sh
             - test.integration.mixer.local
       nodeSelector:
         testing: test-pool
 
   - name: integ-pilot-local-postsubmit-tests-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - make
-            - init
+            - prow/integ-suite-local.sh
             - test.integration.pilot.local
       nodeSelector:
         testing: test-pool
 
   - name: integ-security-local-postsubmit-tests-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
           command:
             - entrypoint
-            - make
-            - init
+            - prow/integ-suite-local.sh
             - test.integration.security.local
       nodeSelector:
         testing: test-pool
 
   - name: istio-kind-simpleTest-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
-      - <<: *istio_container
+      - <<: *istio_container_with_kind
         command:
         - entrypoint
         - prow/e2e-kind-simpleTests.sh
@@ -753,7 +824,11 @@ postsubmits:
 
   - name: istio-unit-tests-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
       - <<: *istio_container
@@ -764,6 +839,8 @@ postsubmits:
         testing: test-pool
   - name: integ-conformance-k8s-postsubmit-tests-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
@@ -792,6 +869,8 @@ postsubmits:
         testing: test-pool
   - name: integ-framework-k8s-postsubmit-tests-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
         - <<: *istio_container
@@ -820,6 +899,8 @@ postsubmits:
         testing: test-pool
   - name: integ-galley-k8s-postsubmit-tests-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
       - <<: *istio_container
@@ -848,6 +929,8 @@ postsubmits:
         testing: test-pool
   - name: integ-istioctl-k8s-postsubmit-tests-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
       - <<: *istio_container
@@ -876,6 +959,8 @@ postsubmits:
         testing: test-pool
   - name: integ-mixer-k8s-postsubmit-tests-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
       - <<: *istio_container
@@ -904,6 +989,8 @@ postsubmits:
         testing: test-pool
   - name: integ-pilot-k8s-postsubmit-tests-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
       - <<: *istio_container
@@ -933,6 +1020,8 @@ postsubmits:
 
   - name: integ-security-k8s-postsubmit-tests-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
       - <<: *istio_container
@@ -961,6 +1050,8 @@ postsubmits:
         testing: test-pool
   - name: integ-telemetry-k8s-postsubmit-tests-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
       - <<: *istio_container
@@ -989,6 +1080,8 @@ postsubmits:
         testing: test-pool
   - name: e2e-simpleTestsMinProfile-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -1002,6 +1095,8 @@ postsubmits:
         testing: test-pool
   - name: istio-integ-race-native-tests-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
       - <<: *istio_container
@@ -1012,6 +1107,8 @@ postsubmits:
         testing: test-pool
   - name: e2e-simpleTests-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     labels:
       preset-service-account: "true"
     spec:
@@ -1024,6 +1121,8 @@ postsubmits:
         testing: test-pool
   - name: e2e-simpleTests-non-mcp-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -1037,6 +1136,8 @@ postsubmits:
         testing: test-pool
   - name: e2e-bookInfoTests-envoyv2-v1alpha3-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     labels:
       preset-service-account: "true"
     spec:
@@ -1049,6 +1150,8 @@ postsubmits:
         testing: test-pool
   - name: istio-pilot-e2e-envoyv2-v1alpha3-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     labels:
       preset-service-account: "true"
     spec:
@@ -1061,6 +1164,8 @@ postsubmits:
         testing: test-pool
   - name: istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     labels:
       preset-service-account: "true"
     spec:
@@ -1073,6 +1178,8 @@ postsubmits:
         testing: test-pool
   - name: e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -1086,6 +1193,10 @@ postsubmits:
         testing: test-pool
   - name: e2e-mixer-no_auth-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
+    annotations:
+      testgrid-create-test-group: "false"
     labels:
       preset-service-account: "true"
     spec:
@@ -1098,6 +1209,8 @@ postsubmits:
         testing: test-pool
   - name: e2e-dashboard-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     labels:
       preset-service-account: "true"
     spec:
@@ -1110,6 +1223,8 @@ postsubmits:
         testing: test-pool
   - name: istio_auth_sds_e2e-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -1124,6 +1239,8 @@ postsubmits:
   - name: istio_e2e_cloudfoundry-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     optional: true
     spec:
       containers:
@@ -1136,6 +1253,8 @@ postsubmits:
         testing: test-pool
   - name: integ-k8s-113-postsubmit-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     decoration_config:
       timeout: 14400000000000 # 4 hours
     spec:
@@ -1171,6 +1290,8 @@ postsubmits:
         testing: test-pool
   - name: integ-k8s-112-postsubmit-prow-staging
     <<: *job_template
+    annotations:
+      testgrid-create-test-group: "false"
     decoration_config:
       timeout: 14400000000000 # 4 hours
     spec:
@@ -1207,6 +1328,8 @@ postsubmits:
   - name: istio-codecov-prow-staging
     <<: *job_template
     always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
     spec:
       containers:
       - <<: *istio_container

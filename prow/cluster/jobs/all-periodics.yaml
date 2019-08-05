@@ -32,6 +32,10 @@ periodics:
 
 - interval: 10m
   name: test-infra-cleanup-GKE
+  annotations:
+    testgrid-dashboards: istio-infrastructure
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
   labels:
     preset-service-account: "true"
   spec:
@@ -41,6 +45,11 @@ periodics:
   name: test-infra-update-deps
   labels:
     preset-service-account: "true"
+  annotations:
+    testgrid-dashboards: istio-infrastructure
+    # Do not alert since these always fail
+    # testgrid-alert-email: istio-oncall@googlegroups.com
+    # testgrid-num-failures-to-alert: '1'
   spec:
     containers:
     - image: gcr.io/istio-testing/prowbazel:0.4.13
@@ -95,6 +104,8 @@ periodics:
 
   name: proxy-postsubmit-periodic
   context: prow/proxy-postsubmit.sh
+  annotations:
+    testgrid-create-test-group: "false"
   branches: master
   labels:
     preset-service-account: "true"
@@ -126,6 +137,10 @@ periodics:
   - org: istio-releases
     repo: pipeline
     base_ref: master
+  annotations:
+    testgrid-dashboards: istio-release
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
   labels:
     preset-release-pipeline: "true"
   spec:
@@ -149,6 +164,10 @@ periodics:
   - org: istio-releases
     repo: pipeline
     base_ref: master
+  annotations:
+    testgrid-dashboards: istio-release
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
   labels:
     preset-release-pipeline: "true"
   spec:
@@ -172,6 +191,10 @@ periodics:
   - org: istio-releases
     repo: pipeline
     base_ref: release-1.0
+  annotations:
+    testgrid-dashboards: istio-release
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
   labels:
     preset-release-pipeline: "true"
   spec:
@@ -195,6 +218,10 @@ periodics:
   - org: istio-releases
     repo: pipeline
     base_ref: release-1.1
+  annotations:
+    testgrid-dashboards: istio-release
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
   labels:
     preset-release-pipeline: "true"
   spec:
@@ -217,6 +244,10 @@ periodics:
   - org: istio-releases
     repo: pipeline
     base_ref: release-1.2
+  annotations:
+    testgrid-dashboards: istio-release
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
   labels:
     preset-release-pipeline: "true"
   spec:
