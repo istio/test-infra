@@ -199,7 +199,7 @@ jobs:
     command:
     - prow/integ-suite-kind.sh
     - --node-image
-    - kindest/node:v1.12.8
+    - kindest/node:v1.12.9
     - test.integration.kube
     requirements: [kind]
     timeout: 4h
@@ -208,7 +208,16 @@ jobs:
     command:
     - prow/integ-suite-kind.sh
     - --node-image
-    - kindest/node:v1.13.6
+    - kindest/node:v1.13.7
+    - test.integration.kube
+    requirements: [kind]
+    timeout: 4h
+  - name: integ-k8s-114-postsubmit
+    type: postsubmit
+    command:
+    - prow/integ-suite-kind.sh
+    - --node-image
+    - kindest/node:v1.14.3
     - test.integration.kube
     requirements: [kind]
     timeout: 4h
