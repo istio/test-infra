@@ -20,6 +20,8 @@ presubmits:
   istio/api:
 
   - name: api-presubmit
+    annotations:
+      testgrid-dashboards: istio-api-presubmits
     context: prow/api-presubmit.sh
     branches: *branch_spec
     always_run: true
@@ -33,6 +35,10 @@ postsubmits:
   istio/api:
 
   - name: api-postsubmit
+    annotations:
+      testgrid-dashboards: istio-api-postsubmits
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     branches: *branch_spec
     labels:
       preset-service-account: "true"

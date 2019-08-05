@@ -36,6 +36,8 @@ presubmits:
 
     - name: istio-unit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       context: prow/istio-unit-tests.sh
       always_run: true
       spec:
@@ -49,6 +51,8 @@ presubmits:
 
     - name: integ-framework-local-presubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       context: prow/integ-framework-local-presubmit-tests.sh
       always_run: true
       spec:
@@ -62,6 +66,8 @@ presubmits:
 
     - name: integ-galley-local-presubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       context: prow/integ-galley-local-presubmit-tests.sh
       always_run: true
       spec:
@@ -75,6 +81,8 @@ presubmits:
 
     - name: integ-istioctl-local-presubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       context: prow/integ-istioctl-local-presubmit-tests.sh
       always_run: true
       optional: true
@@ -89,6 +97,8 @@ presubmits:
 
     - name: integ-mixer-local-presubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       optional: true
       context: prow/integ-mixer-local-presubmit-tests.sh
       always_run: true
@@ -103,6 +113,8 @@ presubmits:
 
     - name: integ-pilot-local-presubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       context: prow/integ-pilot-local-presubmit-tests.sh
       always_run: true
       spec:
@@ -116,6 +128,8 @@ presubmits:
 
     - name: integ-security-local-presubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       context: prow/integ-security-local-presubmit-tests.sh
       always_run: true
       spec:
@@ -129,6 +143,8 @@ presubmits:
 
     - name: integ-framework-k8s-presubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       context: prow/integ-framework-k8s-presubmit-tests.sh
       max_concurrency: 5
       always_run: true
@@ -144,6 +160,8 @@ presubmits:
           testing: test-pool
     - name: integ-galley-k8s-presubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       context: prow/integ-galley-k8s-presubmit-tests.sh
       max_concurrency: 5
       always_run: true
@@ -159,6 +177,8 @@ presubmits:
           testing: test-pool
     - name: integ-istioctl-k8s-presubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       context: prow/integ-istioctl-k8s-presubmit-tests.sh
       optional: true
       max_concurrency: 5
@@ -175,6 +195,8 @@ presubmits:
           testing: test-pool
     - name: integ-mixer-k8s-presubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       context: prow/integ-mixer-k8s-presubmit-tests.sh
       optional: true
       max_concurrency: 5
@@ -191,6 +213,8 @@ presubmits:
           testing: test-pool
     - name: integ-pilot-k8s-presubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       optional: true
       context: prow/integ-pilot-k8s-presubmit-tests.sh
       max_concurrency: 5
@@ -207,6 +231,8 @@ presubmits:
           testing: test-pool
     - name: integ-security-k8s-presubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       optional: true
       context: prow/integ-security-k8s-presubmit-tests.sh
       max_concurrency: 5
@@ -223,6 +249,8 @@ presubmits:
           testing: test-pool
     - name: integ-telemetry-k8s-presubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       context: prow/integ-telemetry-k8s-presubmit-tests.sh
       optional: true
       max_concurrency: 5
@@ -239,6 +267,8 @@ presubmits:
           testing: test-pool
     - name: test-e2e-mixer-no_auth
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       optional: true
       skip_report: true
       context: "prow: test-e2e-mixer-no_auth"
@@ -255,6 +285,8 @@ presubmits:
           testing: test-pool
     - name: istio-pilot-e2e-envoyv2-v1alpha3
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       always_run: true
       context: prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
       labels:
@@ -270,6 +302,8 @@ presubmits:
           testing: test-pool
     - name: e2e-mixer-no_auth
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       always_run: true
       context: prow/e2e-mixer-no_auth.sh
       labels:
@@ -285,6 +319,8 @@ presubmits:
           testing: test-pool
     - name: e2e-dashboard
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       always_run: true
       context: prow/e2e-dashboard.sh
       labels:
@@ -300,6 +336,8 @@ presubmits:
           testing: test-pool
     - name: e2e-bookInfoTests-envoyv2-v1alpha3
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       always_run: true
       context: prow/e2e-bookInfoTests-v1alpha3.sh
       labels:
@@ -315,6 +353,8 @@ presubmits:
           testing: test-pool
     - name: e2e-bookInfoTests-trustdomain
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       always_run: true
       context: prow/e2e-bookInfoTests-trustdomain.sh
       optional: true
@@ -331,6 +371,8 @@ presubmits:
           testing: test-pool
     - name: e2e-simpleTests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       always_run: true
       context: prow/e2e-simpleTests.sh
       labels:
@@ -346,6 +388,8 @@ presubmits:
           testing: test-pool
     - name: e2e-simpleTestsMinProfile
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       optional: true
       context: prow/e2e-simpleTests-minProfile.sh
       labels:
@@ -362,6 +406,8 @@ presubmits:
 
     - name: istio-pilot-multicluster-e2e
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       always_run: true
       context: prow/istio-pilot-multicluster-e2e.sh
       optional: true
@@ -378,6 +424,8 @@ presubmits:
           testing: test-pool
     - name: e2e-simpleTests-cni
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       always_run: false
       context: prow/e2e-simpleTests-cni.sh
       optional: true
@@ -393,6 +441,8 @@ presubmits:
         nodeSelector:
     - name: istio_auth_sds_e2e
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       always_run: true
       context: prow/e2e_pilotv2_auth_sds.sh
       labels:
@@ -408,6 +458,8 @@ presubmits:
           testing: test-pool
     - name: release-test
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       always_run: true
       context: prow/release-test.sh
       labels:
@@ -428,6 +480,8 @@ postsubmits:
   istio/istio:
     - name: integ-framework-local-postsubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       spec:
         containers:
           - <<: *istio_container
@@ -440,6 +494,8 @@ postsubmits:
 
     - name: integ-galley-local-postsubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       spec:
         containers:
           - <<: *istio_container
@@ -452,6 +508,8 @@ postsubmits:
 
     - name: integ-istioctl-local-postsubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       spec:
         containers:
           - <<: *istio_container
@@ -464,6 +522,8 @@ postsubmits:
 
     - name: integ-mixer-local-postsubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       spec:
         containers:
           - <<: *istio_container
@@ -476,6 +536,8 @@ postsubmits:
 
     - name: integ-pilot-local-postsubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       spec:
         containers:
           - <<: *istio_container
@@ -488,6 +550,8 @@ postsubmits:
 
     - name: integ-security-local-postsubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       spec:
         containers:
           - <<: *istio_container
@@ -500,6 +564,8 @@ postsubmits:
 
     - name: istio-kind-simpleTest
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       spec:
         containers:
           - <<: *istio_container_with_kind
@@ -510,6 +576,8 @@ postsubmits:
           testing: test-pool
     - name: istio-unit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       context: prow/istio-unit-tests.sh
       always_run: true
       spec:
@@ -522,6 +590,8 @@ postsubmits:
           testing: test-pool
     - name: integ-framework-k8s-postsubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       labels:
         preset-service-account: "true"
       spec:
@@ -535,6 +605,8 @@ postsubmits:
           testing: test-pool
     - name: integ-galley-k8s-postsubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       labels:
         preset-service-account: "true"
       spec:
@@ -548,6 +620,8 @@ postsubmits:
           testing: test-pool
     - name: integ-istioctl-k8s-postsubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       labels:
         preset-service-account: "true"
       spec:
@@ -561,6 +635,8 @@ postsubmits:
           testing: test-pool
     - name: integ-mixer-k8s-postsubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       labels:
         preset-service-account: "true"
       spec:
@@ -574,6 +650,8 @@ postsubmits:
           testing: test-pool
     - name: integ-pilot-k8s-postsubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       labels:
         preset-service-account: "true"
       spec:
@@ -588,6 +666,8 @@ postsubmits:
 
     - name: integ-security-k8s-postsubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       labels:
         preset-service-account: "true"
       spec:
@@ -601,6 +681,8 @@ postsubmits:
           testing: test-pool
     - name: integ-telemetry-k8s-postsubmit-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       labels:
         preset-service-account: "true"
       spec:
@@ -614,6 +696,8 @@ postsubmits:
           testing: test-pool
     - name: e2e-simpleTestsMinProfile
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       labels:
         preset-service-account: "true"
       max_concurrency: 5
@@ -627,6 +711,8 @@ postsubmits:
           testing: test-pool
     - name: istio-integ-race-native-tests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       labels:
         preset-service-account: "true"
       spec:
@@ -639,6 +725,8 @@ postsubmits:
           testing: test-pool
     - name: e2e-simpleTests
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       labels:
         preset-service-account: "true"
       spec:
@@ -651,6 +739,8 @@ postsubmits:
           testing: test-pool
     - name: e2e-simpleTests-non-mcp
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       labels:
         preset-service-account: "true"
       max_concurrency: 5
@@ -664,6 +754,8 @@ postsubmits:
           testing: test-pool
     - name: e2e-bookInfoTests-envoyv2-v1alpha3
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       labels:
         preset-service-account: "true"
       spec:
@@ -676,6 +768,8 @@ postsubmits:
           testing: test-pool
     - name: istio-pilot-e2e-envoyv2-v1alpha3
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       labels:
         preset-service-account: "true"
       spec:
@@ -688,6 +782,8 @@ postsubmits:
           testing: test-pool
     - name: istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       labels:
         preset-service-account: "true"
       spec:
@@ -700,6 +796,8 @@ postsubmits:
           testing: test-pool
     - name: e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       labels:
         preset-service-account: "true"
       max_concurrency: 5
@@ -713,6 +811,8 @@ postsubmits:
           testing: test-pool
     - name: e2e-mixer-no_auth
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       labels:
         preset-service-account: "true"
       spec:
@@ -725,6 +825,8 @@ postsubmits:
           testing: test-pool
     - name: e2e-dashboard
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       labels:
         preset-service-account: "true"
       spec:
@@ -737,6 +839,8 @@ postsubmits:
           testing: test-pool
     - name: istio_auth_sds_e2e
       <<: *job_template
+      annotations:
+        testgrid-create-test-group: "false"
       labels:
         preset-service-account: "true"
       max_concurrency: 5

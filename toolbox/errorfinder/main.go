@@ -50,6 +50,7 @@ type ErrorFinder struct {
 // Read google spreadsheets with credentials, spreadsheet ID and read range to get slice of file paths to build-logs.
 func readSpreadSheet(ctx con.Context, apiKey string, spreadsheetID string, readRange string) []string {
 	srv, err := sheets.NewService(ctx, option.WithAPIKey(apiKey))
+
 	if err != nil {
 		log.Fatalf("Unable to retrieve Sheets client: %v", err)
 	}

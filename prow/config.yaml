@@ -109,8 +109,6 @@ branch-protection:
             teams:
               - repo-admins
           branches: *blocked_branches
-        bots:
-          branches: *blocked_branches
         operator:
           required_pull_request_reviews: &tide_withcodeowners_reviews
             require_code_owner_reviews: true
@@ -131,6 +129,14 @@ branch-protection:
           required_pull_request_reviews: *tide_withcodeowners_reviews
           restrictions: *tide_withcodeowners_restrictions
           branches: *blocked_branches
+        bots:
+          required_pull_request_reviews: *tide_withcodeowners_reviews
+          restrictions: *tide_withcodeowners_restrictions
+          branches: *blocked_branches
+        gogo-genproto:
+          required_pull_request_reviews: *tide_withcodeowners_reviews
+          restrictions: *tide_withcodeowners_restrictions
+          branches: *blocked_branches
         common-files:
           required_pull_request_reviews: *tide_withcodeowners_reviews
           restrictions: *tide_withcodeowners_restrictions
@@ -140,8 +146,7 @@ branch-protection:
           restrictions: *tide_withcodeowners_restrictions
           branches: *blocked_branches
         istio:
-          required_pull_request_reviews: &tide_reviews
-            require_code_owner_reviews: false
+          required_pull_request_reviews: *tide_withcodeowners_reviews
           restrictions: &tide_restrictions
             teams:
             - repo-admins
@@ -180,8 +185,8 @@ branch-protection:
                 - "merges-blocked-needs-admin"
             # TODO: release-1.3 once it exists
         proxy:
-          required_pull_request_reviews: *tide_reviews
-          restrictions: *tide_restrictions
+          required_pull_request_reviews: *tide_withcodeowners_reviews
+          restrictions: *tide_withcodeowners_restrictions
           required_status_checks:
             contexts:
             - "ci/circleci: build"
@@ -193,7 +198,8 @@ branch-protection:
               protect: true
         test-infra:
           protect: true
-          required_pull_request_reviews: *tide_reviews
+          required_pull_request_reviews: &tide_reviews
+            require_code_owner_reviews: false
           restrictions: *tide_restrictions
     istio-releases:
       repos:
@@ -223,8 +229,6 @@ branch-protection:
 tide:
   queries:
   - repos:
-    - istio/istio
-    - istio/proxy
     - istio/test-infra
     - istio-ecosystem/authservice
     labels:
@@ -245,12 +249,16 @@ tide:
     - needs-ok-to-test
     - needs-rebase
   - repos:
+    - istio/istio
+    - istio/proxy
     - istio/operator
     - istio/pkg
+    - istio/bots
     - istio/api
     - istio/common-files
     - istio/community
     - istio/istio.io
+    - istio/gogo-genproto
     labels:
     - "cla: yes"
     missingLabels:
@@ -259,15 +267,7 @@ tide:
     - do-not-merge/work-in-progress
     reviewApprovedRequired: true
   merge_method:
-    istio/istio: squash
-    istio/operator: squash
-    istio/pkg: squash
-    istio/api: squash
-    istio/common-files: squash
-    istio/community: squash
-    istio/istio.io: squash
-    istio/proxy: squash
-    istio/test-infra: squash
+    istio: squash
     istio-releases/pipeline: squash
     istio-ecosystem/authservice: squash
   target_url: https://prow.istio.io/tide

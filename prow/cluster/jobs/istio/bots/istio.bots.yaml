@@ -1,0 +1,54 @@
+presubmits:
+
+  istio/bots:
+
+    - name: bots-lint
+      path_alias: istio.io/bots
+      decorate: true
+      always_run: true
+      spec:
+        containers:
+          - image: gcr.io/istio-testing/istio-builder:v20190624-478286dc
+            command:
+              - make
+              - lint
+            env:
+              - name: GO111MODULE
+                value: "on"
+        nodeSelector:
+          testing: test-pool
+
+    - name: bots-build
+      path_alias: istio.io/bots
+      decorate: true
+      always_run: true
+      spec:
+        containers:
+          - image: gcr.io/istio-testing/circleci:2019-04-22
+            command:
+              - go
+              - build
+              - ./...
+            env:
+              - name: GO111MODULE
+                value: "on"
+        nodeSelector:
+          testing: build-pool
+
+    - name: bots-test
+      path_alias: istio.io/bots
+      decorate: true
+      always_run: true
+      spec:
+        containers:
+          - image: gcr.io/istio-testing/circleci:2019-04-22
+            command:
+              - go
+              - test
+              - -race
+              - ./...
+            env:
+              - name: GO111MODULE
+                value: "on"
+        nodeSelector:
+          testing: test-pool

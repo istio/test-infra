@@ -6,6 +6,8 @@ presubmits:
   istio/proxy:
 
   - name: proxy-presubmit
+    annotations:
+      testgrid-dashboards: istio-proxy-presubmits
     context: prow/proxy-presubmit.sh
     branches: *branch_spec
     always_run: true
@@ -35,6 +37,8 @@ presubmits:
         testing: build-pool
 
   - name: proxy-presubmit-asan
+    annotations:
+      testgrid-dashboards: istio-proxy-presubmits
     context: prow/proxy-presubmit-asan.sh
     branches: *branch_spec
     always_run: true
@@ -64,6 +68,8 @@ presubmits:
         testing: build-pool
 
   - name: proxy-presubmit-tsan
+    annotations:
+      testgrid-dashboards: istio-proxy-presubmits
     context: prow/proxy-presubmit-tsan.sh
     branches: *branch_spec
     always_run: true
@@ -97,6 +103,10 @@ postsubmits:
   istio/proxy:
 
   - name: proxy-postsubmit
+    annotations:
+      testgrid-dashboards: istio-proxy-postsubmits
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     context: prow/proxy-postsubmit.sh
     branches: *branch_spec
     always_run: true
