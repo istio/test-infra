@@ -34,6 +34,7 @@ import (
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
 )
 
@@ -120,7 +121,7 @@ func readSpreadSheet(credentialsPath string, spreadsheetID string, readRange str
 	}
 	client := getClient(config)
 
-	srv, err := sheets.New(client)
+	srv, err := sheets.NewService(context.Background(), option.WithHTTPClient(client))
 	if err != nil {
 		log.Fatalf("Unable to retrieve Sheets client: %v", err)
 	}
