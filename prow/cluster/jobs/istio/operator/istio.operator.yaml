@@ -2,35 +2,10 @@ presubmits:
 
   istio/operator:
 
-  - name: operator-lint-dind
+  - name: operator-lint
     path_alias: istio.io/operator
     decorate: true
     always_run: true
-    optional: true
-    spec:
-      containers:
-      - image: docker.io/sdake/prow-launcher:2019-08-03
-        command:
-        - entrypoint
-        - make
-        - lint
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "3"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-
-  - name: operator-lint-no-dind
-    path_alias: istio.io/operator
-    decorate: true
-    always_run: true
-    optional: true
     spec:
       containers:
       - image: docker.io/sdake/build-tools:2019-08-03
@@ -39,24 +14,12 @@ presubmits:
         - make
         - lint
         env:
-        - name: USE_LOCAL_TOOLCHAIN
-          value: "1"
-      nodeSelector:
-        testing: test-pool
-
-  - name: operator-lint
-    path_alias: istio.io/operator
-    decorate: true
-    always_run: true
-    spec:
-      containers:
-      - image: gcr.io/istio-testing/istio-builder:v20190624-478286dc
-        command:
-        - make
-        - lint
-        env:
         - name: GO111MODULE
           value: "on"
+        - name: USE_LOCAL_TOOLCHAIN
+          value: "1"
+        - name: GO_PROXY
+          value: "https://proxy.golang.org"
       nodeSelector:
         testing: test-pool
 
@@ -66,14 +29,17 @@ presubmits:
     always_run: true
     spec:
       containers:
-      - image: gcr.io/istio-testing/istio-builder:v20190624-478286dc
+      - image: docker.io/sdake/build-tools:2019-08-03
         command:
-        - go
+        - make
         - build
-        - ./...
         env:
         - name: GO111MODULE
           value: "on"
+        - name: USE_LOCAL_TOOLCHAIN
+          value: "1"
+        - name: GO_PROXY
+          value: "https://proxy.golang.org"
       nodeSelector:
         testing: build-pool
 
@@ -83,15 +49,16 @@ presubmits:
     always_run: true
     spec:
       containers:
-      - image: gcr.io/istio-testing/istio-builder:v20190624-478286dc
+      - image: docker.io/sdake/build-tools:2019-08-03
         command:
-        - go
+        - make
         - test
-        - -race
-        - ./...
         env:
         - name: GO111MODULE
           value: "on"
+        - name: USE_LOCAL_TOOLCHAIN
+          value: "1"
+        - name: GO_PROXY
+          value: "https://proxy.golang.org"
       nodeSelector:
         testing: test-pool
-
