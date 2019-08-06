@@ -119,16 +119,15 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
     name: e2e-mixer-no_auth-master
     path_alias: istio.io/istio
     spec:
       containers:
       - command:
         - entrypoint
-        - prow/e2e-mixer-no_auth.sh
+        - prow/e2e-kind-suite.sh
+        - --single_test
+        - e2e_mixer
         image: gcr.io/istio-testing/istio-builder:v20190805-b1d72b4d
         name: ""
         resources:
@@ -140,8 +139,23 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio-postsubmits-master
@@ -149,16 +163,15 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
     name: istio-pilot-e2e-envoyv2-v1alpha3-master
     path_alias: istio.io/istio
     spec:
       containers:
       - command:
         - entrypoint
-        - prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
+        - prow/e2e-kind-suite.sh
+        - --single_test
+        - e2e_pilotv2_v1alpha3
         image: gcr.io/istio-testing/istio-builder:v20190805-b1d72b4d
         name: ""
         resources:
@@ -170,8 +183,23 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio-postsubmits-master
@@ -179,16 +207,15 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
     name: e2e-dashboard-master
     path_alias: istio.io/istio
     spec:
       containers:
       - command:
         - entrypoint
-        - prow/e2e-dashboard.sh
+        - prow/e2e-kind-suite.sh
+        - --single_test
+        - e2e_dashboard
         image: gcr.io/istio-testing/istio-builder:v20190805-b1d72b4d
         name: ""
         resources:
@@ -200,8 +227,23 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio-postsubmits-master
@@ -209,16 +251,15 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
     name: e2e-bookInfoTests-envoyv2-v1alpha3-master
     path_alias: istio.io/istio
     spec:
       containers:
       - command:
         - entrypoint
-        - prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
+        - prow/e2e-kind-suite.sh
+        - --single_test
+        - e2e_bookinfo_envoyv2_v1alpha3
         image: gcr.io/istio-testing/istio-builder:v20190805-b1d72b4d
         name: ""
         resources:
@@ -230,8 +271,23 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio-postsubmits-master
@@ -284,16 +340,16 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
     name: e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp-master
     path_alias: istio.io/istio
     spec:
       containers:
       - command:
         - entrypoint
-        - prow/e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp.sh
+        - prow/e2e-kind-suite.sh
+        - --use_mcp=false
+        - --single_test
+        - e2e_bookinfo_envoyv2_v1alpha3
         image: gcr.io/istio-testing/istio-builder:v20190805-b1d72b4d
         name: ""
         resources:
@@ -305,8 +361,23 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio-postsubmits-master
@@ -1935,16 +2006,15 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
     name: e2e-mixer-no_auth-master
     path_alias: istio.io/istio
     spec:
       containers:
       - command:
         - entrypoint
-        - prow/e2e-mixer-no_auth.sh
+        - prow/e2e-kind-suite.sh
+        - --single_test
+        - e2e_mixer
         image: gcr.io/istio-testing/istio-builder:v20190805-b1d72b4d
         name: ""
         resources:
@@ -1956,24 +2026,38 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
   - always_run: true
     annotations:
       testgrid-dashboards: istio-presubmits-master
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
     name: istio-pilot-e2e-envoyv2-v1alpha3-master
     path_alias: istio.io/istio
     spec:
       containers:
       - command:
         - entrypoint
-        - prow/istio-pilot-e2e-envoyv2-v1alpha3.sh
+        - prow/e2e-kind-suite.sh
+        - --single_test
+        - e2e_pilotv2_v1alpha3
         image: gcr.io/istio-testing/istio-builder:v20190805-b1d72b4d
         name: ""
         resources:
@@ -1985,24 +2069,38 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
   - always_run: true
     annotations:
       testgrid-dashboards: istio-presubmits-master
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
     name: e2e-dashboard-master
     path_alias: istio.io/istio
     spec:
       containers:
       - command:
         - entrypoint
-        - prow/e2e-dashboard.sh
+        - prow/e2e-kind-suite.sh
+        - --single_test
+        - e2e_dashboard
         image: gcr.io/istio-testing/istio-builder:v20190805-b1d72b4d
         name: ""
         resources:
@@ -2014,24 +2112,38 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
   - always_run: true
     annotations:
       testgrid-dashboards: istio-presubmits-master
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
     name: e2e-bookInfoTests-envoyv2-v1alpha3-master
     path_alias: istio.io/istio
     spec:
       containers:
       - command:
         - entrypoint
-        - prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh
+        - prow/e2e-kind-suite.sh
+        - --single_test
+        - e2e_bookinfo_envoyv2_v1alpha3
         image: gcr.io/istio-testing/istio-builder:v20190805-b1d72b4d
         name: ""
         resources:
@@ -2043,8 +2155,23 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
   - always_run: true
     annotations:
       testgrid-dashboards: istio-presubmits-master
