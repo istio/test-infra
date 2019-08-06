@@ -22,12 +22,14 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"math/rand"
 	"os"
 	"reflect"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/golang-collections/collections/stack"
 
 	"cloud.google.com/go/storage"
 	"golang.org/x/net/context"
@@ -332,69 +334,48 @@ func (tc *TimeComparer) findTimeCommands(
 		if err != nil {
 			continue
 		}
+
+		fileStack := stack.New()
 		for start := 0; start < len(fileSlice); start++ {
 			line := fileSlice[start]
 			if timeCommand.MatchString(line) {
-				for end := start; end < len(fileSlice)-2; end++ {
-					if realOutput.MatchString(fileSlice[end]) && userOutput.MatchString(fileSlice[end+1]) && sysOutput.MatchString(fileSlice[end+2]) {
-						// Find each section of time in the output
-						realTime := extractTime(fileSlice[end])
-						userTime := extractTime(fileSlice[end+1])
-						sysTime := extractTime(fileSlice[end+2])
-						average := getAverageTime(realTime, userTime, sysTime)
-						rTime := runTime{
-							runTime: []runPair{
-								realTime, userTime, sysTime,
-							},
-							runPath: filePath,
-						}
+				fileStack.Push(line)
+			}
 
-						start = end + 3
-						empty := runCombination{}
-						if reflect.DeepEqual(commandToTime[line], empty) {
-							commandToTime[line] = runCombination{
-								totalTime: average,
-								runTimes:  []runTime{rTime},
-							}
-						} else {
-							rCombination := commandToTime[line]
-							rCombination.totalTime += average
-							rCombination.runTimes = append(rCombination.runTimes, rTime)
-							commandToTime[line] = rCombination
+			if realOutput.MatchString(fileSlice[start]) && userOutput.MatchString(fileSlice[start+1]) && sysOutput.MatchString(fileSlice[start+2]) {
+				if fileStack.Len() != 0 {
+					corespondingCommand := fileStack.Pop()
+					stringCommand := corespondingCommand.(string)
+					// Find each section of time in the output
+					realTime := extractTime(fileSlice[start])
+					userTime := extractTime(fileSlice[start+1])
+					sysTime := extractTime(fileSlice[start+2])
+					average := getAverageTime(realTime, userTime, sysTime)
+
+					rTime := runTime{
+						runTime: []runPair{
+							realTime, userTime, sysTime,
+						},
+						runPath: filePath,
+					}
+
+					empty := runCombination{}
+					if reflect.DeepEqual(commandToTime[stringCommand], empty) {
+						commandToTime[stringCommand] = runCombination{
+							totalTime: average,
+							runTimes:  []runTime{rTime},
 						}
+					} else {
+						rCombination := commandToTime[stringCommand]
+						rCombination.totalTime += average
+						rCombination.runTimes = append(rCombination.runTimes, rTime)
+						commandToTime[stringCommand] = rCombination
 					}
 				}
 			}
 		}
 	}
 	return commandToTime
-}
-
-// Sort the time value array from low to high.
-func quicksort(timesArray []float64) []float64 {
-	if len(timesArray) < 2 {
-		return timesArray
-	}
-
-	left, right := 0, len(timesArray)-1
-
-	pivot := rand.Int() % len(timesArray)
-
-	timesArray[pivot], timesArray[right] = timesArray[right], timesArray[pivot]
-
-	for i := range timesArray {
-		if timesArray[i] < timesArray[right] {
-			timesArray[left], timesArray[i] = timesArray[i], timesArray[left]
-			left++
-		}
-	}
-
-	timesArray[left], timesArray[right] = timesArray[right], timesArray[left]
-
-	quicksort(timesArray[:left])
-	quicksort(timesArray[left+1:])
-
-	return timesArray
 }
 
 // For each spliter section of file paths, read previously generated errors and warnings.
@@ -415,7 +396,7 @@ func (tc *TimeComparer) findErrorForEachSection(ctx context.Context, gcsFilePath
 	sortedArray, timeMap := processCommand(commandToTime)
 
 	// Sort the time values
-	sortedArray = quicksort(sortedArray)
+	sort.Float64s(sortedArray)
 	// Write combined content to output csv file.
 	writeCSV(sortedArray, readResult, timeMap, outputFileName)
 }
