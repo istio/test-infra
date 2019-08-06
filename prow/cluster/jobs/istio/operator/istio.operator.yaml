@@ -8,13 +8,15 @@ presubmits:
     always_run: true
     spec:
       containers:
-      - image: docker.io/sdake/build-tools:2019-08-03
+      - image: gcr.io/istio-testing/build-tools:2019-08-05
         command:
         - make
         - lint
         env:
         - name: GO111MODULE
           value: "on"
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: USE_LOCAL_TOOLCHAIN
           value: "1"
         - name: GO_PROXY
@@ -28,13 +30,15 @@ presubmits:
     always_run: true
     spec:
       containers:
-      - image: docker.io/sdake/build-tools:2019-08-03
+      - image: gcr.io/istio-testing/build-tools:2019-08-05
         command:
         - make
         - mesh
         env:
         - name: GO111MODULE
           value: "on"
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: USE_LOCAL_TOOLCHAIN
           value: "1"
         - name: GO_PROXY
@@ -48,13 +52,15 @@ presubmits:
     always_run: true
     spec:
       containers:
-      - image: docker.io/sdake/build-tools:2019-08-03
+      - image: gcr.io/istio-testing/build-tools:2019-08-05
         command:
         - make
         - test
         env:
         - name: GO111MODULE
           value: "on"
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: USE_LOCAL_TOOLCHAIN
           value: "1"
         - name: GO_PROXY
