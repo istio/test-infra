@@ -1,0 +1,21 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["main.go"],
+    importpath = "istio.io/test-infra/toolbox/timecomparer",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//vendor/cloud.google.com/go/storage:go_default_library",
+        "//vendor/github.com/golang-collections/collections/stack:go_default_library",
+        "//vendor/golang.org/x/net/context:go_default_library",
+        "//vendor/google.golang.org/api/option:go_default_library",
+        "//vendor/google.golang.org/api/sheets/v4:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "timecomparer",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)
