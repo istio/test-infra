@@ -100,15 +100,15 @@ jobs:
     requirements: [kind]
 
   - name: e2e-simpleTests
-    command: [prow/e2e-simpleTests.sh]
-    requirements: [gcp]
+    command: [./prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple, --installer, helm]
+    requirements: [kind]
   - name: e2e-simpleTests-distroless
     command: [prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple, --installer, helm, --variant, distroless]
     requirements: [kind]
     modifiers: [optional]
   - name: e2e-simpleTestsMinProfile
     command: [prow/e2e-kind-suite.sh, --single_test, e2e_simple_noauth, --installer, helm, --valueFile, values-istio-minimal.yaml, --helmSetValueList, "gateways.enabled=true,galley.enabled=false,global.useMCP=false"]
-    requirements: [gcp]
+    requirements: [kind]
     modifiers: [optional]
   - name: e2e-simpleTests-cni
     command: [prow/e2e-simpleTests-cni.sh]
@@ -116,11 +116,7 @@ jobs:
     modifiers: [optional]
   - name: e2e-simpleTests-non-mcp
     type: postsubmit
-    command: [prow/e2e-simpleTests-non-mcp.sh]
-    requirements: [gcp]
-  - name: istio-kind-simpleTest
-    type: postsubmit
-    command: [prow/e2e-kind-simpleTests.sh]
+    command: [./prow/e2e-kind-suite.sh, --auth_enable, --use_mcp=false, --single_test, e2e_simple, --installer, helm]
     requirements: [kind]
 
   - name: istio-pilot-multicluster-e2e
