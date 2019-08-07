@@ -336,7 +336,7 @@ func (tc *TimeComparer) findTimeCommands(
 		}
 
 		fileStack := stack.New()
-		for start := 0; start < len(fileSlice); start++ {
+		for start := 0; start < len(fileSlice)-2; start++ {
 			line := fileSlice[start]
 			if timeCommand.MatchString(line) {
 				fileStack.Push(line)
@@ -378,12 +378,12 @@ func (tc *TimeComparer) findTimeCommands(
 	return commandToTime
 }
 
-// For each spliter section of file paths, read previously generated errors and warnings.
+// For each spliter section of file paths, read previously generated time commands and file paths.
 // Process contents in new files and update the csv.
-func (tc *TimeComparer) findErrorForEachSection(ctx context.Context, gcsFilePaths []string, outputFileName string, startInd int, endInd int) {
+func (tc *TimeComparer) splitSpreadsheetAndFindTimeCommand(ctx context.Context, gcsFilePaths []string, outputFileName string, startInd int, endInd int) {
 	readResult, commandToTime, err := readCSV(outputFileName)
 
-	// If csv file does not contain anything yet, initialize curErrors and curWarnings to be empty maps.
+	// If csv file does not contain anything yet, initialize commandToTime and readResult to be empty maps.
 	if err != nil {
 		commandToTime = map[string]runCombination{}
 		readResult = map[string][]string{}
@@ -410,12 +410,12 @@ func (tc *TimeComparer) divideToSections(ctx context.Context, spliter int, gcsFi
 		}
 		startInd := (n - 1) * spliter
 		endInd := n*spliter - 1
-		tc.findErrorForEachSection(ctx, gcsFilePaths, outputFileName, startInd, endInd)
+		tc.splitSpreadsheetAndFindTimeCommand(ctx, gcsFilePaths, outputFileName, startInd, endInd)
 		n++
 	}
 	startInd := (n - 1) * spliter
 	endInd := len(gcsFilePaths)
-	tc.findErrorForEachSection(ctx, gcsFilePaths, outputFileName, startInd, endInd)
+	tc.splitSpreadsheetAndFindTimeCommand(ctx, gcsFilePaths, outputFileName, startInd, endInd)
 
 }
 
