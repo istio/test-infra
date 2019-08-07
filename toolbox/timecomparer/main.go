@@ -43,32 +43,33 @@ type TimeComparer struct {
 }
 
 // Read google spreadsheets with credentials, spreadsheet ID and read range to get slice of file paths to build-logs.
-func readSpreadSheet(ctx con.Context, apiKey string, spreadsheetID string, readRange string) []string {
+func readSpreadSheet(ctx con.Context, apiKey string, spreadsheetID string, readRange string) ([]string, error) {
 	srv, err := sheets.NewService(ctx, option.WithAPIKey(apiKey))
 	if err != nil {
-		log.Fatalf("Unable to retrieve Sheets client: %v", err)
+		return nil, fmt.Errorf("unable to retrieve Sheets client: %v", err)
 	}
 
 	resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Do()
 	if err != nil {
-		log.Fatalf("Unable to retrieve data from sheet: %v", err)
+		return nil, fmt.Errorf("unable to retrieve data from sheet: %v", err)
 	}
 
 	if len(resp.Values) == 0 {
-		fmt.Println("No data found.")
-		return nil
+		return nil, fmt.Errorf("no data found")
 	}
-	filePaths := []string{}
+	var filePaths []string
 
 	for _, row := range resp.Values {
 		filePath := row[0]
-		filePathString, err := filePath.(string)
-		if err {
+		filePathString, ok := filePath.(string)
+		if ok {
 			filePaths = append(filePaths, filePathString)
+		} else {
+			return nil, fmt.Errorf("file path is not string")
 		}
 	}
 
-	return filePaths
+	return filePaths, nil
 }
 
 func NewTimeComparer(client *storage.Client, bucketName string) *TimeComparer {
@@ -89,15 +90,16 @@ func (tc *TimeComparer) query(ctx context.Context, prefix string) ([]string, err
 		return []string{}, err
 	}
 	defer rc.Close()
-	lines := []string{}
+	var lines []string
 
 	scanner := bufio.NewScanner(rc)
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
 		line := scanner.Text()
-		if len(line) != 0 {
-			lines = append(lines, line)
+		if len(line) == 0 {
+			continue
 		}
+		lines = append(lines, line)
 	}
 
 	return lines, nil
@@ -133,19 +135,19 @@ type commandAndTime struct {
 }
 
 // Write error map and warning map to csv file with given file path.
-func writeCSV(sortedArray []float64, readResult map[string][]string, timeMap map[float64]commandAndTime, fileName string) {
+func writeCSV(sortedArray []float64, readResult map[string][]string, timeMap map[float64]commandAndTime, fileName string) error {
 	var file *os.File
 	var err error
 	// If file already exists in the path, write to original file.
 	if _, err = os.Stat(fileName); err == nil {
 		file, err = os.OpenFile(fileName, os.O_RDWR, 0644)
 		if err != nil {
-			log.Fatal("cannot open file", err)
+			return fmt.Errorf("cannot open file %v", err)
 		}
 	} else {
 		file, err = os.Create(fileName)
 		if err != nil {
-			log.Fatal("cannot open file", err)
+			return fmt.Errorf("cannot open file %v", err)
 		}
 	}
 
@@ -169,11 +171,15 @@ func writeCSV(sortedArray []float64, readResult map[string][]string, timeMap map
 
 		averageTime := strconv.FormatFloat(sortedTime, 'E', -1, 64)
 
-		toWrite := []string{}
+		var toWrite []string
 		toWrite = append(toWrite, com, averageTime)
 		toWrite = append(toWrite, completeResult...)
-		_ = writer.Write(toWrite)
+		err = writer.Write(toWrite)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // Read from original csv file the time and commands that are already present.
@@ -206,7 +212,7 @@ func readCSV(fileName string) (map[string][]string, map[string]runCombination, e
 		}
 		numPaths := (len(sections) - 2) / 3
 
-		undefinedRuntimes := []runTime{}
+		var undefinedRuntimes []runTime
 
 		for i := 0; i < numPaths; i++ {
 			undefinedRuntimes = append(undefinedRuntimes, runTime{})
@@ -224,7 +230,7 @@ func readCSV(fileName string) (map[string][]string, map[string]runCombination, e
 }
 
 func processCommand(commandToTime map[string]runCombination) ([]float64, map[float64]commandAndTime) {
-	timeArray := []float64{}
+	var timeArray []float64
 	commandsBreakDown := map[float64]commandAndTime{}
 	for command, rCombination := range commandToTime {
 		time := rCombination.totalTime
@@ -244,8 +250,8 @@ func processCommand(commandToTime map[string]runCombination) ([]float64, map[flo
 }
 
 // Convert minutes and sesconds ("0m1.061s") to float object.
-func convertStringToTime(timeString string) []float64 {
-	timeSlice := []float64{}
+func convertStringToTime(timeString string) ([]float64, error) {
+	var timeSlice []float64
 	if strings.Contains(timeString, "m") {
 		timeSplit := strings.Split(timeString, "m")
 		minString := timeSplit[0]
@@ -266,14 +272,12 @@ func convertStringToTime(timeString string) []float64 {
 			fmt.Println(secValueString)
 			secFloat, err := strconv.ParseFloat(secValueString, 64)
 			if err != nil {
-				fmt.Println("error parsing float second")
-				timeSlice = append(timeSlice, -1.0)
-			} else {
-				timeSlice = append(timeSlice, secFloat)
+				return timeSlice, fmt.Errorf("error parsing float second")
 			}
+			timeSlice = append(timeSlice, secFloat)
 		}
 	}
-	return timeSlice
+	return timeSlice, nil
 }
 
 // Extract time from runtime string with the format of "real	0m1.061s"
@@ -287,7 +291,7 @@ func extractTime(runTimeString string) runPair {
 		}
 	}
 	timePart := timeSplit[ind]
-	timeSlice := convertStringToTime(timePart)
+	timeSlice, _ := convertStringToTime(timePart)
 
 	for ind = 0; ind < length; ind++ {
 		if strings.Compare(timeSplit[ind], "") != 0 {
@@ -308,16 +312,14 @@ func extractTime(runTimeString string) runPair {
 
 // Compute average user/real/sys time to compare with others.
 func getAverageTime(realTime, userTime, sysTime runPair) float64 {
-	averageSlice := []float64{}
 	realT := realTime.time
 	userT := userTime.time
 	sysT := sysTime.time
 
-	for i := 0; i < 2; i++ {
-		averagePart := (realT[i] + userT[i] + sysT[i]) / 3
-		averageSlice = append(averageSlice, averagePart)
-	}
-	average := averageSlice[0]*60 + averageSlice[1]
+	// Time[0] holds the minute section of time and Time[1] holds seconds section.
+	averageMinute := (realT[0] + userT[0] + sysT[0]) / 3
+	averageSecond := (realT[1] + userT[1] + sysT[1]) / 3
+	average := averageMinute*60 + averageSecond
 
 	return average
 }
@@ -359,7 +361,7 @@ func (tc *TimeComparer) findTimeCommands(
 						runPath: filePath,
 					}
 
-					empty := runCombination{}
+					var empty runCombination
 					if reflect.DeepEqual(commandToTime[corespondingCommand], empty) {
 						commandToTime[corespondingCommand] = runCombination{
 							totalTime: average,
@@ -380,7 +382,7 @@ func (tc *TimeComparer) findTimeCommands(
 
 // For each spliter section of file paths, read previously generated time commands and file paths.
 // Process contents in new files and update the csv.
-func (tc *TimeComparer) splitSpreadsheetAndFindTimeCommand(ctx context.Context, gcsFilePaths []string, outputFileName string, startInd int, endInd int) {
+func (tc *TimeComparer) splitSpreadsheetAndFindTimeCommand(ctx context.Context, gcsFilePaths []string, outputFileName string, startInd int, endInd int) error {
 	readResult, commandToTime, err := readCSV(outputFileName)
 
 	// If csv file does not contain anything yet, initialize commandToTime and readResult to be empty maps.
@@ -398,7 +400,11 @@ func (tc *TimeComparer) splitSpreadsheetAndFindTimeCommand(ctx context.Context, 
 	// Sort the time values
 	sort.Float64s(sortedArray)
 	// Write combined content to output csv file.
-	writeCSV(sortedArray, readResult, timeMap, outputFileName)
+	err = writeCSV(sortedArray, readResult, timeMap, outputFileName)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Divide the list of file paths read in gcs storage to several spliters to avoid overflooding memory.
@@ -410,17 +416,22 @@ func (tc *TimeComparer) divideToSections(ctx context.Context, spliter int, gcsFi
 		}
 		startInd := (n - 1) * spliter
 		endInd := n*spliter - 1
-		tc.splitSpreadsheetAndFindTimeCommand(ctx, gcsFilePaths, outputFileName, startInd, endInd)
+		err := tc.splitSpreadsheetAndFindTimeCommand(ctx, gcsFilePaths, outputFileName, startInd, endInd)
+		if err != nil {
+			fmt.Println(err)
+		}
 		n++
 	}
 	startInd := (n - 1) * spliter
 	endInd := len(gcsFilePaths)
-	tc.splitSpreadsheetAndFindTimeCommand(ctx, gcsFilePaths, outputFileName, startInd, endInd)
-
+	err := tc.splitSpreadsheetAndFindTimeCommand(ctx, gcsFilePaths, outputFileName, startInd, endInd)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
-// Optional on whether or not to copy and share output file to gcs.
-func (tc *TimeComparer) CopyToGCS(ctx context.Context, source, bucketName, fileName string, public bool) {
+// Copy and share output file to gcs.
+func (tc *TimeComparer) copyToGCS(ctx context.Context, source, bucketName, fileName string, public bool) error {
 	r, err := os.Open(source)
 	if err != nil {
 		log.Fatal(err)
@@ -429,59 +440,56 @@ func (tc *TimeComparer) CopyToGCS(ctx context.Context, source, bucketName, fileN
 
 	client, err := storage.NewClient(ctx)
 	if err != nil {
-		log.Fatalf("Unable to create new client: %v", err)
+		return fmt.Errorf("unable to create new client: %v", err)
 	}
 
 	bh := client.Bucket(bucketName)
 	// Next check if the bucket exists
 	if _, err = bh.Attrs(ctx); err != nil {
-		log.Fatalf("Bucket does not exist: %v", err)
+		return fmt.Errorf("bucket does not exist: %v", err)
 	}
 
 	obj := bh.Object(fileName)
 	w := obj.NewWriter(ctx)
 	if _, err := io.Copy(w, r); err != nil {
-		log.Fatalf("Cannot copy file to GCS: %v", err)
+		return fmt.Errorf("cannot copy file to GCS: %v", err)
 	}
 	if err := w.Close(); err != nil {
-		log.Fatalf("Unable to close writer: %v", err)
+		return fmt.Errorf("unable to close writer: %v", err)
 	}
 
 	if public {
 		if err := obj.ACL().Set(ctx, storage.AllUsers, storage.RoleReader); err != nil {
-			log.Fatalf("Unable to set object to public: %v", err)
+			return fmt.Errorf("unable to set object to public: %v", err)
 		}
 	}
 
-	_, err = obj.Attrs(ctx)
-	if err != nil {
+	if _, err = obj.Attrs(ctx); err != nil {
 		switch err {
 		case storage.ErrBucketNotExist:
-			log.Fatal("Please create the bucket first e.g. with `gsutil mb`")
+			return fmt.Errorf("please create the bucket first e.g. with `gsutil mb`")
 		default:
-			log.Fatal(err)
+			return err
 		}
 	}
-
+	return nil
 }
 
 func main() {
 	var fileName string
-	flag.StringVar(&fileName, "OutputFileName", "output.csv", "A file name for output csv file with .csv at the end.")
+	flag.StringVar(&fileName, "OutputFileName", "", "A file name for output csv file with .csv at the end.")
 	var spreadsheetID string
-	flag.StringVar(&spreadsheetID, "SpreadsheetID", "1XK4Nbq7nwqwXMC7waMsEqhe_wOf1J1rqwbECrop9fQI", "Spreadsheet ID for the spreadsheet containing file path")
-	var credentialsPath string
-	flag.StringVar(&credentialsPath, "CredentialsPath", "credentials.json", "Path to Credentials.json file.")
+	flag.StringVar(&spreadsheetID, "SpreadsheetID", "", "Spreadsheet ID for the spreadsheet containing file path")
 	var readRange string
-	flag.StringVar(&readRange, "ReadRange", "A1:A5", "ReadRange from the spread sheet such as Sheet1!A1:A reads all elements in column A sheet 1.")
+	flag.StringVar(&readRange, "ReadRange", "", "ReadRange from the spread sheet such as Sheet1!A1:A reads all elements in column A sheet 1.")
 	var bucketName string
-	flag.StringVar(&bucketName, "BucketName", "istio-prow", "Bucket Name to read from in GCS.")
+	flag.StringVar(&bucketName, "BucketName", "", "Bucket Name to read from in GCS.")
 
 	var public bool
 	flag.BoolVar(&public, "Public", true, "Whether or not the file should be public in GCS")
 
 	var outputBucketName string
-	flag.StringVar(&outputBucketName, "OutputBucketName", "istio-prow", "Bucket Name to write file to in GCS.")
+	flag.StringVar(&outputBucketName, "OutputBucketName", "", "Bucket Name to write file to in GCS.")
 
 	var apiKey string
 	flag.StringVar(&apiKey, "APIKey", "", "API key to create new google sheets service")
@@ -497,10 +505,6 @@ func main() {
 
 	if strings.Compare(spreadsheetID, "") == 0 {
 		log.Fatal("Please enter a spreadsheet id with paths to the folder containing build-log.txt.")
-	}
-
-	if strings.Compare(credentialsPath, "") == 0 {
-		log.Fatal("Please enter the path to credentials file.")
 	}
 
 	if strings.Compare(readRange, "") == 0 {
@@ -520,8 +524,11 @@ func main() {
 	}
 
 	context := con.Background()
-	listOfPrs := readSpreadSheet(context, apiKey, spreadsheetID, readRange)
+	listOfPrs, err := readSpreadSheet(context, apiKey, spreadsheetID, readRange)
 
+	if err != nil {
+		log.Fatal(err)
+	}
 	client, err := storage.NewClient(context)
 	if err != nil {
 		log.Fatalf("Unable to create new client: %v", err)
@@ -529,4 +536,8 @@ func main() {
 
 	timeComparer := NewTimeComparer(client, bucketName)
 	timeComparer.divideToSections(context, spliter, listOfPrs, fileName)
+	err = timeComparer.copyToGCS(context, fileName, bucketName, fileName, public)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
