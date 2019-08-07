@@ -75,40 +75,39 @@ jobs:
     modifiers: [optional]
 
   - name: e2e-mixer-no_auth
-    command: [prow/e2e-kind-suite.sh, --single_test, e2e_mixer]
-    requirements: [kind]
+    command: [prow/e2e-mixer-no_auth.sh]
+    requirements: [gcp]
 
   - name: istio-pilot-e2e-envoyv2-v1alpha3
-    command: [prow/e2e-kind-suite.sh, --single_test, e2e_pilotv2_v1alpha3]
-    requirements: [kind]
+    command: [prow/istio-pilot-e2e-envoyv2-v1alpha3.sh]
+    requirements: [gcp]
 
-  # TODO migrate to kind once we have metric server in kind
   - name: e2e-dashboard
     command: [prow/e2e-dashboard.sh]
     requirements: [gcp]
 
   - name: e2e-bookInfoTests-envoyv2-v1alpha3
-    command: [prow/e2e-kind-suite.sh, --single_test, e2e_bookinfo_envoyv2_v1alpha3]
-    requirements: [kind]
+    command: [prow/e2e-bookInfoTests-envoyv2-v1alpha3.sh]
+    requirements: [gcp]
   - name: e2e-bookInfoTests-trustdomain
     command: [prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple]
     requirements: [kind]
     modifiers: [optional]
   - name: e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp
     type: postsubmit
-    command: [prow/e2e-kind-suite.sh, --use_mcp=false, --single_test, e2e_bookinfo_envoyv2_v1alpha3]
-    requirements: [kind]
+    command: [prow/e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp.sh]
+    requirements: [gcp]
 
   - name: e2e-simpleTests
-    command: [./prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple, --installer, helm]
-    requirements: [kind]
+    command: [prow/e2e-simpleTests.sh]
+    requirements: [gcp]
   - name: e2e-simpleTests-distroless
     command: [prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple, --installer, helm, --variant, distroless]
     requirements: [kind]
     modifiers: [optional]
   - name: e2e-simpleTestsMinProfile
     command: [prow/e2e-kind-suite.sh, --single_test, e2e_simple_noauth, --installer, helm, --valueFile, values-istio-minimal.yaml, --helmSetValueList, "gateways.enabled=true,galley.enabled=false,global.useMCP=false"]
-    requirements: [kind]
+    requirements: [gcp]
     modifiers: [optional]
   - name: e2e-simpleTests-cni
     command: [prow/e2e-simpleTests-cni.sh]
@@ -116,7 +115,11 @@ jobs:
     modifiers: [optional]
   - name: e2e-simpleTests-non-mcp
     type: postsubmit
-    command: [./prow/e2e-kind-suite.sh, --auth_enable, --use_mcp=false, --single_test, e2e_simple, --installer, helm]
+    command: [prow/e2e-simpleTests-non-mcp.sh]
+    requirements: [gcp]
+  - name: istio-kind-simpleTest
+    type: postsubmit
+    command: [prow/e2e-kind-simpleTests.sh]
     requirements: [kind]
 
   - name: istio-pilot-multicluster-e2e
