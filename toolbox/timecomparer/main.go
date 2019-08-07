@@ -311,17 +311,11 @@ func extractTime(runTimeString string) runPair {
 }
 
 // Compute average user/real/sys time to compare with others.
-func getAverageTime(realTime, userTime, sysTime runPair) float64 {
+func toSeconds(realTime runPair) float64 {
 	realT := realTime.time
-	userT := userTime.time
-	sysT := sysTime.time
+	seconds := realT[0]*60 + realT[1]
 
-	// Time[0] holds the minute section of time and Time[1] holds seconds section.
-	averageMinute := (realT[0] + userT[0] + sysT[0]) / 3
-	averageSecond := (realT[1] + userT[1] + sysT[1]) / 3
-	average := averageMinute*60 + averageSecond
-
-	return average
+	return seconds
 }
 
 // Get error contents of files to update command-time map with commands and path to build logs.
@@ -352,7 +346,7 @@ func (tc *TimeComparer) findTimeCommands(
 					realTime := extractTime(fileSlice[start])
 					userTime := extractTime(fileSlice[start+1])
 					sysTime := extractTime(fileSlice[start+2])
-					average := getAverageTime(realTime, userTime, sysTime)
+					realSeconds := toSeconds(realTime)
 
 					rTime := runTime{
 						runTime: []runPair{
@@ -364,12 +358,12 @@ func (tc *TimeComparer) findTimeCommands(
 					var empty runCombination
 					if reflect.DeepEqual(commandToTime[corespondingCommand], empty) {
 						commandToTime[corespondingCommand] = runCombination{
-							totalTime: average,
+							totalTime: realSeconds,
 							runTimes:  []runTime{rTime},
 						}
 					} else {
 						rCombination := commandToTime[corespondingCommand]
-						rCombination.totalTime += average
+						rCombination.totalTime += realSeconds
 						rCombination.runTimes = append(rCombination.runTimes, rTime)
 						commandToTime[corespondingCommand] = rCombination
 					}
