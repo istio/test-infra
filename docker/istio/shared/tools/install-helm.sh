@@ -2,7 +2,7 @@
 
 set -eux
 
-HELM_VERSION='v2.7.2'
+HELM_VERSION='v2.10.0'
 HELM_BASE_URL="https://storage.googleapis.com/kubernetes-helm"
 HELM_ARCHIVE="helm-${HELM_VERSION}-linux-amd64.tar.gz"
 HELM_URL="${HELM_BASE_URL}/${HELM_ARCHIVE}"
