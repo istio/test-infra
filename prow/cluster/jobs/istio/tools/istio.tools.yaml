@@ -1,0 +1,74 @@
+presubmits:
+
+  istio/tools:
+
+    - name: tools-lint
+      path_alias: istio.io/tools
+      decorate: true
+      always_run: true
+      optional: true
+      spec:
+        containers:
+          - image: gcr.io/istio-testing/circleci:2019-06-13
+            command:
+              - make
+              - lint
+            env:
+              - name: GO111MODULE
+                value: "on"
+        nodeSelector:
+          testing: test-pool
+
+    - name: tools-build
+      path_alias: istio.io/tools
+      decorate: true
+      always_run: true
+      optional: true
+      spec:
+        containers:
+          - image: gcr.io/istio-testing/circleci:2019-06-13
+            command:
+              - go
+              - build
+              - ./...
+            env:
+              - name: GO111MODULE
+                value: "on"
+        nodeSelector:
+          testing: build-pool
+
+    - name: tools-test
+      path_alias: istio.io/tools
+      decorate: true
+      always_run: true
+      optional: true
+      spec:
+        containers:
+          - image: gcr.io/istio-testing/circleci:2019-06-13
+            command:
+              - go
+              - test
+              - -race
+              - ./...
+            env:
+              - name: GO111MODULE
+                value: "on"
+        nodeSelector:
+          testing: test-pool
+
+    - name: tools-fmtpy
+      path_alias: istio.io/tools
+      decorate: true
+      always_run: true
+      optional: true
+      spec:
+        containers:
+          - image: gcr.io/istio-testing/circleci:2019-06-13
+            command:
+              - make
+              - fmtpy-checkonly
+            env:
+              - name: GO111MODULE
+                value: "on"
+        nodeSelector:
+          testing: test-pool
