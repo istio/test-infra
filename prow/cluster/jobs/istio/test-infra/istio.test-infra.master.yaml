@@ -2,30 +2,18 @@ presubmits:
   istio/test-infra:
 
   - name: build-test
-    context: "prow: build-test"
     always_run: true
     decorate: true
     path_alias: istio.io/test-infra
-    labels:
-      preset-service-account: "true"
     spec:
       containers:
-      - image: launcher.gcr.io/google/bazel:0.26.1
+      - image: golang:1.12.7
         command:
-        - bazel
+        - go
         - test
-        - --config=ci
-        - //...
-        #olumeMounts:
-        # name: cache-ssd
-        # mountPath: /root/.cache # run bazel info to determine
+        - ./...
       nodeSelector:
         testing: build-pool
-      # TODO(fejta): consider adding this back after RBE migration
-      #olumes:
-      # name: cache-ssd
-      # hostPath:
-      #   path: /mnt/disks/ssd0/test-infra
 
   - name: pull-test-infra-prow-checkconfig
     decorate: true
@@ -45,19 +33,12 @@ presubmits:
         - --exclude-warning=non-decorated-jobs
 
   - name: lint-check
-    context: "prow: lint-check"
     always_run: true
     decorate: true
     path_alias: istio.io/test-infra
-    labels:
-      preset-bazel: "true"
     spec:
       containers:
       - image: gcr.io/istio-testing/test-infra-builder:v20190722-4bb1092b
-        # TODO(fejta): not true, remove unless actually required.
-        # Bazel needs privileged mode in order to sandbox builds.
-        securityContext:
-          privileged: true
         resources:
           requests:
             memory: "512Mi"
