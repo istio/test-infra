@@ -15,21 +15,13 @@ $ git clone https://github.com/istio/test-infra.git
 and build it using
 
 ```bash
-$ go build //toolbox/timecomparer/main.go
+$ GO111MODULE=on go build ./toolbox/timecomparer
 ```
-
-or 
-
-```bash
-$ bazel build //toolbox/timecomparer/timecomparer
-```
-
-The binary output is located in //toolbox/timecomparer.
 
 Run code using
 
 ```bash
-$ go run //toolbox/timecomparer/main.go -OutputFileName=<output.csv> -SpreadsheetID=<spreadsheet_id> -CredentialsPath=<credentials.json> -ReadRange=<read_range> -BucketName=<bucket_name> -SplitBy=5
+$ GO111MODULE=on go run ./toolbox/timecomparer -OutputFileName=<output.csv> -SpreadsheetID=<spreadsheet_id> -CredentialsPath=<credentials.json> -ReadRange=<read_range> -BucketName=<bucket_name> -SplitBy=5
 ```
 
 and read the result in output file in the directory and filename specified in flag OutputFileName.

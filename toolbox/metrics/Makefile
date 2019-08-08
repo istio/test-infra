@@ -5,7 +5,14 @@ NAMESPACE ?= metrics
 TAG ?= $(shell date +v%Y%m%d)-$(shell git describe --tags --always --dirty)
 
 image:
-	bazel run //toolbox/metrics/cmd:metrics
+	docker build --cache-from gcr.io/$(PROJECT)/metrics_fetcher:latest \
+		-t gcr.io/gcr.io/$(PROJECT)/metrics_fetcher:$(TAG) \
+		-t gcr.io/gcr.io/$(PROJECT)/metrics_fetcher:latest \
+		-f Dockerfile .
+
+push:
+	docker push gcr.io/$(PROJECT)/metrics_fetcher:latest
+	docker push gcr.io/$(PROJECT)/metrics_fetcher:$(VERSION)
 
 deploy:
 	kubectl apply -f cmd/deployment.yaml
