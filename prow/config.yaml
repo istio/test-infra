@@ -40,17 +40,11 @@ deck:
     announcement: "This page -- spyglass -- is the default viewer for prow.{{if .ArtifactPath}} For now, the deprecated gubernator page spyglass replaces <a href='https://gubernator.k8s.io/build/{{.ArtifactPath}}'>remains available</a>.{{end}}"
 
   tide_update_period: 1s
-  # Basing this on istio/test-infra/OWNERS for now.
   rerun_auth_config:
     github_users:
     - chxchx
     - cjwagner
     - fejta
-    - hklai
-    - icygalz
-    - rkpagadala
-    - utka
-    - yutongz
 
 prowjob_namespace: default
 pod_namespace: test-pods
@@ -97,7 +91,7 @@ branch-protection:
       required_status_checks:
         contexts:
         - cla/google
-      required_pull_request_reviews: &mergify_reviews
+      required_pull_request_reviews:
         required_approving_review_count: 1
         require_code_owner_reviews: true
       restrictions:
@@ -201,14 +195,14 @@ branch-protection:
             wasm:
               protect: true
         test-infra:
-          protect: true
-          required_pull_request_reviews: &tide_reviews
-            require_code_owner_reviews: false
-          restrictions: *tide_restrictions
+          required_pull_request_reviews: *tide_withcodeowners_reviews
+          restrictions: *tide_withcodeowners_restrictions
+          branches: *blocked_branches
     istio-releases:
       repos:
         pipeline:
-          required_pull_request_reviews: *tide_reviews
+          required_pull_request_reviews: &tide_reviews
+            require_code_owner_reviews: false
           restrictions:
           branches:
             krishna-test:
@@ -233,7 +227,6 @@ branch-protection:
 tide:
   queries:
   - repos:
-    - istio/test-infra
     - istio-ecosystem/authservice
     labels:
     - lgtm
