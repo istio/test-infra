@@ -140,7 +140,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 
 		if job.Type == TypePresubmit || job.Type == "" {
 			presubmit := config.Presubmit{
-				JobBase:   createJobBase(job, fmt.Sprintf("%s-%s", job.Name, branch), jobConfig.Resources),
+				JobBase:   createJobBase(job, fmt.Sprintf("%s-%s", job.Name, branch), jobConfig.Repo, jobConfig.Resources),
 				AlwaysRun: true,
 				Brancher:  brancher,
 			}
@@ -156,7 +156,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 				postName = job.Name
 			}
 			postsubmit := config.Postsubmit{
-				JobBase:  createJobBase(job, fmt.Sprintf("%s-%s", postName, branch), jobConfig.Resources),
+				JobBase:  createJobBase(job, fmt.Sprintf("%s-%s", postName, branch), jobConfig.Repo, jobConfig.Resources),
 				Brancher: brancher,
 			}
 			postsubmit.JobBase.Annotations[TestGridDashboard] = fmt.Sprintf("%s-postsubmits-%s", jobConfig.Repo, branch)
@@ -232,62 +232,82 @@ func DiffConfig(result config.JobConfig, existing config.JobConfig) {
 	diffConfigPostsubmit(result, existing)
 }
 
-func diffConfigPresubmit(result config.JobConfig, pj config.JobConfig) {
-	known := make(map[string]struct{})
-	for _, job := range result.AllPresubmits([]string{"istio/istio"}) {
-		known[job.Name] = struct{}{}
-		current := pj.GetPresubmit("istio/istio", job.Name)
-		if current == nil {
-			fmt.Println("\nCreated unknown presubmit job", job.Name)
-			continue
-		}
-		diff := pretty.Diff(current, &job)
-		if len(diff) > 0 {
-			fmt.Println("\nDiff for", job.Name)
-		}
-		for _, d := range diff {
-			fmt.Println(d)
+func getPresubmit(c config.JobConfig, jobName string) *config.Presubmit {
+	presubmits := c.Presubmits
+	for _, jobs := range presubmits {
+		for _, job := range jobs {
+			if job.Name == jobName {
+				return &job
+			}
 		}
 	}
-	for _, job := range pj.AllPresubmits([]string{"istio/istio"}) {
-		if _, f := known[job.Name]; !f {
-			fmt.Println("Missing", job.Name)
+	return nil
+}
+
+func diffConfigPresubmit(result config.JobConfig, pj config.JobConfig) {
+	known := make(map[string]struct{})
+	for _, jobs := range result.Presubmits {
+		for _, job := range jobs {
+			known[job.Name] = struct{}{}
+			current := getPresubmit(pj, job.Name)
+			if current == nil {
+				fmt.Println("\nCreated unknown presubmit job", job.Name)
+				continue
+			}
+			diff := pretty.Diff(current, &job)
+			if len(diff) > 0 {
+				fmt.Println("\nDiff for", job.Name)
+			}
+			for _, d := range diff {
+				fmt.Println(d)
+			}
+		}
+	}
+	for _, jobs := range pj.Presubmits {
+		for _, job := range jobs {
+			if _, f := known[job.Name]; !f {
+				fmt.Println("Missing", job.Name)
+			}
 		}
 	}
 }
 
 func diffConfigPostsubmit(result config.JobConfig, pj config.JobConfig) {
 	known := make(map[string]struct{})
-	allCurrentPostsubmits := pj.AllPostsubmits([]string{"istio/istio"})
-	for _, job := range result.AllPostsubmits([]string{"istio/istio"}) {
-		known[job.Name] = struct{}{}
-		var current *config.Postsubmit
-		for _, ps := range allCurrentPostsubmits {
-			if ps.Name == job.Name {
-				current = &ps
-				break
+	allCurrentPostsubmits := []config.Postsubmit{}
+	for _, jobs := range pj.Postsubmits {
+		allCurrentPostsubmits = append(allCurrentPostsubmits, jobs...)
+	}
+	for _, jobs := range result.Postsubmits {
+		for _, job := range jobs {
+			known[job.Name] = struct{}{}
+			var current *config.Postsubmit
+			for _, ps := range allCurrentPostsubmits {
+				if ps.Name == job.Name {
+					current = &ps
+					break
+				}
 			}
-		}
-		if current == nil {
-			fmt.Println("\nCreated unknown job:", job.Name)
-			continue
+			if current == nil {
+				fmt.Println("\nCreated unknown job:", job.Name)
+				continue
 
-		}
-		diff := pretty.Diff(current, &job)
-		if len(diff) > 0 {
-			fmt.Println("\nDiff for", job.Name)
-		}
-		for _, d := range diff {
-			fmt.Println(d)
+			}
+			diff := pretty.Diff(current, &job)
+			if len(diff) > 0 {
+				fmt.Println("\nDiff for", job.Name)
+			}
+			for _, d := range diff {
+				fmt.Println(d)
+			}
 		}
 	}
 
-	for _, job := range pj.AllPostsubmits([]string{"istio/istio"}) {
+	for _, job := range allCurrentPostsubmits {
 		if _, f := known[job.Name]; !f {
 			fmt.Println("Missing", job.Name)
 		}
 	}
-
 }
 
 func createContainer(job Job, resources map[string]v1.ResourceRequirements) []v1.Container {
@@ -305,7 +325,7 @@ func createContainer(job Job, resources map[string]v1.ResourceRequirements) []v1
 	return []v1.Container{c}
 }
 
-func createJobBase(job Job, name string, resources map[string]v1.ResourceRequirements) config.JobBase {
+func createJobBase(job Job, name string, repo string, resources map[string]v1.ResourceRequirements) config.JobBase {
 	jb := config.JobBase{
 		Name: name,
 		Spec: &v1.PodSpec{
@@ -313,9 +333,8 @@ func createJobBase(job Job, name string, resources map[string]v1.ResourceRequire
 			Containers:   createContainer(job, resources),
 		},
 		UtilityConfig: config.UtilityConfig{
-			Decorate: true,
-
-			PathAlias: "istio.io/istio",
+			Decorate:  true,
+			PathAlias: fmt.Sprintf("istio.io/%s", repo),
 		},
 		Labels:      make(map[string]string),
 		Annotations: make(map[string]string),

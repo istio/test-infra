@@ -1,0 +1,28 @@
+org: istio
+repo: cni
+branches:
+  - master
+
+jobs:
+  - name: cni-build
+    command: [make, docker]
+    modifiers: [optional]
+  - name: cni-shellcheck
+    command: [bin/check_shell_scripts.sh]
+    modifiers: [optional]
+  - name: cni-lint
+    command: [make, lint]
+    modifiers: [optional]
+  - name: cni-install
+    command: [make, docker, test]
+    modifiers: [optional]
+
+
+resources:
+  default:
+    requests:
+      memory: "3Gi"
+      cpu: "500m"
+    limits:
+      memory: "24Gi"
+      cpu: "3000m"
