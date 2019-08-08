@@ -1,36 +1,21 @@
-# Infra
+See [upstream prow](https://github.com/kubernetes/test-infra/tree/master/prow) documentation for more detailed and generic information about what prow is and how it works.
 
-This directory contains a Makefile and other resources for managing the Istio CI infrastructure. This infrastructure consists of a subset of the [k8s test-infra prow](https://github.com/kubernetes/test-infra/tree/master/prow) deployments.
+## Upgrading Prow
 
-## Managing a Cluster
+Please check recent [prow announcements](https://github.com/kubernetes/test-infra/tree/master/prow#announcements) before updating, if you are not already familiar with them.
 
-The infrastructure runs on a k8s cluster. All of our tools make it easy to run on GKE, although another k8s provider could be used. The variables for the GCP project/zone/cluster are in the Makefile. The Makefile also contains commands for common management tasks.
-
-### Deployments
-
-1. [hook](./cluster/hook_deployment.yaml)               - handle webhooks and create prow jobs
-2. [plank](./cluster/plank_deployment.yaml)             - poll for prow jobs and start them, mark completed, statuses to Github
-3. [deck](./cluster/deck_deployment.yaml)               - simple ui for prow jobs
-4. [sinker](./cluster/sinker_deployment.yaml)           - clean up old prow jobs
-5. [tot](./cluster/tot_deployment.yaml)                 - vendor build numbers (i.e., `<number>` in job name: `pilot-presubmit-<number>`)
-6. [horologium](./cluster/horologium_deployment.yaml)   - start periodic jobs
-
-We run the k8s-prow images. These images are built from source [here](https://github.com/kubernetes/test-infra/tree/master/prow).
-
-### Upgrading Prow
-
-Please check Prow announcements before starting an upgrade (https://github.com/kubernetes/test-infra/tree/master/prow#announcements)
-
-It is a good idea to take a quick glance at the [Kubernetes Prow config](https://github.com/kubernetes/test-infra/blob/master/prow/config.yaml)
-if you see anything new that looks backward incompatible.
-There should be no breaking changes, but at the time of this writing (Aug. ‘17) the project is still somewhat in flux
-
-* Check the current versions of the Prow images [here](https://github.com/kubernetes/test-infra/tree/master/prow/cluster).
-Compare these with the version in our [deployment files](https://github.com/istio/test-infra/tree/master/prow/cluster) and update with more recent setting. Before updating a flag make sure it is required, and check the default.
-
-* Before starting upgrade Run the following command in another terminal
-
+```shell
+prow/bump.sh --auto
+# commit change and merge PR
+make -C prow deploy
+# kubectl get pods and watch for problems
+# prow.istio.io and watch for problems
+# Look at stack driver logs (go/istio-prow-debug or whatever) and look for problems)
 ```
+
+### Watch pods
+
+```console
 $ watch kubectl get pods
 
 Every 2.0s: kubectl get pods                                                                                                         Fri Aug 11 15:40:31 2017
@@ -45,60 +30,13 @@ horologium-617344823-js4mk   1/1       Running   0          50m
 plank-302445171-92rfx        1/1       Running   0          41m
 sinker-799599164-z44wj       1/1       Running   0          34m
 tot-763621987-pktpj          1/1       Running   0          37m
-
 ```
 
-* In case of deployment failure, check the logs by running
+### Check logs
 
-```
-$ kubectl logs deck-3621325446-9pdqw
-```
-
-* You might notice some issues related to config error. In that case fix and redeploy the config
-
-```
-$ make update-config
-```
-
-* In some other case, flags or volume might be missing, make sure you update your config properly.
-Once done re-run the deployment issue that failed.
-
-
-* Start by updating deck. This deployment has multiple replicas, so you can resolve the issues as you see them.
-
-```
-$ make deck-deployment
-```
-
-* Deploy horologium.
-
-```
-$ make horologium-deployment
-```
-
-* Deploy hook. This deployment also has multiple replicas, so failure will not impact workflows.
-
-```
-$ make hook-deployment
-```
-
-Update to the following are asynchronous
-```
-$ make plank-deployment
-$ make tot-deployment
-$ make sinker-deployment
-```
-
-### Clearing Up Prow State
-
-If prow is an unrecoverable state. We can reset Prow state by doing the
-following:
-
-```
-$ make stopd
-$ kubectl delete prowjobs --all
-$ kubectl delete pods -n test-pods --all
-$ make startd
+```bash
+kubectl logs -l app=deck # or the appropriate label like app=hook
+# or a specific pod: kubectl logs deck-3621325446-00drl
 ```
 
 ## Creating a Job on Your Repo
@@ -188,36 +126,25 @@ This repository (istio/test-infra) also provides Prow jobs.
 
 ### Manually Trigger a Prow Job
 
-
-> **Never do this unless necessary AND you are authorized by istio EngProd team (istio.slack.com test-infra channel)**
-
-
-Connect to Prow cluster and then:
 ```bash
-$ git clone https://github.com/kubernetes/test-infra
-$ bazel build //prow/cmd/mkpj
-```
-And then specify the script and the job you want to trigger:
-``` bash
-$ bazel-bin/prow/cmd/mkpj/mkpj --config-path ~/istio/test-infra/prow/config.yaml --job test-infra-presubmit | kubectl create -f -
-```
+# Assuming you cannot click the rerun button on prow.istio.io,
+# and if you are oncall, do the following:
+go get -u k8s.io/test-infra/prow/cmd/mkpj
 
-And give the required information:
-```
-Base ref (e.g. master): master
-Base SHA (e.g. 72bcb5d80): 6419408170738a60cf04f963e4ae139028bf0b5b
-PR Number: 465                                     
-PR author: yutongz
-PR SHA (e.g. 72bcb5d80): d7e1ef38cf294de11062a6760d073827585af219
-```
-Prow should respond:
-```
-prowjob "e810668f-9435-11e7-9a4d-784f43915c4d" created
+mkpj --job=FOO > ~/foo.yaml # and answer interactive questions
+
+# Contact #oncall on slack to ensure you are approved to do the following:
+kubectl --context=istio-prow create -f ~/foo.yaml
 ```
 
 ### Update Config File
 
-File `rewriteConfig.go` rewrites config file with new branches to be added under the field of `repos:` for specific repos based on the config content already existing in `master` branch. Content in new branch would be identical to the content in `master` branch with additional lines to restrict merge blocks to admin approval if it is not already present in the `master` content. 
+File `rewriteConfig.go` rewrites config file with new branches to be
+added under the field of `repos:` for specific repos based on the config
+content already existing in `master` branch. Content in new branch would
+be identical to the content in `master` branch with additional lines to
+restrict merge blocks to admin approval if it is not already present in
+the `master` content.
 
 The file requires the following flags:
 
@@ -229,7 +156,7 @@ The file should be run with `go build`, `go test` (for test file rewriteConfig_t
 
 For an original section of config.yaml
 
-```
+```yaml
 repos:
   istio:
     branches:
@@ -239,7 +166,7 @@ repos:
 ```
 when `InputFileName=config.yaml`, `NewBranchName=newBranch` and `ReposeToAdd=istio`, the result of adding new branch to the original section would be:
 
-```
+```yaml
 repos:
   istio:
     branches:
