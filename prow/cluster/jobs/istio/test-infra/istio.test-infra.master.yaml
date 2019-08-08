@@ -8,6 +8,9 @@ presubmits:
     spec:
       containers:
       - image: golang:1.12.7
+        env:
+          - name: GO111MODULE
+            value: "on"
         command:
         - go
         - test
@@ -21,6 +24,9 @@ presubmits:
     spec:
       containers:
       - image: gcr.io/k8s-prow/checkconfig:v20190703-1f4d61631
+        env:
+          - name: GO111MODULE
+            value: "on"
         command:
         - /checkconfig
         args:
@@ -39,6 +45,9 @@ presubmits:
     spec:
       containers:
       - image: gcr.io/istio-testing/test-infra-builder:v20190722-4bb1092b
+        env:
+          - name: GO111MODULE
+            value: "on"
         resources:
           requests:
             memory: "512Mi"
@@ -60,6 +69,9 @@ presubmits:
     spec:
       containers:
         - image: golang:1.12.7
+          env:
+            - name: GO111MODULE
+              value: "on"
           resources:
             requests:
               memory: "512Mi"
@@ -84,6 +96,9 @@ presubmits:
     spec:
       containers:
       - image: gcr.io/istio-testing/test-flakey-builder:v20190611-65b6bb45
+        env:
+          - name: GO111MODULE
+            value: "on"
         # TODO(fejta): not true, remove privileged mode unless actually required
         # Bazel needs privileged mode in order to sandbox builds.
         securityContext:
