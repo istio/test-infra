@@ -22,7 +22,6 @@ import (
 	"strconv"
 	"time"
 
-	s "istio.io/test-infra/sisyphus"
 	u "istio.io/test-infra/toolbox/util"
 )
 
@@ -47,6 +46,22 @@ type Converter struct {
 	repo          string
 	job           string
 	build         int
+}
+
+// ProwResult matches the structure published in finished.json
+type ProwResult struct {
+	TimeStamp  int64        `json:"timestamp"`
+	Version    string       `json:"version"`
+	Result     string       `json:"result"`
+	Passed     bool         `json:"passed"`
+	JobVersion string       `json:"job-version"`
+	Metadata   ProwMetadata `json:"metadata"`
+}
+
+// ProwMetadata matches the structure published in finished.json
+type ProwMetadata struct {
+	Repo       string `json:"repo"`
+	RepoCommit string `json:"repo-commit"`
 }
 
 // NewConverter creates a Converter
@@ -76,13 +91,13 @@ func (c *Converter) GenerateFinishedJSON(exitCode int, sha string) (string, erro
 		result = resultFailure
 		passed = false
 	}
-	finished := s.ProwResult{
+	finished := ProwResult{
 		TimeStamp:  time.Now().Unix(),
 		Version:    unknown,
 		Result:     result,
 		Passed:     passed,
 		JobVersion: unknown,
-		Metadata: s.ProwMetadata{
+		Metadata: ProwMetadata{
 			Repo:       fmt.Sprintf("github.com/%s/%s", c.org, c.repo),
 			RepoCommit: sha,
 		},
@@ -152,10 +167,21 @@ func (c *Converter) UpdateLastBuildTXT() error {
 	return nil
 }
 
+// ProwJobConfig matches the structure published in started.json
+type ProwJobConfig struct {
+	Node        string            `json:"node"`
+	JenkinsNode string            `json:"jenkins-node"`
+	Version     string            `json:"version"`
+	TimeStamp   int64             `json:"timestamp"`
+	RepoVersion string            `json:"repo-version"`
+	Pull        string            `json:"pull"`
+	Repos       map[string]string `json:"repos"`
+}
+
 // GenerateStartedJSON creates the string content of start.json
 func (c *Converter) GenerateStartedJSON(prNum int, sha string) (string, error) {
 	prNumColonSHA := fmt.Sprintf("%d:%s", prNum, sha)
-	started := s.ProwJobConfig{
+	started := ProwJobConfig{
 		TimeStamp: time.Now().Unix(),
 		Pull:      prNumColonSHA,
 		Repos: map[string]string{
