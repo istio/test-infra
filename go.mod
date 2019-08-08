@@ -3,6 +3,7 @@ module istio.io/test-infra
 require (
 	cloud.google.com/go v0.43.0
 	github.com/ghodss/yaml v1.0.0
+	github.com/golang-collections/collections v0.0.0-20130729185459-604e922904d3
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/hashicorp/go-multierror v0.0.0-20171204182908-b7773ae21874
