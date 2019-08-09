@@ -72,6 +72,7 @@ type Job struct {
 	Name           string            `json:"name"`
 	PostsubmitName string            `json:"postsubmit"`
 	Command        []string          `json:"command"`
+	Env            []v1.EnvVar       `json:"env"`
 	Resources      string            `json:"resources"`
 	Modifiers      []string          `json:"modifiers"`
 	Requirements   []string          `json:"requirements"`
@@ -315,6 +316,7 @@ func createContainer(job Job, resources map[string]v1.ResourceRequirements) []v1
 		Image:           BuilderImage,
 		SecurityContext: &v1.SecurityContext{Privileged: newTrue()},
 		Command:         job.Command,
+		Env:             job.Env,
 	}
 	resource := DefaultResource
 	if job.Resources != "" {

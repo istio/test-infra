@@ -111,9 +111,14 @@ jobs:
     requirements: [kind]
     modifiers: [optional]
   - name: e2e-simpleTests-cni
-    command: [prow/e2e-simpleTests-cni.sh]
-    requirements: [gcp]
+    command: [prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple]
+    requirements: [kind]
     modifiers: [optional]
+    env:
+    - name: ENABLE_ISTIO_CNI
+      value: true
+    - name: E2E_ARGS
+      value: " --kube_inject_configmap=istio-sidecar-injector"
   - name: e2e-simpleTests-non-mcp
     type: postsubmit
     command: [./prow/e2e-kind-suite.sh, --auth_enable, --use_mcp=false, --single_test, e2e_simple, --installer, helm]
