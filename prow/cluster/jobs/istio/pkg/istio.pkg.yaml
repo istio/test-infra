@@ -3,6 +3,9 @@ presubmits:
   istio/pkg:
 
     - name: pkg-lint
+      branches:
+        - ^master$
+        - ^release-1.*$
       path_alias: istio.io/pkg
       decorate: true
       always_run: true
@@ -19,6 +22,9 @@ presubmits:
           testing: test-pool
 
     - name: pkg-build
+      branches:
+        - ^master$
+        - ^release-1.*$
       path_alias: istio.io/pkg
       decorate: true
       always_run: true
@@ -36,6 +42,9 @@ presubmits:
           testing: build-pool
 
     - name: pkg-test
+      branches:
+        - ^master$
+        - ^release-1.*$
       path_alias: istio.io/pkg
       decorate: true
       always_run: true
