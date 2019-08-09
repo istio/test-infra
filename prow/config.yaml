@@ -194,6 +194,10 @@ branch-protection:
           required_status_checks:
             contexts:
             - "ci/circleci: build"
+            - "ci/circleci: linux_release"
+            - "ci/circleci: linux_asan"
+            - "ci/circleci: linux_tsan"
+            - "ci/circleci: macos"
           branches:
             <<: *blocked_branches
             endpoints-v1.1.x: *blocking_merge
