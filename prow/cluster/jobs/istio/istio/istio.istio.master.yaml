@@ -1212,36 +1212,6 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
-    name: istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest-master
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest.sh
-        image: gcr.io/istio-testing/istio-builder:v20190807-7d818206
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "3"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-master
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
     decoration_config:
       timeout: 4h0m0s
     name: integ-k8s-112-postsubmit-master
