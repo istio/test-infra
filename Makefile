@@ -1,3 +1,5 @@
+export GO111MODULE ?= on
+
 lint:
 	@scripts/run_golangci.sh
 	@scripts/check_license.sh

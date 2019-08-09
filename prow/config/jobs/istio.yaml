@@ -5,18 +5,18 @@ branches:
 
 jobs:
   - name: istio-unit-tests
-    command: [prow/istio-unit-tests.sh]
+    command: [make, -e, "T=-v", build, localTestEnv, test, binaries-test]
   - name: istio-lint
     type: presubmit
     resources: lint
-    command: [prow/istio-lint.sh]
+    command: [make, lint]
   - name: istio-racetest
-    command: [prow/racetest.sh]
+    command: [make,  -e, "T=-v", localTestEnv, racetest]
   - name: istio-shellcheck
     type: presubmit
-    command: [prow/shellcheck.sh]
+    command: [make, shellcheck]
   - name: istio-codecov
-    command: [prow/codecov.sh]
+    command: [make, coverage-diff]
 
   - name: release-test
     command: [prow/release-test.sh]
