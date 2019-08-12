@@ -62,10 +62,11 @@ func TestConfig(t *testing.T) {
 			codeOwners: &yes,
 		},
 		{
-			name:       "test-infra does not require code owners",
+			name:       "test-infra requires code owners",
 			org:        "istio",
 			repo:       "test-infra",
-			codeOwners: &no,
+			branch:     "master",
+			codeOwners: &yes,
 		},
 		{
 			name:      "api requires 2 approvers",
@@ -147,12 +148,6 @@ func TestConfig(t *testing.T) {
 			org:    "istio",
 			repo:   "operator",
 			branch: "release-1.1",
-		},
-		{
-			name:   "test-infra protects all branches",
-			org:    "istio",
-			repo:   "test-infra",
-			branch: "random-revert",
 		},
 		{
 			name:        "all istio repos define a policy",
