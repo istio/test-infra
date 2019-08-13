@@ -81,7 +81,11 @@ blocked_branches: &blocked_branches
     restrictions:
       teams:
       - release-managers-1-2
-  # TODO: release-1.3 once it exists
+  release-1.3: &release13
+    <<: *blocking_merge
+    restrictions:
+      teams:
+      - release-managers-1-3
 
 branch-protection:
   allow_disabled_policies: true
@@ -181,7 +185,11 @@ branch-protection:
                 - "ci/circleci: build"
                 - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
                 - "merges-blocked-needs-admin"
-            # TODO: release-1.3 once it exists
+            release-1.3:
+              <<: *release13
+              required_status_checks:
+                contexts:
+                - "merges-blocked-needs-admin"
         proxy:
           required_pull_request_reviews: *tide_withcodeowners_reviews
           restrictions: *tide_withcodeowners_restrictions
@@ -210,6 +218,8 @@ branch-protection:
             master:
               protect: true
             release-1.2:
+              protect: true
+            release-1.3:
               protect: true
             release-1.1:
               protect: true

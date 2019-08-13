@@ -117,6 +117,15 @@ func TestConfig(t *testing.T) {
 			},
 		},
 		{
+			name:   "istio 1.3 requires  admin merges",
+			org:    "istio",
+			repo:   "istio",
+			branch: "release-1.3",
+			expectedContexts: []string{
+				"merges-blocked-needs-admin",
+			},
+		},
+		{
 			name:   "collab-galley restricted to hackers",
 			org:    "istio",
 			repo:   "istio",
@@ -204,11 +213,25 @@ func TestConfig(t *testing.T) {
 			teams:  []string{"release-managers-1-2"},
 		},
 		{
+			name:   "release-1.3 team can merge into api",
+			org:    "istio",
+			repo:   "api",
+			branch: "release-1.3",
+			teams:  []string{"release-managers-1-3"},
+		},
+		{
 			name:   "release-1.2 team can merge into istio",
 			org:    "istio",
 			repo:   "istio",
 			branch: "release-1.2",
 			teams:  []string{"release-managers-1-2", "repo-admins"},
+		},
+		{
+			name:   "release-1.3 team can merge into istio",
+			org:    "istio",
+			repo:   "istio",
+			branch: "release-1.3",
+			teams:  []string{"release-managers-1-3", "repo-admins"},
 		},
 		{
 			name:           "master mergify branches allow anyone to merge",
