@@ -82,7 +82,7 @@ blocked_branches: &blocked_branches
       teams:
       - release-managers-1-2
   release-1.3: &release13
-    <<: *blocking_merge
+    protect: true
     restrictions:
       teams:
       - release-managers-1-3
@@ -187,9 +187,6 @@ branch-protection:
                 - "merges-blocked-needs-admin"
             release-1.3:
               <<: *release13
-              required_status_checks:
-                contexts:
-                - "merges-blocked-needs-admin"
         proxy:
           required_pull_request_reviews: *tide_withcodeowners_reviews
           restrictions: *tide_withcodeowners_restrictions
