@@ -117,13 +117,10 @@ func TestConfig(t *testing.T) {
 			},
 		},
 		{
-			name:   "istio 1.3 requires  admin merges",
+			name:   "istio 1.3 protected",
 			org:    "istio",
 			repo:   "istio",
 			branch: "release-1.3",
-			expectedContexts: []string{
-				"merges-blocked-needs-admin",
-			},
 		},
 		{
 			name:   "collab-galley restricted to hackers",
