@@ -53,11 +53,11 @@ func main() {
 			config.ValidateJobConfig(jobs)
 			output := config.ConvertJobConfig(jobs, branch)
 			fname := GetFileName(jobs.Repo, jobs.Org, branch)
-			existing := config.ReadProwJobConfig(fname)
 			switch os.Args[1] {
 			case "write":
 				config.WriteConfig(output, fname)
 			case "diff":
+				existing := config.ReadProwJobConfig(fname)
 				config.DiffConfig(output, existing)
 			case "check":
 				if err := config.CheckConfig(output, fname); err != nil {
