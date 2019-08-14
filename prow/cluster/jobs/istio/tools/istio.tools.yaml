@@ -80,3 +80,34 @@ presubmits:
                 value: "on"
         nodeSelector:
           testing: test-pool
+
+postsubmits:
+
+  istio/tools:
+
+    - name: tools-push-build-tools-image
+      branches:
+        - ^master$
+      run_if_changed: '^docker/build-tools/'
+      annotations:
+        testgrid-dashboards: "tools"
+        testgrid-tab-name: "build-tools"
+      decorate: true
+      spec:
+        containers:
+          - image: gcr.io/istio-testing/istio-builder:v20190807-7d818206
+            # Docker in Docker
+            securityContext:
+              privileged: true
+            resources:
+              requests:
+                memory: "2Gi"
+                cpu: "3000m"
+              limits:
+                memory: "24Gi"
+                cpu: "3000m"
+            command:
+              - entrypoint
+              - docker/build-tools/build-and-push.sh
+        nodeSelector:
+          testing: test-pool
