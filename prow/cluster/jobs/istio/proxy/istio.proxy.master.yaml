@@ -26,6 +26,8 @@ presubmits:
       - image: gcr.io/istio-testing/prowbazel:0.5.8
         command:
         - ./prow/proxy-presubmit.sh
+        securityContext:
+          privileged: true
         resources:
           requests:
             memory: "8Gi"
