@@ -114,7 +114,16 @@ branch-protection:
             contexts:
             - deploy/netlify
         cni:
+          required_pull_request_reviews: *tide_withcodeowners_reviews
+          restrictions: *tide_withcodeowners_restrictions
           branches: *blocked_branches
+          required_status_checks:
+            contexts:
+              # TODO(howardjohn): migrate to prow
+              - "ci/circleci: e2e-dind"
+              - "ci/circleci: e2e-dind-ipv6"
+              - "ci/circleci: e2e-dind-istio1.1"
+              - "ci/circleci: e2e-dind-istio1.2"
         installer:
           branches: *blocked_branches
         pkg:
@@ -243,6 +252,7 @@ tide:
     - istio/istio.io
     - istio/gogo-genproto
     - istio/test-infra
+    - istio/cni
     labels:
     - "cla: yes"
     missingLabels:
