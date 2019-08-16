@@ -120,7 +120,7 @@ func ValidateJobConfig(jobConfig JobConfig) {
 		}
 		for _, repo := range job.Repos {
 			if len(strings.Split(repo, "/")) != 2 {
-				err = multierror.Append(err, fmt.Errorf("repo %v not valid, should take form org/repo.", repo))
+				err = multierror.Append(err, fmt.Errorf("repo %v not valid, should take form org/repo", repo))
 			}
 		}
 	}
@@ -369,8 +369,8 @@ func createExtraRefs(extraRepos []string, branch string) []prowjob.Refs {
 		orgrepo := strings.Split(extraRepo, "/")
 		org, repo := orgrepo[0], orgrepo[1]
 		ref := prowjob.Refs{
-			Org: org,
-			Repo: repo,
+			Org:     org,
+			Repo:    repo,
 			BaseRef: branch,
 		}
 		// istio uses vanity imports
