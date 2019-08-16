@@ -124,6 +124,14 @@ branch-protection:
               - "ci/circleci: e2e-dind-istio1.2"
         installer:
           branches: *blocked_branches
+          required_status_checks:
+            contexts:
+              - "ci/circleci: build"
+              - "ci/circleci: install-demo"
+              - "ci/circleci: integration-old-kind"
+              - "ci/circleci: integration-presubmit-isolated-namespaces-kind"
+              - "ci/circleci: integration-presubmit-one-namespace-kind"
+              - "ci/circleci: noauth"
         pkg:
           branches: *blocked_branches
         tools:
@@ -251,6 +259,7 @@ tide:
     - istio/gogo-genproto
     - istio/test-infra
     - istio/cni
+    - istio/installer
     labels:
     - "cla: yes"
     missingLabels:
