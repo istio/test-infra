@@ -85,7 +85,7 @@ postsubmits:
 
   istio/tools:
 
-    - name: tools-push-build-tools-image
+    - name: tools-containers
       branches:
         - ^master$
       run_if_changed: '^docker/build-tools/'
@@ -107,6 +107,7 @@ postsubmits:
                 cpu: "3000m"
             command:
               - entrypoint
-              - docker/build-tools/build-and-push.sh
+              - make
+              - containers
         nodeSelector:
           testing: test-pool
