@@ -32,6 +32,7 @@ gem install --no-ri --no-rdoc fpm
 ./install-helm.sh
 ./install-protoc.sh
 ./install-yamllint.sh
+./install-libcxx.sh
 
 apt-get clean
 rm -rf /var/lib/apt/lists/*
