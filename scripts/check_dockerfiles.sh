@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # WARNING: DO NOT EDIT, THIS FILE IS PROBABLY A COPY
 #
@@ -23,13 +23,14 @@
 
 set -e
 
-SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
 ROOTDIR=$(dirname "${SCRIPTPATH}")
 cd "${ROOTDIR}"
 
 CD_TMPFILE=$(mktemp /tmp/check_dockerfile.XXXXXX)
 HL_TMPFILE=$(mktemp /tmp/hadolint.XXXXXX)
 
+# shellcheck disable=SC2044
 for df in $(find "${ROOTDIR}" -path "${ROOTDIR}/vendor" -prune -o -name 'Dockerfile*'); do
   docker run --rm -i hadolint/hadolint:v1.17.1 < "$df" > "${HL_TMPFILE}"
   if [ "" != "$(cat "${HL_TMPFILE}")" ]
