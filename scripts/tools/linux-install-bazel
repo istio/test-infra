@@ -8,31 +8,32 @@ fi
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 . ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
 
-BAZEL_VERSION='0.28.0'
-BAZEL_BASE_URL='https://github.com/bazelbuild/bazel/releases/download'
-BAZEL_SH="bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh"
-BAZEL_URL="${BAZEL_BASE_URL}/${BAZEL_VERSION}/${BAZEL_SH}"
-BAZEL_DIRECTORY="${TOOLS_DIR}/bazel"
+# Use Bazelisk launcher for Bazel (automatically downloads required version of Bazel).
+BAZELISK_VERSION="v1.0"
+BAZELISK_BASE_URL="https://github.com/bazelbuild/bazelisk/releases/download"
+BAZELISK_BIN="bazelisk-linux-amd64"
+BAZELISK_URL="${BAZELISK_BASE_URL}/${BAZELISK_VERSION}/${BAZELISK_BIN}"
+BAZELISK_DIRECTORY="${TOOLS_DIR}/bazelisk"
 
 function update_bazel() {
-  local bazel_current="$(bazel version | grep -oh '[0-9]*\.[0-9]*\.[0-9]*')" \
+  local bazel_current="$(bazel version | grep -oh 'Bazelisk version: v[0-9]*\.[0-9]*')" \
     || bazel_current='none'
 
-  if [[ -d "${BAZEL_DIRECTORY}" ]]; then
-    mkdir -p "${BAZEL_DIRECTORY}"
+  if [[ -d "${BAZELISK_DIRECTORY}" ]]; then
+    mkdir -p "${BAZELISK_DIRECTORY}"
   fi
 
-  if [[ "${BAZEL_VERSION}" != "${bazel_current}" ]]; then
-    retry -n 3 wget -q -nc -P "${BAZEL_DIRECTORY}" "${BAZEL_URL}" \
-      || error_exit "Could not download bazel"
-    ${SUDO} chmod +x "${BAZEL_DIRECTORY}/${BAZEL_SH}" \
-      || error_exit "Could not mark bazel shell as executable"
-    ${SUDO} "${BAZEL_DIRECTORY}/${BAZEL_SH}" \
-      || error_exit "Could not install bazel"
+  if [[ "${BAZELISK_VERSION}" != "${bazel_current}" ]]; then
+    retry -n 3 wget -q -nc -P "${BAZELISK_DIRECTORY}" "${BAZELISK_URL}" \
+      || error_exit "Could not download bazelisk"
+    ${SUDO} chmod +x "${BAZELISK_DIRECTORY}/${BAZELISK_BIN}" \
+      || error_exit "Could not mark bazelisk binary as executable"
+    ${SUDO} mv "${BAZELISK_DIRECTORY}/${BAZELISK_BIN}" "/usr/local/bin/bazel" \
+      || error_exit "Could not install bazelisk"
     set_bazel
     ${SUDO} ${BAZEL} shutdown
     ${SUDO} rm -rf ${HOME}/.cache/bazel
+    ${SUDO} rm -rf ${HOME}/.cache/bazelisk
   fi
-  echo 'Bazel up-to-date.'
+  echo 'Bazelisk up-to-date.'
 }
-
