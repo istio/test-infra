@@ -78,6 +78,7 @@ type Job struct {
 	Requirements   []string          `json:"requirements"`
 	Type           string            `json:"type"`
 	Timeout        *prowjob.Duration `json:"timeout"`
+	Repos          []string          `json:"repos"`
 }
 
 // Reads the job yaml
@@ -117,6 +118,11 @@ func ValidateJobConfig(jobConfig JobConfig) {
 		if e := validate(job.Type, []string{TypePostsubmit, TypePresubmit, ""}, "type"); e != nil {
 			err = multierror.Append(err, e)
 		}
+		for _, repo := range job.Repos {
+			if len(strings.Split(repo, "/")) != 2 {
+				err = multierror.Append(err, fmt.Errorf("repo %v not valid, should take form org/repo", repo))
+			}
+		}
 	}
 	if err != nil {
 		exit(err, "validation failed")
@@ -148,7 +154,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 
 		if job.Type == TypePresubmit || job.Type == "" {
 			presubmit := config.Presubmit{
-				JobBase:   createJobBase(job, fmt.Sprintf("%s-%s", job.Name, branch), jobConfig.Repo, jobConfig.Resources),
+				JobBase:   createJobBase(job, fmt.Sprintf("%s-%s", job.Name, branch), jobConfig.Repo, branch, jobConfig.Resources),
 				AlwaysRun: true,
 				Brancher:  brancher,
 			}
@@ -164,7 +170,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 				postName = job.Name
 			}
 			postsubmit := config.Postsubmit{
-				JobBase:  createJobBase(job, fmt.Sprintf("%s-%s", postName, branch), jobConfig.Repo, jobConfig.Resources),
+				JobBase:  createJobBase(job, fmt.Sprintf("%s-%s", postName, branch), jobConfig.Repo, branch, jobConfig.Resources),
 				Brancher: brancher,
 			}
 			postsubmit.JobBase.Annotations[TestGridDashboard] = fmt.Sprintf("%s-postsubmits-%s", testgridJobPrefix, branch)
@@ -334,7 +340,7 @@ func createContainer(job Job, resources map[string]v1.ResourceRequirements) []v1
 	return []v1.Container{c}
 }
 
-func createJobBase(job Job, name string, repo string, resources map[string]v1.ResourceRequirements) config.JobBase {
+func createJobBase(job Job, name string, repo string, branch string, resources map[string]v1.ResourceRequirements) config.JobBase {
 	jb := config.JobBase{
 		Name: name,
 		Spec: &v1.PodSpec{
@@ -344,6 +350,7 @@ func createJobBase(job Job, name string, repo string, resources map[string]v1.Re
 		UtilityConfig: config.UtilityConfig{
 			Decorate:  true,
 			PathAlias: fmt.Sprintf("istio.io/%s", repo),
+			ExtraRefs: createExtraRefs(job.Repos, branch),
 		},
 		Labels:      make(map[string]string),
 		Annotations: make(map[string]string),
@@ -354,6 +361,25 @@ func createJobBase(job Job, name string, repo string, resources map[string]v1.Re
 		}
 	}
 	return jb
+}
+
+func createExtraRefs(extraRepos []string, branch string) []prowjob.Refs {
+	refs := []prowjob.Refs{}
+	for _, extraRepo := range extraRepos {
+		orgrepo := strings.Split(extraRepo, "/")
+		org, repo := orgrepo[0], orgrepo[1]
+		ref := prowjob.Refs{
+			Org:     org,
+			Repo:    repo,
+			BaseRef: branch,
+		}
+		// istio uses vanity imports
+		if org == "istio" {
+			ref.PathAlias = fmt.Sprintf("istio.io/%s", repo)
+		}
+		refs = append(refs, ref)
+	}
+	return refs
 }
 
 func applyRequirements(job *config.JobBase, requirements []string) {

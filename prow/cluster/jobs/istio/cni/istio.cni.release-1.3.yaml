@@ -113,6 +113,54 @@ postsubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio-cni-postsubmits-release-1.3
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^release-1.3$
+    decorate: true
+    extra_refs:
+    - base_ref: release-1.3
+      org: istio
+      path_alias: istio.io/istio
+      repo: istio
+    name: cni-e2e-release-1.3
+    path_alias: istio.io/cni
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - prow-e2e
+        image: gcr.io/istio-testing/istio-builder:v20190807-7d818206
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
 presubmits:
   istio/cni:
   - always_run: true
@@ -223,3 +271,50 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio-cni-presubmits-release-1.3
+    branches:
+    - ^release-1.3$
+    decorate: true
+    extra_refs:
+    - base_ref: release-1.3
+      org: istio
+      path_alias: istio.io/istio
+      repo: istio
+    name: cni-e2e-release-1.3
+    path_alias: istio.io/cni
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - prow-e2e
+        image: gcr.io/istio-testing/istio-builder:v20190807-7d818206
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
