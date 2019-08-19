@@ -53,3 +53,4 @@ Our dependency on this script is because it appropariately writes test job resul
 * 0.5.6: Add kind v0.3.0
 * 0.5.7: Update bazel to 0.27.0 and clang to 8
 * 0.5.8: Update bazel to 0.28.0
+* 0.5.9: Add bazelisk 1.0 launcher for bazel
