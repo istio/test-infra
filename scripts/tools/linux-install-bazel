@@ -31,9 +31,14 @@ function update_bazel() {
     ${SUDO} mv "${BAZELISK_DIRECTORY}/${BAZELISK_BIN}" "/usr/local/bin/bazel" \
       || error_exit "Could not install bazelisk"
     set_bazel
-    ${SUDO} ${BAZEL} shutdown
-    ${SUDO} rm -rf ${HOME}/.cache/bazel
-    ${SUDO} rm -rf ${HOME}/.cache/bazelisk
   fi
+
+  # Preload Bazel versions that we know are needed.
+  USE_BAZEL_VERSION=0.22.0 ${BAZEL} version # release-1.1
+  USE_BAZEL_VERSION=0.26.1 ${BAZEL} version # release-1.2
+  USE_BAZEL_VERSION=0.28.1 ${BAZEL} version # release-1.3
+
+  ${SUDO} ${BAZEL} shutdown
+  ${SUDO} rm -rf ${HOME}/.cache/bazel
   echo 'Bazelisk up-to-date.'
 }
