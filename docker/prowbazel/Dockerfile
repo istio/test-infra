@@ -34,9 +34,9 @@ WORKDIR ${HOME}
 ENV TEST_TMPDIR /home/bootstrap/.cache/bazel
 
 # Move preloaded Bazel binaries to bootstrap's cache.
-RUN mkdir -p /home/bootstrap/.cache/
-RUN sudo mv /root/.cache/bazelisk ${HOME}/.cache/
-RUN sudo chown -R bootstrap:bootstrap ${HOME}/.cache/
+RUN mkdir -p /home/bootstrap/.cache/ \
+    && sudo mv /root/.cache/bazelisk ${HOME}/.cache/ \
+    && sudo chown -R bootstrap:bootstrap ${HOME}/.cache/
 
 # Add bootstrap, the test harness (checks out code, captures log and status)
 ADD https://raw.githubusercontent.com/nlandolfi/test-infra-1/d7900388fa1fb69738e231a21230373fd4b5ede9/jenkins/bootstrap.py ${HOME}
