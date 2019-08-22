@@ -18,12 +18,16 @@ spec:
         - --config-path=/etc/config/config.yaml
         - --dry-run=false
         - --job-config-path=/etc/job-config
+        - --kubeconfig=/etc/kubeconfig/istio-config
         volumeMounts:
         - name: config
           mountPath: /etc/config
           readOnly: true
         - name: job-config
           mountPath: /etc/job-config
+          readOnly: true
+        - mountPath: /etc/kubeconfig
+          name: kubeconfig
           readOnly: true
       volumes:
       - name: config
@@ -32,5 +36,9 @@ spec:
       - name: job-config
         configMap:
           name: job-config
+      - name: kubeconfig
+        secret:
+          defaultMode: 420
+          secretName: kubeconfig
       nodeSelector:
         prod: prow

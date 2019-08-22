@@ -30,12 +30,16 @@ spec:
         - --redirect-http-to=prow.istio.io
         - --spyglass
         - --tide-url=http://tide/
+        - --kubeconfig=/etc/kubeconfig/istio-config
         volumeMounts:
         - name: config
           mountPath: /etc/config
           readOnly: true
         - name: job-config
           mountPath: /etc/job-config
+          readOnly: true
+        - mountPath: /etc/kubeconfig
+          name: kubeconfig
           readOnly: true
       volumes:
       - name: config
@@ -44,5 +48,9 @@ spec:
       - name: job-config
         configMap:
           name: job-config
+      - name: kubeconfig
+        secret:
+          defaultMode: 420
+          secretName: kubeconfig
       nodeSelector:
         prod: prow
