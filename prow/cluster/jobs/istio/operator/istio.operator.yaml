@@ -58,3 +58,22 @@ presubmits:
           value: "on"
       nodeSelector:
         testing: test-pool
+
+  - name: operator-mandiff
+    branches:
+      - ^master$
+      - ^release-1.*$
+    path_alias: istio.io/operator
+    decorate: true
+    always_run: true
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/build-tools:2019-08-07
+        command:
+        - make
+        - mandiff
+        env:
+        - name: GO111MODULE
+          value: "on"
+      nodeSelector:
+        testing: test-pool
