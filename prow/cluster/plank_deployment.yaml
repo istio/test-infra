@@ -21,6 +21,7 @@ spec:
         - --tot-url=http://tot
         - --github-endpoint=http://ghproxy
         - --github-endpoint=https://api.github.com
+        - --kubeconfig=/etc/kubeconfig/istio-config
         volumeMounts:
         - name: oauth
           mountPath: /etc/github
@@ -30,6 +31,9 @@ spec:
           readOnly: true
         - name: job-config
           mountPath: /etc/job-config
+          readOnly: true
+        - mountPath: /etc/kubeconfig
+          name: kubeconfig
           readOnly: true
       volumes:
       - name: oauth
@@ -41,5 +45,9 @@ spec:
       - name: job-config
         configMap:
           name: job-config
+      - name: kubeconfig
+        secret:
+          defaultMode: 420
+          secretName: kubeconfig
       nodeSelector:
         prod: prow
