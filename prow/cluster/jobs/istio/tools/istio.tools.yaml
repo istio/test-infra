@@ -11,13 +11,10 @@ presubmits:
       always_run: true
       spec:
         containers:
-          - image: gcr.io/istio-testing/circleci:2019-06-13
+          - image: gcr.io/istio-testing/build-tools:2019-08-21T08-35-40
             command:
               - make
               - lint
-            env:
-              - name: GO111MODULE
-                value: "on"
         nodeSelector:
           testing: test-pool
 
@@ -30,14 +27,10 @@ presubmits:
       always_run: true
       spec:
         containers:
-          - image: gcr.io/istio-testing/circleci:2019-06-13
+          - image: gcr.io/istio-testing/build-tools:2019-08-21T08-35-40
             command:
-              - go
+              - make
               - build
-              - ./...
-            env:
-              - name: GO111MODULE
-                value: "on"
         nodeSelector:
           testing: build-pool
 
@@ -50,34 +43,10 @@ presubmits:
       always_run: true
       spec:
         containers:
-          - image: gcr.io/istio-testing/circleci:2019-06-13
-            command:
-              - go
-              - test
-              - -race
-              - ./...
-            env:
-              - name: GO111MODULE
-                value: "on"
-        nodeSelector:
-          testing: test-pool
-
-    - name: tools-fmtpy
-      branches:
-        - ^master$
-        - ^release-1.*$
-      path_alias: istio.io/tools
-      decorate: true
-      always_run: true
-      spec:
-        containers:
-          - image: gcr.io/istio-testing/circleci:2019-06-13
+          - image: gcr.io/istio-testing/build-tools:2019-08-21T08-35-40
             command:
               - make
-              - fmtpy-checkonly
-            env:
-              - name: GO111MODULE
-                value: "on"
+              - test
         nodeSelector:
           testing: test-pool
 
