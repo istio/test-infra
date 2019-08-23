@@ -110,6 +110,7 @@ jobs:
   - name: e2e-simpleTests-cni
     command: [prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple]
     requirements: [kind]
+    modifiers: [optional, hidden]
     env:
     - name: ENABLE_ISTIO_CNI
       value: true
