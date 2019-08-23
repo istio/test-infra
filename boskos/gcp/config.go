@@ -17,7 +17,9 @@ package gcp
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
+	"os"
 	"sync"
 	"time"
 
@@ -41,10 +43,23 @@ var (
 const (
 	// ResourceConfigType defines the GCP config type
 	ResourceConfigType      = "GCPResourceConfig"
+	KubeConfigKey           = "kubeconfig"
 	defaultOperationTimeout = 15 * time.Minute
 	charset                 = "abcdefghijklmnopqrstuvwxyz1234567890"
 	maxChannels             = 100
 )
+
+func getTempFile(pattern string) (string, error) {
+	// Creating a kubeconfig will all information
+	f, err := ioutil.TempFile("", pattern)
+	if err != nil {
+		return "", err
+	}
+	if err = f.Close(); err != nil {
+		return "", err
+	}
+	return f.Name(), nil
+}
 
 // SetClient sets the gcpClient used to construct a ResourceConfig
 func SetClient(c *Client) {
@@ -138,12 +153,40 @@ func newStringRing(zones []string) *stringRing {
 
 // Construct implements Masonable interface
 func (rc resourceConfigs) Construct(ctx context.Context, res common.Resource, types common.TypeToResources) (*common.UserData, error) {
+	userData, info, err := rc.construct(ctx, res, types)
+	if err != nil {
+		return userData, err
+	}
+	// Creating a kubeconfig will all information
+	kubeconfig, err := getTempFile("kubeconfig")
+	if err != nil {
+		return nil, err
+	}
+	defer os.Remove(kubeconfig)
+
+	if err := info.Install(kubeconfig); err != nil {
+		return nil, err
+	}
+	data, err := ioutil.ReadFile(kubeconfig)
+	if err != nil {
+		return nil, err
+	}
+	// Saving kubeconfig info in user data
+	dataStr := string(data)
+	if err := userData.Set(KubeConfigKey, &dataStr); err != nil {
+		logrus.WithError(err).Errorf("unable to set %s user data", KubeConfigKey)
+		return nil, err
+	}
+	return userData, nil
+}
+
+func (rc resourceConfigs) construct(ctx context.Context, res common.Resource, types common.TypeToResources) (*common.UserData, *ResourceInfo, error) {
 	var err error
 
 	if gcpClient == nil {
 		err = fmt.Errorf("client not set")
 		logrus.WithError(err).Error("client not set; please call SetClient")
-		return nil, err
+		return nil, nil, err
 	}
 
 	communication := make(chan com, maxChannels)
@@ -172,11 +215,11 @@ func (rc resourceConfigs) Construct(ctx context.Context, res common.Resource, ty
 			if project == nil {
 				err = fmt.Errorf("running out of project while creating resources")
 				logrus.WithError(err).Errorf("unable to create resources")
-				return nil, err
+				return nil, nil, err
 			}
 			zones, err := gcpClient.gce.listZones(project.Name)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			zoneRing := newStringRing(zones)
 
@@ -215,7 +258,7 @@ func (rc resourceConfigs) Construct(ctx context.Context, res common.Resource, ty
 	}
 	if err := errGroup.Wait(); err != nil {
 		logrus.WithError(err).Errorf("failed to construct resources for %s", res.Name)
-		return nil, err
+		return nil, nil, err
 	}
 	close(communication)
 
@@ -237,9 +280,10 @@ func (rc resourceConfigs) Construct(ctx context.Context, res common.Resource, ty
 	userData := common.UserData{}
 	if err := userData.Set(ResourceConfigType, &info); err != nil {
 		logrus.WithError(err).Errorf("unable to set %s user data", ResourceConfigType)
-		return nil, err
+		return nil, nil, err
 	}
-	return &userData, nil
+
+	return &userData, &info, nil
 }
 
 // ConfigConverter implements mason.ConfigConverter
