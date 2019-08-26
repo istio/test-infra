@@ -1,8 +1,8 @@
 resources:
 - type: gke-e2e-test-latest
   state: dirty
-  min-count: 5
-  max-count: 15
+  min-count: 1
+  max-count: 5
   needs:
     gcp-project: 1
   config:
@@ -39,8 +39,8 @@ resources:
             - https://www.googleapis.com/auth/trace.append
 - type: gke-e2e-test
   state: dirty
-  min-count: 100
-  max-count: 150
+  min-count: 10
+  max-count: 50
   needs:
     gcp-project: 1
   config:
