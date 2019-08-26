@@ -17,20 +17,19 @@ that Boskos runs in the same cluster where test jobs are running.
 
 ### Deployments
 
-1. [boskos](./boskos-deployment.yaml)     - Main component, handles and manage resource
-2. [janitor](./janitor-deployment.yaml)   - Clean dirty GCP project to free state
-3. [reaper](./reaper-deployment.yaml)     - Look for resources that
+1. [boskos](cluster/boskos-deployment.yaml)     - Main component, handles and manage resource
+2. [janitor](cluster/janitor-deployment.yaml)   - Clean dirty GCP project to free state
+3. [reaper](cluster/reaper-deployment.yaml)     - Look for resources that
    are owned and not being updated, and mark them as dirty
-4. [mason](./mason-deployment.yaml)       - Transform dirty mason resources to
+4. [mason](cluster/mason-deployment.yaml)       - Transform dirty mason resources to
    free
 
 Boskos is using boskos@istio-testing.iam.gserviceaccount.com from the
 istio-testing project. For first time setup, one needs to create a new
 key from the UI and download it locally, and then run
 
-
 ```bash
-make init config deploy SERVICE-ACCOUNT-JSON={path to service account json file}
+make init boskos-config deploy SERVICE-ACCOUNT-JSON={path to service account json file}
 ```
 
 ### Upgrade
@@ -154,16 +153,8 @@ Once that's done, the resources.yaml file can be updated with a new line.
 
 ### Updating configurations
 
-In order to update resources, you can run
+In order to update resources and mason configs, you can run
 
 ```bash
 make boskos-config
 ```
-
-In order to update mason configs, you can run
-
-```bash
-make mason-config
-```
-
-

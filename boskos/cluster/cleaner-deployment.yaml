@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: boskos-reader
+  namespace: boskos
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: boskos-crd-reader
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+rules:
+  - apiGroups:
+      - apiextensions.k8s.io
+    verbs: ["create"]
+    resources:
+      - customresourcedefinitions
+  - apiGroups:
+      - boskos.k8s.io
+    verbs: ["get", "list"]
+    resources: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: boskos-crd-reader-binding
+  namespace: boskos
+subjects:
+  - kind: ServiceAccount
+    name: boskos-reader
+    namespace: boskos
+roleRef:
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+  name: boskos-crd-reader
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: boskos-cleaner
+  labels:
+    app: boskos-cleaner
+  namespace: boskos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: boskos-cleaner
+  template:
+    metadata:
+      labels:
+        app: boskos-cleaner
+    spec:
+      serviceAccountName: boskos-reader
+      terminationGracePeriodSeconds: 300
+      containers:
+      - name: boskos-cleaner
+        image: gcr.io/k8s-prow/boskos/cleaner:v20190730-dbac84bd7
+        args:
+        - --cleaner-count=3
+        - --namespace=boskos
+      nodeSelector:
+        prod: boskos
+
