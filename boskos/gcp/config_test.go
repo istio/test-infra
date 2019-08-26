@@ -466,7 +466,7 @@ func TestResourcesConfig_Construct(t *testing.T) {
 		} else {
 			SetClient(nil)
 		}
-		ud, err := tc.rc.Construct(context.Background(), tc.res, tc.types)
+		ud, _, err := tc.rc.construct(context.Background(), tc.res, tc.types)
 		if tc.result.err != "" {
 			if ud != nil {
 				t.Errorf("%s - expected nil user data got %v", tc.name, ud)
