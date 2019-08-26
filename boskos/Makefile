@@ -1,4 +1,4 @@
-PROJECT ?= istio-testing
+PROJECT ?= istio-prow-build
 ZONE ?= us-west1-a
 CLUSTER ?= prow
 NAMESPACE ?= boskos
@@ -14,41 +14,16 @@ mason-image:
 mason-client:
 	go build -o cmd/mason_client/mason_client istio.io/test-infra/boskos/cmd/mason_client
 
-deploy: boskos-deployment cleaner-deployment reaper-deployment janitor-deployment mason-deployment metrics-deployment boskos-service metrics-service
+deploy: get-cluster-credentials
+	kubectl apply -Rf cluster
 
-boskos-deployment:
-	kubectl apply -f boskos-deployment.yaml
-
-cleaner-deployment:
-	kubectl apply -f cleaner-deployment.yaml
-
-reaper-deployment:
-	kubectl apply -f reaper-deployment.yaml
-
-janitor-deployment:
-	kubectl apply -f janitor-deployment.yaml
-
-mason-deployment:
-	kubectl apply -f mason-deployment.yaml
-
-metrics-deployment:
-	kubectl apply -f metrics-deployment.yaml
-
-boskos-service:
-	kubectl apply -f boskos-service.yaml
-
-metrics-service:
-	kubectl apply -f metrics-service.yaml
-
-config: serviceaccount boskos-config
-
-boskos-config:
+boskos-config: get-cluster-credentials
 	kubectl create configmap boskos-config\
 		--from-file=resources.yaml\
 		-n $(NAMESPACE) --dry-run -o yaml\
 		| kubectl apply -f -
-serviceaccount:
 
+create-serviceaccount: get-cluster-credentials
 ifndef SERVICE-ACCOUNT-JSON
 	echo SERVICE-ACCCOUNT-JSON must be set
 	exit 1
@@ -61,9 +36,9 @@ endif
 get-cluster-credentials:
 	gcloud container clusters get-credentials "$(CLUSTER)" --project="$(PROJECT)" --zone="$(ZONE)"
 
-namespace:
+namespace: get-cluster-credentials
 	kubectl create namespace $(NAMESPACE)
 
-init: get-cluster-credentials namespace
+init: namespace create-serviceaccount
 
-.PHONY: mason-image boskos-deployment cleaner-deployement reaper-deployment janitor-deployment mason-deployment metrics-deployment boskos-service metrics-service boskos-config get-cluster-credentials namespace serviceaccount deploy init config
+.PHONY: mason-image mason-client deploy boskos-config create-serviceaccount get-cluster-credentials namespace init
