@@ -39,12 +39,13 @@ boskos, janitor, reaper images are coming from
 so we should only use those images. However for mason, we need to add our own
 resources implementations.
 
-In order to create to update mason deployment run the following
+In order to create to update mason deployment run the following:
 
 ```bash
 make mason-image
-# Update mason deployment to point to the new image, create a PR
-make mason-deployment
+
+# Update `boskos/cluster/mason-deployment.yaml` to point to the new image, create a PR, then:
+make deploy
 ```
 
 ## Mason
@@ -54,40 +55,50 @@ virtual, they only exist inside other resources. An example of a mason resource
 can be a cluster, which needs to exist in a GCP project. In order to create a
 cluster you need a GCP project first.
 
-
-A typical mason config would look like this:
+Mason is configured in the `resources.yaml` file. A typical mason config would look like this:
 
 ```yaml
-configs:
+resources:
+...
 - name: gke-e2e-test
+  state: dirty
+  min-count: 10
+  max-count: 50
   needs:
     gcp-project: 1
   config:
     type: GCPResourceConfig
     content: |
-      projectconfigs:
-      - type: gcp-project
-        clusters:
-        - machinetype: n1-standard-2
-          numnodes: 4
-          version: 1.9
-          zone: us-central1-f
-          enablekubernetesalpha: true
-        vms:
-        - machinetype: n1-standard-4
-          sourceimage: projects/debian-cloud/global/images/debian-9-stretch-v20180105
-          zone: us-central1-f
-          tags:
-          - http-server
-          - https-server
-          scopes:
-          - https://www.googleapis.com/auth/cloud-platform
+      gcp-project:
+        - clusters:
+          - machinetype: n1-standard-4
+            numnodes: 5
+            version: 1.10
+            scopes:
+            - https://www.googleapis.com/auth/cloud-platform
+            - https://www.googleapis.com/auth/trace.append
+          - machinetype: n1-standard-4
+            numnodes: 5
+            version: 1.10
+            scopes:
+            - https://www.googleapis.com/auth/cloud-platform
+            - https://www.googleapis.com/auth/trace.append
+          vms:
+          - machinetype: n1-standard-4
+            sourceimage: projects/debian-cloud/global/images/debian-9-stretch-v20180206
+            tags:
+            - http-server
+            - https-server
+            scopes:
+            - https://www.googleapis.com/auth/cloud-platform
+            - https://www.googleapis.com/auth/trace.append
 ```
 
-The name points to the resource types from the resources.yaml
+The name points to the resource types from the `gcp-project` in `resources.yaml`
 
 ```yaml
 resources:
+...
 - type: gcp-project
   state: dirty
   names:
@@ -101,23 +112,10 @@ resources:
   - istio-boskos-05
   - istio-boskos-06
   - istio-boskos-07
-- type: gke-e2e-test
-  state: dirty
-  names:
-  - gke-e2e-test-01
-  - gke-e2e-test-02
-  - gke-e2e-test-03
-  - gke-e2e-test-04
-  - gke-e2e-test-05
-  - gke-e2e-test-06
-  - gke-e2e-test-07
-  - gke-e2e-test-08
-  - gke-e2e-test-09
-  - gke-e2e-test-10
 ```
 
-As you can see, a gke-e2e-test resource is composed of 1 gcp-project resource
-(needs). And we'll use the GCPResourceConfig type to parse the config (content)
+As you can see, a `gke-e2e-test` resource is composed of 1 `gcp-project` resource
+(needs). And we'll use the `GCPResourceConfig` type to parse the config (content)
 and create the resource (in that case a VM and a cluster)
 
 
