@@ -15,6 +15,10 @@
 package config
 
 import (
+	"flag"
+	"fmt"
+	"os"
+	"path"
 	"testing"
 
 	"k8s.io/apimachinery/pkg/util/sets"
@@ -23,11 +27,26 @@ import (
 	"k8s.io/test-infra/prow/plugins"
 )
 
-func TestConfig(t *testing.T) {
-	cfg, err := config.Load("../config.yaml", "../cluster/jobs/")
+var configPath = flag.String("config", "../config.yaml", "Path to prow config")
+var jobConfigPath = flag.String("job-config", "../cluster/jobs/", "Path to prow job config")
+
+// Loaded at TestMain.
+var c *config.Config
+
+func TestMain(m *testing.M) {
+	flag.Parse()
+
+	cfg, err := config.Load(*configPath, *jobConfigPath)
 	if err != nil {
-		t.Fatalf("could not read configs: %v", err)
+		fmt.Printf("Could not load config: %v\n", err)
+		os.Exit(1)
 	}
+	c = cfg
+
+	os.Exit(m.Run())
+}
+
+func TestConfig(t *testing.T) {
 	one := 1
 	two := 2
 	yes := true
@@ -255,7 +274,7 @@ func TestConfig(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			bp, err := cfg.GetBranchProtection(tc.org, tc.repo, tc.branch)
+			bp, err := c.GetBranchProtection(tc.org, tc.repo, tc.branch)
 			switch {
 			case err != nil:
 				t.Errorf("call failed: %v", err)
@@ -304,6 +323,38 @@ func TestConfig(t *testing.T) {
 				t.Errorf("%t actual codeOwners != expected %t", *bp.RequiredPullRequestReviews.RequireOwners, *tc.codeOwners)
 			}
 		})
+	}
+}
+
+func TestTrustedJobs(t *testing.T) {
+	const trusted = "test-infra-trusted"
+	trustedPath := path.Join(*jobConfigPath, "istio", "test-infra", "istio.test-infra.trusted.master.yaml")
+
+	// Presubmits may not use trusted clusters.
+	for _, pre := range c.AllPresubmits(nil) {
+		if pre.Cluster == trusted {
+			t.Errorf("%s: presubmits cannot use trusted clusters", pre.Name)
+		}
+	}
+
+	// Trusted postsubmits must be defined in trustedPath
+	for _, post := range c.AllPostsubmits(nil) {
+		if post.Cluster != trusted {
+			continue
+		}
+		if post.SourcePath != trustedPath {
+			t.Errorf("%s defined in %s may not run in trusted cluster", post.Name, post.SourcePath)
+		}
+	}
+
+	// Trusted periodics must be defined in trustedPath
+	for _, per := range c.AllPeriodics() {
+		if per.Cluster != trusted {
+			continue
+		}
+		if per.SourcePath != trustedPath {
+			t.Errorf("%s defined in %s may not run in trusted cluster", per.Name, per.SourcePath)
+		}
 	}
 }
 
