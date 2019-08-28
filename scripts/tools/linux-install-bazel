@@ -19,7 +19,7 @@ function update_bazel() {
   local bazel_current="$(bazel version | grep -oh 'Bazelisk version: v[0-9]*\.[0-9]*')" \
     || bazel_current='none'
 
-  if [[ -d "${BAZELISK_DIRECTORY}" ]]; then
+  if [[ ! -d "${BAZELISK_DIRECTORY}" ]]; then
     mkdir -p "${BAZELISK_DIRECTORY}"
   fi
 

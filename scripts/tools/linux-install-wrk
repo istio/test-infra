@@ -18,7 +18,7 @@ function update_wrk() {
   local wrk_current="$(wrk --version | grep -oh '[0-9]*\.[0-9]*\.[0-9]*')" \
     || wrk_current='none'
 
-  if [[ -d "${WRK_DIRECTORY}" ]]; then
+  if [[ ! -d "${WRK_DIRECTORY}" ]]; then
     mkdir -p "${WRK_DIRECTORY}"
   fi
 

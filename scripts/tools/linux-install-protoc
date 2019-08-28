@@ -22,7 +22,7 @@ function update_protoc() {
 	return
   fi
 
-  if [[ -d "${PROTOC_DIRECTORY}" ]]; then
+  if [[ ! -d "${PROTOC_DIRECTORY}" ]]; then
     mkdir -p "${PROTOC_DIRECTORY}"
   fi
   retry -n 3 wget -q -nc -P "${PROTOC_DIRECTORY}" "${PROTOC_URL}" \

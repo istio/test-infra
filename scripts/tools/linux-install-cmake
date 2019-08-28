@@ -16,18 +16,21 @@ CMAKE_DOWNLOAD_DIRECTORY="${TOOLS_DIR}/cmake"
 CMAKE_DIRECTORY="/usr/local/cmake"
 
 function install_cmake() {
-  if [[ -d "${CMAKE_DIRECTORY}" ]]; then
-    mkdir -p "${CMAKE_DIRECTORY}"
+  if [[ ! -d "${CMAKE_DIRECTORY}" ]]; then
+    ${SUDO} mkdir -p "${CMAKE_DIRECTORY}"
   fi
-  if [[ -d "${CMAKE_DOWNLOAD_DIRECTORY}" ]]; then
+  if [[ ! -d "${CMAKE_DOWNLOAD_DIRECTORY}" ]]; then
     mkdir -p "${CMAKE_DOWNLOAD_DIRECTORY}"
   fi
   
-  retry -n 3 wget -q -nc -P "${CMAKE_DIRECTORY}" "${CMAKE_URL}" \
+  retry -n 3 wget -q -nc -P "${CMAKE_DOWNLOAD_DIRECTORY}" "${CMAKE_URL}" \
       || error_exit 'Could not download cmake.'
-  ${SUDO} tar -C ${CMAKE_DIRECTORY} -xzf "${CMAKE_DIRECTORY}/${CMAKE_ARCHIVE}.tar.gz" \
+  ${SUDO} tar -C ${CMAKE_DIRECTORY} -xzf "${CMAKE_DOWNLOAD_DIRECTORY}/${CMAKE_ARCHIVE}.tar.gz" \
       || error_exit 'Could not unpack cmake.'
 
-  sudo mv ${CMAKE_DIRECTORY}/${CMAKE_ARCHIVE}/* /usr/local/cmake/
+  ${SUDO} mv ${CMAKE_DIRECTORY}/${CMAKE_ARCHIVE}/* ${CMAKE_DIRECTORY}/
+  ${SUDO} rmdir ${CMAKE_DIRECTORY}/${CMAKE_ARCHIVE}/
+
+  ${SUDO} ln -s -f ${CMAKE_DIRECTORY}/bin/cmake /usr/local/bin
   echo 'CMAKE intalled.'
 }
