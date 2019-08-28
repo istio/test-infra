@@ -16,15 +16,10 @@ NINJA_DOWNLOAD_DIRECTORY="${TOOLS_DIR}/ninja"
 NINJA_DIRECTORY="/usr/local/ninja"
 
 function install_ninja() {
-  if [[ -d "${NINJA_DIRECTORY}" ]]; then
-    ${SUDO} mkdir -p "${NINJA_DIRECTORY}"
-  fi
-  if [[ -d "${NINJA_DOWNLOAD_DIRECTORY}" ]]; then
-    ${SUDO} mkdir -p "${NINJA_DOWNLOAD_DIRECTORY}"
-  fi
-  
+  mkdir -p "${NINJA_DOWNLOAD_DIRECTORY}"
   retry -n 3 wget -q -nc -P "${NINJA_DOWNLOAD_DIRECTORY}" "${NINJA_URL}" \
       || error_exit 'Could not download ninja.'
+  ${SUDO} mkdir -p "${NINJA_DIRECTORY}"
   ${SUDO} unzip "${NINJA_DOWNLOAD_DIRECTORY}/${NINJA_ARCHIVE}.zip" -d ${NINJA_DIRECTORY}  \
       || error_exit 'Could not unpack ninja.'
 
