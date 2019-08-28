@@ -30,11 +30,8 @@ function update_go() {
   local go_current="$(go version | grep -oh '[0-9]*\.[0-9]*\.[0-9]*')" \
     || go_current='none'
 
-  if [[ ! -d "${GO_DIRECTORY}" ]]; then
-    mkdir -p "${GO_DIRECTORY}"
-  fi
-
   if [[ "${GO_VERSION}" != "${go_current}" ]]; then
+    mkdir -p "${GO_DIRECTORY}"
     retry -n 3 wget -q -nc -P "${GO_DIRECTORY}" "${GO_URL}" \
       || error_exit 'Could not download go.'
     ${SUDO} tar -C /usr/local -xzf "${GO_DIRECTORY}/${GO_ARCHIVE}" \

@@ -18,11 +18,8 @@ function update_wrk() {
   local wrk_current="$(wrk --version | grep -oh '[0-9]*\.[0-9]*\.[0-9]*')" \
     || wrk_current='none'
 
-  if [[ ! -d "${WRK_DIRECTORY}" ]]; then
-    mkdir -p "${WRK_DIRECTORY}"
-  fi
-
   if [[ "${WRK_VERSION}" != "${wrk_current}" ]]; then
+    mkdir -p "${WRK_DIRECTORY}"
     retry -n 3 wget -q -nc -P "${WRK_DIRECTORY}" "${WRK_URL}" \
       || error_exit 'Could not download wrk.'
     ${SUDO} cp -f "${WRK_DIRECTORY}/${WRK_BINARY}" /usr/local/bin/wrk \
