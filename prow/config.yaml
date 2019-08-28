@@ -132,6 +132,10 @@ branch-protection:
               - "ci/circleci: noauth"
         pkg:
           branches: *blocked_branches
+        tests:
+          branches: *blocked_branches
+        client-go:
+          branches: *blocked_branches
         tools:
           branches: *blocked_branches
         bots:
@@ -256,6 +260,8 @@ tide:
     - istio/test-infra
     - istio/cni
     - istio/installer
+    - istio/tests
+    - istio/client-go
     labels:
     - "cla: yes"
     missingLabels:
