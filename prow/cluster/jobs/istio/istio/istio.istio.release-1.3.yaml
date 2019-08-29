@@ -1358,6 +1358,53 @@ postsubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^release-1.3$
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    name: integ-k8s-116-postsubmit-release-1.3
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.16.0-beta.1
+        - test.integration.kube.presubmit
+        image: gcr.io/istio-testing/istio-builder:v20190823-25f7c637
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "3"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
 presubmits:
   istio/istio:
   - always_run: true
