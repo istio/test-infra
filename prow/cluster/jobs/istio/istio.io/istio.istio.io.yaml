@@ -2,7 +2,7 @@ presubmits:
 
   istio/istio.io:
 
-    - name: istio.io-presubmit
+    - name: istio.io-lint
       branches:
         - ^master$
         - ^release-1.*$
@@ -11,9 +11,9 @@ presubmits:
       always_run: true
       spec:
         containers:
-          - image: gcr.io/istio-testing/build-tools:2019-08-18T16-45-52
+          - image: gcr.io/istio-testing/build-tools:2019-08-25T20-37-02
             command:
               - make
-              - prow
+              - lint
         nodeSelector:
           testing: test-pool
