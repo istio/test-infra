@@ -7,7 +7,7 @@ GO_BASE_URL="https://storage.googleapis.com/golang"
 GO_ARCHIVE="go${GO_VERSION}.linux-amd64.tar.gz"
 GO_URL="${GO_BASE_URL}/${GO_ARCHIVE}"
 
-KIND_VERSION=v0.4.0
+KIND_VERSION=v0.5.1
 
 export GOPATH=/opt/go
 mkdir -p ${GOPATH}/bin
