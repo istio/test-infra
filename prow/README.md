@@ -121,7 +121,6 @@ $ chmod +x prow/my-presubmit.sh
 This repository (istio/test-infra) also provides Prow jobs.
 
 - `test-infra-presubmit` - Run the linting and testing
-- `test-infra-update-deps` - Create automatically dependency update PRs in target repos.
 - `test-infra-cleanup-GKE` - Delete GKE clusters left behind in test environment due to jobs being killed inproperly.
 
 ### Manually Trigger a Prow Job

@@ -41,40 +41,6 @@ periodics:
   spec:
     <<: *test_infra_master_spec
 
-- interval: 1h
-  name: test-infra-update-deps
-  labels:
-    preset-service-account: "true"
-  annotations:
-    testgrid-dashboards: istio-infrastructure
-    # Do not alert since these always fail
-    # testgrid-alert-email: istio-oncall@googlegroups.com
-    # testgrid-num-failures-to-alert: '1'
-  spec:
-    containers:
-    - image: gcr.io/istio-testing/prowbazel:0.4.13
-      args:
-      - "--repo=github.com/istio/test-infra=master"
-      - "--clean"
-      - "--timeout=20"
-      securityContext:
-        privileged: true
-      env:
-      - name: GIT_BRANCHES
-        value: master # Only auto-update deps for master branches.
-      - name: GIT_BRANCH
-        value: master
-      volumeMounts:
-      - name: oauth
-        mountPath: /etc/github
-        readOnly: true
-    volumes:
-    - name: oauth
-      secret:
-        secretName: oauth-token
-    nodeSelector:
-      testing: test-pool
-
 - interval: 24h
   name: gcr_cleanup_istio_testing
   labels:
