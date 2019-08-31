@@ -11,7 +11,7 @@ presubmits:
     always_run: true
     spec:
       containers:
-      - image: gcr.io/istio-testing/build-tools:2019-08-21T08-35-40
+      - image: gcr.io/istio-testing/build-tools:2019-08-31T04-48-30
         command:
         - make
         - lint
@@ -30,7 +30,7 @@ presubmits:
     always_run: true
     spec:
       containers:
-      - image: gcr.io/istio-testing/build-tools:2019-08-21T08-35-40
+      - image: gcr.io/istio-testing/build-tools:2019-08-31T04-48-30
         command:
         - make
         - mesh
@@ -49,7 +49,7 @@ presubmits:
     always_run: true
     spec:
       containers:
-      - image: gcr.io/istio-testing/build-tools:2019-08-21T08-35-40
+      - image: gcr.io/istio-testing/build-tools:2019-08-31T04-48-30
         command:
         - make
         - test
@@ -68,12 +68,32 @@ presubmits:
     always_run: true
     spec:
       containers:
-      - image: gcr.io/istio-testing/build-tools:2019-08-21T08-35-40
+      - image: gcr.io/istio-testing/build-tools:2019-08-31T04-48-30
         command:
         - make
         - mandiff
         env:
         - name: GO111MODULE
           value: "on"
+      nodeSelector:
+        testing: test-pool
+
+  - name: operator-install-simple
+    branches:
+      - ^master$
+      - ^release-1.*$
+    path_alias: istio.io/operator
+    decorate: true
+    always_run: true
+    optional: true
+    skip_report: true
+    spec:
+      containers:
+        - image: gcr.io/istio-testing/build-tools:2019-08-31T04-48-30
+          command:
+            - prow/e2e_install.sh
+          env:
+            - name: GO111MODULE
+              value: "on"
       nodeSelector:
         testing: test-pool
