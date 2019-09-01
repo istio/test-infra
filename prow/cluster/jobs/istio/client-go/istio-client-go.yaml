@@ -1,0 +1,51 @@
+presubmits:
+
+  istio/client-go:
+
+    - name: client-go-lint
+      branches:
+        - ^master$
+        - ^release-1.*$
+      path_alias: istio.io/client-go
+      decorate: true
+      always_run: true
+      spec:
+        containers:
+          - image: gcr.io/istio-testing/build-tools:2019-08-31T04-48-30
+            command:
+              - make
+              - lint
+        nodeSelector:
+          testing: test-pool
+
+    - name: client-go-build
+      branches:
+        - ^master$
+        - ^release-1.*$
+      path_alias: istio.io/client-go
+      decorate: true
+      always_run: true
+      spec:
+        containers:
+          - image: gcr.io/istio-testing/build-tools:2019-08-31T04-48-30
+            command:
+              - make
+              - build
+        nodeSelector:
+          testing: build-pool
+
+    - name: client-go-test
+      branches:
+        - ^master$
+        - ^release-1.*$
+      path_alias: istio.io/client-go
+      decorate: true
+      always_run: true
+      spec:
+        containers:
+          - image: gcr.io/istio-testing/build-tools:2019-08-31T04-48-30
+            command:
+              - make
+              - test
+        nodeSelector:
+          testing: test-pool
