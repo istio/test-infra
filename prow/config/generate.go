@@ -61,11 +61,13 @@ const (
 )
 
 type JobConfig struct {
-	Jobs      []Job                              `json:"jobs"`
-	Repo      string                             `json:"repo"`
-	Org       string                             `json:"org"`
-	Branches  []string                           `json:"branches"`
-	Resources map[string]v1.ResourceRequirements `json:"resources"`
+	Jobs               []Job                              `json:"jobs"`
+	Repo               string                             `json:"repo"`
+	Org                string                             `json:"org"`
+	Branches           []string                           `json:"branches"`
+	Resources          map[string]v1.ResourceRequirements `json:"resources"`
+	Image              string                             `json:"image"`
+	SuppressEntrypoint bool                               `json:"suppress_entrypoint"`
 }
 
 type Job struct {
@@ -79,6 +81,7 @@ type Job struct {
 	Type           string            `json:"type"`
 	Timeout        *prowjob.Duration `json:"timeout"`
 	Repos          []string          `json:"repos"`
+	Image          string            `json:"image"`
 }
 
 // Reads the job yaml
@@ -130,8 +133,8 @@ func ValidateJobConfig(jobConfig JobConfig) {
 }
 
 func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
-	presubmits := []config.Presubmit{}
-	postsubmits := []config.Postsubmit{}
+	var presubmits []config.Presubmit
+	var postsubmits []config.Postsubmit
 
 	output := config.JobConfig{
 		Presubmits:  map[string][]config.Presubmit{},
@@ -142,8 +145,10 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			Branches: []string{fmt.Sprintf("^%s$", branch)},
 		}
 		// Commands are run with the entrypoint wrapper which will start up prereqs
-		// TODO probably not all tests need this
-		job.Command = append([]string{"entrypoint"}, job.Command...)
+
+		if !jobConfig.SuppressEntrypoint {
+			job.Command = append([]string{"entrypoint"}, job.Command...)
+		}
 
 		testgridJobPrefix := jobConfig.Repo
 		// Dirty hack to add an istio- prefix to repos other than istio/istio
@@ -154,7 +159,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 
 		if job.Type == TypePresubmit || job.Type == "" {
 			presubmit := config.Presubmit{
-				JobBase:   createJobBase(job, fmt.Sprintf("%s-%s", job.Name, branch), jobConfig.Repo, branch, jobConfig.Resources),
+				JobBase:   createJobBase(jobConfig, job, fmt.Sprintf("%s-%s", job.Name, branch), jobConfig.Repo, branch, jobConfig.Resources),
 				AlwaysRun: true,
 				Brancher:  brancher,
 			}
@@ -170,7 +175,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 				postName = job.Name
 			}
 			postsubmit := config.Postsubmit{
-				JobBase:  createJobBase(job, fmt.Sprintf("%s-%s", postName, branch), jobConfig.Repo, branch, jobConfig.Resources),
+				JobBase:  createJobBase(jobConfig, job, fmt.Sprintf("%s-%s", postName, branch), jobConfig.Repo, branch, jobConfig.Resources),
 				Brancher: brancher,
 			}
 			postsubmit.JobBase.Annotations[TestGridDashboard] = fmt.Sprintf("%s-postsubmits-%s", testgridJobPrefix, branch)
@@ -324,9 +329,17 @@ func diffConfigPostsubmit(result config.JobConfig, pj config.JobConfig) {
 	}
 }
 
-func createContainer(job Job, resources map[string]v1.ResourceRequirements) []v1.Container {
+func createContainer(jobConfig JobConfig, job Job, resources map[string]v1.ResourceRequirements) []v1.Container {
+	img := job.Image
+	if img == "" {
+		img = jobConfig.Image
+		if img == "" {
+			img = BuilderImage
+		}
+	}
+
 	c := v1.Container{
-		Image:           BuilderImage,
+		Image:           img,
 		SecurityContext: &v1.SecurityContext{Privileged: newTrue()},
 		Command:         job.Command,
 		Env:             job.Env,
@@ -340,12 +353,12 @@ func createContainer(job Job, resources map[string]v1.ResourceRequirements) []v1
 	return []v1.Container{c}
 }
 
-func createJobBase(job Job, name string, repo string, branch string, resources map[string]v1.ResourceRequirements) config.JobBase {
+func createJobBase(jobConfig JobConfig, job Job, name string, repo string, branch string, resources map[string]v1.ResourceRequirements) config.JobBase {
 	jb := config.JobBase{
 		Name: name,
 		Spec: &v1.PodSpec{
 			NodeSelector: map[string]string{"testing": "test-pool"},
-			Containers:   createContainer(job, resources),
+			Containers:   createContainer(jobConfig, job, resources),
 		},
 		UtilityConfig: config.UtilityConfig{
 			Decorate:  true,
