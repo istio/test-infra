@@ -35,7 +35,7 @@ func exit(err error, context string) {
 }
 
 func GetFileName(repo string, org string, branch string) string {
-	key := fmt.Sprintf("%s.%s.%s.yaml", org, repo, branch)
+	key := fmt.Sprintf("%s.%s.%s.gen.yaml", org, repo, branch)
 	return path.Join(ConfigOutput, org, repo, key)
 }
 

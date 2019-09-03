@@ -28,9 +28,9 @@ func TestGenerateConfig(t *testing.T) {
 			for _, branch := range jobs.Branches {
 				output := ConvertJobConfig(jobs, branch)
 				if os.Getenv("REFRESH_GOLDEN") == "true" {
-					WriteConfig(output, fmt.Sprintf("testdata/%s.out.yaml", tt))
+					WriteConfig(output, fmt.Sprintf("testdata/%s.gen.yaml", tt))
 				}
-				if err := CheckConfig(output, fmt.Sprintf("testdata/%s.out.yaml", tt)); err != nil {
+				if err := CheckConfig(output, fmt.Sprintf("testdata/%s.gen.yaml", tt)); err != nil {
 					t.Fatal(err.Error())
 				}
 			}
