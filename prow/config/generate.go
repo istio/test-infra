@@ -183,7 +183,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 
 		if job.Type == TypePresubmit || job.Type == "" {
 			presubmit := config.Presubmit{
-				JobBase:   createJobBase(jobConfig, job, fmt.Sprintf("%s-%s", job.Name, branch), jobConfig.Repo, branch, jobConfig.Resources),
+				JobBase:   createJobBase(jobConfig, job, fmt.Sprintf("%s-presubmit-%s", job.Name, branch), jobConfig.Repo, branch, jobConfig.Resources),
 				AlwaysRun: true,
 				Brancher:  brancher,
 			}
@@ -199,7 +199,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 				postName = job.Name
 			}
 			postsubmit := config.Postsubmit{
-				JobBase:  createJobBase(jobConfig, job, fmt.Sprintf("%s-%s", postName, branch), jobConfig.Repo, branch, jobConfig.Resources),
+				JobBase:  createJobBase(jobConfig, job, fmt.Sprintf("%s-postsubmit-%s", postName, branch), jobConfig.Repo, branch, jobConfig.Resources),
 				Brancher: brancher,
 			}
 			postsubmit.JobBase.Annotations[TestGridDashboard] = fmt.Sprintf("%s-postsubmits-%s", testgridJobPrefix, branch)
