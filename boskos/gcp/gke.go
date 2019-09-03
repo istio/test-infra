@@ -149,8 +149,9 @@ func (cc *containerEngine) create(ctx context.Context, project string, config cl
 	// Since Boskos can pick any project in the pool, we need to make sure the identity namespace ties
 	// to the correct project id.
 	if config.EnableWorkloadIdentity {
-		clusterRequest.Cluster.WorkloadIdentityConfig.IdentityNamespace =
-			fmt.Sprintf("%s.svc.id.goog", project)
+		clusterRequest.Cluster.WorkloadIdentityConfig = &container.WorkloadIdentityConfig{
+			IdentityNamespace: fmt.Sprintf("%s.svc.id.goog", project),
+		}
 	}
 
 	op, err := cc.service.Projects.Zones.Clusters.Create(project, config.Zone, clusterRequest).Context(ctx).Do()
