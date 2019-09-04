@@ -97,6 +97,13 @@ presubmits:
             - name: GO111MODULE
               value: "on"
           securityContext:
+          resources:
+            limits:
+              cpu: "3"
+              memory: 24Gi
+            requests:
+              cpu: 500m
+              memory: 3Gi
             privileged: true
           volumeMounts:
             - mountPath: /lib/modules
