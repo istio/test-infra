@@ -9,12 +9,22 @@ PROJECT_BUILD ?= istio-prow-build
 ZONE    ?= us-west1-a
 CLUSTER ?= prow
 
-# ensures that kubectl has access to the prow cluster's config context
-get-cluster-credentials:
-	# TODO(fejta): https://github.com/istio/test-infra/issues/1636
+export KUBECONFIG
+
+# https://github.com/istio/test-infra/issues/1636
+# This prevents the Kube current-context in the execution environment from being
+# overwritten unless the intention is made explicit w/ the `save` parameter.
+# e.g.
+#		make get-cluster-credentials save=true
+save-kubeconfig:
+ifndef save
+	$(eval KUBECONFIG=$(shell mktemp))
+endif
+
+get-cluster-credentials: save-kubeconfig
 	gcloud container clusters get-credentials "$(CLUSTER)" --project="$(PROJECT)" --zone="$(ZONE)"
 
-get-build-cluster-credentials:
+get-build-cluster-credentials: save-kubeconfig
 	gcloud container clusters get-credentials "$(CLUSTER)" --project="$(PROJECT_BUILD)" --zone="$(ZONE)"
 
 update-config-dry-run: get-cluster-credentials
@@ -31,9 +41,9 @@ update-config: get-cluster-credentials
 		--wet
 
 deploy: get-cluster-credentials
-	kubectl "--context=gke_$(PROJECT)_$(ZONE)_$(CLUSTER)" apply -f ./cluster/
+	kubectl apply -f ./cluster/
 
 deploy-build: get-build-cluster-credentials
-	kubectl "--context=gke_$(PROJECT_BUILD)_$(ZONE)_$(CLUSTER)" apply -f ./cluster/build/
+	kubectl apply -f ./cluster/build/
 
-.PHONY: deploy deploy-build update-config update-config-dry-run get-cluster-credentials get-build-cluster-credentials
+.PHONY: deploy deploy-build update-config update-config-dry-run get-cluster-credentials get-build-cluster-credentials save-kubeconfig
