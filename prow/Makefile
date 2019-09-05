@@ -5,6 +5,7 @@
 
 # GKE variables.
 PROJECT ?= istio-testing
+PROJECT_BUILD ?= istio-prow-build
 ZONE    ?= us-west1-a
 CLUSTER ?= prow
 
@@ -12,6 +13,9 @@ CLUSTER ?= prow
 get-cluster-credentials:
 	# TODO(fejta): https://github.com/istio/test-infra/issues/1636
 	gcloud container clusters get-credentials "$(CLUSTER)" --project="$(PROJECT)" --zone="$(ZONE)"
+
+get-build-cluster-credentials:
+	gcloud container clusters get-credentials "$(CLUSTER)" --project="$(PROJECT_BUILD)" --zone="$(ZONE)"
 
 update-config-dry-run: get-cluster-credentials
 	./recreate_prow_configmaps.py \
@@ -29,4 +33,7 @@ update-config: get-cluster-credentials
 deploy: get-cluster-credentials
 	kubectl "--context=gke_$(PROJECT)_$(ZONE)_$(CLUSTER)" apply -f ./cluster/
 
-.PHONY: deploy update-config update-config-dry-run get-cluster-credentials
+deploy-build: get-build-cluster-credentials
+	kubectl "--context=gke_$(PROJECT_BUILD)_$(ZONE)_$(CLUSTER)" apply -f ./cluster/build/
+
+.PHONY: deploy deploy-build update-config update-config-dry-run get-cluster-credentials get-build-cluster-credentials
