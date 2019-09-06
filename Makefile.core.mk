@@ -18,4 +18,4 @@ diff-config:
 check-config:
 	(cd prow/config/cmd; go run generate.go check)
 
-include Makefile.common.mk
+include common/Makefile.common.mk
