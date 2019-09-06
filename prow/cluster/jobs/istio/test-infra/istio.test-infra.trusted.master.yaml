@@ -1,4 +1,33 @@
 # ProwJobs defined in this file specify `cluster: test-infra-trusted` in order to run in Prow's service cluster.
+postsubmits:
+  istio/test-infra:
+  - name: post-test-infra-deploy-prow
+    cluster: test-infra-trusted
+    run_if_changed: '^prow/cluster/(?:build/)?[^/]+\.yaml$'
+    decorate: true
+    branches:
+    - master
+    spec:
+      containers:
+      - image: gcr.io/k8s-testimages/gcloud-in-go:v20190125-cc5d6ecff3
+        command:
+        - bash
+        args:
+        - -c
+        - |
+          gcloud auth activate-service-account --key-file=/creds/service-account.json && \
+          cd prow && \
+          make deploy && \
+          make deploy-build
+        volumeMounts:
+        - name: creds
+          mountPath: /creds
+      volumes:
+      - name: creds
+        secret:
+          secretName: prow-deployer-service-account
+
+
 periodics:
 - cron: "54 * * * *"  # Every hour at 54 minutes past the hour
   name: ci-test-infra-branchprotector
