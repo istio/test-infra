@@ -72,7 +72,7 @@ presubmits:
         - prow/e2e-simpleTests.sh
       nodeSelector:
         testing: test-pool
-  - name: release-build-test-upgrade-tests-1.1.7
+  - name: release-build-test-upgrade-tests
     <<: *job_template
     annotations:
       testgrid-dashboards: istio-release
@@ -80,7 +80,7 @@ presubmits:
       testgrid-num-failures-to-alert: '1'
     always_run: true
     optional: false
-    context: prow/release-build-test-upgrade-tests-1.1.7
+    context: prow/release-build-test-upgrade-tests
     max_concurrency: 5
     labels:
       preset-release-build-test: "true"
@@ -90,7 +90,7 @@ presubmits:
         command:
         - entrypoint
         - scripts/build_test_presubmit.sh
-        - prow/upgrade-tests-1.1.7.sh
+        - prow/upgrade-tests.sh
       nodeSelector:
         testing: test-pool
   - name: release-build-test-istio-unit-tests
