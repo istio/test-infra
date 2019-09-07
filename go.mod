@@ -11,6 +11,8 @@ require (
 	github.com/hashicorp/go-multierror v0.0.0-20171204182908-b7773ae21874
 	github.com/hashicorp/golang-lru v0.5.3 // indirect
 	github.com/kr/pretty v0.1.0
+	github.com/onsi/ginkgo v1.7.0 // indirect
+	github.com/onsi/gomega v1.4.3 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/prometheus/client_golang v0.9.4
 	github.com/rogpeppe/go-internal v1.3.0 // indirect

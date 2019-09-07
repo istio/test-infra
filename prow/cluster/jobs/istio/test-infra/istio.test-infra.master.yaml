@@ -1,30 +1,9 @@
 presubmits:
   istio/test-infra:
 
-  - name: build-test
-    branches:
-      - ^master$
-      - ^release-1.*$
-    always_run: true
-    decorate: true
-    path_alias: istio.io/test-infra
-    spec:
-      containers:
-      - image: golang:1.12.7
-        command:
-        - go
-        - test
-        - ./...
-        env:
-        - name: GO111MODULE
-          value: "on"
-      nodeSelector:
-        testing: build-pool
-
   - name: pull-test-infra-prow-checkconfig
     branches:
       - ^master$
-      - ^release-1.*$
     decorate: true
     run_if_changed: '^prow/(config|plugins|cluster/jobs/.*)\.yaml$'
     spec:
@@ -41,63 +20,9 @@ presubmits:
         - --exclude-warning=unknown-fields
         - --exclude-warning=non-decorated-jobs
 
-  - name: lint-check
-    branches:
-      - ^master$
-      - ^release-1.*$
-    always_run: true
-    decorate: true
-    path_alias: istio.io/test-infra
-    spec:
-      containers:
-      - image: gcr.io/istio-testing/test-infra-builder:v20190722-4bb1092b
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "1000m"
-          limits:
-            memory: "24Gi"
-            cpu: "4000m"
-        command:
-        - entrypoint
-        - make
-        - lint
-        env:
-        - name: GO111MODULE
-          value: "on"
-      nodeSelector:
-        testing: build-pool
-
-  - name: generate-check
-    branches:
-      - ^master$
-      - ^release-1.*$
-    always_run: true
-    decorate: true
-    path_alias: istio.io/test-infra
-    spec:
-      containers:
-        - image: golang:1.12.7
-          resources:
-            requests:
-              memory: "512Mi"
-              cpu: "1000m"
-            limits:
-              memory: "24Gi"
-              cpu: "4000m"
-          command:
-            - make
-            - check-config
-          env:
-          - name: GO111MODULE
-            value: "on"
-      nodeSelector:
-        testing: build-pool
-
   - name: flakey-run
     branches:
       - ^master$
-      - ^release-1.*$
     context: "prow: flakey-run"
     run_if_changed: "flakeyTest/.*"
     optional: true
