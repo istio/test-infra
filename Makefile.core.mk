@@ -12,14 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-lint: lint-go
+lint:
+	@scripts/run_golangci.sh
+
+lint-buildifier:
+	@bazel run //:buildifier -- -showlog -mode=check $(git ls-files| grep -e BUILD -e WORKSPACE | grep -v vendor)
 
 test:
 	@go test -race ./...
 
 .PHONY: testgrid
 testgrid:
-	configurator --prow-config prow/config.yaml --prow-job-config prow/cluster/jobs --output-yaml --yaml testgrid/default.yaml --oneshot --output testgrid/istio.gen.yaml
+	@GOARCH=amd64 GOOS=linux go get k8s.io/test-infra/testgrid/cmd/configurator@d5d7ce3eb0ffe35c899fe9358586cdffb6525899
+	@GOARCH=amd64 GOOS=linux go run k8s.io/test-infra/testgrid/cmd/configurator --prow-config prow/config.yaml --prow-job-config prow/cluster/jobs --output-yaml --yaml testgrid/default.yaml --oneshot --output testgrid/istio.gen.yaml
 
 generate-config:
 	@(cd prow/config/cmd; GOARCH=amd64 GOOS=linux go run generate.go write)
