@@ -3,12 +3,12 @@ postsubmits:
   istio/cni:
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-cni-postsubmits-master
+      testgrid-dashboards: istio-cni-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
     - ^master$
     decorate: true
-    name: cni-build-master
+    name: build_cni_postsubmit
     path_alias: istio.io/cni
     spec:
       containers:
@@ -31,12 +31,12 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-cni-postsubmits-master
+      testgrid-dashboards: istio-cni-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
     - ^master$
     decorate: true
-    name: cni-shellcheck-master
+    name: shellcheck_cni_postsubmit
     path_alias: istio.io/cni
     spec:
       containers:
@@ -58,12 +58,12 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-cni-postsubmits-master
+      testgrid-dashboards: istio-cni-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
     - ^master$
     decorate: true
-    name: cni-lint-master
+    name: lint_cni_postsubmit
     path_alias: istio.io/cni
     spec:
       containers:
@@ -86,12 +86,12 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-cni-postsubmits-master
+      testgrid-dashboards: istio-cni-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
     - ^master$
     decorate: true
-    name: cni-install-master
+    name: install_cni_postsubmit
     path_alias: istio.io/cni
     spec:
       containers:
@@ -115,7 +115,7 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-cni-postsubmits-master
+      testgrid-dashboards: istio-cni-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
     - ^master$
@@ -125,7 +125,7 @@ postsubmits:
       org: istio
       path_alias: istio.io/istio
       repo: istio
-    name: cni-e2e-master
+    name: e2e_cni_postsubmit
     path_alias: istio.io/cni
     spec:
       containers:
@@ -165,11 +165,11 @@ presubmits:
   istio/cni:
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-cni-presubmits-master
+      testgrid-dashboards: istio-cni-master
     branches:
     - ^master$
     decorate: true
-    name: cni-build-master
+    name: build_cni
     path_alias: istio.io/cni
     spec:
       containers:
@@ -192,11 +192,11 @@ presubmits:
         testing: test-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-cni-presubmits-master
+      testgrid-dashboards: istio-cni-master
     branches:
     - ^master$
     decorate: true
-    name: cni-shellcheck-master
+    name: shellcheck_cni
     path_alias: istio.io/cni
     spec:
       containers:
@@ -218,11 +218,11 @@ presubmits:
         testing: test-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-cni-presubmits-master
+      testgrid-dashboards: istio-cni-master
     branches:
     - ^master$
     decorate: true
-    name: cni-lint-master
+    name: lint_cni
     path_alias: istio.io/cni
     spec:
       containers:
@@ -245,11 +245,11 @@ presubmits:
         testing: test-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-cni-presubmits-master
+      testgrid-dashboards: istio-cni-master
     branches:
     - ^master$
     decorate: true
-    name: cni-install-master
+    name: install_cni
     path_alias: istio.io/cni
     spec:
       containers:
@@ -273,7 +273,7 @@ presubmits:
         testing: test-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-cni-presubmits-master
+      testgrid-dashboards: istio-cni-master
     branches:
     - ^master$
     decorate: true
@@ -282,7 +282,7 @@ presubmits:
       org: istio
       path_alias: istio.io/istio
       repo: istio
-    name: cni-e2e-master
+    name: e2e_cni
     path_alias: istio.io/cni
     spec:
       containers:

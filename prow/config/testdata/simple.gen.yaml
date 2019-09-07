@@ -3,12 +3,12 @@ postsubmits:
   istio/istio:
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-master
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
     - ^master$
     decorate: true
-    name: test-master
+    name: test_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -29,11 +29,11 @@ presubmits:
   istio/istio:
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-master
+      testgrid-dashboards: istio-master
     branches:
     - ^master$
     decorate: true
-    name: test-master
+    name: test_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -52,7 +52,7 @@ presubmits:
         testing: test-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-master
+      testgrid-dashboards: istio-master
     branches:
     - ^master$
     decorate: true
@@ -61,7 +61,7 @@ presubmits:
       org: istio
       path_alias: istio.io/istio
       repo: istio
-    name: presubmit-kind-master
+    name: presubmit-kind_istio
     path_alias: istio.io/istio
     spec:
       containers:

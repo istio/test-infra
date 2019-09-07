@@ -3,12 +3,12 @@ postsubmits:
   istio/istio:
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: istio-unit-tests-release-1.3
+    name: unit-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -36,12 +36,12 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: istio-racetest-release-1.3
+    name: racetest_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -67,12 +67,12 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: istio-codecov-release-1.3
+    name: codecov_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -95,15 +95,15 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
     labels:
       preset-service-account: "true"
     max_concurrency: 5
-    name: release-test-release-1.3
+    name: release-test_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -125,12 +125,12 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: e2e-mixer-no_auth-release-1.3
+    name: e2e-mixer-no_auth_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -169,12 +169,12 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: istio-pilot-e2e-envoyv2-v1alpha3-release-1.3
+    name: pilot-e2e-envoyv2-v1alpha3_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -213,15 +213,15 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
     labels:
       preset-service-account: "true"
     max_concurrency: 5
-    name: e2e-dashboard-release-1.3
+    name: e2e-dashboard_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -243,12 +243,12 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: e2e-bookInfoTests-envoyv2-v1alpha3-release-1.3
+    name: e2e-bookInfoTests-envoyv2-v1alpha3_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -287,12 +287,12 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: e2e-bookInfoTests-trustdomain-release-1.3
+    name: e2e-bookInfoTests-trustdomain_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -331,12 +331,12 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp-release-1.3
+    name: e2e-bookInfoTests-non-mcp_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -376,12 +376,12 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: e2e-simpleTests-release-1.3
+    name: e2e-simpleTests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -423,12 +423,12 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: e2e-simpleTests-distroless-release-1.3
+    name: e2e-simpleTests-distroless_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -472,12 +472,12 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: e2e-simpleTestsMinProfile-release-1.3
+    name: e2e-simpleTestsMinProfile_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -522,12 +522,12 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: e2e-simpleTests-cni-release-1.3
+    name: e2e-simpleTests-cni_istio_postsubmit
     path_alias: istio.io/istio
     skip_report: true
     spec:
@@ -573,12 +573,12 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: e2e-simpleTests-non-mcp-release-1.3
+    name: e2e-simpleTests-non-mcp_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -621,15 +621,15 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
     labels:
       preset-service-account: "true"
     max_concurrency: 5
-    name: istio-pilot-multicluster-e2e-release-1.3
+    name: pilot-multicluster-e2e_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -651,12 +651,12 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: istio_e2e_cloudfoundry-release-1.3
+    name: istio_e2e_cloudfoundry_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -679,12 +679,12 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-framework-local-postsubmit-tests-release-1.3
+    name: integ-framework-local-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -707,12 +707,12 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-galley-local-postsubmit-tests-release-1.3
+    name: integ-galley-local-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -735,12 +735,12 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-mixer-local-postsubmit-tests-release-1.3
+    name: integ-mixer-local-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -763,12 +763,12 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-pilot-local-postsubmit-tests-release-1.3
+    name: integ-pilot-local-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -791,12 +791,12 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-security-local-postsubmit-tests-release-1.3
+    name: integ-security-local-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -819,12 +819,12 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-conformance-local-postsubmit-tests-release-1.3
+    name: integ-conformance-local-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -847,12 +847,12 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: istio-integ-race-native-tests-release-1.3
+    name: integ-race-native-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -874,12 +874,12 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-framework-k8s-postsubmit-tests-release-1.3
+    name: integ-framework-k8s-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -917,12 +917,12 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-istioctl-k8s-postsubmit-tests-release-1.3
+    name: integ-istioctl-k8s-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -960,12 +960,12 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-galley-k8s-postsubmit-tests-release-1.3
+    name: integ-galley-k8s-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1003,12 +1003,12 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-mixer-k8s-postsubmit-tests-release-1.3
+    name: integ-mixer-k8s-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1046,12 +1046,12 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-pilot-k8s-postsubmit-tests-release-1.3
+    name: integ-pilot-k8s-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1089,12 +1089,12 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-security-k8s-postsubmit-tests-release-1.3
+    name: integ-security-k8s-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1132,12 +1132,12 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-telemetry-k8s-postsubmit-tests-release-1.3
+    name: integ-telemetry-k8s-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1175,12 +1175,12 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-conformance-k8s-postsubmit-tests-release-1.3
+    name: integ-conformance-k8s-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1218,14 +1218,14 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-113-postsubmit-release-1.3
+    name: integ-k8s-113_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1265,14 +1265,14 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-114-postsubmit-release-1.3
+    name: integ-k8s-114_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1312,14 +1312,14 @@ postsubmits:
         name: cgroup
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-postsubmits-release-1.3
+      testgrid-dashboards: istio-postsubmit-master
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-116-postsubmit-release-1.3
+    name: integ-k8s-116_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1361,11 +1361,11 @@ presubmits:
   istio/istio:
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: istio-unit-tests-release-1.3
+    name: unit-tests_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1393,11 +1393,11 @@ presubmits:
         testing: test-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: istio-lint-release-1.3
+    name: lint_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1420,11 +1420,11 @@ presubmits:
         testing: test-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: istio-racetest-release-1.3
+    name: racetest_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1450,11 +1450,11 @@ presubmits:
         testing: test-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: istio-shellcheck-release-1.3
+    name: shellcheck_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1477,11 +1477,11 @@ presubmits:
         testing: test-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: istio-codecov-release-1.3
+    name: codecov_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1504,14 +1504,14 @@ presubmits:
         testing: test-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
     labels:
       preset-service-account: "true"
     max_concurrency: 5
-    name: release-test-release-1.3
+    name: release-test_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1533,11 +1533,11 @@ presubmits:
         testing: test-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-framework-local-presubmit-tests-release-1.3
+    name: integ-framework-local-tests_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1560,11 +1560,11 @@ presubmits:
         testing: test-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-galley-local-presubmit-tests-release-1.3
+    name: integ-galley-local-tests_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1587,11 +1587,11 @@ presubmits:
         testing: test-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-mixer-local-presubmit-tests-release-1.3
+    name: integ-mixer-local-tests_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1614,11 +1614,11 @@ presubmits:
         testing: test-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-pilot-local-presubmit-tests-release-1.3
+    name: integ-pilot-local-tests_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1641,11 +1641,11 @@ presubmits:
         testing: test-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-security-local-presubmit-tests-release-1.3
+    name: integ-security-local-tests_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1668,11 +1668,11 @@ presubmits:
         testing: test-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-framework-k8s-presubmit-tests-release-1.3
+    name: integ-framework-k8s-tests_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1710,11 +1710,11 @@ presubmits:
         name: cgroup
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-istioctl-k8s-presubmit-tests-release-1.3
+    name: integ-istioctl-k8s-tests_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1752,11 +1752,11 @@ presubmits:
         name: cgroup
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-galley-k8s-presubmit-tests-release-1.3
+    name: integ-galley-k8s-tests_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1794,11 +1794,11 @@ presubmits:
         name: cgroup
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-mixer-k8s-presubmit-tests-release-1.3
+    name: integ-mixer-k8s-tests_istio
     optional: true
     path_alias: istio.io/istio
     spec:
@@ -1837,11 +1837,11 @@ presubmits:
         name: cgroup
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-pilot-k8s-presubmit-tests-release-1.3
+    name: integ-pilot-k8s-tests_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1879,11 +1879,11 @@ presubmits:
         name: cgroup
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-security-k8s-presubmit-tests-release-1.3
+    name: integ-security-k8s-tests_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1921,11 +1921,11 @@ presubmits:
         name: cgroup
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-telemetry-k8s-presubmit-tests-release-1.3
+    name: integ-telemetry-k8s-tests_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1963,11 +1963,11 @@ presubmits:
         name: cgroup
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: integ-new-install-k8s-presubmit-tests-release-1.3
+    name: integ-new-install-k8s-tests_istio
     optional: true
     path_alias: istio.io/istio
     spec:
@@ -2006,11 +2006,11 @@ presubmits:
         name: cgroup
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: e2e-mixer-no_auth-release-1.3
+    name: e2e-mixer-no_auth_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -2049,11 +2049,11 @@ presubmits:
         name: cgroup
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: istio-pilot-e2e-envoyv2-v1alpha3-release-1.3
+    name: pilot-e2e-envoyv2-v1alpha3_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -2092,14 +2092,14 @@ presubmits:
         name: cgroup
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
     labels:
       preset-service-account: "true"
     max_concurrency: 5
-    name: e2e-dashboard-release-1.3
+    name: e2e-dashboard_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -2121,11 +2121,11 @@ presubmits:
         testing: test-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: e2e-bookInfoTests-envoyv2-v1alpha3-release-1.3
+    name: e2e-bookInfoTests-envoyv2-v1alpha3_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -2164,11 +2164,11 @@ presubmits:
         name: cgroup
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: e2e-bookInfoTests-trustdomain-release-1.3
+    name: e2e-bookInfoTests-trustdomain_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -2207,11 +2207,11 @@ presubmits:
         name: cgroup
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: e2e-simpleTests-release-1.3
+    name: e2e-simpleTests_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -2253,11 +2253,11 @@ presubmits:
         name: cgroup
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: e2e-simpleTests-distroless-release-1.3
+    name: e2e-simpleTests-distroless_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -2301,11 +2301,11 @@ presubmits:
         name: cgroup
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: e2e-simpleTestsMinProfile-release-1.3
+    name: e2e-simpleTestsMinProfile_istio
     path_alias: istio.io/istio
     spec:
       containers:
@@ -2350,11 +2350,11 @@ presubmits:
         name: cgroup
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: e2e-simpleTests-cni-release-1.3
+    name: e2e-simpleTests-cni_istio
     optional: true
     path_alias: istio.io/istio
     skip_report: true
@@ -2401,14 +2401,14 @@ presubmits:
         name: cgroup
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
     labels:
       preset-service-account: "true"
     max_concurrency: 5
-    name: istio-pilot-multicluster-e2e-release-1.3
+    name: pilot-multicluster-e2e_istio
     optional: true
     path_alias: istio.io/istio
     spec:
@@ -2431,11 +2431,11 @@ presubmits:
         testing: test-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio-presubmits-release-1.3
+      testgrid-dashboards: istio-master
     branches:
-    - ^release-1.3$
+    - ^master$
     decorate: true
-    name: istio_e2e_cloudfoundry-release-1.3
+    name: istio_e2e_cloudfoundry_istio
     path_alias: istio.io/istio
     spec:
       containers:
