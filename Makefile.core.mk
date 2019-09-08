@@ -7,7 +7,7 @@ lint:
 
 .PHONY: testgrid
 testgrid:
-	configurator --prow-config prow/config.yaml --prow-job-config prow/cluster/jobs --output-yaml --yaml testgrid/default.yaml --oneshot --output testgrid/istio-generated.yaml
+	configurator --prow-config prow/config.yaml --prow-job-config prow/cluster/jobs --output-yaml --yaml testgrid/default.yaml --oneshot --output testgrid/istio.gen.yaml
 
 generate-config:
 	(cd prow/config/cmd; go run generate.go write)
