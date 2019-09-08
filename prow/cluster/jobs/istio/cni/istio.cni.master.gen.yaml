@@ -36,33 +36,6 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    name: shellcheck_cni_postsubmit
-    path_alias: istio.io/cni
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - bin/check_shell_scripts.sh
-        image: gcr.io/istio-testing/istio-builder:v20190829-4edc0e70
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: 500m
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-cni-postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
     name: lint_cni_postsubmit
     path_alias: istio.io/cni
     spec:
@@ -161,6 +134,60 @@ postsubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio-cni-postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    name: buildmodern_cni_postsubmit
+    path_alias: istio.io/cni
+    spec:
+      containers:
+      - command:
+        - make
+        - docker
+        image: gcr.io/istio-testing/build-tools:2019-08-31T04-48-30
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio-cni-postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    name: lintmodern_cni_postsubmit
+    path_alias: istio.io/cni
+    spec:
+      containers:
+      - command:
+        - make
+        - lint_modern
+        image: gcr.io/istio-testing/build-tools:2019-08-31T04-48-30
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
 presubmits:
   istio/cni:
   - always_run: true
@@ -177,32 +204,6 @@ presubmits:
         - entrypoint
         - make
         - docker
-        image: gcr.io/istio-testing/istio-builder:v20190829-4edc0e70
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: 500m
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio-cni
-    branches:
-    - ^master$
-    decorate: true
-    name: shellcheck_cni
-    path_alias: istio.io/cni
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - bin/check_shell_scripts.sh
         image: gcr.io/istio-testing/istio-builder:v20190829-4edc0e70
         name: ""
         resources:
@@ -318,3 +319,57 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio-cni
+    branches:
+    - ^master$
+    decorate: true
+    name: buildmodern_cni
+    optional: true
+    path_alias: istio.io/cni
+    spec:
+      containers:
+      - command:
+        - make
+        - docker
+        image: gcr.io/istio-testing/build-tools:2019-08-31T04-48-30
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio-cni
+    branches:
+    - ^master$
+    decorate: true
+    name: lintmodern_cni
+    optional: true
+    path_alias: istio.io/cni
+    spec:
+      containers:
+      - command:
+        - make
+        - lint_modern
+        image: gcr.io/istio-testing/build-tools:2019-08-31T04-48-30
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool

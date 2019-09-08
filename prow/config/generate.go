@@ -32,9 +32,9 @@ import (
 
 func exit(err error, context string) {
 	if context == "" {
-		_, _ = fmt.Fprint(os.Stderr, fmt.Sprintf("%v", err))
+		_, _ = fmt.Fprint(os.Stderr, fmt.Sprintf("%v\n", err))
 	} else {
-		_, _ = fmt.Fprint(os.Stderr, fmt.Sprintf("%v: %v", context, err))
+		_, _ = fmt.Fprint(os.Stderr, fmt.Sprintf("%v: %v\n", context, err))
 	}
 	os.Exit(1)
 }
@@ -76,17 +76,18 @@ type JobConfig struct {
 }
 
 type Job struct {
-	Name           string            `json:"name"`
-	PostsubmitName string            `json:"postsubmit"`
-	Command        []string          `json:"command"`
-	Env            []v1.EnvVar       `json:"env"`
-	Resources      string            `json:"resources"`
-	Modifiers      []string          `json:"modifiers"`
-	Requirements   []string          `json:"requirements"`
-	Type           string            `json:"type"`
-	Timeout        *prowjob.Duration `json:"timeout"`
-	Repos          []string          `json:"repos"`
-	Image          string            `json:"image"`
+	Name               string            `json:"name"`
+	PostsubmitName     string            `json:"postsubmit"`
+	Command            []string          `json:"command"`
+	Env                []v1.EnvVar       `json:"env"`
+	Resources          string            `json:"resources"`
+	Modifiers          []string          `json:"modifiers"`
+	Requirements       []string          `json:"requirements"`
+	Type               string            `json:"type"`
+	Timeout            *prowjob.Duration `json:"timeout"`
+	Repos              []string          `json:"repos"`
+	Image              string            `json:"image"`
+	SuppressEntrypoint bool              `json:"suppress_entrypoint"`
 }
 
 // Reads the job yaml
@@ -170,7 +171,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 		}
 		// Commands are run with the entrypoint wrapper which will start up prereqs
 
-		if !jobConfig.SuppressEntrypoint {
+		if !job.SuppressEntrypoint && !jobConfig.SuppressEntrypoint {
 			job.Command = append([]string{"entrypoint"}, job.Command...)
 		}
 
