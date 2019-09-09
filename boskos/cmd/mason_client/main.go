@@ -36,7 +36,7 @@ import (
 const (
 	defaultBoskosRetryPeriod = 10 * time.Second
 	// Large enought such that Reaper does not take resource away from us
-	defaultBoskosSyncPeriod = 10 * time.Minute
+	defaultBoskosSyncPeriod = 15 * time.Second
 	defaultTimeout          = "10m"
 )
 
