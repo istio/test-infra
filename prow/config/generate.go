@@ -174,12 +174,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			job.Command = append([]string{"entrypoint"}, job.Command...)
 		}
 
-		testgridJobPrefix := jobConfig.Repo
-		// Dirty hack to add an istio- prefix to repos other than istio/istio
-		// This is because dashboards need to be globally unique and we share testgrid
-		if testgridJobPrefix != "istio" {
-			testgridJobPrefix = "istio-" + testgridJobPrefix
-		}
+		testgridJobPrefix := "istio-" + jobConfig.Repo
 
 		if job.Type == TypePresubmit || job.Type == "" {
 			name := fmt.Sprintf("%s_%s", job.Name, jobConfig.Repo)
@@ -192,7 +187,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 				AlwaysRun: true,
 				Brancher:  brancher,
 			}
-			presubmit.JobBase.Annotations[TestGridDashboard] = fmt.Sprintf("%s-%s", testgridJobPrefix, branch)
+			presubmit.JobBase.Annotations[TestGridDashboard] = testgridJobPrefix
 			applyModifiersPresubmit(&presubmit, job.Modifiers)
 			applyRequirements(&presubmit.JobBase, job.Requirements)
 			presubmits = append(presubmits, presubmit)
@@ -214,7 +209,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 				JobBase:  createJobBase(jobConfig, job, name, jobConfig.Repo, branch, jobConfig.Resources),
 				Brancher: brancher,
 			}
-			postsubmit.JobBase.Annotations[TestGridDashboard] = fmt.Sprintf("%s-postsubmit-%s", testgridJobPrefix, branch)
+			postsubmit.JobBase.Annotations[TestGridDashboard] = fmt.Sprintf("%s-postsubmit", testgridJobPrefix)
 			postsubmit.JobBase.Annotations[TestGridAlertEmail] = "istio-oncall@googlegroups.com"
 			postsubmit.JobBase.Annotations[TestGridNumFailures] = "1"
 			applyModifiersPostsubmit(&postsubmit, job.Modifiers)
