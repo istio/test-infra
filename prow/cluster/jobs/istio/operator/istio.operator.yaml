@@ -77,3 +77,48 @@ presubmits:
           value: "on"
       nodeSelector:
         testing: test-pool
+
+  - name: operator-manifest-apply
+    branches:
+      - ^master$
+      - ^release-1.*$
+    path_alias: istio.io/operator
+    decorate: true
+    always_run: true
+    optional: true
+    skip_report: true
+    spec:
+      containers:
+        - image: gcr.io/istio-testing/istio-builder:v20190829-4edc0e70
+          command:
+            - entrypoint
+            - prow/e2e_install.sh
+          env:
+            - name: GO111MODULE
+              value: "on"
+          securityContext:
+            privileged: true
+          resources:
+            limits:
+              cpu: "3"
+              memory: 24Gi
+            requests:
+              cpu: 500m
+              memory: 3Gi
+          volumeMounts:
+            - mountPath: /lib/modules
+              name: modules
+              readOnly: true
+            - mountPath: /sys/fs/cgroup
+              name: cgroup
+      nodeSelector:
+        testing: test-pool
+      volumes:
+        - hostPath:
+            path: /lib/modules
+            type: Directory
+          name: modules
+        - hostPath:
+            path: /sys/fs/cgroup
+            type: Directory
+          name: cgroup
