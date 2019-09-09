@@ -2,7 +2,7 @@ org: istio
 repo: istio
 image: gcr.io/istio-testing/istio-builder:v20190829-4edc0e70
 branches:
-  - master
+  - release-1.3
 
 jobs:
   - name: unit-tests
@@ -112,10 +112,10 @@ jobs:
     requirements: [kind]
     modifiers: [optional, hidden]
     env:
-    - name: ENABLE_ISTIO_CNI
-      value: true
-    - name: E2E_ARGS
-      value: " --kube_inject_configmap=istio-sidecar-injector"
+      - name: ENABLE_ISTIO_CNI
+        value: true
+      - name: E2E_ARGS
+        value: " --kube_inject_configmap=istio-sidecar-injector"
   - name: e2e-simpleTests-non-mcp
     type: postsubmit
     command: [./prow/e2e-kind-suite.sh, --auth_enable, --use_mcp=false, --single_test, e2e_simple, --installer, helm]
@@ -190,19 +190,19 @@ jobs:
   - name: integ-k8s-113
     type: postsubmit
     command:
-    - prow/integ-suite-kind.sh
-    - --node-image
-    - kindest/node:v1.13.10
-    - test.integration.kube.presubmit
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - kindest/node:v1.13.10
+      - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
   - name: integ-k8s-114
     type: postsubmit
     command:
-    - prow/integ-suite-kind.sh
-    - --node-image
-    - kindest/node:v1.14.6
-    - test.integration.kube.presubmit
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - kindest/node:v1.14.6
+      - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
   # TODO replace with official kindest/node image. Currently this is a custom built image of the beta
@@ -210,10 +210,10 @@ jobs:
   - name: integ-k8s-116
     type: postsubmit
     command:
-    - prow/integ-suite-kind.sh
-    - --node-image
-    - gcr.io/istio-testing/kind-node:v1.16.0-beta.1
-    - test.integration.kube.presubmit
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - gcr.io/istio-testing/kind-node:v1.16.0-beta.1
+      - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
 
