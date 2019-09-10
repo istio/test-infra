@@ -32,7 +32,6 @@ import sys
 import subprocess
 
 
-
 def recreate_prow_config(wet, configmap_name, path):
     print('recreating prow config:')
     cmd = (
@@ -58,9 +57,10 @@ def recreate_plugins_config(wet, configmap_name, path):
     if wet:
         subprocess.check_call(real_cmd)
 
+
 def recreate_job_config(wet, job_configmap, job_config_dir):
     print('recreating jobs config:')
-     # delete configmap (apply has size limit)
+    # delete configmap (apply has size limit)
     cmd = ["kubectl", "delete", "configmap", job_configmap]
     print(cmd)
     if wet:
@@ -75,6 +75,7 @@ def recreate_job_config(wet, job_configmap, job_config_dir):
     print(cmd)
     if wet:
         subprocess.check_call(cmd)
+
 
 def main():
     parser = ArgumentParser()
@@ -101,13 +102,13 @@ def main():
 
     # debug the current context
     out = subprocess.check_output(['kubectl', 'config', 'current-context'])
-    print('Current KUBECONFIG context: '+out)
+    print('Current KUBECONFIG context: ' + out)
 
     # require additional confirmation in --wet mode
-    prompt = '!'*65 + (
+    prompt = '!' * 65 + (
         "\n!!     WARNING THIS WILL RECREATE **ALL** PROW CONFIGMAPS.     !!"
         "\n!!    ARE YOU SURE YOU WANT TO DO THIS? IF SO, ENTER 'YES'.    !! "
-    ) + '\n' + '!'*65 + '\n\n: '
+    ) + '\n' + '!' * 65 + '\n\n: '
     if args.wet:
         if raw_input(prompt) != "YES":
             print("you did not enter 'YES'")
@@ -121,7 +122,6 @@ def main():
     print('')
     # finally jobs config
     recreate_job_config(args.wet, args.job_configmap, args.job_config_dir)
-
 
 
 if __name__ == '__main__':

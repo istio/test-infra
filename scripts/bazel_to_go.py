@@ -1,5 +1,19 @@
 #!/usr/bin/env python
 
+# Copyright Istio Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 #
 # Makes a bazel workspace play nicely with standard go tools
 # go build
@@ -27,15 +41,16 @@ def keywords(stmt):
     u = urlparse(path)
     return u.netloc + u.path, kw["name"]
 
+
 pathmap = {
     "github.com/istio/api": "istio.io/api"
 }
 
 known_repos = {
-        "org_golang_google": "google.golang.org",
-        "com_github": "github.com",
-        "org_golang": "golang.org",
-        "in_gopkg": "gopkg.in"
+    "org_golang_google": "google.golang.org",
+    "com_github": "github.com",
+    "org_golang": "golang.org",
+    "in_gopkg": "gopkg.in"
 }
 
 
@@ -43,14 +58,14 @@ known_repos = {
 # in_gopkg_yaml_v2
 # com_github_hashicorp_go_multierror  --> github.com/
 def repos(name):
-   for r, m in known_repos.items():
-       if name.startswith(r):
-           rname = name[(len(r)+1):]
-           fp, _, rest = rname.partition('_')
-           if r == 'in_gopkg':
-               return m + "/" + fp + "." + rest
+    for r, m in known_repos.items():
+        if name.startswith(r):
+            rname = name[(len(r) + 1):]
+            fp, _, rest = rname.partition('_')
+            if r == 'in_gopkg':
+                return m + "/" + fp + "." + rest
 
-           return m + "/" + fp + "/" + rest
+            return m + "/" + fp + "/" + rest
 
 # If we need to support more bazel functions
 # add them here
@@ -175,8 +190,10 @@ def bazel_to_vendor(WKSPC):
 
     protos(WKSPC)
 
+
 def get_external_links(external):
     return [file for file in os.listdir(external) if os.path.isdir(os.path.join(external, file))]
+
 
 def main(args):
     WKSPC = os.getcwd()
@@ -184,6 +201,7 @@ def main(args):
         WKSPC = args[0]
 
     bazel_to_vendor(WKSPC)
+
 
 def protos(WKSPC):
     genfiles = os.path.join(WKSPC, "bazel-genfiles")

@@ -40,81 +40,81 @@ go_repo_template = """
 
 
 def go_repository_format(repo):
-  content = ""
-  name = repo[NAME]
-  del repo[NAME]
-  content = "    name = \"%s\",\n" % name
-  for k, v in sorted(repo.iteritems(), key=lambda (k,v): k):
-    content += "    {k} = \"{v}\",\n".format(k=k, v=v)
-  return go_repo_template.format(content=content)
+    content = ""
+    name = repo[NAME]
+    del repo[NAME]
+    content = "    name = \"%s\",\n" % name
+    for k, v in sorted(repo.iteritems(), key=lambda k_v: k_v[0]):
+        content += "    {k} = \"{v}\",\n".format(k=k, v=v)
+    return go_repo_template.format(content=content)
 
 
 def convert_importpath_to_name(import_path):
-  components = import_path.split("/")
-  labels = components[0].split(".")
-  reverse = []
-  for i in range(len(labels)):
-    l = labels[len(labels)-i-1]
-    reverse.append(l)
-  repo = "_".join(reverse + components[1:])
-  return repo.replace("-", "_").replace(".", "_")
+    components = import_path.split("/")
+    labels = components[0].split(".")
+    reverse = []
+    for i in range(len(labels)):
+        l = labels[len(labels) - i - 1]
+        reverse.append(l)
+    repo = "_".join(reverse + components[1:])
+    return repo.replace("-", "_").replace(".", "_")
 
 
 class GoVendors(object):
 
-  def __init__(self):
-    self._go_repos = []
-    self._vendor_options = {}
+    def __init__(self):
+        self._go_repos = []
+        self._vendor_options = {}
 
-  def _get_options(self, name):
-    return self._vendor_options.get(name, {})
+    def _get_options(self, name):
+        return self._vendor_options.get(name, {})
 
-  def load_vendor_options(self):
-    if not os.path.exists(VENDOR_OPTIONS):
-      return
-    with open(VENDOR_OPTIONS) as f:
-      self._vendor_options = yaml.load(f)
+    def load_vendor_options(self):
+        if not os.path.exists(VENDOR_OPTIONS):
+            return
+        with open(VENDOR_OPTIONS) as f:
+            self._vendor_options = yaml.load(f)
 
-  def _add_repo(self, importpath, commit, source):
-    name = convert_importpath_to_name(importpath)
-    repo = self._get_options(name)
-    repo[NAME] = name
-    repo[IMPORTPATH] = source or importpath
-    repo[COMMIT] = commit
-    self._go_repos.append(repo)
+    def _add_repo(self, importpath, commit, source):
+        name = convert_importpath_to_name(importpath)
+        repo = self._get_options(name)
+        repo[NAME] = name
+        repo[IMPORTPATH] = source or importpath
+        repo[COMMIT] = commit
+        self._go_repos.append(repo)
 
-  def parse_godep_lock(self):
-    with open(GODEP_LOCK, "r") as f:
-      name, importpath, commit, source = "", "", "", ""
-      line = "start"
-      while line:
-        line = f.readline()
-        if line.startswith("["):
-          if importpath and commit:
-            self._add_repo(importpath, commit, source)
-          name, importpath, commit, source = "", "", "", ""
+    def parse_godep_lock(self):
+        with open(GODEP_LOCK, "r") as f:
+            name, importpath, commit, source = "", "", "", ""
+            line = "start"
+            while line:
+                line = f.readline()
+                if line.startswith("["):
+                    if importpath and commit:
+                        self._add_repo(importpath, commit, source)
+                    name, importpath, commit, source = "", "", "", ""
 
-        if " = " not in line:
-          continue
-        key, value = line.split(" = ")
-        key = key.strip().replace("\"", "")
-        value = value.strip().replace("\"", "")
-        if key == NAME:
-          importpath = value
-        elif key == REVISION:
-          commit = value
-        elif key == SOURCE:
-          source = value
+                if " = " not in line:
+                    continue
+                key, value = line.split(" = ")
+                key = key.strip().replace("\"", "")
+                value = value.strip().replace("\"", "")
+                if key == NAME:
+                    importpath = value
+                elif key == REVISION:
+                    commit = value
+                elif key == SOURCE:
+                    source = value
 
-  def write_bzl_file(self):
-    with open(VENDOR_FILE, "w") as f:
-      f.write(go_repos_header)
-      for r in self._go_repos:
-        f.write(go_repository_format(r))
+    def write_bzl_file(self):
+        with open(VENDOR_FILE, "w") as f:
+            f.write(go_repos_header)
+            for r in self._go_repos:
+                f.write(go_repository_format(r))
 
 
 if __name__ == "__main__":
-  g = GoVendors()
-  g.load_vendor_options()
-  g.parse_godep_lock()
-  g.write_bzl_file()
+    g = GoVendors()
+    g.load_vendor_options()
+    g.parse_godep_lock()
+    g.write_bzl_file()
