@@ -852,33 +852,6 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    name: integ-race-native-tests_istio_postsubmit
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/istio-integ-race-native-tests.sh
-        image: gcr.io/istio-testing/istio-builder:v20190829-4edc0e70
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "3"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-istio-postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
     name: integ-framework-k8s-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
