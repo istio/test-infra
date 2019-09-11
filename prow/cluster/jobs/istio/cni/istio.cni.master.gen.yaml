@@ -36,34 +36,6 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    name: lint_cni_postsubmit
-    path_alias: istio.io/cni
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - make
-        - lint
-        image: gcr.io/istio-testing/istio-builder:v20190829-4edc0e70
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: 500m
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio-cni-postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
     name: install_cni_postsubmit
     path_alias: istio.io/cni
     spec:
@@ -223,33 +195,6 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    name: lint_cni
-    path_alias: istio.io/cni
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - make
-        - lint
-        image: gcr.io/istio-testing/istio-builder:v20190829-4edc0e70
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: 500m
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio-cni
-    branches:
-    - ^master$
-    decorate: true
     name: install_cni
     path_alias: istio.io/cni
     spec:
@@ -353,7 +298,6 @@ presubmits:
     - ^master$
     decorate: true
     name: lintmodern_cni
-    optional: true
     path_alias: istio.io/cni
     spec:
       containers:
