@@ -7,7 +7,8 @@ if [[ "$(uname)" != "Linux" ]]; then
 fi
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+# shellcheck disable=SC1090
+. "${DIR}"/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
 
 LLVM_VERSION=8
 

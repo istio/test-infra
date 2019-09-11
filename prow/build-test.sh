@@ -22,7 +22,7 @@
 function cleanup {
   if [[ -n "${ARTIFACTS}" ]]; then
     mkdir -p "${ARTIFACTS}/bazel-testlogs" || true
-    cp $(bazel info bazel-testlogs)/* "${ARTIFACTS}/bazel-testlogs/" || true
+    cp "$(bazel info bazel-testlogs)"/* "${ARTIFACTS}/bazel-testlogs/" || true
   fi
 }
 

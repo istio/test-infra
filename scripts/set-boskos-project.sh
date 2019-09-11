@@ -17,7 +17,8 @@
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DIR="${ROOT}/scripts"
 
-. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+# shellcheck disable=SC1090
+. "${DIR}"/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
 
 # Exit immediately for non zero status
 set -e
@@ -54,15 +55,17 @@ done
 if [[ ${CREATE_PROJECT} == true ]]; then
   [[ -z "${BILLING_ACCOUNT}" ]] && { echo "use -b to set billing account"; exit 1; }
   [[ -z "${FOLDER}" ]] && { echo "use -f to set folder"; exit 1; }
-  gcloud projects create --folder ${FOLDER} "${PROJECT_ID}"
+  gcloud projects create --folder "${FOLDER}" "${PROJECT_ID}"
   gcloud alpha billing projects link "${PROJECT_ID}" --billing-account "${BILLING_ACCOUNT}"
 fi
 
+# shellcheck disable=SC2068
 for sa in ${USERS[@]}; do
-  gcloud projects add-iam-policy-binding ${PROJECT_ID} --member=${sa} --role roles/owner
+  gcloud projects add-iam-policy-binding "${PROJECT_ID}" --member="${sa}" --role roles/owner
 done
 
+# shellcheck disable=SC2068
 for s in ${SERVICES[@]}; do
-  gcloud services enable ${s} --project ${PROJECT_ID}
+  gcloud services enable "${s}" --project "${PROJECT_ID}"
 done
 

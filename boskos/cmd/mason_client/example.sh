@@ -24,14 +24,16 @@ set -x
 FILE_LOG=file.log
 
 function cleanup() {
-  kill -SIGINT ${PID}
+  kill -SIGINT "${PID}"
   wait
 }
 
 function wait_10mn() {
+  # shellcheck disable=SC2006
+  # shellcheck disable=SC2034
   for i in `seq 1 60`; do
     grep -q READY $FILE_LOG && return 0
-    kill -s 0 ${PID} || return 1
+    kill -s 0 "${PID}" || return 1
     sleep 10
   done
   return 1

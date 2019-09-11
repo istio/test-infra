@@ -6,7 +6,8 @@ if [[ "$(uname)" != "Linux" ]]; then
 fi
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+# shellcheck disable=SC1090
+. "${DIR}"/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
 
 HELM_VERSION='v2.7.2'
 HELM_BASE_URL="https://storage.googleapis.com/kubernetes-helm"
@@ -15,7 +16,7 @@ HELM_URL="${HELM_BASE_URL}/${HELM_ARCHIVE}"
 
 # Install helm cli
 function install_helm_cli() {
-    cd /tmp
+    cd /tmp || exit
     curl -Lo /tmp/helm.tgz ${HELM_URL}
     tar xfz helm.tgz
     mv linux-amd64/helm /usr/local/bin

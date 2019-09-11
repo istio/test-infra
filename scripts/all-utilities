@@ -5,19 +5,26 @@ if [[ $UID -ne 0 ]]; then
 fi
 
 [[ -z "${PLATFORM}" ]] && PLATFORM='ubuntu-16-04'
-TOOLS_DIR='/tmp/esp-tools'
 
 # Library of useful utilities.
 function set_gcloud() {
+  # shellcheck disable=SC2155
+  # shellcheck disable=SC2230
   export GCLOUD="$(which gcloud)" || export GCLOUD='/usr/lib/google-cloud-sdk/bin/gcloud'
+  # shellcheck disable=SC2155
+  # shellcheck disable=SC2230
   export GSUTIL=$(which gsutil) || export GSUTIL='/usr/lib/google-cloud-sdk/bin/gsutil'
 }
 
 function set_bazel() {
+  # shellcheck disable=SC2155
+  # shellcheck disable=SC2230
   export BAZEL="$(which bazel)" || export BAZEL='/usr/local/bin/bazel'
 }
 
 function set_wrk() {
+  # shellcheck disable=SC2155
+  # shellcheck disable=SC2230
   export WRK="$(which wrk)" || export WRK='/usr/local/bin/wrk'
 }
 
@@ -46,7 +53,7 @@ EOF
 function error_exit() {
   # ${BASH_SOURCE[1]} is the file name of the caller.
   echo "${BASH_SOURCE[1]}: line ${BASH_LINENO[0]}: ${1:-Unknown Error.} (exit ${2:-1})" 1>&2
-  exit ${2:-1}
+  exit "${2:-1}"
 }
 
 
@@ -81,9 +88,11 @@ function retry() {
 
   local N=1 S=${SLEEP}  # S is the current length of sleep.
   while : ; do
+    # shellcheck disable=SC2145
     echo "${N}. Executing ${@}"
     "${@}" && { echo "Command succeeded."; return 0; }
 
+    # shellcheck disable=SC2145
     [[ (( COUNT -le 0 || N -lt COUNT )) ]] \
       || { echo "Command '${@}' failed ${N} times, aborting."; return 1; }
 
@@ -103,11 +112,13 @@ function retry() {
 
 # Download api Keys from Cloud storage and source the file.
 function set_api_keys() {
+  # shellcheck disable=SC2155
   local api_key_directory="$(mktemp -d)"
   gsutil cp gs://client-secret-files/api_keys \
         "${api_key_directory}/api_keys" \
           || error_exit "Failed to download API key file."
 
+  # shellcheck disable=SC1090
   source "${api_key_directory}/api_keys"
 }
 

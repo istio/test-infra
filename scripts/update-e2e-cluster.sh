@@ -41,13 +41,14 @@ KUBE_USER="istio-prow-test-job@istio-testing.iam.gserviceaccount.com"
 # the sed -i operation is not defined by POSIX and hence is not portable
 #
 function execute_sed() {
-  sed -e "${1}" $2 > $2.new
-  mv -- $2.new $2
+  sed -e "${1}" "$2" > "$2".new
+  mv -- "$2".new "$2"
 }
 
 cleanup () {
+  # shellcheck disable=SC2236
   if [ ! -z "${KUBECONFIG_FILE}" ] && [ -d "${KUBECONFIG_FILE}" ]; then
-    rm -rf ${KUBECONFIG_FILE}
+    rm -rf "${KUBECONFIG_FILE}"
   fi
 }
 trap cleanup EXIT
@@ -68,11 +69,14 @@ fi
 
 EXPECTED_VERSION='1.9'
 # Generate cluster version and name
+# shellcheck disable=SC2207
 IFS=';' VERSIONS=($(gcloud container get-server-config \
   --project=${PROJECT_NAME} \
-  --zone=${ZONE} \
+  --zone="${ZONE}" \
   --format='value(validMasterVersions)'))
+# shellcheck disable=SC2068
 for V in ${VERSIONS[@]}; do
+  # shellcheck disable=SC2076
   if [[ "${V}" =~ "${EXPECTED_VERSION}" ]]; then
     CLUSTER_VERSION="${V}"
     break
@@ -88,12 +92,12 @@ gcloud config unset container/use_client_certificate
 for i in {1..2}; do
   CLUSTER_NAME="${REPO}-e2e-rbac-rotation-${i}"
   # Passing KUBECONFIG as an env will override default ~/.kube/config
-  result=$(KUBECONFIG="${KUBECONFIG_FILE}" gcloud container clusters create ${CLUSTER_NAME} \
-    --zone ${ZONE} \
+  result=$(KUBECONFIG="${KUBECONFIG_FILE}" gcloud container clusters create "${CLUSTER_NAME}" \
+    --zone "${ZONE}" \
     --project ${PROJECT_NAME} \
-    --cluster-version ${CLUSTER_VERSION} \
+    --cluster-version "${CLUSTER_VERSION}" \
     --machine-type ${MACHINE_TYPE} \
-    --num-nodes ${NUM_NODES} \
+    --num-nodes "${NUM_NODES}" \
     --no-enable-legacy-authorization \
     --quiet \
   ||  echo 'Failed')
@@ -118,9 +122,9 @@ gcloud container clusters get-credentials ${PROW_CLUSTER} \
 
 # Update kubeconfig
 SECRET_NAME="${REPO}-e2e-rbac-kubeconfig"
-kubectl -n ${PROW_TEST_NS} delete secret ${SECRET_NAME}
-kubectl -n ${PROW_TEST_NS} create secret generic ${SECRET_NAME} \
-  --from-file=config=${KUBECONFIG_FILE}
+kubectl -n ${PROW_TEST_NS} delete secret "${SECRET_NAME}"
+kubectl -n ${PROW_TEST_NS} create secret generic "${SECRET_NAME}" \
+  --from-file=config="${KUBECONFIG_FILE}"
 kubectl get secret -n ${PROW_TEST_NS}
 
 echo "--------------------------------------"

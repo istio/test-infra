@@ -23,7 +23,11 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+# shellcheck disable=SC2155
+# shellcheck disable=SC2046
 export CONFIG_PATH="$(readlink -f $(dirname "${BASH_SOURCE[0]}")/config.yaml)"
+# shellcheck disable=SC2155
+# shellcheck disable=SC2046
 export JOB_CONFIG_PATH="$(readlink -f $(dirname "${BASH_SOURCE[0]}")/cluster/jobs)"
 
 bash <(curl -sSfL https://raw.githubusercontent.com/kubernetes/test-infra/master/prow/pj-on-kind.sh) "$@"
