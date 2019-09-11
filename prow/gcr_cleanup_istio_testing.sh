@@ -26,8 +26,8 @@ function delete_image() {
   IMAGE="${1}"
   DATE="${2}"
   echo set -eou pipefail
-  echo echo deleting $IMAGE containers older than $DATE
-  for digest in $(gcloud container images list-tags ${IMAGE} --limit=999999 --sort-by=TIMESTAMP \
+  echo echo deleting "$IMAGE" containers older than "$DATE"
+  for digest in $(gcloud container images list-tags "${IMAGE}" --limit=999999 --sort-by=TIMESTAMP \
      --filter "timestamp.datetime < '${DATE}'" --format='get(digest)'); do
     if [ $R -eq 0 ] || [ $R -eq 10 ]; then
       echo ""
@@ -36,7 +36,9 @@ function delete_image() {
     else
       echo -n                                                       "${IMAGE}@${digest} "
     fi
+    # shellcheck disable=SC2219
     let C=C+1
+    # shellcheck disable=SC2219
     let R=R+1
   done
   echo ""
@@ -83,32 +85,33 @@ function delete_all_images() {
 
   for image_name in "${image_list[@]}"; do
 
-    touch     $TMP_DIR/$image_name
-    chmod +x  $TMP_DIR/$image_name
-    delete_image $REGISTRY/$image_name $DEL_DATE >> $TMP_DIR/$image_name
+    touch     "$TMP_DIR"/"$image_name"
+    chmod +x  "$TMP_DIR"/"$image_name"
+    delete_image "$REGISTRY"/"$image_name" "$DEL_DATE" >> "$TMP_DIR"/"$image_name"
 
-    echo      echo $REGISTRY/$image_name start
-    echo      $TMP_DIR/$image_name
-    echo      echo $REGISTRY/$image_name done
+    echo      echo "$REGISTRY"/"$image_name" start
+    echo      "$TMP_DIR"/"$image_name"
+    echo      echo "$REGISTRY"/"$image_name" "done"
   done
 }
 
 
 TMP_DIR=$(mktemp -d)
+# shellcheck disable=SC2236
 [[ ! -z "${TMP_DIR}"  ]] || exit 1
 
 DEL_DATE_30=$( date "+%C%y-%m-%d" -d  "-30 days")
 DEL_DATE_180=$(date "+%C%y-%m-%d" -d "-180 days")
 
-echo     $TMP_DIR/delete_all.sh
-touch    $TMP_DIR/delete_all.sh
-chmod +x $TMP_DIR/delete_all.sh
+echo     "$TMP_DIR"/delete_all.sh
+touch    "$TMP_DIR"/delete_all.sh
+chmod +x "$TMP_DIR"/delete_all.sh
 
-delete_all_images $TMP_DIR $DEL_DATE_30  gcr.io/istio-testing >> $TMP_DIR/delete_all.sh
-delete_all_images $TMP_DIR $DEL_DATE_180 gcr.io/istio-release >> $TMP_DIR/delete_all.sh
+delete_all_images "$TMP_DIR" "$DEL_DATE_30"  gcr.io/istio-testing >> "$TMP_DIR"/delete_all.sh
+delete_all_images "$TMP_DIR" "$DEL_DATE_180" gcr.io/istio-release >> "$TMP_DIR"/delete_all.sh
 
-$TMP_DIR/delete_all.sh
+"$TMP_DIR"/delete_all.sh
 
 
-echo    $TMP_DIR
+echo    "$TMP_DIR"
 #rm -rf $TMP_DIR

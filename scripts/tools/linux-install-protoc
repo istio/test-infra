@@ -6,7 +6,8 @@ if [[ "$(uname)" != "Linux" ]]; then
 fi
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+# shellcheck disable=SC1090
+. "${DIR}"/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
 
 PROTOC_VERSION="3.5.0"
 PROTOC_ARCHIVE="protoc-${PROTOC_VERSION}-linux-x86_64.zip"
@@ -16,6 +17,7 @@ PROTOC_BINARY='protoc'
 PROTOC_DIRECTORY="${TOOLS_DIR}/protoc"
 
 function update_protoc() {
+  # shellcheck disable=SC2155
   local protoc_current="$(protoc --version | grep -oh '[0-9]*\.[0-9]*\.[0-9]*')" \
     || protoc_current='none'
   if [[ "${PROTOC_VERSION}" == "${protoc_current}" ]]; then
@@ -25,12 +27,13 @@ function update_protoc() {
   mkdir -p "${PROTOC_DIRECTORY}"
   retry -n 3 wget -q -nc -P "${PROTOC_DIRECTORY}" "${PROTOC_URL}" \
     || error_exit 'Could not download protoc.'
-  (cd ${PROTOC_DIRECTORY}; unzip  ${PROTOC_ARCHIVE} )
+  # shellcheck disable=SC2164
+  (cd "${PROTOC_DIRECTORY}"; unzip  ${PROTOC_ARCHIVE} )
   ${SUDO} cp -f "${PROTOC_DIRECTORY}/bin/${PROTOC_BINARY}" /usr/local/bin/protoc \
     || error_exit 'Could not install protoc.'
   ${SUDO} chmod +x /usr/local/bin/protoc \
     || error_exit 'Could not change permission on protoc'
-  ${SUDO} cp -fr ${PROTOC_DIRECTORY}/include/* /usr/local/include/ \
+  ${SUDO} cp -fr "${PROTOC_DIRECTORY}"/include/* /usr/local/include/ \
     || error_exit 'Could not copy protoc include files'
   ${SUDO} chmod -R 755  /usr/local/include/google/ \
     || error_exit 'Could not change permission on protoc include files'

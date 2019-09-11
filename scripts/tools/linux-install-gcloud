@@ -7,13 +7,11 @@ if [[ "$(uname)" != "Linux" ]]; then
 fi
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+# shellcheck disable=SC1090
+. "${DIR}"/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
 
-
-GCLOUD_URL='https://dl.google.com/dl/cloudsdk/channels/rapid/google-cloud-sdk.zip'
 
 function install_gcloud() {
-  CLOUDSDK_PYTHON_SITEPACKAGES=1
   ${SUDO} rm -rf /usr/lib/google-cloud-sdk \
   && export CLOUDSDK_CORE_DISABLE_PROMPTS=1 \
   && export CLOUDSDK_INSTALL_DIR=/usr/lib/ \
@@ -35,7 +33,7 @@ function update_gcloud() {
     || error_exit 'Could not install gcloud'
   echo "Updating gcloud."
   ${SUDO} sed -i -e 's/true/false/' /usr/lib/google-cloud-sdk/lib/googlecloudsdk/core/config.json
-  ${SUDO} ${GCLOUD} -q components update kubectl beta \
+  ${SUDO} "${GCLOUD}" -q components update kubectl beta \
     || error_exit 'Cannot update gcloud'
 }
 

@@ -8,7 +8,7 @@ HOURS_OLD=3
 CLUSTER_PREFIXES=('cluster-wide-auth' 'e2e-pilot')
 ALPHA_ENABLED='true'
 
-while getopts :h:p:n:a: arg; do
+while getopts :h:p:n:a:c arg; do
   case ${arg} in
     h) HOURS_OLD=${OPTARG};;
     p) PROJECT_ID="${OPTARG}";;
@@ -20,6 +20,7 @@ done
 
 function delete_cluster() {
   IFS=',| '
+  # shellcheck disable=SC2206
   ary=(${1})
   CLUSTER_NAME=${ary[0]}
   ZONE=${ary[1]}
@@ -31,7 +32,7 @@ function delete_cluster() {
   echo "Project: ${PROJECT_ID}"
   echo "Cluster Name: ${CLUSTER_NAME}"
   echo "ZONE: ${ZONE}"
-  gcloud container clusters delete ${CLUSTER_NAME} --zone ${ZONE} --project ${PROJECT_ID} --quiet \
+  gcloud container clusters delete "${CLUSTER_NAME}" --zone "${ZONE}" --project "${PROJECT_ID}" --quiet \
     || echo "Failed to delete cluster ${CLUSTER_NAME}"
 }
 
@@ -48,15 +49,18 @@ date -u '+%Y-%m-%dT%H:%M:%S UTC'
 
 NAME_FILTERS=()
 
+# shellcheck disable=SC2068
 for CLUSTER_PREFIX in ${CLUSTER_PREFIXES[@]}; do
   NAME_FILTERS+=( "name:${CLUSTER_PREFIX}-*" )
 done
+# shellcheck disable=SC2068
 NAME_FILTER="$(join_strings ' OR ' ${NAME_FILTERS[@]})"
 
 # Print out the list of clusters should be clean
 # Filter out clusters match name pattern, with alpha enabled and live longer than expected.
-gcloud container clusters list --project ${PROJECT_ID} --format="table(name,createTime,locations[0])" --filter="enableKubernetesAlpha=${ALPHA_ENABLED} AND (${NAME_FILTER}) AND createTime<-p${HOURS_OLD}h"
+gcloud container clusters list --project "${PROJECT_ID}" --format="table(name,createTime,locations[0])" --filter="enableKubernetesAlpha=${ALPHA_ENABLED} AND (${NAME_FILTER}) AND createTime<-p${HOURS_OLD}h"
 
 # Get the same list and call delete_cluster
-gcloud container clusters list --project ${PROJECT_ID} --format="table(name,locations[0])" --filter="enableKubernetesAlpha=${ALPHA_ENABLED} AND (${NAME_FILTER}) AND createTime<-p${HOURS_OLD}h" \
+# shellcheck disable=SC2016
+gcloud container clusters list --project "${PROJECT_ID}" --format="table(name,locations[0])" --filter="enableKubernetesAlpha=${ALPHA_ENABLED} AND (${NAME_FILTER}) AND createTime<-p${HOURS_OLD}h" \
   | xargs -L2 -I {} bash -c 'delete_cluster "${@}"' _ {},"istio-testing"

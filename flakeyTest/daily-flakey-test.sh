@@ -19,7 +19,7 @@
 # The commands in the file runs the java files from flakeyTest
 # from prow daily to calculate the percentage of flakey-ness of
 # test cases.
-cd flakeyTest
+cd flakeyTest || exit
 
 /usr/local/bin/java/bin/javac -cp ".:/usr/local/bin/flakey_jars/jars/*" Pair.java TotalFlakey.java
 

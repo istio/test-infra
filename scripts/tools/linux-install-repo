@@ -6,13 +6,16 @@ if [[ "$(uname)" != "Linux" ]]; then
 fi
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+# shellcheck disable=SC1090
+. "${DIR}"/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
 
 REPO_URL="https://storage.googleapis.com/git-repo-downloads/repo"
 REPO_BINARY='repo'
 REPO_DIRECTORY="${TOOLS_DIR}/repo"
 
 function update_repo() {
+  # shellcheck disable=SC2034
+  # shellcheck disable=SC2155
   local repo_current="$(repo --version | grep -oh '[0-9]*\.[0-9]*\.[0-9]*')" \
     || repo_current='none'
 

@@ -6,7 +6,8 @@ if [[ "$(uname)" != "Linux" ]]; then
 fi
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+# shellcheck disable=SC1090
+. "${DIR}"/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
 
 # Use Bazelisk launcher for Bazel (automatically downloads required version of Bazel).
 BAZELISK_VERSION="v1.0"
@@ -16,6 +17,7 @@ BAZELISK_URL="${BAZELISK_BASE_URL}/${BAZELISK_VERSION}/${BAZELISK_BIN}"
 BAZELISK_DIRECTORY="${TOOLS_DIR}/bazelisk"
 
 function update_bazel() {
+  # shellcheck disable=SC2155
   local bazel_current="$(bazel version | grep -oh 'Bazelisk version: v[0-9]*\.[0-9]*')" \
     || bazel_current='none'
 
@@ -35,7 +37,7 @@ function update_bazel() {
   USE_BAZEL_VERSION=0.26.1 ${BAZEL} version # release-1.2
   USE_BAZEL_VERSION=0.28.1 ${BAZEL} version # release-1.3
 
-  ${SUDO} ${BAZEL} shutdown
-  ${SUDO} rm -rf ${HOME}/.cache/bazel
+  ${SUDO} "${BAZEL}" shutdown
+  ${SUDO} rm -rf "${HOME}"/.cache/bazel
   echo 'Bazelisk up-to-date.'
 }

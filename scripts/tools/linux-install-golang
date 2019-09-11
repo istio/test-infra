@@ -6,7 +6,8 @@ if [[ "$(uname)" != "Linux" ]]; then
 fi
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+# shellcheck disable=SC1090
+. "${DIR}"/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
 
 GO_VERSION='1.12.5'
 GO_BASE_URL="https://storage.googleapis.com/golang"
@@ -27,6 +28,7 @@ function install_go_pkg() {
 }
 
 function update_go() {
+  # shellcheck disable=SC2155
   local go_current="$(go version | grep -oh '[0-9]*\.[0-9]*\.[0-9]*')" \
     || go_current='none'
 

@@ -6,7 +6,8 @@ if [[ "$(uname)" != "Linux" ]]; then
 fi
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-. ${DIR}/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
+# shellcheck disable=SC1090
+. "${DIR}"/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
 
 WRK_VERSION='4.0.2'
 WRK_BASE_URL="https://storage.googleapis.com/istio-tools/wrk"
@@ -15,6 +16,7 @@ WRK_URL="${WRK_BASE_URL}/${WRK_BINARY}"
 WRK_DIRECTORY="${TOOLS_DIR}/wrk"
 
 function update_wrk() {
+  # shellcheck disable=SC2155
   local wrk_current="$(wrk --version | grep -oh '[0-9]*\.[0-9]*\.[0-9]*')" \
     || wrk_current='none'
 
