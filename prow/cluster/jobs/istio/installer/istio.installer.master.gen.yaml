@@ -15,7 +15,34 @@ postsubmits:
       - command:
         - make
         - run-build
-        image: gcr.io/istio-testing/build-tools:2019-08-31T04-48-30
+        image: gcr.io/istio-testing/build-tools:2019-09-11T09-52-48
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio-installer-postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    name: lintmodern_installer_postsubmit
+    path_alias: istio.io/installer
+    spec:
+      containers:
+      - command:
+        - make
+        - lint_modern
+        image: gcr.io/istio-testing/build-tools:2019-09-11T09-52-48
         name: ""
         resources:
           limits:
@@ -43,7 +70,33 @@ presubmits:
       - command:
         - make
         - run-build
-        image: gcr.io/istio-testing/build-tools:2019-08-31T04-48-30
+        image: gcr.io/istio-testing/build-tools:2019-09-11T09-52-48
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio-installer
+    branches:
+    - ^master$
+    decorate: true
+    name: lintmodern_installer
+    path_alias: istio.io/installer
+    spec:
+      containers:
+      - command:
+        - make
+        - lint_modern
+        image: gcr.io/istio-testing/build-tools:2019-09-11T09-52-48
         name: ""
         resources:
           limits:
