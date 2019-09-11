@@ -21,10 +21,15 @@ ifndef save
 	$(eval KUBECONFIG=$(shell mktemp))
 endif
 
-get-cluster-credentials: save-kubeconfig
+activate-serviceaccount:
+ifdef GOOGLE_APPLICATION_CREDENTIALS
+	gcloud auth activate-service-account --key-file="$(GOOGLE_APPLICATION_CREDENTIALS)"
+endif
+
+get-cluster-credentials: save-kubeconfig activate-serviceaccount
 	gcloud container clusters get-credentials "$(CLUSTER)" --project="$(PROJECT)" --zone="$(ZONE)"
 
-get-build-cluster-credentials: save-kubeconfig
+get-build-cluster-credentials: save-kubeconfig activate-serviceaccount
 	gcloud container clusters get-credentials "$(CLUSTER)" --project="$(PROJECT_BUILD)" --zone="$(ZONE)"
 
 update-config-dry-run: get-cluster-credentials
@@ -46,4 +51,4 @@ deploy: get-cluster-credentials
 deploy-build: get-build-cluster-credentials
 	kubectl apply -f ./cluster/build/
 
-.PHONY: deploy deploy-build update-config update-config-dry-run get-cluster-credentials get-build-cluster-credentials save-kubeconfig
+.PHONY: deploy deploy-build update-config update-config-dry-run get-cluster-credentials get-build-cluster-credentials save-kubeconfig activate-serviceaccount

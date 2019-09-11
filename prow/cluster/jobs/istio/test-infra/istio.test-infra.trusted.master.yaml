@@ -7,6 +7,8 @@ postsubmits:
     decorate: true
     branches:
     - master
+    labels:
+      preset-prow-deployer-service-account: "true"
     annotations:
       testgrid-create-test-group: "false"
     spec:
@@ -16,71 +18,45 @@ postsubmits:
         - bash
         args:
         - -c
-        - |
-          gcloud auth activate-service-account --key-file=/creds/service-account.json && \
-          cd prow && \
-          make deploy && \
-          make deploy-build
-        volumeMounts:
-        - name: creds
-          mountPath: /creds
-      volumes:
-      - name: creds
-        secret:
-          secretName: prow-deployer-service-account
+        - make -C prow deploy deploy-build
 
   - name: post-test-infra-update-boskos-config
     cluster: test-infra-trusted
     run_if_changed: '^boskos/resources.yaml$'
     decorate: true
     branches:
-      - master
+    - master
+    labels:
+      preset-prow-deployer-service-account: "true"
     annotations:
       testgrid-create-test-group: "false"
     spec:
       containers:
-        - image: gcr.io/k8s-testimages/gcloud-in-go:v20190125-cc5d6ecff3
-          command:
-            - bash
-          args:
-            - -c
-            - |
-              gcloud auth activate-service-account --key-file=/creds/service-account.json && \
-              make -C boskos boskos-config
-          volumeMounts:
-            - name: creds
-              mountPath: /creds
-      volumes:
-        - name: creds
-          secret:
-            secretName: prow-deployer-service-account
+      - image: gcr.io/k8s-testimages/gcloud-in-go:v20190125-cc5d6ecff3
+        command:
+        - bash
+        args:
+        - -c
+        - make -C boskos boskos-config
 
   - name: post-test-infra-deploy-boskos
     cluster: test-infra-trusted
     run_if_changed: '^boskos/cluster/.*\.yaml$'
     decorate: true
     branches:
-      - master
+    - master
+    labels:
+      preset-prow-deployer-service-account: "true"
     annotations:
       testgrid-create-test-group: "false"
     spec:
       containers:
-        - image: gcr.io/k8s-testimages/gcloud-in-go:v20190125-cc5d6ecff3
-          command:
-            - bash
-          args:
-            - -c
-            - |
-              gcloud auth activate-service-account --key-file=/creds/service-account.json && \
-              make -C boskos deploy
-          volumeMounts:
-            - name: creds
-              mountPath: /creds
-      volumes:
-        - name: creds
-          secret:
-            secretName: prow-deployer-service-account
-
+      - image: gcr.io/k8s-testimages/gcloud-in-go:v20190125-cc5d6ecff3
+        command:
+        - bash
+        args:
+        - -c
+        - make -C boskos deploy
 
 periodics:
 - cron: "54 * * * *"  # Every hour at 54 minutes past the hour
