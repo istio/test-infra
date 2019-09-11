@@ -15,10 +15,12 @@ postsubmits:
       containers:
       - image: gcr.io/k8s-testimages/gcloud-in-go:v20190125-cc5d6ecff3
         command:
-        - bash
+        - make
         args:
-        - -c
-        - make -C prow deploy deploy-build
+        - -C
+        - prow
+        - deploy
+        - deploy-build
 
   - name: post-test-infra-update-boskos-config
     cluster: test-infra-trusted
@@ -34,10 +36,11 @@ postsubmits:
       containers:
       - image: gcr.io/k8s-testimages/gcloud-in-go:v20190125-cc5d6ecff3
         command:
-        - bash
+        - make
         args:
-        - -c
-        - make -C boskos boskos-config
+        - -C
+        - boskos
+        - boskos-config
 
   - name: post-test-infra-deploy-boskos
     cluster: test-infra-trusted
@@ -53,10 +56,11 @@ postsubmits:
       containers:
       - image: gcr.io/k8s-testimages/gcloud-in-go:v20190125-cc5d6ecff3
         command:
-        - bash
+        - make
         args:
-        - -c
-        - make -C boskos deploy
+        - -C
+        - boskos
+        - deploy
 
 periodics:
 - cron: "54 * * * *"  # Every hour at 54 minutes past the hour

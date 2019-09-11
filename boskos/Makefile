@@ -1,14 +1,11 @@
+include ../prow/Makefile.gcloud.mk
+
 PROJECT ?= istio-prow-build
 ZONE ?= us-west1-a
 CLUSTER ?= prow
 NAMESPACE ?= boskos
 HUB ?= gcr.io/istio-testing
 TAG ?= $(shell date +v%Y%m%d)-$(shell git describe --tags --always --dirty)
-
-activate-serviceaccount:
-ifdef GOOGLE_APPLICATION_CREDENTIALS
-	gcloud auth activate-service-account --key-file="$(GOOGLE_APPLICATION_CREDENTIALS)"
-endif
 
 mason-image:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o cmd/mason/mason istio.io/test-infra/boskos/cmd/mason/
@@ -38,12 +35,9 @@ endif
 		-n $(NAMESPACE) --dry-run -o yaml \
 		| kubectl apply -f -
 
-get-cluster-credentials: activate-serviceaccount
-	gcloud container clusters get-credentials "$(CLUSTER)" --project="$(PROJECT)" --zone="$(ZONE)"
-
 namespace: get-cluster-credentials
 	kubectl create namespace $(NAMESPACE)
 
 init: namespace create-serviceaccount
 
-.PHONY: mason-image mason-client deploy boskos-config activate-serviceaccount create-serviceaccount get-cluster-credentials namespace init
+.PHONY: mason-image mason-client deploy boskos-config create-serviceaccount namespace init
