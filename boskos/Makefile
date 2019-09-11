@@ -1,3 +1,5 @@
+include ../prow/Makefile.gcloud.mk
+
 PROJECT ?= istio-prow-build
 ZONE ?= us-west1-a
 CLUSTER ?= prow
@@ -33,12 +35,9 @@ endif
 		-n $(NAMESPACE) --dry-run -o yaml \
 		| kubectl apply -f -
 
-get-cluster-credentials:
-	gcloud container clusters get-credentials "$(CLUSTER)" --project="$(PROJECT)" --zone="$(ZONE)"
-
 namespace: get-cluster-credentials
 	kubectl create namespace $(NAMESPACE)
 
 init: namespace create-serviceaccount
 
-.PHONY: mason-image mason-client deploy boskos-config create-serviceaccount get-cluster-credentials namespace init
+.PHONY: mason-image mason-client deploy boskos-config create-serviceaccount namespace init
