@@ -1,6 +1,6 @@
 org: istio
 repo: installer
-image: gcr.io/istio-testing/build-tools:2019-08-31T04-48-30
+image: gcr.io/istio-testing/build-tools:2019-09-11T09-52-48
 suppress_entrypoint: true
 branches:
   - master
@@ -8,3 +8,6 @@ branches:
 jobs:
   - name: build
     command: [make, run-build]
+
+  - name: lintmodern
+    command: [make, lint_modern]
