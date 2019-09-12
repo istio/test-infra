@@ -184,6 +184,15 @@ jobs:
     # The node image must be kept in sync with the kind version we use.
     # See docker/istio/shared/tools/install-golang.sh for the kind image
     # https://github.com/kubernetes-sigs/kind/releases for node corresponding node image
+  - name: integ-k8s-112-postsubmit
+    type: postsubmit
+    command:
+    - prow/integ-suite-kind.sh
+    - --node-image
+    - kindest/node:v1.12.10
+    - test.integration.kube.presubmit
+    requirements: [kind]
+    timeout: 4h
   - name: integ-k8s-113
     type: postsubmit
     command:
