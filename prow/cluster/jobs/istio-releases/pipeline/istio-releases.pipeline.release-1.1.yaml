@@ -39,11 +39,10 @@ presubmits:
 
   istio-releases/pipeline:
 
-  - name: release-build
+  - name: release-build_pipeline_release-1.1
     <<: *job_template
     always_run: true
     optional: false
-    context: prow/release-build
     labels:
       preset-release-pipeline: "true"
     spec:
@@ -55,11 +54,10 @@ presubmits:
         - scripts/pipeline_runner.sh
         - release/gcb/run_build.sh
 
-  - name: release-upgrade-tests-1.0.1
+  - name: release-upgrade-tests-1.0.1_pipeline_release-1.1
     <<: *job_template
     always_run: true
     optional: false
-    context: prow/release-upgrade-tests-1.0.1
     max_concurrency: 5
     labels:
       preset-release-build-test: "true"
@@ -73,11 +71,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
-  - name: release-upgrade-tests-1.0.2
+  - name: release-upgrade-tests-1.0.2_pipeline_release-1.1
     <<: *job_template
     always_run: true
     optional: false
-    context: prow/release-upgrade-tests-1.0.2
     max_concurrency: 5
     labels:
       preset-release-build-test: "true"
@@ -91,11 +88,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
-  - name: release-unit-tests
+  - name: release-unit-tests_pipeline_release-1.1
     <<: *job_template
     always_run: true
     optional: false
-    context: prow/release-unit-tests
     max_concurrency: 5
     labels:
       preset-release-build-test: "true"
@@ -109,11 +105,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
-  - name: release-istioctl-tests
+  - name: release-istioctl-tests_pipeline_release-1.1
     <<: *job_template
     always_run: true
     optional: false
-    context: prow/release-istioctl-tests
     max_concurrency: 5
     labels:
       preset-release-build-test: "true"
@@ -127,11 +122,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
-  - name: release-e2e-pilot-no_auth
+  - name: release-e2e-pilot-no_auth_pipeline_release-1.1
     <<: *job_template
     always_run: true
     optional: false
-    context: prow/release-e2e-pilot-no_auth
     max_concurrency: 5
     labels:
       preset-release-build-test: "true"
@@ -145,11 +139,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
-  - name: release-e2e-bookinfoTests
+  - name: release-e2e-bookinfoTests_pipeline_release-1.1
     <<: *job_template
     always_run: true
     optional: false
-    context: prow/release-e2e-bookinfoTests
     max_concurrency: 5
     labels:
       preset-release-build-test: "true"
@@ -163,11 +156,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
-  - name: release-e2e-simpleTests
+  - name: release-e2e-simpleTests_pipeline_release-1.1
     <<: *job_template
     always_run: true
     optional: false
-    context: prow/release-e2e-simpleTests
     max_concurrency: 5
     labels:
       preset-release-build-test: "true"
@@ -181,11 +173,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
-  - name: release-e2e-mixer-no_auth
+  - name: release-e2e-mixer-no_auth_pipeline_release-1.1
     <<: *job_template
     always_run: true
     optional: false
-    context: prow/release-e2e-mixer-no_auth
     max_concurrency: 5
     labels:
       preset-release-build-test: "true"
@@ -199,11 +190,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
-  - name: release-e2e-dashboard
+  - name: release-e2e-dashboard_pipeline_release-1.1
     <<: *job_template
     always_run: true
     optional: false
-    context: prow/release-e2e-dashboard
     max_concurrency: 5
     labels:
       preset-release-build-test: "true"
@@ -217,11 +207,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
 
-  - name: release-e2e-stackdriver
+  - name: release-e2e-stackdriver_pipeline_release-1.1
     <<: *job_template
     always_run: true
     optional: true
-    context: prow/release-e2e-stackdriver
     max_concurrency: 5
     labels:
       preset-release-build-test: "true"
@@ -240,7 +229,11 @@ postsubmits:
 
   istio-releases/pipeline:
 
-  - name: release-daily
+  - name: release-daily_pipeline_release-1.1_postsubmit
+    annotations:
+      testgrid-dashboards: istio-release
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     <<: *job_template
     run_if_changed: "daily/.*"
     labels:
@@ -254,7 +247,11 @@ postsubmits:
         - scripts/pipeline_runner.sh
         - release/gcb/run_daily_release.sh
 
-  - name: release-monthly
+  - name: release-monthly_pipeline_release-1.1_postsubmit
+    annotations:
+      testgrid-dashboards: istio-release
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-num-failures-to-alert: '1'
     <<: *job_template
     run_if_changed: "monthly/.*"
     labels:
