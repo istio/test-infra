@@ -1376,6 +1376,33 @@ postsubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio-istio-postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    name: lintmodern_istio_postsubmit
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - make
+        - lint_modern
+        image: gcr.io/istio-testing/build-tools:2019-09-11T09-52-48
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "3"
+            memory: 16Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
 presubmits:
   istio/istio:
   - always_run: true
@@ -1459,33 +1486,6 @@ presubmits:
         resources:
           limits:
             cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "3"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio-istio
-    branches:
-    - ^master$
-    decorate: true
-    name: shellcheck_istio
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - make
-        - shellcheck
-        image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
             memory: 24Gi
           requests:
             cpu: "3"
@@ -2469,6 +2469,32 @@ presubmits:
           requests:
             cpu: "3"
             memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio-istio
+    branches:
+    - ^master$
+    decorate: true
+    name: lintmodern_istio
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - make
+        - lint_modern
+        image: gcr.io/istio-testing/build-tools:2019-09-11T09-52-48
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "3"
+            memory: 16Gi
         securityContext:
           privileged: true
       nodeSelector:

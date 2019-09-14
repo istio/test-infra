@@ -14,9 +14,6 @@ jobs:
   - name: racetest
     command: [make,  -e, "T=-v", localTestEnv, racetest]
     resources: large
-  - name: shellcheck
-    type: presubmit
-    command: [make, shellcheck]
   - name: codecov
     command: [make, coverage-diff]
 
@@ -222,6 +219,12 @@ jobs:
     - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
+
+  - name: lintmodern
+    command: [make, lint_modern]
+    image: gcr.io/istio-testing/build-tools:2019-09-11T09-52-48
+    resources: lint
+    suppress_entrypoint: true
 
 resources:
   default:
