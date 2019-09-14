@@ -27,5 +27,5 @@ require (
 	gopkg.in/yaml.v2 v2.2.2
 	k8s.io/api v0.0.0-20190816222004-e3a6b8045b0b
 	k8s.io/apimachinery v0.0.0-20190816221834-a9f1d8a9c101
-	k8s.io/test-infra v0.0.0-20190906234520-d5d7ce3eb0ff
+	k8s.io/test-infra v0.0.0-20190914002441-ef4a69c12a20
 )
