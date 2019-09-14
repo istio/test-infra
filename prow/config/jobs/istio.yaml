@@ -13,6 +13,7 @@ jobs:
     command: [make, lint]
   - name: racetest
     command: [make,  -e, "T=-v", localTestEnv, racetest]
+    resources: large
   - name: shellcheck
     type: presubmit
     command: [make, shellcheck]
@@ -230,6 +231,13 @@ resources:
     limits:
       memory: "24Gi"
       cpu: "5000m"
+  large:
+    requests:
+      memory: "3Gi"
+      cpu: "3000m"
+    limits:
+      memory: "24Gi"
+      cpu: "8000m"
   lint:
     requests:
       memory: "16Gi"
