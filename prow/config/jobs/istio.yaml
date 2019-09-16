@@ -13,7 +13,6 @@ jobs:
     command: [make, lint]
   - name: racetest
     command: [make,  -e, "T=-v", localTestEnv, racetest]
-    resources: large
   - name: codecov
     command: [make, coverage-diff]
 
@@ -228,13 +227,6 @@ jobs:
 
 resources:
   default:
-    requests:
-      memory: "3Gi"
-      cpu: "3000m"
-    limits:
-      memory: "24Gi"
-      cpu: "5000m"
-  large:
     requests:
       memory: "3Gi"
       cpu: "3000m"
