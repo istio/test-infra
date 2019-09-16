@@ -1,55 +1,5 @@
 presubmits:
 
-  istio/tools:
-
-    - name: tools-lint
-      branches:
-        - ^master$
-        - ^release-1.*$
-      path_alias: istio.io/tools
-      decorate: true
-      always_run: true
-      spec:
-        containers:
-          - image: gcr.io/istio-testing/build-tools:2019-08-22T16-27-38
-            command:
-              - make
-              - lint
-        nodeSelector:
-          testing: test-pool
-
-    - name: tools-build
-      branches:
-        - ^master$
-        - ^release-1.*$
-      path_alias: istio.io/tools
-      decorate: true
-      always_run: true
-      spec:
-        containers:
-          - image: gcr.io/istio-testing/build-tools:2019-08-22T16-27-38
-            command:
-              - make
-              - build
-        nodeSelector:
-          testing: build-pool
-
-    - name: tools-test
-      branches:
-        - ^master$
-        - ^release-1.*$
-      path_alias: istio.io/tools
-      decorate: true
-      always_run: true
-      spec:
-        containers:
-          - image: gcr.io/istio-testing/build-tools:2019-08-22T16-27-38
-            command:
-              - make
-              - test
-        nodeSelector:
-          testing: test-pool
-
 postsubmits:
 
   istio/tools:
@@ -61,6 +11,8 @@ postsubmits:
       annotations:
         testgrid-dashboards: "istio-tools"
       decorate: true
+      labels:
+        preset-service-account: "true"
       spec:
         containers:
           - image: gcr.io/istio-testing/istio-builder:v20190807-7d818206

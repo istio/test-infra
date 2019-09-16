@@ -249,7 +249,7 @@ func WriteConfig(jobs config.JobConfig, fname string) {
 	}
 	output := []byte(AutogenHeader)
 	output = append(output, bytes...)
-	err = ioutil.WriteFile(fname, output, 0755)
+	err = ioutil.WriteFile(fname, output, 0644)
 	if err != nil {
 		exit(err, "failed to write result")
 	}
