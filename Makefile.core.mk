@@ -17,6 +17,9 @@ lint: lint-go lint-python lint-copyright-banner lint-yaml lint-helm lint-scripts
 lint-buildifier:
 	@bazel run //:buildifier -- -showlog -mode=check $(git ls-files| grep -e BUILD -e WORKSPACE | grep -v vendor)
 
+format: format-go
+	go mod tidy
+
 test:
 	@go test -race ./...
 
