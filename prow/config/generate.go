@@ -157,6 +157,11 @@ func ValidateJobConfig(jobConfig JobConfig) {
 	}
 }
 
+func triggerRegex(job string) string {
+	// This is based on the default regex for jobs, but replacing the full job name with the short job name
+	return fmt.Sprintf(`(?m)^/test (?:.*? )?%s(?: .*?)?$`, job)
+}
+
 func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 	var presubmits []config.Presubmit
 	var postsubmits []config.Postsubmit
@@ -184,9 +189,11 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			}
 
 			presubmit := config.Presubmit{
-				JobBase:   createJobBase(jobConfig, job, name, jobConfig.Repo, branch, jobConfig.Resources),
-				AlwaysRun: true,
-				Brancher:  brancher,
+				JobBase:      createJobBase(jobConfig, job, name, jobConfig.Repo, branch, jobConfig.Resources),
+				AlwaysRun:    true,
+				Brancher:     brancher,
+				Trigger:      triggerRegex(job.Name),
+				RerunCommand: fmt.Sprintf(`/test %s`, job.Name),
 			}
 			presubmit.JobBase.Annotations[TestGridDashboard] = testgridJobPrefix
 			applyModifiersPresubmit(&presubmit, job.Modifiers)

@@ -65,6 +65,7 @@ presubmits:
     decorate: true
     name: build_installer
     path_alias: istio.io/installer
+    rerun_command: /test build
     spec:
       containers:
       - command:
@@ -83,6 +84,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?build(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-installer
@@ -91,6 +93,7 @@ presubmits:
     decorate: true
     name: lintmodern_installer
     path_alias: istio.io/installer
+    rerun_command: /test lintmodern
     spec:
       containers:
       - command:
@@ -109,3 +112,4 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?lintmodern(?: .*?)?$'
