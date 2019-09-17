@@ -1366,6 +1366,7 @@ presubmits:
     decorate: true
     name: unit-tests_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test unit-tests
     spec:
       containers:
       - command:
@@ -1390,6 +1391,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?unit-tests(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -1398,6 +1400,7 @@ presubmits:
     decorate: true
     name: lint_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test lint
     spec:
       containers:
       - command:
@@ -1417,6 +1420,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?lint(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -1425,6 +1429,7 @@ presubmits:
     decorate: true
     name: racetest_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test racetest
     spec:
       containers:
       - command:
@@ -1447,6 +1452,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?racetest(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -1455,6 +1461,7 @@ presubmits:
     decorate: true
     name: shellcheck_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test shellcheck
     spec:
       containers:
       - command:
@@ -1474,6 +1481,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?shellcheck(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -1482,6 +1490,7 @@ presubmits:
     decorate: true
     name: codecov_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test codecov
     spec:
       containers:
       - command:
@@ -1501,6 +1510,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?codecov(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -1512,6 +1522,7 @@ presubmits:
     max_concurrency: 5
     name: release-test_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test release-test
     spec:
       containers:
       - command:
@@ -1530,6 +1541,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?release-test(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -1538,6 +1550,7 @@ presubmits:
     decorate: true
     name: integ-framework-local-tests_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test integ-framework-local-tests
     spec:
       containers:
       - command:
@@ -1557,6 +1570,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?integ-framework-local-tests(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -1565,6 +1579,7 @@ presubmits:
     decorate: true
     name: integ-galley-local-tests_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test integ-galley-local-tests
     spec:
       containers:
       - command:
@@ -1584,6 +1599,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?integ-galley-local-tests(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -1592,6 +1608,7 @@ presubmits:
     decorate: true
     name: integ-mixer-local-tests_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test integ-mixer-local-tests
     spec:
       containers:
       - command:
@@ -1611,6 +1628,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?integ-mixer-local-tests(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -1619,6 +1637,7 @@ presubmits:
     decorate: true
     name: integ-pilot-local-tests_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test integ-pilot-local-tests
     spec:
       containers:
       - command:
@@ -1638,6 +1657,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?integ-pilot-local-tests(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -1646,6 +1666,7 @@ presubmits:
     decorate: true
     name: integ-security-local-tests_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test integ-security-local-tests
     spec:
       containers:
       - command:
@@ -1665,6 +1686,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?integ-security-local-tests(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -1673,6 +1695,7 @@ presubmits:
     decorate: true
     name: integ-framework-k8s-tests_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test integ-framework-k8s-tests
     spec:
       containers:
       - command:
@@ -1707,6 +1730,7 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+    trigger: '(?m)^/test (?:.*? )?integ-framework-k8s-tests(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -1715,6 +1739,7 @@ presubmits:
     decorate: true
     name: integ-istioctl-k8s-tests_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test integ-istioctl-k8s-tests
     spec:
       containers:
       - command:
@@ -1749,6 +1774,7 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+    trigger: '(?m)^/test (?:.*? )?integ-istioctl-k8s-tests(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -1757,6 +1783,7 @@ presubmits:
     decorate: true
     name: integ-galley-k8s-tests_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test integ-galley-k8s-tests
     spec:
       containers:
       - command:
@@ -1791,6 +1818,7 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+    trigger: '(?m)^/test (?:.*? )?integ-galley-k8s-tests(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -1800,6 +1828,7 @@ presubmits:
     name: integ-mixer-k8s-tests_istio_release-1.3
     optional: true
     path_alias: istio.io/istio
+    rerun_command: /test integ-mixer-k8s-tests
     spec:
       containers:
       - command:
@@ -1834,6 +1863,7 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+    trigger: '(?m)^/test (?:.*? )?integ-mixer-k8s-tests(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -1842,6 +1872,7 @@ presubmits:
     decorate: true
     name: integ-pilot-k8s-tests_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test integ-pilot-k8s-tests
     spec:
       containers:
       - command:
@@ -1876,6 +1907,7 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+    trigger: '(?m)^/test (?:.*? )?integ-pilot-k8s-tests(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -1884,6 +1916,7 @@ presubmits:
     decorate: true
     name: integ-security-k8s-tests_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test integ-security-k8s-tests
     spec:
       containers:
       - command:
@@ -1918,6 +1951,7 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+    trigger: '(?m)^/test (?:.*? )?integ-security-k8s-tests(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -1926,6 +1960,7 @@ presubmits:
     decorate: true
     name: integ-telemetry-k8s-tests_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test integ-telemetry-k8s-tests
     spec:
       containers:
       - command:
@@ -1960,6 +1995,7 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+    trigger: '(?m)^/test (?:.*? )?integ-telemetry-k8s-tests(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -1969,6 +2005,7 @@ presubmits:
     name: integ-new-install-k8s-tests_istio_release-1.3
     optional: true
     path_alias: istio.io/istio
+    rerun_command: /test integ-new-install-k8s-tests
     spec:
       containers:
       - command:
@@ -2003,6 +2040,7 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+    trigger: '(?m)^/test (?:.*? )?integ-new-install-k8s-tests(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -2011,6 +2049,7 @@ presubmits:
     decorate: true
     name: e2e-mixer-no_auth_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test e2e-mixer-no_auth
     spec:
       containers:
       - command:
@@ -2046,6 +2085,7 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+    trigger: '(?m)^/test (?:.*? )?e2e-mixer-no_auth(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -2054,6 +2094,7 @@ presubmits:
     decorate: true
     name: pilot-e2e-envoyv2-v1alpha3_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test pilot-e2e-envoyv2-v1alpha3
     spec:
       containers:
       - command:
@@ -2089,6 +2130,7 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+    trigger: '(?m)^/test (?:.*? )?pilot-e2e-envoyv2-v1alpha3(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -2100,6 +2142,7 @@ presubmits:
     max_concurrency: 5
     name: e2e-dashboard_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test e2e-dashboard
     spec:
       containers:
       - command:
@@ -2118,6 +2161,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?e2e-dashboard(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -2126,6 +2170,7 @@ presubmits:
     decorate: true
     name: e2e-bookInfoTests-envoyv2-v1alpha3_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test e2e-bookInfoTests-envoyv2-v1alpha3
     spec:
       containers:
       - command:
@@ -2161,6 +2206,7 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+    trigger: '(?m)^/test (?:.*? )?e2e-bookInfoTests-envoyv2-v1alpha3(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -2169,6 +2215,7 @@ presubmits:
     decorate: true
     name: e2e-bookInfoTests-trustdomain_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test e2e-bookInfoTests-trustdomain
     spec:
       containers:
       - command:
@@ -2204,6 +2251,7 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+    trigger: '(?m)^/test (?:.*? )?e2e-bookInfoTests-trustdomain(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -2212,6 +2260,7 @@ presubmits:
     decorate: true
     name: e2e-simpleTests_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test e2e-simpleTests
     spec:
       containers:
       - command:
@@ -2250,6 +2299,7 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+    trigger: '(?m)^/test (?:.*? )?e2e-simpleTests(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -2258,6 +2308,7 @@ presubmits:
     decorate: true
     name: e2e-simpleTests-distroless_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test e2e-simpleTests-distroless
     spec:
       containers:
       - command:
@@ -2298,6 +2349,7 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+    trigger: '(?m)^/test (?:.*? )?e2e-simpleTests-distroless(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -2306,6 +2358,7 @@ presubmits:
     decorate: true
     name: e2e-simpleTestsMinProfile_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test e2e-simpleTestsMinProfile
     spec:
       containers:
       - command:
@@ -2347,6 +2400,7 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+    trigger: '(?m)^/test (?:.*? )?e2e-simpleTestsMinProfile(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -2355,6 +2409,7 @@ presubmits:
     decorate: true
     name: e2e-simpleTests-cni_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test e2e-simpleTests-cni
     spec:
       containers:
       - command:
@@ -2396,6 +2451,7 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+    trigger: '(?m)^/test (?:.*? )?e2e-simpleTests-cni(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -2408,6 +2464,7 @@ presubmits:
     name: pilot-multicluster-e2e_istio_release-1.3
     optional: true
     path_alias: istio.io/istio
+    rerun_command: /test pilot-multicluster-e2e
     spec:
       containers:
       - command:
@@ -2426,6 +2483,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?pilot-multicluster-e2e(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -2434,6 +2492,7 @@ presubmits:
     decorate: true
     name: istio_e2e_cloudfoundry_istio_release-1.3
     path_alias: istio.io/istio
+    rerun_command: /test istio_e2e_cloudfoundry
     spec:
       containers:
       - command:
@@ -2453,3 +2512,4 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?istio_e2e_cloudfoundry(?: .*?)?$'

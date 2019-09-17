@@ -65,6 +65,7 @@ presubmits:
     decorate: true
     name: build_gogo-genproto
     path_alias: istio.io/gogo-genproto
+    rerun_command: /test build
     spec:
       containers:
       - command:
@@ -83,6 +84,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?build(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-gogo-genproto
@@ -91,6 +93,7 @@ presubmits:
     decorate: true
     name: lint_gogo-genproto
     path_alias: istio.io/gogo-genproto
+    rerun_command: /test lint
     spec:
       containers:
       - command:
@@ -109,3 +112,4 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?lint(?: .*?)?$'

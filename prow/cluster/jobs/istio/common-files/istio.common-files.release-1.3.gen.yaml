@@ -38,6 +38,7 @@ presubmits:
     decorate: true
     name: lint_common-files_release-1.3
     path_alias: istio.io/common-files
+    rerun_command: /test lint
     spec:
       containers:
       - command:
@@ -56,3 +57,4 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?lint(?: .*?)?$'

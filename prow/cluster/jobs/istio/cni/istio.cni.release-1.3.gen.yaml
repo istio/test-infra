@@ -170,6 +170,7 @@ presubmits:
     decorate: true
     name: build_cni_release-1.3
     path_alias: istio.io/cni
+    rerun_command: /test build
     spec:
       containers:
       - command:
@@ -189,6 +190,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?build(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-cni
@@ -197,6 +199,7 @@ presubmits:
     decorate: true
     name: install_cni_release-1.3
     path_alias: istio.io/cni
+    rerun_command: /test install
     spec:
       containers:
       - command:
@@ -217,6 +220,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?install(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-cni
@@ -230,6 +234,7 @@ presubmits:
       repo: istio
     name: e2e_cni_release-1.3
     path_alias: istio.io/cni
+    rerun_command: /test e2e
     spec:
       containers:
       - command:
@@ -264,6 +269,7 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+    trigger: '(?m)^/test (?:.*? )?e2e(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-cni
@@ -273,6 +279,7 @@ presubmits:
     name: buildmodern_cni_release-1.3
     optional: true
     path_alias: istio.io/cni
+    rerun_command: /test buildmodern
     spec:
       containers:
       - command:
@@ -291,6 +298,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?buildmodern(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-cni
@@ -299,6 +307,7 @@ presubmits:
     decorate: true
     name: lintmodern_cni_release-1.3
     path_alias: istio.io/cni
+    rerun_command: /test lintmodern
     spec:
       containers:
       - command:
@@ -317,3 +326,4 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?lintmodern(?: .*?)?$'

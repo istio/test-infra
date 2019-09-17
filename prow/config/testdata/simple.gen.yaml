@@ -35,6 +35,7 @@ presubmits:
     decorate: true
     name: test_istio
     path_alias: istio.io/istio
+    rerun_command: /test test
     spec:
       containers:
       - command:
@@ -50,6 +51,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?test(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-istio
@@ -63,6 +65,7 @@ presubmits:
       repo: istio
     name: presubmit-kind_istio
     path_alias: istio.io/istio
+    rerun_command: /test presubmit-kind
     spec:
       containers:
       - command:
@@ -99,3 +102,4 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+    trigger: '(?m)^/test (?:.*? )?presubmit-kind(?: .*?)?$'

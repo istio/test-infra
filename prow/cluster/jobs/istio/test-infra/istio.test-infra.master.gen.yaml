@@ -92,6 +92,7 @@ presubmits:
     decorate: true
     name: lint_test-infra
     path_alias: istio.io/test-infra
+    rerun_command: /test lint
     spec:
       containers:
       - command:
@@ -110,6 +111,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?lint(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-test-infra
@@ -118,6 +120,7 @@ presubmits:
     decorate: true
     name: test_test-infra
     path_alias: istio.io/test-infra
+    rerun_command: /test test
     spec:
       containers:
       - command:
@@ -136,6 +139,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?test(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio-test-infra
@@ -144,6 +148,7 @@ presubmits:
     decorate: true
     name: check-config_test-infra
     path_alias: istio.io/test-infra
+    rerun_command: /test check-config
     spec:
       containers:
       - command:
@@ -162,3 +167,4 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+    trigger: '(?m)^/test (?:.*? )?check-config(?: .*?)?$'
