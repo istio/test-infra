@@ -118,6 +118,7 @@ postsubmits:
     decorate: true
     name: manifest-apply_operator_postsubmit
     path_alias: istio.io/operator
+    skip_report: true
     spec:
       containers:
       - command:
@@ -272,8 +273,10 @@ presubmits:
     - ^master$
     decorate: true
     name: manifest-apply_operator
+    optional: true
     path_alias: istio.io/operator
     rerun_command: /test manifest-apply
+    skip_report: true
     spec:
       containers:
       - command:
