@@ -1,80 +1,141 @@
 # Dashboards need to be specified here
 # A prow annotation will be invalid if it references a dashboard that doesn't exist
 dashboards:
-  - name: istio-istio
-  - name: istio-bots
-  - name: istio-client-go
-  - name: istio-cni
-  - name: istio-common-files
-  - name: istio-community
-  - name: istio-gogo-genproto
-  - name: istio-installer
-  - name: istio-istio.io
-  - name: istio-pkg
-  - name: istio-tests
-  - name: istio-test-infra
-  - name: istio-istio-postsubmit
-  - name: istio-bots-postsubmit
-  - name: istio-client-go-postsubmit
-  - name: istio-cni-postsubmit
-  - name: istio-common-files-postsubmit
-  - name: istio-community-postsubmit
-  - name: istio-gogo-genproto-postsubmit
-  - name: istio-installer-postsubmit
-  - name: istio-istio.io-postsubmit
-  - name: istio-pkg-postsubmit
-  - name: istio-tests-postsubmit
-  - name: istio-test-infra-postsubmit
+- name: istio_api
+- name: istio_api_postsubmit
+- name: istio_bots
+- name: istio_bots_postsubmit
+- name: istio_client-go
+- name: istio_client-go_postsubmit
+- name: istio_cni
+- name: istio_cni_postsubmit
+- name: istio_common-files
+- name: istio_common-files_postsubmit
+- name: istio_community
+- name: istio_community_postsubmit
+- name: istio_gogo-genproto
+- name: istio_gogo-genproto_postsubmit
+- name: istio_infrastructure
+- name: istio_installer
+- name: istio_installer_postsubmit
+- name: istio_istio
+- name: istio_istio.io
+- name: istio_istio.io_postsubmit
+- name: istio_istio_postsubmit
+- name: istio_operator
+- name: istio_operator_postsubmit
+- name: istio_pkg
+- name: istio_pkg_postsubmit
+- name: istio_proxy
+- name: istio_proxy_postsubmit
+- name: istio_release-1.2_istio
+- name: istio_release-1.2_istio_postsubmit
+- name: istio_release-1.3_api
+- name: istio_release-1.3_bots
+- name: istio_release-1.3_bots_postsubmit
+- name: istio_release-1.3_client-go
+- name: istio_release-1.3_client-go_postsubmit
+- name: istio_release-1.3_cni
+- name: istio_release-1.3_cni_postsubmit
+- name: istio_release-1.3_common-files
+- name: istio_release-1.3_common-files_postsubmit
+- name: istio_release-1.3_gogo-genproto
+- name: istio_release-1.3_gogo-genproto_postsubmit
+- name: istio_release-1.3_istio
+- name: istio_release-1.3_istio.io
+- name: istio_release-1.3_istio.io_postsubmit
+- name: istio_release-1.3_istio_postsubmit
+- name: istio_release-1.3_operator
+- name: istio_release-1.3_operator_postsubmit
+- name: istio_release-1.3_pkg
+- name: istio_release-1.3_pkg_postsubmit
+- name: istio_release-1.3_proxy
+- name: istio_release-1.3_proxy_postsubmit
+- name: istio_release-1.3_release
+- name: istio_release-1.3_tests
+- name: istio_release-1.3_tests_postsubmit
+- name: istio_release-pipeline
+- name: istio_test-infra
+- name: istio_test-infra_postsubmit
+- name: istio_tests
+- name: istio_tests_postsubmit
+- name: istio_tools
+- name: istio_tools_postsubmit
+- name: istio-gke
 
-  - name: istio-api
-  - name: istio-api-release-1.3
-  - name: istio-proxy-presubmits
-  - name: istio-proxy-postsubmits
-  - name: istio-proxy-presubmits-release-1.3
-  - name: istio-proxy-postsubmits-release-1.3
-  - name: istio-release
-  - name: istio-release-release-1.3
-  - name: istio-infrastructure
-  - name: istio-tools
-  - name: istio-gke # used by sig-gcp config from k8s/test-infra
 
 # Group all dashboards
 dashboard_groups:
+
+- name: istio_release-1.3
+  dashboard_names:
+  - istio_release-1.3_istio_postsubmit
+  - istio_release-1.3_bots_postsubmit
+  - istio_release-1.3_client-go_postsubmit
+  - istio_release-1.3_cni_postsubmit
+  - istio_release-1.3_common-files_postsubmit
+  - istio_release-1.3_gogo-genproto_postsubmit
+  - istio_release-1.3_istio.io_postsubmit
+  - istio_release-1.3_operator_postsubmit
+  - istio_release-1.3_pkg_postsubmit
+  - istio_release-1.3_proxy_postsubmit
+  - istio_release-1.3_tests_postsubmit
+
+  - istio_release-1.3_istio
+  - istio_release-1.3_api
+  - istio_release-1.3_bots
+  - istio_release-1.3_client-go
+  - istio_release-1.3_cni
+  - istio_release-1.3_common-files
+  - istio_release-1.3_gogo-genproto
+  - istio_release-1.3_istio.io
+  - istio_release-1.3_operator
+  - istio_release-1.3_pkg
+  - istio_release-1.3_proxy
+  - istio_release-1.3_release
+  - istio_release-1.3_tests
+
+
+- name: istio_release-1.2
+  dashboard_names:
+  - istio_release-1.2_istio_postsubmit
+  - istio_release-1.2_istio
+
+
 - name: istio
   dashboard_names:
-  - istio-istio
-  - istio-bots
-  - istio-client-go
-  - istio-cni
-  - istio-common-files
-  - istio-community
-  - istio-gogo-genproto
-  - istio-installer
-  - istio-istio.io
-  - istio-pkg
-  - istio-tests
-  - istio-test-infra
-  - istio-istio-postsubmit
-  - istio-bots-postsubmit
-  - istio-client-go-postsubmit
-  - istio-cni-postsubmit
-  - istio-common-files-postsubmit
-  - istio-community-postsubmit
-  - istio-gogo-genproto-postsubmit
-  - istio-installer-postsubmit
-  - istio-istio.io-postsubmit
-  - istio-pkg-postsubmit
-  - istio-tests-postsubmit
-  - istio-test-infra-postsubmit
+  - istio_istio_postsubmit
+  - istio_api_postsubmit
+  - istio_bots_postsubmit
+  - istio_client-go_postsubmit
+  - istio_cni_postsubmit
+  - istio_common-files_postsubmit
+  - istio_community_postsubmit
+  - istio_gogo-genproto_postsubmit
+  - istio_installer_postsubmit
+  - istio_istio.io_postsubmit
+  - istio_operator_postsubmit
+  - istio_pkg_postsubmit
+  - istio_proxy_postsubmit
+  - istio_test-infra_postsubmit
+  - istio_tests_postsubmit
+  - istio_tools_postsubmit
 
-  - istio-api
-  - istio-api-release-1.3
-  - istio-proxy-presubmits
-  - istio-proxy-postsubmits
-  - istio-proxy-presubmits-release-1.3
-  - istio-proxy-postsubmits-release-1.3
-  - istio-release
-  - istio-release-release-1.3
-  - istio-infrastructure
-  - istio-tools
-  - istio-gke # used by sig-gcp config from k8s/test-infra
+  - istio_istio
+  - istio_api
+  - istio_bots
+  - istio_client-go
+  - istio_cni
+  - istio_common-files
+  - istio_community
+  - istio_gogo-genproto
+  - istio_infrastructure
+  - istio_installer
+  - istio_istio.io
+  - istio_operator
+  - istio_pkg
+  - istio_proxy
+  - istio_test-infra
+  - istio_tests
+  - istio_tools
+  - istio-gke

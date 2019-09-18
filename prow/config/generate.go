@@ -180,8 +180,11 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			job.Command = append([]string{"entrypoint"}, job.Command...)
 		}
 
-		testgridJobPrefix := "istio-" + jobConfig.Repo
-
+		testgridJobPrefix := "istio"
+		if branch != "master" {
+			testgridJobPrefix += "_" + branch
+		}
+		testgridJobPrefix += "_" + jobConfig.Repo
 		if job.Type == TypePresubmit || job.Type == "" {
 			name := fmt.Sprintf("%s_%s", job.Name, jobConfig.Repo)
 			if branch != "master" {
@@ -217,7 +220,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 				JobBase:  createJobBase(jobConfig, job, name, jobConfig.Repo, branch, jobConfig.Resources),
 				Brancher: brancher,
 			}
-			postsubmit.JobBase.Annotations[TestGridDashboard] = fmt.Sprintf("%s-postsubmit", testgridJobPrefix)
+			postsubmit.JobBase.Annotations[TestGridDashboard] = testgridJobPrefix + "_postsubmit"
 			postsubmit.JobBase.Annotations[TestGridAlertEmail] = "istio-oncall@googlegroups.com"
 			postsubmit.JobBase.Annotations[TestGridNumFailures] = "1"
 			applyModifiersPostsubmit(&postsubmit, job.Modifiers)
