@@ -3,19 +3,19 @@ postsubmits:
   istio/api:
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_api_postsubmit
+      testgrid-dashboards: istio_release-1.3_api_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^master$
+    - ^release-1.3$
     decorate: true
-    name: build_api_postsubmit
+    name: build_api_release-1.3_postsubmit
     path_alias: istio.io/api
     spec:
       containers:
       - command:
         - make
         - presubmit
-        image: gcr.io/istio-testing/build-tools:2019-09-23T12-48-14
+        image: gcr.io/istio-testing/build-tools:2019-09-04T21-28-42
         name: ""
         resources:
           limits:
@@ -32,11 +32,11 @@ presubmits:
   istio/api:
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_api
+      testgrid-dashboards: istio_release-1.3_api
     branches:
-    - ^master$
+    - ^release-1.3$
     decorate: true
-    name: build_api
+    name: build_api_release-1.3
     path_alias: istio.io/api
     rerun_command: /test build
     spec:
@@ -44,7 +44,7 @@ presubmits:
       - command:
         - make
         - presubmit
-        image: gcr.io/istio-testing/build-tools:2019-09-23T12-48-14
+        image: gcr.io/istio-testing/build-tools:2019-09-04T21-28-42
         name: ""
         resources:
           limits:
