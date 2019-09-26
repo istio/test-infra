@@ -1,14 +1,16 @@
 org: istio
 repo: cni
-image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
+image: gcr.io/istio-testing/build-tools:2019-09-26T01-36-18
 branches:
   - master
 
 jobs:
   - name: build
     command: [make, docker]
+
   - name: install
     command: [make, docker, test]
+
   - name: e2e
     command: [make, prow-e2e]
     requirements: [kind]
@@ -16,11 +18,6 @@ jobs:
 
   - name: buildmodern
     command: [make, docker]
-    image: gcr.io/istio-testing/build-tools:2019-09-17T18-24-15
-    suppress_entrypoint: true
-    modifiers: [optional]
 
   - name: lintmodern
     command: [make, lint_modern]
-    image: gcr.io/istio-testing/build-tools:2019-09-17T18-24-15
-    suppress_entrypoint: true
