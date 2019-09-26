@@ -45,7 +45,7 @@ gem install --no-ri --no-rdoc fpm
 ./install-golang.sh
 ./install-helm.sh
 ./install-protoc.sh
-./install-yamllint.sh
+./install-python.sh
 ./install-libcxx.sh
 
 apt-get clean
