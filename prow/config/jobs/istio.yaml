@@ -7,10 +7,6 @@ branches:
 jobs:
   - name: unit-tests
     command: [make, -e, "T=-v", build, localTestEnv, test, binaries-test]
-  - name: lint
-    type: presubmit
-    resources: lint
-    command: [make, lint]
   - name: racetest
     command: [make,  -e, "T=-v", localTestEnv, racetest]
   - name: codecov
@@ -219,8 +215,8 @@ jobs:
     requirements: [kind]
     timeout: 4h
 
-  - name: lintmodern
-    command: [make, lint_modern]
+  - name: lint
+    command: [make, lint]
     image: gcr.io/istio-testing/build-tools:2019-09-23T12-48-14
     resources: lint
     suppress_entrypoint: true
