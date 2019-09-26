@@ -19,4 +19,5 @@ set -eux
 apt-get -qqy install python3-pip
 pip3 install --upgrade pip
 pip install --user yamllint
+pip install --user pipenv
 export PATH=${PATH}:/root/.local/bin
