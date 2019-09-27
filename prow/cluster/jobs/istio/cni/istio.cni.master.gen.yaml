@@ -16,7 +16,7 @@ postsubmits:
         - entrypoint
         - make
         - docker
-        image: gcr.io/istio-testing/build-tools:2019-09-26T01-36-18
+        image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
         name: ""
         resources:
           limits:
@@ -45,7 +45,7 @@ postsubmits:
         - make
         - docker
         - test
-        image: gcr.io/istio-testing/build-tools:2019-09-26T01-36-18
+        image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
         name: ""
         resources:
           limits:
@@ -78,7 +78,7 @@ postsubmits:
         - entrypoint
         - make
         - prow-e2e
-        image: gcr.io/istio-testing/build-tools:2019-09-26T01-36-18
+        image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
         name: ""
         resources:
           limits:
@@ -118,10 +118,9 @@ postsubmits:
     spec:
       containers:
       - command:
-        - entrypoint
         - make
         - docker
-        image: gcr.io/istio-testing/build-tools:2019-09-26T01-36-18
+        image: gcr.io/istio-testing/build-tools:2019-09-17T18-24-15
         name: ""
         resources:
           limits:
@@ -146,10 +145,9 @@ postsubmits:
     spec:
       containers:
       - command:
-        - entrypoint
         - make
         - lint_modern
-        image: gcr.io/istio-testing/build-tools:2019-09-26T01-36-18
+        image: gcr.io/istio-testing/build-tools:2019-09-17T18-24-15
         name: ""
         resources:
           limits:
@@ -179,7 +177,7 @@ presubmits:
         - entrypoint
         - make
         - docker
-        image: gcr.io/istio-testing/build-tools:2019-09-26T01-36-18
+        image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
         name: ""
         resources:
           limits:
@@ -209,7 +207,7 @@ presubmits:
         - make
         - docker
         - test
-        image: gcr.io/istio-testing/build-tools:2019-09-26T01-36-18
+        image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
         name: ""
         resources:
           limits:
@@ -243,7 +241,7 @@ presubmits:
         - entrypoint
         - make
         - prow-e2e
-        image: gcr.io/istio-testing/build-tools:2019-09-26T01-36-18
+        image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
         name: ""
         resources:
           limits:
@@ -279,15 +277,15 @@ presubmits:
     - ^master$
     decorate: true
     name: buildmodern_cni
+    optional: true
     path_alias: istio.io/cni
     rerun_command: /test buildmodern
     spec:
       containers:
       - command:
-        - entrypoint
         - make
         - docker
-        image: gcr.io/istio-testing/build-tools:2019-09-26T01-36-18
+        image: gcr.io/istio-testing/build-tools:2019-09-17T18-24-15
         name: ""
         resources:
           limits:
@@ -313,10 +311,9 @@ presubmits:
     spec:
       containers:
       - command:
-        - entrypoint
         - make
         - lint_modern
-        image: gcr.io/istio-testing/build-tools:2019-09-26T01-36-18
+        image: gcr.io/istio-testing/build-tools:2019-09-17T18-24-15
         name: ""
         resources:
           limits:
