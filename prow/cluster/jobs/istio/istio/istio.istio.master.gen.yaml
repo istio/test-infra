@@ -1383,13 +1383,13 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    name: lintmodern_istio_postsubmit
+    name: lint_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
       - command:
         - make
-        - lint_modern
+        - lint
         image: gcr.io/istio-testing/build-tools:2019-09-23T12-48-14
         name: ""
         resources:
@@ -1439,35 +1439,6 @@ presubmits:
       nodeSelector:
         testing: test-pool
     trigger: '(?m)^/test (?:.*? )?unit-tests(?: .*?)?$'
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^master$
-    decorate: true
-    name: lint_istio
-    path_alias: istio.io/istio
-    rerun_command: /test lint
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - make
-        - lint
-        image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "3"
-            memory: 16Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-    trigger: '(?m)^/test (?:.*? )?lint(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -2537,14 +2508,14 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    name: lintmodern_istio
+    name: lint_istio
     path_alias: istio.io/istio
-    rerun_command: /test lintmodern
+    rerun_command: /test lint
     spec:
       containers:
       - command:
         - make
-        - lint_modern
+        - lint
         image: gcr.io/istio-testing/build-tools:2019-09-23T12-48-14
         name: ""
         resources:
@@ -2558,4 +2529,4 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
-    trigger: '(?m)^/test (?:.*? )?lintmodern(?: .*?)?$'
+    trigger: '(?m)^/test (?:.*? )?lint(?: .*?)?$'
