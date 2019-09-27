@@ -1,0 +1,12 @@
+org: istio
+repo: release-builder
+image: gcr.io/istio-testing/build-tools:2019-09-23T12-48-14
+suppress_entrypoint: true
+branches:
+- master
+
+jobs:
+- name: lint
+  command: [make, lint]
+- name: test
+  command: [make, test]
