@@ -29,6 +29,7 @@ testgrid:
 	@GOARCH=amd64 GOOS=linux go run k8s.io/test-infra/testgrid/cmd/configurator --prow-config prow/config.yaml --prow-job-config prow/cluster/jobs --output-yaml --yaml testgrid/default.yaml --oneshot --output testgrid/istio.gen.yaml
 
 generate-config:
+	@rm -fr prow/cluster/jobs/istio/*/*.gen.yaml
 	@(cd prow/config/cmd; GOARCH=amd64 GOOS=linux go run generate.go write)
 
 diff-config:
