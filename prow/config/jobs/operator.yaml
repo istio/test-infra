@@ -1,21 +1,21 @@
 org: istio
 repo: operator
-image: gcr.io/istio-testing/build-tools:2019-09-23T12-48-14
+image: gcr.io/istio-testing/build-tools:2019-09-29T15-31-13
 suppress_entrypoint: true
 branches:
-- master
+  - master
 
 jobs:
-- name: lint
-  command: [make, lint]
-- name: mesh
-  command: [make, mesh]
-- name: test
-  command: [make, test]
-- name: mandiff
-  command: [make, mandiff]
-- name: manifest-apply
-  image: gcr.io/istio-testing/istio-builder:v20190829-4edc0e70
-  command: [entrypoint, prow/e2e_install.sh]
-  requirements: [kind]
-  modifiers: [optional, hidden]
+  - name: lint
+    command: [make, lint]
+  - name: mesh
+    command: [make, mesh]
+  - name: test
+    command: [make, test]
+  - name: mandiff
+    command: [make, mandiff]
+  - name: manifest-apply
+    image: gcr.io/istio-testing/istio-builder:v20190829-4edc0e70
+    command: [entrypoint, prow/e2e_install.sh]
+    requirements: [kind]
+    modifiers: [optional, hidden]
