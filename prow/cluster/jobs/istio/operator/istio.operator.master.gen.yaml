@@ -166,7 +166,6 @@ presubmits:
     decorate: true
     name: lint_operator
     path_alias: istio.io/operator
-    rerun_command: /test lint
     spec:
       containers:
       - command:
@@ -185,7 +184,6 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
-    trigger: '(?m)^/test (?:.*? )?lint(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio_operator
@@ -194,7 +192,6 @@ presubmits:
     decorate: true
     name: mesh_operator
     path_alias: istio.io/operator
-    rerun_command: /test mesh
     spec:
       containers:
       - command:
@@ -213,7 +210,6 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
-    trigger: '(?m)^/test (?:.*? )?mesh(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio_operator
@@ -222,7 +218,6 @@ presubmits:
     decorate: true
     name: test_operator
     path_alias: istio.io/operator
-    rerun_command: /test test
     spec:
       containers:
       - command:
@@ -241,7 +236,6 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
-    trigger: '(?m)^/test (?:.*? )?test(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio_operator
@@ -250,7 +244,6 @@ presubmits:
     decorate: true
     name: mandiff_operator
     path_alias: istio.io/operator
-    rerun_command: /test mandiff
     spec:
       containers:
       - command:
@@ -269,7 +262,6 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
-    trigger: '(?m)^/test (?:.*? )?mandiff(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio_operator
@@ -279,7 +271,6 @@ presubmits:
     name: manifest-apply_operator
     optional: true
     path_alias: istio.io/operator
-    rerun_command: /test manifest-apply
     skip_report: true
     spec:
       containers:
@@ -318,4 +309,3 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    trigger: '(?m)^/test (?:.*? )?manifest-apply(?: .*?)?$'
