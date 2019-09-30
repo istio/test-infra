@@ -13,16 +13,16 @@ jobs:
     command: [make, lint_modern]
 
   - name: demo
-    command: [bin/with-kind.sh, make, run-test-demo]
+    command: [entrypoint, bin/with-kind.sh, make, run-test-demo]
     requirements: [kind]
     modifiers: [optional, hidden]
 
   - name: noauth
-    command: [bin/with-kind.sh, make, run-test-noauth]
+    command: [entrypoint, bin/with-kind.sh, make, run-test-noauth]
     requirements: [kind]
     modifiers: [optional, hidden]
 
   - name: base
-    command: [bin/with-kind.sh, make, run-base-reachability]
+    command: [entrypoint, bin/with-kind.sh, make, run-base-reachability]
     requirements: [kind]
     modifiers: [optional, hidden]
