@@ -16,6 +16,7 @@
 
 set -eux
 
+apt-get install python3.7
 apt-get -qqy install python3-pip
 pip3 install --upgrade pip
 pip install --user yamllint
