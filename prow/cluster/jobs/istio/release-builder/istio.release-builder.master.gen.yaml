@@ -65,7 +65,6 @@ presubmits:
     decorate: true
     name: lint_release-builder
     path_alias: istio.io/release-builder
-    rerun_command: /test lint
     spec:
       containers:
       - command:
@@ -84,7 +83,6 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
-    trigger: '(?m)^/test (?:.*? )?lint(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-builder
@@ -93,7 +91,6 @@ presubmits:
     decorate: true
     name: test_release-builder
     path_alias: istio.io/release-builder
-    rerun_command: /test test
     spec:
       containers:
       - command:
@@ -112,4 +109,3 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
-    trigger: '(?m)^/test (?:.*? )?test(?: .*?)?$'
