@@ -469,6 +469,12 @@ func applyRequirements(job *config.JobBase, requirements []string) {
 						},
 					},
 				},
+				v1.Volume{
+					Name: "docker-root",
+					VolumeSource: v1.VolumeSource{
+						EmptyDir: &v1.EmptyDirVolumeSource{},
+					},
+				},
 			)
 			job.Spec.Containers[0].VolumeMounts = append(job.Spec.Containers[0].VolumeMounts,
 				v1.VolumeMount{
@@ -479,6 +485,10 @@ func applyRequirements(job *config.JobBase, requirements []string) {
 				v1.VolumeMount{
 					MountPath: "/sys/fs/cgroup",
 					Name:      "cgroup",
+				},
+				v1.VolumeMount{
+					MountPath: "/var/lib/docker",
+					Name:      "docker-root",
 				},
 			)
 		}
