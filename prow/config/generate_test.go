@@ -17,34 +17,8 @@ package config
 import (
 	"fmt"
 	"os"
-	"regexp"
 	"testing"
 )
-
-func TestRegex(t *testing.T) {
-	test := "foo"
-	r := regexp.MustCompile(triggerRegex(test))
-	cases := []struct {
-		cmd   string
-		match bool
-	}{
-		{"foo", false},
-		{"/test foo", true},
-		{"/test foobar", false},
-		{"/test foo\n/test bar", true},
-		{"/test bar\n/test foo", true},
-	}
-
-	for _, tt := range cases {
-		t.Run(tt.cmd, func(t *testing.T) {
-			got := r.MatchString(tt.cmd)
-			if got != tt.match {
-				t.Fatalf("Expected match %v, got match %v", tt.match, got)
-			}
-		})
-	}
-
-}
 
 func TestGenerateConfig(t *testing.T) {
 	tests := []string{"simple"}
