@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-lint: lint-go lint-python lint-copyright-banner lint-yaml lint-helm lint-scripts lint-licenses
+lint: lint-all
 
 lint-buildifier:
 	@bazel run //:buildifier -- -showlog -mode=check $(git ls-files| grep -e BUILD -e WORKSPACE | grep -v vendor)

@@ -7,7 +7,9 @@ Jobs reside in [jobs/](./jobs/). From there, [`generate.go`](./generate.go) will
 This generation layer simplifies the configuration and allows use to provide opinionated defaults.
 
 ## Job Syntax
+
 Before is an example, annotated job config
+
 ```yaml
 # REQUIRED. Defines what repo these jobs should run for
 repo: istio/istio
@@ -32,14 +34,14 @@ jobs:
     # requirements specify what dependencies a test has. Valid options are:
     # - root, which will give the test a privileged container. Note: currently this is the default but will change in the future
     # - gcp, which will give the test access to GCP secrets. This is needed for pushing to GCR or using Boskos
-    # - kind, which will configure the test to allow kind (https://kind.sigs.k8s.io) to run 
+    # - kind, which will configure the test to allow kind (https://kind.sigs.k8s.io) to run
     requirements: [gcp]
   - name: hello-world
     command: [echo, "hello world"]
     # modifiers change various parts of the test config. See the values below
     modifiers:
     - skipped # if set, the test will run only in postsubmit or by explicitly calling /test on it
-    - hidden # if set, the test will run but not be reported to the GitHub UI 
+    - hidden # if set, the test will run but not be reported to the GitHub UI
     - optional # if set, the test will not be required
 
 # Defines preset resource allocations for tests
@@ -66,7 +68,9 @@ resources:
 
 The config generate has a few commands that can be run with:
 
-`go run generate.go [diff|print|write|check]`
+```bash
+$ go run generate.go [diff|print|write|check]`
+```
 
 * diff will produce a semantic diff of the current config and the newly generated config. This is useful when making changes
 * print will print out all generated config to stdout
