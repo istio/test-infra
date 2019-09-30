@@ -95,6 +95,8 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         testing: test-pool
       volumes:
@@ -106,6 +108,8 @@ postsubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+      - emptyDir: {}
+        name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_release-1.3_cni_postsubmit
@@ -258,6 +262,8 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         testing: test-pool
       volumes:
@@ -269,6 +275,8 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+      - emptyDir: {}
+        name: docker-root
     trigger: '(?m)^/test (?:.*? )?e2e(?: .*?)?$'
   - always_run: true
     annotations:
