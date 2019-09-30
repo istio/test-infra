@@ -7,42 +7,42 @@ It is a tool of our own that acts as a GitHub client making REST calls through t
 
 You will need a ```<github token file>``` text file containing the github peronal access token setup following the [instruction](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)
 
-```
+```bash
 $ git clone https://github.com/istio/test-infra.git
 ```
 
 and build it using
 
-```
+```bash
 $ bazel build //toolbox/githubctl
 ```
 
 The binary output is located in bazel-bin/toolbox/githubctl/linux_amd64_stripped/githubctl.
 
-
-```
+```bash
 $ alias githubctl="${PWD}/bazel-bin/toolbox/githubctl/linux_amd64_stripped/githubctl"
 ```
 
 To trigger daily release qualification,
-```
-githubctl --token_file=<github token file> \
-	--op=dailyRelQual \
-	--hub=<hub of remote docker image registry> \
-	--tag=<tag of the release candidate> \
-	--gcsPath=<GCS path where istioctl is stored>
-```
 
+```bash
+$ githubctl --token_file=<github token file> \
+    --op=dailyRelQual \
+    --hub=<hub of remote docker image registry> \
+    --tag=<tag of the release candidate> \
+    --gcsPath=<GCS path where istioctl is stored>
+```
 
 ## Get Latest Green SHA
 
 A green SHA is a commit sha that has passed all post submit checks. `githubctl` can also be used to get the latest green SHA of branch in a repo.
-```
-export GREEN_SHA=$(githubctl --token_file=<github token file> \
-	--op=getLatestGreenSHA \
-	--repo=istio \
-	--base_branch=master \
-	--logtostderr)
+
+```bash
+$ export GREEN_SHA=$(githubctl --token_file=<github token file> \
+    --op=getLatestGreenSHA \
+    --repo=istio \
+    --base_branch=master \
+    --logtostderr)
 ```
 
 Logs are output to stderr and only the latest green sha is directed to stdout.

@@ -2,8 +2,7 @@
 
 We are using cert-manager with Let's encrypt
 
-More detail information at https://cert-manager.readthedocs.io/en/latest/getting-started/1-configuring-helm.html
-
+More detail information at <https://cert-manager.readthedocs.io/en/latest/getting-started/1-configuring-helm.html>
 
 ## Installing Cert Manager
 
@@ -38,4 +37,3 @@ We can now have create a cert
 
 This will automatically create the istio-io-tls secret containing the certs used
 in the nginx deployment.
-

@@ -1,5 +1,4 @@
 # Boskos
------
 
 ## Background
 
@@ -18,10 +17,10 @@ that Boskos runs in the same cluster where test jobs are running.
 ### Deployments
 
 1. [boskos](cluster/boskos-deployment.yaml)     - Main component, handles and manage resource
-2. [janitor](cluster/janitor-deployment.yaml)   - Clean dirty GCP project to free state
-3. [reaper](cluster/reaper-deployment.yaml)     - Look for resources that
+1. [janitor](cluster/janitor-deployment.yaml)   - Clean dirty GCP project to free state
+1. [reaper](cluster/reaper-deployment.yaml)     - Look for resources that
    are owned and not being updated, and mark them as dirty
-4. [mason](cluster/mason-deployment.yaml)       - Transform dirty mason resources to
+1. [mason](cluster/mason-deployment.yaml)       - Transform dirty mason resources to
    free
 
 Boskos is using boskos@istio-testing.iam.gserviceaccount.com from the
@@ -118,7 +117,6 @@ As you can see, a `gke-e2e-test` resource is composed of 1 `gcp-project` resourc
 (needs). And we'll use the `GCPResourceConfig` type to parse the config (content)
 and create the resource (in that case a VM and a cluster)
 
-
 ## Adding new resources
 
 The number of real resources should be greater than equal to the virtual
@@ -131,8 +129,8 @@ When adding new GCP project, we need to make sure that the following user are
 owner of the project:
 
 1. boskos@istio-testing.iam.gserviceaccount.com
-2. istio-prow-test-job@istio-testing.iam.gserviceaccount.com
-3. mdb.istio-testing@google.com
+1. istio-prow-test-job@istio-testing.iam.gserviceaccount.com
+1. mdb.istio-testing@google.com
 
 and that container and compute api are enabled. It is recommended to create the
 project from the UI and to link a billing account from there. Once that's done

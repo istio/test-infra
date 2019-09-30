@@ -1,11 +1,13 @@
+# Prow
+
 See [upstream prow](https://github.com/kubernetes/test-infra/tree/master/prow) documentation for more detailed and generic information about what prow is and how it works.
 
 ## Upgrading Prow
 
 Please check recent [prow announcements](https://github.com/kubernetes/test-infra/tree/master/prow#announcements) before updating, if you are not already familiar with them.
 
-```shell
-prow/bump.sh --auto
+```bash
+$ prow/bump.sh --auto
 ```
 
 - Commit the change and merge the PR.
@@ -14,9 +16,9 @@ prow/bump.sh --auto
 - prow.istio.io and watch for problems
 - Look at stack driver logs (go/istio-prow-debug) and look for problems
 
-### Watch pods
+## Watch pods
 
-```console
+```bash
 $ watch kubectl get pods
 
 Every 2.0s: kubectl get pods                                                                                                         Fri Aug 11 15:40:31 2017
@@ -33,7 +35,7 @@ sinker-799599164-z44wj       1/1       Running   0          34m
 tot-763621987-pktpj          1/1       Running   0          37m
 ```
 
-### Check logs
+## Check logs
 
 ```bash
 kubectl logs -l app=deck # or the appropriate label like app=hook
@@ -90,7 +92,6 @@ So `_artifacts` dir will be generated before running tests and accessable at bot
 
 Then you can access to the artifact through "artifacts" at [gubernator](https://k8s-gubernator.appspot.com/build/istio-prow/pull/istio_istio/1025/e2e-suite-rbac-no_auth/1006/)
 
-
 ### Prow Bazel Build Image
 
 The prowbazel build image [here](../docker/prowbazel) is preferred. Its entrypoint is a test harness that checks out the code at the appropriate ref, captures the logs and exit code, and writes these logs to a GCS bucket in a location and manner the k8s-test-infra UI, gubernator, can read.
@@ -113,6 +114,7 @@ $ tree
 ```
 
 Remember that when you add a job file, you need to set the execution bit!
+
 ```bash
 $ chmod +x prow/my-presubmit.sh
 ```
@@ -164,6 +166,7 @@ repos:
         master:
           protect: true
 ```
+
 when `InputFileName=config.yaml`, `NewBranchName=newBranch` and `ReposeToAdd=istio`, the result of adding new branch to the original section would be:
 
 ```yaml
