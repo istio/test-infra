@@ -92,7 +92,6 @@ presubmits:
     decorate: true
     name: build_tests
     path_alias: istio.io/tests
-    rerun_command: /test build
     spec:
       containers:
       - command:
@@ -111,7 +110,6 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
-    trigger: '(?m)^/test (?:.*? )?build(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio_tests
@@ -120,7 +118,6 @@ presubmits:
     decorate: true
     name: lint_tests
     path_alias: istio.io/tests
-    rerun_command: /test lint
     spec:
       containers:
       - command:
@@ -139,7 +136,6 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
-    trigger: '(?m)^/test (?:.*? )?lint(?: .*?)?$'
   - always_run: true
     annotations:
       testgrid-dashboards: istio_tests
@@ -148,7 +144,6 @@ presubmits:
     decorate: true
     name: test_tests
     path_alias: istio.io/tests
-    rerun_command: /test test
     spec:
       containers:
       - command:
@@ -167,4 +162,3 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
-    trigger: '(?m)^/test (?:.*? )?test(?: .*?)?$'
