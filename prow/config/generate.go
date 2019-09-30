@@ -187,9 +187,9 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			}
 
 			presubmit := config.Presubmit{
-				JobBase:      createJobBase(jobConfig, job, name, jobConfig.Repo, branch, jobConfig.Resources),
-				AlwaysRun:    true,
-				Brancher:     brancher,
+				JobBase:   createJobBase(jobConfig, job, name, jobConfig.Repo, branch, jobConfig.Resources),
+				AlwaysRun: true,
+				Brancher:  brancher,
 			}
 			presubmit.JobBase.Annotations[TestGridDashboard] = testgridJobPrefix
 			applyModifiersPresubmit(&presubmit, job.Modifiers)
