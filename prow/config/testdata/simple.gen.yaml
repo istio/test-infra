@@ -91,6 +91,8 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         testing: test-pool
       volumes:
@@ -102,4 +104,6 @@ presubmits:
           path: /sys/fs/cgroup
           type: Directory
         name: cgroup
+      - emptyDir: {}
+        name: docker-root
     trigger: '(?m)^/test (?:.*? )?presubmit-kind(?: .*?)?$'
