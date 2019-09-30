@@ -3,9 +3,10 @@ FROM ubuntu:xenial
 # Note: The build directory is the root of the istio/test-infra repo, not ./
 
 # Installing necessary packages
+# hadolint ignore=DL3008
 RUN rm -rf /var/lib/apt/lists/* \
     && apt-get update --fix-missing -qq \
-    && apt-get install -qqy git iptables procps sudo xz-utils \
+    && apt-get install -qqy --no-install-recommends git iptables procps sudo xz-utils \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Adding sudo group user no password access.
@@ -13,7 +14,7 @@ RUN rm -rf /var/lib/apt/lists/* \
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Installing
-ADD scripts /tmp/istio_tmp/scripts
+COPY scripts /tmp/istio_tmp/scripts
 RUN chmod +x /tmp/istio_tmp/scripts/linux-install-software
 RUN /tmp/istio_tmp/scripts/linux-install-software \
     && rm -rf /tmp/istio_tmp
@@ -34,16 +35,19 @@ WORKDIR ${HOME}
 ENV TEST_TMPDIR /home/bootstrap/.cache/bazel
 
 # Move preloaded Bazel binaries to bootstrap's cache.
+# hadolint ignore=DL3004
 RUN mkdir -p /home/bootstrap/.cache/ \
     && sudo mv /root/.cache/bazelisk ${HOME}/.cache/ \
     && sudo chown -R bootstrap:bootstrap ${HOME}/.cache/
 
 # Add bootstrap, the test harness (checks out code, captures log and status)
 ADD https://raw.githubusercontent.com/nlandolfi/test-infra-1/d7900388fa1fb69738e231a21230373fd4b5ede9/jenkins/bootstrap.py ${HOME}
+# hadolint ignore=DL3004
 RUN sudo chmod +rx ${HOME}/bootstrap.py
 
 # Add entrypoint that runs bootstrap with appropriate arguments
-ADD ./docker/prowbazel/entrypoint /usr/local/bin/entrypoint
+COPY ./docker/prowbazel/entrypoint /usr/local/bin/entrypoint
+# hadolint ignore=DL3004
 RUN sudo chmod +rx /usr/local/bin/entrypoint
 
 # Final GOPATH configuration
