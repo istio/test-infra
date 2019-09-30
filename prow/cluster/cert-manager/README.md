@@ -2,8 +2,7 @@
 
 We are using cert-manager with Let's encrypt
 
-More detail information at https://cert-manager.readthedocs.io/en/latest/getting-started/1-configuring-helm.html
-
+More detail information at <https://cert-manager.readthedocs.io/en/latest/getting-started/1-configuring-helm.html>
 
 ## Installing Cert Manager
 
