@@ -62,9 +62,13 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
+    extra_refs:
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/istio
+      repo: istio
     name: demo_installer_postsubmit
     path_alias: istio.io/installer
-    skip_report: true
     spec:
       containers:
       - command:
@@ -113,7 +117,6 @@ postsubmits:
     decorate: true
     name: noauth_installer_postsubmit
     path_alias: istio.io/installer
-    skip_report: true
     spec:
       containers:
       - command:
@@ -160,9 +163,13 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
+    extra_refs:
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/istio
+      repo: istio
     name: base_installer_postsubmit
     path_alias: istio.io/installer
-    skip_report: true
     spec:
       containers:
       - command:
@@ -262,10 +269,14 @@ presubmits:
     branches:
     - ^master$
     decorate: true
+    extra_refs:
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/istio
+      repo: istio
     name: demo_installer
     optional: true
     path_alias: istio.io/installer
-    skip_report: true
     spec:
       containers:
       - command:
@@ -314,7 +325,6 @@ presubmits:
     name: noauth_installer
     optional: true
     path_alias: istio.io/installer
-    skip_report: true
     spec:
       containers:
       - command:
@@ -360,10 +370,14 @@ presubmits:
     branches:
     - ^master$
     decorate: true
+    extra_refs:
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/istio
+      repo: istio
     name: base_installer
     optional: true
     path_alias: istio.io/installer
-    skip_report: true
     spec:
       containers:
       - command:
