@@ -103,13 +103,13 @@ postsubmits:
     labels:
       preset-service-account: "true"
     max_concurrency: 5
-    name: release-test_istio_postsubmit
+    name: release_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
       - command:
         - entrypoint
-        - prow/release-test.sh
+        - prow/release-commit.sh
         image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
         name: ""
         resources:
