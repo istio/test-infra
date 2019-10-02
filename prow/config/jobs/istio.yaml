@@ -13,7 +13,13 @@ jobs:
     command: [make, coverage-diff]
 
   - name: release-test
+    type: presubmit
     command: [prow/release-test.sh]
+    requirements: [gcp]
+
+  - name: release
+    type: postsubmit
+    command: [prow/release-commit.sh]
     requirements: [gcp]
 
   - name: integ-framework-local-tests
