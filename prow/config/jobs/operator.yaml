@@ -8,14 +8,22 @@ branches:
 jobs:
   - name: lint
     command: [make, lint]
+
   - name: mesh
     command: [make, mesh]
+
   - name: test
     command: [make, test]
+
   - name: mandiff
     command: [make, mandiff]
+
   - name: manifest-apply
     image: gcr.io/istio-testing/istio-builder:v20190829-4edc0e70
     command: [entrypoint, prow/e2e_install.sh]
     requirements: [kind]
     modifiers: [optional, hidden]
+
+  - name: gencheck
+    command: [make, gen-check]
+    modifiers: [optional]

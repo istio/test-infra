@@ -62,13 +62,13 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    name: test_client-go_postsubmit
+    name: gencheck_client-go_postsubmit
     path_alias: istio.io/client-go
     spec:
       containers:
       - command:
         - make
-        - test
+        - gen-check
         image: gcr.io/istio-testing/build-tools:2019-09-29T15-31-13
         name: ""
         resources:
@@ -142,13 +142,14 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    name: test_client-go
+    name: gencheck_client-go
+    optional: true
     path_alias: istio.io/client-go
     spec:
       containers:
       - command:
         - make
-        - test
+        - gen-check
         image: gcr.io/istio-testing/build-tools:2019-09-29T15-31-13
         name: ""
         resources:

@@ -55,6 +55,33 @@ postsubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_gogo-genproto_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    name: gencheck_gogo-genproto_postsubmit
+    path_alias: istio.io/gogo-genproto
+    spec:
+      containers:
+      - command:
+        - make
+        - gen-check
+        image: gcr.io/istio-testing/build-tools:2019-09-29T15-31-13
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
 presubmits:
   istio/gogo-genproto:
   - always_run: true
@@ -96,6 +123,33 @@ presubmits:
       - command:
         - make
         - lint
+        image: gcr.io/istio-testing/build-tools:2019-09-29T15-31-13
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_gogo-genproto
+    branches:
+    - ^master$
+    decorate: true
+    name: gencheck_gogo-genproto
+    optional: true
+    path_alias: istio.io/gogo-genproto
+    spec:
+      containers:
+      - command:
+        - make
+        - gen-check
         image: gcr.io/istio-testing/build-tools:2019-09-29T15-31-13
         name: ""
         resources:
