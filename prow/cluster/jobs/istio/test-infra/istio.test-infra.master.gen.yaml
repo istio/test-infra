@@ -82,6 +82,33 @@ postsubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_test-infra_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    name: gencheck_test-infra_postsubmit
+    path_alias: istio.io/test-infra
+    spec:
+      containers:
+      - command:
+        - make
+        - gen-check
+        image: gcr.io/istio-testing/build-tools:2019-09-29T15-31-13
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
 presubmits:
   istio/test-infra:
   - always_run: true
@@ -149,6 +176,33 @@ presubmits:
       - command:
         - make
         - check-config
+        image: gcr.io/istio-testing/build-tools:2019-09-29T15-31-13
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_test-infra
+    branches:
+    - ^master$
+    decorate: true
+    name: gencheck_test-infra
+    optional: true
+    path_alias: istio.io/test-infra
+    spec:
+      containers:
+      - command:
+        - make
+        - gen-check
         image: gcr.io/istio-testing/build-tools:2019-09-29T15-31-13
         name: ""
         resources:
