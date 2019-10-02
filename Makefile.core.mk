@@ -23,6 +23,10 @@ format: format-go
 test:
 	@go test -race ./...
 
+gen: generate-config
+
+gen-check: gen check-clean-repo
+
 .PHONY: testgrid
 testgrid:
 	@GOARCH=amd64 GOOS=linux go get k8s.io/test-infra/testgrid/cmd/configurator@d5d7ce3eb0ffe35c899fe9358586cdffb6525899
