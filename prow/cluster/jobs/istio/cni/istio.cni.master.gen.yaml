@@ -117,42 +117,14 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    name: buildmodern_cni_postsubmit
+    name: lint_cni_postsubmit
     path_alias: istio.io/cni
     spec:
       containers:
       - command:
         - entrypoint
         - make
-        - docker
-        image: gcr.io/istio-testing/build-tools:2019-09-29T15-31-13
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: 500m
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_cni_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
-    name: lintmodern_cni_postsubmit
-    path_alias: istio.io/cni
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - make
-        - lint_modern
+        - lint
         image: gcr.io/istio-testing/build-tools:2019-09-29T15-31-13
         name: ""
         resources:
@@ -280,41 +252,14 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    name: buildmodern_cni
+    name: lint_cni
     path_alias: istio.io/cni
     spec:
       containers:
       - command:
         - entrypoint
         - make
-        - docker
-        image: gcr.io/istio-testing/build-tools:2019-09-29T15-31-13
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: 500m
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_cni
-    branches:
-    - ^master$
-    decorate: true
-    name: lintmodern_cni
-    path_alias: istio.io/cni
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - make
-        - lint_modern
+        - lint
         image: gcr.io/istio-testing/build-tools:2019-09-29T15-31-13
         name: ""
         resources:
