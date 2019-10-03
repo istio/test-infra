@@ -25,7 +25,10 @@ test:
 
 gen: generate-config
 
-gen-check: gen check-clean-repo
+tidy:
+	@go mod tidy
+
+gen-check: gen tidy check-clean-repo
 
 .PHONY: testgrid
 testgrid:
