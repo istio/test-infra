@@ -37,14 +37,15 @@ const (
 )
 
 type clusterConfig struct {
-	Scopes                 []string                 `json:"scopes,omitempty"`
-	MachineType            string                   `json:"machinetype,omitempty"`
-	Version                string                   `json:"version,omitempty"`
-	Zone                   string                   `json:"zone,omitempty"`
-	NumNodes               int64                    `json:"numnodes,omitempty"`
-	NetworkPolicy          *container.NetworkPolicy `json:"networkpolicy,omitempty"`
-	EnableKubernetesAlpha  bool                     `json:"enablekubernetesalpha"`
-	EnableWorkloadIdentity bool                     `json:"enableworkloadidentity"`
+	Scopes                  []string                 `json:"scopes,omitempty"`
+	MachineType             string                   `json:"machinetype,omitempty"`
+	Version                 string                   `json:"version,omitempty"`
+	Zone                    string                   `json:"zone,omitempty"`
+	NumNodes                int64                    `json:"numnodes,omitempty"`
+	NetworkPolicy           *container.NetworkPolicy `json:"networkpolicy,omitempty"`
+	EnableKubernetesAlpha   bool                     `json:"enablekubernetesalpha"`
+	EnableWorkloadIdentity  bool                     `json:"enableworkloadidentity"`
+	EnableClientCertificate bool                     `json:"enableclientcertificate"`
 }
 
 type containerEngine struct {
@@ -152,6 +153,9 @@ func (cc *containerEngine) create(ctx context.Context, project string, config cl
 		clusterRequest.Cluster.WorkloadIdentityConfig = &container.WorkloadIdentityConfig{
 			IdentityNamespace: fmt.Sprintf("%s.svc.id.goog", project),
 		}
+	}
+	if config.EnableClientCertificate {
+		clusterRequest.Cluster.MasterAuth.ClientCertificateConfig.IssueClientCertificate = true
 	}
 
 	op, err := cc.service.Projects.Zones.Clusters.Create(project, config.Zone, clusterRequest).Context(ctx).Do()
