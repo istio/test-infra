@@ -55,6 +55,36 @@ postsubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_release-builder_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    max_concurrency: 5
+    name: publish_release-builder_postsubmit
+    path_alias: istio.io/release-builder
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - test/publish.sh
+        image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
 presubmits:
   istio/release-builder:
   - always_run: true
@@ -96,6 +126,36 @@ presubmits:
       - command:
         - make
         - test
+        image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_release-builder
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    max_concurrency: 5
+    name: publish_release-builder
+    optional: true
+    path_alias: istio.io/release-builder
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - test/publish.sh
         image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
         name: ""
         resources:
