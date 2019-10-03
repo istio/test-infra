@@ -221,6 +221,192 @@ jobs:
     requirements: [kind]
     timeout: 4h
 
+  - name: unit-tests-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    command: [make, -e, "T=-v", build, localTestEnv, test, binaries-test]
+
+  - name: racetest-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    command: [make,  -e, "T=-v", localTestEnv, racetest]
+
+  - name: codecov-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    command: [make, coverage-diff]
+
+  - name: release-test-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    type: presubmit
+    command: [prow/release-test.sh]
+    requirements: [gcp]
+
+  - name: integ-framework-local-tests-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    type: presubmit
+    command: [prow/integ-suite-local.sh, test.integration.framework.local.presubmit]
+
+  - name: integ-galley-local-tests-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    type: presubmit
+    command: [prow/integ-suite-local.sh, test.integration.galley.local.presubmit]
+
+  - name: integ-mixer-local-tests-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    type: presubmit
+    command: [prow/integ-suite-local.sh, test.integration.mixer.local.presubmit]
+
+  - name: integ-pilot-local-tests-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    type: presubmit
+    command: [prow/integ-suite-local.sh, test.integration.pilot.local.presubmit]
+
+  - name: integ-security-local-tests-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    type: presubmit
+    command: [prow/integ-suite-local.sh, test.integration.security.local.presubmit]
+
+  - name: integ-framework-k8s-tests-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    type: presubmit
+    command: [prow/integ-suite-kind.sh, test.integration.framework.kube.presubmit]
+    requirements: [kind]
+
+  - name: integ-istioctl-k8s-tests-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    type: presubmit
+    command: [prow/integ-suite-kind.sh, test.integration.istioctl.kube.presubmit]
+    requirements: [kind]
+
+  - name: integ-galley-k8s-tests-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    type: presubmit
+    command: [prow/integ-suite-kind.sh, test.integration.galley.kube.presubmit]
+    requirements: [kind]
+
+  - name: integ-mixer-k8s-tests-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    type: presubmit
+    command: [prow/integ-suite-kind.sh, test.integration.mixer.kube.presubmit]
+    requirements: [kind]
+
+  - name: integ-pilot-k8s-tests-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    type: presubmit
+    command: [prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
+    requirements: [kind]
+
+  - name: integ-security-k8s-tests-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    type: presubmit
+    command: [prow/integ-suite-kind.sh, test.integration.security.kube.presubmit]
+    requirements: [kind]
+
+  - name: integ-telemetry-k8s-tests-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    type: presubmit
+    command: [prow/integ-suite-kind.sh, test.integration.telemetry.kube.presubmit]
+    requirements: [kind]
+
+  - name: integ-new-install-k8s-tests-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    type: presubmit
+    command: [prow/integ-suite-kind.sh, test.integration.new.installer]
+    requirements: [kind]
+
+  - name: e2e-mixer-no_auth-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    command: [prow/e2e-kind-suite.sh, --single_test, e2e_mixer]
+    requirements: [kind]
+
+  - name: pilot-e2e-envoyv2-v1alpha3-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    command: [prow/e2e-kind-suite.sh, --single_test, e2e_pilotv2_v1alpha3]
+    requirements: [kind]
+
+  # TODO migrate to kind once we have metric server in kind
+  - name: e2e-dashboard-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    command: [prow/e2e-dashboard.sh]
+    requirements: [gcp]
+
+  - name: e2e-bookInfoTests-envoyv2-v1alpha3-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    command: [prow/e2e-kind-suite.sh, --single_test, e2e_bookinfo_envoyv2_v1alpha3]
+    requirements: [kind]
+
+  - name: e2e-bookInfoTests-trustdomain-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    command: [prow/e2e-kind-suite.sh, --single_test, e2e_bookinfo_trustdomain]
+    requirements: [kind]
+
+  - name: e2e-simpleTests-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    command: [./prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple, --installer, helm]
+    requirements: [kind]
+
+  - name: e2e-simpleTests-distroless-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    command: [prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple, --installer, helm, --variant, distroless]
+    requirements: [kind]
+
+  - name: e2e-simpleTestsMinProfile-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    command: [prow/e2e-kind-suite.sh, --single_test, e2e_simple_noauth, --installer, helm, --valueFile, values-istio-minimal.yaml, --helmSetValueList, "gateways.enabled=true,galley.enabled=false,global.useMCP=false"]
+    requirements: [kind]
+
+  - name: e2e-simpleTests-cni-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    command: [prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple]
+    requirements: [kind]
+    env:
+      - name: ENABLE_ISTIO_CNI
+        value: true
+      - name: E2E_ARGS
+        value: " --kube_inject_configmap=istio-sidecar-injector"
+
+  - name: e2e-simpleTests-non-mcp-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    type: postsubmit
+    command: [./prow/e2e-kind-suite.sh, --auth_enable, --use_mcp=false, --single_test, e2e_simple, --installer, helm]
+    requirements: [kind]
+
+  - name: pilot-multicluster-e2e-new
+    modifiers: [optional, skipped]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    command: [prow/istio-pilot-multicluster-e2e.sh]
+    requirements: [gcp]
+
+  - name: istio_e2e_cloudfoundry-new
+    modifiers: [optional, hidden]
+    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+    command: [make, e2e_cloudfoundry]
+
   - name: lint
     command: [make, lint]
     image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
