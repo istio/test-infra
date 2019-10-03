@@ -8,5 +8,11 @@ branches:
 jobs:
   - name: lint
     command: [make, lint]
+
   - name: test
     command: [make, test]
+
+  - name: publish
+    command: [entrypoint, test/publish.sh]
+    modifiers: [optional]
+    requirements: [gcp]
