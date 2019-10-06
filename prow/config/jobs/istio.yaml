@@ -1,31 +1,30 @@
 org: istio
 repo: istio
-image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
+image: gcr.io/istio-testing/build-tools:2019-10-05T18-10-09
 branches:
   - master
 
 jobs:
   - name: unit-tests
     command: [make, -e, "T=-v", build, localTestEnv, test, binaries-test]
-    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
 
   - name: racetest
     command: [make,  -e, "T=-v", localTestEnv, racetest]
-    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
 
   - name: codecov
     command: [make, coverage-diff]
-    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
 
   - name: release-test
     type: presubmit
     command: [prow/release-test.sh]
     requirements: [gcp]
+    image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
 
   - name: release
     type: postsubmit
     command: [prow/release-commit.sh]
     requirements: [gcp]
+    image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
 
   - name: integ-framework-local-tests
     type: presubmit
@@ -128,6 +127,7 @@ jobs:
     command: [prow/istio-pilot-multicluster-e2e.sh]
     requirements: [gcp]
     modifiers: [optional]
+    image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
 
   - name: istio_e2e_cloudfoundry
     command: [make, e2e_cloudfoundry]
@@ -168,6 +168,7 @@ jobs:
     type: postsubmit
     command: [prow/integ-suite-kind.sh, test.integration.mixer.kube]
     requirements: [kind]
+    image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
   - name: integ-pilot-k8s-tests
     type: postsubmit
     command: [prow/integ-suite-kind.sh, test.integration.pilot.kube]
@@ -197,6 +198,7 @@ jobs:
     - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
+    image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
   - name: integ-k8s-113
     type: postsubmit
     command:
@@ -206,6 +208,7 @@ jobs:
     - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
+    image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
   - name: integ-k8s-114
     type: postsubmit
     command:
@@ -217,6 +220,7 @@ jobs:
     timeout: 4h
   # TODO replace with official kindest/node image. Currently this is a custom built image of the beta
   # As 1.16 has not been official released
+    image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
   - name: integ-k8s-116
     type: postsubmit
     command:
@@ -226,16 +230,15 @@ jobs:
     - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
+    image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
 
   - name: lint
     command: [make, lint]
-    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
     resources: lint
     suppress_entrypoint: true
 
   - name: gencheck
     command: [make, gen-check]
-    image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
     suppress_entrypoint: true
 
 resources:
