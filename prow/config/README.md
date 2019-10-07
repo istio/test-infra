@@ -69,6 +69,7 @@ resources:
 The config generate has a few commands that can be run with:
 
 ```bash
+$ cd cmd
 $ go run generate.go [diff|print|write|check]`
 ```
 
