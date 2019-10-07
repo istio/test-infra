@@ -88,7 +88,7 @@ jobs:
   # TODO migrate to kind once we have metric server in kind
   - name: e2e-dashboard
     command: [prow/e2e-dashboard.sh]
-    requirements: [gcp]
+    requirements: [gcp, kind]
 
   - name: e2e-bookInfoTests-envoyv2-v1alpha3
     command: [prow/e2e-kind-suite.sh, --single_test, e2e_bookinfo_envoyv2_v1alpha3]
@@ -125,7 +125,7 @@ jobs:
 
   - name: pilot-multicluster-e2e
     command: [prow/istio-pilot-multicluster-e2e.sh]
-    requirements: [gcp]
+    requirements: [gcp, kind]
     modifiers: [optional]
     image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
 
