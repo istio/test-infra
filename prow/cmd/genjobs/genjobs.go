@@ -91,7 +91,6 @@ func validateFlags() {
 	if err != nil {
 		printErrAndExit(fmt.Sprintf("-o, --output option invalid: %v.", output), 1)
 	}
-
 }
 
 // printErr prints error to stderr.
@@ -118,6 +117,7 @@ func isMatchBranch(patterns []string) bool {
 			}
 		}
 	}
+
 	return false
 }
 
@@ -179,7 +179,6 @@ func updateJobBase(job *config.JobBase, orgrepo string) {
 	for labelK, labelV := range labels {
 		job.Labels[labelK] = labelV
 	}
-
 }
 
 // getOutPath derives the output path from the specified input directory and current path.
@@ -187,7 +186,9 @@ func getOutPath(p string, in string) string {
 	segments := strings.FieldsFunc(strings.TrimPrefix(p, in), func(c rune) bool { return c == '/' })
 
 	var org string
+
 	var repo string
+
 	var file string
 
 	if len(segments) >= 3 {
@@ -198,7 +199,6 @@ func getOutPath(p string, in string) string {
 		if newOrg, ok := orgMap[org]; ok {
 			return filepath.Join(output, newOrg, repo, renameFile(`\b`+org+`\b`, file, newOrg))
 		}
-
 	} else if len(segments) == 2 {
 		org = segments[len(segments)-2]
 		file = segments[len(segments)-1]
@@ -206,14 +206,12 @@ func getOutPath(p string, in string) string {
 		if newOrg, ok := orgMap[org]; ok {
 			return filepath.Join(output, newOrg, renameFile(`\b`+org+`\b`, file, newOrg))
 		}
-
 	} else if len(segments) == 1 {
 		file = segments[len(segments)-1]
 
 		if !strings.HasPrefix(file, modifier) {
 			return filepath.Join(output, modifier+filenameSeparator+file)
 		}
-
 	}
 
 	return ""
@@ -223,6 +221,7 @@ func getOutPath(p string, in string) string {
 func cleanOutPath(p string) {
 	for _, org := range orgMap {
 		p = filepath.Join(p, org)
+
 		err := os.RemoveAll(p)
 		if err != nil {
 			printErr(fmt.Sprintf("unable to clean directory %v: %v.", p, err))
@@ -297,7 +296,6 @@ func walkTree(p string, info os.FileInfo, err error) error {
 
 	// Presubmits
 	for orgrepo, pre := range jobs.Presubmits {
-
 		orgrepo = convertOrgRepoStr(orgrepo)
 		if orgrepo == "" {
 			continue
@@ -311,13 +309,13 @@ func walkTree(p string, info os.FileInfo, err error) error {
 
 			updateJobBase(&job.JobBase, orgrepo)
 			updateUtilityConfig(&job.UtilityConfig)
+
 			presubmit[orgrepo] = append(presubmit[orgrepo], job)
 		}
 	}
 
 	// Postsubmits
 	for orgrepo, post := range jobs.Postsubmits {
-
 		orgrepo = convertOrgRepoStr(orgrepo)
 		if orgrepo == "" {
 			continue
@@ -331,22 +329,24 @@ func walkTree(p string, info os.FileInfo, err error) error {
 
 			updateJobBase(&job.JobBase, orgrepo)
 			updateUtilityConfig(&job.UtilityConfig)
+
 			postsubmit[orgrepo] = append(postsubmit[orgrepo], job)
 		}
 	}
 
-	// TODO(clarketm): support `Periodics`?
-	// TODO(clarketm): support `Presets`?
-
 	writeOutFile(outPath, presubmit, postsubmit)
+
 	return nil
 }
 
 // init entry point.
 func init() {
 	var _repoWhitelist []string
+
 	var _repoBlacklist []string
+
 	var _jobWhitelist []string
+
 	var _jobBlacklist []string
 
 	// --bucket
@@ -362,7 +362,6 @@ func init() {
 	flag.BoolVar(&clean, "clean", false, "Clean output directory before job(s) generation.")
 
 	// --ssh-key-secret
-	// TODO(clarketm): allow user to provide the ssh key itself along with a cluster to upload to?
 	flag.StringVar(&sshKeySecret, "ssh-key-secret", "ssh-key-secret", "GKE cluster secrets containing the Github ssh private key.")
 
 	// -l, --labels
@@ -381,11 +380,9 @@ func init() {
 	flag.StringSliceVarP(&_repoBlacklist, "repo-blacklist", "b", []string{}, "Repositories to blacklist in generation process.")
 
 	// --job-repoWhitelist
-	// TODO(clarketm): should this be regex?
 	flag.StringSliceVar(&_jobWhitelist, "job-whitelist", []string{}, "Job(s) to whitelist in generation process.")
 
 	// --job-repoBlacklist
-	// TODO(clarketm): should this be regex?
 	flag.StringSliceVar(&_jobBlacklist, "job-blacklist", []string{}, "Jos(s) to blacklist in generation process.")
 
 	// -m, --mapping
@@ -393,7 +390,6 @@ func init() {
 
 	flag.Parse()
 
-	// TODO(clarketm): create a custom Set flag type?
 	repoWhitelist = sets.NewString(_repoWhitelist...)
 	repoBlacklist = sets.NewString(_repoBlacklist...)
 	jobWhitelist = sets.NewString(_jobWhitelist...)
