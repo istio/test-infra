@@ -5,20 +5,10 @@ branches:
   - bt
 
 jobs:
-  - name: Xrelease
-    type: postsubmit
-    command: [prow/release-commit.sh]
-    requirements: [gcp]
-
   - name: Xpilot-multicluster-e2e
     command: [prow/istio-pilot-multicluster-e2e.sh]
     requirements: [gcp]
     modifiers: [optional]
-
-  - name: Xinteg-mixer-k8s-tests
-    type: postsubmit
-    command: [prow/integ-suite-kind.sh, test.integration.mixer.kube]
-    requirements: [kind]
 
   - name: Xinteg-k8s-112
     type: postsubmit
