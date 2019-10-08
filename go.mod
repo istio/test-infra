@@ -14,6 +14,7 @@ require (
 	github.com/prometheus/client_golang v0.9.4
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.4.2
+	github.com/spf13/pflag v1.0.3
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
@@ -26,4 +27,5 @@ require (
 	k8s.io/api v0.0.0-20190816222004-e3a6b8045b0b
 	k8s.io/apimachinery v0.0.0-20190816221834-a9f1d8a9c101
 	k8s.io/test-infra v0.0.0-20190914002441-ef4a69c12a20
+	sigs.k8s.io/yaml v1.1.0
 )
