@@ -123,7 +123,6 @@ jobs:
     command: [prow/istio-pilot-multicluster-e2e.sh]
     requirements: [gcp, kind]
     modifiers: [optional]
-    image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
 
   - name: istio_e2e_cloudfoundry
     command: [make, e2e_cloudfoundry]
@@ -189,7 +188,7 @@ jobs:
     - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
-    image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
+
   - name: integ-k8s-113
     type: postsubmit
     command:
@@ -199,7 +198,7 @@ jobs:
     - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
-    image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
+
   - name: integ-k8s-114
     type: postsubmit
     command:
@@ -211,7 +210,7 @@ jobs:
     timeout: 4h
   # TODO replace with official kindest/node image. Currently this is a custom built image of the beta
   # As 1.16 has not been official released
-    image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
+
   - name: integ-k8s-116
     type: postsubmit
     command:
@@ -221,7 +220,6 @@ jobs:
     - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
-    image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
 
   - name: lint
     command: [make, lint]
