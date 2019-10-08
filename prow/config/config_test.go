@@ -142,13 +142,6 @@ func TestConfig(t *testing.T) {
 			branch: "release-1.3",
 		},
 		{
-			name:   "collab-galley restricted to hackers",
-			org:    "istio",
-			repo:   "istio",
-			branch: "collab-galley",
-			teams:  []string{"istio-hackers"},
-		},
-		{
 			name:               "test-infra not blocked by admins or circleci",
 			org:                "istio",
 			repo:               "test-infra",
