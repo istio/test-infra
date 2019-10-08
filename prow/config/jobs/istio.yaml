@@ -23,7 +23,6 @@ jobs:
     type: postsubmit
     command: [prow/release-commit.sh]
     requirements: [gcp]
-    image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
 
   - name: integ-framework-local-tests
     type: presubmit
@@ -166,7 +165,6 @@ jobs:
     type: postsubmit
     command: [prow/integ-suite-kind.sh, test.integration.mixer.kube]
     requirements: [kind]
-    image: gcr.io/istio-testing/istio-builder:v20190909-ca3fb8ed
   - name: integ-pilot-k8s-tests
     type: postsubmit
     command: [prow/integ-suite-kind.sh, test.integration.pilot.kube]
