@@ -6,12 +6,10 @@ branches:
 
 jobs:
   - name: unit-tests
-    command: [make, -e, "T=-v", build, localTestEnv, test, binaries-test]
-
-  - name: racetest
-    command: [make,  -e, "T=-v", localTestEnv, racetest]
+    command: [make, -e, "T=-v", build, localTestEnv, racetest, binaries-test]
 
   - name: codecov
+    modifiers: [skipped]
     command: [make, coverage-diff]
 
   - name: release-test
@@ -30,9 +28,6 @@ jobs:
   - name: integ-galley-local-tests
     type: presubmit
     command: [prow/integ-suite-local.sh, test.integration.galley.local.presubmit]
-  - name: integ-mixer-local-tests
-    type: presubmit
-    command: [prow/integ-suite-local.sh, test.integration.mixer.local.presubmit]
   - name: integ-pilot-local-tests
     type: presubmit
     command: [prow/integ-suite-local.sh, test.integration.pilot.local.presubmit]
@@ -91,9 +86,12 @@ jobs:
   - name: e2e-bookInfoTests-envoyv2-v1alpha3
     command: [prow/e2e-kind-suite.sh, --single_test, e2e_bookinfo_envoyv2_v1alpha3]
     requirements: [kind]
+
   - name: e2e-bookInfoTests-trustdomain
     command: [prow/e2e-kind-suite.sh, --single_test, e2e_bookinfo_trustdomain]
     requirements: [kind]
+    type: postsubmit
+
   - name: e2e-bookInfoTests-non-mcp
     type: postsubmit
     command: [prow/e2e-kind-suite.sh, --use_mcp=false, --single_test, e2e_bookinfo_envoyv2_v1alpha3]
@@ -136,9 +134,6 @@ jobs:
   - name: integ-galley-local-tests
     type: postsubmit
     command: [prow/integ-suite-local.sh, test.integration.galley.local]
-  - name: integ-mixer-local-tests
-    type: postsubmit
-    command: [prow/integ-suite-local.sh, test.integration.mixer.local]
   - name: integ-pilot-local-tests
     type: postsubmit
     command: [prow/integ-suite-local.sh, test.integration.pilot.local]
