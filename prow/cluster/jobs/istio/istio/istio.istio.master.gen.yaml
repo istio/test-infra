@@ -19,39 +19,8 @@ postsubmits:
         - T=-v
         - build
         - localTestEnv
-        - test
-        - binaries-test
-        image: gcr.io/istio-testing/build-tools:2019-10-05T18-10-09
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "3"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
-    name: racetest_istio_postsubmit
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - make
-        - -e
-        - T=-v
-        - localTestEnv
         - racetest
+        - binaries-test
         image: gcr.io/istio-testing/build-tools:2019-10-05T18-10-09
         name: ""
         resources:
@@ -817,34 +786,6 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    name: integ-mixer-local-tests_istio_postsubmit
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-local.sh
-        - test.integration.mixer.local
-        image: gcr.io/istio-testing/build-tools:2019-10-05T18-10-09
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "3"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
     name: integ-pilot-local-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
@@ -1575,7 +1516,7 @@ presubmits:
         - T=-v
         - build
         - localTestEnv
-        - test
+        - racetest
         - binaries-test
         image: gcr.io/istio-testing/build-tools:2019-10-05T18-10-09
         name: ""
@@ -1590,37 +1531,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^master$
-    decorate: true
-    name: racetest_istio
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - make
-        - -e
-        - T=-v
-        - localTestEnv
-        - racetest
-        image: gcr.io/istio-testing/build-tools:2019-10-05T18-10-09
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "3"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - always_run: true
+  - always_run: false
     annotations:
       testgrid-dashboards: istio_istio
     branches:
@@ -1717,33 +1628,6 @@ presubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.galley.local.presubmit
-        image: gcr.io/istio-testing/build-tools:2019-10-05T18-10-09
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "3"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^master$
-    decorate: true
-    name: integ-mixer-local-tests_istio
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-local.sh
-        - test.integration.mixer.local.presubmit
         image: gcr.io/istio-testing/build-tools:2019-10-05T18-10-09
         name: ""
         resources:
@@ -2338,53 +2222,6 @@ presubmits:
         - prow/e2e-kind-suite.sh
         - --single_test
         - e2e_bookinfo_envoyv2_v1alpha3
-        image: gcr.io/istio-testing/build-tools:2019-10-05T18-10-09
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "3"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^master$
-    decorate: true
-    name: e2e-bookInfoTests-trustdomain_istio
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/e2e-kind-suite.sh
-        - --single_test
-        - e2e_bookinfo_trustdomain
         image: gcr.io/istio-testing/build-tools:2019-10-05T18-10-09
         name: ""
         resources:
