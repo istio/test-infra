@@ -95,3 +95,41 @@ periodics:
     - name: oauth
       secret:
         secretName: oauth-token
+- cron: "05 15-23 * * 1-5"  # Run at 7:05-15:05 PST (15:05 UTC) Mon-Fri
+  name: ci-prow-autobump
+  cluster: test-infra-trusted
+  decorate: true
+  extra_refs:
+  - org: istio
+    repo: test-infra
+    base_ref: master
+  spec:
+    containers:
+    - image: gcr.io/k8s-prow/autobump # TODO: add a tag once we've push this the first time.
+      command:
+      - /autobump.sh
+      args:
+      - /etc/github-token/oauth
+      - "Istio Automation"
+      - istio.testing@gmail.com
+      volumeMounts:
+      - name: github
+        mountPath: /etc/github-token
+        readOnly: true
+      env:
+      - name: GH_ORG
+        value: istio
+      - name: GH_REPO
+        value: test-infra
+      - name: PLANK_DEPLOYMENT_FILE
+        value: prow/cluster/plank_deployment.yaml
+      - name: COMPONENT_FILE_DIR
+        value: prow/cluster
+      - name: CONFIG_PATH
+        value: prow/config.yaml
+      - name: JOB_CONFIG_PATH
+        value: prow/cluster/jobs
+    volumes:
+    - name: github
+      secret:
+        secretName: oauth-token
