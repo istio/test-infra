@@ -1,33 +1,37 @@
 org: istio
 repo: operator
-image: gcr.io/istio-testing/build-tools:2019-10-08T20-57-24
-suppress_entrypoint: true
+image: gcr.io/istio-testing/build-tools:2019-10-09T20-39-13
 branches:
   - master
 
 jobs:
   - name: lint
     command: [make, lint]
+    suppress_entrypoint: true
 
   - name: mesh
     command: [make, mesh]
+    suppress_entrypoint: true
 
   - name: test
     command: [make, test]
+    suppress_entrypoint: true
 
   - name: mandiff
     command: [make, mandiff]
+    suppress_entrypoint: true
 
   - name: manifest-apply
-    command: [entrypoint, prow/e2e_install.sh]
+    command: [prow/e2e_install.sh]
     requirements: [kind]
     modifiers: [optional, hidden]
 
   - name: gencheck
     command: [make, gen-check]
     modifiers: [optional]
+    suppress_entrypoint: true
 
   - name: release
     type: postsubmit
-    command: [entrypoint, make, docker.all]
+    command: [make, docker.all]
     requirements: [gcp]
