@@ -27,3 +27,8 @@ jobs:
   - name: gencheck
     command: [make, gen-check]
     modifiers: [optional]
+
+  - name: release
+    type: postsubmit
+    command: [make, docker-all]
+    requirements: [gcp]
