@@ -236,9 +236,14 @@ periodics:
   branches: master
   decorate: true
   extra_refs:
-    - org: istio-releases
-      repo: pipeline
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/istio
+      repo: istio
+    - org: istio
+      repo: tools
       base_ref: master
+      path_alias: istio.io/tools
   annotations:
     testgrid-dashboards: istio_release-pipeline
     testgrid-alert-email: istio-oncall@googlegroups.com
@@ -255,6 +260,4 @@ periodics:
             value: foo
         command:
           - entrypoint
-          - scripts/get_tools_repo.sh
-          - scripts/run-test.sh
           - prow/perf_benchmark_test.sh
