@@ -1,6 +1,6 @@
 org: istio
 repo: operator
-image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+image: gcr.io/istio-testing/build-tools:2019-10-08T20-57-24
 suppress_entrypoint: true
 branches:
   - master
@@ -19,7 +19,6 @@ jobs:
     command: [make, mandiff]
 
   - name: manifest-apply
-    image: gcr.io/istio-testing/istio-builder:v20190829-4edc0e70
     command: [entrypoint, prow/e2e_install.sh]
     requirements: [kind]
     modifiers: [optional, hidden]
