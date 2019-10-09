@@ -183,6 +183,36 @@ postsubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_operator_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    max_concurrency: 5
+    name: release_operator_postsubmit
+    path_alias: istio.io/operator
+    spec:
+      containers:
+      - command:
+        - make
+        - docker-all
+        image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
 presubmits:
   istio/operator:
   - always_run: true
