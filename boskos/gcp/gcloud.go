@@ -15,20 +15,97 @@
 package gcp
 
 import (
+	"encoding/base64"
+	"encoding/json"
+	"io/ioutil"
 	"os"
+
+	"github.com/ghodss/yaml"
+	container "google.golang.org/api/container/v1beta1"
+
+	clientapi "k8s.io/client-go/tools/clientcmd/api/v1"
 
 	"istio.io/test-infra/toolbox/util"
 )
 
 // SetKubeConfig saves kube config from a given cluster to the given location
+// It uses client certificate if it presents.
 func SetKubeConfig(project, zone, cluster, kubeconfig string) error {
 	if err := os.Setenv("KUBECONFIG", kubeconfig); err != nil {
 		return err
 	}
-	_, err := util.ShellSilent(
-		"gcloud container clusters get-credentials %s --project=%s --zone=%s",
+
+	clusterJSON, err := util.ShellSilent(
+		"gcloud container clusters describe %s --project=%s --zone=%s --format=json",
 		cluster, project, zone)
-	return err
+	if err != nil {
+		return err
+	}
+
+	clusterObj := container.Cluster{}
+	if err = json.Unmarshal([]byte(clusterJSON), &clusterObj); err != nil {
+		return err
+	}
+
+	if clusterObj.MasterAuth == nil ||
+		(len(clusterObj.MasterAuth.ClientCertificate) == 0 && len(clusterObj.MasterAuth.ClientKey) == 0) {
+		_, err := util.ShellSilent(
+			"gcloud container clusters get-credentials %s --project=%s --zone=%s",
+			cluster, project, zone)
+		return err
+	}
+
+	ca, err := base64.StdEncoding.DecodeString(clusterObj.MasterAuth.ClusterCaCertificate)
+	if err != nil {
+		return err
+	}
+	clientCert, err := base64.StdEncoding.DecodeString(clusterObj.MasterAuth.ClientCertificate)
+	if err != nil {
+		return err
+	}
+	clientKey, err := base64.StdEncoding.DecodeString(clusterObj.MasterAuth.ClientKey)
+	if err != nil {
+		return err
+	}
+
+	config := clientapi.Config{
+		APIVersion: "v1",
+		Kind:       "Config",
+		Clusters: []clientapi.NamedCluster{
+			{
+				Name: cluster,
+				Cluster: clientapi.Cluster{
+					Server:                   "https://" + clusterObj.Endpoint,
+					CertificateAuthorityData: ca,
+				},
+			},
+		},
+		AuthInfos: []clientapi.NamedAuthInfo{
+			{
+				Name: cluster,
+				AuthInfo: clientapi.AuthInfo{
+					ClientCertificateData: clientCert,
+					ClientKeyData:         clientKey,
+				},
+			},
+		},
+		Contexts: []clientapi.NamedContext{
+			{
+				Name: cluster,
+				Context: clientapi.Context{
+					Cluster:  cluster,
+					AuthInfo: cluster,
+				},
+			},
+		},
+		CurrentContext: cluster,
+	}
+
+	kubeconfigData, err := yaml.Marshal(config)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(kubeconfig, kubeconfigData, 0666)
 }
 
 // ActivateServiceAccount activates a service account for gcloud
