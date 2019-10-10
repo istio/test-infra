@@ -14,5 +14,14 @@ jobs:
 
   - name: publish
     command: [entrypoint, test/publish.sh]
-    modifiers: [optional]
     requirements: [gcp]
+    resources: build
+
+resources:
+  build:
+    requests:
+      memory: "3Gi"
+      cpu: "5000m"
+    limits:
+      memory: "24Gi"
+      cpu: "8000m"
