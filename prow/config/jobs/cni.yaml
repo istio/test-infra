@@ -1,6 +1,6 @@
 org: istio
 repo: cni
-image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
+image: gcr.io/istio-testing/build-tools:2019-10-10T00-49-39
 
 branches:
   - master
@@ -9,8 +9,8 @@ jobs:
   - name: build
     command: [make, docker]
 
-  - name: install
-    command: [make, docker, test]
+  - name: test
+    command: [make, test]
 
   - name: e2e
     command: [make, e2e]
