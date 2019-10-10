@@ -36,13 +36,14 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    name: test_cni_postsubmit
+    name: install_cni_postsubmit
     path_alias: istio.io/cni
     spec:
       containers:
       - command:
         - entrypoint
         - make
+        - docker
         - test
         image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
         name: ""
@@ -172,13 +173,14 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    name: test_cni
+    name: install_cni
     path_alias: istio.io/cni
     spec:
       containers:
       - command:
         - entrypoint
         - make
+        - docker
         - test
         image: gcr.io/istio-testing/build-tools:2019-10-02T14-57-08
         name: ""
