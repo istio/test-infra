@@ -168,9 +168,12 @@ func updateUtilityConfig(job *config.UtilityConfig) {
 // updateJobBase updates the jobs JobBase fields based on provided inputs to work with private repositories.
 func updateJobBase(job *config.JobBase, orgrepo string) {
 	job.Name = job.Name + jobnameSeparator + modifier
-	job.Cluster = cluster
 	job.CloneURI = fmt.Sprintf("git@github.com:%s.git", orgrepo)
 	job.Annotations = nil
+
+	if cluster != "" && cluster != "default" {
+		job.Cluster = cluster
+	}
 
 	if job.Labels == nil {
 		job.Labels = make(map[string]string)
