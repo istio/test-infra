@@ -4,6 +4,12 @@
 
 `genjobs` is a CLI tool used to generate **private** Github jobs from existing Prow job definitions. It translates *existing* jobs by adding decoration to the Prow job spec.
 
+## Installation
+
+```console
+$ go get -u istio.io/test-infra/prow/cmd/genjobs
+```
+
 ## Usage
 
 The following is a list of supported options for `genjobs`. The only **required** option is `-m, --mapping`, which is the translation mapping between public/private Github organizations.
@@ -26,56 +32,56 @@ The following is a list of supported options for `genjobs`. The only **required*
 
 ## Example
 
-Translate all public jobs in `istio` organization to private jobs in `istio-private` organization in `./jobs` directory:
+Translate all public jobs with `istio` organization to private jobs with `istio-private` organization in `./jobs` directory:
 
-```bash
-$ go run genjobs.go --mapping istio=istio-private --input ./jobs --output ./jobs
+```console
+$ genjobs --mapping istio=istio-private --input ./jobs --output ./jobs
 ```
 
 Limit job generation to *specific* branches:
 
-```bash
-$ go run genjobs.go --mapping istio=istio-private --branches master
+```console
+$ genjobs --mapping istio=istio-private --branches master
 ```
 
 Limit job generation to *specific* repositories:
 
-```bash
-$ go run genjobs.go --mapping istio=istio-private --repo-whitelist cni, api
+```console
+$ genjobs --mapping istio=istio-private --repo-whitelist cni, api
 ```
 
 Limit job generation to *specific* job names:
 
-```bash
-$ go run genjobs.go --mapping istio=istio-private --job-whitelist build_bots_postsubmit
+```console
+$ genjobs --mapping istio=istio-private --job-whitelist build_bots_postsubmit
 ```
 
 Define the `bucket` to upload job results to:
 
-```bash
-$ go run genjobs.go --mapping istio=istio-private --bucket istio-private-build
+```console
+$ genjobs --mapping istio=istio-private --bucket istio-private-build
 ```
 
 Define the `ssh-key-secret` secret to authorize repository clone with:
 
-```bash
-$ go run genjobs.go --mapping istio=istio-private --ssh-key-secret ssh-key-secret
+```console
+$ genjobs --mapping istio=istio-private --ssh-key-secret ssh-key-secret
 ```
 
 Add additional `labels` to the job:
 
-```bash
-$ go run genjobs.go --mapping istio=istio-private --labels preset-service-account=true
+```console
+$ genjobs --mapping istio=istio-private --labels preset-service-account=true
 ```
 
-Set the `cluster` from on which the jobs will run:
+Set the `cluster` on which the jobs will run:
 
-```bash
-$ go run genjobs.go --mapping istio=istio-private --cluster private
+```console
+$ genjobs --mapping istio=istio-private --cluster private
 ```
 
 Delete jobs in destination path prior to generation:
 
-```bash
-$ go run genjobs.go --mapping istio=istio-private --clean
+```console
+$ genjobs --mapping istio=istio-private --clean
 ```
