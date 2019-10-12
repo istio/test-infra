@@ -1,14 +1,12 @@
 org: istio
 repo: bots
-image: gcr.io/istio-testing/build-tools:2019-10-10T00-49-39
-suppress_entrypoint: true
-branches:
-  - master
 
 jobs:
   - name: build
     command: [make, build]
+
   - name: lint
     command: [make, lint]
+
   - name: test
     command: [make, test]
