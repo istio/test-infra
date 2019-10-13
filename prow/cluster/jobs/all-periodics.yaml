@@ -28,6 +28,18 @@ istio_rel_pipeline_container: &istio_rel_pipeline_container
       memory: "24Gi"
       cpu: "7000m"
 
+istio_container_with_kind: &istio_container_with_kind
+  image: gcr.io/istio-testing/istio-builder:v20190926-b1cd57d5
+  securityContext:
+    privileged: true
+  resources:
+    requests:
+      memory: "2Gi"
+      cpu: "3000m"
+    limits:
+      memory: "24Gi"
+      cpu: "3000m"
+
 periodics:
 
 - interval: 10m
@@ -226,3 +238,34 @@ periodics:
         - https://gcsweb.istio.io/gcs/istio-release/
     nodeSelector:
       testing: test-pool
+
+- cron: "15 8 * * *" # every day at 12:15 am PST
+  name: daily-performance-benchmark
+  branches: master
+  decorate: true
+  extra_refs:
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/istio
+      repo: istio
+    - org: istio
+      repo: tools
+      base_ref: master
+      path_alias: istio.io/tools
+  annotations:
+    testgrid-dashboards: istio_release-pipeline
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
+  labels:
+    preset-service-account: "true"
+  spec:
+    containers:
+      - <<: *istio_container_with_kind
+        env:
+          - name: GIT_BRANCH
+            value: master
+          - name: RELEASE_BOT
+            value: foo
+        command:
+          - entrypoint
+          - prow/perf_benchmark_test.sh
