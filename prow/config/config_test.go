@@ -267,7 +267,7 @@ func TestConfig(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			bp, err := c.GetBranchProtection(tc.org, tc.repo, tc.branch)
+			bp, err := c.GetBranchProtection(tc.org, tc.repo, tc.branch, nil)
 			switch {
 			case err != nil:
 				t.Errorf("call failed: %v", err)
@@ -354,7 +354,8 @@ func TestTrustedJobs(t *testing.T) {
 // Make sure that our plugins are valid.
 func TestPlugins(t *testing.T) {
 	pa := &plugins.ConfigAgent{}
-	if err := pa.Load("../plugins.yaml"); err != nil {
+	checkUnknownPlugins := true
+	if err := pa.Load("../plugins.yaml", checkUnknownPlugins); err != nil {
 		t.Fatalf("could not load plugins: %v", err)
 	}
 }
