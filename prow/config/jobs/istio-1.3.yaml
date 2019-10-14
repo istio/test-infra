@@ -6,181 +6,215 @@ branches:
 
 jobs:
   - name: unit-tests
-    command: [make, -e, "T=-v", build, localTestEnv, test, binaries-test]
+    command: [entrypoint, make, -e, "T=-v", build, localTestEnv, test, binaries-test]
+
   - name: lint
     type: presubmit
     resources: lint
-    command: [make, lint]
+    command: [entrypoint, make, lint]
+
   - name: racetest
-    command: [make,  -e, "T=-v", localTestEnv, racetest]
+    command: [entrypoint, make,  -e, "T=-v", localTestEnv, racetest]
+
   - name: shellcheck
     type: presubmit
-    command: [make, shellcheck]
+    command: [entrypoint, make, shellcheck]
+
   - name: codecov
-    command: [make, coverage-diff]
+    command: [entrypoint, make, coverage-diff]
 
   - name: release-test
-    command: [prow/release-test.sh]
+    command: [entrypoint, prow/release-test.sh]
     requirements: [gcp]
 
   - name: integ-framework-local-tests
     type: presubmit
-    command: [prow/integ-suite-local.sh, test.integration.framework.local.presubmit]
+    command: [entrypoint, prow/integ-suite-local.sh, test.integration.framework.local.presubmit]
+
   - name: integ-galley-local-tests
     type: presubmit
-    command: [prow/integ-suite-local.sh, test.integration.galley.local.presubmit]
+    command: [entrypoint, prow/integ-suite-local.sh, test.integration.galley.local.presubmit]
+
   - name: integ-mixer-local-tests
     type: presubmit
-    command: [prow/integ-suite-local.sh, test.integration.mixer.local.presubmit]
+    command: [entrypoint, prow/integ-suite-local.sh, test.integration.mixer.local.presubmit]
+
   - name: integ-pilot-local-tests
     type: presubmit
-    command: [prow/integ-suite-local.sh, test.integration.pilot.local.presubmit]
+    command: [entrypoint, prow/integ-suite-local.sh, test.integration.pilot.local.presubmit]
+
   - name: integ-security-local-tests
     type: presubmit
-    command: [prow/integ-suite-local.sh, test.integration.security.local.presubmit]
+    command: [entrypoint, prow/integ-suite-local.sh, test.integration.security.local.presubmit]
 
   - name: integ-framework-k8s-tests
     type: presubmit
-    command: [prow/integ-suite-kind.sh, test.integration.framework.kube.presubmit]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.framework.kube.presubmit]
     requirements: [kind]
+
   - name: integ-istioctl-k8s-tests
     type: presubmit
-    command: [prow/integ-suite-kind.sh, test.integration.istioctl.kube.presubmit]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.istioctl.kube.presubmit]
     requirements: [kind]
+
   - name: integ-galley-k8s-tests
     type: presubmit
-    command: [prow/integ-suite-kind.sh, test.integration.galley.kube.presubmit]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.galley.kube.presubmit]
     requirements: [kind]
+
   - name: integ-mixer-k8s-tests
     type: presubmit
-    command: [prow/integ-suite-kind.sh, test.integration.mixer.kube.presubmit]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.mixer.kube.presubmit]
     requirements: [kind]
     modifiers: [optional]
+
   - name: integ-pilot-k8s-tests
     type: presubmit
-    command: [prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
     requirements: [kind]
+
   - name: integ-security-k8s-tests
     type: presubmit
-    command: [prow/integ-suite-kind.sh, test.integration.security.kube.presubmit]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube.presubmit]
     requirements: [kind]
+
   - name: integ-telemetry-k8s-tests
     type: presubmit
-    command: [prow/integ-suite-kind.sh, test.integration.telemetry.kube.presubmit]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.telemetry.kube.presubmit]
     requirements: [kind]
+
   - name: integ-new-install-k8s-tests
     type: presubmit
-    command: [prow/integ-suite-kind.sh, test.integration.new.installer]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.new.installer]
     requirements: [kind]
     modifiers: [optional]
 
   - name: e2e-mixer-no_auth
-    command: [prow/e2e-kind-suite.sh, --single_test, e2e_mixer]
+    command: [entrypoint, prow/e2e-kind-suite.sh, --single_test, e2e_mixer]
     requirements: [kind]
 
   - name: pilot-e2e-envoyv2-v1alpha3
-    command: [prow/e2e-kind-suite.sh, --single_test, e2e_pilotv2_v1alpha3]
+    command: [entrypoint, prow/e2e-kind-suite.sh, --single_test, e2e_pilotv2_v1alpha3]
     requirements: [kind]
 
   # TODO migrate to kind once we have metric server in kind
   - name: e2e-dashboard
-    command: [prow/e2e-dashboard.sh]
+    command: [entrypoint, prow/e2e-dashboard.sh]
     requirements: [gcp]
 
   - name: e2e-bookInfoTests-envoyv2-v1alpha3
-    command: [prow/e2e-kind-suite.sh, --single_test, e2e_bookinfo_envoyv2_v1alpha3]
+    command: [entrypoint, prow/e2e-kind-suite.sh, --single_test, e2e_bookinfo_envoyv2_v1alpha3]
     requirements: [kind]
+
   - name: e2e-bookInfoTests-trustdomain
-    command: [prow/e2e-kind-suite.sh, --single_test, e2e_bookinfo_trustdomain]
+    command: [entrypoint, prow/e2e-kind-suite.sh, --single_test, e2e_bookinfo_trustdomain]
     requirements: [kind]
+
   - name: e2e-bookInfoTests-non-mcp
     type: postsubmit
-    command: [prow/e2e-kind-suite.sh, --use_mcp=false, --single_test, e2e_bookinfo_envoyv2_v1alpha3]
+    command: [entrypoint, prow/e2e-kind-suite.sh, --use_mcp=false, --single_test, e2e_bookinfo_envoyv2_v1alpha3]
     requirements: [kind]
 
   - name: e2e-simpleTests
-    command: [./prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple, --installer, helm]
+    command: [entrypoint, prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple, --installer, helm]
     requirements: [kind]
+
   - name: e2e-simpleTests-distroless
-    command: [prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple, --installer, helm, --variant, distroless]
+    command: [entrypoint, prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple, --installer, helm, --variant, distroless]
     requirements: [kind]
+
   - name: e2e-simpleTestsMinProfile
-    command: [prow/e2e-kind-suite.sh, --single_test, e2e_simple_noauth, --installer, helm, --valueFile, values-istio-minimal.yaml, --helmSetValueList, "gateways.enabled=true,galley.enabled=false,global.useMCP=false"]
+    command: [entrypoint, prow/e2e-kind-suite.sh, --single_test, e2e_simple_noauth, --installer, helm, --valueFile, values-istio-minimal.yaml, --helmSetValueList, "gateways.enabled=true,galley.enabled=false,global.useMCP=false"]
     requirements: [kind]
+
   - name: e2e-simpleTests-cni
-    command: [prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple]
+    command: [entrypoint, prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple]
     requirements: [kind]
     env:
       - name: ENABLE_ISTIO_CNI
         value: true
       - name: E2E_ARGS
         value: " --kube_inject_configmap=istio-sidecar-injector"
+
   - name: e2e-simpleTests-non-mcp
     type: postsubmit
-    command: [./prow/e2e-kind-suite.sh, --auth_enable, --use_mcp=false, --single_test, e2e_simple, --installer, helm]
+    command: [entrypoint, prow/e2e-kind-suite.sh, --auth_enable, --use_mcp=false, --single_test, e2e_simple, --installer, helm]
     requirements: [kind]
 
   - name: pilot-multicluster-e2e
-    command: [prow/istio-pilot-multicluster-e2e.sh]
+    command: [entrypoint, prow/istio-pilot-multicluster-e2e.sh]
     requirements: [gcp]
     modifiers: [optional]
 
   - name: istio_e2e_cloudfoundry
-    command: [make, e2e_cloudfoundry]
+    command: [entrypoint, make, e2e_cloudfoundry]
 
   - name: integ-framework-local-tests
     type: postsubmit
-    command: [prow/integ-suite-local.sh, test.integration.framework.local]
+    command: [entrypoint, prow/integ-suite-local.sh, test.integration.framework.local]
+
   - name: integ-galley-local-tests
     type: postsubmit
-    command: [prow/integ-suite-local.sh, test.integration.galley.local]
+    command: [entrypoint, prow/integ-suite-local.sh, test.integration.galley.local]
+
   - name: integ-mixer-local-tests
     type: postsubmit
-    command: [prow/integ-suite-local.sh, test.integration.mixer.local]
+    command: [entrypoint, prow/integ-suite-local.sh, test.integration.mixer.local]
+
   - name: integ-pilot-local-tests
     type: postsubmit
-    command: [prow/integ-suite-local.sh, test.integration.pilot.local]
+    command: [entrypoint, prow/integ-suite-local.sh, test.integration.pilot.local]
+
   - name: integ-security-local-tests
     type: postsubmit
-    command: [prow/integ-suite-local.sh, test.integration.security.local]
+    command: [entrypoint, prow/integ-suite-local.sh, test.integration.security.local]
+
   - name: integ-conformance-local-tests
     type: postsubmit
-    command: [prow/integ-suite-local.sh, test.integration.conformance.local]
+    command: [entrypoint, prow/integ-suite-local.sh, test.integration.conformance.local]
+
   - name: integ-race-native-tests
     type: postsubmit
-    command: [prow/istio-integ-race-native-tests.sh]
+    command: [entrypoint, prow/istio-integ-race-native-tests.sh]
 
   - name: integ-framework-k8s-tests
     type: postsubmit
-    command: [prow/integ-suite-kind.sh, test.integration.framework.kube]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.framework.kube]
     requirements: [kind]
+
   - name: integ-istioctl-k8s-tests
     type: postsubmit
-    command: [prow/integ-suite-kind.sh, test.integration.istioctl.kube]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.istioctl.kube]
     requirements: [kind]
+
   - name: integ-galley-k8s-tests
     type: postsubmit
-    command: [prow/integ-suite-kind.sh, test.integration.galley.kube]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.galley.kube]
     requirements: [kind]
+
   - name: integ-mixer-k8s-tests
     type: postsubmit
-    command: [prow/integ-suite-kind.sh, test.integration.mixer.kube]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.mixer.kube]
     requirements: [kind]
+
   - name: integ-pilot-k8s-tests
     type: postsubmit
-    command: [prow/integ-suite-kind.sh, test.integration.pilot.kube]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
     requirements: [kind]
+
   - name: integ-security-k8s-tests
     type: postsubmit
-    command: [prow/integ-suite-kind.sh, test.integration.security.kube]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube]
     requirements: [kind]
+
   - name: integ-telemetry-k8s-tests
     type: postsubmit
-    command: [prow/integ-suite-kind.sh, test.integration.telemetry.kube]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.telemetry.kube]
     requirements: [kind]
+
   - name: integ-conformance-k8s-tests
     type: postsubmit
-    command: [prow/integ-suite-kind.sh, test.integration.conformance.kube]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.conformance.kube]
     requirements: [kind]
 
     # The node image must be kept in sync with the kind version we use.
@@ -189,26 +223,31 @@ jobs:
   - name: integ-k8s-113
     type: postsubmit
     command:
+      - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
       - kindest/node:v1.13.10
       - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
+
   - name: integ-k8s-114
     type: postsubmit
     command:
+      - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
       - kindest/node:v1.14.6
       - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
+
   # TODO replace with official kindest/node image. Currently this is a custom built image of the beta
   # As 1.16 has not been official released
   - name: integ-k8s-116
     type: postsubmit
     command:
+      - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
       - gcr.io/istio-testing/kind-node:v1.16.0-beta.1
