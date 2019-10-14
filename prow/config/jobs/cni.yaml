@@ -1,19 +1,16 @@
 org: istio
 repo: cni
-image: gcr.io/istio-testing/build-tools:2019-10-10T00-49-39
-
-branches:
-  - master
+support_release_branching: true
 
 jobs:
   - name: build
-    command: [make, docker]
+    command: [entrypoint, make, docker]
 
   - name: install
-    command: [make, docker, test]
+    command: [entrypoint, make, docker, test]
 
   - name: e2e
-    command: [make, e2e]
+    command: [entrypoint, make, e2e]
     requirements: [kind]
     repos: [istio/istio]
 

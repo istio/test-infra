@@ -16,8 +16,13 @@ repo: istio/istio
 
 # Defines what branches to run these jobs for. Multiple can be provided
 # The branch name will be appended to the job name (e.g tests -> tests-master)
+# If this is not supplied, it defaults to master
 branches:
   - master
+
+# Determines whether this configuration can be automatically cloned to create a release branch
+# version
+supports_release_branching: false
 
 # Defines the actual jobs
 jobs:
@@ -69,10 +74,11 @@ resources:
 The config generate has a few commands that can be run with:
 
 ```bash
-$ go run generate.go [diff|print|write|check]`
+$ go run generate.go [diff|print|write|check|branch]`
 ```
 
 * diff will produce a semantic diff of the current config and the newly generated config. This is useful when making changes
 * print will print out all generated config to stdout
 * write will write out generated config to the appropriate job file
 * check will strictly compare the generated config to the current config, and fail if there are any differences. This is useful for a CI gate to ensure config is up to date
+* branch will create new job configurations for a new release branch. Invoke with a release name (e.g. "1.4")
