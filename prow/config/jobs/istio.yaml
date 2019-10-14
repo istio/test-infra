@@ -78,6 +78,12 @@ jobs:
     requirements: [kind]
     modifiers: [optional]
 
+  - name: integ-istioio-k8s-tests
+    type: presubmit
+    command: [entrypoint, prow/integ-suite-kind.sh, make test.integration.istioio.kube.presubmit]
+    requirements: [kind]
+    modifiers: [optional]
+
   - name: e2e-mixer-no_auth
     command: [entrypoint, prow/e2e-kind-suite.sh, --single_test, e2e_mixer]
     requirements: [kind]
