@@ -19,6 +19,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 
 	"istio.io/test-infra/prow/config"
 )
@@ -40,31 +41,63 @@ func GetFileName(repo string, org string, branch string) string {
 }
 
 func main() {
-	if len(os.Args) != 2 {
-		panic("must provide one of write, diff, check, print")
+
+	// TODO: deserves a better CLI...
+	if len(os.Args) < 2 {
+		panic("must provide one of write, diff, check, print, branch")
+	} else if os.Args[1] == "branch" {
+		if len(os.Args) != 3 {
+			panic("must specify branch name")
+		}
+	} else if len(os.Args) != 2 {
+		panic("too many arguments")
 	}
+
 	files, err := ioutil.ReadDir("../jobs")
 	if err != nil {
 		exit(err, "failed to read jobs")
 	}
-	for _, file := range files {
-		jobs := config.ReadJobConfig(path.Join("..", "jobs", file.Name()))
-		for _, branch := range jobs.Branches {
-			config.ValidateJobConfig(jobs)
-			output := config.ConvertJobConfig(jobs, branch)
-			fname := GetFileName(jobs.Repo, jobs.Org, branch)
-			switch os.Args[1] {
-			case "write":
-				config.WriteConfig(output, fname)
-			case "diff":
-				existing := config.ReadProwJobConfig(fname)
-				config.DiffConfig(output, existing)
-			case "check":
-				if err := config.CheckConfig(output, fname); err != nil {
-					exit(err, "check failed")
+
+	if os.Args[1] == "branch" {
+		for _, file := range files {
+			src := path.Join("..", "jobs", file.Name())
+
+			jobs := config.ReadJobConfig(src)
+			if jobs.SupportReleaseBranching {
+				jobs.Branches = []string{"release-" + os.Args[2]}
+				jobs.SupportReleaseBranching = false
+				jobs.Image = config.BuilderImage
+
+				name := file.Name()
+				ext := filepath.Ext(name)
+				name = name[:len(name)-len(ext)] + "-" + os.Args[2] + ext
+
+				dst := path.Join("..", "jobs", name)
+				if err := config.WriteJobConfig(jobs, dst); err != nil {
+					exit(err, "writing branched config failed")
 				}
-			default:
-				config.PrintConfig(output)
+			}
+		}
+	} else {
+		for _, file := range files {
+			jobs := config.ReadJobConfig(path.Join("..", "jobs", file.Name()))
+			for _, branch := range jobs.Branches {
+				config.ValidateJobConfig(jobs)
+				output := config.ConvertJobConfig(jobs, branch)
+				fname := GetFileName(jobs.Repo, jobs.Org, branch)
+				switch os.Args[1] {
+				case "write":
+					config.WriteConfig(output, fname)
+				case "diff":
+					existing := config.ReadProwJobConfig(fname)
+					config.DiffConfig(output, existing)
+				case "check":
+					if err := config.CheckConfig(output, fname); err != nil {
+						exit(err, "check failed")
+					}
+				default:
+					config.PrintConfig(output)
+				}
 			}
 		}
 	}
