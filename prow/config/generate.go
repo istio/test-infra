@@ -66,27 +66,27 @@ const (
 )
 
 type JobConfig struct {
-	Jobs                    []Job                              `json:"jobs"`
-	Repo                    string                             `json:"repo"`
-	Org                     string                             `json:"org"`
-	Branches                []string                           `json:"branches"`
-	Resources               map[string]v1.ResourceRequirements `json:"resources"`
-	Image                   string                             `json:"image"`
-	SupportReleaseBranching bool                               `json:"support_release_branching"`
+	Jobs                    []Job                              `json:"jobs,omitempty"`
+	Repo                    string                             `json:"repo,omitempty"`
+	Org                     string                             `json:"org,omitempty"`
+	Branches                []string                           `json:"branches,omitempty"`
+	Resources               map[string]v1.ResourceRequirements `json:"resources,omitempty"`
+	Image                   string                             `json:"image,omitempty"`
+	SupportReleaseBranching bool                               `json:"support_release_branching,omitempty"`
 }
 
 type Job struct {
-	Name           string            `json:"name"`
-	PostsubmitName string            `json:"postsubmit"`
-	Command        []string          `json:"command"`
-	Env            []v1.EnvVar       `json:"env"`
-	Resources      string            `json:"resources"`
-	Modifiers      []string          `json:"modifiers"`
-	Requirements   []string          `json:"requirements"`
-	Type           string            `json:"type"`
-	Timeout        *prowjob.Duration `json:"timeout"`
-	Repos          []string          `json:"repos"`
-	Image          string            `json:"image"`
+	Name           string            `json:"name,omitempty"`
+	PostsubmitName string            `json:"postsubmit,omitempty"`
+	Command        []string          `json:"command,omitempty"`
+	Env            []v1.EnvVar       `json:"env,omitempty"`
+	Resources      string            `json:"resources,omitempty"`
+	Modifiers      []string          `json:"modifiers,omitempty"`
+	Requirements   []string          `json:"requirements,omitempty"`
+	Type           string            `json:"type,omitempty"`
+	Timeout        *prowjob.Duration `json:"timeout,omitempty"`
+	Repos          []string          `json:"repos,omitempty"`
+	Image          string            `json:"image,omitempty"`
 }
 
 // Reads the job yaml
