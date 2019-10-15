@@ -104,6 +104,11 @@ blocked_branches: &blocked_branches
     restrictions:
       teams:
       - release-managers-1-3
+  release-1.4: &release14
+    protect: true
+    restrictions:
+      teams:
+      - release-managers-1-4
 
 branch-protection:
   allow_disabled_policies: true
@@ -180,6 +185,8 @@ branch-protection:
                 - "merges-blocked-needs-admin"
             release-1.3:
               <<: *release13
+            release-1.4:
+              <<: *release14
         proxy:
           required_status_checks:
             contexts:
