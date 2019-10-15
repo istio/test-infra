@@ -1,0 +1,53 @@
+branches:
+- release-1.4
+image: gcr.io/istio-testing/build-tools:2019-10-11T13-37-52
+jobs:
+- command:
+  - make
+  - lint
+  name: lint
+- command:
+  - make
+  - mesh
+  name: mesh
+- command:
+  - make
+  - test
+  name: test
+- command:
+  - make
+  - mandiff
+  name: mandiff
+- command:
+  - entrypoint
+  - prow/e2e_install.sh
+  modifiers:
+  - optional
+  - hidden
+  name: manifest-apply
+  requirements:
+  - kind
+- command:
+  - make
+  - gen-check
+  modifiers:
+  - optional
+  name: gencheck
+- command:
+  - entrypoint
+  - make
+  - docker.all
+  name: release
+  requirements:
+  - gcp
+  type: postsubmit
+org: istio
+repo: operator
+resources:
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: 500m
+      memory: 3Gi
