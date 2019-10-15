@@ -13,6 +13,18 @@ jobs:
     requirements: [gcp]
     resources: build
 
+  - name: build-warning
+    type: presubmit
+    regex: '^release/trigger-build$'
+    command: [release/build-warning.sh]
+    modifiers: [optional]
+
+  - name: publish-warning
+    type: presubmit
+    regex: '^release/trigger-publish$'
+    command: [release/build-warning.sh]
+    modifiers: [optional]
+
 resources:
   build:
     requests:
