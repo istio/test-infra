@@ -168,3 +168,57 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - always_run: false
+    annotations:
+      testgrid-dashboards: istio_release-builder
+    branches:
+    - ^master$
+    decorate: true
+    name: build-warning_release-builder
+    optional: true
+    path_alias: istio.io/release-builder
+    run_if_changed: ^release/trigger-build$
+    spec:
+      containers:
+      - command:
+        - release/build-warning.sh
+        image: gcr.io/istio-testing/build-tools:2019-10-11T13-37-52
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - always_run: false
+    annotations:
+      testgrid-dashboards: istio_release-builder
+    branches:
+    - ^master$
+    decorate: true
+    name: publish-warning_release-builder
+    optional: true
+    path_alias: istio.io/release-builder
+    run_if_changed: ^release/trigger-publish$
+    spec:
+      containers:
+      - command:
+        - release/build-warning.sh
+        image: gcr.io/istio-testing/build-tools:2019-10-11T13-37-52
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
