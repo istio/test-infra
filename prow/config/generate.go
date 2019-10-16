@@ -60,9 +60,10 @@ const (
 	TypePostsubmit = "postsubmit"
 	TypePresubmit  = "presubmit"
 
-	RequirementRoot = "root"
-	RequirementKind = "kind"
-	RequirementGCP  = "gcp"
+	RequirementRoot    = "root"
+	RequirementKind    = "kind"
+	RequirementRelease = "release"
+	RequirementGCP     = "gcp"
 )
 
 type JobConfig struct {
@@ -153,7 +154,7 @@ func ValidateJobConfig(jobConfig JobConfig) {
 			}
 		}
 		for _, req := range job.Requirements {
-			if e := validate(req, []string{RequirementKind, RequirementRoot, RequirementGCP}, "requirements"); e != nil {
+			if e := validate(req, []string{RequirementKind, RequirementRelease, RequirementRoot, RequirementGCP}, "requirements"); e != nil {
 				err = multierror.Append(err, e)
 			}
 		}
@@ -458,6 +459,9 @@ func applyRequirements(job *config.JobBase, requirements []string) {
 			// The preset service account will set up the required resources
 			job.MaxConcurrency = 5
 			job.Labels["preset-service-account"] = "true"
+		case RequirementRelease:
+			// Grant access to release resources, such as docker and github
+			job.Labels["preset-release-pipeline"] = "true"
 		case RequirementRoot:
 			job.Spec.Containers[0].SecurityContext.Privileged = newTrue()
 		case RequirementKind:
