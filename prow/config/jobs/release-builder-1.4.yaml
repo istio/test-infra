@@ -1,0 +1,36 @@
+branches:
+- release-1.4
+image: gcr.io/istio-testing/build-tools:2019-10-11T13-37-52
+jobs:
+- command:
+  - make
+  - lint
+  name: lint
+- command:
+  - make
+  - test
+  name: test
+- command:
+  - entrypoint
+  - test/publish.sh
+  name: publish
+  requirements:
+  - gcp
+  resources: build
+org: istio
+repo: release-builder
+resources:
+  build:
+    limits:
+      cpu: "8"
+      memory: 24Gi
+    requests:
+      cpu: "5"
+      memory: 3Gi
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: 500m
+      memory: 3Gi
