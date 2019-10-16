@@ -85,6 +85,64 @@ postsubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_release-builder_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-release-pipeline: "true"
+    name: build-release_release-builder_postsubmit
+    path_alias: istio.io/release-builder
+    run_if_changed: ^release/trigger-build$
+    spec:
+      containers:
+      - command:
+        - release/build.sh
+        image: gcr.io/istio-testing/build-tools:2019-10-11T13-37-52
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_release-builder_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-release-pipeline: "true"
+    name: publish-release_release-builder_postsubmit
+    path_alias: istio.io/release-builder
+    run_if_changed: ^release/trigger-publish$
+    spec:
+      containers:
+      - command:
+        - release/publish.sh
+        image: gcr.io/istio-testing/build-tools:2019-10-11T13-37-52
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
 presubmits:
   istio/release-builder:
   - always_run: true
@@ -208,7 +266,7 @@ presubmits:
     spec:
       containers:
       - command:
-        - release/build-warning.sh
+        - release/publish-warning.sh
         image: gcr.io/istio-testing/build-tools:2019-10-11T13-37-52
         name: ""
         resources:
