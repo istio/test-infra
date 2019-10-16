@@ -204,6 +204,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 				presubmit.RegexpChangeMatcher = config.RegexpChangeMatcher{
 					RunIfChanged: job.Regex,
 				}
+				presubmit.AlwaysRun = false
 			}
 			presubmit.JobBase.Annotations[TestGridDashboard] = testgridJobPrefix
 			applyModifiersPresubmit(&presubmit, job.Modifiers)
