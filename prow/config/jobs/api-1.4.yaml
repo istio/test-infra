@@ -1,0 +1,24 @@
+branches:
+- release-1.4
+image: gcr.io/istio-testing/build-tools:2019-10-11T13-37-52
+jobs:
+- command:
+  - make
+  - presubmit
+  name: build
+- command:
+  - make
+  - gen-check
+  modifiers:
+  - optional
+  name: gencheck
+org: istio
+repo: api
+resources:
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: 500m
+      memory: 3Gi
