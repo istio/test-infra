@@ -87,6 +87,7 @@ type Job struct {
 	Timeout        *prowjob.Duration `json:"timeout,omitempty"`
 	Repos          []string          `json:"repos,omitempty"`
 	Image          string            `json:"image,omitempty"`
+	Regex          string            `json:"regex,omitempty"`
 }
 
 // Reads the job yaml
@@ -199,6 +200,11 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 				AlwaysRun: true,
 				Brancher:  brancher,
 			}
+			if job.Regex != "" {
+				presubmit.RegexpChangeMatcher = config.RegexpChangeMatcher{
+					RunIfChanged: job.Regex,
+				}
+			}
 			presubmit.JobBase.Annotations[TestGridDashboard] = testgridJobPrefix
 			applyModifiersPresubmit(&presubmit, job.Modifiers)
 			applyRequirements(&presubmit.JobBase, job.Requirements)
@@ -220,6 +226,11 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			postsubmit := config.Postsubmit{
 				JobBase:  createJobBase(jobConfig, job, name, jobConfig.Repo, branch, jobConfig.Resources),
 				Brancher: brancher,
+			}
+			if job.Regex != "" {
+				postsubmit.RegexpChangeMatcher = config.RegexpChangeMatcher{
+					RunIfChanged: job.Regex,
+				}
 			}
 			postsubmit.JobBase.Annotations[TestGridDashboard] = testgridJobPrefix + "_postsubmit"
 			postsubmit.JobBase.Annotations[TestGridAlertEmail] = "istio-oncall@googlegroups.com"
