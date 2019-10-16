@@ -1,0 +1,38 @@
+branches:
+- release-1.4
+image: gcr.io/istio-testing/build-tools:2019-10-11T13-37-52
+jobs:
+- command:
+  - entrypoint
+  - make
+  - docker
+  name: build
+- command:
+  - entrypoint
+  - make
+  - docker
+  - test
+  name: install
+- command:
+  - entrypoint
+  - make
+  - e2e
+  name: e2e
+  repos:
+  - istio/istio
+  requirements:
+  - kind
+- command:
+  - make
+  - lint
+  name: lint
+org: istio
+repo: cni
+resources:
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: 500m
+      memory: 3Gi
