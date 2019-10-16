@@ -142,6 +142,12 @@ func TestConfig(t *testing.T) {
 			branch: "release-1.3",
 		},
 		{
+			name:   "istio 1.4 protected",
+			org:    "istio",
+			repo:   "istio",
+			branch: "release-1.4",
+		},
+		{
 			name:               "test-infra not blocked by admins or circleci",
 			org:                "istio",
 			repo:               "test-infra",
@@ -241,6 +247,13 @@ func TestConfig(t *testing.T) {
 			repo:   "istio",
 			branch: "release-1.3",
 			teams:  []string{"release-managers-1-3", "repo-admins"},
+		},
+		{
+			name:   "release-1.4 team can merge into istio",
+			org:    "istio",
+			repo:   "istio",
+			branch: "release-1.4",
+			teams:  []string{"release-managers-1-4", "repo-admins"},
 		},
 		{
 			name:           "master mergify branches allow anyone to merge",
