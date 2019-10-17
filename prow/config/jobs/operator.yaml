@@ -24,6 +24,11 @@ jobs:
     command: [make, gen-check]
     modifiers: [optional]
 
+  - name: e2e
+    command: [entrypoint, make, e2e]
+    requirements: [kind]
+    modifiers: [optional]
+
   - name: release
     type: postsubmit
     command: [entrypoint, make, docker.all]
