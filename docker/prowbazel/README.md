@@ -54,3 +54,4 @@ Our dependency on this script is because it appropariately writes test job resul
 * 0.5.8: Update bazel to 0.28.0
 * 0.5.9: Add bazelisk 1.0 launcher for bazel
 * 0.5.10: Install cmake in /usr/local/bin
+* 0.5.11: Update clang and libc++ to 9.0 and preload Bazel 1.0.0
