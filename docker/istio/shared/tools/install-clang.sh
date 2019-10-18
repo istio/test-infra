@@ -16,13 +16,24 @@
 
 set -eux
 
-LLVM_VERSION=9
-LLVM_REPO='xenial'
+LLVM_VERSION="9.0.0"
+LLVM_TARGET="x86_64-linux-gnu-ubuntu-16.04"
 
-echo "deb http://apt.llvm.org/${LLVM_REPO}/ llvm-toolchain-${LLVM_REPO}-${LLVM_VERSION} main" \
-    | tee /etc/apt/sources.list.d/llvm.list
-echo 'Adding repo for llvm'
-curl https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
-echo 'Installing clang'
-apt-get update
-apt-get -qqy install "clang-${LLVM_VERSION}" "clang-format-${LLVM_VERSION}" "clang-tidy-${LLVM_VERSION}" "lld-${LLVM_VERSION}" "libc++-${LLVM_VERSION}-dev" "libc++abi-${LLVM_VERSION}-dev"
+LLVM_BASE_URL="http://releases.llvm.org/${LLVM_VERSION}"
+LLVM_ARCHIVE="clang+llvm-${LLVM_VERSION}-${LLVM_TARGET}"
+LLVM_URL="${LLVM_BASE_URL}/${LLVM_ARCHIVE}.tar.xz"
+LLVM_DOWNLOAD_DIRECTORY="/tmp/clang+llvm"
+LLVM_DIRECTORY="/usr/lib/llvm-9"
+
+mkdir -p "${LLVM_DOWNLOAD_DIRECTORY}"
+wget -q -nc -P "${LLVM_DOWNLOAD_DIRECTORY}" "${LLVM_URL}"
+mkdir -p "${LLVM_DIRECTORY}"
+tar -C ${LLVM_DIRECTORY} -xJf "${LLVM_DOWNLOAD_DIRECTORY}/${LLVM_ARCHIVE}.tar.xz"
+
+mv ${LLVM_DIRECTORY}/${LLVM_ARCHIVE}/* ${LLVM_DIRECTORY}/
+rmdir ${LLVM_DIRECTORY}/${LLVM_ARCHIVE}/
+
+echo "${LLVM_DIRECTORY}/lib" > /etc/ld.so.conf.d/llvm.conf
+ldconfig
+
+echo 'clang+llvm installed.'
