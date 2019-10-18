@@ -92,6 +92,8 @@ func TestPublisher_Publish(t *testing.T) {
 	case <-c.Done():
 	}
 	f := m.suite["test1"].(*fakeMetric)
+	f.lock.RLock()
+	defer f.lock.RUnlock()
 	if f.count < 100.0 {
 		t.Error("counter should be incremented")
 	}
