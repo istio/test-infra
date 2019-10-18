@@ -163,33 +163,6 @@ postsubmits:
     branches:
     - ^release-1.4$
     decorate: true
-    name: gencheck_operator_release-1.4_postsubmit
-    path_alias: istio.io/operator
-    spec:
-      containers:
-      - command:
-        - make
-        - gen-check
-        image: gcr.io/istio-testing/build-tools:2019-10-11T13-37-52
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: 500m
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.4_operator_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^release-1.4$
-    decorate: true
     labels:
       preset-service-account: "true"
     max_concurrency: 5
@@ -367,30 +340,3 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_release-1.4_operator
-    branches:
-    - ^release-1.4$
-    decorate: true
-    name: gencheck_operator_release-1.4
-    optional: true
-    path_alias: istio.io/operator
-    spec:
-      containers:
-      - command:
-        - make
-        - gen-check
-        image: gcr.io/istio-testing/build-tools:2019-10-11T13-37-52
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: 500m
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
