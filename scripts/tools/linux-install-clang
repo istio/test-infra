@@ -10,30 +10,37 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck disable=SC1090
 . "${DIR}"/all-utilities || { echo "Cannot load Bash utilities" ; exit 1 ; }
 
-LLVM_VERSION=9
 
-# Ubuntu 16-04
-LLVM_REPO='xenial'
+LLVM_BINNAME="9"
+LLVM_VERSION="9.0.0"
+LLVM_TARGET="x86_64-linux-gnu-ubuntu-16.04"
+
+LLVM_BASE_URL="http://releases.llvm.org/${LLVM_VERSION}"
+LLVM_ARCHIVE="clang+llvm-${LLVM_VERSION}-${LLVM_TARGET}"
+LLVM_URL="${LLVM_BASE_URL}/${LLVM_ARCHIVE}.tar.xz"
+LLVM_DOWNLOAD_DIRECTORY="${TOOLS_DIR}/clang+llvm"
+LLVM_DIRECTORY="/usr/lib/llvm-9"
 
 function install_clang() {
-  echo 'Installing clang'
-  curl https://apt.llvm.org/llvm-snapshot.gpg.key | ${SUDO} apt-key add - \
-  && clear_apt \
-  && ${SUDO} apt-get -qqy install "clang-${LLVM_VERSION}" "clang-format-${LLVM_VERSION}" "clang-tidy-${LLVM_VERSION}" "lld-${LLVM_VERSION}" "libc++-${LLVM_VERSION}-dev" "libc++abi-${LLVM_VERSION}-dev" \
-  && return 0
-  return 1
-}
+  mkdir -p "${LLVM_DOWNLOAD_DIRECTORY}"
+  retry -n 3 wget -q -nc -P "${LLVM_DOWNLOAD_DIRECTORY}" "${LLVM_URL}" \
+      || error_exit 'Could not download clang+llvm.'
+  ${SUDO} mkdir -p "${LLVM_DIRECTORY}"
+  ${SUDO} tar -C ${LLVM_DIRECTORY} -xJf "${LLVM_DOWNLOAD_DIRECTORY}/${LLVM_ARCHIVE}.tar.xz" \
+      || error_exit 'Could not unpack clang+llvm.'
 
-function update_llvm_apt() {
-  echo 'Adding repo for llvm'
-  echo "deb http://apt.llvm.org/${LLVM_REPO}/ llvm-toolchain-${LLVM_REPO}-${LLVM_VERSION} main" \
-    | ${SUDO} tee /etc/apt/sources.list.d/llvm.list
+  ${SUDO} mv ${LLVM_DIRECTORY}/${LLVM_ARCHIVE}/* ${LLVM_DIRECTORY}/
+  ${SUDO} rmdir ${LLVM_DIRECTORY}/${LLVM_ARCHIVE}/
+
+  echo "${LLVM_DIRECTORY}/lib" | ${SUDO} tee /etc/ld.so.conf.d/llvm.conf
+  ${SUDO} ldconfig
+
+  echo 'clang+llvm installed.'
 }
 
 function update_clang() {
-  if [[ ! -x "$(command -v clang-${LLVM_VERSION})" ]]; then
-    update_llvm_apt
-    retry install_clang || error_exit 'Cannot install clang.'
+  if [[ ! -x "$(command -v clang-${LLVM_BINNAME})" ]]; then
+    retry install_clang || error_exit 'Cannot install clang+llvm.'
   fi
-  echo 'clang is up to date.'
+  echo 'clang+llvm is up to date.'
 }
