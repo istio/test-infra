@@ -1,0 +1,34 @@
+---
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: "crier"
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: crier
+rules:
+- apiGroups:
+  - "prow.k8s.io"
+  resources:
+  - "prowjobs"
+  verbs:
+  - "get"
+  - "watch"
+  - "list"
+  - "patch"
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: "crier"
+  namespace: "default"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: "crier"
+subjects:
+- kind: ServiceAccount
+  name: "crier"
+  namespace: "default"
