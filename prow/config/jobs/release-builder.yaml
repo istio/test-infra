@@ -29,14 +29,14 @@ jobs:
   - name: build-release
     type: postsubmit
     regex: '^release/trigger-build$'
-    command: [release/build.sh]
+    command: [entrypoint, release/build.sh]
     requirements: [release]
     resources: build
 
   - name: publish-release
     type: postsubmit
     regex: '^release/trigger-publish$'
-    command: [release/publish.sh]
+    command: [entrypoint, release/publish.sh]
     requirements: [release]
     resources: build
 
