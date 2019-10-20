@@ -5,30 +5,26 @@ support_release_branching: true
 jobs:
   - name: lint
     command: [make, lint]
-
   - name: mesh
     command: [make, mesh]
-
   - name: test
     command: [make, test]
-
   - name: mandiff
     command: [make, mandiff]
-
   - name: manifest-apply
     command: [entrypoint, prow/e2e_install.sh]
     requirements: [kind]
     modifiers: [optional, hidden]
-
   - name: gencheck
     command: [make, gen-check]
-
   - name: e2e
     command: [entrypoint, make, e2e]
     requirements: [kind]
     modifiers: [optional]
-
   - name: release
     type: postsubmit
     command: [entrypoint, make, docker.all]
     requirements: [gcp]
+    env:
+    - name: TAG
+      value: 1.5-dev
