@@ -62,6 +62,30 @@ postsubmits:
         - boskos
         - deploy
 
+  - name: post-test-infra-push-prowbazel
+    cluster: test-infra-trusted
+    run_if_changed: '^docker/prowbazel/Makefile$'
+    decorate: true
+    max_concurrency: 1
+    branches:
+    - master
+    labels:
+      preset-prow-pusher-service-account: "true"
+    annotations:
+      testgrid-create-test-group: "false"
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/build-tools:2019-10-18T22-40-12
+        command:
+        - entrypoint
+        args:
+        - make
+        - -C
+        - image
+        - push
+        securityContext:
+          privileged: true
+
 periodics:
 - cron: "54 * * * *"  # Every hour at 54 minutes past the hour
   name: ci-test-infra-branchprotector
