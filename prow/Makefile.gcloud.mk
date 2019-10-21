@@ -32,6 +32,10 @@ ifdef GOOGLE_APPLICATION_CREDENTIALS
 	gcloud auth activate-service-account --key-file="$(GOOGLE_APPLICATION_CREDENTIALS)"
 endif
 
+.PHONY: configure-docker
+configure-docker: activate-serviceaccount
+	gcloud auth configure-docker
+
 .PHONY: get-cluster-credentials
 get-cluster-credentials: save-kubeconfig activate-serviceaccount
 	gcloud container clusters get-credentials "$(CLUSTER)" --project="$(PROJECT)" --zone="$(ZONE)"
