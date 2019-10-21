@@ -1,43 +1,4 @@
 resources:
-- type: gke-e2e-test-latest
-  state: dirty
-  # Set back to 1 when mason client supports request ids.
-  min-count: 5
-  max-count: 5
-  needs:
-    gcp-project: 1
-  config:
-    type: GCPResourceConfig
-    content: |
-      gcp-project:
-        - clusters:
-          - machinetype: n1-standard-2
-            numnodes: 4
-            version: 1.11
-            networkpolicy:
-              enabled: true
-              provider: CALICO
-            scopes:
-            - https://www.googleapis.com/auth/cloud-platform
-            - https://www.googleapis.com/auth/trace.append
-          - machinetype: n1-standard-2
-            numnodes: 4
-            version: 1.11
-            networkpolicy:
-              enabled: true
-              provider: CALICO
-            scopes:
-            - https://www.googleapis.com/auth/cloud-platform
-            - https://www.googleapis.com/auth/trace.append
-          vms:
-          - machinetype: n1-standard-4
-            sourceimage: projects/debian-cloud/global/images/debian-9-stretch-v20180206
-            tags:
-            - http-server
-            - https-server
-            scopes:
-            - https://www.googleapis.com/auth/cloud-platform
-            - https://www.googleapis.com/auth/trace.append
 - type: gke-e2e-test
   state: dirty
   # Set back to 10 when mason client supports request ids.
@@ -52,22 +13,19 @@ resources:
         - clusters:
           - machinetype: n1-standard-4
             numnodes: 5
-            version: 1.10
+            version: 1.13
+            networkpolicy:
+              enabled: true
+              provider: CALICO
             scopes:
             - https://www.googleapis.com/auth/cloud-platform
             - https://www.googleapis.com/auth/trace.append
           - machinetype: n1-standard-4
             numnodes: 5
-            version: 1.10
-            scopes:
-            - https://www.googleapis.com/auth/cloud-platform
-            - https://www.googleapis.com/auth/trace.append
-          vms:
-          - machinetype: n1-standard-4
-            sourceimage: projects/debian-cloud/global/images/debian-9-stretch-v20180206
-            tags:
-            - http-server
-            - https-server
+            version: 1.13
+            networkpolicy:
+              enabled: true
+              provider: CALICO
             scopes:
             - https://www.googleapis.com/auth/cloud-platform
             - https://www.googleapis.com/auth/trace.append
@@ -86,18 +44,8 @@ resources:
         - clusters:
           - machinetype: n1-highmem-8
             numnodes: 7
-            version: 1.10
+            version: 1.13
             zone: us-central1-f
-            scopes:
-            - https://www.googleapis.com/auth/cloud-platform
-            - https://www.googleapis.com/auth/trace.append
-          vms:
-          - machinetype: n1-highmem-8
-            sourceimage: projects/ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20180612
-            zone: us-central1-f
-            tags:
-            - http-server
-            - https-server
             scopes:
             - https://www.googleapis.com/auth/cloud-platform
             - https://www.googleapis.com/auth/trace.append
