@@ -85,6 +85,12 @@ postsubmits:
         - push
         securityContext:
           privileged: true
+        volumeMounts:
+        - name: docker-root
+          mountPath: /var/lib/docker
+      volumes:
+      - name: docker-root
+        emptyDir: {}
 
 periodics:
 - cron: "54 * * * *"  # Every hour at 54 minutes past the hour
