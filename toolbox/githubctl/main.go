@@ -161,7 +161,7 @@ func CleanupReleaseRequests(owner, repo string) error {
 			break
 		}
 
-		status, combinedStatus, err := githubClnt.GetPRTestResults(repo, pr, true)
+		status, _, err := githubClnt.GetPRTestResults(repo, pr, true)
 		if err != nil {
 			return err
 		}
@@ -203,16 +203,7 @@ func CleanupReleaseRequests(owner, repo string) error {
 			}
 			if retestCount < maxRetests {
 				log.Printf("Retesting https://github.com/%s/%s/pull/%d.", owner, repo, *pr.Number)
-				comment := ""
-				for _, status := range combinedStatus.Statuses {
-					if *status.State == ci.Error || *status.State == ci.Failure {
-						context := *status.Context
-						if strings.HasPrefix(context, "prow/") {
-							testName := context[5:]
-							comment += testCommand + " " + testName + "\n"
-						}
-					}
-				}
+				comment := "/retest"
 				if err := githubClnt.CreateComment(repo, pull, comment); err != nil {
 					return err
 				}
