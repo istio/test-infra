@@ -1,6 +1,7 @@
 org: istio
 repo: release-builder
 support_release_branching: true
+image: gcr.io/istio-testing/build-tools:2019-10-24T14-05-17
 
 jobs:
   - name: lint
@@ -11,7 +12,6 @@ jobs:
 
   - name: gencheck
     command: [make, gen-check]
-    modifiers: [optional]
 
   - name: publish
     command: [entrypoint, test/publish.sh]
