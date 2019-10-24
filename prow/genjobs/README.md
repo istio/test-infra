@@ -7,18 +7,25 @@
 ## Installation
 
 ```console
-$ go get -u istio.io/test-infra/prow/cmd/genjobs
+$ go get -u istio.io/test-infra/prow/genjobs
 ```
 
 ## Usage
 
+Run using Golang:
+
+```console
+$ go run istio.io/test-infra/prow/genjobs <options>
+```
+
 The following is a list of supported options for `genjobs`. The only **required** option is `-m, --mapping`, which is the translation mapping between public/private Github organizations.
 
-```shell
+```console
       --branches strings         Branches to generate job(s) for.
       --bucket string            GCS bucket name to upload logs and build artifacts to. (default "istio-private-build")
       --clean                    Clean output directory before job(s) generation.
       --cluster string           GCP cluster to run the job(s) in. (default "private")
+  -e, --env stringToString       Environment variables to set for the job(s). (default [])
   -i, --input string             Input directory containing job(s) to convert. (default ".")
       --job-blacklist strings    Jos(s) to blacklist in generation process.
       --job-whitelist strings    Job(s) to whitelist in generation process.
