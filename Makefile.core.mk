@@ -17,18 +17,14 @@ lint: lint-all
 lint-buildifier:
 	@bazel run //:buildifier -- -showlog -mode=check $(git ls-files| grep -e BUILD -e WORKSPACE | grep -v vendor)
 
-format: format-go
-	go mod tidy
+fmt: format-go tidy-go
 
 test:
 	@go test -race ./...
 
-gen: generate-config
+gen: generate-config tidy-go mirror-licenses
 
-tidy:
-	@go mod tidy
-
-gen-check: gen tidy check-clean-repo
+gen-check: gen check-clean-repo
 
 .PHONY: testgrid
 testgrid:
