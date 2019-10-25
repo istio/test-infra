@@ -337,7 +337,7 @@ func TestTrustedJobs(t *testing.T) {
 	trustedPath := path.Join(*jobConfigPath, "istio", "test-infra", "istio.test-infra.trusted.master.yaml")
 
 	// Presubmits may not use trusted clusters.
-	for _, pre := range c.AllPresubmits(nil) {
+	for _, pre := range c.AllStaticPresubmits(nil) {
 		if pre.Cluster == trusted {
 			t.Errorf("%s: presubmits cannot use trusted clusters", pre.Name)
 		}
