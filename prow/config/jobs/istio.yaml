@@ -98,10 +98,9 @@ jobs:
     command: [entrypoint, prow/e2e-kind-suite.sh, --single_test, e2e_pilotv2_v1alpha3]
     requirements: [kind]
 
-  # TODO migrate to kind once we have metric server in kind
   - name: e2e-dashboard
-    command: [entrypoint, prow/e2e-dashboard.sh]
-    requirements: [gcp, kind]
+    command: [entrypoint, prow/e2e-kind-suite.sh, --single_test, e2e_dashboard]
+    requirements: [kind]
 
   - name: e2e-bookInfoTests-envoyv2-v1alpha3
     command: [entrypoint, prow/e2e-kind-suite.sh, --single_test, e2e_bookinfo_envoyv2_v1alpha3]
@@ -145,7 +144,7 @@ jobs:
 
   - name: pilot-multicluster-e2e
     command: [entrypoint, prow/istio-pilot-multicluster-e2e.sh]
-    requirements: [gcp, kind]
+    requirements: [kind]
     modifiers: [optional]
 
   - name: istio_e2e_cloudfoundry
