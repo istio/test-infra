@@ -247,10 +247,10 @@ periodics:
   decoration_config:
     timeout: 12h0m0s
   extra_refs:
-    - base_ref: master
-      org: istio
-      path_alias: istio.io/istio
+    - org: istio
       repo: istio
+      base_ref: master
+      path_alias: istio.io/istio
     - org: istio
       repo: tools
       base_ref: master
@@ -267,8 +267,6 @@ periodics:
         env:
           - name: GIT_BRANCH
             value: master
-          - name: RELEASE_BOT
-            value: foo
         command:
           - entrypoint
           - prow/perf_benchmark_test.sh
@@ -281,10 +279,10 @@ periodics:
   decoration_config:
     timeout: 12h0m0s
   extra_refs:
-    - base_ref: release-1.3
-      org: istio
-      path_alias: istio.io/istio
+    - org: istio
       repo: istio
+      base_ref: release-1.3
+      path_alias: istio.io/istio
     - org: istio
       repo: tools
       base_ref: release-1.3
@@ -301,8 +299,6 @@ periodics:
         env:
           - name: GIT_BRANCH
             value: release-1.3
-          - name: RELEASE_BOT
-            value: foo
         command:
           - entrypoint
           - prow/perf_benchmark_test.sh
@@ -315,10 +311,10 @@ periodics:
   decoration_config:
     timeout: 12h0m0s
   extra_refs:
-    - base_ref: release-1.4
-      org: istio
-      path_alias: istio.io/istio
+    - org: istio
       repo: istio
+      base_ref: release-1.4
+      path_alias: istio.io/istio
     - org: istio
       repo: tools
       base_ref: release-1.4
@@ -335,8 +331,6 @@ periodics:
         env:
           - name: GIT_BRANCH
             value: release-1.4
-          - name: RELEASE_BOT
-            value: foo
         command:
           - entrypoint
           - prow/perf_benchmark_test.sh
