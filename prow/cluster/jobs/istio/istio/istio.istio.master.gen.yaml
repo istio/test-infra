@@ -245,16 +245,15 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
     name: e2e-dashboard_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
       - command:
         - entrypoint
-        - prow/e2e-dashboard.sh
+        - prow/e2e-kind-suite.sh
+        - --single_test
+        - e2e_dashboard
         image: gcr.io/istio-testing/build-tools:2019-10-18T22-40-12
         name: ""
         resources:
@@ -703,9 +702,6 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
     name: pilot-multicluster-e2e_istio_postsubmit
     path_alias: istio.io/istio
     spec:
@@ -2262,16 +2258,15 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
     name: e2e-dashboard_istio
     path_alias: istio.io/istio
     spec:
       containers:
       - command:
         - entrypoint
-        - prow/e2e-dashboard.sh
+        - prow/e2e-kind-suite.sh
+        - --single_test
+        - e2e_dashboard
         image: gcr.io/istio-testing/build-tools:2019-10-18T22-40-12
         name: ""
         resources:
@@ -2565,9 +2560,6 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
     name: pilot-multicluster-e2e_istio
     optional: true
     path_alias: istio.io/istio
