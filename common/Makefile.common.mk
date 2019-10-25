@@ -85,6 +85,7 @@ dump-licenses-csv:
 
 mirror-licenses:
 	@go mod download
+	@rm -fr licenses
 	@license-lint --mirror
 
 TMP := $(shell mktemp -d -u)
