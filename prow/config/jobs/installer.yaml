@@ -1,12 +1,13 @@
 org: istio
 repo: installer
 support_release_branching: true
+image: gcr.io/istio-testing/build-tools:2019-10-24T14-05-17
 
 jobs:
   - name: build
     command: [make, run-build]
 
-  - name: lintmodern
+  - name: lint
     command: [make, lint_modern]
 
   - name: demo
