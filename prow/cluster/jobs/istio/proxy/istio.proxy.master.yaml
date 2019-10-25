@@ -98,6 +98,37 @@ presubmits:
       nodeSelector:
         testing: build-pool
 
+  - name: proxy-presubmit-release
+    annotations:
+      testgrid-dashboards: istio_proxy
+    context: prow/proxy-presubmit-release.sh
+    branches: *branch_spec
+    always_run: true
+    decorate: true
+    path_alias: istio.io/proxy
+    timeout: 60m
+    extra_refs:
+    - org: istio
+      repo: istio
+      base_ref: master
+      path_alias: istio.io/istio
+    labels:
+      preset-service-account: "true"
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/prowbazel:0.5.12
+        command:
+        - ./prow/proxy-presubmit-release.sh
+        resources:
+          requests:
+            memory: "8Gi"
+            cpu: "8000m"
+          limits:
+            memory: "60Gi"
+            cpu: "16000m"
+      nodeSelector:
+        testing: build-pool
+
 postsubmits:
 
   istio/proxy:
