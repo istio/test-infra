@@ -298,7 +298,7 @@ func walkTree(p string, info os.FileInfo, err error) error {
 	postsubmit := make(map[string][]config.Postsubmit)
 
 	// Presubmits
-	for orgrepo, pre := range jobs.Presubmits {
+	for orgrepo, pre := range jobs.PresubmitsStatic {
 		orgrepo = convertOrgRepoStr(orgrepo)
 		if orgrepo == "" {
 			continue
