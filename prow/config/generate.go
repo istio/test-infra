@@ -177,8 +177,8 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 	var postsubmits []config.Postsubmit
 
 	output := config.JobConfig{
-		Presubmits:  map[string][]config.Presubmit{},
-		Postsubmits: map[string][]config.Postsubmit{},
+		PresubmitsStatic: map[string][]config.Presubmit{},
+		Postsubmits:      map[string][]config.Postsubmit{},
 	}
 	for _, job := range jobConfig.Jobs {
 		brancher := config.Brancher{
@@ -241,7 +241,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			applyRequirements(&postsubmit.JobBase, job.Requirements)
 			postsubmits = append(postsubmits, postsubmit)
 		}
-		output.Presubmits[fmt.Sprintf("%s/%s", jobConfig.Org, jobConfig.Repo)] = presubmits
+		output.PresubmitsStatic[fmt.Sprintf("%s/%s", jobConfig.Org, jobConfig.Repo)] = presubmits
 		output.Postsubmits[fmt.Sprintf("%s/%s", jobConfig.Org, jobConfig.Repo)] = postsubmits
 	}
 	return output
@@ -308,7 +308,7 @@ func DiffConfig(result config.JobConfig, existing config.JobConfig) {
 }
 
 func getPresubmit(c config.JobConfig, jobName string) *config.Presubmit {
-	presubmits := c.Presubmits
+	presubmits := c.PresubmitsStatic
 	for _, jobs := range presubmits {
 		for _, job := range jobs {
 			if job.Name == jobName {
@@ -321,7 +321,7 @@ func getPresubmit(c config.JobConfig, jobName string) *config.Presubmit {
 
 func diffConfigPresubmit(result config.JobConfig, pj config.JobConfig) {
 	known := make(map[string]struct{})
-	for _, jobs := range result.Presubmits {
+	for _, jobs := range result.PresubmitsStatic {
 		for _, job := range jobs {
 			known[job.Name] = struct{}{}
 			current := getPresubmit(pj, job.Name)
@@ -338,7 +338,7 @@ func diffConfigPresubmit(result config.JobConfig, pj config.JobConfig) {
 			}
 		}
 	}
-	for _, jobs := range pj.Presubmits {
+	for _, jobs := range pj.PresubmitsStatic {
 		for _, job := range jobs {
 			if _, f := known[job.Name]; !f {
 				fmt.Println("Missing", job.Name)
