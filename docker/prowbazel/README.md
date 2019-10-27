@@ -56,4 +56,5 @@ Our dependency on this script is because it appropariately writes test job resul
 * 0.5.10: Install cmake in /usr/local/bin
 * 0.5.11: Update clang and libc++ to 9.0 and preload Bazel 1.0.0
 * 0.5.12: Install clang and libc++ from the official releases instead of packages.
+* 0.5.13: Switch image user from bootstrap to root.
 * 0.5.14: Install goimports and golangci-lint
