@@ -5,6 +5,10 @@ VERSION ?= 0.5.14
 image:
 	docker build -t "gcr.io/$(PROJECT)/prowbazel:$(VERSION)" -f Dockerfile ../../
 
+# Push image only if it does not exist.
+push-safe:
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "gcr.io/$(PROJECT)/prowbazel:$(VERSION)" &>/dev/null || $(MAKE) push
+
 push:
 	docker push "gcr.io/$(PROJECT)/prowbazel:$(VERSION)"
 
@@ -14,4 +18,4 @@ run:
 # Example of running a job:
 # ~/bootstrap.py --repo="github.com/<org>/<repo>" --job="<job-name>" --clean --root="${GOPATH}/src" --pull=master:<sha>,<pr-#>:<sha>
 
-.PHONY: image push
+.PHONY: image push push-safe
