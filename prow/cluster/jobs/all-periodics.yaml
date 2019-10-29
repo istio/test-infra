@@ -337,12 +337,12 @@ periodics:
 
 - cron: "0 18 * * *"  # starts every day at 18:00PM UTC
   name: istio-upgrade-helm-chart
-  branches: release-1.4
+  branches: master
   decorate: true
   extra_refs:
     - org: istio
       repo: istio
-      base_ref: release-1.4
+      base_ref: master
       path_alias: istio.io/istio
   annotations:
     testgrid-dashboards: istio_release-pipeline
@@ -353,9 +353,6 @@ periodics:
   spec:
     containers:
       - <<: *istio_container_with_kind
-        env:
-          - name: TEST_TARGET
-            value: "1.3"
         command:
           - entrypoint
           - prow/upgrade-tests.sh
