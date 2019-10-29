@@ -334,3 +334,26 @@ periodics:
         command:
           - entrypoint
           - prow/perf_benchmark_test.sh
+
+- cron: "0 18 * * *"  # starts every day at 18:00PM UTC
+  name: istio-upgrade-helm-chart
+  branches: master
+  decorate: true
+  extra_refs:
+    - org: istio
+      repo: istio
+      base_ref: master
+      path_alias: istio.io/istio
+  annotations:
+    testgrid-dashboards: istio_release-pipeline
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
+  labels:
+    preset-service-account: "true"
+  spec:
+    containers:
+      - <<: *istio_container_with_kind
+        command:
+          - entrypoint
+          - prow/upgrade-tests.sh
+
