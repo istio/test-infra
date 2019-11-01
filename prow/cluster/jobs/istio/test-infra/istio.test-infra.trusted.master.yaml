@@ -93,34 +93,6 @@ postsubmits:
       - name: docker-root
         emptyDir: {}
 
-  - name: post-test-infra-upload-testgrid-config
-    cluster: test-infra-trusted
-    run_if_changed: '^(prow/cluster/jobs/.*\.yaml)|(testgrid/default\.yaml)$'
-    decorate: true
-    branches:
-    - master
-    annotations:
-      testgrid-create-test-group: "false"
-    spec:
-      containers:
-      - image: gcr.io/slchase-canary/transfigure #TODO(chases2) Change to k8s-prow project once pushed
-        command:
-        - /transfigure.sh
-        args:
-        - /etc/github-token/oauth
-        - prow/config.yaml
-        - prow/cluster/jobs
-        - testgrid/default.yaml
-        - istio
-      volumeMounts:
-      - name: github
-        mountPath: /etc/github-token
-        readOnly: true
-    volumes:
-    - name: github
-      secret:
-        secretName: oauth-token
-
 periodics:
 - cron: "54 * * * *"  # Every hour at 54 minutes past the hour
   name: ci-test-infra-branchprotector
