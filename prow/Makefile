@@ -16,6 +16,7 @@ generate-istio-private-jobs:
 		--clean \
 		--mapping istio=istio-private \
 		--job-type postsubmit \
+		--env DOCKER_HUB=gcr.io/istio-prow-build,GCS_BUCKET=istio-private-build/dev \
 		--input ./cluster/jobs/ \
 		--output ./cluster/jobs/ \
 		--repo-whitelist istio \
