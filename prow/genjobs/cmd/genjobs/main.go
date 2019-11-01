@@ -51,12 +51,14 @@ type options struct {
 	labels        map[string]string
 	env           map[string]string
 	branches      []string
+	selector      map[string]string
 	input         string
 	output        string
 	repoWhitelist sets.String
 	repoBlacklist sets.String
 	jobWhitelist  sets.String
 	jobBlacklist  sets.String
+	jobType       sets.String
 	orgMap        map[string]string
 }
 
@@ -67,21 +69,25 @@ func (o *options) parseFlags() {
 		_repoBlacklist []string
 		_jobWhitelist  []string
 		_jobBlacklist  []string
+		_jobType       []string
 	)
 
-	flag.StringVar(&o.bucket, "bucket", "istio-private-build", "GCS bucket name to upload logs and build artifacts to.")
-	flag.StringSliceVar(&o.branches, "branches", []string{}, "Branches to generate job(s) for.")
+	flag.StringVar(&o.bucket, "bucket", "private-build", "GCS bucket name to upload logs and build artifacts to.")
+	flag.StringSliceVar(&o.branches, "branches", []string{}, "Branch(es) to generate job(s) for.")
+	flag.StringToStringVar(&o.selector, "selector", map[string]string{}, "Node selector(s) to constrain job(s).")
 	flag.StringVar(&o.cluster, "cluster", "private", "GCP cluster to run the job(s) in.")
 	flag.BoolVar(&o.clean, "clean", false, "Clean output directory before job(s) generation.")
 	flag.StringVar(&o.sshKeySecret, "ssh-key-secret", "ssh-key-secret", "GKE cluster secrets containing the Github ssh private key.")
-	flag.StringToStringVarP(&o.labels, "labels", "l", map[string]string{"preset-service-account": "true"}, "Prow labels to apply to the job(s).")
+	flag.StringToStringVarP(&o.labels, "labels", "l", map[string]string{}, "Prow labels to apply to the job(s).")
 	flag.StringToStringVarP(&o.env, "env", "e", map[string]string{}, "Environment variables to set for the job(s).")
 	flag.StringVarP(&o.input, "input", "i", ".", "Input directory containing job(s) to convert.")
 	flag.StringVarP(&o.output, "output", "o", ".", "Output directory to write generated job(s).")
 	flag.StringSliceVarP(&_repoWhitelist, "repo-whitelist", "w", []string{}, "Repositories to whitelist in generation process.")
 	flag.StringSliceVarP(&_repoBlacklist, "repo-blacklist", "b", []string{}, "Repositories to blacklist in generation process.")
 	flag.StringSliceVar(&_jobWhitelist, "job-whitelist", []string{}, "Job(s) to whitelist in generation process.")
-	flag.StringSliceVar(&_jobBlacklist, "job-blacklist", []string{}, "Jos(s) to blacklist in generation process.")
+	flag.StringSliceVar(&_jobBlacklist, "job-blacklist", []string{}, "Job(s) to blacklist in generation process.")
+	flag.StringSliceVarP(&_jobType, "job-type", "t", []string{"presubmit", "postsubmit", "periodic"},
+		"Job type(s) to process (e.g. presubmit, postsubmit. periodic).")
 	flag.StringToStringVarP(&o.orgMap, "mapping", "m", map[string]string{}, "Mapping between public and private Github organization(s).")
 
 	flag.Parse()
@@ -90,6 +96,7 @@ func (o *options) parseFlags() {
 	o.repoBlacklist = sets.NewString(_repoBlacklist...)
 	o.jobWhitelist = sets.NewString(_jobWhitelist...)
 	o.jobBlacklist = sets.NewString(_jobBlacklist...)
+	o.jobType = sets.NewString(_jobType...)
 }
 
 // validateFlags validates the command-line flags.
@@ -98,6 +105,14 @@ func (o *options) validateFlags() error {
 
 	if len(o.orgMap) == 0 {
 		return &util.ExitError{Message: "-m, --mapping option is required.", Code: 1}
+	}
+
+	if o.bucket == "" {
+		return &util.ExitError{Message: "--bucket option is required.", Code: 1}
+	}
+
+	if o.sshKeySecret == "" {
+		return &util.ExitError{Message: "--ssh-key-secret option is required.", Code: 1}
 	}
 
 	o.input, err = filepath.Abs(o.input)
@@ -125,8 +140,8 @@ func validateOrgRepo(o options, org string, repo string) bool {
 }
 
 // validateJob validates that the job passes validation and should be converted.
-func validateJob(o options, name string, patterns []string) bool {
-	if o.jobBlacklist.Has(name) || (len(o.jobWhitelist) > 0 && !o.jobWhitelist.Has(name)) || !isMatchBranch(o, patterns) {
+func validateJob(o options, name string, patterns []string, jType string) bool {
+	if o.jobBlacklist.Has(name) || (len(o.jobWhitelist) > 0 && !o.jobWhitelist.Has(name)) || !isMatchBranch(o, patterns) || !o.jobType.Has(jType) {
 		return false
 	}
 
@@ -148,6 +163,16 @@ func isMatchBranch(o options, patterns []string) bool {
 	}
 
 	return false
+}
+
+// allRefs returns true if all predicate function returns true for the array of ref.
+func allRefs(array []prowjob.Refs, predicate func(val prowjob.Refs, idx int) bool) bool {
+	for idx, item := range array {
+		if !predicate(item, idx) {
+			return false
+		}
+	}
+	return true
 }
 
 // convertOrgRepoStr translates the provided job org and repo based on the specified org mapping.
@@ -192,8 +217,11 @@ func updateUtilityConfig(o options, job *config.UtilityConfig) {
 // updateJobBase updates the jobs JobBase fields based on provided inputs to work with private repositories.
 func updateJobBase(o options, job *config.JobBase, orgrepo string) {
 	job.Name = job.Name + jobnameSeparator + modifier
-	job.CloneURI = fmt.Sprintf("git@github.com:%s.git", orgrepo)
 	job.Annotations = nil
+
+	if orgrepo != "" {
+		job.CloneURI = fmt.Sprintf("git@github.com:%s.git", orgrepo)
+	}
 
 	if o.cluster != "" && o.cluster != "default" {
 		job.Cluster = o.cluster
@@ -207,9 +235,18 @@ func updateJobBase(o options, job *config.JobBase, orgrepo string) {
 		job.Labels[labelK] = labelV
 	}
 
+	if job.Spec.NodeSelector == nil {
+		job.Spec.NodeSelector = make(map[string]string)
+	}
+
+	for selK, selV := range o.selector {
+		job.Spec.NodeSelector[selK] = selV
+	}
+
 	for envK, envV := range o.env {
 	container:
 		for i := range job.Spec.Containers {
+
 			for j := range job.Spec.Containers[i].Env {
 				if job.Spec.Containers[i].Env[j].Name == envK {
 					job.Spec.Containers[i].Env[j].Value = envV
@@ -218,6 +255,20 @@ func updateJobBase(o options, job *config.JobBase, orgrepo string) {
 			}
 
 			job.Spec.Containers[i].Env = append(job.Spec.Containers[i].Env, v1.EnvVar{Name: envK, Value: envV})
+		}
+	}
+
+}
+
+// updateExtraRefs updates the jobs ExtraRefs fields based on provided inputs to work with private repositories.
+func updateExtraRefs(o options, refs []prowjob.Refs) {
+	for i, ref := range refs {
+		org, repo := ref.Org, ref.Repo
+
+		if validateOrgRepo(o, org, repo) {
+			org = o.orgMap[org]
+			refs[i].Org = org
+			refs[i].CloneURI = fmt.Sprintf("git@github.com:%s/%s.git", org, repo)
 		}
 	}
 }
@@ -238,14 +289,14 @@ func getOutPath(o options, p string, in string) string {
 		file = segments[len(segments)-1]
 
 		if newOrg, ok := o.orgMap[org]; ok {
-			return filepath.Join(o.output, newOrg, repo, util.RenameFile(`\b`+org+`\b`, file, newOrg))
+			return filepath.Join(o.output, newOrg, repo, util.RenameFile(`^`+org+`\b`, file, newOrg))
 		}
 	} else if len(segments) == 2 {
 		org = segments[len(segments)-2]
 		file = segments[len(segments)-1]
 
 		if newOrg, ok := o.orgMap[org]; ok {
-			return filepath.Join(o.output, newOrg, util.RenameFile(`\b`+org+`\b`, file, newOrg))
+			return filepath.Join(o.output, newOrg, util.RenameFile(`^`+org+`\b`, file, newOrg))
 		}
 	} else if len(segments) == 1 {
 		file = segments[len(segments)-1]
@@ -271,8 +322,8 @@ func cleanOutPath(o options, p string) {
 }
 
 // writeOutFile writes presubmit and postsubmit jobs definitions to the designated output path.
-func writeOutFile(p string, pre map[string][]config.Presubmit, post map[string][]config.Postsubmit) {
-	if len(pre) == 0 && len(post) == 0 {
+func writeOutFile(p string, pre map[string][]config.Presubmit, post map[string][]config.Postsubmit, per []config.Periodic) {
+	if len(pre) == 0 && len(post) == 0 && len(per) == 0 {
 		return
 	}
 
@@ -287,6 +338,8 @@ func writeOutFile(p string, pre map[string][]config.Presubmit, post map[string][
 	if err != nil {
 		util.PrintErr(fmt.Sprintf("unable to set postsubmits for path %v: %v.", p, err))
 	}
+
+	jobConfig.Periodics = per
 
 	jobConfigYaml, err := yaml.Marshal(jobConfig)
 	if err != nil {
@@ -347,6 +400,7 @@ func Main() {
 
 		presubmit := make(map[string][]config.Presubmit)
 		postsubmit := make(map[string][]config.Postsubmit)
+		periodic := []config.Periodic{}
 
 		// Presubmits
 		for orgrepo, pre := range jobs.PresubmitsStatic {
@@ -356,7 +410,7 @@ func Main() {
 			}
 
 			for _, job := range pre {
-				valid := validateJob(o, job.Name, job.Branches)
+				valid := validateJob(o, job.Name, job.Branches, "presubmit")
 				if !valid {
 					continue
 				}
@@ -376,7 +430,7 @@ func Main() {
 			}
 
 			for _, job := range post {
-				valid := validateJob(o, job.Name, job.Branches)
+				valid := validateJob(o, job.Name, job.Branches, "postsubmit")
 				if !valid {
 					continue
 				}
@@ -388,7 +442,30 @@ func Main() {
 			}
 		}
 
-		writeOutFile(outPath, presubmit, postsubmit)
+		// Periodic
+		for _, job := range jobs.Periodics {
+			if !validateJob(o, job.Name, []string{}, "periodic") {
+				continue
+			}
+
+			if len(job.ExtraRefs) == 0 {
+				continue
+			}
+
+			if allRefs(job.ExtraRefs, func(val prowjob.Refs, idx int) bool {
+				return !validateOrgRepo(o, val.Org, val.Repo)
+			}) {
+				continue
+			}
+
+			updateExtraRefs(o, job.ExtraRefs)
+			updateJobBase(o, &job.JobBase, "")
+			updateUtilityConfig(o, &job.UtilityConfig)
+
+			periodic = append(periodic, job)
+		}
+
+		writeOutFile(outPath, presubmit, postsubmit, periodic)
 
 		return nil
 	})

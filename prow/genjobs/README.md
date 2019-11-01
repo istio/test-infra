@@ -21,20 +21,22 @@ $ go run istio.io/test-infra/prow/genjobs <options>
 The following is a list of supported options for `genjobs`. The only **required** option is `-m, --mapping`, which is the translation mapping between public/private Github organizations.
 
 ```console
-      --branches strings         Branches to generate job(s) for.
-      --bucket string            GCS bucket name to upload logs and build artifacts to. (default "istio-private-build")
-      --clean                    Clean output directory before job(s) generation.
-      --cluster string           GCP cluster to run the job(s) in. (default "private")
-  -e, --env stringToString       Environment variables to set for the job(s). (default [])
-  -i, --input string             Input directory containing job(s) to convert. (default ".")
-      --job-blacklist strings    Jos(s) to blacklist in generation process.
-      --job-whitelist strings    Job(s) to whitelist in generation process.
-  -l, --labels stringToString    Prow labels to apply to the job(s). (default [preset-service-account=true])
-  -m, --mapping stringToString   Mapping between public and private Github organization(s). (default [])
-  -o, --output string            Output directory to write generated job(s). (default ".")
-  -b, --repo-blacklist strings   Repositories to blacklist in generation process.
-  -w, --repo-whitelist strings   Repositories to whitelist in generation process.
-      --ssh-key-secret string    GKE cluster secrets containing the Github ssh private key. (default "ssh-key-secret")
+      --branches strings          Branch(es) to generate job(s) for.
+      --bucket string             GCS bucket name to upload logs and build artifacts to. (default "private-build")
+      --clean                     Clean output directory before job(s) generation.
+      --cluster string            GCP cluster to run the job(s) in. (default "private")
+  -e, --env stringToString        Environment variables to set for the job(s). (default [])
+  -i, --input string              Input directory containing job(s) to convert. (default ".")
+      --job-blacklist strings     Job(s) to blacklist in generation process.
+  -t, --job-type strings          Job types to whitelist in generation process (e.g. presubmit, postsubmit. periodic). (default [presubmit,postsubmit,periodic])
+      --job-whitelist strings     Job(s) to whitelist in generation process.
+  -l, --labels stringToString     Prow labels to apply to the job(s). (default [])
+  -m, --mapping stringToString    Mapping between public and private Github organization(s). (default [])
+  -o, --output string             Output directory to write generated job(s). (default ".")
+  -b, --repo-blacklist strings    Repositories to blacklist in generation process.
+  -w, --repo-whitelist strings    Repositories to whitelist in generation process.
+      --selector stringToString   Node selector(s) to constrain job(s). (default [])
+      --ssh-key-secret string     GKE cluster secrets containing the Github ssh private key. (default "ssh-key-secret")
 ```
 
 ## Example
