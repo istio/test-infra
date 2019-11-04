@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deck-private
+  labels:
+    app: deck-private
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deck-private
+  template:
+    metadata:
+      labels:
+        app: deck-private
+    spec:
+      serviceAccountName: deck-private
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: deck-private
+        image: gcr.io/k8s-prow/deck:v20191101-c5bcba610
+        ports:
+        - name: http
+          containerPort: 8080
+        args:
+        - --config-path=/etc/config/config.yaml
+        - --hook-url=http://hook:8888/plugin-help
+        - --job-config-path=/etc/job-config
+        - --redirect-http-to=prow-private.istio.io
+        - --kubeconfig=/etc/kubeconfig/istio-config
+        - --hidden-only
+        volumeMounts:
+        - name: config
+          mountPath: /etc/config
+          readOnly: true
+        - name: job-config
+          mountPath: /etc/job-config
+          readOnly: true
+        - mountPath: /etc/kubeconfig
+          name: kubeconfig
+          readOnly: true
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /healthz/ready
+            port: 8081
+          initialDelaySeconds: 10
+          periodSeconds: 3
+          timeoutSeconds: 600
+      - name: oauth2-proxy
+        image: quay.io/pusher/oauth2_proxy:v4.0.0
+        ports:
+        - containerPort: 4180
+          protocol: TCP
+        args:
+        - --provider=github
+        - --github-org=istio-private
+        - --http-address=0.0.0.0:4180
+        - --upstream=http://localhost:8080
+        - --email-domain=*
+        env:
+        - name: OAUTH2_PROXY_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: deck-oauth-proxy
+              key: clientID
+        - name: OAUTH2_PROXY_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: deck-oauth-proxy
+              key: clientSecret
+        - name: OAUTH2_PROXY_COOKIE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: deck-oauth-proxy
+              key: cookieSecret
+        - name: OAUTH2_PROXY_COOKIE_DOMAIN
+          value: prow-private.istio.com
+      volumes:
+      - name: config
+        configMap:
+          name: config
+      - name: job-config
+        configMap:
+          name: job-config
+      - name: kubeconfig
+        secret:
+          defaultMode: 420
+          secretName: kubeconfig
