@@ -37,6 +37,7 @@ function update_protoc() {
     || error_exit 'Could not copy protoc include files'
   ${SUDO} chmod -R 755  /usr/local/include/google/ \
     || error_exit 'Could not change permission on protoc include files'
+  ${SUDO} rm -rf ${PROTOC_DIRECTORY:?}
   export PATH=${PATH}:/usr/local/bin
   echo 'protoc up-to-date.'
 }

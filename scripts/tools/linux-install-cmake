@@ -23,6 +23,7 @@ function install_cmake() {
   ${SUDO} mkdir -p "${CMAKE_DIRECTORY}"
   ${SUDO} tar -C ${CMAKE_DIRECTORY} -xzf "${CMAKE_DOWNLOAD_DIRECTORY}/${CMAKE_ARCHIVE}.tar.gz" \
       || error_exit 'Could not unpack cmake.'
+  ${SUDO} rm -rf ${CMAKE_DOWNLOAD_DIRECTORY:?}
 
   ${SUDO} mv ${CMAKE_DIRECTORY}/${CMAKE_ARCHIVE}/* ${CMAKE_DIRECTORY}/
   ${SUDO} rmdir ${CMAKE_DIRECTORY}/${CMAKE_ARCHIVE}/

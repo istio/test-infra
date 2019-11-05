@@ -28,6 +28,7 @@ function install_clang() {
   ${SUDO} mkdir -p "${LLVM_DIRECTORY}"
   ${SUDO} tar -C ${LLVM_DIRECTORY} -xJf "${LLVM_DOWNLOAD_DIRECTORY}/${LLVM_ARCHIVE}.tar.xz" \
       || error_exit 'Could not unpack clang+llvm.'
+  ${SUDO} rm -rf ${LLVM_DOWNLOAD_DIRECTORY:?}
 
   ${SUDO} mv ${LLVM_DIRECTORY}/${LLVM_ARCHIVE}/* ${LLVM_DIRECTORY}/
   ${SUDO} rmdir ${LLVM_DIRECTORY}/${LLVM_ARCHIVE}/
