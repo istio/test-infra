@@ -7,7 +7,7 @@ image:
 
 # Push image only if it does not exist.
 push-safe:
-	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "gcr.io/$(PROJECT)/prowbazel:$(VERSION)" &>/dev/null || $(MAKE) push
+	-DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "gcr.io/$(PROJECT)/prowbazel:$(VERSION)" >/dev/null 2>&1 || $(MAKE) push
 
 push:
 	docker push "gcr.io/$(PROJECT)/prowbazel:$(VERSION)"
