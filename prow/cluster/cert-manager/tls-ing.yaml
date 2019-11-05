@@ -15,6 +15,7 @@ spec:
   - secretName: prow-tls
     hosts:
     - prow.istio.io
+    - prow-private.istio.io
   rules:
   - host: prow.istio.io
     http:
@@ -27,3 +28,10 @@ spec:
         backend:
           serviceName: hook
           servicePort: 8888
+  - host: prow-private.istio.io
+    http:
+      paths:
+      - path: /*
+        backend:
+          serviceName: deck-private
+          servicePort: 80
