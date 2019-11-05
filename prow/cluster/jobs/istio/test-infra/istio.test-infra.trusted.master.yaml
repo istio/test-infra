@@ -112,14 +112,14 @@ postsubmits:
         - prow/cluster/jobs
         - testgrid/default.yaml
         - istio
-      volumeMounts:
+        volumeMounts:
+        - name: github
+          mountPath: /etc/github-token
+          readOnly: true
+      volumes:
       - name: github
-        mountPath: /etc/github-token
-        readOnly: true
-    volumes:
-    - name: github
-      secret:
-        secretName: oauth-token
+        secret:
+          secretName: oauth-token
 
 periodics:
 - cron: "54 * * * *"  # Every hour at 54 minutes past the hour
