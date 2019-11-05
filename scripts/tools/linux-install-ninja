@@ -23,6 +23,7 @@ function install_ninja() {
   ${SUDO} mkdir -p "${NINJA_DIRECTORY}"
   ${SUDO} unzip "${NINJA_DOWNLOAD_DIRECTORY}/${NINJA_ARCHIVE}.zip" -d ${NINJA_DIRECTORY}  \
       || error_exit 'Could not unpack ninja.'
+  ${SUDO} rm -rf ${NINJA_DOWNLOAD_DIRECTORY:?}
 
   ${SUDO} ln -s -f ${NINJA_DIRECTORY}/ninja /usr/local/bin
   echo 'NINJA intalled.'

@@ -26,6 +26,7 @@ function update_repo() {
     || error_exit 'Could not install repo.'
   ${SUDO} chmod +x /usr/local/bin/repo \
     || error_exit 'Could not change permission on repo'
+  ${SUDO} rm -rf ${REPO_DIRECTORY:?}
   export PATH=${PATH}:/usr/local/bin
   echo 'repo up-to-date.'
 }

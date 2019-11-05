@@ -42,6 +42,7 @@ function update_go() {
       || error_exit 'Could not download go.'
     ${SUDO} tar -C /usr/local -xzf "${GO_DIRECTORY}/${GO_ARCHIVE}" \
       || error_exit 'Could not install go.'
+    ${SUDO} rm -rf ${GO_DIRECTORY:?}
     export PATH=${PATH}:/usr/local/go/bin
   fi
   install_go_pkg

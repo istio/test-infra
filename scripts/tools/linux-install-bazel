@@ -29,6 +29,7 @@ function update_bazel() {
       || error_exit "Could not mark bazelisk binary as executable"
     ${SUDO} mv "${BAZELISK_DIRECTORY}/${BAZELISK_BIN}" "/usr/local/bin/bazel" \
       || error_exit "Could not install bazelisk"
+    ${SUDO} rm -rf ${BAZELISK_DIRECTORY:?}
     set_bazel
   fi
 

@@ -28,6 +28,7 @@ function update_wrk() {
       || error_exit 'Could not install wrk.'
     ${SUDO} chmod +x /usr/local/bin/wrk \
       || error_exit 'Could not change permission on wrk'
+    ${SUDO} rm -rf ${WRK_DIRECTORY:?}
     export PATH=${PATH}:/usr/local/bin
   fi
   echo 'Go up-to-date.'
