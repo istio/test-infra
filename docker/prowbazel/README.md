@@ -59,3 +59,4 @@ Our dependency on this script is because it appropariately writes test job resul
 * 0.5.13: Switch image user from bootstrap to root.
 * 0.5.14: Install goimports and golangci-lint
 * 0.5.15: Install gcloud binaries in /usr/local/bin
+* 0.5.16: Preload Bazel 1.1.0

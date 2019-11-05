@@ -30,4 +30,4 @@ mv ./${BAZELISK_BIN} /usr/local/bin/bazel
 USE_BAZEL_VERSION=0.22.0 /usr/local/bin/bazel version # release-1.1
 USE_BAZEL_VERSION=0.26.1 /usr/local/bin/bazel version # release-1.2
 USE_BAZEL_VERSION=0.28.1 /usr/local/bin/bazel version # release-1.3
-USE_BAZEL_VERSION=1.0.0 /usr/local/bin/bazel version # release-1.4
+USE_BAZEL_VERSION=1.1.0 /usr/local/bin/bazel version # release-1.4
