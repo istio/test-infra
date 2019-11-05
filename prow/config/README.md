@@ -71,9 +71,16 @@ resources:
 
 ## Generating the config
 
-The config generate has a few commands that can be run with:
+You can generate the config with:
 
 ```bash
+$ make generate-config
+```
+
+You can also run the command directly, which provides more options:
+
+```bash
+$ cd prow/config/cmd
 $ go run generate.go [diff|print|write|check|branch]`
 ```
 
