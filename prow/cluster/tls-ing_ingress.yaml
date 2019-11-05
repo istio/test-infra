@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: default
+  name: tls-ing
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: prow
+    networking.gke.io/managed-certificates: prow-istio-io, prow-private-istio-io
+    kubernetes.io/ingress.class: "gce"
+spec:
+  rules:
+  - host: prow.istio.io
+    http:
+      paths:
+      - path: /*
+        backend:
+          serviceName: deck
+          servicePort: 80
+      - path: /hook
+        backend:
+          serviceName: hook
+          servicePort: 8888
