@@ -36,9 +36,9 @@ function update_bazel() {
   USE_BAZEL_VERSION=0.22.0 ${BAZEL} version # release-1.1
   USE_BAZEL_VERSION=0.26.1 ${BAZEL} version # release-1.2
   USE_BAZEL_VERSION=0.28.1 ${BAZEL} version # release-1.3
-  USE_BAZEL_VERSION=1.0.0 ${BAZEL} version # release-1.4
+  USE_BAZEL_VERSION=1.1.0 ${BAZEL} version # release-1.4
 
-  ${SUDO} "${BAZEL}" shutdown
+  ${SUDO} USE_BAZEL_VERSION=1.1.0 "${BAZEL}" shutdown
   ${SUDO} rm -rf "${HOME}"/.cache/bazel
   echo 'Bazelisk up-to-date.'
 }
