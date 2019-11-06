@@ -62,6 +62,8 @@ spec:
         - --github-org=istio-private
         - --http-address=0.0.0.0:4180
         - --upstream=http://localhost:8080
+        - --cookie-domain=prow-private.istio.io
+        - --cookie-name=prow-private-istio-io-oauth2-proxy
         - --email-domain=*
         env:
         - name: OAUTH2_PROXY_CLIENT_ID
@@ -79,8 +81,6 @@ spec:
             secretKeyRef:
               name: deck-oauth-proxy
               key: cookieSecret
-        - name: OAUTH2_PROXY_COOKIE_DOMAIN
-          value: prow-private.istio.com
       volumes:
       - name: config
         configMap:
