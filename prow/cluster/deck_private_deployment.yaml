@@ -65,6 +65,18 @@ spec:
         - --cookie-domain=prow-private.istio.io
         - --cookie-name=prow-private-istio-io-oauth2-proxy
         - --email-domain=*
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: 4180
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: 4180
+          initialDelaySeconds: 3
+          periodSeconds: 3
         env:
         - name: OAUTH2_PROXY_CLIENT_ID
           valueFrom:
