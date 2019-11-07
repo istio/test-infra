@@ -66,7 +66,9 @@ slack_reporter:
   job_states_to_report:
   - failure
   - error
-  channel: test-failures
+  channel_config:
+    '*': test-failures
+    'istio-private': private-test-failures
   # The template shown below is the default
   report_template: 'Job {{.Spec.Job}} of type {{.Spec.Type}} ended with state {{.Status.State}}. <{{.Status.URL}}|View logs>'
 
