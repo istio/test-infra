@@ -109,14 +109,6 @@ func (o *options) validateFlags() error {
 		return &util.ExitError{Message: "-m, --mapping option is required.", Code: 1}
 	}
 
-	if o.bucket == "" {
-		return &util.ExitError{Message: "--bucket option is required.", Code: 1}
-	}
-
-	if o.sshKeySecret == "" {
-		return &util.ExitError{Message: "--ssh-key-secret option is required.", Code: 1}
-	}
-
 	o.input, err = filepath.Abs(o.input)
 	if err != nil {
 		return &util.ExitError{Message: fmt.Sprintf("-i, --input option invalid: %v.", o.input), Code: 1}
@@ -191,28 +183,45 @@ func convertOrgRepoStr(o options, s string) string {
 	return strings.Join([]string{o.orgMap[org], repo}, "/")
 }
 
-// updateUtilityConfig updates the jobs UtilityConfig fields based on provided inputs to work with private repositories.
+// updateUtilityConfig updates the jobs UtilityConfig fields based on provided inputs.
 func updateUtilityConfig(o options, job *config.UtilityConfig) {
+	if o.bucket == "" && o.sshKeySecret == "" {
+		return
+	}
+
 	if job.DecorationConfig == nil {
-		job.DecorationConfig = &prowjob.DecorationConfig{
-			GCSConfiguration: &prowjob.GCSConfiguration{
-				Bucket: o.bucket,
-			},
-			SSHKeySecrets: []string{o.sshKeySecret},
+		job.DecorationConfig = &prowjob.DecorationConfig{}
+	}
+
+	updateGCSConfiguration(o, job.DecorationConfig)
+	updateSSHKeySecrets(o, job.DecorationConfig)
+}
+
+// updateGCSConfiguration updates the jobs GCSConfiguration fields based on provided inputs.
+func updateGCSConfiguration(o options, job *prowjob.DecorationConfig) {
+	if o.bucket == "" {
+		return
+	}
+
+	if job.GCSConfiguration == nil {
+		job.GCSConfiguration = &prowjob.GCSConfiguration{
+			Bucket: o.bucket,
 		}
 	} else {
-		if job.DecorationConfig.GCSConfiguration == nil {
-			job.DecorationConfig.GCSConfiguration = &prowjob.GCSConfiguration{
-				Bucket: o.bucket,
-			}
-		} else {
-			job.DecorationConfig.GCSConfiguration.Bucket = o.bucket
-		}
-		if job.DecorationConfig.SSHKeySecrets == nil {
-			job.DecorationConfig.SSHKeySecrets = []string{o.sshKeySecret}
-		} else {
-			job.DecorationConfig.SSHKeySecrets = append(job.DecorationConfig.SSHKeySecrets, o.sshKeySecret)
-		}
+		job.GCSConfiguration.Bucket = o.bucket
+	}
+}
+
+// updateSSHKeySecrets updates the jobs SSHKeySecrets fields based on provided inputs.
+func updateSSHKeySecrets(o options, job *prowjob.DecorationConfig) {
+	if o.sshKeySecret == "" {
+		return
+	}
+
+	if job.SSHKeySecrets == nil {
+		job.SSHKeySecrets = []string{o.sshKeySecret}
+	} else {
+		job.SSHKeySecrets = append(job.SSHKeySecrets, o.sshKeySecret)
 	}
 }
 
