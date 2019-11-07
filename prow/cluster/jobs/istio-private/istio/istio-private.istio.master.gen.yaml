@@ -16,6 +16,9 @@ postsubmits:
     max_concurrency: 5
     name: release_istio_postsubmit_private
     path_alias: istio.io/istio
+    reporter_config:
+      slack:
+        channel: '-'
     spec:
       containers:
       - command:
@@ -26,7 +29,7 @@ postsubmits:
           value: gcr.io/istio-prow-build
         - name: GCS_BUCKET
           value: istio-private-build/dev
-        image: gcr.io/istio-testing/build-tools:2019-10-25T15-41-11
+        image: gcr.io/istio-testing/build-tools:master-2019-11-04T22-35-09
         name: ""
         resources:
           limits:
