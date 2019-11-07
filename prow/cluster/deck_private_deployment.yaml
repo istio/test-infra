@@ -28,6 +28,7 @@ spec:
         - --job-config-path=/etc/job-config
         - --redirect-http-to=prow-private.istio.io
         - --kubeconfig=/etc/kubeconfig/istio-config
+        - --gcs-credentials-file=/etc/service-account/service-account.json
         - --hidden-only
         volumeMounts:
         - name: config
@@ -38,6 +39,9 @@ spec:
           readOnly: true
         - mountPath: /etc/kubeconfig
           name: kubeconfig
+          readOnly: true
+        - name: service-account
+          mountPath: /etc/service-account
           readOnly: true
         livenessProbe:
           httpGet:
@@ -93,6 +97,8 @@ spec:
             secretKeyRef:
               name: deck-oauth-proxy
               key: cookieSecret
+        - name: OAUTH2_PROXY_COOKIE_DOMAIN
+          value: prow-private.istio.io
       volumes:
       - name: config
         configMap:
@@ -104,3 +110,6 @@ spec:
         secret:
           defaultMode: 420
           secretName: kubeconfig
+      - name: service-account
+        secret:
+          secretName: prow-internal-storage-service-account
