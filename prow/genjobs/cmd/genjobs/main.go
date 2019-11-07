@@ -47,6 +47,7 @@ type options struct {
 	bucket        string
 	cluster       string
 	clean         bool
+	channel       string
 	sshKeySecret  string
 	labels        map[string]string
 	env           map[string]string
@@ -74,6 +75,7 @@ func (o *options) parseFlags() {
 
 	flag.StringVar(&o.bucket, "bucket", "private-build", "GCS bucket name to upload logs and build artifacts to.")
 	flag.StringSliceVar(&o.branches, "branches", []string{}, "Branch(es) to generate job(s) for.")
+	flag.StringVar(&o.channel, "channel", "", "Slack channel to report job status notifications to.")
 	flag.StringToStringVar(&o.selector, "selector", map[string]string{}, "Node selector(s) to constrain job(s).")
 	flag.StringVar(&o.cluster, "cluster", "private", "GCP cluster to run the job(s) in.")
 	flag.BoolVar(&o.clean, "clean", false, "Clean output directory before job(s) generation.")
@@ -214,6 +216,19 @@ func updateUtilityConfig(o options, job *config.UtilityConfig) {
 	}
 }
 
+// updateReporterConfig updates the jobs ReporterConfig fields based on provided inputs.
+func updateReporterConfig(o options, job *config.JobBase) {
+	if o.channel == "" {
+		return
+	}
+
+	if job.ReporterConfig == nil {
+		job.ReporterConfig = &prowjob.ReporterConfig{}
+	}
+
+	job.ReporterConfig.Slack = &prowjob.SlackReporterConfig{Channel: o.channel}
+}
+
 // updateJobBase updates the jobs JobBase fields based on provided inputs to work with private repositories.
 func updateJobBase(o options, job *config.JobBase, orgrepo string) {
 	job.Name = job.Name + jobnameSeparator + modifier
@@ -226,6 +241,8 @@ func updateJobBase(o options, job *config.JobBase, orgrepo string) {
 	if o.cluster != "" && o.cluster != "default" {
 		job.Cluster = o.cluster
 	}
+
+	updateReporterConfig(o, job)
 
 	if job.Labels == nil {
 		job.Labels = make(map[string]string)

@@ -23,12 +23,13 @@ The following is a list of supported options for `genjobs`. The only **required*
 ```console
       --branches strings          Branch(es) to generate job(s) for.
       --bucket string             GCS bucket name to upload logs and build artifacts to. (default "private-build")
+      --channel string            Slack channel to report job status notifications to.
       --clean                     Clean output directory before job(s) generation.
       --cluster string            GCP cluster to run the job(s) in. (default "private")
   -e, --env stringToString        Environment variables to set for the job(s). (default [])
   -i, --input string              Input directory containing job(s) to convert. (default ".")
       --job-blacklist strings     Job(s) to blacklist in generation process.
-  -t, --job-type strings          Job types to whitelist in generation process (e.g. presubmit, postsubmit. periodic). (default [presubmit,postsubmit,periodic])
+  -t, --job-type strings          Job type(s) to process (e.g. presubmit, postsubmit. periodic). (default [presubmit,postsubmit,periodic])
       --job-whitelist strings     Job(s) to whitelist in generation process.
   -l, --labels stringToString     Prow labels to apply to the job(s). (default [])
   -m, --mapping stringToString    Mapping between public and private Github organization(s). (default [])
