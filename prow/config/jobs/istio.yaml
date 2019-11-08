@@ -246,15 +246,26 @@ jobs:
     requirements: [kind]
     timeout: 4h
 
-  # TODO replace with official kindest/node image. Currently this is a custom built image of the beta
-  # As 1.16 has not been official released
   - name: integ-k8s-116
     type: postsubmit
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - gcr.io/istio-testing/kind-node:v1.16.0-beta.1
+      - kindest/node:v1.16.2
+      - test.integration.kube.presubmit
+    requirements: [kind]
+    timeout: 4h
+
+  # TODO replace with official kindest/node image. Currently this is a custom built image of the beta
+  # As 1.17 has not been official released
+  - name: integ-k8s-117
+    type: postsubmit
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - gcr.io/istio-testing/kind-node:v1.17.0-beta.1
       - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
