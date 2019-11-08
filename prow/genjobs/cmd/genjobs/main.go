@@ -47,6 +47,7 @@ type options struct {
 	bucket        string
 	cluster       string
 	clean         bool
+	channel       string
 	sshKeySecret  string
 	labels        map[string]string
 	env           map[string]string
@@ -74,6 +75,7 @@ func (o *options) parseFlags() {
 
 	flag.StringVar(&o.bucket, "bucket", "private-build", "GCS bucket name to upload logs and build artifacts to.")
 	flag.StringSliceVar(&o.branches, "branches", []string{}, "Branch(es) to generate job(s) for.")
+	flag.StringVar(&o.channel, "channel", "", "Slack channel to report job status notifications to.")
 	flag.StringToStringVar(&o.selector, "selector", map[string]string{}, "Node selector(s) to constrain job(s).")
 	flag.StringVar(&o.cluster, "cluster", "private", "GCP cluster to run the job(s) in.")
 	flag.BoolVar(&o.clean, "clean", false, "Clean output directory before job(s) generation.")
@@ -105,14 +107,6 @@ func (o *options) validateFlags() error {
 
 	if len(o.orgMap) == 0 {
 		return &util.ExitError{Message: "-m, --mapping option is required.", Code: 1}
-	}
-
-	if o.bucket == "" {
-		return &util.ExitError{Message: "--bucket option is required.", Code: 1}
-	}
-
-	if o.sshKeySecret == "" {
-		return &util.ExitError{Message: "--ssh-key-secret option is required.", Code: 1}
 	}
 
 	o.input, err = filepath.Abs(o.input)
@@ -189,29 +183,59 @@ func convertOrgRepoStr(o options, s string) string {
 	return strings.Join([]string{o.orgMap[org], repo}, "/")
 }
 
-// updateUtilityConfig updates the jobs UtilityConfig fields based on provided inputs to work with private repositories.
+// updateUtilityConfig updates the jobs UtilityConfig fields based on provided inputs.
 func updateUtilityConfig(o options, job *config.UtilityConfig) {
+	if o.bucket == "" && o.sshKeySecret == "" {
+		return
+	}
+
 	if job.DecorationConfig == nil {
-		job.DecorationConfig = &prowjob.DecorationConfig{
-			GCSConfiguration: &prowjob.GCSConfiguration{
-				Bucket: o.bucket,
-			},
-			SSHKeySecrets: []string{o.sshKeySecret},
+		job.DecorationConfig = &prowjob.DecorationConfig{}
+	}
+
+	updateGCSConfiguration(o, job.DecorationConfig)
+	updateSSHKeySecrets(o, job.DecorationConfig)
+}
+
+// updateGCSConfiguration updates the jobs GCSConfiguration fields based on provided inputs.
+func updateGCSConfiguration(o options, job *prowjob.DecorationConfig) {
+	if o.bucket == "" {
+		return
+	}
+
+	if job.GCSConfiguration == nil {
+		job.GCSConfiguration = &prowjob.GCSConfiguration{
+			Bucket: o.bucket,
 		}
 	} else {
-		if job.DecorationConfig.GCSConfiguration == nil {
-			job.DecorationConfig.GCSConfiguration = &prowjob.GCSConfiguration{
-				Bucket: o.bucket,
-			}
-		} else {
-			job.DecorationConfig.GCSConfiguration.Bucket = o.bucket
-		}
-		if job.DecorationConfig.SSHKeySecrets == nil {
-			job.DecorationConfig.SSHKeySecrets = []string{o.sshKeySecret}
-		} else {
-			job.DecorationConfig.SSHKeySecrets = append(job.DecorationConfig.SSHKeySecrets, o.sshKeySecret)
-		}
+		job.GCSConfiguration.Bucket = o.bucket
 	}
+}
+
+// updateSSHKeySecrets updates the jobs SSHKeySecrets fields based on provided inputs.
+func updateSSHKeySecrets(o options, job *prowjob.DecorationConfig) {
+	if o.sshKeySecret == "" {
+		return
+	}
+
+	if job.SSHKeySecrets == nil {
+		job.SSHKeySecrets = []string{o.sshKeySecret}
+	} else {
+		job.SSHKeySecrets = append(job.SSHKeySecrets, o.sshKeySecret)
+	}
+}
+
+// updateReporterConfig updates the jobs ReporterConfig fields based on provided inputs.
+func updateReporterConfig(o options, job *config.JobBase) {
+	if o.channel == "" {
+		return
+	}
+
+	if job.ReporterConfig == nil {
+		job.ReporterConfig = &prowjob.ReporterConfig{}
+	}
+
+	job.ReporterConfig.Slack = &prowjob.SlackReporterConfig{Channel: o.channel}
 }
 
 // updateJobBase updates the jobs JobBase fields based on provided inputs to work with private repositories.
@@ -226,6 +250,8 @@ func updateJobBase(o options, job *config.JobBase, orgrepo string) {
 	if o.cluster != "" && o.cluster != "default" {
 		job.Cluster = o.cluster
 	}
+
+	updateReporterConfig(o, job)
 
 	if job.Labels == nil {
 		job.Labels = make(map[string]string)
