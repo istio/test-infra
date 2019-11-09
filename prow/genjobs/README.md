@@ -38,6 +38,7 @@ The following is a list of supported options for `genjobs`. The only **required*
   -b, --repo-blacklist strings    Repositories to blacklist in generation process.
   -w, --repo-whitelist strings    Repositories to whitelist in generation process.
       --selector stringToString   Node selector(s) to constrain job(s). (default [])
+      --ssh-clone                 Enable a clone of the git repository over ssh.
       --ssh-key-secret string     GKE cluster secrets containing the Github ssh private key. (default "ssh-key-secret")
 ```
 

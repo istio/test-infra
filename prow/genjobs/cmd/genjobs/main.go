@@ -39,6 +39,7 @@ const (
 	modifier          = "private"
 	filenameSeparator = "."
 	jobnameSeparator  = "_"
+	defaultCluster    = "default"
 	yamlExt           = ".(yml|yaml)$"
 )
 
@@ -46,22 +47,23 @@ const (
 type options struct {
 	bucket        string
 	cluster       string
-	clean         bool
-	dryRun        bool
 	channel       string
 	sshKeySecret  string
-	labels        map[string]string
-	env           map[string]string
-	branches      []string
-	selector      map[string]string
 	input         string
 	output        string
+	branches      []string
+	labels        map[string]string
+	env           map[string]string
+	selector      map[string]string
+	orgMap        map[string]string
 	repoWhitelist sets.String
 	repoBlacklist sets.String
 	jobWhitelist  sets.String
 	jobBlacklist  sets.String
 	jobType       sets.String
-	orgMap        map[string]string
+	clean         bool
+	dryRun        bool
+	sshClone      bool
 }
 
 // parseFlags parses the command-line flags.
@@ -81,6 +83,7 @@ func (o *options) parseFlags() {
 	flag.StringVar(&o.cluster, "cluster", "private", "GCP cluster to run the job(s) in.")
 	flag.BoolVar(&o.clean, "clean", false, "Clean output directory before job(s) generation.")
 	flag.BoolVar(&o.dryRun, "dry-run", false, "Run in dry run mode.")
+	flag.BoolVar(&o.sshClone, "ssh-clone", false, "Enable a clone of the git repository over ssh.")
 	flag.StringVar(&o.sshKeySecret, "ssh-key-secret", "ssh-key-secret", "GKE cluster secrets containing the Github ssh private key.")
 	flag.StringToStringVarP(&o.labels, "labels", "l", map[string]string{}, "Prow labels to apply to the job(s).")
 	flag.StringToStringVarP(&o.env, "env", "e", map[string]string{}, "Environment variables to set for the job(s).")
@@ -240,20 +243,11 @@ func updateReporterConfig(o options, job *config.JobBase) {
 	job.ReporterConfig.Slack = &prowjob.SlackReporterConfig{Channel: o.channel}
 }
 
-// updateJobBase updates the jobs JobBase fields based on provided inputs to work with private repositories.
-func updateJobBase(o options, job *config.JobBase, orgrepo string) {
-	job.Name = job.Name + jobnameSeparator + modifier
-	job.Annotations = nil
-
-	if orgrepo != "" {
-		job.CloneURI = fmt.Sprintf("git@github.com:%s.git", orgrepo)
+// updateLabels updates the jobs Labels fields based on provided inputs.
+func updateLabels(o options, job *config.JobBase) {
+	if o.labels == nil {
+		return
 	}
-
-	if o.cluster != "" && o.cluster != "default" {
-		job.Cluster = o.cluster
-	}
-
-	updateReporterConfig(o, job)
 
 	if job.Labels == nil {
 		job.Labels = make(map[string]string)
@@ -261,6 +255,13 @@ func updateJobBase(o options, job *config.JobBase, orgrepo string) {
 
 	for labelK, labelV := range o.labels {
 		job.Labels[labelK] = labelV
+	}
+}
+
+// updateNodeSelector updates the jobs NodeSelector fields based on provided inputs.
+func updateNodeSelector(o options, job *config.JobBase) {
+	if o.selector == nil {
+		return
 	}
 
 	if job.Spec.NodeSelector == nil {
@@ -270,7 +271,10 @@ func updateJobBase(o options, job *config.JobBase, orgrepo string) {
 	for selK, selV := range o.selector {
 		job.Spec.NodeSelector[selK] = selV
 	}
+}
 
+// updateEnvs updates the jobs Env fields based on provided inputs.
+func updateEnvs(o options, job *config.JobBase) {
 	for envK, envV := range o.env {
 	container:
 		for i := range job.Spec.Containers {
@@ -285,7 +289,25 @@ func updateJobBase(o options, job *config.JobBase, orgrepo string) {
 			job.Spec.Containers[i].Env = append(job.Spec.Containers[i].Env, v1.EnvVar{Name: envK, Value: envV})
 		}
 	}
+}
 
+// updateJobBase updates the jobs JobBase fields based on provided inputs to work with private repositories.
+func updateJobBase(o options, job *config.JobBase, orgrepo string) {
+	job.Name = job.Name + jobnameSeparator + modifier
+	job.Annotations = nil
+
+	if o.sshClone && orgrepo != "" {
+		job.CloneURI = fmt.Sprintf("git@github.com:%s.git", orgrepo)
+	}
+
+	if o.cluster != "" && o.cluster != defaultCluster {
+		job.Cluster = o.cluster
+	}
+
+	updateReporterConfig(o, job)
+	updateLabels(o, job)
+	updateNodeSelector(o, job)
+	updateEnvs(o, job)
 }
 
 // updateExtraRefs updates the jobs ExtraRefs fields based on provided inputs to work with private repositories.
@@ -296,7 +318,9 @@ func updateExtraRefs(o options, refs []prowjob.Refs) {
 		if validateOrgRepo(o, org, repo) {
 			org = o.orgMap[org]
 			refs[i].Org = org
-			refs[i].CloneURI = fmt.Sprintf("git@github.com:%s/%s.git", org, repo)
+			if o.sshClone {
+				refs[i].CloneURI = fmt.Sprintf("git@github.com:%s/%s.git", org, repo)
+			}
 		}
 	}
 }
