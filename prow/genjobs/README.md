@@ -26,6 +26,7 @@ The following is a list of supported options for `genjobs`. The only **required*
       --channel string            Slack channel to report job status notifications to.
       --clean                     Clean output directory before job(s) generation.
       --cluster string            GCP cluster to run the job(s) in. (default "private")
+      --dry-run                   Run in dry run mode.
   -e, --env stringToString        Environment variables to set for the job(s). (default [])
   -i, --input string              Input directory containing job(s) to convert. (default ".")
       --job-blacklist strings     Job(s) to blacklist in generation process.

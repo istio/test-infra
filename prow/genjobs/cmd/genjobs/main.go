@@ -47,6 +47,7 @@ type options struct {
 	bucket        string
 	cluster       string
 	clean         bool
+	dryRun        bool
 	channel       string
 	sshKeySecret  string
 	labels        map[string]string
@@ -79,6 +80,7 @@ func (o *options) parseFlags() {
 	flag.StringToStringVar(&o.selector, "selector", map[string]string{}, "Node selector(s) to constrain job(s).")
 	flag.StringVar(&o.cluster, "cluster", "private", "GCP cluster to run the job(s) in.")
 	flag.BoolVar(&o.clean, "clean", false, "Clean output directory before job(s) generation.")
+	flag.BoolVar(&o.dryRun, "dry-run", false, "Run in dry run mode.")
 	flag.StringVar(&o.sshKeySecret, "ssh-key-secret", "ssh-key-secret", "GKE cluster secrets containing the Github ssh private key.")
 	flag.StringToStringVarP(&o.labels, "labels", "l", map[string]string{}, "Prow labels to apply to the job(s).")
 	flag.StringToStringVarP(&o.env, "env", "e", map[string]string{}, "Environment variables to set for the job(s).")
@@ -401,6 +403,10 @@ func Main() {
 
 	if o.clean {
 		cleanOutPath(o, o.output)
+	}
+
+	if o.dryRun {
+		return
 	}
 
 	_ = filepath.Walk(o.input, func(p string, info os.FileInfo, err error) error {
