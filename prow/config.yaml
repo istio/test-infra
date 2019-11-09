@@ -126,7 +126,7 @@ branch-protection:
         require_code_owner_reviews: true
       restrictions:
         teams:
-          - repo-admins
+        - repo-admins
       repos:
         api:
           required_pull_request_reviews:
@@ -394,6 +394,23 @@ presets:
   - name: rel-pipeline-github
     secret:
       secretName: rel-pipeline-github
+- labels:
+    preset-enable-ssh: "true"
+  env:
+  - name: GIT_SSH_COMMAND
+    value: "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+  volumeMounts:
+  - mountPath: /root/.ssh
+    name: ssh
+    readOnly: true
+  volumes:
+  - name: ssh
+    secret:
+      secretName: ssh-key-secret
+      items:
+      - key: secret
+        path: id_rsa
+        mode: 0600
 # Enable GOPROXY by default
 - env:
   - name: GOPROXY
