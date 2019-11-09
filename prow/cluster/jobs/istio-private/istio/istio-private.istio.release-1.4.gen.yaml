@@ -2,7 +2,7 @@
 postsubmits:
   istio-private/istio:
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -11,49 +11,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    labels:
-      preset-enable-ssh: "true"
-      preset-service-account: "true"
-    max_concurrency: 5
-    name: release_istio_postsubmit_private
-    path_alias: istio.io/istio
-    reporter_config:
-      slack:
-        channel: '-'
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/release-commit.sh
-        env:
-        - name: DOCKER_HUB
-          value: gcr.io/istio-prow-build
-        - name: GCS_BUCKET
-          value: istio-private-build/dev
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
-    name: unit-tests_istio_postsubmit_private
+    name: unit-tests_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -69,7 +27,7 @@ postsubmits:
         - localTestEnv
         - racetest
         - binaries-test
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -83,7 +41,7 @@ postsubmits:
       nodeSelector:
         testing: test-pool
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -92,7 +50,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: codecov_istio_postsubmit_private
+    name: codecov_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -103,7 +61,7 @@ postsubmits:
         - entrypoint
         - make
         - coverage-diff
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -117,7 +75,7 @@ postsubmits:
       nodeSelector:
         testing: test-pool
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -129,7 +87,7 @@ postsubmits:
     labels:
       preset-service-account: "true"
     max_concurrency: 5
-    name: integ-istioio-k8s-tests_istio_postsubmit_private
+    name: release_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -138,9 +96,8 @@ postsubmits:
       containers:
       - command:
         - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.istioio.kube.postsubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        - prow/release-commit.sh
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -151,29 +108,10 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
-        volumeMounts:
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-        - mountPath: /var/lib/docker
-          name: docker-root
       nodeSelector:
         testing: test-pool
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -182,7 +120,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: e2e-mixer-no_auth_istio_postsubmit_private
+    name: e2e-mixer-no_auth_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -194,7 +132,7 @@ postsubmits:
         - prow/e2e-kind-suite.sh
         - --single_test
         - e2e_mixer
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -227,7 +165,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -236,7 +174,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: pilot-e2e-envoyv2-v1alpha3_istio_postsubmit_private
+    name: pilot-e2e-envoyv2-v1alpha3_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -248,7 +186,7 @@ postsubmits:
         - prow/e2e-kind-suite.sh
         - --single_test
         - e2e_pilotv2_v1alpha3
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -281,7 +219,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -290,7 +228,10 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: e2e-dashboard_istio_postsubmit_private
+    labels:
+      preset-service-account: "true"
+    max_concurrency: 5
+    name: e2e-dashboard_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -299,10 +240,8 @@ postsubmits:
       containers:
       - command:
         - entrypoint
-        - prow/e2e-kind-suite.sh
-        - --single_test
-        - e2e_dashboard
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        - prow/e2e-dashboard.sh
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -335,7 +274,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -344,7 +283,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: e2e-bookInfoTests-envoyv2-v1alpha3_istio_postsubmit_private
+    name: e2e-bookInfoTests-envoyv2-v1alpha3_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -356,7 +295,7 @@ postsubmits:
         - prow/e2e-kind-suite.sh
         - --single_test
         - e2e_bookinfo_envoyv2_v1alpha3
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -389,7 +328,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -398,7 +337,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: e2e-bookInfoTests-trustdomain_istio_postsubmit_private
+    name: e2e-bookInfoTests-trustdomain_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -410,7 +349,7 @@ postsubmits:
         - prow/e2e-kind-suite.sh
         - --single_test
         - e2e_bookinfo_trustdomain
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -443,7 +382,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -452,7 +391,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: e2e-bookInfoTests-non-mcp_istio_postsubmit_private
+    name: e2e-bookInfoTests-non-mcp_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -465,7 +404,7 @@ postsubmits:
         - --use_mcp=false
         - --single_test
         - e2e_bookinfo_envoyv2_v1alpha3
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -498,7 +437,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -507,7 +446,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: e2e-simpleTests_istio_postsubmit_private
+    name: e2e-simpleTests_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -522,7 +461,7 @@ postsubmits:
         - e2e_simple
         - --installer
         - helm
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -555,7 +494,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -564,7 +503,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: e2e-simpleTests-distroless_istio_postsubmit_private
+    name: e2e-simpleTests-distroless_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -581,7 +520,7 @@ postsubmits:
         - helm
         - --variant
         - distroless
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -614,7 +553,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -623,7 +562,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: e2e-simpleTestsMinProfile_istio_postsubmit_private
+    name: e2e-simpleTestsMinProfile_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -641,7 +580,7 @@ postsubmits:
         - values-istio-minimal.yaml
         - --helmSetValueList
         - gateways.enabled=true,galley.enabled=false,global.useMCP=false
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -674,7 +613,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -683,7 +622,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: e2e-simpleTests-cni_istio_postsubmit_private
+    name: e2e-simpleTests-cni_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -701,7 +640,7 @@ postsubmits:
           value: "true"
         - name: E2E_ARGS
           value: ' --kube_inject_configmap=istio-sidecar-injector'
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -734,7 +673,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -743,7 +682,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: e2e-simpleTests-non-mcp_istio_postsubmit_private
+    name: e2e-simpleTests-non-mcp_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -759,7 +698,7 @@ postsubmits:
         - e2e_simple
         - --installer
         - helm
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -792,7 +731,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -801,7 +740,10 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: pilot-multicluster-e2e_istio_postsubmit_private
+    labels:
+      preset-service-account: "true"
+    max_concurrency: 5
+    name: pilot-multicluster-e2e_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -811,7 +753,7 @@ postsubmits:
       - command:
         - entrypoint
         - prow/istio-pilot-multicluster-e2e.sh
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -844,7 +786,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -853,7 +795,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: istio_e2e_cloudfoundry_istio_postsubmit_private
+    name: istio_e2e_cloudfoundry_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -864,7 +806,7 @@ postsubmits:
         - entrypoint
         - make
         - e2e_cloudfoundry
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -878,7 +820,7 @@ postsubmits:
       nodeSelector:
         testing: test-pool
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -887,7 +829,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-framework-local-tests_istio_postsubmit_private
+    name: integ-framework-local-tests_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -898,7 +840,7 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.framework.local
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -912,7 +854,7 @@ postsubmits:
       nodeSelector:
         testing: test-pool
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -921,7 +863,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-galley-local-tests_istio_postsubmit_private
+    name: integ-galley-local-tests_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -932,7 +874,7 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.galley.local
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -946,7 +888,7 @@ postsubmits:
       nodeSelector:
         testing: test-pool
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -955,7 +897,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-pilot-local-tests_istio_postsubmit_private
+    name: integ-pilot-local-tests_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -966,7 +908,7 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.pilot.local
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -980,7 +922,7 @@ postsubmits:
       nodeSelector:
         testing: test-pool
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -989,7 +931,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-security-local-tests_istio_postsubmit_private
+    name: integ-security-local-tests_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1000,7 +942,7 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.security.local
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1014,7 +956,7 @@ postsubmits:
       nodeSelector:
         testing: test-pool
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1023,7 +965,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-conformance-local-tests_istio_postsubmit_private
+    name: integ-conformance-local-tests_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1034,7 +976,7 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.conformance.local
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1048,7 +990,7 @@ postsubmits:
       nodeSelector:
         testing: test-pool
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1057,7 +999,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-framework-k8s-tests_istio_postsubmit_private
+    name: integ-framework-k8s-tests_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1068,7 +1010,7 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.framework.kube
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1101,7 +1043,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1110,7 +1052,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-istioctl-k8s-tests_istio_postsubmit_private
+    name: integ-istioctl-k8s-tests_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1121,7 +1063,7 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.istioctl.kube
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1154,7 +1096,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1163,7 +1105,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-galley-k8s-tests_istio_postsubmit_private
+    name: integ-galley-k8s-tests_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1174,7 +1116,7 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.galley.kube
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1207,7 +1149,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1216,7 +1158,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-mixer-k8s-tests_istio_postsubmit_private
+    name: integ-mixer-k8s-tests_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1227,7 +1169,7 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.mixer.kube
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1260,7 +1202,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1269,7 +1211,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-pilot-k8s-tests_istio_postsubmit_private
+    name: integ-pilot-k8s-tests_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1280,7 +1222,7 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.pilot.kube
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1313,7 +1255,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1322,7 +1264,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-security-k8s-tests_istio_postsubmit_private
+    name: integ-security-k8s-tests_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1333,7 +1275,7 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.security.kube
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1366,7 +1308,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1375,7 +1317,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-telemetry-k8s-tests_istio_postsubmit_private
+    name: integ-telemetry-k8s-tests_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1386,7 +1328,7 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.telemetry.kube
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1419,7 +1361,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1428,7 +1370,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-conformance-k8s-tests_istio_postsubmit_private
+    name: integ-conformance-k8s-tests_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1439,7 +1381,7 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.conformance.kube
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1472,7 +1414,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1482,7 +1424,7 @@ postsubmits:
       ssh_key_secrets:
       - ssh-key-secret
       timeout: 4h0m0s
-    name: integ-k8s-112_istio_postsubmit_private
+    name: integ-k8s-112_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1495,7 +1437,7 @@ postsubmits:
         - --node-image
         - kindest/node:v1.12.10
         - test.integration.kube.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1528,7 +1470,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1538,7 +1480,7 @@ postsubmits:
       ssh_key_secrets:
       - ssh-key-secret
       timeout: 4h0m0s
-    name: integ-k8s-113_istio_postsubmit_private
+    name: integ-k8s-113_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1551,7 +1493,7 @@ postsubmits:
         - --node-image
         - kindest/node:v1.13.10
         - test.integration.kube.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1584,7 +1526,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1594,7 +1536,7 @@ postsubmits:
       ssh_key_secrets:
       - ssh-key-secret
       timeout: 4h0m0s
-    name: integ-k8s-114_istio_postsubmit_private
+    name: integ-k8s-114_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1607,7 +1549,7 @@ postsubmits:
         - --node-image
         - kindest/node:v1.14.6
         - test.integration.kube.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1640,7 +1582,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1650,7 +1592,7 @@ postsubmits:
       ssh_key_secrets:
       - ssh-key-secret
       timeout: 4h0m0s
-    name: integ-k8s-116_istio_postsubmit_private
+    name: integ-k8s-116_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1661,9 +1603,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - kindest/node:v1.16.2
+        - gcr.io/istio-testing/kind-node:v1.16.0-beta.1
         - test.integration.kube.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1696,7 +1638,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1705,63 +1647,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-      timeout: 4h0m0s
-    name: integ-k8s-117_istio_postsubmit_private
-    path_alias: istio.io/istio
-    reporter_config:
-      slack:
-        channel: '-'
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - --node-image
-        - gcr.io/istio-testing/kind-node:v1.17.0-beta.1
-        - test.integration.kube.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
-    name: lint_istio_postsubmit_private
+    name: lint_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1771,7 +1657,7 @@ postsubmits:
       - command:
         - make
         - lint
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1785,7 +1671,7 @@ postsubmits:
       nodeSelector:
         testing: test-pool
   - branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1794,7 +1680,7 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: gencheck_istio_postsubmit_private
+    name: gencheck_istio_release-1.4_postsubmit_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1804,7 +1690,7 @@ postsubmits:
       - command:
         - make
         - gen-check
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1821,7 +1707,7 @@ presubmits:
   istio-private/istio:
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1830,7 +1716,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: unit-tests_istio_private
+    name: unit-tests_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1846,7 +1732,7 @@ presubmits:
         - localTestEnv
         - racetest
         - binaries-test
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1861,7 +1747,7 @@ presubmits:
         testing: test-pool
   - always_run: false
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1870,7 +1756,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: codecov_istio_private
+    name: codecov_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1881,7 +1767,7 @@ presubmits:
         - entrypoint
         - make
         - coverage-diff
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1896,7 +1782,7 @@ presubmits:
         testing: test-pool
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1908,7 +1794,7 @@ presubmits:
     labels:
       preset-service-account: "true"
     max_concurrency: 5
-    name: release-test_istio_private
+    name: release-test_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1918,7 +1804,7 @@ presubmits:
       - command:
         - entrypoint
         - prow/release-test.sh
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1933,7 +1819,7 @@ presubmits:
         testing: test-pool
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1942,7 +1828,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-framework-local-tests_istio_private
+    name: integ-framework-local-tests_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1953,7 +1839,7 @@ presubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.framework.local.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -1968,7 +1854,7 @@ presubmits:
         testing: test-pool
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -1977,7 +1863,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-galley-local-tests_istio_private
+    name: integ-galley-local-tests_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -1988,7 +1874,7 @@ presubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.galley.local.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2003,7 +1889,7 @@ presubmits:
         testing: test-pool
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2012,7 +1898,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-pilot-local-tests_istio_private
+    name: integ-pilot-local-tests_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -2023,7 +1909,7 @@ presubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.pilot.local.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2038,7 +1924,7 @@ presubmits:
         testing: test-pool
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2047,7 +1933,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-security-local-tests_istio_private
+    name: integ-security-local-tests_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -2058,7 +1944,7 @@ presubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.security.local.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2073,7 +1959,7 @@ presubmits:
         testing: test-pool
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2082,7 +1968,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-framework-k8s-tests_istio_private
+    name: integ-framework-k8s-tests_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -2093,7 +1979,7 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.framework.kube.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2127,7 +2013,7 @@ presubmits:
         name: docker-root
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2136,7 +2022,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-istioctl-k8s-tests_istio_private
+    name: integ-istioctl-k8s-tests_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -2147,7 +2033,7 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.istioctl.kube.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2181,7 +2067,7 @@ presubmits:
         name: docker-root
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2190,7 +2076,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-galley-k8s-tests_istio_private
+    name: integ-galley-k8s-tests_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -2201,7 +2087,7 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.galley.kube.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2235,7 +2121,7 @@ presubmits:
         name: docker-root
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2244,7 +2130,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-mixer-k8s-tests_istio_private
+    name: integ-mixer-k8s-tests_istio_release-1.4_private
     optional: true
     path_alias: istio.io/istio
     reporter_config:
@@ -2256,7 +2142,7 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.mixer.kube.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2290,7 +2176,7 @@ presubmits:
         name: docker-root
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2299,7 +2185,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-pilot-k8s-tests_istio_private
+    name: integ-pilot-k8s-tests_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -2310,7 +2196,7 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.pilot.kube.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2344,7 +2230,7 @@ presubmits:
         name: docker-root
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2353,7 +2239,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-security-k8s-tests_istio_private
+    name: integ-security-k8s-tests_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -2364,7 +2250,7 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.security.kube.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2398,7 +2284,7 @@ presubmits:
         name: docker-root
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2407,7 +2293,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-telemetry-k8s-tests_istio_private
+    name: integ-telemetry-k8s-tests_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -2418,7 +2304,7 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.telemetry.kube.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2452,7 +2338,7 @@ presubmits:
         name: docker-root
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2461,7 +2347,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-new-install-k8s-tests_istio_private
+    name: integ-new-install-k8s-tests_istio_release-1.4_private
     optional: true
     path_alias: istio.io/istio
     reporter_config:
@@ -2473,7 +2359,7 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.new.installer
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2507,7 +2393,7 @@ presubmits:
         name: docker-root
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2516,7 +2402,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: integ-istioio-k8s-tests_istio_private
+    name: integ-istioio-k8s-tests_istio_release-1.4_private
     optional: true
     path_alias: istio.io/istio
     reporter_config:
@@ -2528,7 +2414,7 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.istioio.kube.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2562,7 +2448,7 @@ presubmits:
         name: docker-root
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2571,7 +2457,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: e2e-mixer-no_auth_istio_private
+    name: e2e-mixer-no_auth_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -2583,7 +2469,7 @@ presubmits:
         - prow/e2e-kind-suite.sh
         - --single_test
         - e2e_mixer
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2617,7 +2503,7 @@ presubmits:
         name: docker-root
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2626,7 +2512,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: pilot-e2e-envoyv2-v1alpha3_istio_private
+    name: pilot-e2e-envoyv2-v1alpha3_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -2638,7 +2524,7 @@ presubmits:
         - prow/e2e-kind-suite.sh
         - --single_test
         - e2e_pilotv2_v1alpha3
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2672,7 +2558,7 @@ presubmits:
         name: docker-root
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2681,7 +2567,10 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: e2e-dashboard_istio_private
+    labels:
+      preset-service-account: "true"
+    max_concurrency: 5
+    name: e2e-dashboard_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -2690,10 +2579,8 @@ presubmits:
       containers:
       - command:
         - entrypoint
-        - prow/e2e-kind-suite.sh
-        - --single_test
-        - e2e_dashboard
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        - prow/e2e-dashboard.sh
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2727,7 +2614,7 @@ presubmits:
         name: docker-root
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2736,7 +2623,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: e2e-bookInfoTests-envoyv2-v1alpha3_istio_private
+    name: e2e-bookInfoTests-envoyv2-v1alpha3_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -2748,7 +2635,7 @@ presubmits:
         - prow/e2e-kind-suite.sh
         - --single_test
         - e2e_bookinfo_envoyv2_v1alpha3
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2782,7 +2669,7 @@ presubmits:
         name: docker-root
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2791,7 +2678,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: e2e-simpleTests_istio_private
+    name: e2e-simpleTests_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -2806,7 +2693,7 @@ presubmits:
         - e2e_simple
         - --installer
         - helm
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2840,7 +2727,7 @@ presubmits:
         name: docker-root
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2849,7 +2736,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: e2e-simpleTests-distroless_istio_private
+    name: e2e-simpleTests-distroless_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -2866,7 +2753,7 @@ presubmits:
         - helm
         - --variant
         - distroless
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2900,7 +2787,7 @@ presubmits:
         name: docker-root
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2909,7 +2796,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: e2e-simpleTestsMinProfile_istio_private
+    name: e2e-simpleTestsMinProfile_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -2927,7 +2814,7 @@ presubmits:
         - values-istio-minimal.yaml
         - --helmSetValueList
         - gateways.enabled=true,galley.enabled=false,global.useMCP=false
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -2961,7 +2848,7 @@ presubmits:
         name: docker-root
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -2970,7 +2857,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: e2e-simpleTests-cni_istio_private
+    name: e2e-simpleTests-cni_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -2988,7 +2875,7 @@ presubmits:
           value: "true"
         - name: E2E_ARGS
           value: ' --kube_inject_configmap=istio-sidecar-injector'
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -3022,7 +2909,7 @@ presubmits:
         name: docker-root
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -3031,7 +2918,11 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: pilot-multicluster-e2e_istio_private
+    labels:
+      preset-service-account: "true"
+    max_concurrency: 5
+    name: pilot-multicluster-e2e_istio_release-1.4_private
+    optional: true
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -3041,7 +2932,7 @@ presubmits:
       - command:
         - entrypoint
         - prow/istio-pilot-multicluster-e2e.sh
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -3075,7 +2966,7 @@ presubmits:
         name: docker-root
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -3084,7 +2975,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: istio_e2e_cloudfoundry_istio_private
+    name: istio_e2e_cloudfoundry_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -3095,7 +2986,7 @@ presubmits:
         - entrypoint
         - make
         - e2e_cloudfoundry
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -3110,7 +3001,7 @@ presubmits:
         testing: test-pool
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -3119,7 +3010,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: lint_istio_private
+    name: lint_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -3129,7 +3020,7 @@ presubmits:
       - command:
         - make
         - lint
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
@@ -3144,7 +3035,7 @@ presubmits:
         testing: test-pool
   - always_run: true
     branches:
-    - ^master$
+    - ^release-1.4$
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
@@ -3153,7 +3044,7 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: gencheck_istio_private
+    name: gencheck_istio_release-1.4_private
     path_alias: istio.io/istio
     reporter_config:
       slack:
@@ -3163,7 +3054,7 @@ presubmits:
       - command:
         - make
         - gen-check
-        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
           limits:
