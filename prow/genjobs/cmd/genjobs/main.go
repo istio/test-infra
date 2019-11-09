@@ -355,19 +355,57 @@ func writeOutFile(p string, pre map[string][]config.Presubmit, post map[string][
 		return
 	}
 
+	combinedPre := map[string][]config.Presubmit{}
+	combinedPost := map[string][]config.Postsubmit{}
+	combinedPer := []config.Periodic{}
+
+	existingJobs, err := config.ReadJobConfig(p)
+	if err == nil {
+		if existingJobs.PresubmitsStatic != nil {
+			combinedPre = existingJobs.PresubmitsStatic
+		}
+		if existingJobs.Postsubmits != nil {
+			combinedPost = existingJobs.Postsubmits
+		}
+		if existingJobs.Periodics != nil {
+			combinedPer = existingJobs.Periodics
+		}
+	}
+
+	// Combine presubmits
+	for orgrepo, newPre := range pre {
+		if oldPre, exists := combinedPre[orgrepo]; exists {
+			combinedPre[orgrepo] = append(oldPre, newPre...)
+		} else {
+			combinedPre[orgrepo] = newPre
+		}
+	}
+
+	// Combine postsubmits
+	for orgrepo, newPost := range post {
+		if oldPost, exists := combinedPost[orgrepo]; exists {
+			combinedPost[orgrepo] = append(oldPost, newPost...)
+		} else {
+			combinedPost[orgrepo] = newPost
+		}
+	}
+
+	// Combine periodics
+	combinedPer = append(combinedPer, per...)
+
 	jobConfig := config.JobConfig{}
 
-	err := jobConfig.SetPresubmits(pre)
+	err = jobConfig.SetPresubmits(combinedPre)
 	if err != nil {
 		util.PrintErr(fmt.Sprintf("unable to set presubmits for path %v: %v.", p, err))
 	}
 
-	err = jobConfig.SetPostsubmits(post)
+	err = jobConfig.SetPostsubmits(combinedPost)
 	if err != nil {
 		util.PrintErr(fmt.Sprintf("unable to set postsubmits for path %v: %v.", p, err))
 	}
 
-	jobConfig.Periodics = per
+	jobConfig.Periodics = combinedPer
 
 	jobConfigYaml, err := yaml.Marshal(jobConfig)
 	if err != nil {
@@ -430,8 +468,8 @@ func Main() {
 			return nil
 		}
 
-		presubmit := make(map[string][]config.Presubmit)
-		postsubmit := make(map[string][]config.Postsubmit)
+		presubmit := map[string][]config.Presubmit{}
+		postsubmit := map[string][]config.Postsubmit{}
 		periodic := []config.Periodic{}
 
 		// Presubmits
