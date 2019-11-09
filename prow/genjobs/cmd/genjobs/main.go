@@ -63,6 +63,7 @@ type options struct {
 	jobType       sets.String
 	clean         bool
 	dryRun        bool
+	extraRefs     bool
 	sshClone      bool
 }
 
@@ -84,6 +85,7 @@ func (o *options) parseFlags() {
 	flag.BoolVar(&o.clean, "clean", false, "Clean output directory before job(s) generation.")
 	flag.BoolVar(&o.dryRun, "dry-run", false, "Run in dry run mode.")
 	flag.BoolVar(&o.sshClone, "ssh-clone", false, "Enable a clone of the git repository over ssh.")
+	flag.BoolVar(&o.extraRefs, "extra-refs", false, "Apply translation to all extra refs regardless of mapping.")
 	flag.StringVar(&o.sshKeySecret, "ssh-key-secret", "ssh-key-secret", "GKE cluster secrets containing the Github ssh private key.")
 	flag.StringToStringVarP(&o.labels, "labels", "l", map[string]string{}, "Prow labels to apply to the job(s).")
 	flag.StringToStringVarP(&o.env, "env", "e", map[string]string{}, "Environment variables to set for the job(s).")
@@ -315,7 +317,7 @@ func updateExtraRefs(o options, refs []prowjob.Refs) {
 	for i, ref := range refs {
 		org, repo := ref.Org, ref.Repo
 
-		if validateOrgRepo(o, org, repo) {
+		if o.extraRefs || validateOrgRepo(o, org, repo) {
 			org = o.orgMap[org]
 			refs[i].Org = org
 			if o.sshClone {
@@ -509,6 +511,7 @@ func Main() {
 					continue
 				}
 
+				updateExtraRefs(o, job.ExtraRefs)
 				updateJobBase(o, &job.JobBase, orgrepo)
 				updateUtilityConfig(o, &job.UtilityConfig)
 
@@ -529,6 +532,7 @@ func Main() {
 					continue
 				}
 
+				updateExtraRefs(o, job.ExtraRefs)
 				updateJobBase(o, &job.JobBase, orgrepo)
 				updateUtilityConfig(o, &job.UtilityConfig)
 
