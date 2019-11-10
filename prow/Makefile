@@ -11,20 +11,8 @@ PROJECT_BUILD ?= istio-prow-build
 ZONE    ?= us-west1-a
 CLUSTER ?= prow
 
-generate-istio-private-jobs:
-	go run ./genjobs \
-		--clean \
-		--mapping istio=istio-private \
-		--job-type postsubmit \
-		--channel - \
-		--env DOCKER_HUB=gcr.io/istio-prow-build,GCS_BUCKET=istio-private-build/dev \
-		--input ./cluster/jobs/ \
-		--output ./cluster/jobs/ \
-		--repo-whitelist istio \
-		--job-whitelist release_istio_postsubmit \
-		--bucket istio-private-build \
-		--cluster private \
-		--selector testing=build-pool
+gen-private-jobs:
+	./gen-private-jobs.sh
 
 update-config-dry-run: get-cluster-credentials
 	./recreate_prow_configmaps.py \
@@ -45,4 +33,4 @@ deploy: get-cluster-credentials
 deploy-build: get-build-cluster-credentials
 	kubectl apply -f ./cluster/build/
 
-.PHONY: generate-istio-private-jobs deploy deploy-build update-config update-config-dry-run
+.PHONY: gen-private-jobs deploy deploy-build update-config update-config-dry-run
