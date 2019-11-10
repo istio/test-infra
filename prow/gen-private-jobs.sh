@@ -27,6 +27,7 @@ COMMON_OPTS=(
   "--output=./cluster/jobs/"
   "--bucket=istio-private-build"
   "--cluster=private"
+  "--modifier=priv"
   "--branches=release-1.4,master"
 )
 
