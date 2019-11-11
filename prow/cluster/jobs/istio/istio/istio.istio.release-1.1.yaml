@@ -106,7 +106,7 @@ presubmits:
         - prow/e2e-dashboard.sh
       nodeSelector:
         testing: test-pool
-  - name: e2e-bookInfoTests-envoyv2-v1alpha3
+  - name: e2e-bookInfoTests
     <<: *job_template
     annotations:
       testgrid-create-test-group: "false"
@@ -264,7 +264,7 @@ postsubmits:
         - prow/istio-unit-tests.sh
       nodeSelector:
         testing: test-pool
-  
+
   - name: e2e-simpleTests
     <<: *job_template
     annotations:
@@ -310,7 +310,7 @@ postsubmits:
         - prow/e2e-simpleTests-non-mcp.sh
       nodeSelector:
         testing: test-pool
-  - name: e2e-bookInfoTests-envoyv2-v1alpha3
+  - name: e2e-bookInfoTests
     <<: *job_template
     annotations:
       testgrid-create-test-group: "false"
@@ -352,7 +352,7 @@ postsubmits:
         - prow/istio-pilot-e2e-envoyv2-v1alpha3-k8s-latest.sh
       nodeSelector:
         testing: test-pool
-  - name: e2e-bookInfoTests-envoyv2-v1alpha3-non-mcp
+  - name: e2e-bookInfoTests-non-mcp
     <<: *job_template
     annotations:
       testgrid-create-test-group: "false"
