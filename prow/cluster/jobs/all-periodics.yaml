@@ -53,34 +53,6 @@ periodics:
   spec:
     <<: *test_infra_master_spec
 
-- interval: 24h
-  name: proxy-postsubmit-periodic
-  context: prow/proxy-postsubmit.sh
-  annotations:
-    testgrid-create-test-group: "false"
-  branches: master
-  labels:
-    preset-service-account: "true"
-  spec:
-    containers:
-    - image: gcr.io/istio-testing/prowbazel:0.4.13
-      args:
-      - "--repo=github.com/istio/proxy"
-      - "--clean"
-      - "--timeout=120"
-      # Bazel needs privileged mode in order to sandbox builds.
-      securityContext:
-        privileged: true
-      resources:
-        requests:
-          memory: "512Mi"
-          cpu: "500m"
-        limits:
-          memory: "24Gi"
-          cpu: "7000m"
-    nodeSelector:
-      testing: build-pool
-
 - interval: 30m
   name: release-requests-janitor
   branches: master
