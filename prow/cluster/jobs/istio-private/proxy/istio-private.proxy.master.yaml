@@ -30,10 +30,12 @@ postsubmits:
       - command:
         - ./prow/proxy-postsubmit.sh
         env:
-        - name: GCS_BUILD_BUCKET
-          value: istio-private-build
         - name: GCS_ARTIFACTS_BUCKET
           value: istio-private-artifacts
+        - name: DOCKER_REPOSITORY
+          value: istio-prow-build/envoy
+        - name: GCS_BUILD_BUCKET
+          value: istio-private-build
         image: gcr.io/istio-testing/prowbazel:0.5.16
         name: ""
         resources:
