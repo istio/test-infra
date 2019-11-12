@@ -36,6 +36,38 @@ presubmits:
       nodeSelector:
         testing: build-pool
 
+  - name: proxy-presubmit-new-builder
+    annotations:
+      testgrid-dashboards: istio_proxy
+    context: prow/proxy-presubmit.sh
+    branches: *branch_spec
+    always_run: true
+    decorate: true
+    path_alias: istio.io/proxy
+    timeout: 60m
+    optional: true
+    extra_refs:
+    - org: istio
+      repo: istio
+      base_ref: master
+      path_alias: istio.io/istio
+    labels:
+      preset-service-account: "true"
+    spec:
+      containers:
+      - image: gcr.io/istio-testing/build-tools-proxy:master-2019-11-08T17-21-18
+        command:
+        - ./prow/proxy-presubmit.sh
+        resources:
+          requests:
+            memory: "8Gi"
+            cpu: "8000m"
+          limits:
+            memory: "60Gi"
+            cpu: "16000m"
+      nodeSelector:
+        testing: build-pool
+
   - name: proxy-presubmit-asan
     annotations:
       testgrid-dashboards: istio_proxy
