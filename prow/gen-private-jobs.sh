@@ -54,7 +54,7 @@ go run ./genjobs \
 go run ./genjobs \
   "${COMMON_OPTS[@]}" \
   --job-type postsubmit \
-  --env GCS_BUILD_BUCKET=istio-private-build,GCS_ARTIFACTS_BUCKET=istio-private-artifacts \
+  --env GCS_BUILD_BUCKET=istio-private-build,GCS_ARTIFACTS_BUCKET=istio-private-artifacts,DOCKER_REPOSITORY=istio-prow-build/envoy \
   --repo-whitelist proxy
 
 # istio/proxy test jobs(s) - presubmit(s)
