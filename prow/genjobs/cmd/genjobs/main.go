@@ -46,27 +46,28 @@ const (
 
 // options are the available command-line flags.
 type options struct {
-	bucket        string
-	cluster       string
-	channel       string
-	sshKeySecret  string
-	input         string
-	output        string
-	modifier      string
-	branches      []string
-	labels        map[string]string
-	env           map[string]string
-	selector      map[string]string
-	orgMap        map[string]string
-	repoWhitelist sets.String
-	repoBlacklist sets.String
-	jobWhitelist  sets.String
-	jobBlacklist  sets.String
-	jobType       sets.String
-	clean         bool
-	dryRun        bool
-	extraRefs     bool
-	sshClone      bool
+	bucket           string
+	cluster          string
+	channel          string
+	sshKeySecret     string
+	input            string
+	output           string
+	modifier         string
+	branches         []string
+	labels           map[string]string
+	env              map[string]string
+	selector         map[string]string
+	orgMap           map[string]string
+	repoWhitelist    sets.String
+	repoBlacklist    sets.String
+	jobWhitelist     sets.String
+	jobBlacklist     sets.String
+	jobType          sets.String
+	clean            bool
+	dryRun           bool
+	extraRefs        bool
+	sshClone         bool
+	overrideSelector bool
 }
 
 // parseFlags parses the command-line flags.
@@ -86,6 +87,7 @@ func (o *options) parseFlags() {
 	flag.StringVar(&o.cluster, "cluster", "private", "GCP cluster to run the job(s) in.")
 	flag.BoolVar(&o.clean, "clean", false, "Clean output directory before job(s) generation.")
 	flag.BoolVar(&o.dryRun, "dry-run", false, "Run in dry run mode.")
+	flag.BoolVar(&o.overrideSelector, "override-selector", false, "The existing node selector will be overridden rather than added to.")
 	flag.BoolVar(&o.sshClone, "ssh-clone", false, "Enable a clone of the git repository over ssh.")
 	flag.BoolVar(&o.extraRefs, "extra-refs", false, "Apply translation to all extra refs regardless of mapping.")
 	flag.StringVar(&o.sshKeySecret, "ssh-key-secret", "ssh-key-secret", "GKE cluster secrets containing the Github ssh private key.")
@@ -269,7 +271,7 @@ func updateNodeSelector(o options, job *config.JobBase) {
 		return
 	}
 
-	if job.Spec.NodeSelector == nil {
+	if o.overrideSelector || job.Spec.NodeSelector == nil {
 		job.Spec.NodeSelector = make(map[string]string)
 	}
 
@@ -302,7 +304,9 @@ func updateJobBase(o options, job *config.JobBase, orgrepo string) {
 	if len(job.Name) > maxNameLen {
 		job.Name = job.Name[:maxNameLen]
 	}
-	job.Name += jobnameSeparator + o.modifier
+	if o.modifier != "" {
+		job.Name += jobnameSeparator + o.modifier
+	}
 
 	job.Annotations = nil
 
@@ -335,6 +339,14 @@ func updateExtraRefs(o options, refs []prowjob.Refs) {
 	}
 }
 
+// outputOrg produces the folder to write output to based on the org.
+// This allows orgs to be specified as fully qualified domains such as https://github.com/istio
+// while still producing a standard org/repo/job folder structure
+func outputOrg(s string) string {
+	sp := strings.Split(s, "/")
+	return sp[len(sp)-1]
+}
+
 // getOutPath derives the output path from the specified input directory and current path.
 func getOutPath(o options, p string, in string) string {
 	segments := strings.FieldsFunc(strings.TrimPrefix(p, in), func(c rune) bool { return c == '/' })
@@ -351,14 +363,14 @@ func getOutPath(o options, p string, in string) string {
 		file = segments[len(segments)-1]
 
 		if newOrg, ok := o.orgMap[org]; ok {
-			return filepath.Join(o.output, newOrg, repo, util.RenameFile(`^`+org+`\b`, file, newOrg))
+			return filepath.Join(o.output, outputOrg(newOrg), repo, util.RenameFile(`^`+org+`\b`, file, outputOrg(newOrg)))
 		}
 	} else if len(segments) == 2 {
 		org = segments[len(segments)-2]
 		file = segments[len(segments)-1]
 
 		if newOrg, ok := o.orgMap[org]; ok {
-			return filepath.Join(o.output, newOrg, util.RenameFile(`^`+org+`\b`, file, newOrg))
+			return filepath.Join(o.output, outputOrg(newOrg), util.RenameFile(`^`+org+`\b`, file, outputOrg(newOrg)))
 		}
 	} else if len(segments) == 1 {
 		file = segments[len(segments)-1]
