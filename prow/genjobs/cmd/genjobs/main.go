@@ -183,8 +183,7 @@ func allRefs(array []prowjob.Refs, predicate func(val prowjob.Refs, idx int) boo
 
 // convertOrgRepoStr translates the provided job org and repo based on the specified org mapping.
 func convertOrgRepoStr(o options, s string) string {
-	a := strings.Split(s, "/")
-	org, repo := a[0], a[1]
+	org, repo := util.SplitOrgRepo(s)
 
 	valid := validateOrgRepo(o, org, repo)
 
@@ -339,14 +338,6 @@ func updateExtraRefs(o options, refs []prowjob.Refs) {
 	}
 }
 
-// outputOrg produces the folder to write output to based on the org.
-// This allows orgs to be specified as fully qualified domains such as https://github.com/istio
-// while still producing a standard org/repo/job folder structure
-func outputOrg(s string) string {
-	sp := strings.Split(s, "/")
-	return sp[len(sp)-1]
-}
-
 // getOutPath derives the output path from the specified input directory and current path.
 func getOutPath(o options, p string, in string) string {
 	segments := strings.FieldsFunc(strings.TrimPrefix(p, in), func(c rune) bool { return c == '/' })
@@ -363,14 +354,14 @@ func getOutPath(o options, p string, in string) string {
 		file = segments[len(segments)-1]
 
 		if newOrg, ok := o.orgMap[org]; ok {
-			return filepath.Join(o.output, outputOrg(newOrg), repo, util.RenameFile(`^`+org+`\b`, file, outputOrg(newOrg)))
+			return filepath.Join(o.output, util.GetTopLevelOrg(newOrg), repo, util.RenameFile(`^`+util.RemoveHost(org)+`\b`, file, util.RemoveHost(newOrg)))
 		}
 	} else if len(segments) == 2 {
 		org = segments[len(segments)-2]
 		file = segments[len(segments)-1]
 
 		if newOrg, ok := o.orgMap[org]; ok {
-			return filepath.Join(o.output, outputOrg(newOrg), util.RenameFile(`^`+org+`\b`, file, outputOrg(newOrg)))
+			return filepath.Join(o.output, util.GetTopLevelOrg(newOrg), util.RenameFile(`^`+util.RemoveHost(org)+`\b`, file, util.RemoveHost(newOrg)))
 		}
 	} else if len(segments) == 1 {
 		file = segments[len(segments)-1]
@@ -386,7 +377,7 @@ func getOutPath(o options, p string, in string) string {
 // cleanOutPath deletes all files as the specified output path.
 func cleanOutPath(o options, p string) {
 	for _, org := range o.orgMap {
-		p = filepath.Join(p, org)
+		p = filepath.Join(p, util.GetTopLevelOrg(org))
 
 		err := os.RemoveAll(p)
 		if err != nil {
