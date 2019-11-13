@@ -74,6 +74,7 @@ type JobConfig struct {
 	Resources               map[string]v1.ResourceRequirements `json:"resources,omitempty"`
 	Image                   string                             `json:"image,omitempty"`
 	SupportReleaseBranching bool                               `json:"support_release_branching,omitempty"`
+	NodeSelector            map[string]string                  `json:"node_selector"`
 }
 
 type Job struct {
@@ -424,6 +425,9 @@ func createJobBase(jobConfig JobConfig, job Job, name string, repo string, branc
 		Labels:      make(map[string]string),
 		Annotations: make(map[string]string),
 	}
+	if jobConfig.NodeSelector != nil {
+		jb.Spec.NodeSelector = jobConfig.NodeSelector
+	}
 	if job.Timeout != nil {
 		jb.DecorationConfig = &prowjob.DecorationConfig{
 			Timeout: job.Timeout,
@@ -432,10 +436,15 @@ func createJobBase(jobConfig JobConfig, job Job, name string, repo string, branc
 	return jb
 }
 
-func createExtraRefs(extraRepos []string, branch string) []prowjob.Refs {
+func createExtraRefs(extraRepos []string, defaultBranch string) []prowjob.Refs {
 	refs := []prowjob.Refs{}
 	for _, extraRepo := range extraRepos {
-		orgrepo := strings.Split(extraRepo, "/")
+		branch := defaultBranch
+		repobranch := strings.Split(extraRepo, "@")
+		if len(repobranch) > 1 {
+			branch = repobranch[1]
+		}
+		orgrepo := strings.Split(repobranch[0], "/")
 		org, repo := orgrepo[0], orgrepo[1]
 		ref := prowjob.Refs{
 			Org:     org,
