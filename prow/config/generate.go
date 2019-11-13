@@ -455,9 +455,7 @@ func applyRequirements(job *config.JobBase, requirements []string) {
 	for _, req := range requirements {
 		switch req {
 		case RequirementGCP:
-			// GCP resources are limited, so set max concurrency to 5
 			// The preset service account will set up the required resources
-			job.MaxConcurrency = 5
 			job.Labels["preset-service-account"] = "true"
 		case RequirementRelease:
 			// Grant access to release resources, such as docker and github
