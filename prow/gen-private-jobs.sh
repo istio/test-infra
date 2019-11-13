@@ -56,6 +56,7 @@ go run ./genjobs \
   --branches master \
   --labels preset-enable-netrc=true \
   --job-type postsubmit \
+  --modifier=master_priv \
   --env GCS_BUILD_BUCKET=istio-private-build,GCS_ARTIFACTS_BUCKET=istio-private-artifacts,DOCKER_REPOSITORY=istio-prow-build/envoy,ENVOY_REPOSITORY=https://github.com/envoyproxy/envoy-wasm,ENVOY_PREFIX=envoy-wasm \
   --repo-whitelist proxy
 
@@ -65,6 +66,7 @@ go run ./genjobs \
   --branches release-1.4 \
   --labels preset-enable-netrc=true \
   --job-type postsubmit \
+  --modifier=release-1.4_priv \
   --env GCS_BUILD_BUCKET=istio-private-build,GCS_ARTIFACTS_BUCKET=istio-private-artifacts,DOCKER_REPOSITORY=istio-prow-build/envoy,ENVOY_REPOSITORY=https://github.com/istio-private/envoy,ENVOY_PREFIX=envoy \
   --repo-whitelist proxy
 

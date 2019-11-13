@@ -11,6 +11,47 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
+    labels:
+      preset-enable-ssh: "true"
+      preset-service-account: "true"
+    name: release_istio_release-1.4_postsubmit_priv
+    path_alias: istio.io/istio
+    reporter_config:
+      slack:
+        channel: '-'
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/release-commit.sh
+        env:
+        - name: DOCKER_HUB
+          value: gcr.io/istio-prow-build
+        - name: GCS_BUCKET
+          value: istio-private-build/dev
+        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - branches:
+    - ^release-1.4$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: private
+    decorate: true
+    decoration_config:
+      gcs_configuration:
+        bucket: istio-private-build
+      ssh_key_secrets:
+      - ssh-key-secret
     name: unit-tests_istio_release-1.4_postsubmit_priv
     path_alias: istio.io/istio
     reporter_config:
@@ -61,42 +102,6 @@ postsubmits:
         - entrypoint
         - make
         - coverage-diff
-        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - branches:
-    - ^release-1.4$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
-    labels:
-      preset-service-account: "true"
-    max_concurrency: 5
-    name: release_istio_release-1.4_postsubmit_priv
-    path_alias: istio.io/istio
-    reporter_config:
-      slack:
-        channel: '-'
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/release-commit.sh
         image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
@@ -230,7 +235,6 @@ postsubmits:
       - ssh-key-secret
     labels:
       preset-service-account: "true"
-    max_concurrency: 5
     name: e2e-dashboard_istio_release-1.4_postsubmit_priv
     path_alias: istio.io/istio
     reporter_config:
@@ -742,7 +746,6 @@ postsubmits:
       - ssh-key-secret
     labels:
       preset-service-account: "true"
-    max_concurrency: 5
     name: pilot-multicluster-e2e_istio_release-1.4_postsubmit_priv
     path_alias: istio.io/istio
     reporter_config:
@@ -1793,7 +1796,6 @@ presubmits:
       - ssh-key-secret
     labels:
       preset-service-account: "true"
-    max_concurrency: 5
     name: release-test_istio_release-1.4_priv
     path_alias: istio.io/istio
     reporter_config:
@@ -2569,7 +2571,6 @@ presubmits:
       - ssh-key-secret
     labels:
       preset-service-account: "true"
-    max_concurrency: 5
     name: e2e-dashboard_istio_release-1.4_priv
     path_alias: istio.io/istio
     reporter_config:
@@ -2920,7 +2921,6 @@ presubmits:
       - ssh-key-secret
     labels:
       preset-service-account: "true"
-    max_concurrency: 5
     name: pilot-multicluster-e2e_istio_release-1.4_priv
     optional: true
     path_alias: istio.io/istio
