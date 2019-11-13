@@ -22,5 +22,6 @@ import (
 
 // RenameFile renames a file based on a specified regular expression pattern.
 func RenameFile(pat string, src string, repl string) string {
-	return regexp.MustCompile(pat).ReplaceAllString(src, repl)
+	s := regexp.MustCompile(pat).ReplaceAllString(src, repl)
+	return regexp.MustCompile(`^[^\w\d]`).ReplaceAllString(s, "")
 }

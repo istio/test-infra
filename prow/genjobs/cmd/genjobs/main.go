@@ -46,27 +46,28 @@ const (
 
 // options are the available command-line flags.
 type options struct {
-	bucket        string
-	cluster       string
-	channel       string
-	sshKeySecret  string
-	input         string
-	output        string
-	modifier      string
-	branches      []string
-	labels        map[string]string
-	env           map[string]string
-	selector      map[string]string
-	orgMap        map[string]string
-	repoWhitelist sets.String
-	repoBlacklist sets.String
-	jobWhitelist  sets.String
-	jobBlacklist  sets.String
-	jobType       sets.String
-	clean         bool
-	dryRun        bool
-	extraRefs     bool
-	sshClone      bool
+	bucket           string
+	cluster          string
+	channel          string
+	sshKeySecret     string
+	input            string
+	output           string
+	modifier         string
+	branches         []string
+	labels           map[string]string
+	env              map[string]string
+	selector         map[string]string
+	orgMap           map[string]string
+	repoWhitelist    sets.String
+	repoBlacklist    sets.String
+	jobWhitelist     sets.String
+	jobBlacklist     sets.String
+	jobType          sets.String
+	clean            bool
+	dryRun           bool
+	extraRefs        bool
+	sshClone         bool
+	overrideSelector bool
 }
 
 // parseFlags parses the command-line flags.
@@ -86,6 +87,7 @@ func (o *options) parseFlags() {
 	flag.StringVar(&o.cluster, "cluster", "private", "GCP cluster to run the job(s) in.")
 	flag.BoolVar(&o.clean, "clean", false, "Clean output directory before job(s) generation.")
 	flag.BoolVar(&o.dryRun, "dry-run", false, "Run in dry run mode.")
+	flag.BoolVar(&o.overrideSelector, "override-selector", false, "The existing node selector will be overridden rather than added to.")
 	flag.BoolVar(&o.sshClone, "ssh-clone", false, "Enable a clone of the git repository over ssh.")
 	flag.BoolVar(&o.extraRefs, "extra-refs", false, "Apply translation to all extra refs regardless of mapping.")
 	flag.StringVar(&o.sshKeySecret, "ssh-key-secret", "ssh-key-secret", "GKE cluster secrets containing the Github ssh private key.")
@@ -181,8 +183,7 @@ func allRefs(array []prowjob.Refs, predicate func(val prowjob.Refs, idx int) boo
 
 // convertOrgRepoStr translates the provided job org and repo based on the specified org mapping.
 func convertOrgRepoStr(o options, s string) string {
-	a := strings.Split(s, "/")
-	org, repo := a[0], a[1]
+	org, repo := util.SplitOrgRepo(s)
 
 	valid := validateOrgRepo(o, org, repo)
 
@@ -269,7 +270,7 @@ func updateNodeSelector(o options, job *config.JobBase) {
 		return
 	}
 
-	if job.Spec.NodeSelector == nil {
+	if o.overrideSelector || job.Spec.NodeSelector == nil {
 		job.Spec.NodeSelector = make(map[string]string)
 	}
 
@@ -302,7 +303,9 @@ func updateJobBase(o options, job *config.JobBase, orgrepo string) {
 	if len(job.Name) > maxNameLen {
 		job.Name = job.Name[:maxNameLen]
 	}
-	job.Name += jobnameSeparator + o.modifier
+	if o.modifier != "" {
+		job.Name += jobnameSeparator + o.modifier
+	}
 
 	job.Annotations = nil
 
@@ -351,14 +354,14 @@ func getOutPath(o options, p string, in string) string {
 		file = segments[len(segments)-1]
 
 		if newOrg, ok := o.orgMap[org]; ok {
-			return filepath.Join(o.output, newOrg, repo, util.RenameFile(`^`+org+`\b`, file, newOrg))
+			return filepath.Join(o.output, util.GetTopLevelOrg(newOrg), repo, util.RenameFile(`^`+util.RemoveHost(org)+`\b`, file, util.RemoveHost(newOrg)))
 		}
 	} else if len(segments) == 2 {
 		org = segments[len(segments)-2]
 		file = segments[len(segments)-1]
 
 		if newOrg, ok := o.orgMap[org]; ok {
-			return filepath.Join(o.output, newOrg, util.RenameFile(`^`+org+`\b`, file, newOrg))
+			return filepath.Join(o.output, util.GetTopLevelOrg(newOrg), util.RenameFile(`^`+util.RemoveHost(org)+`\b`, file, util.RemoveHost(newOrg)))
 		}
 	} else if len(segments) == 1 {
 		file = segments[len(segments)-1]
@@ -374,7 +377,7 @@ func getOutPath(o options, p string, in string) string {
 // cleanOutPath deletes all files as the specified output path.
 func cleanOutPath(o options, p string) {
 	for _, org := range o.orgMap {
-		p = filepath.Join(p, org)
+		p = filepath.Join(p, util.GetTopLevelOrg(org))
 
 		err := os.RemoveAll(p)
 		if err != nil {
