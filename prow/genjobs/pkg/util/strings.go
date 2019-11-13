@@ -19,6 +19,7 @@ package util
 import (
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -46,4 +47,17 @@ func SplitOrgRepo(s string) (string, string) {
 // RemoveHost removes a host prefix from a string.
 func RemoveHost(s string) string {
 	return regexp.MustCompile("^http(?:s)?://.+/?$").ReplaceAllString(s, "")
+}
+
+// SortedKeys returns a sorted list of keys for a given map.
+func SortedKeys(m map[string]string) []string {
+	keys := make([]string, 0, len(m))
+
+	for k := range m {
+		keys = append(keys, k)
+	}
+
+	sort.Strings(keys)
+
+	return keys
 }

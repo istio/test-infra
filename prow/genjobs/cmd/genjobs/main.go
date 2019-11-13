@@ -251,7 +251,7 @@ func updateReporterConfig(o options, job *config.JobBase) {
 
 // updateLabels updates the jobs Labels fields based on provided inputs.
 func updateLabels(o options, job *config.JobBase) {
-	if o.labels == nil {
+	if len(o.labels) == 0 {
 		return
 	}
 
@@ -266,7 +266,7 @@ func updateLabels(o options, job *config.JobBase) {
 
 // updateNodeSelector updates the jobs NodeSelector fields based on provided inputs.
 func updateNodeSelector(o options, job *config.JobBase) {
-	if o.selector == nil {
+	if len(o.selector) == 0 {
 		return
 	}
 
@@ -281,18 +281,24 @@ func updateNodeSelector(o options, job *config.JobBase) {
 
 // updateEnvs updates the jobs Env fields based on provided inputs.
 func updateEnvs(o options, job *config.JobBase) {
-	for envK, envV := range o.env {
+	if len(o.env) == 0 {
+		return
+	}
+
+	envKs := util.SortedKeys(o.env)
+
+	for _, envK := range envKs {
 	container:
 		for i := range job.Spec.Containers {
 
 			for j := range job.Spec.Containers[i].Env {
 				if job.Spec.Containers[i].Env[j].Name == envK {
-					job.Spec.Containers[i].Env[j].Value = envV
+					job.Spec.Containers[i].Env[j].Value = o.env[envK]
 					continue container
 				}
 			}
 
-			job.Spec.Containers[i].Env = append(job.Spec.Containers[i].Env, v1.EnvVar{Name: envK, Value: envV})
+			job.Spec.Containers[i].Env = append(job.Spec.Containers[i].Env, v1.EnvVar{Name: envK, Value: o.env[envK]})
 		}
 	}
 }
