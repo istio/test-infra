@@ -17,6 +17,7 @@ limitations under the License.
 package util
 
 import (
+	"path/filepath"
 	"regexp"
 )
 
@@ -24,4 +25,9 @@ import (
 func RenameFile(pat string, src string, repl string) string {
 	s := regexp.MustCompile(pat).ReplaceAllString(src, repl)
 	return regexp.MustCompile(`^[^\w\d]`).ReplaceAllString(s, "")
+}
+
+// HasExtension checks if a file's extension matches a pattern.
+func HasExtension(path string, pat string) bool {
+	return regexp.MustCompile(pat).MatchString(filepath.Ext(path))
 }
