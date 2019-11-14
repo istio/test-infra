@@ -3,14 +3,14 @@ postsubmits:
   istio/proxy:
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_prow-staging_proxy_postsubmit
+      testgrid-dashboards: istio_proxy_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^prow-staging$
+    - ^master$
     decorate: true
     labels:
       preset-service-account: "true"
-    name: release_proxy_prow-staging_postsubmit
+    name: release_proxy_postsubmit
     path_alias: istio.io/proxy
     spec:
       containers:
@@ -33,11 +33,11 @@ presubmits:
   istio/proxy:
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_prow-staging_proxy
+      testgrid-dashboards: istio_proxy
     branches:
-    - ^prow-staging$
+    - ^master$
     decorate: true
-    name: test_proxy_prow-staging
+    name: test_proxy
     path_alias: istio.io/proxy
     spec:
       containers:
@@ -58,11 +58,11 @@ presubmits:
         testing: build-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_prow-staging_proxy
+      testgrid-dashboards: istio_proxy
     branches:
-    - ^prow-staging$
+    - ^master$
     decorate: true
-    name: test-asan_proxy_prow-staging
+    name: test-asan_proxy
     path_alias: istio.io/proxy
     spec:
       containers:
@@ -83,11 +83,11 @@ presubmits:
         testing: build-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_prow-staging_proxy
+      testgrid-dashboards: istio_proxy
     branches:
-    - ^prow-staging$
+    - ^master$
     decorate: true
-    name: test-tsan_proxy_prow-staging
+    name: test-tsan_proxy
     path_alias: istio.io/proxy
     spec:
       containers:
@@ -108,11 +108,11 @@ presubmits:
         testing: build-pool
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_prow-staging_proxy
+      testgrid-dashboards: istio_proxy
     branches:
-    - ^prow-staging$
+    - ^master$
     decorate: true
-    name: release-test_proxy_prow-staging
+    name: release-test_proxy
     path_alias: istio.io/proxy
     spec:
       containers:
