@@ -1,0 +1,38 @@
+org: istio
+repo: proxy
+support_release_branching: true
+image: gcr.io/istio-testing/prowbazel:0.5.16
+
+node_selector:
+  testing: build-pool
+
+jobs:
+- name: test
+  type: presubmit
+  command: [./prow/proxy-presubmit.sh]
+
+- name: test-asan
+  type: presubmit
+  command: [./prow/proxy-presubmit-asan.sh]
+
+- name: test-tsan
+  type: presubmit
+  command: [./prow/proxy-presubmit-tsan.sh]
+
+- name: release-test
+  type: presubmit
+  command: [./prow/proxy-presubmit-release.sh]
+
+- name: release
+  type: postsubmit
+  command: [./prow/proxy-postsubmit.sh]
+  requirements: [gcp]
+
+resources:
+  default:
+    requests:
+      memory: "8Gi"
+      cpu: "8000m"
+    limits:
+      memory: "60Gi"
+      cpu: "16000m"

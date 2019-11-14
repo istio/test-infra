@@ -14,10 +14,11 @@ jobs:
 - name: gencheck
   command: [make, gen-check]
 
-- name: publish
+- name: dry-run
   command: [entrypoint, test/publish.sh]
   requirements: [gcp]
   resources: build
+  regex: '\.go$|\.sh$'
 
 - name: build-warning
   type: presubmit

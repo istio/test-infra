@@ -91,8 +91,9 @@ postsubmits:
     decorate: true
     labels:
       preset-service-account: "true"
-    name: publish_release-builder_release-1.4_postsubmit
+    name: dry-run_release-builder_release-1.4_postsubmit
     path_alias: istio.io/release-builder
+    run_if_changed: \.go$|\.sh$
     spec:
       containers:
       - command:
@@ -251,7 +252,7 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
-  - always_run: true
+  - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.4_release-builder
     branches:
@@ -259,8 +260,9 @@ presubmits:
     decorate: true
     labels:
       preset-service-account: "true"
-    name: publish_release-builder_release-1.4
+    name: dry-run_release-builder_release-1.4
     path_alias: istio.io/release-builder
+    run_if_changed: \.go$|\.sh$
     spec:
       containers:
       - command:
