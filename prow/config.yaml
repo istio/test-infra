@@ -409,6 +409,20 @@ presets:
       - key: secret
         path: id_rsa
         mode: 0600
+- labels:
+    preset-enable-netrc: "true"
+  volumeMounts:
+  - mountPath: /root
+    name: netrc
+    readOnly: true
+  volumes:
+  - name: netrc
+    secret:
+      secretName: netrc-secret
+      items:
+      - key: secret
+        path: .netrc
+        mode: 0600
 # Enable GOPROXY by default
 - env:
   - name: GOPROXY

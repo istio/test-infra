@@ -41,20 +41,33 @@ go run ./genjobs \
   --labels preset-enable-ssh=true \
   --job-type postsubmit \
   --repo-whitelist istio \
-  --job-whitelist release_istio_postsubmit
+  --job-whitelist release_istio_postsubmit,release_istio_release-1.4_postsubmit
 
 # istio/istio test jobs(s) - presubmit(s) and postsubmit(s)
 go run ./genjobs \
   "${COMMON_OPTS[@]}" \
   --job-type presubmit,postsubmit \
   --repo-whitelist istio \
-  --job-blacklist release_istio_postsubmit
+  --job-blacklist release_istio_postsubmit,release_istio_release-1.4_postsubmit
 
-# istio/proxy build jobs(s) - postsubmit(s)
+# istio/proxy master build jobs(s) - postsubmit(s)
 go run ./genjobs \
   "${COMMON_OPTS[@]}" \
+  --branches master \
+  --labels preset-enable-netrc=true \
   --job-type postsubmit \
-  --env GCS_BUILD_BUCKET=istio-private-build,GCS_ARTIFACTS_BUCKET=istio-private-artifacts,DOCKER_REPOSITORY=istio-prow-build/envoy \
+  --modifier=master_priv \
+  --env GCS_BUILD_BUCKET=istio-private-build,GCS_ARTIFACTS_BUCKET=istio-private-artifacts,DOCKER_REPOSITORY=istio-prow-build/envoy,ENVOY_REPOSITORY=https://github.com/envoyproxy/envoy-wasm,ENVOY_PREFIX=envoy-wasm \
+  --repo-whitelist proxy
+
+# istio/proxy release-1.4 build jobs(s) - postsubmit(s)
+go run ./genjobs \
+  "${COMMON_OPTS[@]}" \
+  --branches release-1.4 \
+  --labels preset-enable-netrc=true \
+  --job-type postsubmit \
+  --modifier=release-1.4_priv \
+  --env GCS_BUILD_BUCKET=istio-private-build,GCS_ARTIFACTS_BUCKET=istio-private-artifacts,DOCKER_REPOSITORY=istio-prow-build/envoy,ENVOY_REPOSITORY=https://github.com/istio-private/envoy,ENVOY_PREFIX=envoy \
   --repo-whitelist proxy
 
 # istio/proxy test jobs(s) - presubmit(s)
