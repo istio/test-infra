@@ -12,7 +12,7 @@ ZONE    ?= us-west1-a
 CLUSTER ?= prow
 
 gen-private-jobs:
-	./gen-private-jobs.sh
+	@./gen-private-jobs.sh
 
 update-config-dry-run: get-cluster-credentials
 	./recreate_prow_configmaps.py \

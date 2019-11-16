@@ -21,59 +21,6 @@ postsubmits:
     labels:
       preset-enable-netrc: "true"
       preset-service-account: "true"
-    name: proxy-postsubmit_master_priv
-    path_alias: istio.io/proxy
-    reporter_config:
-      slack:
-        channel: '-'
-    spec:
-      containers:
-      - command:
-        - ./prow/proxy-postsubmit.sh
-        env:
-        - name: DOCKER_REPOSITORY
-          value: istio-prow-build/envoy
-        - name: ENVOY_PREFIX
-          value: envoy-wasm
-        - name: ENVOY_REPOSITORY
-          value: https://github.com/envoyproxy/envoy-wasm
-        - name: GCS_ARTIFACTS_BUCKET
-          value: istio-private-artifacts
-        - name: GCS_BUILD_BUCKET
-          value: istio-private-build
-        image: gcr.io/istio-testing/prowbazel:0.5.16
-        name: ""
-        resources:
-          limits:
-            cpu: "16"
-            memory: 60Gi
-          requests:
-            cpu: "8"
-            memory: 8Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: build-pool
-  - branches:
-    - ^release-1.4$
-    clone_uri: git@github.com:istio-private/proxy.git
-    cluster: private
-    context: prow/proxy-postsubmit.sh
-    decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
-    extra_refs:
-    - base_ref: release-1.4
-      clone_uri: git@github.com:istio-private/istio.git
-      org: istio-private
-      path_alias: istio.io/istio
-      repo: istio
-    labels:
-      preset-enable-netrc: "true"
-      preset-service-account: "true"
     name: proxy-postsubmit_release-1.4_priv
     path_alias: istio.io/proxy
     reporter_config:

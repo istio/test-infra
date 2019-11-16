@@ -28,7 +28,6 @@ COMMON_OPTS=(
   "--bucket=istio-private-build"
   "--cluster=private"
   "--modifier=priv"
-  "--branches=release-1.4,master"
 )
 
 # Clean ./prow/cluster/jobs/istio-private directory
@@ -37,6 +36,7 @@ go run ./genjobs --clean --mapping=istio=istio-private --output=./cluster/jobs/ 
 # istio/istio build job(s) - postsubmit(s)
 go run ./genjobs \
   "${COMMON_OPTS[@]}" \
+  --branches=release-1.4,master \
   --env DOCKER_HUB=gcr.io/istio-prow-build,GCS_BUCKET=istio-private-build/dev \
   --labels preset-enable-ssh=true \
   --job-type postsubmit \
@@ -46,6 +46,7 @@ go run ./genjobs \
 # istio/istio test jobs(s) - presubmit(s) and postsubmit(s)
 go run ./genjobs \
   "${COMMON_OPTS[@]}" \
+  --branches=release-1.4,master \
   --job-type presubmit,postsubmit \
   --repo-whitelist istio \
   --job-blacklist release_istio_postsubmit,release_istio_release-1.4_postsubmit
@@ -54,9 +55,9 @@ go run ./genjobs \
 go run ./genjobs \
   "${COMMON_OPTS[@]}" \
   --branches master \
+  --modifier=master_priv \
   --labels preset-enable-netrc=true \
   --job-type postsubmit \
-  --modifier=master_priv \
   --env GCS_BUILD_BUCKET=istio-private-build,GCS_ARTIFACTS_BUCKET=istio-private-artifacts,DOCKER_REPOSITORY=istio-prow-build/envoy,ENVOY_REPOSITORY=https://github.com/envoyproxy/envoy-wasm,ENVOY_PREFIX=envoy-wasm \
   --repo-whitelist proxy
 
@@ -64,14 +65,15 @@ go run ./genjobs \
 go run ./genjobs \
   "${COMMON_OPTS[@]}" \
   --branches release-1.4 \
+  --modifier=release-1.4_priv \
   --labels preset-enable-netrc=true \
   --job-type postsubmit \
-  --modifier=release-1.4_priv \
   --env GCS_BUILD_BUCKET=istio-private-build,GCS_ARTIFACTS_BUCKET=istio-private-artifacts,DOCKER_REPOSITORY=istio-prow-build/envoy,ENVOY_REPOSITORY=https://github.com/istio-private/envoy,ENVOY_PREFIX=envoy \
   --repo-whitelist proxy
 
 # istio/proxy test jobs(s) - presubmit(s)
 go run ./genjobs \
   "${COMMON_OPTS[@]}" \
+  --branches=release-1.4,master \
   --job-type presubmit \
   --repo-whitelist proxy
