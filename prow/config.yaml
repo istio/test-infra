@@ -3,7 +3,7 @@ plank:
   job_url_template: 'https://prow.istio.io/view/gcs/istio-prow{{if eq .Spec.Type "presubmit"}}/pr-logs/pull/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if eq .Spec.Type "batch"}}/pr-logs/pull/batch{{else}}/logs{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}'
   job_url_prefix_config:
     '*': https://prow.istio.io/view/gcs/
-    'istio-private': https://prow-private.istio.io/view/gcs/
+    istio-private: https://prow-private.istio.io/view/gcs/
   pod_pending_timeout: 60m
   default_decoration_configs:
     '*':
@@ -58,17 +58,27 @@ prowjob_namespace: default
 pod_namespace: test-pods
 log_level: debug
 
-slack_reporter:
-  job_types_to_report:
-  - postsubmit
-  - periodic
-  - batch
-  job_states_to_report:
-  - failure
-  - error
-  channel: test-failures
-  # The template shown below is the default
-  report_template: 'Job {{.Spec.Job}} of type {{.Spec.Type}} ended with state {{.Status.State}}. <{{.Status.URL}}|View logs>'
+slack_reporter_configs:
+  '*':
+    job_types_to_report:
+    - postsubmit
+    - periodic
+    - batch
+    job_states_to_report:
+    - failure
+    - error
+    channel: test-failures
+    report_template: 'Job *{{.Spec.Job}}* of type *{{.Spec.Type}}* ended with state *{{.Status.State}}*. <{{.Status.URL}}|View logs>'
+  istio-private:
+    job_types_to_report:
+    - postsubmit
+    - periodic
+    - batch
+    job_states_to_report:
+    - failure
+    - error
+    channel: private-test-failures
+    report_template: 'Job *{{.Spec.Job}}* of type *{{.Spec.Type}}* ended with state *{{.Status.State}}*. <{{.Status.URL}}|View logs>'
 
 # Report job status for presubmit and postsubmit
 github_reporter:
