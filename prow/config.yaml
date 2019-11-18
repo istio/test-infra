@@ -438,6 +438,16 @@ presets:
       - key: secret
         path: .netrc
         mode: 0600
+- labels:
+    preset-override-envoy: "true"
+  env:
+  - name: ISTIO_ENVOY_BASE_URL
+    value: https://storage.googleapis.com/istio-private-build/proxy
+  - name: AUTH_HEADER
+    valueFrom:
+      secretKeyRef:
+        name: authentikos-token
+        key: token
 # Enable GOPROXY by default
 - env:
   - name: GOPROXY
