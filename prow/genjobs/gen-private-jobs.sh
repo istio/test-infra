@@ -25,12 +25,13 @@ COMMON_OPTS=(
   "--input=./cluster/jobs/"
   "--output=./cluster/jobs/"
   "--bucket=istio-private-build"
+  "--ssh-key-secret=ssh-key-secret"
   "--cluster=private"
   "--modifier=priv"
 )
 
 # Clean ./prow/cluster/jobs/istio-private directory
-go run ./genjobs --clean --mapping=istio=istio-private --output=./cluster/jobs/ --dry-run
+go run ./genjobs --clean --mapping=istio=istio-private --output=./cluster/jobs/ --dry-run >/dev/null
 
 # istio/istio build job(s) - postsubmit(s)
 go run ./genjobs \
@@ -54,7 +55,7 @@ go run ./genjobs \
 go run ./genjobs \
   "${COMMON_OPTS[@]}" \
   --branches master \
-  --modifier=master_priv \
+  --modifier master_priv \
   --labels preset-enable-netrc=true \
   --job-type postsubmit \
   --env BAZEL_BUILD_RBE_JOBS=0,GCS_BUILD_BUCKET=istio-private-build,GCS_ARTIFACTS_BUCKET=istio-private-artifacts,DOCKER_REPOSITORY=istio-prow-build/envoy,ENVOY_REPOSITORY=https://github.com/envoyproxy/envoy-wasm,ENVOY_PREFIX=envoy-wasm \
@@ -64,7 +65,7 @@ go run ./genjobs \
 go run ./genjobs \
   "${COMMON_OPTS[@]}" \
   --branches release-1.4 \
-  --modifier=release-1.4_priv \
+  --modifier release-1.4_priv \
   --labels preset-enable-netrc=true \
   --job-type postsubmit \
   --env BAZEL_BUILD_RBE_JOBS=0,GCS_BUILD_BUCKET=istio-private-build,GCS_ARTIFACTS_BUCKET=istio-private-artifacts,DOCKER_REPOSITORY=istio-prow-build/envoy,ENVOY_REPOSITORY=https://github.com/istio-private/envoy,ENVOY_PREFIX=envoy \
