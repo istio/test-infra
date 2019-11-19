@@ -36,7 +36,7 @@ The following is a list of supported options for `genjobs`. The only **required*
   -l, --labels stringToString     Prow labels to apply to the job(s). (default [])
   -m, --mapping stringToString    Mapping between public and private Github organization(s). (default [])
       --modifier string           Modifier to apply to generated file and job name(s). (default "private")
-  -o, --output string             Output directory to write generated job(s). (default ".")
+  -o, --output string             Output file or directory to write generated job(s). (default ".")
   -b, --repo-blacklist strings    Repositories to blacklist in generation process.
   -w, --repo-whitelist strings    Repositories to whitelist in generation process.
       --selector stringToString   Node selector(s) to constrain job(s). (default [])
