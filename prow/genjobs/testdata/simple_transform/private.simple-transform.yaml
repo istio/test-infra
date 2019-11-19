@@ -3,13 +3,7 @@ postsubmits:
   istio-private/istio:
   - branches:
     - ^master$
-    cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     name: example_postsubmit_private
     path_alias: istio.io/istio
     spec:
@@ -34,13 +28,7 @@ presubmits:
   - always_run: true
     branches:
     - ^master$
-    cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     name: example_presubmit_private
     path_alias: istio.io/istio
     spec:

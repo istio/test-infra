@@ -449,7 +449,6 @@ func updateExtraRefs(o options, refs []prowjob.Refs) {
 // getOutPath derives the output path from the specified input directory and current path.
 func getOutPath(o options, p string, in string) string {
 	segments := strings.FieldsFunc(strings.TrimPrefix(p, in), func(c rune) bool { return c == '/' })
-	_, stem := filepath.Split(o.output)
 
 	var (
 		org  string
@@ -458,7 +457,7 @@ func getOutPath(o options, p string, in string) string {
 	)
 
 	switch {
-	case len(stem) > 0 && len(filepath.Ext(stem)) > 0:
+	case util.HasExtension(o.output, yamlExt):
 		return o.output
 	case len(segments) >= 3:
 		org = segments[len(segments)-3]
