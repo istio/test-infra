@@ -17,6 +17,7 @@ limitations under the License.
 package genjobs
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -392,6 +393,19 @@ func cleanOutPath(o options, p string) {
 	}
 }
 
+func handleRecover() {
+	if r := recover(); r != nil {
+		switch t := r.(type) {
+		case string:
+			util.PrintErrAndExit(errors.New(t))
+		case error:
+			util.PrintErrAndExit(t)
+		default:
+			util.PrintErrAndExit(errors.New("unknown panic"))
+		}
+	}
+}
+
 // writeOutFile writes presubmit and postsubmit jobs definitions to the designated output path.
 func writeOutFile(p string, pre map[string][]config.Presubmit, post map[string][]config.Postsubmit, per []config.Periodic) {
 	if len(pre) == 0 && len(post) == 0 && len(per) == 0 {
@@ -474,6 +488,8 @@ func writeOutFile(p string, pre map[string][]config.Presubmit, post map[string][
 
 // main entry point.
 func Main() {
+	defer handleRecover()
+
 	var o options
 
 	o.parseFlags()
