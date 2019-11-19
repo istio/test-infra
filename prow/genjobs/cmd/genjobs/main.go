@@ -94,7 +94,7 @@ func (o *options) parseFlags() {
 	flag.StringVar(&o.modifier, "modifier", defaultModifier, "Modifier to apply to generated file and job name(s).")
 	flag.StringToStringVarP(&o.labels, "labels", "l", map[string]string{}, "Prow labels to apply to the job(s).")
 	flag.StringToStringVarP(&o.env, "env", "e", map[string]string{}, "Environment variables to set for the job(s).")
-	flag.StringVarP(&o.input, "input", "i", ".", "Input directory containing job(s) to convert.")
+	flag.StringVarP(&o.input, "input", "i", ".", "Input file or directory containing job(s) to convert.")
 	flag.StringVarP(&o.output, "output", "o", ".", "Output directory to write generated job(s).")
 	flag.StringSliceVarP(&_repoWhitelist, "repo-whitelist", "w", []string{}, "Repositories to whitelist in generation process.")
 	flag.StringSliceVarP(&_repoBlacklist, "repo-blacklist", "b", []string{}, "Repositories to blacklist in generation process.")
@@ -354,24 +354,27 @@ func getOutPath(o options, p string, in string) string {
 		file string
 	)
 
-	if len(segments) >= 3 {
+	switch {
+	case len(segments) >= 3:
 		org = segments[len(segments)-3]
 		repo = segments[len(segments)-2]
 		file = segments[len(segments)-1]
-
 		if newOrg, ok := o.orgMap[org]; ok {
 			return filepath.Join(o.output, util.GetTopLevelOrg(newOrg), repo, util.RenameFile(`^`+util.RemoveHost(org)+`\b`, file, util.RemoveHost(newOrg)))
 		}
-	} else if len(segments) == 2 {
+	case len(segments) == 2:
 		org = segments[len(segments)-2]
 		file = segments[len(segments)-1]
-
 		if newOrg, ok := o.orgMap[org]; ok {
 			return filepath.Join(o.output, util.GetTopLevelOrg(newOrg), util.RenameFile(`^`+util.RemoveHost(org)+`\b`, file, util.RemoveHost(newOrg)))
 		}
-	} else if len(segments) == 1 {
+	case len(segments) == 1:
 		file = segments[len(segments)-1]
-
+		if !strings.HasPrefix(file, o.modifier) {
+			return filepath.Join(o.output, o.modifier+filenameSeparator+file)
+		}
+	case len(segments) == 0:
+		file = filepath.Base(in)
 		if !strings.HasPrefix(file, o.modifier) {
 			return filepath.Join(o.output, o.modifier+filenameSeparator+file)
 		}
