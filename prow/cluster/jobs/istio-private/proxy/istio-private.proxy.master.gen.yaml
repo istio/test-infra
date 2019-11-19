@@ -21,6 +21,8 @@ postsubmits:
       - command:
         - ./prow/proxy-postsubmit.sh
         env:
+        - name: BAZEL_BUILD_RBE_JOBS
+          value: "0"
         - name: DOCKER_REPOSITORY
           value: istio-prow-build/envoy
         - name: ENVOY_PREFIX
