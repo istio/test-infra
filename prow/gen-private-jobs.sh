@@ -20,7 +20,6 @@ set -o pipefail
 
 COMMON_OPTS=(
   "--mapping=istio=istio-private"
-  "--channel=-"
   "--ssh-clone"
   "--extra-refs"
   "--input=./cluster/jobs/"
