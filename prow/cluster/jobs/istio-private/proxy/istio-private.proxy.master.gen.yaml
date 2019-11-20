@@ -59,12 +59,21 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: test_proxy_priv
+    labels:
+      preset-enable-netrc: "true"
+    name: test_proxy_master_priv
     path_alias: istio.io/proxy
     spec:
       containers:
       - command:
         - ./prow/proxy-presubmit.sh
+        env:
+        - name: BAZEL_BUILD_RBE_JOBS
+          value: "0"
+        - name: ENVOY_PREFIX
+          value: envoy-wasm
+        - name: ENVOY_REPOSITORY
+          value: https://github.com/envoyproxy/envoy-wasm
         image: gcr.io/istio-testing/build-tools-proxy:master-2019-11-08T17-21-18
         name: ""
         resources:
@@ -89,12 +98,21 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: test-asan_proxy_priv
+    labels:
+      preset-enable-netrc: "true"
+    name: test-asan_proxy_master_priv
     path_alias: istio.io/proxy
     spec:
       containers:
       - command:
         - ./prow/proxy-presubmit-asan.sh
+        env:
+        - name: BAZEL_BUILD_RBE_JOBS
+          value: "0"
+        - name: ENVOY_PREFIX
+          value: envoy-wasm
+        - name: ENVOY_REPOSITORY
+          value: https://github.com/envoyproxy/envoy-wasm
         image: gcr.io/istio-testing/build-tools-proxy:master-2019-11-08T17-21-18
         name: ""
         resources:
@@ -119,12 +137,21 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: test-tsan_proxy_priv
+    labels:
+      preset-enable-netrc: "true"
+    name: test-tsan_proxy_master_priv
     path_alias: istio.io/proxy
     spec:
       containers:
       - command:
         - ./prow/proxy-presubmit-tsan.sh
+        env:
+        - name: BAZEL_BUILD_RBE_JOBS
+          value: "0"
+        - name: ENVOY_PREFIX
+          value: envoy-wasm
+        - name: ENVOY_REPOSITORY
+          value: https://github.com/envoyproxy/envoy-wasm
         image: gcr.io/istio-testing/build-tools-proxy:master-2019-11-08T17-21-18
         name: ""
         resources:
@@ -149,12 +176,21 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    name: release-test_proxy_priv
+    labels:
+      preset-enable-netrc: "true"
+    name: release-test_proxy_master_priv
     path_alias: istio.io/proxy
     spec:
       containers:
       - command:
         - ./prow/proxy-presubmit-release.sh
+        env:
+        - name: BAZEL_BUILD_RBE_JOBS
+          value: "0"
+        - name: ENVOY_PREFIX
+          value: envoy-wasm
+        - name: ENVOY_REPOSITORY
+          value: https://github.com/envoyproxy/envoy-wasm
         image: gcr.io/istio-testing/build-tools-proxy:master-2019-11-08T17-21-18
         name: ""
         resources:
