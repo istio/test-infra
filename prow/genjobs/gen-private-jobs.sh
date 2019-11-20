@@ -50,6 +50,16 @@ go run ./genjobs \
   --repo-whitelist istio \
   --job-blacklist release_istio_postsubmit,release_istio_release-1.4_postsubmit
 
+# istio/proxy master test jobs(s) - presubmit(s)
+go run ./genjobs \
+  "${COMMON_OPTS[@]}" \
+  --branches master \
+  --modifier=master_priv \
+  --labels preset-enable-netrc=true \
+  --job-type presubmit \
+  --env BAZEL_BUILD_RBE_JOBS=0,ENVOY_REPOSITORY=https://github.com/envoyproxy/envoy-wasm,ENVOY_PREFIX=envoy-wasm \
+  --repo-whitelist proxy
+
 # istio/proxy master build jobs(s) - postsubmit(s)
 go run ./genjobs \
   "${COMMON_OPTS[@]}" \
@@ -60,6 +70,16 @@ go run ./genjobs \
   --env BAZEL_BUILD_RBE_JOBS=0,GCS_BUILD_BUCKET=istio-private-build,GCS_ARTIFACTS_BUCKET=istio-private-artifacts,DOCKER_REPOSITORY=istio-prow-build/envoy,ENVOY_REPOSITORY=https://github.com/envoyproxy/envoy-wasm,ENVOY_PREFIX=envoy-wasm \
   --repo-whitelist proxy
 
+# istio/proxy release-1.4 test jobs(s) - presubmit(s)
+go run ./genjobs \
+  "${COMMON_OPTS[@]}" \
+  --branches release-1.4 \
+  --modifier=release-1.4_priv \
+  --labels preset-enable-netrc=true \
+  --job-type presubmit \
+  --env BAZEL_BUILD_RBE_JOBS=0,ENVOY_REPOSITORY=https://github.com/istio-private/envoy,ENVOY_PREFIX=envoy \
+  --repo-whitelist proxy
+
 # istio/proxy release-1.4 build jobs(s) - postsubmit(s)
 go run ./genjobs \
   "${COMMON_OPTS[@]}" \
@@ -68,11 +88,4 @@ go run ./genjobs \
   --labels preset-enable-netrc=true \
   --job-type postsubmit \
   --env BAZEL_BUILD_RBE_JOBS=0,GCS_BUILD_BUCKET=istio-private-build,GCS_ARTIFACTS_BUCKET=istio-private-artifacts,DOCKER_REPOSITORY=istio-prow-build/envoy,ENVOY_REPOSITORY=https://github.com/istio-private/envoy,ENVOY_PREFIX=envoy \
-  --repo-whitelist proxy
-
-# istio/proxy test jobs(s) - presubmit(s)
-go run ./genjobs \
-  "${COMMON_OPTS[@]}" \
-  --branches=release-1.4,master \
-  --job-type presubmit \
   --repo-whitelist proxy
