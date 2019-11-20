@@ -70,13 +70,8 @@ slack_reporter_configs:
     channel: test-failures
     report_template: 'Job *{{.Spec.Job}}* of type *{{.Spec.Type}}* ended with state *{{.Status.State}}*. <{{.Status.URL}}|View logs>'
   istio-private:
-    job_types_to_report:
-    - postsubmit
-    - periodic
-    - batch
-    job_states_to_report:
-    - failure
-    - error
+    job_types_to_report: []
+    job_states_to_report: []
     channel: private-test-failures
     report_template: 'Job *{{.Spec.Job}}* of type *{{.Spec.Type}}* ended with state *{{.Status.State}}*. <{{.Status.URL}}|View logs>'
 
