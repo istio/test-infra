@@ -17,11 +17,7 @@ HUB = gcr.io
 VERSION ?= 0.0.1
 
 .PHONY: deploy
-deploy: build image push clean
-
-.PHONY: build
-build:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./authentikos ./authentikos.go
+deploy: image push
 
 .PHONY: image
 image:
@@ -30,7 +26,3 @@ image:
 .PHONY: push
 push:
 	docker push "$(HUB)/$(PROJECT)/authentikos:$(VERSION)"
-
-.PHONY: clean
-clean:
-	rm -f ./authentikos
