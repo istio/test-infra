@@ -57,7 +57,7 @@ go run ./genjobs \
   --modifier=master_priv \
   --labels preset-enable-netrc=true \
   --job-type presubmit \
-  --env BAZEL_ENVOY_PATH=/home/prow/go/src/istio.io/proxy/bazel-bin/src/envoy/envoy,BAZEL_BUILD_RBE_JOBS=0,ENVOY_REPOSITORY=https://github.com/envoyproxy/envoy-wasm,ENVOY_PREFIX=envoy-wasm \
+  --env BAZEL_BUILD_RBE_JOBS=0,ENVOY_REPOSITORY=https://github.com/envoyproxy/envoy-wasm,ENVOY_PREFIX=envoy-wasm \
   --repo-whitelist proxy
 
 # istio/proxy master build jobs(s) - postsubmit(s)
@@ -77,7 +77,7 @@ go run ./genjobs \
   --modifier=release-1.4_priv \
   --labels preset-enable-netrc=true \
   --job-type presubmit \
-  --env BAZEL_ENVOY_PATH=/home/prow/go/src/istio.io/proxy/bazel-bin/src/envoy/envoy,BAZEL_BUILD_RBE_JOBS=0,ENVOY_REPOSITORY=https://github.com/istio-private/envoy,ENVOY_PREFIX=envoy \
+  --env BAZEL_BUILD_RBE_JOBS=0,ENVOY_REPOSITORY=https://github.com/istio-private/envoy,ENVOY_PREFIX=envoy \
   --repo-whitelist proxy
 
 # istio/proxy release-1.4 build jobs(s) - postsubmit(s)
