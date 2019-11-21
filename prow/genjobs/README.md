@@ -22,10 +22,10 @@ The following is a list of supported options for `genjobs`. The only **required*
 
 ```console
       --branches strings          Branch(es) to generate job(s) for.
-      --bucket string             GCS bucket name to upload logs and build artifacts to. (default "private-build")
+      --bucket string             GCS bucket name to upload logs and build artifacts to.
       --channel string            Slack channel to report job status notifications to.
       --clean                     Clean output directory before job(s) generation.
-      --cluster string            GCP cluster to run the job(s) in. (default "private")
+      --cluster string            GCP cluster to run the job(s) in.
       --dry-run                   Run in dry run mode.
   -e, --env stringToString        Environment variables to set for the job(s). (default [])
       --extra-refs                Apply translation to all extra refs regardless of mapping.
@@ -37,12 +37,14 @@ The following is a list of supported options for `genjobs`. The only **required*
   -m, --mapping stringToString    Mapping between public and private Github organization(s). (default [])
       --modifier string           Modifier to apply to generated file and job name(s). (default "private")
   -o, --output string             Output file or directory to write generated job(s). (default ".")
+      --override-selector         The existing node selector will be overridden rather than added to.
+  -p, --presets strings           Path to file(s) containing additional presets.
   -b, --repo-blacklist strings    Repositories to blacklist in generation process.
   -w, --repo-whitelist strings    Repositories to whitelist in generation process.
+      --resolve                   Resolve and expand values for presets in generated job(s).
       --selector stringToString   Node selector(s) to constrain job(s). (default [])
-      --override-selector         The existing node selector will be overriden rather than added to. (default false)
       --ssh-clone                 Enable a clone of the git repository over ssh.
-      --ssh-key-secret string     GKE cluster secrets containing the Github ssh private key. (default "ssh-key-secret")
+      --ssh-key-secret string     GKE cluster secrets containing the Github ssh private key.
 ```
 
 ## Example
