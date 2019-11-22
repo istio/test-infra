@@ -238,7 +238,10 @@ branch-protection:
     istio-private:
       required_pull_request_reviews: *protection_required_pull_request_reviews
       restrictions: *protection_restrictions
-      repos: *protection_repos
+      repos:
+        <<: *protection_repos
+        proxy:
+          required_status_checks:
 
 tide:
   queries:
