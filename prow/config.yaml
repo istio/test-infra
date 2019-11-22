@@ -306,17 +306,21 @@ tide:
     - istio/release-builder
     labels:
     - "cla: yes"
-    missingLabels:
+    missingLabels: &istio_tide_missing_labels
     - do-not-merge
     - do-not-merge/hold
     - do-not-merge/work-in-progress
+    reviewApprovedRequired: true
+  - orgs:
+      - istio-private
+    missingLabels: *istio_tide_missing_labels
     reviewApprovedRequired: true
   merge_method:
     istio: squash
     istio-releases/pipeline: squash
     istio-ecosystem/authservice: squash
+    istio-private: squash
   target_url: https://prow.istio.io/tide
-
   context_options:
     from-branch-protection: true
     skip-unknown-contexts: true
