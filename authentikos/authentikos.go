@@ -81,8 +81,37 @@ func (errs namespacedErrors) Errors() string {
 
 // tokenTemplate is the template data structure.
 type tokenTemplate struct {
-	Now   time.Time
 	Token string
+}
+
+// tokenTemplate time addition function.
+func (tt *tokenTemplate) Add(a, b time.Duration) time.Duration {
+	return a + b
+}
+
+// tokenTemplate time subtraction function.
+func (tt *tokenTemplate) Subtract(a, b time.Duration) time.Duration {
+	return a - b
+}
+
+// tokenTemplate time multiplication function.
+func (tt *tokenTemplate) Multiply(a, b time.Duration) time.Duration {
+	return a * b
+}
+
+// tokenTemplate time division function.
+func (tt *tokenTemplate) Divide(a, b time.Duration) time.Duration {
+	return a / b
+}
+
+// tokenTemplate time now function.
+func (tt *tokenTemplate) Now() time.Time {
+	return time.Now()
+}
+
+// tokenTemplate time format function.
+func (tt *tokenTemplate) Format(layout string, t time.Time) string {
+	return t.Format(layout)
 }
 
 // options are the available command-line flags.
@@ -181,7 +210,7 @@ func generateTokenData(o options, data []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	err = tmpl.Execute(&b, &tokenTemplate{Now: time.Now(), Token: string(data)})
+	err = tmpl.Execute(&b, &tokenTemplate{Token: string(data)})
 	if err != nil {
 		return nil, err
 	}
