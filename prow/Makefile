@@ -8,8 +8,11 @@ include Makefile.gcloud.mk
 # GKE variables.
 PROJECT ?= istio-testing
 PROJECT_BUILD ?= istio-prow-build
-ZONE    ?= us-west1-a
+PROJECT_PRIVATE ?= istio-prow-build
 CLUSTER ?= prow
+CLUSTER_BUILD ?= prow
+CLUSTER_PRIVATE ?= prow-private
+ZONE    ?= us-west1-a
 
 gen-private-jobs:
 	@./genjobs/gen-private-jobs.sh
@@ -30,7 +33,14 @@ update-config: get-cluster-credentials
 deploy: get-cluster-credentials
 	kubectl apply -f ./cluster/
 
-deploy-build: get-build-cluster-credentials
+deploy-build: PROJECT=$(PROJECT_BUILD)
+deploy-build: CLUSTER=$(CLUSTER_BUILD)
+deploy-build: get-cluster-credentials
 	kubectl apply -f ./cluster/build/
 
-.PHONY: gen-private-jobs deploy deploy-build update-config update-config-dry-run
+deploy-private: PROJECT=$(PROJECT_PRIVATE)
+deploy-private: CLUSTER=$(CLUSTER_PRIVATE)
+deploy-private: get-cluster-credentials
+	kubectl apply -f ./cluster/private/
+
+.PHONY: gen-private-jobs deploy deploy-build deploy-private update-config update-config-dry-run

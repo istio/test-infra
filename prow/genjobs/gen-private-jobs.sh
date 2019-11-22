@@ -90,3 +90,16 @@ go run ./genjobs \
   --job-type postsubmit \
   --env BAZEL_BUILD_RBE_JOBS=0,GCS_BUILD_BUCKET=istio-private-build,GCS_ARTIFACTS_BUCKET=istio-private-artifacts,DOCKER_REPOSITORY=istio-prow-build/envoy,ENVOY_REPOSITORY=https://github.com/istio-private/envoy,ENVOY_PREFIX=envoy \
   --repo-whitelist proxy
+
+# istio/release-builder build jobs(s) - postsubmit(s)
+go run ./genjobs \
+  "${COMMON_OPTS[@]}" \
+  --labels preset-override-envoy=true \
+  --job-type postsubmit \
+  --repo-whitelist release-builder
+
+# istio/release-builder test jobs(s) - presubmit(s)
+go run ./genjobs \
+  "${COMMON_OPTS[@]}" \
+  --job-type presubmit \
+  --repo-whitelist release-builder
