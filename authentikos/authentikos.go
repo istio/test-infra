@@ -17,11 +17,15 @@ limitations under the License.
 package main
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+	"text/template"
 	"time"
 
 	flag "github.com/spf13/pflag"
@@ -39,7 +43,7 @@ import (
 const (
 	secretKey        = "token"                 // secretKey is the kubernetes token secret key.
 	defaultSecret    = "authentikos-token"     // defaultSecret is the default kubernetes secret name.
-	defaultFormat    = "%v"                    // defaultFormat is the default token format string.
+	defaultTemplate  = "{{.Token}}"            // defaultTemplate is the default token template string.
 	defaultNamespace = metav1.NamespaceDefault // defaultNamespace is the default kubernetes namespace.
 	tickInterval     = 30 * time.Minute        // tickInterval is the default tick interval.
 )
@@ -75,22 +79,30 @@ func (errs namespacedErrors) Errors() string {
 	return strings.Join(errMsgs, ", ")
 }
 
+// tokenTemplate is the template data structure.
+type tokenTemplate struct {
+	Now   time.Time
+	Token string
+}
+
 // options are the available command-line flags.
 type options struct {
-	verbose   bool
-	creds     string
-	format    string
-	secret    string
-	namespace []string
-	scopes    []string
+	verbose      bool
+	creds        string
+	secret       string
+	template     string
+	templateFile string
+	namespace    []string
+	scopes       []string
 }
 
 // parseFlags parses the command-line flags.
 func (o *options) parseFlags() {
 	flag.BoolVarP(&o.verbose, "verbose", "v", false, "Print verbose output.")
 	flag.StringVarP(&o.creds, "creds", "c", "", "Path to a JSON credentials file.")
-	flag.StringVarP(&o.format, "format", "f", defaultFormat, "Format string for the token.")
 	flag.StringVarP(&o.secret, "secret", "o", defaultSecret, "Name of secret to create.")
+	flag.StringVarP(&o.template, "template", "t", "", "Template string for the token.")
+	flag.StringVarP(&o.templateFile, "template-file", "f", "", "Path to a template string for the token.")
 	flag.StringSliceVarP(&o.namespace, "namespace", "n", []string{defaultNamespace}, "Namespace(s) to create the secret in.")
 	flag.StringSliceVarP(&o.scopes, "scopes", "s", []string{}, "Oauth scope(s) to request for token.")
 
@@ -101,14 +113,31 @@ func (o *options) parseFlags() {
 func (o *options) validateFlags() error {
 	var err error
 
-	if len(o.format) == 0 {
-		o.format = defaultFormat
+	// Ensure both `template` and `templateFile` are not set.
+	if len(o.template) > 0 && len(o.templateFile) > 0 {
+		return errors.New("-t, --template and -f, --template-file are mutually exclusive options")
 	}
 
+	// Default to `defaultTemplate` if a template is not specified.
+	if len(o.template) == 0 && len(o.templateFile) == 0 {
+		o.template = defaultTemplate
+	}
+
+	// Read in `templateFile` as template if both set and valid.
+	if len(o.templateFile) > 0 {
+		data, err := ioutil.ReadFile(o.templateFile)
+		if err != nil {
+			return fmt.Errorf("-f, --template-file option invalid: %v", o.templateFile)
+		}
+		o.template = string(data)
+	}
+
+	// Secrets must have a name, so if unset then default to `defaultSecret`.
 	if len(o.secret) == 0 {
 		o.secret = defaultSecret
 	}
 
+	// Secrets must have a namespace, so if unset then default to `defaultNamespace`.
 	if len(o.namespace) == 0 {
 		o.namespace = []string{defaultNamespace}
 	}
@@ -142,6 +171,23 @@ func fileExists(path string) bool {
 		return false
 	}
 	return info.Mode().IsRegular()
+}
+
+func generateTokenData(o options, data []byte) ([]byte, error) {
+	var b bytes.Buffer
+
+	tmpl, err := template.New("TokenData").Parse(o.template)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tmpl.Execute(&b, &tokenTemplate{Now: time.Now(), Token: string(data)})
+	if err != nil {
+		return nil, err
+	}
+
+	return b.Bytes(), nil
+
 }
 
 // createClusterConfig creates kubernetes cluster configuration.
@@ -187,12 +233,17 @@ func getOauthTokenCreator(o options) (tokenCreator, error) {
 
 // createOrUpdateSecret creates or updates a kubernetes secrets.
 func createOrUpdateSecret(o options, client v1.SecretsGetter, ns string, secretData []byte) (*corev1.Secret, error) {
+	data, err := generateTokenData(o, secretData)
+	if err != nil {
+		return nil, err
+	}
+
 	req := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      o.secret,
 			Namespace: ns,
 		},
-		StringData: map[string]string{secretKey: fmt.Sprintf(o.format, string(secretData))},
+		Data: map[string][]byte{secretKey: data},
 	}
 
 	if secret, err := client.Secrets(ns).Create(req); err == nil {
