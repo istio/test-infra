@@ -164,10 +164,6 @@ periodics:
     timeout: 12h0m0s
   extra_refs:
     - org: istio
-      repo: istio
-      base_ref: master
-      path_alias: istio.io/istio
-    - org: istio
       repo: tools
       base_ref: master
       path_alias: istio.io/tools
@@ -185,7 +181,7 @@ periodics:
             value: master
         command:
           - entrypoint
-          - prow/perf_benchmark_test.sh
+          - perf/benchmark/run_benchmark_job.sh
 
 - cron: "0 16 * * *"  # starts every day at 16:00PM UTC
   name: daily-performance-benchmark-release-1.4
