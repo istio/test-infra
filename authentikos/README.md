@@ -29,3 +29,8 @@ The following is a list of supported options for `authentikos`:
   -f, --template-file string   Path to a template string for the token.
   -v, --verbose                Print verbose output.
 ```
+
+## Changelog
+
+- 0.0.1: initial release
+- 0.0.2: remove `--format` option and add `--template` and `--template-file` options.
