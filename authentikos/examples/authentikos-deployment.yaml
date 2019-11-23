@@ -63,7 +63,7 @@ spec:
       serviceAccountName: authentikos
       containers:
       - name: authentikos
-        image: gcr.io/istio-testing/authentikos:0.0.1
+        image: gcr.io/istio-testing/authentikos:0.0.2
         imagePullPolicy: Always
         args:
         - --verbose
@@ -71,7 +71,7 @@ spec:
         - --creds=/etc/creds/service-account.json
         - --namespace=default,test-pods
         - --scopes=https://www.googleapis.com/auth/devstorage.full_control
-        - --format=%v
+        - --template='I acquired a {{.Token}} at {{.Now | .Format "3:04PM"}}'
         volumeMounts:
         - name: creds
           mountPath: /etc/creds
