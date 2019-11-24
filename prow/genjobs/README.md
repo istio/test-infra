@@ -28,7 +28,7 @@ The following is a list of supported options for `genjobs`. The only **required*
       --cluster string            GCP cluster to run the job(s) in.
       --dry-run                   Run in dry run mode.
   -e, --env stringToString        Environment variables to set for the job(s). (default [])
-      --extra-refs                Apply translation to all extra refs regardless of mapping.
+      --extra-refs                Apply translation to all extra refs regardless of repo.
   -i, --input string              Input file or directory containing job(s) to convert. (default ".")
       --job-blacklist strings     Job(s) to blacklist in generation process.
   -t, --job-type strings          Job type(s) to process (e.g. presubmit, postsubmit. periodic). (default [presubmit,postsubmit,periodic])

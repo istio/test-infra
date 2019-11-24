@@ -105,7 +105,7 @@ func (o *options) parseFlags() {
 		"Job type(s) to process (e.g. presubmit, postsubmit. periodic).")
 	flag.BoolVar(&o.clean, "clean", false, "Clean output directory before job(s) generation.")
 	flag.BoolVar(&o.dryRun, "dry-run", false, "Run in dry run mode.")
-	flag.BoolVar(&o.extraRefs, "extra-refs", false, "Apply translation to all extra refs regardless of mapping.")
+	flag.BoolVar(&o.extraRefs, "extra-refs", false, "Apply translation to all extra refs regardless of repo.")
 	flag.BoolVar(&o.resolve, "resolve", false, "Resolve and expand values for presets in generated job(s).")
 	flag.BoolVar(&o.sshClone, "ssh-clone", false, "Enable a clone of the git repository over ssh.")
 	flag.BoolVar(&o.overrideSelector, "override-selector", false, "The existing node selector will be overridden rather than added to.")
@@ -438,7 +438,10 @@ func updateExtraRefs(o options, refs []prowjob.Refs) {
 		org, repo := ref.Org, ref.Repo
 
 		if o.extraRefs || validateOrgRepo(o, org, repo) {
-			org = o.orgMap[org]
+			// Only transform known org mappings.
+			if newOrg, ok := o.orgMap[org]; ok {
+				org = newOrg
+			}
 			refs[i].Org = org
 			if o.sshClone {
 				refs[i].CloneURI = fmt.Sprintf("git@%s:%s/%s.git", gitHost, org, repo)
