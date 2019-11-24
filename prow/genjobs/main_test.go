@@ -18,11 +18,14 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/spf13/pflag"
 
 	"istio.io/test-infra/prow/genjobs/cmd/genjobs"
 )
@@ -32,8 +35,8 @@ const (
 )
 
 func resolvePath(t *testing.T, filename string) string {
-	name := filepath.Base(t.Name())
-	return filepath.Join(testDir, strings.ToLower(name), filename)
+	name := strings.ToLower(filepath.Base(t.Name()))
+	return filepath.Join(testDir, strings.ToLower(name), name+filename)
 }
 
 func TestGenjobs(t *testing.T) {
@@ -44,21 +47,30 @@ func TestGenjobs(t *testing.T) {
 		equal  bool
 	}{
 		{
-			name:   "simple transform",
-			output: "private.simple-transform.yaml",
-			args:   []string{"--mapping=istio=istio-private"},
-			equal:  true,
+			name:  "simple transform",
+			args:  []string{"--mapping=istio=istio-private"},
+			equal: true,
+		},
+		{
+			name:  "extra-refs exists",
+			args:  []string{"--mapping=istio=istio-private", "--extra-refs"},
+			equal: true,
+		},
+		{
+			name:  "extra-refs not exists",
+			args:  []string{"--mapping=istio=istio-private", "--extra-refs"},
+			equal: true,
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			in := resolvePath(t, "")
-			outE := resolvePath(t, test.output)
+			in := resolvePath(t, "_in.yaml")
+			outE := resolvePath(t, "_out.yaml")
 
 			expected, err := ioutil.ReadFile(outE)
 			if err != nil {
-				t.Errorf("Failed reading file %v: %v", outE, err)
+				t.Errorf("Failed reading expected output file %v: %v", outE, err)
 			}
 
 			tmpDir, err := ioutil.TempDir("", "")
@@ -67,16 +79,28 @@ func TestGenjobs(t *testing.T) {
 			}
 			defer os.Remove(tmpDir)
 
-			os.Args[0] = "genjobs"
-			os.Args = append(os.Args, test.args...)
-			os.Args = append(os.Args, "--input="+in, "--output="+tmpDir)
-			genjobs.Main()
+			outA := filepath.Join(tmpDir, "out.yaml")
 
-			outA := filepath.Join(tmpDir, test.output)
+			pflag.CommandLine = pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
+			os.Args = append(os.Args, test.args...)
+			os.Args = append(os.Args, "--input="+in, "--output="+outA)
+			genjobs.Main()
 
 			actual, err := ioutil.ReadFile(outA)
 			if err != nil {
-				t.Errorf("Failed reading file %v: %v", outA, err)
+				t.Errorf("Failed reading actual output file %v: %v", outA, err)
+			}
+
+			if os.Getenv("VERBOSE") == "true" {
+				fmt.Printf("expected (%v):\n%v\n", test.name, string(expected))
+				fmt.Printf("actual (%v):\n%v\n", test.name, string(actual))
+			}
+
+			if os.Getenv("REFRESH_GOLDEN") == "true" {
+				if err = ioutil.WriteFile(outE, actual, 0644); err != nil {
+					t.Errorf("Failed writing expected output file %v: %v", outE, err)
+				}
+				expected = actual
 			}
 
 			equal := bytes.Equal(expected, actual)
