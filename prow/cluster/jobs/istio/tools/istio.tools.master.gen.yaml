@@ -109,6 +109,37 @@ postsubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_tools_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    name: containers_tools_postsubmit
+    path_alias: istio.io/tools
+    run_if_changed: docker/.+|cmd/.+
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - containers
+        image: gcr.io/istio-testing/build-tools:2019-10-24T14-05-17
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "8"
+            memory: 4Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
 presubmits:
   istio/tools:
   - always_run: true
@@ -211,6 +242,36 @@ presubmits:
           requests:
             cpu: 500m
             memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - always_run: false
+    annotations:
+      testgrid-dashboards: istio_tools
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    name: containers-test_tools
+    path_alias: istio.io/tools
+    run_if_changed: docker/.+|cmd/.+
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - containers-test
+        image: gcr.io/istio-testing/build-tools:2019-10-24T14-05-17
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "8"
+            memory: 4Gi
         securityContext:
           privileged: true
       nodeSelector:
