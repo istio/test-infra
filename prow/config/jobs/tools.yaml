@@ -15,3 +15,26 @@ jobs:
 
   - name: gencheck
     command: [make, gen-check]
+
+  - name: containers
+    type: postsubmit
+    command: [entrypoint, make, containers]
+    resources: build
+    regex: 'docker/.+|cmd/.+'
+    requirements: [gcp]
+
+  - name: containers-test
+    type: presubmit
+    command: [entrypoint, make, containers-test]
+    resources: build
+    regex: 'docker/.+|cmd/.+'
+    requirements: [gcp]
+
+resources:
+  build:
+    requests:
+      memory: "4Gi"
+      cpu: "8000m"
+    limits:
+      memory: "24Gi"
+      cpu: "8000m"
