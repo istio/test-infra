@@ -15,7 +15,7 @@ postsubmits:
       - command:
         - make
         - build
-        image: gcr.io/istio-testing/build-tools:2019-10-24T14-05-17
+        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
         name: ""
         resources:
           limits:
@@ -42,7 +42,7 @@ postsubmits:
       - command:
         - make
         - lint
-        image: gcr.io/istio-testing/build-tools:2019-10-24T14-05-17
+        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
         name: ""
         resources:
           limits:
@@ -69,7 +69,7 @@ postsubmits:
       - command:
         - make
         - test
-        image: gcr.io/istio-testing/build-tools:2019-10-24T14-05-17
+        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
         name: ""
         resources:
           limits:
@@ -96,7 +96,7 @@ postsubmits:
       - command:
         - make
         - gen-check
-        image: gcr.io/istio-testing/build-tools:2019-10-24T14-05-17
+        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
         name: ""
         resources:
           limits:
@@ -127,7 +127,7 @@ postsubmits:
         - entrypoint
         - make
         - containers
-        image: gcr.io/istio-testing/istio-builder:v20190807-7d818206
+        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
         name: ""
         resources:
           limits:
@@ -138,8 +138,14 @@ postsubmits:
             memory: 4Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         testing: test-pool
+      volumes:
+      - emptyDir: {}
+        name: docker-root
 presubmits:
   istio/tools:
   - always_run: true
@@ -155,7 +161,7 @@ presubmits:
       - command:
         - make
         - build
-        image: gcr.io/istio-testing/build-tools:2019-10-24T14-05-17
+        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
         name: ""
         resources:
           limits:
@@ -181,7 +187,7 @@ presubmits:
       - command:
         - make
         - lint
-        image: gcr.io/istio-testing/build-tools:2019-10-24T14-05-17
+        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
         name: ""
         resources:
           limits:
@@ -207,7 +213,7 @@ presubmits:
       - command:
         - make
         - test
-        image: gcr.io/istio-testing/build-tools:2019-10-24T14-05-17
+        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
         name: ""
         resources:
           limits:
@@ -233,7 +239,7 @@ presubmits:
       - command:
         - make
         - gen-check
-        image: gcr.io/istio-testing/build-tools:2019-10-24T14-05-17
+        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
         name: ""
         resources:
           limits:
@@ -263,7 +269,7 @@ presubmits:
         - entrypoint
         - make
         - containers-test
-        image: gcr.io/istio-testing/istio-builder:v20190807-7d818206
+        image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
         name: ""
         resources:
           limits:
@@ -274,5 +280,11 @@ presubmits:
             memory: 4Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         testing: test-pool
+      volumes:
+      - emptyDir: {}
+        name: docker-root

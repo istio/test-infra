@@ -24,18 +24,22 @@ jobs:
   - name: integ-framework-local-tests
     type: presubmit
     command: [entrypoint, prow/integ-suite-local.sh, test.integration.framework.local.presubmit]
+    requirements: [docker]
 
   - name: integ-galley-local-tests
     type: presubmit
     command: [entrypoint, prow/integ-suite-local.sh, test.integration.galley.local.presubmit]
+    requirements: [docker]
 
   - name: integ-pilot-local-tests
     type: presubmit
     command: [entrypoint, prow/integ-suite-local.sh, test.integration.pilot.local.presubmit]
+    requirements: [docker]
 
   - name: integ-security-local-tests
     type: presubmit
     command: [entrypoint, prow/integ-suite-local.sh, test.integration.security.local.presubmit]
+    requirements: [docker]
 
   - name: integ-framework-k8s-tests
     type: presubmit
@@ -147,26 +151,32 @@ jobs:
 
   - name: istio_e2e_cloudfoundry
     command: [entrypoint, make, e2e_cloudfoundry]
+    requirements: [docker]
 
   - name: integ-framework-local-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-local.sh, test.integration.framework.local]
+    requirements: [docker]
 
   - name: integ-galley-local-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-local.sh, test.integration.galley.local]
+    requirements: [docker]
 
   - name: integ-pilot-local-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-local.sh, test.integration.pilot.local]
+    requirements: [docker]
 
   - name: integ-security-local-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-local.sh, test.integration.security.local]
+    requirements: [docker]
 
   - name: integ-conformance-local-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-local.sh, test.integration.conformance.local]
+    requirements: [docker]
 
   - name: integ-framework-k8s-tests
     type: postsubmit

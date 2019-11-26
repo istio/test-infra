@@ -1,7 +1,7 @@
 org: istio
 repo: tools
 support_release_branching: true
-image: gcr.io/istio-testing/build-tools:2019-10-24T14-05-17
+image: gcr.io/istio-testing/build-tools:master-2019-11-08T17-21-18
 
 jobs:
   - name: build
@@ -21,16 +21,14 @@ jobs:
     command: [entrypoint, make, containers]
     resources: build
     regex: 'docker/.+|cmd/.+'
-    requirements: [gcp]
-    image: gcr.io/istio-testing/istio-builder:v20190807-7d818206
+    requirements: [gcp, docker]
 
   - name: containers-test
     type: presubmit
     command: [entrypoint, make, containers-test]
     resources: build
     regex: 'docker/.+|cmd/.+'
-    requirements: [gcp]
-    image: gcr.io/istio-testing/istio-builder:v20190807-7d818206
+    requirements: [gcp, docker]
 
 resources:
   build:
