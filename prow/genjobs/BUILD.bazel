@@ -1,30 +1,25 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
 
-package(default_visibility = ["//visibility:public"])
-
-filegroup(
-    name = "configs",
-    srcs = [
-        "config.yaml",
-        "plugins.yaml",
-    ],
-)
-
 go_library(
     name = "go_default_library",
-    srcs = ["rewriteConfig.go"],
-    importpath = "istio.io/test-infra/prow",
+    srcs = ["main.go"],
+    importpath = "istio.io/test-infra/prow/genjobs",
+    visibility = ["//visibility:private"],
+    deps = ["//prow/genjobs/cmd/genjobs:go_default_library"],
 )
 
 go_binary(
-    name = "prow",
+    name = "genjobs",
     embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
 )
 
 go_test(
     name = "go_default_test",
-    srcs = ["rewriteConfig_test.go"],
+    srcs = ["main_test.go"],
+    data = glob(["testdata/**"]),
     embed = [":go_default_library"],
+    deps = ["//prow/genjobs/cmd/genjobs:go_default_library"],
 )
 
 filegroup(
@@ -38,8 +33,8 @@ filegroup(
     name = "all-srcs",
     srcs = [
         ":package-srcs",
-        "//prow/config:all-srcs",
-        "//prow/genjobs:all-srcs",
+        "//prow/genjobs/cmd/genjobs:all-srcs",
+        "//prow/genjobs/pkg/util:all-srcs",
     ],
     tags = ["automanaged"],
     visibility = ["//visibility:public"],

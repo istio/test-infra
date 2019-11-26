@@ -12,17 +12,17 @@ go_test(
         "generate_test.go",
     ],
     data = [
+        "testdata",
         "//prow:configs",
         "//prow/cluster:configs",
-        "testdata",
     ],
     embed = [":go_default_library"],
     importpath = "istio.io/test-infra/prow/config",
     deps = [
-        "//vendor/k8s.io/apimachinery/pkg/util/sets:go_default_library",
-        "//vendor/k8s.io/test-infra/prow/config:go_default_library",
-        "//vendor/k8s.io/test-infra/prow/hook:go_default_library",
-        "//vendor/k8s.io/test-infra/prow/plugins:go_default_library",
+        "@io_k8s_apimachinery//pkg/util/sets:go_default_library",
+        "@io_k8s_test_infra//prow/config:go_default_library",
+        "@io_k8s_test_infra//prow/hook:go_default_library",
+        "@io_k8s_test_infra//prow/plugins:go_default_library",
     ],
 )
 
@@ -32,11 +32,29 @@ go_library(
     importpath = "istio.io/test-infra/prow/config",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/ghodss/yaml:go_default_library",
-        "//vendor/github.com/hashicorp/go-multierror:go_default_library",
-        "//vendor/github.com/kr/pretty:go_default_library",
-        "//vendor/k8s.io/api/core/v1:go_default_library",
-        "//vendor/k8s.io/test-infra/prow/apis/prowjobs/v1:go_default_library",
-        "//vendor/k8s.io/test-infra/prow/config:go_default_library",
+        "@com_github_ghodss_yaml//:go_default_library",
+        "@com_github_hashicorp_go_multierror//:go_default_library",
+        "@com_github_kr_pretty//:go_default_library",
+        "@io_k8s_api//core/v1:go_default_library",
+        "@io_k8s_apimachinery//pkg/api/resource:go_default_library",
+        "@io_k8s_test_infra//prow/apis/prowjobs/v1:go_default_library",
+        "@io_k8s_test_infra//prow/config:go_default_library",
     ],
+)
+
+filegroup(
+    name = "package-srcs",
+    srcs = glob(["**"]),
+    tags = ["automanaged"],
+    visibility = ["//visibility:private"],
+)
+
+filegroup(
+    name = "all-srcs",
+    srcs = [
+        ":package-srcs",
+        "//prow/config/cmd:all-srcs",
+    ],
+    tags = ["automanaged"],
+    visibility = ["//visibility:public"],
 )
