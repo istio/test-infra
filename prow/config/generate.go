@@ -62,6 +62,7 @@ const (
 
 	RequirementRoot    = "root"
 	RequirementKind    = "kind"
+	RequirementDocker  = "docker"
 	RequirementRelease = "release"
 	RequirementGCP     = "gcp"
 )
@@ -155,7 +156,7 @@ func ValidateJobConfig(jobConfig JobConfig) {
 			}
 		}
 		for _, req := range job.Requirements {
-			if e := validate(req, []string{RequirementKind, RequirementRelease, RequirementRoot, RequirementGCP}, "requirements"); e != nil {
+			if e := validate(req, []string{RequirementKind, RequirementDocker, RequirementRelease, RequirementRoot, RequirementGCP}, "requirements"); e != nil {
 				err = multierror.Append(err, e)
 			}
 		}
@@ -510,6 +511,23 @@ func applyRequirements(job *config.JobBase, requirements []string) {
 					MountPath: "/sys/fs/cgroup",
 					Name:      "cgroup",
 				},
+				v1.VolumeMount{
+					MountPath: "/var/lib/docker",
+					Name:      "docker-root",
+				},
+			)
+		case RequirementDocker:
+			// TODO in the future we can only require root if we need docker, and add entrypoint
+			// Mounting a docker volume improves performance
+			job.Spec.Volumes = append(job.Spec.Volumes,
+				v1.Volume{
+					Name: "docker-root",
+					VolumeSource: v1.VolumeSource{
+						EmptyDir: &v1.EmptyDirVolumeSource{},
+					},
+				},
+			)
+			job.Spec.Containers[0].VolumeMounts = append(job.Spec.Containers[0].VolumeMounts,
 				v1.VolumeMount{
 					MountPath: "/var/lib/docker",
 					Name:      "docker-root",
