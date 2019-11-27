@@ -1476,59 +1476,6 @@ postsubmits:
       ssh_key_secrets:
       - ssh-key-secret
       timeout: 4h0m0s
-    name: integ-k8s-112_istio_postsubmit_priv
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - --node-image
-        - kindest/node:v1.12.10
-        - test.integration.kube.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-11-25T15-38-58
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
-      timeout: 4h0m0s
     name: integ-k8s-113_istio_postsubmit_priv
     path_alias: istio.io/istio
     spec:
@@ -1537,7 +1484,7 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - kindest/node:v1.13.10
+        - kindest/node:v1.13.12
         - test.integration.kube.presubmit
         image: gcr.io/istio-testing/build-tools:master-2019-11-25T15-38-58
         name: ""
@@ -1590,7 +1537,7 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - kindest/node:v1.14.6
+        - kindest/node:v1.14.9
         - test.integration.kube.presubmit
         image: gcr.io/istio-testing/build-tools:master-2019-11-25T15-38-58
         name: ""
@@ -1635,7 +1582,7 @@ postsubmits:
       ssh_key_secrets:
       - ssh-key-secret
       timeout: 4h0m0s
-    name: integ-k8s-116_istio_postsubmit_priv
+    name: integ-k8s-115_istio_postsubmit_priv
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1643,7 +1590,7 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - kindest/node:v1.16.2
+        - kindest/node:v1.15.6
         - test.integration.kube.presubmit
         image: gcr.io/istio-testing/build-tools:master-2019-11-25T15-38-58
         name: ""
@@ -1696,8 +1643,59 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - gcr.io/istio-testing/kind-node:v1.17.0-beta.1
+        - gcr.io/istio-testing/kind-node:v1.17.0-rc.1
         - test.integration.kube.presubmit
+        image: gcr.io/istio-testing/build-tools:master-2019-11-25T15-38-58
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: private
+    decorate: true
+    decoration_config:
+      gcs_configuration:
+        bucket: istio-private-build
+      ssh_key_secrets:
+      - ssh-key-secret
+      timeout: 4h0m0s
+    name: integ-k8s-operator_istio_postsubmit_priv
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.operator
         image: gcr.io/istio-testing/build-tools:master-2019-11-25T15-38-58
         name: ""
         resources:
