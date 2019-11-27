@@ -479,6 +479,14 @@ presets:
       secretKeyRef:
         name: authentikos-token
         key: token
+- labels:
+    preset-override-deps: "release-1.4"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: release-1.4-deps
+        key: dependencies
 # Enable GOPROXY by default
 - env:
   - name: GOPROXY

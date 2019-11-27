@@ -11,8 +11,6 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    labels:
-      preset-override-envoy: "true"
     name: lint_release-builder_release-1.4_postsubmit_priv
     path_alias: istio.io/release-builder
     spec:
@@ -43,8 +41,6 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    labels:
-      preset-override-envoy: "true"
     name: test_release-builder_release-1.4_postsubmit_priv
     path_alias: istio.io/release-builder
     spec:
@@ -75,8 +71,6 @@ postsubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    labels:
-      preset-override-envoy: "true"
     name: gencheck_release-builder_release-1.4_postsubmit_priv
     path_alias: istio.io/release-builder
     spec:
@@ -108,40 +102,7 @@ postsubmits:
       ssh_key_secrets:
       - ssh-key-secret
     labels:
-      preset-override-envoy: "true"
-      preset-service-account: "true"
-    name: dry-run_release-builder_release-1.4_postsubmit_priv
-    path_alias: istio.io/release-builder
-    run_if_changed: \.go$|\.sh$
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - test/publish.sh
-        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - branches:
-    - ^release-1.4$
-    clone_uri: git@github.com:istio-private/release-builder.git
-    cluster: private
-    decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
-    labels:
+      preset-override-deps: release-1.4
       preset-override-envoy: "true"
       preset-release-pipeline: "true"
     name: build-release_release-builder_release-1.4_postsubmit_priv
@@ -152,40 +113,11 @@ postsubmits:
       - command:
         - entrypoint
         - release/build.sh
-        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - branches:
-    - ^release-1.4$
-    clone_uri: git@github.com:istio-private/release-builder.git
-    cluster: private
-    decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
-    labels:
-      preset-override-envoy: "true"
-      preset-release-pipeline: "true"
-    name: publish-release_release-builder_release-1.4_postsubmit_priv
-    path_alias: istio.io/release-builder
-    run_if_changed: ^release/trigger-publish$
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - release/publish.sh
+        env:
+        - name: GCS_BUCKET
+          value: istio-private-prerelease/prerelease
+        - name: PRERELEASE_DOCKER_HUB
+          value: gcr.io/istio-prow-build
         image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:
@@ -305,40 +237,6 @@ presubmits:
         bucket: istio-private-build
       ssh_key_secrets:
       - ssh-key-secret
-    labels:
-      preset-service-account: "true"
-    name: dry-run_release-builder_release-1.4_priv
-    path_alias: istio.io/release-builder
-    run_if_changed: \.go$|\.sh$
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - test/publish.sh
-        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - always_run: false
-    branches:
-    - ^release-1.4$
-    clone_uri: git@github.com:istio-private/release-builder.git
-    cluster: private
-    decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     name: build-warning_release-builder_release-1.4_priv
     optional: true
     path_alias: istio.io/release-builder
@@ -347,38 +245,11 @@ presubmits:
       containers:
       - command:
         - release/build-warning.sh
-        image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: 500m
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - always_run: false
-    branches:
-    - ^release-1.4$
-    clone_uri: git@github.com:istio-private/release-builder.git
-    cluster: private
-    decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
-    name: publish-warning_release-builder_release-1.4_priv
-    optional: true
-    path_alias: istio.io/release-builder
-    run_if_changed: ^release/trigger-publish$
-    spec:
-      containers:
-      - command:
-        - release/publish-warning.sh
+        env:
+        - name: GCS_BUCKET
+          value: istio-private-prerelease/prerelease
+        - name: PRERELEASE_DOCKER_HUB
+          value: gcr.io/istio-prow-build
         image: gcr.io/istio-testing/build-tools:release-1.4-2019-11-05T22-47-16
         name: ""
         resources:

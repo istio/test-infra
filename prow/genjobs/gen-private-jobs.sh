@@ -91,15 +91,37 @@ go run ./genjobs \
   --env BAZEL_BUILD_RBE_JOBS=0,GCS_BUILD_BUCKET=istio-private-build,GCS_ARTIFACTS_BUCKET=istio-private-artifacts,DOCKER_REPOSITORY=istio-prow-build/envoy,ENVOY_REPOSITORY=https://github.com/istio-private/envoy,ENVOY_PREFIX=envoy \
   --repo-whitelist proxy
 
+# istio/release-builder master test jobs(s) - pre/postsubmit(s)
+go run ./genjobs \
+  "${COMMON_OPTS[@]}" \
+  --branches=master \
+  --job-type presubmit,postsubmit \
+  --repo-whitelist release-builder \
+  --job-whitelist lint_release-builder,lint_release-builder_postsubmit,test_release-builder,test_release-builder_postsubmit,gencheck_release-builder,gencheck_release-builder_postsubmit
+
+# istio/release-builder release-1.4 test jobs(s) - pre/postsubmit(s)
+go run ./genjobs \
+  "${COMMON_OPTS[@]}" \
+  --branches=release-1.4 \
+  --job-type presubmit,postsubmit \
+  --repo-whitelist release-builder \
+  --job-whitelist lint_release-builder_release-1.4,lint_release-builder_release-1.4_postsubmit,test_release-builder_release-1.4,test_release-builder_release-1.4_postsubmit,gencheck_release-builder_release-1.4,gencheck_release-builder_release-1.4_postsubmit
+
+# istio/release-builder build warning jobs(s) - presubmit(s)
+go run ./genjobs \
+  "${COMMON_OPTS[@]}" \
+  --branches=release-1.4,master \
+  --env PRERELEASE_DOCKER_HUB=gcr.io/istio-prow-build,GCS_BUCKET=istio-private-prerelease/prerelease \
+  --job-type presubmit \
+  --repo-whitelist release-builder \
+  --job-whitelist build-warning_release-builder,build-warning_release-builder_release-1.4
+
 # istio/release-builder build jobs(s) - postsubmit(s)
 go run ./genjobs \
   "${COMMON_OPTS[@]}" \
-  --labels preset-override-envoy=true \
+  --branches=release-1.4,master \
+  --labels preset-override-envoy=true,preset-override-deps=release-1.4 \
+  --env PRERELEASE_DOCKER_HUB=gcr.io/istio-prow-build,GCS_BUCKET=istio-private-prerelease/prerelease \
   --job-type postsubmit \
-  --repo-whitelist release-builder
-
-# istio/release-builder test jobs(s) - presubmit(s)
-go run ./genjobs \
-  "${COMMON_OPTS[@]}" \
-  --job-type presubmit \
-  --repo-whitelist release-builder
+  --repo-whitelist release-builder \
+  --job-whitelist build-release_release-builder_release-1.4_postsubmit,build-release_release-builder_postsubmit
