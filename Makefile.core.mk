@@ -39,7 +39,4 @@ generate-config:
 diff-config:
 	@(cd prow/config/cmd; GOARCH=amd64 GOOS=linux go run generate.go diff)
 
-check-config:
-	@(cd prow/config/cmd; GOARCH=amd64 GOOS=linux go run generate.go check)
-
 include common/Makefile.common.mk

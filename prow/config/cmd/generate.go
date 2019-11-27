@@ -44,7 +44,7 @@ func main() {
 
 	// TODO: deserves a better CLI...
 	if len(os.Args) < 2 {
-		panic("must provide one of write, diff, check, print, branch")
+		panic("must provide one of write, diff, print, branch")
 	} else if os.Args[1] == "branch" {
 		if len(os.Args) != 3 {
 			panic("must specify branch name")
@@ -91,10 +91,6 @@ func main() {
 				case "diff":
 					existing := config.ReadProwJobConfig(fname)
 					config.DiffConfig(output, existing)
-				case "check":
-					if err := config.CheckConfig(output, fname); err != nil {
-						exit(err, "check failed")
-					}
 				default:
 					config.PrintConfig(output)
 				}
