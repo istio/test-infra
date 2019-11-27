@@ -23,6 +23,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 
 	flag "github.com/spf13/pflag"
@@ -46,6 +47,14 @@ const (
 	yamlExt           = ".(yml|yaml)$"
 )
 
+// sortOrder is the type to define sort order.
+type sortOrder string
+
+const (
+	ascending  sortOrder = "asc"
+	descending sortOrder = "desc"
+)
+
 // options are the available command-line flags.
 type options struct {
 	annotations      map[string]string
@@ -56,6 +65,7 @@ type options struct {
 	modifier         string
 	input            string
 	output           string
+	sort             string
 	branches         []string
 	presets          []string
 	rerunOrgs        []string
@@ -94,6 +104,7 @@ func (o *options) parseFlags() {
 	flag.StringVar(&o.modifier, "modifier", defaultModifier, "Modifier to apply to generated file and job name(s).")
 	flag.StringVarP(&o.input, "input", "i", ".", "Input file or directory containing job(s) to convert.")
 	flag.StringVarP(&o.output, "output", "o", ".", "Output file or directory to write generated job(s).")
+	flag.StringVarP(&o.sort, "sort", "s", "", "Sort the job(s) by name: (e.g. (asc)ending, (desc)ending).")
 	flag.StringSliceVar(&o.branches, "branches", []string{}, "Branch(es) to generate job(s) for.")
 	flag.StringSliceVarP(&o.presets, "presets", "p", []string{}, "Path to file(s) containing additional presets.")
 	flag.StringSliceVar(&o.rerunOrgs, "rerun-orgs", []string{}, "GitHub organizations to authorize job rerun for.")
@@ -474,6 +485,49 @@ func updateExtraRefs(o options, refs []prowjob.Refs) {
 	}
 }
 
+// sortJobs sorts jobs based on a provided sort order.
+func sortJobs(o options, pre map[string][]config.Presubmit, post map[string][]config.Postsubmit, per []config.Periodic) {
+	if o.sort == "" {
+		return
+	}
+
+	choices := strings.Join([]string{string(ascending), string(descending)}, "|")
+	matches := regexp.MustCompile(`^(` + choices + `)(?:ending)?$`).FindStringSubmatch(o.sort)
+	if len(matches) < 2 {
+		return
+	}
+
+	var comparator func(a, b string) bool
+
+	switch sortOrder(matches[1]) {
+	case ascending:
+		comparator = func(a, b string) bool {
+			return a < b
+		}
+	case descending:
+		comparator = func(a, b string) bool {
+			return a > b
+		}
+	}
+
+	for _, c := range pre {
+		sort.Slice(c, func(a, b int) bool {
+			return comparator(c[a].Name, c[b].Name)
+		})
+	}
+
+	for _, c := range post {
+		sort.Slice(c, func(a, b int) bool {
+			return comparator(c[a].Name, c[b].Name)
+		})
+	}
+
+	sort.Slice(per, func(a, b int) bool {
+		return comparator(per[a].Name, per[b].Name)
+	})
+
+}
+
 // getOutPath derives the output path from the specified input directory and current path.
 func getOutPath(o options, p string, in string) string {
 	segments := strings.FieldsFunc(strings.TrimPrefix(p, in), func(c rune) bool { return c == '/' })
@@ -538,7 +592,7 @@ func handleRecover() {
 }
 
 // writeOutFile writes presubmit and postsubmit jobs definitions to the designated output path.
-func writeOutFile(p string, pre map[string][]config.Presubmit, post map[string][]config.Postsubmit, per []config.Periodic) {
+func writeOutFile(o options, p string, pre map[string][]config.Presubmit, post map[string][]config.Postsubmit, per []config.Periodic) {
 	if len(pre) == 0 && len(post) == 0 && len(per) == 0 {
 		return
 	}
@@ -580,6 +634,9 @@ func writeOutFile(p string, pre map[string][]config.Presubmit, post map[string][
 
 	// Combine periodics
 	combinedPer = append(combinedPer, per...)
+
+	// Sort presubmits, postsubmits, and periodics
+	sortJobs(o, combinedPre, combinedPost, combinedPer)
 
 	jobConfig := config.JobConfig{}
 
@@ -730,7 +787,7 @@ func Main() {
 		if o.dryRun {
 			fmt.Printf("write %d presubmits, %d postsubmits, and %d periodics to path %s\n", len(presubmit), len(postsubmit), len(periodic), outPath)
 		} else {
-			writeOutFile(outPath, presubmit, postsubmit, periodic)
+			writeOutFile(o, outPath, presubmit, postsubmit, periodic)
 		}
 
 		return nil
