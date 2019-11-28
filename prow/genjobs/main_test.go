@@ -61,6 +61,16 @@ func TestGenjobs(t *testing.T) {
 			args:  []string{"--mapping=istio=istio-private", "--extra-refs"},
 			equal: true,
 		},
+		{
+			name:  "rerun-orgs",
+			args:  []string{"--mapping=istio=istio-private", "--rerun-orgs=istio-private,istio-secret"},
+			equal: true,
+		},
+		{
+			name:  "rerun-users",
+			args:  []string{"--mapping=istio=istio-private", "--rerun-users=clarketm,scoobydoo"},
+			equal: true,
+		},
 	}
 
 	for _, test := range tests {
@@ -81,6 +91,7 @@ func TestGenjobs(t *testing.T) {
 
 			outA := filepath.Join(tmpDir, "out.yaml")
 
+			os.Args = []string{"genjobs"}
 			pflag.CommandLine = pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
 			os.Args = append(os.Args, test.args...)
 			os.Args = append(os.Args, "--input="+in, "--output="+outA)

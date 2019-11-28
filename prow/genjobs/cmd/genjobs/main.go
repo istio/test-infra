@@ -57,6 +57,8 @@ type options struct {
 	output           string
 	branches         []string
 	presets          []string
+	rerunOrgs        []string
+	rerunUsers       []string
 	selector         map[string]string
 	labels           map[string]string
 	env              map[string]string
@@ -93,6 +95,8 @@ func (o *options) parseFlags() {
 	flag.StringVarP(&o.output, "output", "o", ".", "Output file or directory to write generated job(s).")
 	flag.StringSliceVar(&o.branches, "branches", []string{}, "Branch(es) to generate job(s) for.")
 	flag.StringSliceVarP(&o.presets, "presets", "p", []string{}, "Path to file(s) containing additional presets.")
+	flag.StringSliceVar(&o.rerunOrgs, "rerun-orgs", []string{}, "GitHub organizations to authorize job rerun for.")
+	flag.StringSliceVar(&o.rerunUsers, "rerun-users", []string{}, "GitHub user to authorize job rerun for.")
 	flag.StringToStringVar(&o.selector, "selector", map[string]string{}, "Node selector(s) to constrain job(s).")
 	flag.StringToStringVarP(&o.labels, "labels", "l", map[string]string{}, "Prow labels to apply to the job(s).")
 	flag.StringToStringVarP(&o.env, "env", "e", map[string]string{}, "Environment variables to set for the job(s).")
@@ -359,6 +363,19 @@ func updateReporterConfig(o options, job *config.JobBase) {
 	job.ReporterConfig.Slack = &prowjob.SlackReporterConfig{Channel: o.channel}
 }
 
+// updateRerunAuthConfig updates the jobs RerunAuthConfig fields based on provided inputs.
+func updateRerunAuthConfig(o options, job *config.JobBase) {
+	if len(o.rerunOrgs) == 0 && len(o.rerunUsers) == 0 {
+		return
+	}
+
+	// The original job `RerunAuthConfig` is overwritten with the user-defined values.
+	job.RerunAuthConfig = &prowjob.RerunAuthConfig{
+		GitHubOrgs:  o.rerunOrgs,
+		GitHubUsers: o.rerunUsers,
+	}
+}
+
 // updateLabels updates the jobs Labels fields based on provided inputs.
 func updateLabels(o options, job *config.JobBase) {
 	if len(o.labels) == 0 {
@@ -427,6 +444,7 @@ func updateJobBase(o options, job *config.JobBase, orgrepo string) {
 
 	updateJobName(o, job)
 	updateReporterConfig(o, job)
+	updateRerunAuthConfig(o, job)
 	updateLabels(o, job)
 	updateNodeSelector(o, job)
 	updateEnvs(o, job)

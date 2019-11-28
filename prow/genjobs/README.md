@@ -41,6 +41,8 @@ The following is a list of supported options for `genjobs`. The only **required*
   -p, --presets strings           Path to file(s) containing additional presets.
   -b, --repo-blacklist strings    Repositories to blacklist in generation process.
   -w, --repo-whitelist strings    Repositories to whitelist in generation process.
+      --rerun-orgs strings        GitHub organizations to authorize job rerun for.
+      --rerun-users strings       GitHub user to authorize job rerun for.
       --resolve                   Resolve and expand values for presets in generated job(s).
       --selector stringToString   Node selector(s) to constrain job(s). (default [])
       --ssh-clone                 Enable a clone of the git repository over ssh.
