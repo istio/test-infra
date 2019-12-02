@@ -47,6 +47,7 @@ go run ./genjobs \
 go run ./genjobs \
   "${COMMON_OPTS[@]}" \
   --branches=release-1.4,master \
+  --labels preset-override-envoy=true \
   --job-type presubmit,postsubmit \
   --repo-whitelist istio \
   --job-blacklist release_istio_postsubmit,release_istio_release-1.4_postsubmit
