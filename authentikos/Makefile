@@ -21,8 +21,9 @@ deploy: image push
 
 .PHONY: image
 image:
-	docker build -t "$(HUB)/$(PROJECT)/authentikos:$(VERSION)" .
+	docker build -t "$(HUB)/$(PROJECT)/authentikos:$(VERSION)" -t "$(HUB)/$(PROJECT)/authentikos:latest" .
 
 .PHONY: push
 push:
 	docker push "$(HUB)/$(PROJECT)/authentikos:$(VERSION)"
+	docker push "$(HUB)/$(PROJECT)/authentikos:latest"
