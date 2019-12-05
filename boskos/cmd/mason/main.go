@@ -59,7 +59,10 @@ func main() {
 		}
 	}
 
-	client := client.NewClient(defaultOwner, *boskosURL)
+	client, err := client.NewClient(defaultOwner, *boskosURL, "", "")
+	if err != nil {
+		logrus.WithError(err).Fatal("unable to create boskos client")
+	}
 	gcpClient, err := gcp.NewClient(*serviceAccount)
 	if err != nil {
 		logrus.WithError(err).Fatal("unable to create gcp client")
