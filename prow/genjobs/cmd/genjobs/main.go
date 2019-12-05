@@ -393,11 +393,15 @@ func updateLabels(o options, job *config.JobBase) {
 
 // updateNodeSelector updates the jobs NodeSelector fields based on provided inputs.
 func updateNodeSelector(o options, job *config.JobBase) {
+	if o.overrideSelector {
+		job.Spec.NodeSelector = make(map[string]string)
+	}
+
 	if len(o.selector) == 0 {
 		return
 	}
 
-	if o.overrideSelector || job.Spec.NodeSelector == nil {
+	if job.Spec.NodeSelector == nil {
 		job.Spec.NodeSelector = make(map[string]string)
 	}
 
