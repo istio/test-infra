@@ -46,7 +46,16 @@ func SplitOrgRepo(s string) (string, string) {
 
 // RemoveHost removes a host prefix from a string.
 func RemoveHost(s string) string {
-	return regexp.MustCompile("^http(?:s)?://.+/?$").ReplaceAllString(s, "")
+	return regexp.MustCompile("^https?://.*?(?:/(.*)|$)").ReplaceAllString(s, "$1")
+}
+
+// NormalizeOrg removes a host prefix from a string.
+func NormalizeOrg(s, sep string) string {
+	s = RemoveHost(s)
+	s = strings.TrimSpace(s)
+	s = strings.Trim(s, "/")
+	s = strings.ReplaceAll(s, "/", sep)
+	return s
 }
 
 // SortedKeys returns a sorted list of keys for a given map.
