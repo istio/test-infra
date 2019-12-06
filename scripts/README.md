@@ -37,5 +37,5 @@ Example based on current clusters (cluster name, zone etc.):
 - Cleanup Prow cluster:
 
     ```bash
-    $ scripts/cleanup-cache -c prow -z us-west1-a -s cloud.google.com/gke-nodepool=build-pool
+    $ scripts/cleanup-cache -c prow -z us-west1-a -s cloud.google.com/gke-nodepool=test-pool
     ```
