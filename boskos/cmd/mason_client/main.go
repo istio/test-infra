@@ -138,7 +138,11 @@ func main() {
 		flag.Usage()
 		return
 	}
-	client := masonClient{mason: mason.NewClient(client.NewClient(*owner, *boskosURL))}
+	c, err := client.NewClient(*owner, *boskosURL, "", "")
+	if err != nil {
+		logrus.WithError(err).Panicf("unable to create boskos client")
+	}
+	client := masonClient{mason: mason.NewClient(c)}
 	if *kubecfgPath == "" {
 		logrus.Panic("flag --type must be set")
 	}
