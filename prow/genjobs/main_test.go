@@ -71,6 +71,11 @@ func TestGenjobs(t *testing.T) {
 			args:  []string{"--mapping=istio=istio-private", "--rerun-users=clarketm,scoobydoo"},
 			equal: true,
 		},
+		{
+			name:  "override annotations",
+			args:  []string{"--mapping=istio=istio-private", "--annotations=testgrid-create-test-group=false"},
+			equal: true,
+		},
 	}
 
 	for _, test := range tests {
@@ -116,7 +121,7 @@ func TestGenjobs(t *testing.T) {
 
 			equal := bytes.Equal(expected, actual)
 			if equal != test.equal {
-				t.Errorf("Expected output to be: %t.", test.equal)
+				t.Errorf("Expected output to be: %t.\nAdd env variable VERBOSE=true for details", test.equal)
 			}
 		})
 	}

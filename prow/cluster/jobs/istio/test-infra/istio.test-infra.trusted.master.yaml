@@ -94,14 +94,15 @@ postsubmits:
       - name: docker-root
         emptyDir: {}
 
-  - name: post-test-infra-upload-testgrid-config
+  - name: post-istio-test-infra-upload-testgrid-config
     cluster: test-infra-trusted
     run_if_changed: '^(prow/cluster/jobs/.*\.yaml)|(testgrid/default\.yaml)$'
     decorate: true
     branches:
     - master
     annotations:
-      testgrid-create-test-group: "false"
+      testgrid-dashboards: istio_test-infra_postsubmit
+      testgrid-alert-email: slchase@google.com
     spec:
       containers:
       - image: gcr.io/k8s-prow/transfigure

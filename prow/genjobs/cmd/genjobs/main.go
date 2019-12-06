@@ -48,6 +48,7 @@ const (
 
 // options are the available command-line flags.
 type options struct {
+	annotations      map[string]string
 	bucket           string
 	cluster          string
 	channel          string
@@ -101,6 +102,7 @@ func (o *options) parseFlags() {
 	flag.StringToStringVarP(&o.labels, "labels", "l", map[string]string{}, "Prow labels to apply to the job(s).")
 	flag.StringToStringVarP(&o.env, "env", "e", map[string]string{}, "Environment variables to set for the job(s).")
 	flag.StringToStringVarP(&o.orgMap, "mapping", "m", map[string]string{}, "Mapping between public and private Github organization(s).")
+	flag.StringToStringVarP(&o.annotations, "annotations", "a", map[string]string{}, "Annotations to apply to the job(s)")
 	flag.StringSliceVar(&_jobWhitelist, "job-whitelist", []string{}, "Job(s) to whitelist in generation process.")
 	flag.StringSliceVar(&_jobBlacklist, "job-blacklist", []string{}, "Job(s) to blacklist in generation process.")
 	flag.StringSliceVarP(&_repoWhitelist, "repo-whitelist", "w", []string{}, "Repositories to whitelist in generation process.")
@@ -436,7 +438,7 @@ func updateEnvs(o options, job *config.JobBase) {
 
 // updateJobBase updates the jobs JobBase fields based on provided inputs to work with private repositories.
 func updateJobBase(o options, job *config.JobBase, orgrepo string) {
-	job.Annotations = nil
+	job.Annotations = o.annotations
 
 	if o.sshClone && orgrepo != "" {
 		job.CloneURI = fmt.Sprintf("git@%s:%s.git", gitHost, orgrepo)
