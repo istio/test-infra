@@ -28,6 +28,7 @@ COMMON_OPTS=(
   "--ssh-key-secret=ssh-key-secret"
   "--cluster=private"
   "--modifier=priv"
+  "--annotations=testgrid-create-test-group=false"
 )
 
 # Clean ./prow/cluster/jobs/istio-private directory
