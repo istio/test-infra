@@ -121,7 +121,7 @@ go run ./genjobs \
 go run ./genjobs \
   "${COMMON_OPTS[@]}" \
   --branches=release-1.4,master \
-  --labels preset-override-envoy=true,preset-override-deps=release-1.4 \
+  --labels preset-enable-ssh=true,preset-override-envoy=true,preset-override-deps=release-1.4 \
   --env PRERELEASE_DOCKER_HUB=gcr.io/istio-prow-build,GCS_BUCKET=istio-private-prerelease/prerelease \
   --job-type postsubmit \
   --repo-whitelist release-builder \
