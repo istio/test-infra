@@ -109,7 +109,7 @@ func (o *options) parseFlags() {
 	flag.StringSliceVarP(&_repoBlacklist, "repo-blacklist", "b", []string{}, "Repositories to blacklist in generation process.")
 	flag.StringSliceVarP(&_jobType, "job-type", "t", []string{"presubmit", "postsubmit", "periodic"},
 		"Job type(s) to process (e.g. presubmit, postsubmit. periodic).")
-	flag.BoolVar(&o.clean, "clean", false, "Clean output directory before job(s) generation.")
+	flag.BoolVar(&o.clean, "clean", false, "Clean output files before job(s) generation.")
 	flag.BoolVar(&o.dryRun, "dry-run", false, "Run in dry run mode.")
 	flag.BoolVar(&o.extraRefs, "extra-refs", false, "Apply translation to all extra refs regardless of repo.")
 	flag.BoolVar(&o.resolve, "resolve", false, "Resolve and expand values for presets in generated job(s).")
@@ -492,13 +492,15 @@ func getOutPath(o options, p string, in string) string {
 		repo = segments[len(segments)-2]
 		file = segments[len(segments)-1]
 		if newOrg, ok := o.orgMap[org]; ok {
-			return filepath.Join(o.output, util.GetTopLevelOrg(newOrg), repo, util.RenameFile(`^`+util.RemoveHost(org)+`\b`, file, util.RemoveHost(newOrg)))
+			filename := util.RenameFile(`^`+util.NormalizeOrg(org, filenameSeparator)+`\b`, file, util.NormalizeOrg(newOrg, filenameSeparator))
+			return filepath.Join(o.output, util.GetTopLevelOrg(newOrg), repo, filename)
 		}
 	case len(segments) == 2:
 		org = segments[len(segments)-2]
 		file = segments[len(segments)-1]
 		if newOrg, ok := o.orgMap[org]; ok {
-			return filepath.Join(o.output, util.GetTopLevelOrg(newOrg), util.RenameFile(`^`+util.RemoveHost(org)+`\b`, file, util.RemoveHost(newOrg)))
+			filename := util.RenameFile(`^`+util.NormalizeOrg(org, filenameSeparator)+`\b`, file, util.NormalizeOrg(newOrg, filenameSeparator))
+			return filepath.Join(o.output, util.GetTopLevelOrg(newOrg), filename)
 		}
 	case len(segments) == 1:
 		file = segments[len(segments)-1]
@@ -519,14 +521,6 @@ func getOutPath(o options, p string, in string) string {
 func cleanOutFile(p string) {
 	if err := os.RemoveAll(p); err != nil {
 		util.PrintErr(fmt.Sprintf("unable to clean file %v: %v.", p, err))
-	}
-}
-
-// cleanOutDir deletes all org-mapped paths and any children.
-func cleanOutDir(o options, p string) {
-	for _, org := range o.orgMap {
-		p = filepath.Join(p, util.GetTopLevelOrg(org))
-		cleanOutFile(p)
 	}
 }
 
@@ -633,10 +627,6 @@ func Main() {
 
 	if err := o.validateFlags(); err != nil {
 		util.PrintErrAndExit(err)
-	}
-
-	if o.clean {
-		cleanOutDir(o, o.output)
 	}
 
 	presets := combinePresets(o.presets)
