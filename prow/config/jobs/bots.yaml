@@ -14,3 +14,50 @@ jobs:
 
   - name: gencheck
     command: [make, gen-check]
+
+  - name: deploy-policybot
+    regex: '^policybot/'
+    type: postsubmit
+    command:
+    - entrypoint
+    - make
+    - -C
+    - policybot
+    - deploy
+    requirements: [docker, gcp]
+    env:
+    - name: GITHUB_WEBHOOK_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: policybot
+          key: githubWebhookSecret
+    - name: GITHUB_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: policybot
+          key: githubToken
+    - name: ZENHUB_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: policybot
+          key: zenhubToken
+    - name: GCP_CREDS
+      valueFrom:
+        secretKeyRef:
+          name: policybot
+          key: gcpCreds
+    - name: SENDGRID_APIKEY
+      valueFrom:
+        secretKeyRef:
+          name: policybot
+          key: sendgridApikey
+    - name: GITHUB_OAUTH_CLIENT_ID
+      valueFrom:
+        secretKeyRef:
+          name: policybot
+          key: githubOauthClientId
+    - name: GITHUB_OAUTH_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: policybot
+          key: githubOauthClientSecret

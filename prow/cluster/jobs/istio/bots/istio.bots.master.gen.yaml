@@ -109,6 +109,81 @@ postsubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_bots_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    name: deploy-policybot_bots_postsubmit
+    path_alias: istio.io/bots
+    run_if_changed: ^policybot/
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - -C
+        - policybot
+        - deploy
+        env:
+        - name: GITHUB_WEBHOOK_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: githubWebhookSecret
+              name: policybot
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: githubToken
+              name: policybot
+        - name: ZENHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: zenhubToken
+              name: policybot
+        - name: GCP_CREDS
+          valueFrom:
+            secretKeyRef:
+              key: gcpCreds
+              name: policybot
+        - name: SENDGRID_APIKEY
+          valueFrom:
+            secretKeyRef:
+              key: sendgridApikey
+              name: policybot
+        - name: GITHUB_OAUTH_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              key: githubOauthClientId
+              name: policybot
+        - name: GITHUB_OAUTH_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: githubOauthClientSecret
+              name: policybot
+        image: gcr.io/istio-testing/build-tools:master-2019-12-03T17-07-58
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - emptyDir: {}
+        name: docker-root
 presubmits:
   istio/bots:
   - always_run: true

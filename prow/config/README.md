@@ -40,6 +40,7 @@ jobs:
     # - root, which will give the test a privileged container. Note: currently this is the default but will change in the future
     # - gcp, which will give the test access to GCP secrets. This is needed for pushing to GCR or using Boskos
     # - kind, which will configure the test to allow kind (https://kind.sigs.k8s.io) to run
+    # - docker, which will configure the test to have access to the docker daemon.
     requirements: [gcp]
   - name: hello-world
     command: [echo, "hello world"]
