@@ -29,7 +29,7 @@ istio_rel_pipeline_container: &istio_rel_pipeline_container
       cpu: "7000m"
 
 istio_container_with_kind: &istio_container_with_kind
-  image: gcr.io/istio-testing/build-tools:master-2019-12-04T21-25-52
+  image: gcr.io/istio-testing/build-tools:master-2019-12-10T17-49-16
   securityContext:
     privileged: true
   resources:
@@ -71,7 +71,7 @@ periodics:
     <<: *istio_rel_pipeline_spec
     containers:
     - <<: *istio_rel_pipeline_container
-      image: gcr.io/istio-testing/build-tools:master-2019-12-04T21-25-52
+      image: gcr.io/istio-testing/build-tools:master-2019-12-10T17-49-16
       env:
       - name: GIT_BRANCH
         value: master
@@ -99,7 +99,7 @@ periodics:
     <<: *istio_rel_pipeline_spec
     containers:
     - <<: *istio_rel_pipeline_container
-      image: gcr.io/istio-testing/build-tools:master-2019-12-04T21-25-52
+      image: gcr.io/istio-testing/build-tools:master-2019-12-10T17-49-16
       env:
       - name: GIT_BRANCH
         value: release-1.2
@@ -127,7 +127,7 @@ periodics:
     <<: *istio_rel_pipeline_spec
     containers:
     - <<: *istio_rel_pipeline_container
-      image: gcr.io/istio-testing/build-tools:master-2019-12-04T21-25-52
+      image: gcr.io/istio-testing/build-tools:master-2019-12-10T17-49-16
       env:
       - name: GIT_BRANCH
         value: release-1.3
