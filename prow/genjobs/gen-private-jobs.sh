@@ -32,10 +32,10 @@ COMMON_OPTS=(
 )
 
 # Clean ./prow/cluster/jobs/istio-private directory
-go run ./genjobs --clean --mapping=istio=istio-private --output=./cluster/jobs/ --dry-run >/dev/null
+go run . --clean --mapping=istio=istio-private --output=./cluster/jobs/ --dry-run >/dev/null
 
 # istio/istio build job(s) - postsubmit(s)
-go run ./genjobs \
+go run . \
   "${COMMON_OPTS[@]}" \
   --branches=release-1.4,master \
   --env DOCKER_HUB=gcr.io/istio-prow-build,GCS_BUCKET=istio-private-build/dev \
@@ -45,7 +45,7 @@ go run ./genjobs \
   --job-whitelist release_istio_postsubmit,release_istio_release-1.4_postsubmit
 
 # istio/istio test jobs(s) - presubmit(s) and postsubmit(s)
-go run ./genjobs \
+go run . \
   "${COMMON_OPTS[@]}" \
   --branches=release-1.4,master \
   --labels preset-override-envoy=true \
@@ -54,7 +54,7 @@ go run ./genjobs \
   --job-blacklist release_istio_postsubmit,release_istio_release-1.4_postsubmit
 
 # istio/proxy master test jobs(s) - presubmit(s)
-go run ./genjobs \
+go run . \
   "${COMMON_OPTS[@]}" \
   --branches master \
   --modifier=master_priv \
@@ -64,7 +64,7 @@ go run ./genjobs \
   --repo-whitelist proxy
 
 # istio/proxy master build jobs(s) - postsubmit(s)
-go run ./genjobs \
+go run . \
   "${COMMON_OPTS[@]}" \
   --branches master \
   --modifier master_priv \
@@ -74,7 +74,7 @@ go run ./genjobs \
   --repo-whitelist proxy
 
 # istio/proxy release-1.4 test jobs(s) - presubmit(s)
-go run ./genjobs \
+go run . \
   "${COMMON_OPTS[@]}" \
   --branches release-1.4 \
   --modifier release-1.4_priv \
@@ -84,7 +84,7 @@ go run ./genjobs \
   --repo-whitelist proxy
 
 # istio/proxy release-1.4 build jobs(s) - postsubmit(s)
-go run ./genjobs \
+go run . \
   "${COMMON_OPTS[@]}" \
   --branches release-1.4 \
   --modifier=release-1.4_priv \
@@ -94,7 +94,7 @@ go run ./genjobs \
   --repo-whitelist proxy
 
 # istio/release-builder master test jobs(s) - pre/postsubmit(s)
-go run ./genjobs \
+go run . \
   "${COMMON_OPTS[@]}" \
   --branches=master \
   --job-type presubmit,postsubmit \
@@ -102,7 +102,7 @@ go run ./genjobs \
   --job-whitelist lint_release-builder,lint_release-builder_postsubmit,test_release-builder,test_release-builder_postsubmit,gencheck_release-builder,gencheck_release-builder_postsubmit
 
 # istio/release-builder release-1.4 test jobs(s) - pre/postsubmit(s)
-go run ./genjobs \
+go run . \
   "${COMMON_OPTS[@]}" \
   --branches=release-1.4 \
   --job-type presubmit,postsubmit \
@@ -110,7 +110,7 @@ go run ./genjobs \
   --job-whitelist lint_release-builder_release-1.4,lint_release-builder_release-1.4_postsubmit,test_release-builder_release-1.4,test_release-builder_release-1.4_postsubmit,gencheck_release-builder_release-1.4,gencheck_release-builder_release-1.4_postsubmit
 
 # istio/release-builder build warning jobs(s) - presubmit(s)
-go run ./genjobs \
+go run . \
   "${COMMON_OPTS[@]}" \
   --branches=release-1.4,master \
   --env PRERELEASE_DOCKER_HUB=gcr.io/istio-prow-build,GCS_BUCKET=istio-private-prerelease/prerelease \
@@ -119,7 +119,7 @@ go run ./genjobs \
   --job-whitelist build-warning_release-builder,build-warning_release-builder_release-1.4
 
 # istio/release-builder build jobs(s) - postsubmit(s)
-go run ./genjobs \
+go run . \
   "${COMMON_OPTS[@]}" \
   --branches=release-1.4,master \
   --labels preset-enable-ssh=true,preset-override-envoy=true,preset-override-deps=release-1.4 \
