@@ -91,6 +91,8 @@ type Job struct {
 	Repos          []string          `json:"repos,omitempty"`
 	Image          string            `json:"image,omitempty"`
 	Regex          string            `json:"regex,omitempty"`
+	Cluster        string            `json:"cluster,omitempty"`
+	MaxConcurrency int               `json:"max_concurrency,omitempty"`
 }
 
 // Reads the job yaml
@@ -413,7 +415,8 @@ func createContainer(jobConfig JobConfig, job Job, resources map[string]v1.Resou
 
 func createJobBase(jobConfig JobConfig, job Job, name string, repo string, branch string, resources map[string]v1.ResourceRequirements) config.JobBase {
 	jb := config.JobBase{
-		Name: name,
+		Name:           name,
+		MaxConcurrency: job.MaxConcurrency,
 		Spec: &v1.PodSpec{
 			NodeSelector: map[string]string{"testing": "test-pool"},
 			Containers:   createContainer(jobConfig, job, resources),
@@ -433,6 +436,9 @@ func createJobBase(jobConfig JobConfig, job Job, name string, repo string, branc
 		jb.DecorationConfig = &prowjob.DecorationConfig{
 			Timeout: job.Timeout,
 		}
+	}
+	if job.Cluster != "" && job.Cluster != "default" {
+		jb.Cluster = job.Cluster
 	}
 	return jb
 }

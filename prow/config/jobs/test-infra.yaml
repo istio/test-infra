@@ -11,3 +11,31 @@ jobs:
 
   - name: gencheck
     command: [make, gen-check]
+
+  - name: push-authentikos
+    type: postsubmit
+    regex: '^authentikos/Makefile$'
+    cluster: test-infra-trusted
+    max_concurrency: 1
+    command:
+    - entrypoint
+    - make
+    - -C
+    - authentios
+    - deploy
+    requirements:
+    - docker
+
+  - name: push-genjobs
+    type: postsubmit
+    regex: '^prow/genjobs/Makefile$'
+    cluster: test-infra-trusted
+    max_concurrency: 1
+    command:
+    - entrypoint
+    - make
+    - -C
+    - prow/genjobs
+    - deploy
+    requirements:
+    - docker

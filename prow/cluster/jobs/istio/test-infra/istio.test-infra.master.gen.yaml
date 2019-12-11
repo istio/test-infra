@@ -82,6 +82,84 @@ postsubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_test-infra_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    cluster: test-infra-trusted
+    decorate: true
+    max_concurrency: 1
+    name: push-authentikos_test-infra_postsubmit
+    path_alias: istio.io/test-infra
+    run_if_changed: ^authentikos/Makefile$
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - -C
+        - authentios
+        - deploy
+        image: gcr.io/istio-testing/build-tools:master-2019-12-03T17-07-58
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_test-infra_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    cluster: test-infra-trusted
+    decorate: true
+    max_concurrency: 1
+    name: push-genjobs_test-infra_postsubmit
+    path_alias: istio.io/test-infra
+    run_if_changed: ^prow/genjobs/Makefile$
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - -C
+        - prow/genjobs
+        - deploy
+        image: gcr.io/istio-testing/build-tools:master-2019-12-03T17-07-58
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - emptyDir: {}
+        name: docker-root
 presubmits:
   istio/test-infra:
   - always_run: true

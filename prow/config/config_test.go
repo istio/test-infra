@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"strings"
 	"testing"
 
 	"k8s.io/apimachinery/pkg/util/sets"
@@ -334,7 +335,7 @@ func TestConfig(t *testing.T) {
 
 func TestTrustedJobs(t *testing.T) {
 	const trusted = "test-infra-trusted"
-	trustedPath := path.Join(*jobConfigPath, "istio", "test-infra", "istio.test-infra.trusted.master.yaml")
+	trustedPath := path.Join(*jobConfigPath, "istio", "test-infra")
 
 	// Presubmits may not use trusted clusters.
 	for _, pre := range c.AllStaticPresubmits(nil) {
@@ -348,7 +349,7 @@ func TestTrustedJobs(t *testing.T) {
 		if post.Cluster != trusted {
 			continue
 		}
-		if post.SourcePath != trustedPath {
+		if !strings.HasPrefix(post.SourcePath, trustedPath) {
 			t.Errorf("%s defined in %s may not run in trusted cluster", post.Name, post.SourcePath)
 		}
 	}
@@ -358,7 +359,7 @@ func TestTrustedJobs(t *testing.T) {
 		if per.Cluster != trusted {
 			continue
 		}
-		if per.SourcePath != trustedPath {
+		if !strings.HasPrefix(per.SourcePath, trustedPath) {
 			t.Errorf("%s defined in %s may not run in trusted cluster", per.Name, per.SourcePath)
 		}
 	}
