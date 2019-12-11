@@ -76,6 +76,16 @@ func TestGenjobs(t *testing.T) {
 			args:  []string{"--mapping=istio=istio-private", "--annotations=testgrid-create-test-group=false"},
 			equal: true,
 		},
+		{
+			name:  "sort ascending",
+			args:  []string{"--mapping=istio=istio-private", "--sort=asc"},
+			equal: true,
+		},
+		{
+			name:  "sort descending",
+			args:  []string{"--mapping=istio=istio-private", "--sort=desc"},
+			equal: true,
+		},
 	}
 
 	for _, test := range tests {
