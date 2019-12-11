@@ -36,6 +36,5 @@ endif
 configure-docker: activate-serviceaccount
 	gcloud auth configure-docker
 
-.PHONY: get-cluster-credentials
-get-cluster-credentials: save-kubeconfig activate-serviceaccount
+get-%-credentials: save-kubeconfig activate-serviceaccount
 	gcloud container clusters get-credentials "$(CLUSTER)" --project="$(PROJECT)" --zone="$(ZONE)"
