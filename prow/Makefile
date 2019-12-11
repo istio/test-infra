@@ -35,12 +35,12 @@ deploy: get-cluster-credentials
 
 deploy-build: PROJECT=$(PROJECT_BUILD)
 deploy-build: CLUSTER=$(CLUSTER_BUILD)
-deploy-build: get-cluster-credentials
+deploy-build: get-build-cluster-credentials
 	kubectl apply -f ./cluster/build/
 
 deploy-private: PROJECT=$(PROJECT_PRIVATE)
 deploy-private: CLUSTER=$(CLUSTER_PRIVATE)
-deploy-private: get-cluster-credentials
+deploy-private: get-private-cluster-credentials
 	kubectl apply -f ./cluster/private/
 
 .PHONY: gen-private-jobs deploy deploy-build deploy-private update-config update-config-dry-run
