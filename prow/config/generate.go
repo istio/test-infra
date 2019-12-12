@@ -63,6 +63,7 @@ const (
 	RequirementRoot    = "root"
 	RequirementKind    = "kind"
 	RequirementDocker  = "docker"
+	RequirementGitHub  = "github"
 	RequirementRelease = "release"
 	RequirementGCP     = "gcp"
 )
@@ -156,7 +157,10 @@ func ValidateJobConfig(jobConfig JobConfig) {
 			}
 		}
 		for _, req := range job.Requirements {
-			if e := validate(req, []string{RequirementKind, RequirementDocker, RequirementRelease, RequirementRoot, RequirementGCP}, "requirements"); e != nil {
+			if e := validate(
+				req,
+				[]string{RequirementKind, RequirementDocker, RequirementGitHub, RequirementRelease, RequirementRoot, RequirementGCP},
+				"requirements"); e != nil {
 				err = multierror.Append(err, e)
 			}
 		}
@@ -531,6 +535,24 @@ func applyRequirements(job *config.JobBase, requirements []string) {
 				v1.VolumeMount{
 					MountPath: "/var/lib/docker",
 					Name:      "docker-root",
+				},
+			)
+		case RequirementGitHub:
+			job.Spec.Volumes = append(job.Spec.Volumes,
+				v1.Volume{
+					Name: "github",
+					VolumeSource: v1.VolumeSource{
+						Secret: &v1.SecretVolumeSource{
+							SecretName: "oauth-token",
+						},
+					},
+				},
+			)
+			job.Spec.Containers[0].VolumeMounts = append(job.Spec.Containers[0].VolumeMounts,
+				v1.VolumeMount{
+					Name:      "github",
+					MountPath: "/etc/github-token",
+					ReadOnly:  true,
 				},
 			)
 		}
