@@ -26,9 +26,10 @@
 
 from __future__ import print_function
 
-from argparse import ArgumentParser
 import os
 import sys
+
+import argparse
 import subprocess
 
 
@@ -37,8 +38,8 @@ def recreate_prow_config(wet, configmap_name, path):
     cmd = (
         'kubectl create configmap %s'
         ' --from-file=config.yaml=%s'
-        ' --dry-run -o yaml | kubectl replace configmap config -f -'
-    ) % (configmap_name, path)
+        ' --dry-run -o yaml | kubectl replace configmap %s -f -'
+    ) % (configmap_name, path, configmap_name)
     real_cmd = ['/bin/sh', '-c', cmd]
     print(real_cmd)
     if wet:
@@ -50,8 +51,8 @@ def recreate_plugins_config(wet, configmap_name, path):
     cmd = (
         'kubectl create configmap %s'
         ' --from-file=plugins.yaml=%s'
-        ' --dry-run -o yaml | kubectl replace configmap config -f -'
-    ) % (configmap_name, path)
+        ' --dry-run -o yaml | kubectl replace configmap %s -f -'
+    ) % (configmap_name, path, configmap_name)
     real_cmd = ['/bin/sh', '-c', cmd]
     print(real_cmd)
     if wet:
@@ -61,40 +62,52 @@ def recreate_plugins_config(wet, configmap_name, path):
 def recreate_job_config(wet, job_configmap, job_config_dir):
     print('recreating jobs config:')
     # delete configmap (apply has size limit)
-    cmd = ["kubectl", "delete", "configmap", job_configmap]
+    cmd = ["kubectl", "delete", "--ignore-not-found", "configmap", job_configmap]
     print(cmd)
     if wet:
         subprocess.check_call(cmd)
 
     # regenerate
+    paths = []
     cmd = ["kubectl", "create", "configmap", job_configmap]
     for root, _, files in os.walk(job_config_dir):
         for name in files:
             if name.endswith(".yaml"):
-                cmd.append("--from-file=%s=%s" % (name, os.path.join(root, name)))
+                path = os.path.join(root, name)
+                real_cmd = ['/bin/sh', '-c', 'gzip -k ' + path]
+                print(real_cmd)
+                if wet:
+                    subprocess.check_call(real_cmd)
+                paths.append(path)
+                cmd.append("--from-file=%s=%s" % (name, path + '.gz'))
     print(cmd)
     if wet:
         subprocess.check_call(cmd)
+    for path in paths:
+        real_cmd = ['/bin/sh', '-c', 'rm ' + path + '.gz']
+        print(real_cmd)
+        if wet:
+            subprocess.check_call(real_cmd)
 
 
 def main():
-    parser = ArgumentParser()
+    parser = argparse.ArgumentParser()
     # jobs config
     parser.add_argument("--job-configmap", default="job-config", help="name of prow jobs configmap")
     parser.add_argument(
-        "--job-config-dir", default="config/jobs",
+        "--job-config-dir", default="cluster/config",
         help="root dir of prow jobs configmap")
     # prow config
     parser.add_argument("--prow-configmap", default="config",
                         help="name of prow primary configmap")
     parser.add_argument(
-        "--prow-config-path", default="prow/config.yaml",
+        "--prow-config-path", default="config.yaml",
         help="path to the primary prow config")
     # plugins config
     parser.add_argument("--plugins-configmap", default="plugins",
                         help="name of prow plugins configmap")
     parser.add_argument(
-        "--plugins-config-path", default="prow/plugins.yaml",
+        "--plugins-config-path", default="plugins.yaml",
         help="path to the prow plugins config")
     # wet or dry?
     parser.add_argument("--wet", action="store_true")
