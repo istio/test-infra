@@ -75,6 +75,7 @@ plugins:
   - lifecycle
   - skip
   - slackevents
+  - welcome
 
   istio-releases/pipeline:
   - lifecycle
@@ -99,8 +100,8 @@ external_plugins:
     - pull_request
   - name: cherrypicker
     events:
-      - issue_comment
-      - pull_request
+    - issue_comment
+    - pull_request
   istio-releases/pipeline:
   - name: needs-rebase
     events:
@@ -109,3 +110,15 @@ external_plugins:
   - name: needs-rebase
     events:
     - pull_request
+
+welcome:
+- repos:
+  - istio/test-infra
+  message_template: |
+    😊 Welcome @{{.AuthorLogin}}! This is either your first contribution to the Istio, or
+    it's been awhile since you've been here.
+
+    You can learn more about the Istio working groups, code of conduct, and contributing guidelines
+    by referring to [Contributing to Istio](https://github.com/istio/community/blob/master/CONTRIBUTING.md).
+
+    Thanks for contributing!
