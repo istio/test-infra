@@ -8,14 +8,14 @@
 
 Install using Golang:
 
-```console
-$ GO111MODULE="on" go get -u istio.io/test-infra/authentikos
+```shell
+GO111MODULE="on" go get -u istio.io/test-infra/authentikos
 ```
 
 Install using Docker:
 
-```console
-$ docker pull gcr.io/istio-testing/authentikos:latest
+```shell
+docker pull gcr.io/istio-testing/authentikos:latest
 ```
 
 ## Usage
@@ -23,14 +23,14 @@ $ docker pull gcr.io/istio-testing/authentikos:latest
 Run using Golang:
 > Ensure `$GOPATH/bin` is on your `$PATH`; or execute `$GOPATH/bin/authentikos` directly.
 
-```console
-$ authentikos <options>
+```shell
+authentikos <options>
 ```
 
 Run using Docker:
 
-```console
-$ docker run gcr.io/istio-testing/authentikos:latest <options>
+```shell
+docker run gcr.io/istio-testing/authentikos:latest <options>
 ```
 
 The following is a list of supported options for `authentikos`:

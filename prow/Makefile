@@ -14,9 +14,6 @@ CLUSTER_BUILD ?= prow
 CLUSTER_PRIVATE ?= prow-private
 ZONE    ?= us-west1-a
 
-gen-private-jobs:
-	@./genjobs/gen-private-jobs.sh
-
 update-config-dry-run: get-cluster-credentials
 	./recreate_prow_configmaps.py \
 		--job-config-dir=cluster/jobs \

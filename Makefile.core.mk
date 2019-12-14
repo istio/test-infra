@@ -34,7 +34,7 @@ testgrid:
 generate-config:
 	@rm -fr prow/cluster/jobs/istio/*/*.gen.yaml
 	@(cd prow/config/cmd; GOARCH=amd64 GOOS=linux go run generate.go write)
-	@$(MAKE) -C prow gen-private-jobs
+	@$(MAKE) -C prow/genjobs gen-private-jobs
 
 diff-config:
 	@(cd prow/config/cmd; GOARCH=amd64 GOOS=linux go run generate.go diff)
