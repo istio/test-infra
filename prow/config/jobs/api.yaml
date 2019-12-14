@@ -1,7 +1,7 @@
 org: istio
 repo: api
 support_release_branching: true
-image: gcr.io/istio-testing/build-tools:master-2019-12-05T22-22-12
+image: gcr.io/istio-testing/build-tools:master-2019-12-09T23-37-05
 
 jobs:
   - name: build
@@ -9,3 +9,25 @@ jobs:
 
   - name: gencheck
     command: [make, gen-check]
+
+  - name: gen_client-go
+    type: postsubmit
+    command:
+    - ../test-infra/tools/automator/automator.sh
+    - --org=istio
+    - --repo=client-go
+    - --token-path=/etc/github-token/oauth
+    - --cmd=go get istio.io/api@$AUTOMATOR_BRANCH && go mod tidy && make gen
+    requirements: [github]
+    repos: [istio/test-infra]
+
+  - name: gen_istio
+    type: postsubmit
+    command:
+    - ../test-infra/tools/automator/automator.sh
+    - --org=istio
+    - --repo=istio
+    - --token-path=/etc/github-token/oauth
+    - --cmd=go get istio.io/api@$AUTOMATOR_BRANCH && go mod tidy && make gen
+    requirements: [github]
+    repos: [istio/test-infra]
