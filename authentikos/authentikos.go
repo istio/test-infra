@@ -84,29 +84,45 @@ type tokenTemplate struct {
 	Token string
 }
 
-// tokenTemplate time addition function.
-func (tt *tokenTemplate) Add(a, b time.Duration) time.Duration {
+// tokenTemplate addition function.
+func (tt *tokenTemplate) Add(a, b int64) int64 {
 	return a + b
 }
 
-// tokenTemplate time subtraction function.
-func (tt *tokenTemplate) Subtract(a, b time.Duration) time.Duration {
+// tokenTemplate subtraction function.
+func (tt *tokenTemplate) Subtract(a, b int64) int64 {
 	return a - b
 }
 
-// tokenTemplate time multiplication function.
-func (tt *tokenTemplate) Multiply(a, b time.Duration) time.Duration {
+// tokenTemplate multiplication function.
+func (tt *tokenTemplate) Multiply(a, b int64) int64 {
 	return a * b
 }
 
-// tokenTemplate time division function.
-func (tt *tokenTemplate) Divide(a, b time.Duration) time.Duration {
+// tokenTemplate division function.
+func (tt *tokenTemplate) Divide(a, b int64) int64 {
 	return a / b
 }
 
 // tokenTemplate time now function.
 func (tt *tokenTemplate) Now() time.Time {
 	return time.Now()
+}
+
+// tokenTemplate time to unix function.
+func (tt *tokenTemplate) TimeToUnix(t time.Time) int64 {
+	return t.Unix()
+}
+
+// tokenTemplate unix to time function.
+func (tt *tokenTemplate) UnixToTime(t int64) time.Time {
+	return time.Unix(t, 0)
+}
+
+// tokenTemplate time parse function.
+func (tt *tokenTemplate) Parse(layout string, t string) time.Time {
+	r, _ := time.Parse(layout, t)
+	return r
 }
 
 // tokenTemplate time format function.
