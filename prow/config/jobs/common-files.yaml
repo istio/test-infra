@@ -1,7 +1,21 @@
 org: istio
 repo: common-files
 support_release_branching: true
+image: gcr.io/istio-testing/build-tools:master-2019-12-09T23-37-05
 
 jobs:
   - name: lint
     command: [make, lint]
+
+  - name: update-common
+    type: postsubmit
+    command:
+    - ../test-infra/tools/automator/automator.sh
+    - --org=istio
+    - --repo=istio,operator,istio.io,common-files,api,proxy,test-infra,tools,installer,bots,release-builder,pkg,cni,cri,community,client-go
+    - "--title=Automator: update common-files@$AUTOMATOR_BRANCH"
+    - --modifier=commonfiles
+    - --token-path=/etc/github-token/oauth
+    - --cmd=make update-common gen
+    requirements: [github]
+    repos: [istio/test-infra]
