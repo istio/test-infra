@@ -1,0 +1,49 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: gcsweb
+  namespace: gcs
+  labels:
+    app: gcsweb
+spec:
+  replicas: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: gcsweb
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: gcsweb
+        image: k8s.gcr.io/gcsweb-amd64:v1.0.6
+        args:
+        - -b=istio-prow
+        - -b=istio-build
+        - -b=istio-artifacts
+        - -b=istio-release
+        - -b=istio-prerelease
+        - -b=istio-release-pipeline-data
+        - -p=8080
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 0.1
+            memory: 128Mi
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 3
+          timeoutSeconds: 2
+          failureThreshold: 2

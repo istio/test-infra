@@ -12,6 +12,22 @@ jobs:
   - name: gencheck
     command: [make, gen-check]
 
+  - name: deploy-prow
+    type: postsubmit
+    regex: '^prow/cluster/(?:gcsweb/|build/|private/|[^/]+\.yaml$)'
+    cluster: test-infra-trusted
+    max_concurrency: 1
+    command:
+    - make
+    - -C
+    - prow
+    - deploy
+    - deploy-gcsweb
+    - deploy-build
+    - deploy-private
+    requirements:
+    - deploy
+
   - name: push-authentikos
     type: postsubmit
     regex: '^authentikos/Makefile$'
