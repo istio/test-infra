@@ -21,11 +21,6 @@ jobs:
     command: [entrypoint, prow/release-commit.sh]
     requirements: [gcp]
 
-  - name: integ-framework-local-tests
-    type: presubmit
-    command: [entrypoint, prow/integ-suite-local.sh, test.integration.framework.local.presubmit]
-    requirements: [docker]
-
   - name: integ-galley-local-tests
     type: presubmit
     command: [entrypoint, prow/integ-suite-local.sh, test.integration.galley.local.presubmit]
@@ -40,16 +35,6 @@ jobs:
     type: presubmit
     command: [entrypoint, prow/integ-suite-local.sh, test.integration.security.local.presubmit]
     requirements: [docker]
-
-  - name: integ-framework-k8s-tests
-    type: presubmit
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.framework.kube.presubmit]
-    requirements: [kind]
-
-  - name: integ-istioctl-k8s-tests
-    type: presubmit
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.istioctl.kube.presubmit]
-    requirements: [kind]
 
   - name: integ-galley-k8s-tests
     type: presubmit
@@ -181,11 +166,6 @@ jobs:
   - name: integ-framework-k8s-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.framework.kube]
-    requirements: [kind]
-
-  - name: integ-istioctl-k8s-tests
-    type: postsubmit
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.istioctl.kube]
     requirements: [kind]
 
   - name: integ-galley-k8s-tests
