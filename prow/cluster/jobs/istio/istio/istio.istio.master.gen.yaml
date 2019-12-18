@@ -1375,57 +1375,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-113_istio_postsubmit
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - --node-image
-        - kindest/node:v1.13.12
-        - test.integration.kube.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-12-15T16-17-48
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
     name: integ-k8s-114_istio_postsubmit
     path_alias: istio.io/istio
     spec:
@@ -1528,7 +1477,7 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-117_istio_postsubmit
+    name: integ-k8s-116_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -1536,7 +1485,7 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - kindest/node:v1.17.0
+        - kindest/node:v1.16.3
         - test.integration.kube.presubmit
         image: gcr.io/istio-testing/build-tools:master-2019-12-15T16-17-48
         name: ""
