@@ -30,6 +30,9 @@ update-config: get-cluster-credentials
 deploy: get-cluster-credentials
 	kubectl apply -f ./cluster/
 
+deploy-velodrome: get-cluster-credentials
+	kubectl apply -f ./cluster/velodrome/
+
 deploy-build: PROJECT=$(PROJECT_BUILD)
 deploy-build: CLUSTER=$(CLUSTER_BUILD)
 deploy-build: get-build-cluster-credentials
@@ -40,4 +43,4 @@ deploy-private: CLUSTER=$(CLUSTER_PRIVATE)
 deploy-private: get-private-cluster-credentials
 	kubectl apply -f ./cluster/private/
 
-.PHONY: gen-private-jobs deploy deploy-build deploy-private update-config update-config-dry-run
+.PHONY: gen-private-jobs deploy deploy-velodrome deploy-build deploy-private update-config update-config-dry-run
