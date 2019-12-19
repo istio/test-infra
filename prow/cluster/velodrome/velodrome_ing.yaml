@@ -1,0 +1,18 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: velodrome-ing
+  namespace: velodrome
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: velodrome
+    networking.gke.io/managed-certificates: velodrome-istio-io
+    kubernetes.io/ingress.class: "gce"
+spec:
+  rules:
+  - host: velodrome.istio.io
+    http:
+      paths:
+      - path: /*
+        backend:
+          serviceName: velodrome
+          servicePort: 80
