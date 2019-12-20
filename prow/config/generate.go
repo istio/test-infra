@@ -520,6 +520,7 @@ func applyRequirements(job *config.JobBase, requirements []string) {
 				v1.VolumeMount{
 					MountPath: "/sys/fs/cgroup",
 					Name:      "cgroup",
+					ReadOnly:  true,
 				},
 				v1.VolumeMount{
 					MountPath: "/var/lib/docker",
