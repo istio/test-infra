@@ -270,8 +270,9 @@ func (g *GithubClient) CreateComment(repo string, pr *github.Issue, comment stri
 
 // ListIssueComments lists all comments in an issue
 func (g *GithubClient) ListIssueComments(repo string, pr *github.Issue) ([]*github.IssueComment, error) {
+	sortValue := "created"
 	listOption := &github.IssueListCommentsOptions{
-		Sort: "created",
+		Sort: &sortValue,
 	}
 	var allComments []*github.IssueComment
 
