@@ -229,7 +229,7 @@ postsubmits:
       org: istio
       path_alias: istio.io/istio
       repo: istio
-    name: multi-namespace_installer_postsubmit
+    name: multi-istiocontrolplane_installer_postsubmit
     path_alias: istio.io/installer
     spec:
       containers:
@@ -237,7 +237,7 @@ postsubmits:
         - entrypoint
         - bin/with-kind.sh
         - make
-        - run-multinamespace
+        - run-multi-istiocontrolplane
         image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
         name: ""
         resources:
@@ -522,7 +522,7 @@ presubmits:
       org: istio
       path_alias: istio.io/istio
       repo: istio
-    name: multi-namespace_installer
+    name: multi-istiocontrolplane_installer
     path_alias: istio.io/installer
     spec:
       containers:
@@ -530,7 +530,7 @@ presubmits:
         - entrypoint
         - bin/with-kind.sh
         - make
-        - run-multinamespace
+        - run-multi-istiocontrolplane
         image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
         name: ""
         resources:
