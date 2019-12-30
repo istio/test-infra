@@ -224,6 +224,60 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
+    extra_refs:
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/istio
+      repo: istio
+    name: multi-namespace_installer_postsubmit
+    path_alias: istio.io/installer
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - bin/with-kind.sh
+        - make
+        - run-multinamespace
+        image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_installer_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
     name: gencheck_installer_postsubmit
     path_alias: istio.io/installer
     spec:
@@ -463,32 +517,6 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    name: gencheck_installer
-    path_alias: istio.io/installer
-    spec:
-      containers:
-      - command:
-        - make
-        - gen-check
-        image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: 500m
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_installer
-    branches:
-    - ^master$
-    decorate: true
     extra_refs:
     - base_ref: master
       org: istio
@@ -536,3 +564,29 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_installer
+    branches:
+    - ^master$
+    decorate: true
+    name: gencheck_installer
+    path_alias: istio.io/installer
+    spec:
+      containers:
+      - command:
+        - make
+        - gen-check
+        image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
