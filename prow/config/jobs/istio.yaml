@@ -40,17 +40,26 @@ jobs:
     type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.galley.kube.presubmit]
     requirements: [kind]
+    env:
+    - name: TEST_USE_OPERATOR
+      value: "true"
 
   - name: integ-mixer-k8s-tests
     type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.mixer.kube.presubmit]
     requirements: [kind]
     modifiers: [optional]
+    env:
+    - name: TEST_USE_OPERATOR
+      value: "true"
 
   - name: integ-pilot-k8s-tests
     type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
     requirements: [kind]
+    env:
+    - name: TEST_USE_OPERATOR
+      value: "true"
 
   - name: integ-security-k8s-tests
     type: presubmit
@@ -61,6 +70,9 @@ jobs:
     type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.telemetry.kube.presubmit]
     requirements: [kind]
+    env:
+    - name: TEST_USE_OPERATOR
+      value: "true"
 
   - name: integ-new-install-k8s-tests
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.new.installer]
@@ -172,16 +184,25 @@ jobs:
     type: postsubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.galley.kube]
     requirements: [kind]
+    env:
+    - name: TEST_USE_OPERATOR
+      value: "true"
 
   - name: integ-mixer-k8s-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.mixer.kube]
     requirements: [kind]
+    env:
+    - name: TEST_USE_OPERATOR
+      value: "true"
 
   - name: integ-pilot-k8s-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
     requirements: [kind]
+    env:
+    - name: TEST_USE_OPERATOR
+      value: "true"
 
   - name: integ-security-k8s-tests
     type: postsubmit
@@ -192,6 +213,9 @@ jobs:
     type: postsubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.telemetry.kube]
     requirements: [kind]
+    env:
+    - name: TEST_USE_OPERATOR
+      value: "true"
 
   - name: integ-conformance-k8s-tests
     type: postsubmit
