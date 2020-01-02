@@ -138,11 +138,6 @@ jobs:
     command: [entrypoint, make, e2e_cloudfoundry]
     requirements: [docker]
 
-  - name: integ-framework-local-tests
-    type: postsubmit
-    command: [entrypoint, prow/integ-suite-local.sh, test.integration.framework.local]
-    requirements: [docker]
-
   - name: integ-galley-local-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-local.sh, test.integration.galley.local]
@@ -162,11 +157,6 @@ jobs:
     type: postsubmit
     command: [entrypoint, prow/integ-suite-local.sh, test.integration.conformance.local]
     requirements: [docker]
-
-  - name: integ-framework-k8s-tests
-    type: postsubmit
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.framework.kube]
-    requirements: [kind]
 
   - name: integ-galley-k8s-tests
     type: postsubmit

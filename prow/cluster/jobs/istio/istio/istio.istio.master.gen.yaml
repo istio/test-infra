@@ -841,40 +841,6 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    name: integ-framework-local-tests_istio_postsubmit
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-local.sh
-        - test.integration.framework.local
-        image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - emptyDir: {}
-        name: docker-root
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
     name: integ-galley-local-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
@@ -1002,54 +968,6 @@ postsubmits:
       nodeSelector:
         testing: test-pool
       volumes:
-      - emptyDir: {}
-        name: docker-root
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
-    name: integ-framework-k8s-tests_istio_postsubmit
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.framework.kube
-        image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
       - emptyDir: {}
         name: docker-root
   - annotations:
