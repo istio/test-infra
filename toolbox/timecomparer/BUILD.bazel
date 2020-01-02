@@ -6,16 +6,30 @@ go_library(
     importpath = "istio.io/test-infra/toolbox/timecomparer",
     visibility = ["//visibility:private"],
     deps = [
-        "//vendor/cloud.google.com/go/storage:go_default_library",
-        "//vendor/github.com/golang-collections/collections/stack:go_default_library",
-        "//vendor/golang.org/x/net/context:go_default_library",
-        "//vendor/google.golang.org/api/option:go_default_library",
-        "//vendor/google.golang.org/api/sheets/v4:go_default_library",
+        "@com_github_golang_collections_collections//stack:go_default_library",
+        "@com_google_cloud_go//storage:go_default_library",
+        "@org_golang_google_api//option:go_default_library",
+        "@org_golang_google_api//sheets/v4:go_default_library",
+        "@org_golang_x_net//context:go_default_library",
     ],
 )
 
 go_binary(
     name = "timecomparer",
     embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "package-srcs",
+    srcs = glob(["**"]),
+    tags = ["automanaged"],
+    visibility = ["//visibility:private"],
+)
+
+filegroup(
+    name = "all-srcs",
+    srcs = [":package-srcs"],
+    tags = ["automanaged"],
     visibility = ["//visibility:public"],
 )

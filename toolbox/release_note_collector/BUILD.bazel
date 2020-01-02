@@ -7,7 +7,7 @@ go_library(
     visibility = ["//visibility:private"],
     deps = [
         "//toolbox/util:go_default_library",
-        "//vendor/github.com/google/go-github/github:go_default_library",
+        "@com_github_google_go_github//github:go_default_library",
     ],
 )
 
@@ -15,5 +15,19 @@ go_binary(
     name = "release_note_collector",
     embed = [":go_default_library"],
     importpath = "istio.io/test-infra/toolbox/release_note_collector",
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "package-srcs",
+    srcs = glob(["**"]),
+    tags = ["automanaged"],
+    visibility = ["//visibility:private"],
+)
+
+filegroup(
+    name = "all-srcs",
+    srcs = [":package-srcs"],
+    tags = ["automanaged"],
     visibility = ["//visibility:public"],
 )
