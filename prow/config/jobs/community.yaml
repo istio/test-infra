@@ -10,6 +10,17 @@ jobs:
     command: [make, test]
 
   - name: sync-org
+    image: gcr.io/k8s-prow/peribolos:v20191219-b8438ff62
     type: postsubmit
-    command: [make, sync]
+    command:
+    - peribolos
+    - --fix-org
+    - --fix-org-members
+    - --fix-teams
+    - --fix-team-members
+    - --config-path
+    - org/istio.yaml
+    - --github-token-path
+    - /etc/github-token/oauth
+    - --confirm
     requirements: [github]

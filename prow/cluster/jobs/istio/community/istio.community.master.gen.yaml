@@ -66,9 +66,17 @@ postsubmits:
     spec:
       containers:
       - command:
-        - make
-        - sync
-        image: gcr.io/istio-testing/build-tools:master-2019-12-03T17-07-58
+        - peribolos
+        - --fix-org
+        - --fix-org-members
+        - --fix-teams
+        - --fix-team-members
+        - --config-path
+        - org/istio.yaml
+        - --github-token-path
+        - /etc/github-token/oauth
+        - --confirm
+        image: gcr.io/k8s-prow/peribolos:v20191219-b8438ff62
         name: ""
         resources:
           limits:
