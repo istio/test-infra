@@ -27,6 +27,68 @@ postsubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_community_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    name: test_community_postsubmit
+    path_alias: istio.io/community
+    spec:
+      containers:
+      - command:
+        - make
+        - test
+        image: gcr.io/istio-testing/build-tools:master-2019-12-03T17-07-58
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_community_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    name: sync-org_community_postsubmit
+    path_alias: istio.io/community
+    spec:
+      containers:
+      - command:
+        - make
+        - sync
+        image: gcr.io/istio-testing/build-tools:master-2019-12-03T17-07-58
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /etc/github-token
+          name: github
+          readOnly: true
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
 presubmits:
   istio/community:
   - always_run: true
@@ -41,6 +103,32 @@ presubmits:
       containers:
       - command:
         - prow/community-lint.sh
+        image: gcr.io/istio-testing/build-tools:master-2019-12-03T17-07-58
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_community
+    branches:
+    - ^master$
+    decorate: true
+    name: test_community
+    path_alias: istio.io/community
+    spec:
+      containers:
+      - command:
+        - make
+        - test
         image: gcr.io/istio-testing/build-tools:master-2019-12-03T17-07-58
         name: ""
         resources:
