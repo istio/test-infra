@@ -90,6 +90,43 @@ postsubmits:
     - ^master$
     cluster: test-infra-trusted
     decorate: true
+    labels:
+      preset-prow-deployer-service-account: "true"
+    max_concurrency: 1
+    name: deploy-prow_test-infra_postsubmit
+    path_alias: istio.io/test-infra
+    run_if_changed: ^prow/cluster/(?:gcsweb/|build/|private/|[^/]+\.yaml$)
+    spec:
+      containers:
+      - command:
+        - make
+        - -C
+        - prow
+        - deploy
+        - deploy-gcsweb
+        - deploy-build
+        - deploy-private
+        image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_test-infra_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    cluster: test-infra-trusted
+    decorate: true
     max_concurrency: 1
     name: push-authentikos_test-infra_postsubmit
     path_alias: istio.io/test-infra

@@ -66,6 +66,7 @@ const (
 	RequirementGitHub  = "github"
 	RequirementRelease = "release"
 	RequirementGCP     = "gcp"
+	RequirementDeploy  = "deploy"
 )
 
 type JobConfig struct {
@@ -161,7 +162,7 @@ func ValidateJobConfig(jobConfig JobConfig) {
 		for _, req := range job.Requirements {
 			if e := validate(
 				req,
-				[]string{RequirementKind, RequirementDocker, RequirementGitHub, RequirementRelease, RequirementRoot, RequirementGCP},
+				[]string{RequirementKind, RequirementDocker, RequirementGitHub, RequirementRelease, RequirementRoot, RequirementGCP, RequirementDeploy},
 				"requirements"); e != nil {
 				err = multierror.Append(err, e)
 			}
@@ -477,6 +478,9 @@ func applyRequirements(job *config.JobBase, requirements []string) {
 		case RequirementGCP:
 			// The preset service account will set up the required resources
 			job.Labels["preset-service-account"] = "true"
+		case RequirementDeploy:
+			// The preset service account will set up the required resources
+			job.Labels["preset-prow-deployer-service-account"] = "true"
 		case RequirementRelease:
 			// Grant access to release resources, such as docker and github
 			job.Labels["preset-release-pipeline"] = "true"
