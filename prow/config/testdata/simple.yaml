@@ -20,6 +20,12 @@ jobs:
       value: val
     repos: [istio/istio]
 
+  - name: custom-node-selector
+    type: presubmit
+    command: [prow/command.sh]
+    node_selector:
+      foo: baz
+
 resources:
   default:
     requests:

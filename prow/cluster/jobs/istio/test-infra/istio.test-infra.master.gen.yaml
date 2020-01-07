@@ -118,7 +118,7 @@ postsubmits:
         securityContext:
           privileged: true
       nodeSelector:
-        testing: test-pool
+        prod: prow
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_test-infra_postsubmit
@@ -154,7 +154,7 @@ postsubmits:
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
-        testing: test-pool
+        prod: prow
       volumes:
       - emptyDir: {}
         name: docker-root
@@ -193,7 +193,7 @@ postsubmits:
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
-        testing: test-pool
+        prod: prow
       volumes:
       - emptyDir: {}
         name: docker-root

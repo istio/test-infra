@@ -103,3 +103,25 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    name: custom-node-selector_istio
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - prow/command.sh
+        image: fooimage
+        name: ""
+        resources:
+          requests:
+            cpu: "1"
+            memory: 1Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        foo: baz
