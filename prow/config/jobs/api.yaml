@@ -16,6 +16,8 @@ jobs:
     - ../test-infra/tools/automator/automator.sh
     - --org=istio
     - --repo=client-go
+    - "--title=Automator: update istio/api@$AUTOMATOR_BRANCH dependency"
+    - --modifier=client-go_update_api
     - --token-path=/etc/github-token/oauth
     - --cmd=go get istio.io/api@$AUTOMATOR_BRANCH && go mod tidy && make gen
     requirements: [github]
@@ -27,6 +29,8 @@ jobs:
     - ../test-infra/tools/automator/automator.sh
     - --org=istio
     - --repo=istio
+    - "--title=Automator: update istio/api@$AUTOMATOR_BRANCH dependency"
+    - --modifier=istio_update_api
     - --token-path=/etc/github-token/oauth
     - --cmd=go get istio.io/api@$AUTOMATOR_BRANCH && go mod tidy && make gen
     requirements: [github]
