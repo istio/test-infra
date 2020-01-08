@@ -131,3 +131,28 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_proxy
+    branches:
+    - ^master$
+    decorate: true
+    name: check-wasm_proxy
+    path_alias: istio.io/proxy
+    spec:
+      containers:
+      - command:
+        - ./prow/proxy-presubmit-wasm.sh
+        image: gcr.io/istio-testing/build-tools-proxy:master-2019-12-15T16-17-48
+        name: ""
+        resources:
+          limits:
+            cpu: "16"
+            memory: 60Gi
+          requests:
+            cpu: "8"
+            memory: 8Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
