@@ -15,7 +15,7 @@ postsubmits:
       - command:
         - make
         - lint
-        image: gcr.io/istio-testing/build-tools:2019-10-18T22-40-12
+        image: gcr.io/istio-testing/build-tools:master-2019-12-09T23-37-05
         name: ""
         resources:
           limits:
@@ -28,6 +28,51 @@ postsubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_common-files_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    extra_refs:
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/test-infra
+      repo: test-infra
+    name: update-common_common-files_postsubmit
+    path_alias: istio.io/common-files
+    spec:
+      containers:
+      - command:
+        - ../test-infra/tools/automator/automator.sh
+        - --org=istio
+        - --repo=istio,operator,istio.io,common-files,api,proxy,test-infra,tools,installer,bots,release-builder,pkg,cni,cri,community,client-go
+        - '--title=Automator: update common-files@$AUTOMATOR_BRANCH'
+        - --modifier=commonfiles
+        - --token-path=/etc/github-token/oauth
+        - --cmd=make update-common gen
+        image: gcr.io/istio-testing/build-tools:master-2019-12-09T23-37-05
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /etc/github-token
+          name: github
+          readOnly: true
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
 presubmits:
   istio/common-files:
   - always_run: true
@@ -43,7 +88,7 @@ presubmits:
       - command:
         - make
         - lint
-        image: gcr.io/istio-testing/build-tools:2019-10-18T22-40-12
+        image: gcr.io/istio-testing/build-tools:master-2019-12-09T23-37-05
         name: ""
         resources:
           limits:
