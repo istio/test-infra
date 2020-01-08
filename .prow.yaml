@@ -1,0 +1,18 @@
+presubmits:
+
+- name: pull-test-infra-prow-checkconfig
+  decorate: true
+  run_if_changed: '^(\.prow|prow/(config|plugins|cluster/jobs/.*))\.yaml$'
+  spec:
+    containers:
+    - image: gcr.io/k8s-prow/checkconfig:v20200104-51c12e4f4
+      command:
+      - /checkconfig
+      args:
+      - --config-path=prow/config.yaml
+      - --job-config-path=prow/cluster/jobs
+      - --plugin-config=prow/plugins.yaml
+      - --prow-yaml-repo-name=$(REPO_OWNER)/$(REPO_NAME)
+      - --strict
+      - --exclude-warning=mismatched-tide
+      - --exclude-warning=non-decorated-jobs
