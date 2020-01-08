@@ -27,8 +27,14 @@ postsubmits:
             memory: 8Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         testing: test-pool
+      volumes:
+      - emptyDir: {}
+        name: docker-root
 presubmits:
   istio/proxy:
   - always_run: true
@@ -155,5 +161,11 @@ presubmits:
             memory: 8Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         testing: test-pool
+      volumes:
+      - emptyDir: {}
+        name: docker-root
