@@ -8,11 +8,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/proxy.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-enable-netrc: "true"
       preset-service-account: "true"
@@ -21,6 +16,7 @@ postsubmits:
     spec:
       containers:
       - command:
+        - entrypoint
         - ./prow/proxy-postsubmit.sh
         env:
         - name: BAZEL_BUILD_RBE_JOBS
@@ -35,7 +31,7 @@ postsubmits:
           value: istio-private-artifacts
         - name: GCS_BUILD_BUCKET
           value: istio-private-build
-        image: gcr.io/istio-testing/build-tools-proxy:master-2019-12-03T17-07-58
+        image: gcr.io/istio-testing/build-tools-proxy:master-2019-12-15T16-17-48
         name: ""
         resources:
           limits:
@@ -46,8 +42,14 @@ postsubmits:
             memory: 8Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         testing: test-pool
+      volumes:
+      - emptyDir: {}
+        name: docker-root
 presubmits:
   istio-private/proxy:
   - always_run: true
@@ -58,11 +60,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/proxy.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-enable-netrc: "true"
     name: test_proxy_master_priv
@@ -78,7 +75,7 @@ presubmits:
           value: envoy-wasm
         - name: ENVOY_REPOSITORY
           value: https://github.com/envoyproxy/envoy-wasm
-        image: gcr.io/istio-testing/build-tools-proxy:master-2019-12-03T17-07-58
+        image: gcr.io/istio-testing/build-tools-proxy:master-2019-12-15T16-17-48
         name: ""
         resources:
           limits:
@@ -99,11 +96,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/proxy.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-enable-netrc: "true"
     name: test-asan_proxy_master_priv
@@ -119,7 +111,7 @@ presubmits:
           value: envoy-wasm
         - name: ENVOY_REPOSITORY
           value: https://github.com/envoyproxy/envoy-wasm
-        image: gcr.io/istio-testing/build-tools-proxy:master-2019-12-03T17-07-58
+        image: gcr.io/istio-testing/build-tools-proxy:master-2019-12-15T16-17-48
         name: ""
         resources:
           limits:
@@ -140,11 +132,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/proxy.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-enable-netrc: "true"
     name: test-tsan_proxy_master_priv
@@ -160,7 +147,7 @@ presubmits:
           value: envoy-wasm
         - name: ENVOY_REPOSITORY
           value: https://github.com/envoyproxy/envoy-wasm
-        image: gcr.io/istio-testing/build-tools-proxy:master-2019-12-03T17-07-58
+        image: gcr.io/istio-testing/build-tools-proxy:master-2019-12-15T16-17-48
         name: ""
         resources:
           limits:
@@ -181,11 +168,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/proxy.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-enable-netrc: "true"
     name: release-test_proxy_master_priv
@@ -201,7 +183,7 @@ presubmits:
           value: envoy-wasm
         - name: ENVOY_REPOSITORY
           value: https://github.com/envoyproxy/envoy-wasm
-        image: gcr.io/istio-testing/build-tools-proxy:master-2019-12-03T17-07-58
+        image: gcr.io/istio-testing/build-tools-proxy:master-2019-12-15T16-17-48
         name: ""
         resources:
           limits:
@@ -214,3 +196,47 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/proxy.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-netrc: "true"
+    name: check-wasm_proxy_master_priv
+    optional: true
+    path_alias: istio.io/proxy
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - ./prow/proxy-presubmit-wasm.sh
+        env:
+        - name: BAZEL_BUILD_RBE_JOBS
+          value: "0"
+        - name: ENVOY_PREFIX
+          value: envoy-wasm
+        - name: ENVOY_REPOSITORY
+          value: https://github.com/envoyproxy/envoy-wasm
+        image: gcr.io/istio-testing/build-tools-proxy:master-2019-12-15T16-17-48
+        name: ""
+        resources:
+          limits:
+            cpu: "16"
+            memory: 60Gi
+          requests:
+            cpu: "8"
+            memory: 8Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - emptyDir: {}
+        name: docker-root
