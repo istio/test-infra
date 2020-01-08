@@ -77,7 +77,7 @@ type JobConfig struct {
 	Resources               map[string]v1.ResourceRequirements `json:"resources,omitempty"`
 	Image                   string                             `json:"image,omitempty"`
 	SupportReleaseBranching bool                               `json:"support_release_branching,omitempty"`
-	NodeSelector            map[string]string                  `json:"node_selector"`
+	NodeSelector            map[string]string                  `json:"node_selector,omitempty"`
 }
 
 type Job struct {
@@ -95,6 +95,7 @@ type Job struct {
 	Regex          string            `json:"regex,omitempty"`
 	Cluster        string            `json:"cluster,omitempty"`
 	MaxConcurrency int               `json:"max_concurrency,omitempty"`
+	NodeSelector   map[string]string `json:"node_selector,omitempty"`
 }
 
 // Reads the job yaml
@@ -436,6 +437,9 @@ func createJobBase(jobConfig JobConfig, job Job, name string, repo string, branc
 	}
 	if jobConfig.NodeSelector != nil {
 		jb.Spec.NodeSelector = jobConfig.NodeSelector
+	}
+	if job.NodeSelector != nil {
+		jb.Spec.NodeSelector = job.NodeSelector
 	}
 	if job.Timeout != nil {
 		jb.DecorationConfig = &prowjob.DecorationConfig{
