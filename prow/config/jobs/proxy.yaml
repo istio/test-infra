@@ -20,6 +20,11 @@ jobs:
   type: presubmit
   command: [./prow/proxy-presubmit-release.sh]
 
+- name: check-wasm
+  type: presubmit
+  command: [./prow/proxy-presubmit-wasm.sh]
+  modifiers: [optional]
+
 - name: release
   type: postsubmit
   command: [./prow/proxy-postsubmit.sh]
