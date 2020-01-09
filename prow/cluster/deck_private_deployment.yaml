@@ -29,9 +29,13 @@ spec:
         - --redirect-http-to=prow-private.istio.io
         - --kubeconfig=/etc/kubeconfig/istio-config
         - --gcs-credentials-file=/etc/service-account/service-account.json
+        - --github-token-path=/etc/github/oauth
         - --spyglass
         - --hidden-only
         volumeMounts:
+        - name: oauth-token
+          mountPath: /etc/github
+          readOnly: true
         - name: config
           mountPath: /etc/config
           readOnly: true
@@ -99,6 +103,9 @@ spec:
               name: deck-oauth-proxy
               key: cookieSecret
       volumes:
+      - name: oauth-token
+        secret:
+          secretName: oauth-token
       - name: config
         configMap:
           name: config
