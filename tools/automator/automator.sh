@@ -167,7 +167,7 @@ create_pr() {
 work() {
   evaluate_opts
 
-  git clone --single-branch --branch "$branch" --depth 1 "https://github.com/$org/$repo.git" "$repo"
+  git clone --single-branch --branch "$branch" "https://github.com/$org/$repo.git" "$repo"
 
   pushd "$repo" || print_error_and_exit "invalid repo: $repo"
 
