@@ -41,7 +41,7 @@ import (
 )
 
 const (
-	secretKey        = "token"                 // secretKey is the kubernetes token secret key.
+	defaultKey       = "token"                 // defaultKey is the kubernetes secret data key.
 	defaultSecret    = "authentikos-token"     // defaultSecret is the default kubernetes secret name.
 	defaultTemplate  = "{{.Token}}"            // defaultTemplate is the default token template string.
 	defaultNamespace = metav1.NamespaceDefault // defaultNamespace is the default kubernetes namespace.
@@ -134,6 +134,7 @@ func (tt *tokenTemplate) Format(layout string, t time.Time) string {
 type options struct {
 	verbose      bool
 	creds        string
+	key          string
 	secret       string
 	template     string
 	templateFile string
@@ -146,6 +147,7 @@ func (o *options) parseFlags() {
 	flag.BoolVarP(&o.verbose, "verbose", "v", false, "Print verbose output.")
 	flag.StringVarP(&o.creds, "creds", "c", "", "Path to a JSON credentials file.")
 	flag.StringVarP(&o.secret, "secret", "o", defaultSecret, "Name of secret to create.")
+	flag.StringVarP(&o.key, "key", "k", defaultKey, "Name of secret data key.")
 	flag.StringVarP(&o.template, "template", "t", "", "Template string for the token.")
 	flag.StringVarP(&o.templateFile, "template-file", "f", "", "Path to a template string for the token.")
 	flag.StringSliceVarP(&o.namespace, "namespace", "n", []string{defaultNamespace}, "Namespace(s) to create the secret in.")
@@ -180,6 +182,11 @@ func (o *options) validateFlags() error {
 	// Secrets must have a name, so if unset then default to `defaultSecret`.
 	if len(o.secret) == 0 {
 		o.secret = defaultSecret
+	}
+
+	// Secrets must have a key, so if unset then default to `defaultKey`.
+	if len(o.key) == 0 {
+		o.key = defaultKey
 	}
 
 	// Secrets must have a namespace, so if unset then default to `defaultNamespace`.
@@ -288,7 +295,7 @@ func createOrUpdateSecret(o options, client v1.SecretsGetter, ns string, secretD
 			Name:      o.secret,
 			Namespace: ns,
 		},
-		Data: map[string][]byte{secretKey: data},
+		Data: map[string][]byte{o.key: data},
 	}
 
 	if secret, err := client.Secrets(ns).Create(req); err == nil {
