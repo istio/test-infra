@@ -37,6 +37,7 @@ The following is a list of supported options for `authentikos`:
 
 ```console
   -c, --creds string           Path to a JSON credentials file.
+  -k, --key string             Name of secret data key. (default "token")
   -n, --namespace strings      Namespace(s) to create the secret in. (default [default])
   -s, --scopes strings         Oauth scope(s) to request for token.
   -o, --secret string          Name of secret to create. (default "authentikos-token")
@@ -50,3 +51,4 @@ The following is a list of supported options for `authentikos`:
 - 0.0.1: initial release
 - 0.0.2: remove `--format` option and add `--template` and `--template-file` options.
 - 0.0.3: add new `TimeToUnix`, `UnixToTime`, and `Parse` template variable and change method signature for math template variables from `(a, b time.Duration) time.Duration` to `(a, b int64) int64`.
+- 0.0.4: add `--key` option for specifying the name of the data key in the created Kubernetes secret.

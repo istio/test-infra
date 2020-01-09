@@ -63,18 +63,18 @@ spec:
       serviceAccountName: authentikos
       containers:
       - name: authentikos
-        image: gcr.io/istio-testing/authentikos:0.0.3
+        image: gcr.io/istio-testing/authentikos:0.0.4
         imagePullPolicy: Always
         args:
         - --verbose
         - --secret=http-cookiefile
+        - --key=cookies
         - --creds=/etc/creds/service-account.json
         - --namespace=test-pods
-        - --scopes=https://www.googleapis.com/auth/devstorage.full_control
-        - >
-          --template=
-          .googlesource.com TRUE  {{.Now | .TimeToUnix | .Add 3600}} {{.Token}}
-          source.developers.google.com FALSE  {{.Now | .TimeToUnix | .Add 3600}} {{.Token}}
+        - --scopes=https://www.googleapis.com/auth/gerritcodereview
+        - |
+        --template=.googlesource.com	TRUE	/	TRUE	{{.Now | .TimeToUnix | .Add 3600}}	o	{{.Token}}
+        source.developers.google.com	FALSE	/	TRUE	{{.Now | .TimeToUnix | .Add 3600}}	o	{{.Token}}
         volumeMounts:
         - name: creds
           mountPath: /etc/creds
