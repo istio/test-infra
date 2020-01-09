@@ -141,7 +141,7 @@ evaluate_opts() {
   export AUTOMATOR_ORG="$org" AUTOMATOR_REPO="$repo" AUTOMATOR_BRANCH="$branch"
 
   if [ -z "${title:-}" ]; then
-    title="Automator: update $org/$repo@$branch"
+    title="Automator: update $org/$repo@$branch-$modifier"
   fi
   title="$(eval echo "$title")"
 
