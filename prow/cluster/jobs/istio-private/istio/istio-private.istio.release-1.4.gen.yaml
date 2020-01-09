@@ -8,11 +8,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-enable-ssh: "true"
       preset-service-account: "true"
@@ -48,11 +43,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: unit-tests_istio_release-1.4_postsubmit_priv
@@ -88,11 +78,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: codecov_istio_release-1.4_postsubmit_priv
@@ -123,11 +108,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: e2e-mixer-no_auth_istio_release-1.4_postsubmit_priv
@@ -156,6 +136,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -178,11 +159,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: pilot-e2e-envoyv2-v1alpha3_istio_release-1.4_postsubmit_priv
@@ -211,6 +187,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -233,11 +210,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
       preset-service-account: "true"
@@ -265,6 +237,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -287,11 +260,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: e2e-bookInfoTests-envoyv2-v1alpha3_istio_release-1.4_posts_priv
@@ -320,6 +288,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -342,11 +311,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: e2e-bookInfoTests-trustdomain_istio_release-1.4_postsubmit_priv
@@ -375,6 +339,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -397,11 +362,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: e2e-bookInfoTests-non-mcp_istio_release-1.4_postsubmit_priv
@@ -431,6 +391,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -453,11 +414,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: e2e-simpleTests_istio_release-1.4_postsubmit_priv
@@ -489,6 +445,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -511,11 +468,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: e2e-simpleTests-distroless_istio_release-1.4_postsubmit_priv
@@ -549,6 +501,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -571,11 +524,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: e2e-simpleTestsMinProfile_istio_release-1.4_postsubmit_priv
@@ -610,6 +558,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -632,11 +581,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: e2e-simpleTests-cni_istio_release-1.4_postsubmit_priv
@@ -671,6 +615,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -693,11 +638,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: e2e-simpleTests-non-mcp_istio_release-1.4_postsubmit_priv
@@ -730,6 +670,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -752,11 +693,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
       preset-service-account: "true"
@@ -784,6 +720,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -806,11 +743,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: istio_e2e_cloudfoundry_istio_release-1.4_postsubmit_priv
@@ -841,11 +773,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-framework-local-tests_istio_release-1.4_postsubmit_priv
@@ -876,11 +803,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-galley-local-tests_istio_release-1.4_postsubmit_priv
@@ -911,11 +833,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-pilot-local-tests_istio_release-1.4_postsubmit_priv
@@ -946,11 +863,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-security-local-tests_istio_release-1.4_postsubmit_priv
@@ -981,11 +893,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-conformance-local-tests_istio_release-1.4_postsubmit_priv
@@ -1016,11 +923,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-framework-k8s-tests_istio_release-1.4_postsubmit_priv
@@ -1048,6 +950,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -1070,11 +973,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-istioctl-k8s-tests_istio_release-1.4_postsubmit_priv
@@ -1102,6 +1000,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -1124,11 +1023,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-galley-k8s-tests_istio_release-1.4_postsubmit_priv
@@ -1156,6 +1050,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -1178,11 +1073,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-mixer-k8s-tests_istio_release-1.4_postsubmit_priv
@@ -1210,6 +1100,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -1232,11 +1123,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-pilot-k8s-tests_istio_release-1.4_postsubmit_priv
@@ -1264,6 +1150,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -1286,11 +1173,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-security-k8s-tests_istio_release-1.4_postsubmit_priv
@@ -1318,6 +1200,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -1340,11 +1223,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-telemetry-k8s-tests_istio_release-1.4_postsubmit_priv
@@ -1372,6 +1250,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -1394,11 +1273,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-conformance-k8s-tests_istio_release-1.4_postsubmit_priv
@@ -1426,6 +1300,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -1449,10 +1324,6 @@ postsubmits:
     cluster: private
     decorate: true
     decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
       timeout: 4h0m0s
     labels:
       preset-override-envoy: "true"
@@ -1483,6 +1354,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -1506,10 +1378,6 @@ postsubmits:
     cluster: private
     decorate: true
     decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
       timeout: 4h0m0s
     labels:
       preset-override-envoy: "true"
@@ -1540,6 +1408,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -1563,10 +1432,6 @@ postsubmits:
     cluster: private
     decorate: true
     decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
       timeout: 4h0m0s
     labels:
       preset-override-envoy: "true"
@@ -1597,6 +1462,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -1620,10 +1486,6 @@ postsubmits:
     cluster: private
     decorate: true
     decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
       timeout: 4h0m0s
     labels:
       preset-override-envoy: "true"
@@ -1654,6 +1516,7 @@ postsubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -1676,11 +1539,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: lint_istio_release-1.4_postsubmit_priv
@@ -1710,11 +1568,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: gencheck_istio_release-1.4_postsubmit_priv
@@ -1747,11 +1600,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: unit-tests_istio_release-1.4_priv
@@ -1788,11 +1636,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: codecov_istio_release-1.4_priv
@@ -1824,11 +1667,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
       preset-service-account: "true"
@@ -1860,11 +1698,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-framework-local-tests_istio_release-1.4_priv
@@ -1896,11 +1729,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-galley-local-tests_istio_release-1.4_priv
@@ -1932,11 +1760,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-pilot-local-tests_istio_release-1.4_priv
@@ -1968,11 +1791,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-security-local-tests_istio_release-1.4_priv
@@ -2004,11 +1822,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-framework-k8s-tests_istio_release-1.4_priv
@@ -2036,6 +1849,7 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -2059,11 +1873,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-istioctl-k8s-tests_istio_release-1.4_priv
@@ -2091,6 +1900,7 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -2114,11 +1924,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-galley-k8s-tests_istio_release-1.4_priv
@@ -2146,6 +1951,7 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -2169,11 +1975,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-mixer-k8s-tests_istio_release-1.4_priv
@@ -2202,6 +2003,7 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -2225,11 +2027,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-pilot-k8s-tests_istio_release-1.4_priv
@@ -2257,6 +2054,7 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -2280,11 +2078,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-security-k8s-tests_istio_release-1.4_priv
@@ -2312,6 +2105,7 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -2335,11 +2129,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-telemetry-k8s-tests_istio_release-1.4_priv
@@ -2367,6 +2156,7 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -2390,11 +2180,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-new-install-k8s-tests_istio_release-1.4_priv
@@ -2423,6 +2208,7 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -2446,11 +2232,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: integ-istioio-k8s-tests_istio_release-1.4_priv
@@ -2479,6 +2260,7 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -2502,11 +2284,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: e2e-mixer-no_auth_istio_release-1.4_priv
@@ -2535,6 +2312,7 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -2558,11 +2336,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: pilot-e2e-envoyv2-v1alpha3_istio_release-1.4_priv
@@ -2591,6 +2364,7 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -2614,11 +2388,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
       preset-service-account: "true"
@@ -2646,6 +2415,7 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -2669,11 +2439,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: e2e-bookInfoTests-envoyv2-v1alpha3_istio_release-1.4_priv
@@ -2702,6 +2467,7 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -2725,11 +2491,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: e2e-simpleTests_istio_release-1.4_priv
@@ -2761,6 +2522,7 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -2784,11 +2546,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: e2e-simpleTests-distroless_istio_release-1.4_priv
@@ -2822,6 +2579,7 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -2845,11 +2603,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: e2e-simpleTestsMinProfile_istio_release-1.4_priv
@@ -2884,6 +2637,7 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -2907,11 +2661,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: e2e-simpleTests-cni_istio_release-1.4_priv
@@ -2946,6 +2695,7 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -2969,11 +2719,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
       preset-service-account: "true"
@@ -3002,6 +2747,7 @@ presubmits:
           readOnly: true
         - mountPath: /sys/fs/cgroup
           name: cgroup
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -3025,11 +2771,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: istio_e2e_cloudfoundry_istio_release-1.4_priv
@@ -3061,11 +2802,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: lint_istio_release-1.4_priv
@@ -3096,11 +2832,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-override-envoy: "true"
     name: gencheck_istio_release-1.4_priv

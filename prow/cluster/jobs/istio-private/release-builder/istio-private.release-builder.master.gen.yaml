@@ -8,11 +8,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/release-builder.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     name: lint_release-builder_postsubmit_priv
     path_alias: istio.io/release-builder
     spec:
@@ -20,7 +15,7 @@ postsubmits:
       - command:
         - make
         - lint
-        image: gcr.io/istio-testing/build-tools:master-2019-12-03T17-07-58
+        image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
         name: ""
         resources:
           limits:
@@ -40,11 +35,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/release-builder.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     name: test_release-builder_postsubmit_priv
     path_alias: istio.io/release-builder
     spec:
@@ -52,7 +42,7 @@ postsubmits:
       - command:
         - make
         - test
-        image: gcr.io/istio-testing/build-tools:master-2019-12-03T17-07-58
+        image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
         name: ""
         resources:
           limits:
@@ -72,11 +62,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/release-builder.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     name: gencheck_release-builder_postsubmit_priv
     path_alias: istio.io/release-builder
     spec:
@@ -84,7 +69,7 @@ postsubmits:
       - command:
         - make
         - gen-check
-        image: gcr.io/istio-testing/build-tools:master-2019-12-03T17-07-58
+        image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
         name: ""
         resources:
           limits:
@@ -104,11 +89,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/release-builder.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     labels:
       preset-enable-ssh: "true"
       preset-override-deps: release-1.4
@@ -127,7 +107,7 @@ postsubmits:
           value: istio-private-prerelease/prerelease
         - name: PRERELEASE_DOCKER_HUB
           value: gcr.io/istio-prow-build
-        image: gcr.io/istio-testing/build-tools:master-2019-12-03T17-07-58
+        image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
         name: ""
         resources:
           limits:
@@ -150,11 +130,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/release-builder.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     name: lint_release-builder_priv
     path_alias: istio.io/release-builder
     spec:
@@ -162,7 +137,7 @@ presubmits:
       - command:
         - make
         - lint
-        image: gcr.io/istio-testing/build-tools:master-2019-12-03T17-07-58
+        image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
         name: ""
         resources:
           limits:
@@ -183,11 +158,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/release-builder.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     name: test_release-builder_priv
     path_alias: istio.io/release-builder
     spec:
@@ -195,7 +165,7 @@ presubmits:
       - command:
         - make
         - test
-        image: gcr.io/istio-testing/build-tools:master-2019-12-03T17-07-58
+        image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
         name: ""
         resources:
           limits:
@@ -216,11 +186,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/release-builder.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     name: gencheck_release-builder_priv
     path_alias: istio.io/release-builder
     spec:
@@ -228,7 +193,7 @@ presubmits:
       - command:
         - make
         - gen-check
-        image: gcr.io/istio-testing/build-tools:master-2019-12-03T17-07-58
+        image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
         name: ""
         resources:
           limits:
@@ -249,11 +214,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/release-builder.git
     cluster: private
     decorate: true
-    decoration_config:
-      gcs_configuration:
-        bucket: istio-private-build
-      ssh_key_secrets:
-      - ssh-key-secret
     name: build-warning_release-builder_priv
     optional: true
     path_alias: istio.io/release-builder
@@ -267,7 +227,7 @@ presubmits:
           value: istio-private-prerelease/prerelease
         - name: PRERELEASE_DOCKER_HUB
           value: gcr.io/istio-prow-build
-        image: gcr.io/istio-testing/build-tools:master-2019-12-03T17-07-58
+        image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
         name: ""
         resources:
           limits:

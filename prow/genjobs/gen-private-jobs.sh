@@ -22,17 +22,15 @@ COMMON_OPTS=(
   "--mapping=istio=istio-private"
   "--ssh-clone"
   "--extra-refs"
-  "--input=./cluster/jobs/"
-  "--output=./cluster/jobs/"
-  "--bucket=istio-private-build"
-  "--ssh-key-secret=ssh-key-secret"
+  "--input=../cluster/jobs/"
+  "--output=../cluster/jobs/"
   "--cluster=private"
   "--modifier=priv"
   "--annotations=testgrid-create-test-group=false"
 )
 
 # Clean ./prow/cluster/jobs/istio-private directory
-go run . --clean --mapping=istio=istio-private --output=./cluster/jobs/ --dry-run >/dev/null
+go run . --clean --mapping=istio=istio-private --input=../cluster/jobs/ --output=../cluster/jobs/ --dry-run >/dev/null
 
 # istio/istio build job(s) - postsubmit(s)
 go run . \
