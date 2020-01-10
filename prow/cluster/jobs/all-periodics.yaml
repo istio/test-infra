@@ -267,9 +267,9 @@ periodics:
           - entrypoint
           - upgrade/run_upgrade_test.sh
 
-# upgrade using istioctl from 1.3.3 to 1.4.0
+# upgrade using istioctl from 1.3.6 to 1.4.3
 - cron: "0 14 * * *"  # starts every day at 14:00AM UTC
-  name: istio-upgrade-using-istioctl-1.3.3-1.4.0
+  name: istio-upgrade-using-istioctl-1.3.6-1.4.3
   branches: master
   decorate: true
   extra_refs:
@@ -288,18 +288,18 @@ periodics:
       - <<: *istio_container_with_kind
         env:
           - name: SOURCE_TAG
-            value: 1.3.3
+            value: 1.3.6
           - name: TARGET_TAG
-            value: 1.4.0
+            value: 1.4.3
           - name: INSTALL_OPTIONS
             value: istioctl
         command:
           - entrypoint
           - upgrade/run_upgrade_test.sh
 
-# upgrade using istioctl from 1.3.0 t0 1.4.0
+# upgrade using istioctl from 1.4.3 t0 master
 - cron: "0 18 * * *"  # starts every day at 18:00AM UTC
-  name: istio-upgrade-using-istioctl-1.3.0-1.4.0
+  name: istio-upgrade-using-istioctl-1.4.3-master
   branches: master
   decorate: true
   extra_refs:
@@ -318,9 +318,9 @@ periodics:
       - <<: *istio_container_with_kind
         env:
           - name: SOURCE_TAG
-            value: 1.3.0
+            value: 1.4.3
           - name: TARGET_TAG
-            value: 1.4.0
+            value: master
           - name: INSTALL_OPTIONS
             value: istioctl
         command:
