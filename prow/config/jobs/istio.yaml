@@ -65,6 +65,9 @@ jobs:
     type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube.presubmit]
     requirements: [kind]
+    env:
+    - name: TEST_USE_OPERATOR
+      value: "true"
 
   - name: integ-telemetry-k8s-tests
     type: presubmit
@@ -73,10 +76,6 @@ jobs:
     env:
     - name: TEST_USE_OPERATOR
       value: "true"
-
-  - name: integ-new-install-k8s-tests
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.new.installer]
-    requirements: [kind]
 
   - name: integ-istioio-k8s-tests
     type: presubmit
@@ -194,6 +193,9 @@ jobs:
     type: postsubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube]
     requirements: [kind]
+    env:
+    - name: TEST_USE_OPERATOR
+      value: "true"
 
   - name: integ-telemetry-k8s-tests
     type: postsubmit
@@ -241,15 +243,6 @@ jobs:
       - --node-image
       - kindest/node:v1.16.3
       - test.integration.kube.presubmit
-    requirements: [kind]
-    timeout: 4h
-
-  - name: integ-k8s-operator
-    type: postsubmit
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - test.integration.operator
     requirements: [kind]
     timeout: 4h
 
