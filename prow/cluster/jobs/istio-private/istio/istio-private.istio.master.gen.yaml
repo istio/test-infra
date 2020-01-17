@@ -110,56 +110,6 @@ postsubmits:
     decorate: true
     labels:
       preset-override-envoy: "true"
-    name: integ-new-install-k8s-tests_istio_postsubmit_priv
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.new.installer
-        image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-override-envoy: "true"
       preset-service-account: "true"
     name: integ-istioio-k8s-tests_istio_postsubmit_priv
     path_alias: istio.io/istio
@@ -1157,6 +1107,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.security.kube
+        env:
+        - name: TEST_USE_OPERATOR
+          value: "true"
         image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
         name: ""
         resources:
@@ -1422,58 +1375,6 @@ postsubmits:
         - --node-image
         - kindest/node:v1.16.3
         - test.integration.kube.presubmit
-        image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    labels:
-      preset-override-envoy: "true"
-    name: integ-k8s-operator_istio_postsubmit_priv
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.operator
         image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
         name: ""
         resources:
@@ -1957,6 +1858,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.security.kube.presubmit
+        env:
+        - name: TEST_USE_OPERATOR
+          value: "true"
         image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
         name: ""
         resources:
@@ -2011,57 +1915,6 @@ presubmits:
         env:
         - name: TEST_USE_OPERATOR
           value: "true"
-        image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-override-envoy: "true"
-    name: integ-new-install-k8s-tests_istio_priv
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.new.installer
         image: gcr.io/istio-testing/build-tools:master-2019-12-18T18-07-47
         name: ""
         resources:
