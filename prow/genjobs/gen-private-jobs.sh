@@ -58,7 +58,7 @@ go run . \
   --modifier=master_priv \
   --labels preset-enable-netrc=true \
   --job-type presubmit \
-  --env BAZEL_BUILD_RBE_JOBS=0,ENVOY_REPOSITORY=https://github.com/envoyproxy/envoy-wasm,ENVOY_PREFIX=envoy-wasm \
+  --env BAZEL_BUILD_RBE_INSTANCE=projects/istio-prow-build/instances/default_instance,ENVOY_REPOSITORY=https://github.com/envoyproxy/envoy-wasm,ENVOY_PREFIX=envoy-wasm \
   --repo-whitelist proxy
 
 # istio/proxy master build jobs(s) - postsubmit(s)
@@ -68,7 +68,7 @@ go run . \
   --modifier master_priv \
   --labels preset-enable-netrc=true \
   --job-type postsubmit \
-  --env BAZEL_BUILD_RBE_JOBS=0,GCS_BUILD_BUCKET=istio-private-build,GCS_ARTIFACTS_BUCKET=istio-private-artifacts,DOCKER_REPOSITORY=istio-prow-build/envoy,ENVOY_REPOSITORY=https://github.com/envoyproxy/envoy-wasm,ENVOY_PREFIX=envoy-wasm \
+  --env BAZEL_BUILD_RBE_INSTANCE=projects/istio-prow-build/instances/default_instance,GCS_BUILD_BUCKET=istio-private-build,GCS_ARTIFACTS_BUCKET=istio-private-artifacts,DOCKER_REPOSITORY=istio-prow-build/envoy,ENVOY_REPOSITORY=https://github.com/envoyproxy/envoy-wasm,ENVOY_PREFIX=envoy-wasm \
   --repo-whitelist proxy
 
 # istio/proxy release-1.4 test jobs(s) - presubmit(s)
