@@ -163,7 +163,6 @@ postsubmits:
       preset-override-envoy: "true"
     name: integ-distroless-k8s-tests_istio_postsubmit_priv
     path_alias: istio.io/istio
-    skip_report: true
     spec:
       containers:
       - command:
@@ -647,63 +646,6 @@ postsubmits:
         - values-istio-minimal.yaml
         - --helmSetValueList
         - gateways.enabled=true,galley.enabled=false,global.useMCP=false
-        image: gcr.io/istio-testing/build-tools:master-2020-01-18T00-45-13
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-override-envoy: "true"
-    name: e2e-simpleTests-cni_istio_postsubmit_priv
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/e2e-kind-suite.sh
-        - --auth_enable
-        - --single_test
-        - e2e_simple
-        env:
-        - name: ENABLE_ISTIO_CNI
-          value: "true"
-        - name: E2E_ARGS
-          value: ' --kube_inject_configmap=istio-sidecar-injector'
         image: gcr.io/istio-testing/build-tools:master-2020-01-18T00-45-13
         name: ""
         resources:
@@ -2102,9 +2044,7 @@ presubmits:
     labels:
       preset-override-envoy: "true"
     name: integ-distroless-k8s-tests_istio_priv
-    optional: true
     path_alias: istio.io/istio
-    skip_report: true
     spec:
       containers:
       - command:
@@ -2543,64 +2483,6 @@ presubmits:
         - values-istio-minimal.yaml
         - --helmSetValueList
         - gateways.enabled=true,galley.enabled=false,global.useMCP=false
-        image: gcr.io/istio-testing/build-tools:master-2020-01-18T00-45-13
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-override-envoy: "true"
-    name: e2e-simpleTests-cni_istio_priv
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/e2e-kind-suite.sh
-        - --auth_enable
-        - --single_test
-        - e2e_simple
-        env:
-        - name: ENABLE_ISTIO_CNI
-          value: "true"
-        - name: E2E_ARGS
-          value: ' --kube_inject_configmap=istio-sidecar-injector'
         image: gcr.io/istio-testing/build-tools:master-2020-01-18T00-45-13
         name: ""
         resources:

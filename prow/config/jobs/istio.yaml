@@ -97,8 +97,6 @@ jobs:
   - name: integ-distroless-k8s-tests
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.reachability]
     requirements: [kind]
-    # TODO make this required, remove the other distroless test, once we verify its stable
-    modifiers: [optional, hidden]
     env:
     - name: VARIANT
       value: "distroless"
@@ -145,15 +143,6 @@ jobs:
   - name: e2e-simpleTestsMinProfile
     command: [entrypoint, prow/e2e-kind-suite.sh, --single_test, e2e_simple_noauth, --installer, helm, --valueFile, values-istio-minimal.yaml, --helmSetValueList, "gateways.enabled=true,galley.enabled=false,global.useMCP=false"]
     requirements: [kind]
-
-  - name: e2e-simpleTests-cni
-    command: [entrypoint, prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple]
-    requirements: [kind]
-    env:
-      - name: ENABLE_ISTIO_CNI
-        value: true
-      - name: E2E_ARGS
-        value: " --kube_inject_configmap=istio-sidecar-injector"
 
   - name: e2e-simpleTests-non-mcp
     type: postsubmit
