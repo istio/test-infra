@@ -36,6 +36,11 @@ jobs:
     command: [entrypoint, prow/integ-suite-local.sh, test.integration.security.local.presubmit]
     requirements: [docker]
 
+  - name: integ-conformance-local-tests
+    type: presubmit
+    command: [entrypoint, prow/integ-suite-local.sh, test.integration.conformance.local.presubmit]
+    requirements: [docker]
+
   - name: integ-galley-k8s-tests
     type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.galley.kube.presubmit]
@@ -88,6 +93,11 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.istioio.kube.postsubmit]
     requirements: [kind, gcp]
     modifiers: [optional]
+
+  - name: integ-conformance-k8s-tests
+    type: presubmit
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.conformance.kube.presubmit]
+    requirements: [kind]
 
   - name: e2e-mixer-no_auth
     command: [entrypoint, prow/e2e-kind-suite.sh, --single_test, e2e_mixer]
