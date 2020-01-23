@@ -94,6 +94,15 @@ jobs:
     requirements: [kind, gcp]
     modifiers: [optional]
 
+  - name: integ-distroless-k8s-tests
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.reachability]
+    requirements: [kind]
+    # TODO make this required, remove the other distroless test, once we verify its stable
+    modifiers: [optional, hidden]
+    env:
+    - name: VARIANT
+      value: "distroless"
+
   - name: integ-conformance-k8s-tests
     type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.conformance.kube.presubmit]
