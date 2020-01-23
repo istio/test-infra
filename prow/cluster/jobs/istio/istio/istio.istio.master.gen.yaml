@@ -1595,6 +1595,39 @@ presubmits:
     branches:
     - ^master$
     decorate: true
+    name: integ-conformance-local-tests_istio
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-local.sh
+        - test.integration.conformance.local.presubmit
+        image: gcr.io/istio-testing/build-tools:master-2020-01-18T00-45-13
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^master$
+    decorate: true
     name: integ-galley-k8s-tests_istio
     path_alias: istio.io/istio
     spec:
@@ -1855,6 +1888,53 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.istioio.kube.presubmit
+        image: gcr.io/istio-testing/build-tools:master-2020-01-18T00-45-13
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    name: integ-conformance-k8s-tests_istio
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.conformance.kube.presubmit
         image: gcr.io/istio-testing/build-tools:master-2020-01-18T00-45-13
         name: ""
         resources:
