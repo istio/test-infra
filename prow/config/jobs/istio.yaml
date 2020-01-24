@@ -132,23 +132,6 @@ jobs:
     command: [entrypoint, prow/e2e-kind-suite.sh, --use_mcp=false, --single_test, e2e_bookinfo_envoyv2_v1alpha3]
     requirements: [kind]
 
-  - name: e2e-simpleTests
-    command: [entrypoint, prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple, --installer, helm]
-    requirements: [kind]
-
-  - name: e2e-simpleTests-distroless
-    command: [entrypoint, prow/e2e-kind-suite.sh, --auth_enable, --single_test, e2e_simple, --installer, helm, --variant, distroless]
-    requirements: [kind]
-
-  - name: e2e-simpleTestsMinProfile
-    command: [entrypoint, prow/e2e-kind-suite.sh, --single_test, e2e_simple_noauth, --installer, helm, --valueFile, values-istio-minimal.yaml, --helmSetValueList, "gateways.enabled=true,galley.enabled=false,global.useMCP=false"]
-    requirements: [kind]
-
-  - name: e2e-simpleTests-non-mcp
-    type: postsubmit
-    command: [entrypoint, prow/e2e-kind-suite.sh, --auth_enable, --use_mcp=false, --single_test, e2e_simple, --installer, helm]
-    requirements: [kind]
-
   - name: pilot-multicluster-e2e
     command: [entrypoint, prow/istio-pilot-multicluster-e2e.sh]
     requirements: [kind]
