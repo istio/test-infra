@@ -1,6 +1,6 @@
 branches:
 - release-1.5
-image: gcr.io/istio-testing/build-tools:master-2020-01-18T00-45-13
+image: gcr.io/istio-testing/build-tools:2019-10-18T22-40-12
 jobs:
 - command:
   - entrypoint
@@ -36,47 +36,42 @@ jobs:
 - command:
   - entrypoint
   - prow/integ-suite-local.sh
-  - test.integration.framework.local.presubmit
-  name: integ-framework-local-tests
-  type: presubmit
-- command:
-  - entrypoint
-  - prow/integ-suite-local.sh
   - test.integration.galley.local.presubmit
   name: integ-galley-local-tests
+  requirements:
+  - docker
   type: presubmit
 - command:
   - entrypoint
   - prow/integ-suite-local.sh
   - test.integration.pilot.local.presubmit
   name: integ-pilot-local-tests
+  requirements:
+  - docker
   type: presubmit
 - command:
   - entrypoint
   - prow/integ-suite-local.sh
   - test.integration.security.local.presubmit
   name: integ-security-local-tests
+  requirements:
+  - docker
   type: presubmit
 - command:
   - entrypoint
-  - prow/integ-suite-kind.sh
-  - test.integration.framework.kube.presubmit
-  name: integ-framework-k8s-tests
+  - prow/integ-suite-local.sh
+  - test.integration.conformance.local.presubmit
+  name: integ-conformance-local-tests
   requirements:
-  - kind
-  type: presubmit
-- command:
-  - entrypoint
-  - prow/integ-suite-kind.sh
-  - test.integration.istioctl.kube.presubmit
-  name: integ-istioctl-k8s-tests
-  requirements:
-  - kind
+  - docker
   type: presubmit
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.galley.kube.presubmit
+  env:
+  - name: TEST_USE_OPERATOR
+    value: "true"
   name: integ-galley-k8s-tests
   requirements:
   - kind
@@ -85,6 +80,9 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.mixer.kube.presubmit
+  env:
+  - name: TEST_USE_OPERATOR
+    value: "true"
   modifiers:
   - optional
   name: integ-mixer-k8s-tests
@@ -95,6 +93,9 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.pilot.kube.presubmit
+  env:
+  - name: TEST_USE_OPERATOR
+    value: "true"
   name: integ-pilot-k8s-tests
   requirements:
   - kind
@@ -103,6 +104,9 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.security.kube.presubmit
+  env:
+  - name: TEST_USE_OPERATOR
+    value: "true"
   name: integ-security-k8s-tests
   requirements:
   - kind
@@ -111,17 +115,10 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.telemetry.kube.presubmit
+  env:
+  - name: TEST_USE_OPERATOR
+    value: "true"
   name: integ-telemetry-k8s-tests
-  requirements:
-  - kind
-  type: presubmit
-- command:
-  - entrypoint
-  - prow/integ-suite-kind.sh
-  - test.integration.new.installer
-  modifiers:
-  - optional
-  name: integ-new-install-k8s-tests
   requirements:
   - kind
   type: presubmit
@@ -132,6 +129,35 @@ jobs:
   modifiers:
   - optional
   name: integ-istioio-k8s-tests
+  requirements:
+  - kind
+  type: presubmit
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - test.integration.istioio.kube.postsubmit
+  modifiers:
+  - optional
+  name: integ-istioio-k8s-tests
+  requirements:
+  - kind
+  - gcp
+  type: postsubmit
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - test.integration.kube.reachability
+  env:
+  - name: VARIANT
+    value: distroless
+  name: integ-distroless-k8s-tests
+  requirements:
+  - kind
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - test.integration.conformance.kube.presubmit
+  name: integ-conformance-k8s-tests
   requirements:
   - kind
   type: presubmit
@@ -153,10 +179,11 @@ jobs:
   - kind
 - command:
   - entrypoint
-  - prow/e2e-dashboard.sh
+  - prow/e2e-kind-suite.sh
+  - --single_test
+  - e2e_dashboard
   name: e2e-dashboard
   requirements:
-  - gcp
   - kind
 - command:
   - entrypoint
@@ -187,133 +214,49 @@ jobs:
   type: postsubmit
 - command:
   - entrypoint
-  - prow/e2e-kind-suite.sh
-  - --auth_enable
-  - --single_test
-  - e2e_simple
-  - --installer
-  - helm
-  name: e2e-simpleTests
-  requirements:
-  - kind
-- command:
-  - entrypoint
-  - prow/e2e-kind-suite.sh
-  - --auth_enable
-  - --single_test
-  - e2e_simple
-  - --installer
-  - helm
-  - --variant
-  - distroless
-  name: e2e-simpleTests-distroless
-  requirements:
-  - kind
-- command:
-  - entrypoint
-  - prow/e2e-kind-suite.sh
-  - --single_test
-  - e2e_simple_noauth
-  - --installer
-  - helm
-  - --valueFile
-  - values-istio-minimal.yaml
-  - --helmSetValueList
-  - gateways.enabled=true,galley.enabled=false,global.useMCP=false
-  name: e2e-simpleTestsMinProfile
-  requirements:
-  - kind
-- command:
-  - entrypoint
-  - prow/e2e-kind-suite.sh
-  - --auth_enable
-  - --single_test
-  - e2e_simple
-  env:
-  - name: ENABLE_ISTIO_CNI
-    value: "true"
-  - name: E2E_ARGS
-    value: ' --kube_inject_configmap=istio-sidecar-injector'
-  name: e2e-simpleTests-cni
-  requirements:
-  - kind
-- command:
-  - entrypoint
-  - prow/e2e-kind-suite.sh
-  - --auth_enable
-  - --use_mcp=false
-  - --single_test
-  - e2e_simple
-  - --installer
-  - helm
-  name: e2e-simpleTests-non-mcp
-  requirements:
-  - kind
-  type: postsubmit
-- command:
-  - entrypoint
   - prow/istio-pilot-multicluster-e2e.sh
-  modifiers:
-  - optional
   name: pilot-multicluster-e2e
   requirements:
-  - gcp
   - kind
-- command:
-  - entrypoint
-  - make
-  - e2e_cloudfoundry
-  name: istio_e2e_cloudfoundry
-- command:
-  - entrypoint
-  - prow/integ-suite-local.sh
-  - test.integration.framework.local
-  name: integ-framework-local-tests
-  type: postsubmit
 - command:
   - entrypoint
   - prow/integ-suite-local.sh
   - test.integration.galley.local
   name: integ-galley-local-tests
+  requirements:
+  - docker
   type: postsubmit
 - command:
   - entrypoint
   - prow/integ-suite-local.sh
   - test.integration.pilot.local
   name: integ-pilot-local-tests
+  requirements:
+  - docker
   type: postsubmit
 - command:
   - entrypoint
   - prow/integ-suite-local.sh
   - test.integration.security.local
   name: integ-security-local-tests
+  requirements:
+  - docker
   type: postsubmit
 - command:
   - entrypoint
   - prow/integ-suite-local.sh
   - test.integration.conformance.local
   name: integ-conformance-local-tests
-  type: postsubmit
-- command:
-  - entrypoint
-  - prow/integ-suite-kind.sh
-  - test.integration.framework.kube
-  name: integ-framework-k8s-tests
   requirements:
-  - kind
-  type: postsubmit
-- command:
-  - entrypoint
-  - prow/integ-suite-kind.sh
-  - test.integration.istioctl.kube
-  name: integ-istioctl-k8s-tests
-  requirements:
-  - kind
+  - docker
   type: postsubmit
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.galley.kube
+  env:
+  - name: TEST_USE_OPERATOR
+    value: "true"
   name: integ-galley-k8s-tests
   requirements:
   - kind
@@ -322,6 +265,9 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.mixer.kube
+  env:
+  - name: TEST_USE_OPERATOR
+    value: "true"
   name: integ-mixer-k8s-tests
   requirements:
   - kind
@@ -330,6 +276,9 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.pilot.kube
+  env:
+  - name: TEST_USE_OPERATOR
+    value: "true"
   name: integ-pilot-k8s-tests
   requirements:
   - kind
@@ -338,6 +287,9 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.security.kube
+  env:
+  - name: TEST_USE_OPERATOR
+    value: "true"
   name: integ-security-k8s-tests
   requirements:
   - kind
@@ -346,6 +298,9 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.telemetry.kube
+  env:
+  - name: TEST_USE_OPERATOR
+    value: "true"
   name: integ-telemetry-k8s-tests
   requirements:
   - kind
@@ -362,29 +317,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - kindest/node:v1.12.10
-  - test.integration.kube.presubmit
-  name: integ-k8s-112
-  requirements:
-  - kind
-  timeout: 4h0m0s
-  type: postsubmit
-- command:
-  - entrypoint
-  - prow/integ-suite-kind.sh
-  - --node-image
-  - kindest/node:v1.13.10
-  - test.integration.kube.presubmit
-  name: integ-k8s-113
-  requirements:
-  - kind
-  timeout: 4h0m0s
-  type: postsubmit
-- command:
-  - entrypoint
-  - prow/integ-suite-kind.sh
-  - --node-image
-  - kindest/node:v1.14.6
+  - kindest/node:v1.14.9
   - test.integration.kube.presubmit
   name: integ-k8s-114
   requirements:
@@ -395,7 +328,18 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - gcr.io/istio-testing/kind-node:v1.16.0-beta.1
+  - kindest/node:v1.15.6
+  - test.integration.kube.presubmit
+  name: integ-k8s-115
+  requirements:
+  - kind
+  timeout: 4h0m0s
+  type: postsubmit
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --node-image
+  - kindest/node:v1.16.3
   - test.integration.kube.presubmit
   name: integ-k8s-116
   requirements:

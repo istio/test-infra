@@ -1,6 +1,6 @@
 branches:
 - release-1.5
-image: gcr.io/istio-testing/build-tools:master-2020-01-18T00-45-13
+image: gcr.io/istio-testing/build-tools:2019-10-18T22-40-12
 jobs:
 - command:
   - entrypoint
@@ -26,6 +26,10 @@ jobs:
   - make
   - lint
   name: lint
+- command:
+  - make
+  - gen-check
+  name: gencheck
 org: istio
 repo: cni
 resources:

@@ -1,56 +1,73 @@
-org: istio
-repo: release-builder
-image: gcr.io/istio-testing/build-tools:master-2020-01-18T00-45-13
 branches:
 - release-1.5
-
+image: gcr.io/istio-testing/build-tools:2019-10-18T22-40-12
 jobs:
-- name: lint
-  command: [make, lint]
-
-- name: test
-  command: [make, test]
-
-- name: gencheck
-  command: [make, gen-check]
-
-- name: dry-run
-  command: [entrypoint, test/publish.sh]
-  requirements: [gcp]
+- command:
+  - make
+  - lint
+  name: lint
+- command:
+  - make
+  - test
+  name: test
+- command:
+  - make
+  - gen-check
+  name: gencheck
+- command:
+  - entrypoint
+  - test/publish.sh
+  name: dry-run
+  regex: \.go$|\.sh$
+  requirements:
+  - gcp
   resources: build
-  regex: '\.go$|\.sh$'
-
-- name: build-warning
+- command:
+  - release/build-warning.sh
+  modifiers:
+  - optional
+  name: build-warning
+  regex: ^release/trigger-build$
   type: presubmit
-  regex: '^release/trigger-build$'
-  command: [release/build-warning.sh]
-  modifiers: [optional]
-
-- name: publish-warning
+- command:
+  - release/publish-warning.sh
+  modifiers:
+  - optional
+  name: publish-warning
+  regex: ^release/trigger-publish$
   type: presubmit
-  regex: '^release/trigger-publish$'
-  command: [release/publish-warning.sh]
-  modifiers: [optional]
-
-- name: build-release
-  type: postsubmit
-  regex: '^release/trigger-build$'
-  command: [entrypoint, release/build.sh]
-  requirements: [release]
+- command:
+  - entrypoint
+  - release/build.sh
+  name: build-release
+  regex: ^release/trigger-build$
+  requirements:
+  - release
   resources: build
-
-- name: publish-release
   type: postsubmit
-  regex: '^release/trigger-publish$'
-  command: [entrypoint, release/publish.sh]
-  requirements: [release]
+- command:
+  - entrypoint
+  - release/publish.sh
+  name: publish-release
+  regex: ^release/trigger-publish$
+  requirements:
+  - release
   resources: build
-
+  type: postsubmit
+org: istio
+repo: release-builder
 resources:
   build:
-    requests:
-      memory: "3Gi"
-      cpu: "5000m"
     limits:
-      memory: "24Gi"
-      cpu: "8000m"
+      cpu: "8"
+      memory: 24Gi
+    requests:
+      cpu: "5"
+      memory: 3Gi
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: 500m
+      memory: 3Gi

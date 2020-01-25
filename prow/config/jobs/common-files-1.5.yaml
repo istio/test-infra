@@ -1,11 +1,25 @@
 branches:
 - release-1.5
-image: gcr.io/istio-testing/build-tools:master-2020-01-18T00-45-13
+image: gcr.io/istio-testing/build-tools:2019-10-18T22-40-12
 jobs:
 - command:
   - make
   - lint
   name: lint
+- command:
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=istio,operator,istio.io,common-files,api,proxy,test-infra,tools,installer,bots,release-builder,pkg,cni,cri,community,client-go
+  - '--title=Automator: update common-files@$AUTOMATOR_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+  - --modifier=commonfiles
+  - --token-path=/etc/github-token/oauth
+  - --cmd=make update-common gen
+  name: update-common
+  repos:
+  - istio/test-infra
+  requirements:
+  - github
+  type: postsubmit
 org: istio
 repo: common-files
 resources:

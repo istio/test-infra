@@ -1,6 +1,6 @@
 branches:
 - release-1.5
-image: gcr.io/istio-testing/build-tools:master-2020-01-18T00-45-13
+image: gcr.io/istio-testing/build-tools:2019-10-18T22-40-12
 jobs:
 - command:
   - make
@@ -18,6 +18,17 @@ jobs:
   - make
   - mandiff
   name: mandiff
+- command:
+  - make
+  - gen-check
+  name: gencheck
+- command:
+  - entrypoint
+  - make
+  - e2e
+  name: e2e
+  requirements:
+  - kind
 - command:
   - entrypoint
   - make

@@ -1,6 +1,6 @@
 branches:
 - release-1.5
-image: gcr.io/istio-testing/build-tools:master-2020-01-18T00-45-13
+image: gcr.io/istio-testing/build-tools:2019-10-18T22-40-12
 jobs:
 - command:
   - make
@@ -14,9 +14,42 @@ jobs:
   - make
   - test
   name: test
+- command:
+  - make
+  - gen-check
+  name: gencheck
+- command:
+  - entrypoint
+  - make
+  - containers
+  name: containers
+  regex: docker/.+|cmd/.+
+  requirements:
+  - gcp
+  - docker
+  resources: build
+  type: postsubmit
+- command:
+  - entrypoint
+  - make
+  - containers-test
+  name: containers-test
+  regex: docker/.+|cmd/.+
+  requirements:
+  - gcp
+  - docker
+  resources: build
+  type: presubmit
 org: istio
 repo: tools
 resources:
+  build:
+    limits:
+      cpu: "8"
+      memory: 24Gi
+    requests:
+      cpu: "8"
+      memory: 4Gi
   default:
     limits:
       cpu: "3"
