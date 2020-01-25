@@ -1,0 +1,18 @@
+branches:
+- release-1.5
+image: gcr.io/istio-testing/build-tools:master-2020-01-18T00-45-13
+jobs:
+- command:
+  - make
+  - lint
+  name: lint
+org: istio
+repo: istio.io
+resources:
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: 500m
+      memory: 3Gi

@@ -1,0 +1,38 @@
+branches:
+- release-1.5
+image: gcr.io/istio-testing/build-tools:master-2020-01-18T00-45-13
+jobs:
+- command:
+  - make
+  - lint
+  name: lint
+- command:
+  - make
+  - mesh
+  name: mesh
+- command:
+  - make
+  - test
+  name: test
+- command:
+  - make
+  - mandiff
+  name: mandiff
+- command:
+  - entrypoint
+  - make
+  - docker.all
+  name: release
+  requirements:
+  - gcp
+  type: postsubmit
+org: istio
+repo: operator
+resources:
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: 500m
+      memory: 3Gi

@@ -1,0 +1,52 @@
+branches:
+- release-1.5
+image: gcr.io/istio-testing/build-tools:master-2020-01-18T00-45-13
+jobs:
+- command:
+  - make
+  - run-build
+  name: build
+- command:
+  - make
+  - lint_modern
+  name: lintmodern
+- command:
+  - entrypoint
+  - bin/with-kind.sh
+  - make
+  - run-test-demo
+  name: demo
+  repos:
+  - istio/istio
+  requirements:
+  - kind
+- command:
+  - entrypoint
+  - bin/with-kind.sh
+  - make
+  - run-test-noauth
+  name: noauth
+  repos:
+  - istio/istio
+  requirements:
+  - kind
+- command:
+  - entrypoint
+  - bin/with-kind.sh
+  - make
+  - run-base-reachability
+  name: base
+  repos:
+  - istio/istio
+  requirements:
+  - kind
+org: istio
+repo: installer
+resources:
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: 500m
+      memory: 3Gi
