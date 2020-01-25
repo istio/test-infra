@@ -3,19 +3,19 @@ postsubmits:
   istio/common-files:
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_common-files_postsubmit
+      testgrid-dashboards: istio_release-1.5_common-files_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^master$
+    - ^release-1.5$
     decorate: true
-    name: lint_common-files_postsubmit
+    name: lint_common-files_release-1.5_postsubmit
     path_alias: istio.io/common-files
     spec:
       containers:
       - command:
         - make
         - lint
-        image: gcr.io/istio-testing/build-tools:master-2019-12-09T23-37-05
+        image: gcr.io/istio-testing/build-tools:2019-10-18T22-40-12
         name: ""
         resources:
           limits:
@@ -30,17 +30,17 @@ postsubmits:
         testing: test-pool
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_common-files_postsubmit
+      testgrid-dashboards: istio_release-1.5_common-files_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^master$
+    - ^release-1.5$
     decorate: true
     extra_refs:
-    - base_ref: master
+    - base_ref: release-1.5
       org: istio
       path_alias: istio.io/test-infra
       repo: test-infra
-    name: update-common_common-files_postsubmit
+    name: update-common_common-files_release-1.5_postsubmit
     path_alias: istio.io/common-files
     spec:
       containers:
@@ -52,7 +52,7 @@ postsubmits:
         - --modifier=commonfiles
         - --token-path=/etc/github-token/oauth
         - --cmd=make update-common gen
-        image: gcr.io/istio-testing/build-tools:master-2019-12-09T23-37-05
+        image: gcr.io/istio-testing/build-tools:2019-10-18T22-40-12
         name: ""
         resources:
           limits:
@@ -77,18 +77,18 @@ presubmits:
   istio/common-files:
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_common-files
+      testgrid-dashboards: istio_release-1.5_common-files
     branches:
-    - ^master$
+    - ^release-1.5$
     decorate: true
-    name: lint_common-files
+    name: lint_common-files_release-1.5
     path_alias: istio.io/common-files
     spec:
       containers:
       - command:
         - make
         - lint
-        image: gcr.io/istio-testing/build-tools:master-2019-12-09T23-37-05
+        image: gcr.io/istio-testing/build-tools:2019-10-18T22-40-12
         name: ""
         resources:
           limits:
