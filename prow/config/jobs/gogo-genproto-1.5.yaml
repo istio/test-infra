@@ -1,0 +1,26 @@
+branches:
+- release-1.5
+image: gcr.io/istio-testing/build-tools:2019-10-18T22-40-12
+jobs:
+- command:
+  - make
+  - build
+  name: build
+- command:
+  - make
+  - lint
+  name: lint
+- command:
+  - make
+  - gen-check
+  name: gencheck
+org: istio
+repo: gogo-genproto
+resources:
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: 500m
+      memory: 3Gi

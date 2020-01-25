@@ -1,0 +1,50 @@
+branches:
+- release-1.5
+image: gcr.io/istio-testing/build-tools:2019-10-18T22-40-12
+jobs:
+- command:
+  - make
+  - presubmit
+  name: build
+- command:
+  - make
+  - gen-check
+  name: gencheck
+- command:
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=client-go
+  - '--title=Automator: update istio/api@$AUTOMATOR_BRANCH dependency in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+  - --modifier=client-go_update_api
+  - --token-path=/etc/github-token/oauth
+  - --cmd=go get istio.io/api@$AUTOMATOR_BRANCH && go mod tidy && make gen
+  name: gen_client-go
+  repos:
+  - istio/test-infra
+  requirements:
+  - github
+  type: postsubmit
+- command:
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=istio
+  - '--title=Automator: update istio/api@$AUTOMATOR_BRANCH dependency in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+  - --modifier=istio_update_api
+  - --token-path=/etc/github-token/oauth
+  - --cmd=go get istio.io/api@$AUTOMATOR_BRANCH && go mod tidy && make gen
+  name: gen_istio
+  repos:
+  - istio/test-infra
+  requirements:
+  - github
+  type: postsubmit
+org: istio
+repo: api
+resources:
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: 500m
+      memory: 3Gi
