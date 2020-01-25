@@ -66,7 +66,6 @@ func main() {
 			if jobs.SupportReleaseBranching {
 				jobs.Branches = []string{"release-" + os.Args[2]}
 				jobs.SupportReleaseBranching = false
-				jobs.Image = config.BuilderImage
 
 				name := file.Name()
 				ext := filepath.Ext(name)
