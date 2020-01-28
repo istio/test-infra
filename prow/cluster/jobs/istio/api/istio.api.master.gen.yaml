@@ -75,10 +75,11 @@ postsubmits:
         - ../test-infra/tools/automator/automator.sh
         - --org=istio
         - --repo=client-go
-        - '--title=Automator: update istio/api@$AUTOMATOR_BRANCH dependency in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+        - '--title=Automator: update istio/api@$AUTOMATOR_SHA_SHORT dependency in
+          $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
         - --modifier=client-go_update_api
         - --token-path=/etc/github-token/oauth
-        - --cmd=go get istio.io/api@$AUTOMATOR_BRANCH && go mod tidy && make gen
+        - --cmd=go get istio.io/api@$AUTOMATOR_SHA && go mod tidy && make gen
         image: gcr.io/istio-testing/build-tools:master-2020-01-28T02-27-49
         name: ""
         resources:
@@ -120,10 +121,11 @@ postsubmits:
         - ../test-infra/tools/automator/automator.sh
         - --org=istio
         - --repo=istio
-        - '--title=Automator: update istio/api@$AUTOMATOR_BRANCH dependency in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+        - '--title=Automator: update istio/api@$AUTOMATOR_SHA_SHORT dependency in
+          $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
         - --modifier=istio_update_api
         - --token-path=/etc/github-token/oauth
-        - --cmd=go get istio.io/api@$AUTOMATOR_BRANCH && go mod tidy && make gen
+        - --cmd=go get istio.io/api@$AUTOMATOR_SHA && go mod tidy && make gen
         image: gcr.io/istio-testing/build-tools:master-2020-01-28T02-27-49
         name: ""
         resources:
