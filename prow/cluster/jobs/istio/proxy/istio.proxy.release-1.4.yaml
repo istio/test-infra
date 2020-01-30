@@ -26,6 +26,9 @@ presubmits:
       - image: gcr.io/istio-testing/prowbazel:0.5.16
         command:
         - ./prow/proxy-presubmit.sh
+        env:
+        - name: GOPROXY
+          value: "https://proxy.golang.org"
         resources:
           requests:
             memory: "8Gi"
@@ -57,6 +60,9 @@ presubmits:
       - image: gcr.io/istio-testing/prowbazel:0.5.16
         command:
         - ./prow/proxy-presubmit-asan.sh
+        env:
+        - name: GOPROXY
+          value: "https://proxy.golang.org"
         resources:
           requests:
             memory: "8Gi"
@@ -88,6 +94,9 @@ presubmits:
       - image: gcr.io/istio-testing/prowbazel:0.5.16
         command:
         - ./prow/proxy-presubmit-tsan.sh
+        env:
+        - name: GOPROXY
+          value: "https://proxy.golang.org"
         resources:
           requests:
             memory: "8Gi"
@@ -119,6 +128,9 @@ presubmits:
       - image: gcr.io/istio-testing/prowbazel:0.5.16
         command:
         - ./prow/proxy-presubmit-release.sh
+        env:
+        - name: GOPROXY
+          value: "https://proxy.golang.org"
         resources:
           requests:
             memory: "8Gi"
@@ -158,6 +170,9 @@ postsubmits:
         - ./prow/proxy-postsubmit.sh
         securityContext:
           privileged: true
+        env:
+        - name: GOPROXY
+          value: "https://proxy.golang.org"
         resources:
           requests:
             memory: "8Gi"
