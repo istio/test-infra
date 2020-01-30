@@ -37,7 +37,7 @@ go run . \
   "${COMMON_OPTS[@]}" \
   --branches=release-1.4,master \
   --env DOCKER_HUB=gcr.io/istio-prow-build,GCS_BUCKET=istio-private-build/dev \
-  --labels preset-enable-ssh=true \
+  --labels preset-enable-ssh=true,preset-override-deps=release-1.4 \
   --job-type postsubmit \
   --repo-whitelist istio \
   --job-whitelist release_istio_postsubmit,release_istio_release-1.4_postsubmit
@@ -46,7 +46,7 @@ go run . \
 go run . \
   "${COMMON_OPTS[@]}" \
   --branches=release-1.4,master \
-  --labels preset-override-envoy=true \
+  --labels preset-override-envoy=true,preset-override-deps=release-1.4 \
   --job-type presubmit,postsubmit \
   --repo-whitelist istio \
   --job-blacklist release_istio_postsubmit,release_istio_release-1.4_postsubmit
