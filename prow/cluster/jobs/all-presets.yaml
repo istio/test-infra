@@ -151,12 +151,20 @@ presets:
         name: authentikos-token
         key: token
 - labels:
-    preset-override-deps: "release-1.4"
+    preset-override-deps: "release-1.4-release"
   env:
   - name: DEPENDENCIES
     valueFrom:
       configMapKeyRef:
-        name: release-1.4-deps
+        name: release-1.4-release-deps
+        key: dependencies
+- labels:
+    preset-override-deps: "release-1.4-istio"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: release-1.4-istio-deps
         key: dependencies
 - labels:
     preset-goproxy: "true"

@@ -20,6 +20,8 @@
 # e.g.
 #  create-deps-cm.sh --context=gke_prow_us-west1-a_prow --branch=master --namespace=test-pods --key=dependencies --interactive master-deps
 
+# TODO: support both older releases and custom dependencies. As written, this only works for release-builder `release-1.5` or newer.
+
 set -o errexit
 set -o nounset
 set -o pipefail
