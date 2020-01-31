@@ -46,7 +46,7 @@ go run . \
 go run . \
   "${COMMON_OPTS[@]}" \
   --branches=release-1.4,master \
-  --labels preset-override-envoy=true,preset-override-deps=release-1.4 \
+  --labels preset-enable-ssh=true,preset-override-envoy=true,preset-override-deps=release-1.4 \
   --job-type presubmit,postsubmit \
   --repo-whitelist istio \
   --job-blacklist release_istio_postsubmit,release_istio_release-1.4_postsubmit
