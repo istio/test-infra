@@ -21,6 +21,9 @@ postsubmits:
         - localTestEnv
         - test
         - binaries-test
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -52,6 +55,9 @@ postsubmits:
         - T=-v
         - localTestEnv
         - racetest
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -80,6 +86,9 @@ postsubmits:
         - entrypoint
         - make
         - coverage-diff
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -109,6 +118,9 @@ postsubmits:
       - command:
         - entrypoint
         - prow/release-test.sh
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -138,6 +150,9 @@ postsubmits:
         - prow/e2e-kind-suite.sh
         - --single_test
         - e2e_mixer
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -187,6 +202,9 @@ postsubmits:
         - prow/e2e-kind-suite.sh
         - --single_test
         - e2e_pilotv2_v1alpha3
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -236,6 +254,9 @@ postsubmits:
       - command:
         - entrypoint
         - prow/e2e-dashboard.sh
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -265,6 +286,9 @@ postsubmits:
         - prow/e2e-kind-suite.sh
         - --single_test
         - e2e_bookinfo_envoyv2_v1alpha3
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -314,6 +338,9 @@ postsubmits:
         - prow/e2e-kind-suite.sh
         - --single_test
         - e2e_bookinfo_trustdomain
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -364,6 +391,9 @@ postsubmits:
         - --use_mcp=false
         - --single_test
         - e2e_bookinfo_envoyv2_v1alpha3
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -416,6 +446,9 @@ postsubmits:
         - e2e_simple
         - --installer
         - helm
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -470,6 +503,9 @@ postsubmits:
         - helm
         - --variant
         - distroless
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -525,6 +561,9 @@ postsubmits:
         - values-istio-minimal.yaml
         - --helmSetValueList
         - gateways.enabled=true,galley.enabled=false,global.useMCP=false
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -633,6 +672,9 @@ postsubmits:
         - e2e_simple
         - --installer
         - helm
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -682,6 +724,9 @@ postsubmits:
       - command:
         - entrypoint
         - prow/istio-pilot-multicluster-e2e.sh
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -710,6 +755,9 @@ postsubmits:
         - entrypoint
         - make
         - e2e_cloudfoundry
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -738,6 +786,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.framework.local
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -766,6 +817,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.galley.local
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -794,6 +848,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.mixer.local
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -822,6 +879,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.pilot.local
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -850,6 +910,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.security.local
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -878,6 +941,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.conformance.local
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -905,6 +971,9 @@ postsubmits:
       - command:
         - entrypoint
         - prow/istio-integ-race-native-tests.sh
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -933,6 +1002,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.framework.kube
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -981,6 +1053,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.istioctl.kube
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1029,6 +1104,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.galley.kube
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1077,6 +1155,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.mixer.kube
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1125,6 +1206,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.pilot.kube
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1173,6 +1257,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.security.kube
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1221,6 +1308,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.telemetry.kube
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1269,6 +1359,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.conformance.kube
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1321,6 +1414,9 @@ postsubmits:
         - --node-image
         - kindest/node:v1.13.10
         - test.integration.kube.presubmit
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1373,6 +1469,9 @@ postsubmits:
         - --node-image
         - kindest/node:v1.14.6
         - test.integration.kube.presubmit
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1425,6 +1524,9 @@ postsubmits:
         - --node-image
         - gcr.io/istio-testing/kind-node:v1.16.0-beta.1
         - test.integration.kube.presubmit
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1479,6 +1581,9 @@ presubmits:
         - localTestEnv
         - test
         - binaries-test
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1506,6 +1611,9 @@ presubmits:
         - entrypoint
         - make
         - lint
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1536,6 +1644,9 @@ presubmits:
         - T=-v
         - localTestEnv
         - racetest
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1563,6 +1674,9 @@ presubmits:
         - entrypoint
         - make
         - shellcheck
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1590,6 +1704,9 @@ presubmits:
         - entrypoint
         - make
         - coverage-diff
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1618,6 +1735,9 @@ presubmits:
       - command:
         - entrypoint
         - prow/release-test.sh
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1645,6 +1765,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.framework.local.presubmit
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1672,6 +1795,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.galley.local.presubmit
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1699,6 +1825,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.mixer.local.presubmit
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1726,6 +1855,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.pilot.local.presubmit
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1753,6 +1885,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration.security.local.presubmit
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1780,6 +1915,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.framework.kube.presubmit
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1827,6 +1965,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.istioctl.kube.presubmit
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1874,6 +2015,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.galley.kube.presubmit
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1922,6 +2066,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.mixer.kube.presubmit
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -1969,6 +2116,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.pilot.kube.presubmit
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -2016,6 +2166,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.security.kube.presubmit
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -2063,6 +2216,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.telemetry.kube.presubmit
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -2111,6 +2267,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.new.installer
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -2159,6 +2318,9 @@ presubmits:
         - prow/e2e-kind-suite.sh
         - --single_test
         - e2e_mixer
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -2207,6 +2369,9 @@ presubmits:
         - prow/e2e-kind-suite.sh
         - --single_test
         - e2e_pilotv2_v1alpha3
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -2255,6 +2420,9 @@ presubmits:
       - command:
         - entrypoint
         - prow/e2e-dashboard.sh
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -2283,6 +2451,9 @@ presubmits:
         - prow/e2e-kind-suite.sh
         - --single_test
         - e2e_bookinfo_envoyv2_v1alpha3
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -2331,6 +2502,9 @@ presubmits:
         - prow/e2e-kind-suite.sh
         - --single_test
         - e2e_bookinfo_trustdomain
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -2382,6 +2556,9 @@ presubmits:
         - e2e_simple
         - --installer
         - helm
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -2435,6 +2612,9 @@ presubmits:
         - helm
         - --variant
         - distroless
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -2489,6 +2669,9 @@ presubmits:
         - values-istio-minimal.yaml
         - --helmSetValueList
         - gateways.enabled=true,galley.enabled=false,global.useMCP=false
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -2592,6 +2775,9 @@ presubmits:
       - command:
         - entrypoint
         - prow/istio-pilot-multicluster-e2e.sh
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -2619,6 +2805,9 @@ presubmits:
         - entrypoint
         - make
         - e2e_cloudfoundry
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:

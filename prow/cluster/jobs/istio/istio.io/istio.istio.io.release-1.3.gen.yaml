@@ -15,6 +15,9 @@ postsubmits:
       - command:
         - make
         - lint
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/build-tools:2019-08-31T04-48-30
         name: ""
         resources:
@@ -43,6 +46,9 @@ presubmits:
       - command:
         - make
         - lint
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/build-tools:2019-08-31T04-48-30
         name: ""
         resources:
