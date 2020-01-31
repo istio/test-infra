@@ -15,17 +15,14 @@ spec:
       - name: plank
         image: gcr.io/k8s-prow/plank:v20200131-19ad23dfd
         args:
+        - --github-token-path=""
         - --config-path=/etc/config/config.yaml
         - --dry-run=false
         - --job-config-path=/etc/job-config
         - --tot-url=http://tot
-        - --github-endpoint=http://ghproxy
-        - --github-endpoint=https://api.github.com
         - --kubeconfig=/etc/kubeconfig/istio-config
+        - --skip-report=true
         volumeMounts:
-        - name: oauth
-          mountPath: /etc/github
-          readOnly: true
         - name: config
           mountPath: /etc/config
           readOnly: true
@@ -36,9 +33,6 @@ spec:
           name: kubeconfig
           readOnly: true
       volumes:
-      - name: oauth
-        secret:
-          secretName: oauth-token
       - name: config
         configMap:
           name: config
