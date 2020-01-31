@@ -73,6 +73,7 @@ type JobConfig struct {
 	Repo                    string                             `json:"repo,omitempty"`
 	Org                     string                             `json:"org,omitempty"`
 	Branches                []string                           `json:"branches,omitempty"`
+	Env                     []v1.EnvVar                        `json:"env,omitempty"`
 	Resources               map[string]v1.ResourceRequirements `json:"resources,omitempty"`
 	Image                   string                             `json:"image,omitempty"`
 	SupportReleaseBranching bool                               `json:"support_release_branching,omitempty"`
@@ -403,11 +404,16 @@ func createContainer(jobConfig JobConfig, job Job, resources map[string]v1.Resou
 		img = jobConfig.Image
 	}
 
+	envs := job.Env
+	if len(envs) == 0 {
+		envs = jobConfig.Env
+	}
+
 	c := v1.Container{
 		Image:           img,
 		SecurityContext: &v1.SecurityContext{Privileged: newTrue()},
 		Command:         job.Command,
-		Env:             job.Env,
+		Env:             envs,
 	}
 	resource := DefaultResource
 	if job.Resources != "" {

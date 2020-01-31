@@ -15,6 +15,9 @@ postsubmits:
       - command:
         - make
         - lint
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/build-tools:2019-09-17T18-24-15
         name: ""
         resources:
@@ -42,6 +45,9 @@ postsubmits:
       - command:
         - make
         - mesh
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/build-tools:2019-09-17T18-24-15
         name: ""
         resources:
@@ -69,6 +75,9 @@ postsubmits:
       - command:
         - make
         - test
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/build-tools:2019-09-17T18-24-15
         name: ""
         resources:
@@ -96,6 +105,9 @@ postsubmits:
       - command:
         - make
         - mandiff
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/build-tools:2019-09-17T18-24-15
         name: ""
         resources:
@@ -124,6 +136,9 @@ postsubmits:
       - command:
         - entrypoint
         - prow/e2e_install.sh
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
@@ -172,6 +187,9 @@ presubmits:
       - command:
         - make
         - lint
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/build-tools:2019-09-17T18-24-15
         name: ""
         resources:
@@ -198,6 +216,9 @@ presubmits:
       - command:
         - make
         - mesh
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/build-tools:2019-09-17T18-24-15
         name: ""
         resources:
@@ -224,6 +245,9 @@ presubmits:
       - command:
         - make
         - test
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/build-tools:2019-09-17T18-24-15
         name: ""
         resources:
@@ -250,6 +274,9 @@ presubmits:
       - command:
         - make
         - mandiff
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/build-tools:2019-09-17T18-24-15
         name: ""
         resources:
@@ -278,6 +305,9 @@ presubmits:
       - command:
         - entrypoint
         - prow/e2e_install.sh
+        env:
+        - name: GOPROXY
+          value: https://proxy.golang.org
         image: gcr.io/istio-testing/istio-builder:v20191017-386873c9-dirty
         name: ""
         resources:
