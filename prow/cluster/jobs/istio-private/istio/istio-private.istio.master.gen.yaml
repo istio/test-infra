@@ -1084,8 +1084,11 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - kindest/node:v1.14.9
+        - kindest/node:v1.14.10
         - test.integration.kube.presubmit
+        env:
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
         image: gcr.io/istio-testing/build-tools:master-2020-01-30T23-36-53
         name: ""
         resources:
@@ -1140,8 +1143,11 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - kindest/node:v1.15.6
+        - kindest/node:v1.15.7
         - test.integration.kube.presubmit
+        env:
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
         image: gcr.io/istio-testing/build-tools:master-2020-01-30T23-36-53
         name: ""
         resources:
@@ -1196,8 +1202,11 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - kindest/node:v1.16.3
+        - kindest/node:v1.16.4
         - test.integration.kube.presubmit
+        env:
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
         image: gcr.io/istio-testing/build-tools:master-2020-01-30T23-36-53
         name: ""
         resources:
