@@ -72,11 +72,6 @@ func TestGenjobs(t *testing.T) {
 			equal: true,
 		},
 		{
-			name:  "override annotations",
-			args:  []string{"--mapping=istio=istio-private", "--annotations=testgrid-create-test-group=false"},
-			equal: true,
-		},
-		{
 			name:  "sort ascending",
 			args:  []string{"--mapping=istio=istio-private", "--sort=asc"},
 			equal: true,

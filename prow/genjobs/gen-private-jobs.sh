@@ -26,7 +26,6 @@ COMMON_OPTS=(
   "--output=../cluster/jobs/"
   "--cluster=private"
   "--modifier=priv"
-  "--annotations=testgrid-create-test-group=false"
 )
 
 # Clean ./prow/cluster/jobs/istio-private directory

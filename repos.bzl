@@ -2257,14 +2257,6 @@ def go_repositories():
         version = "v0.1.0",
     )
     go_repository(
-        name = "com_github_googlecloudplatform_testgrid",
-        build_file_generation = "on",
-        build_file_proto_mode = "disable",
-        importpath = "github.com/GoogleCloudPlatform/testgrid",
-        sum = "h1:CyF0eU2zgmEnZSlo2tlTYuzHu7etOg07+WwuE4kVn58=",
-        version = "v0.0.0-20191016232453-9f0319fc1197",
-    )
-    go_repository(
         name = "com_github_gotestyourself_gotestyourself",
         build_file_generation = "on",
         build_file_proto_mode = "disable",
