@@ -155,6 +155,34 @@ periodics:
           - entrypoint
           - perf/benchmark/run_benchmark_job.sh
 
+- cron: "8 0 * * *" # starts every day at 00:00AM UTC
+  name: daily-performance-benchmark-release-1.5
+  branches: release-1.5
+  decorate: true
+  timeout: 17h
+  decoration_config:
+    timeout: 17h0m0s
+  extra_refs:
+    - org: istio
+      repo: tools
+      base_ref: release-1.5
+      path_alias: istio.io/tools
+  annotations:
+    testgrid-dashboards: istio_release-pipeline
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
+  labels:
+    preset-service-account: "true"
+  spec:
+    containers:
+      - <<: *istio_container_with_kind
+        env:
+          - name: GIT_BRANCH
+            value: release-1.5
+        command:
+          - entrypoint
+          - perf/benchmark/run_benchmark_job.sh
+
 - cron: "0 16 * * *"  # starts every day at 16:00PM UTC
   name: daily-performance-benchmark-release-1.4
   branches: release-1.4
