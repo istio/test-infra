@@ -225,6 +225,112 @@ postsubmits:
       preset-enable-ssh: "true"
       preset-override-deps: release-1.4-istio
       preset-override-envoy: "true"
+    name: e2e-mixer-no_auth_istio_postsubmit_priv
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/e2e-kind-suite.sh
+        - --single_test
+        - e2e_mixer
+        image: gcr.io/istio-testing/build-tools:master-2020-01-30T23-36-53
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-ssh: "true"
+      preset-override-deps: release-1.4-istio
+      preset-override-envoy: "true"
+    name: e2e-dashboard_istio_postsubmit_priv
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/e2e-kind-suite.sh
+        - --single_test
+        - e2e_dashboard
+        image: gcr.io/istio-testing/build-tools:master-2020-01-30T23-36-53
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-ssh: "true"
+      preset-override-deps: release-1.4-istio
+      preset-override-envoy: "true"
     name: integ-galley-local-tests_istio_postsubmit_priv
     path_alias: istio.io/istio
     spec:
@@ -1604,6 +1710,114 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.conformance.kube.presubmit
+        image: gcr.io/istio-testing/build-tools:master-2020-01-30T23-36-53
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-ssh: "true"
+      preset-override-deps: release-1.4-istio
+      preset-override-envoy: "true"
+    name: e2e-mixer-no_auth_istio_priv
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/e2e-kind-suite.sh
+        - --single_test
+        - e2e_mixer
+        image: gcr.io/istio-testing/build-tools:master-2020-01-30T23-36-53
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-ssh: "true"
+      preset-override-deps: release-1.4-istio
+      preset-override-envoy: "true"
+    name: e2e-dashboard_istio_priv
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/e2e-kind-suite.sh
+        - --single_test
+        - e2e_dashboard
         image: gcr.io/istio-testing/build-tools:master-2020-01-30T23-36-53
         name: ""
         resources:
