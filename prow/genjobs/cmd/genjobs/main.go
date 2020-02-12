@@ -67,6 +67,7 @@ type options struct {
 	output           string
 	sort             string
 	branches         []string
+	branchesOut      []string
 	presets          []string
 	rerunOrgs        []string
 	rerunUsers       []string
@@ -106,6 +107,7 @@ func (o *options) parseFlags() {
 	flag.StringVarP(&o.output, "output", "o", ".", "Output file or directory to write generated job(s).")
 	flag.StringVarP(&o.sort, "sort", "s", "", "Sort the job(s) by name: (e.g. (asc)ending, (desc)ending).")
 	flag.StringSliceVar(&o.branches, "branches", []string{}, "Branch(es) to generate job(s) for.")
+	flag.StringSliceVar(&o.branchesOut, "branches-out", []string{}, "Override output branch(es) for generated job(s).")
 	flag.StringSliceVarP(&o.presets, "presets", "p", []string{}, "Path to file(s) containing additional presets.")
 	flag.StringSliceVar(&o.rerunOrgs, "rerun-orgs", []string{}, "GitHub organizations to authorize job rerun for.")
 	flag.StringSliceVar(&o.rerunUsers, "rerun-users", []string{}, "GitHub user to authorize job rerun for.")
@@ -319,6 +321,15 @@ func updateJobName(o options, job *config.JobBase) {
 	}
 
 	job.Name += suffix
+}
+
+// updateBrancher updates the jobs Brancher fields based on provided inputs.
+func updateBrancher(o options, job *config.Brancher) {
+	if len(o.branchesOut) == 0 {
+		return
+	}
+
+	job.Branches = o.branchesOut
 }
 
 // updateUtilityConfig updates the jobs UtilityConfig fields based on provided inputs.
@@ -731,6 +742,7 @@ func Main() {
 
 				updateExtraRefs(o, job.ExtraRefs)
 				updateJobBase(o, &job.JobBase, orgrepo)
+				updateBrancher(o, &job.Brancher)
 				updateUtilityConfig(o, &job.UtilityConfig)
 				resolvePresets(o, job.Labels, &job.JobBase, append(presets, jobs.Presets...))
 
@@ -753,6 +765,7 @@ func Main() {
 
 				updateExtraRefs(o, job.ExtraRefs)
 				updateJobBase(o, &job.JobBase, orgrepo)
+				updateBrancher(o, &job.Brancher)
 				updateUtilityConfig(o, &job.UtilityConfig)
 				resolvePresets(o, job.Labels, &job.JobBase, append(presets, jobs.Presets...))
 
