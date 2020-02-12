@@ -25,8 +25,7 @@ jobs:
     - deploy-gcsweb
     - deploy-build
     - deploy-private
-    requirements:
-    - deploy
+    requirements: [deploy]
     node_selector:
       prod: prow
 
@@ -41,8 +40,7 @@ jobs:
     - -C
     - authentikos
     - deploy
-    requirements:
-    - docker
+    requirements: [docker, gcp]
     node_selector:
       prod: prow
 
@@ -57,7 +55,6 @@ jobs:
     - -C
     - prow/genjobs
     - deploy
-    requirements:
-    - docker
+    requirements: [docker, gcp]
     node_selector:
       prod: prow
