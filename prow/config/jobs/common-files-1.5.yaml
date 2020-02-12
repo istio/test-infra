@@ -20,6 +20,19 @@ jobs:
   requirements:
   - github
   type: postsubmit
+- name: update-build-tools-image
+  type: postsubmit
+  command:
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=test-infra
+  - "--title=Automator: update build-tools:$AUTOMATOR_BRANCH"
+  - --modifier=buildtools
+  - --token-path=/etc/github-token/oauth
+  - --script-path=../test-infra/tools/automator/scripts/update-build-tools-image.sh
+  - --script-args=--post=make gen
+  requirements: [github]
+  repos: [istio/test-infra]
 org: istio
 repo: common-files
 resources:
