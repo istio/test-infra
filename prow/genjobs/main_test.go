@@ -52,6 +52,11 @@ func TestGenjobs(t *testing.T) {
 			equal: true,
 		},
 		{
+			name:  "branches-out",
+			args:  []string{"--mapping=istio=istio-private", "--branches-out=custom-1,^custom-2$"},
+			equal: true,
+		},
+		{
 			name:  "extra-refs exists",
 			args:  []string{"--mapping=istio=istio-private", "--extra-refs"},
 			equal: true,
