@@ -159,11 +159,11 @@ validate_opts() {
   fi
 
   if [ -z "${user:-}" ]; then
-    user="$(curl --silent --header "Authorization: token $token" "https://api.github.com/user" | jq --raw-output ".login")"
+    user="$(curl -sSfLH "Authorization: token $token" "https://api.github.com/user" | jq --raw-output ".login")"
   fi
 
   if [ -z "${email:-}" ]; then
-    email="$(curl --silent --header "Authorization: token $token" "https://api.github.com/user" | jq --raw-output ".email")"
+    email="$(curl -sSfLH "Authorization: token $token" "https://api.github.com/user" | jq --raw-output ".email")"
   fi
 }
 
@@ -194,6 +194,8 @@ create_pr() {
 
 work() {
   evaluate_opts
+
+  curl -XPOST -sSfLH "Authorization: token $token" "https://api.github.com/repos/$org/$repo/forks" >/dev/null
 
   git clone --single-branch --branch "$branch" "https://github.com/$org/$repo.git" "$repo"
 
