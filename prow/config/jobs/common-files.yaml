@@ -33,3 +33,16 @@ jobs:
     - --cmd=make update-common
     requirements: [github]
     repos: [istio/test-infra]
+  - name: update-common-proxy
+    image: gcr.io/istio-testing/build-tools-proxy:master-2020-01-30T23-36-53
+    type: postsubmit
+    command:
+    - ../test-infra/tools/automator/automator.sh
+    - --org=istio
+    - --repo=proxy
+    - "--title=Automator: update common-files@$AUTOMATOR_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+    - --modifier=commonfiles-proxy
+    - --token-path=/etc/github-token/oauth
+    - --cmd=make update-common
+    requirements: [github]
+    repos: [istio/test-infra]
