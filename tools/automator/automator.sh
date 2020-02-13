@@ -176,16 +176,20 @@ evaluate_opts() {
 }
 
 create_pr() {
-  pr-creator \
-    --github-token-path="$token_path" \
-    --org="$org" \
-    --repo="$repo" \
-    --branch="$branch" \
-    --title="$title" \
-    --match-title="\"$match_title\"" \
-    --body="$body" \
-    --source="$user:$branch-$modifier" \
-    --confirm
+  git add --all &&
+    git -c "user.name=$user" -c "user.email=$email" commit --message "$title" --author="$user <$email>" &&
+    git show --shortstat &&
+    git push --force "https://$user:$token@github.com/$user/$repo.git" "HEAD:$branch-$modifier" &&
+    pr-creator \
+      --github-token-path="$token_path" \
+      --org="$org" \
+      --repo="$repo" \
+      --branch="$branch" \
+      --title="$title" \
+      --match-title="\"$match_title\"" \
+      --body="$body" \
+      --source="$user:$branch-$modifier" \
+      --confirm
 }
 
 work() {
@@ -195,15 +199,10 @@ work() {
 
   pushd "$repo" || print_error_and_exit "invalid repo: $repo"
 
-  bash "$script_path"
+  bash "$script_path" || exit_code=$?
 
   if ! git diff --quiet --exit-code; then
-    git add --all
-    git -c "user.name=$user" -c "user.email=$email" commit --message "$title" --author="$user <$email>"
-    git show --shortstat
-    git push --force "https://$user:$token@github.com/$user/$repo.git" "HEAD:$branch-$modifier"
-
-    create_pr
+    create_pr || exit_code=$?
   fi
 
   popd || print_error_and_exit "invalid repo: $repo"
@@ -227,3 +226,4 @@ main() {
 }
 
 main "$@"
+exit ${exit_code:-0}
