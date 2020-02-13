@@ -73,6 +73,51 @@ postsubmits:
       - name: github
         secret:
           secretName: oauth-token
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_common-files_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    extra_refs:
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/test-infra
+      repo: test-infra
+    name: update-common-proxy_common-files_postsubmit
+    path_alias: istio.io/common-files
+    spec:
+      containers:
+      - command:
+        - ../test-infra/tools/automator/automator.sh
+        - --org=istio
+        - --repo=proxy
+        - '--title=Automator: update common-files@$AUTOMATOR_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+        - --modifier=commonfiles-proxy
+        - --token-path=/etc/github-token/oauth
+        - --cmd=make update-common
+        image: gcr.io/istio-testing/build-tools-proxy:master-2020-01-30T23-36-53
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /etc/github-token
+          name: github
+          readOnly: true
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
 presubmits:
   istio/common-files:
   - always_run: true
