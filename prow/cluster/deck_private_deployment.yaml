@@ -62,7 +62,7 @@ spec:
           periodSeconds: 3
           timeoutSeconds: 600
       - name: oauth2-proxy
-        image: quay.io/pusher/oauth2_proxy:v4.0.0
+        image: quay.io/pusher/oauth2_proxy:v5.0.0
         ports:
         - containerPort: 4180
           protocol: TCP
@@ -73,6 +73,7 @@ spec:
         - --upstream=http://localhost:8080
         - --cookie-domain=prow-private.istio.io
         - --cookie-name=prow-private-istio-io-oauth2-proxy
+        - --cookie-samesite=none
         - --email-domain=*
         livenessProbe:
           httpGet:
