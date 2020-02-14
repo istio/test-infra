@@ -142,6 +142,8 @@ the following script can help
 
 We can then add a new line in the gcp section of resources.yaml
 
+> Ensure regional quotas are adjusted to accommodate the GCP resource configuration.
+
 ### Adding a new virtual resource in an existing pool
 
 For each new virtual resource, we need to add the associated physical resouces.
