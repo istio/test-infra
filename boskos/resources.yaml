@@ -2,8 +2,8 @@ resources:
 - type: gke-e2e-test
   state: dirty
   # TODO: Set min lower when mason client supports request ids.
-  min-count: 10
-  max-count: 10
+  min-count: 1
+  max-count: 1
   needs:
     gcp-project: 1
   config:
@@ -11,15 +11,6 @@ resources:
     content: |
       gcp-project:
         - clusters:
-          - machinetype: n1-standard-4
-            numnodes: 5
-            version: 1.15
-            networkpolicy:
-              enabled: true
-              provider: CALICO
-            scopes:
-            - https://www.googleapis.com/auth/cloud-platform
-            - https://www.googleapis.com/auth/trace.append
           - machinetype: n1-standard-4
             numnodes: 5
             version: 1.15
