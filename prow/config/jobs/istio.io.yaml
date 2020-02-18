@@ -6,3 +6,15 @@ image: gcr.io/istio-testing/build-tools:master-2020-02-14T13-09-14
 jobs:
   - name: lint
     command: [make, lint]
+
+  - name: k8s-tests
+    type: presubmit
+    command: [entrypoint, prow/integ-suite-kind.sh, test.kube.presubmit]
+    requirements: [kind]
+    modifiers: [optional]
+
+  - name: k8s-tests
+    type: postsubmit
+    command: [entrypoint, prow/integ-suite-kind.sh, test.kube.postsubmit]
+    requirements: [kind, gcp]
+    modifiers: [optional]
