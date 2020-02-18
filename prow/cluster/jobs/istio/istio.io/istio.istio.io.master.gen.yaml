@@ -19,15 +19,66 @@ postsubmits:
         name: ""
         resources:
           limits:
-            cpu: "3"
+            cpu: "8"
             memory: 24Gi
           requests:
-            cpu: 500m
+            cpu: "5"
             memory: 3Gi
         securityContext:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_istio.io_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    name: k8s-tests_istio.io_postsubmit
+    path_alias: istio.io/istio.io
+    skip_report: true
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.kube.postsubmit
+        image: gcr.io/istio-testing/build-tools:master-2020-02-14T13-09-14
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
 presubmits:
   istio/istio.io:
   - always_run: true
@@ -47,12 +98,61 @@ presubmits:
         name: ""
         resources:
           limits:
-            cpu: "3"
+            cpu: "8"
             memory: 24Gi
           requests:
-            cpu: 500m
+            cpu: "5"
             memory: 3Gi
         securityContext:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio.io
+    branches:
+    - ^master$
+    decorate: true
+    name: k8s-tests_istio.io
+    optional: true
+    path_alias: istio.io/istio.io
+    skip_report: true
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.kube.presubmit
+        image: gcr.io/istio-testing/build-tools:master-2020-02-14T13-09-14
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root

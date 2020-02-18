@@ -11,10 +11,26 @@ jobs:
     type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.kube.presubmit]
     requirements: [kind]
-    modifiers: [optional]
+    modifiers: [optional, hidden]
 
   - name: k8s-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.kube.postsubmit]
     requirements: [kind, gcp]
-    modifiers: [optional]
+    modifiers: [optional, hidden]
+
+resources:
+  default:
+    requests:
+      memory: "3Gi"
+      cpu: "5000m"
+    limits:
+      memory: "24Gi"
+      cpu: "8000m"
+  lint:
+    requests:
+      memory: "16Gi"
+      cpu: "3000m"
+    limits:
+      memory: "24Gi"
+      cpu: "5000m"
