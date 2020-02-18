@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/ghodss/yaml"
@@ -254,8 +255,12 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			applyRequirements(&postsubmit.JobBase, job.Requirements)
 			postsubmits = append(postsubmits, postsubmit)
 		}
-		output.PresubmitsStatic[fmt.Sprintf("%s/%s", jobConfig.Org, jobConfig.Repo)] = presubmits
-		output.Postsubmits[fmt.Sprintf("%s/%s", jobConfig.Org, jobConfig.Repo)] = postsubmits
+		if len(presubmits) > 0 {
+			output.PresubmitsStatic[fmt.Sprintf("%s/%s", jobConfig.Org, jobConfig.Repo)] = presubmits
+		}
+		if len(postsubmits) > 0 {
+			output.Postsubmits[fmt.Sprintf("%s/%s", jobConfig.Org, jobConfig.Repo)] = postsubmits
+		}
 	}
 	return output
 }
@@ -283,6 +288,10 @@ func WriteConfig(jobs config.JobConfig, fname string) {
 	bytes, err := yaml.Marshal(jobs)
 	if err != nil {
 		exit(err, "failed to marshal result")
+	}
+	dir := filepath.Dir(fname)
+	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+		exit(err, "failed to create directory: "+dir)
 	}
 	output := []byte(AutogenHeader)
 	output = append(output, bytes...)
