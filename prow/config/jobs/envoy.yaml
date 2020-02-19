@@ -1,0 +1,21 @@
+org: istio
+repo: envoy
+branches: [master, release-1.4, release-1.5]
+image: piotrsikora/envoy-build-ubuntu@sha256:e2775df4cf57e86920ca39886a877b4ccc12dbcfaa2a7c2a804f4cb83c797952
+
+jobs:
+- name: test-asan
+  type: presubmit
+  env:
+  - name: BAZEL_BUILD_EXTRA_OPTIONS
+    value: "--local_ram_resources=8192 --local_cpu_resources=6"
+  command: [./ci/do_circle_ci.sh, bazel.asan]
+
+resources:
+  default:
+    requests:
+      memory: "8Gi"
+      cpu: "8000m"
+    limits:
+      memory: "60Gi"
+      cpu: "16000m"
