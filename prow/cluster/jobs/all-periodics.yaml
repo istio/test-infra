@@ -115,9 +115,9 @@ periodics:
           - entrypoint
           - perf/benchmark/run_benchmark_job.sh
 
-# upgrade using istioctl from 1.4.3 t0 master
-- cron: "0 18 * * *"  # starts every day at 18:00AM UTC
-  name: istio-upgrade-using-istioctl-1.4.3-master
+# upgrade using istioctl from 1.4 latest to 1.5 latest
+- cron: "0 4 * * *"  # starts every day at 04:00AM UTC
+  name: istio-upgrade-using-istioctl-1.4_latest-1.5_latest
   branches: master
   decorate: true
   extra_refs:
@@ -136,7 +136,37 @@ periodics:
       - <<: *istio_container_with_kind
         env:
           - name: SOURCE_TAG
-            value: 1.4.3
+            value: 1.4_latest
+          - name: TARGET_TAG
+            value: 1.5_latest
+          - name: INSTALL_OPTIONS
+            value: istioctl
+        command:
+          - entrypoint
+          - upgrade/run_upgrade_test.sh
+
+# upgrade using istioctl from 1.5 latest to master
+- cron: "0 8 * * *"  # starts every day at 08:00AM UTC
+  name: istio-upgrade-using-istioctl-1.5_latest-master
+  branches: master
+  decorate: true
+  extra_refs:
+    - org: istio
+      repo: tools
+      base_ref: master
+      path_alias: istio.io/tools
+  annotations:
+    testgrid-dashboards: istio_release-pipeline
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
+  labels:
+    preset-service-account: "true"
+  spec:
+    containers:
+      - <<: *istio_container_with_kind
+        env:
+          - name: SOURCE_TAG
+            value: 1.5_latest
           - name: TARGET_TAG
             value: master
           - name: INSTALL_OPTIONS
