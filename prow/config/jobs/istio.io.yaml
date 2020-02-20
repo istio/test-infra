@@ -11,13 +11,11 @@ jobs:
     type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.kube.presubmit]
     requirements: [kind]
-    modifiers: [optional, hidden]
 
   - name: k8s-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.kube.postsubmit]
     requirements: [kind, gcp]
-    modifiers: [optional, hidden]
 
 resources:
   default:
