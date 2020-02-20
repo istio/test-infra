@@ -97,56 +97,6 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    name: integ-istioio-k8s-tests_istio_postsubmit
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.istioio.kube.postsubmit
-        image: gcr.io/istio-testing/build-tools:master-2020-02-14T13-09-14
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
     name: integ-distroless-k8s-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
@@ -1052,53 +1002,6 @@ presubmits:
         env:
         - name: TEST_USE_OPERATOR
           value: "true"
-        image: gcr.io/istio-testing/build-tools:master-2020-02-14T13-09-14
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^master$
-    decorate: true
-    name: integ-istioio-k8s-tests_istio
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.istioio.kube.presubmit
         image: gcr.io/istio-testing/build-tools:master-2020-02-14T13-09-14
         name: ""
         resources:

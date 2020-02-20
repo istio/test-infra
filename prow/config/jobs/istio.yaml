@@ -61,16 +61,6 @@ jobs:
     - name: TEST_USE_OPERATOR
       value: "true"
 
-  - name: integ-istioio-k8s-tests
-    type: presubmit
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.istioio.kube.presubmit]
-    requirements: [kind]
-
-  - name: integ-istioio-k8s-tests
-    type: postsubmit
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.istioio.kube.postsubmit]
-    requirements: [kind, gcp]
-
   - name: integ-distroless-k8s-tests
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.reachability]
     requirements: [kind]
