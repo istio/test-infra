@@ -147,7 +147,7 @@ periodics:
     testgrid-create-test-group: "false"
   spec:
     containers:
-    - image: gcr.io/k8s-prow/autobump # TODO: add a tag once we've push this the first time.
+    - image: gcr.io/k8s-prow/autobump:v20200219-5ea024fc8
       command:
       - /autobump.sh
       args:
@@ -166,7 +166,7 @@ periodics:
       - name: PLANK_DEPLOYMENT_FILE
         value: prow/cluster/plank_deployment.yaml
       - name: COMPONENT_FILE_DIR
-        value: prow/cluster,prow/config/jobs,.
+        value: prow/cluster,prow/config/jobs,boskos/cluster,.
       - name: CONFIG_PATH
         value: prow/config.yaml
       - name: JOB_CONFIG_PATH
