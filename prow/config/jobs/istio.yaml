@@ -21,26 +21,6 @@ jobs:
     command: [entrypoint, prow/release-commit.sh]
     requirements: [gcp]
 
-  - name: integ-galley-local-tests
-    type: presubmit
-    command: [entrypoint, prow/integ-suite-local.sh, test.integration.galley.local.presubmit]
-    requirements: [docker]
-
-  - name: integ-pilot-local-tests
-    type: presubmit
-    command: [entrypoint, prow/integ-suite-local.sh, test.integration.pilot.local.presubmit]
-    requirements: [docker]
-
-  - name: integ-security-local-tests
-    type: presubmit
-    command: [entrypoint, prow/integ-suite-local.sh, test.integration.security.local.presubmit]
-    requirements: [docker]
-
-  - name: integ-conformance-local-tests
-    type: presubmit
-    command: [entrypoint, prow/integ-suite-local.sh, test.integration.conformance.local.presubmit]
-    requirements: [docker]
-
   - name: integ-galley-k8s-tests
     type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.galley.kube.presubmit]
@@ -103,24 +83,8 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.conformance.kube.presubmit]
     requirements: [kind]
 
-  - name: integ-galley-local-tests
-    type: postsubmit
-    command: [entrypoint, prow/integ-suite-local.sh, test.integration.galley.local]
-    requirements: [docker]
-
-  - name: integ-pilot-local-tests
-    type: postsubmit
-    command: [entrypoint, prow/integ-suite-local.sh, test.integration.pilot.local]
-    requirements: [docker]
-
-  - name: integ-security-local-tests
-    type: postsubmit
-    command: [entrypoint, prow/integ-suite-local.sh, test.integration.security.local]
-    requirements: [docker]
-
-  - name: integ-conformance-local-tests
-    type: postsubmit
-    command: [entrypoint, prow/integ-suite-local.sh, test.integration.conformance.local]
+  - name: integ-local-tests
+    command: [entrypoint, prow/integ-suite-local.sh, test.integration...local]
     requirements: [docker]
 
   - name: integ-galley-k8s-tests
