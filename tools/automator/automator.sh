@@ -228,7 +228,7 @@ main() {
 
   pushd "$tmp_dir" || print_error_and_exit "invalid dir: $tmp_dir"
 
-  for repo in "${repos[@]}"; do
+  for repo in $repos; do
     work || continue
   done
 
