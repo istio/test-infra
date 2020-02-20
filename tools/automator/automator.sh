@@ -27,7 +27,7 @@ cleanup() {
 }
 
 get_opts() {
-  if opt="$(getopt -o '' -l branch:,sha:,org:,repo:,title:,match-title:,body:,user:,email:,modifier:,script-path:,script-args:,cmd:,token-path:,token: -n "$(basename "$0")" -- "$@")"; then
+  if opt="$(getopt -o '' -l branch:,sha:,org:,repo:,title:,match-title:,body:,labels:,user:,email:,modifier:,script-path:,script-args:,cmd:,token-path:,token: -n "$(basename "$0")" -- "$@")"; then
     eval set -- "$opt"
   else
     print_error_and_exit "unable to parse options"
@@ -49,7 +49,7 @@ get_opts() {
       shift 2
       ;;
     --repo)
-      repos="$2"
+      repos="$(split_on_commas "$2")"
       shift 2
       ;;
     --title)
@@ -62,6 +62,10 @@ get_opts() {
       ;;
     --body)
       body_tmpl="$2"
+      shift 2
+      ;;
+    --labels)
+      labels="$(echo "$2" | jq --raw-input --compact-output 'split(",")')"
       shift 2
       ;;
     --user)
@@ -77,7 +81,7 @@ get_opts() {
       shift 2
       ;;
     --script-path)
-      script_path="$2"
+      script_path="$(realpath "$2")"
       shift 2
       ;;
     --script-args)
@@ -142,7 +146,6 @@ validate_opts() {
   if [ -z "${repos:-}" ]; then
     print_error_and_exit "repo is a required option"
   fi
-  repos="$(split_on_commas "$repos")"
 
   if [ ! -f "${token_path:-}" ] || [ -z "${token:-}" ]; then
     print_error_and_exit "token_path or token is a required option"
@@ -151,7 +154,6 @@ validate_opts() {
   if [ ! -f "${script_path:-}" ]; then
     print_error_and_exit "script-path or cmd is a required option"
   fi
-  script_path="$(realpath "$script_path")"
 
   if [ -z "${modifier:-}" ]; then
     modifier="automator"
@@ -179,20 +181,31 @@ export_globals() {
 }
 
 create_pr() {
+  pr-creator \
+    --github-token-path="$token_path" \
+    --org="$org" \
+    --repo="$repo" \
+    --branch="$branch" \
+    --title="$title" \
+    --match-title="\"$match_title\"" \
+    --body="$body" \
+    --source="$user:$branch-$modifier" \
+    --confirm
+}
+
+add_labels() {
+  if [ "${labels:-}" ]; then
+    curl -XPOST -sSfLH "Authorization: token $token" "https://api.github.com/repos/$org/$repo/issues/$pull_request/labels" --data "{\"labels\": $labels}" >/dev/null
+  fi
+}
+
+commit() {
   git add --all &&
     git -c "user.name=$user" -c "user.email=$email" commit --message "$title" --author="$user <$email>" &&
     git show --shortstat &&
     git push --force "https://$user:$token@github.com/$user/$repo.git" "HEAD:$branch-$modifier" &&
-    pr-creator \
-      --github-token-path="$token_path" \
-      --org="$org" \
-      --repo="$repo" \
-      --branch="$branch" \
-      --title="$title" \
-      --match-title="\"$match_title\"" \
-      --body="$body" \
-      --source="$user:$branch-$modifier" \
-      --confirm
+    pull_request="$(create_pr)" &&
+    add_labels "$pull_request"
 }
 
 work() {
@@ -209,7 +222,7 @@ work() {
   bash "$script_path" "${script_args:-}" || exit_code=$?
 
   if ! git diff --quiet --exit-code; then
-    create_pr || exit_code=$?
+    commit || exit_code=$?
   fi
 
   popd || print_error_and_exit "invalid repo: $repo"
