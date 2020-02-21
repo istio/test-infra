@@ -30,3 +30,61 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_envoy
+    branches:
+    - ^master$
+    decorate: true
+    name: test-tsan_envoy
+    path_alias: istio.io/envoy
+    spec:
+      containers:
+      - command:
+        - ./ci/do_circle_ci.sh
+        - bazel.tsan
+        env:
+        - name: BAZEL_BUILD_EXTRA_OPTIONS
+          value: --local_ram_resources=8192 --local_cpu_resources=6
+        image: piotrsikora/envoy-build-ubuntu@sha256:e2775df4cf57e86920ca39886a877b4ccc12dbcfaa2a7c2a804f4cb83c797952
+        name: ""
+        resources:
+          limits:
+            cpu: "16"
+            memory: 60Gi
+          requests:
+            cpu: "8"
+            memory: 8Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_envoy
+    branches:
+    - ^master$
+    decorate: true
+    name: test-release_envoy
+    path_alias: istio.io/envoy
+    spec:
+      containers:
+      - command:
+        - ./ci/do_circle_ci.sh
+        - bazel.release
+        env:
+        - name: BAZEL_BUILD_EXTRA_OPTIONS
+          value: --local_ram_resources=8192 --local_cpu_resources=6
+        image: piotrsikora/envoy-build-ubuntu@sha256:e2775df4cf57e86920ca39886a877b4ccc12dbcfaa2a7c2a804f4cb83c797952
+        name: ""
+        resources:
+          limits:
+            cpu: "16"
+            memory: 60Gi
+          requests:
+            cpu: "8"
+            memory: 8Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool

@@ -11,6 +11,20 @@ jobs:
     value: "--local_ram_resources=8192 --local_cpu_resources=6"
   command: [./ci/do_circle_ci.sh, bazel.asan]
 
+- name: test-tsan
+  type: presubmit
+  env:
+  - name: BAZEL_BUILD_EXTRA_OPTIONS
+    value: "--local_ram_resources=8192 --local_cpu_resources=6"
+  command: [./ci/do_circle_ci.sh, bazel.tsan]
+
+- name: test-release
+  type: presubmit
+  env:
+  - name: BAZEL_BUILD_EXTRA_OPTIONS
+    value: "--local_ram_resources=8192 --local_cpu_resources=6"
+  command: [./ci/do_circle_ci.sh, bazel.release]
+
 resources:
   default:
     requests:
