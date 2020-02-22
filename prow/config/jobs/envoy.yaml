@@ -8,28 +8,28 @@ jobs:
   type: presubmit
   env:
   - name: BAZEL_BUILD_EXTRA_OPTIONS
-    value: "--local_ram_resources=32768 --local_cpu_resources=14"
+    value: "--local_ram_resources=32768 --local_cpu_resources=12"
   command: [./ci/do_circle_ci.sh, bazel.asan]
 
 - name: test-tsan
   type: presubmit
   env:
   - name: BAZEL_BUILD_EXTRA_OPTIONS
-    value: "--local_ram_resources=32768 --local_cpu_resources=14"
+    value: "--local_ram_resources=32768 --local_cpu_resources=12"
   command: [./ci/do_circle_ci.sh, bazel.tsan]
 
 - name: test-release
   type: presubmit
   env:
   - name: BAZEL_BUILD_EXTRA_OPTIONS
-    value: "--local_ram_resources=32768 --local_cpu_resources=14"
+    value: "--local_ram_resources=32768 --local_cpu_resources=12"
   command: [./ci/do_circle_ci.sh, bazel.release]
 
 resources:
   default:
     requests:
-      memory: "55Gi"
-      cpu: "15000m"
+      memory: "50Gi"
+      cpu: "14000m"
     limits:
       memory: "60Gi"
       cpu: "16000m"
