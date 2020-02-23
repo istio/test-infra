@@ -28,5 +28,10 @@ spec:
       - name: boskos-service-account
         secret:
           secretName: boskos-service-account
+      tolerations:
+      - key: dedicated
+        operator: Equal
+        value: boskos
+        effect: NoSchedule
       nodeSelector:
         prod: boskos
