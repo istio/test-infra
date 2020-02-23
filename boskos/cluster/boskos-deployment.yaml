@@ -14,14 +14,14 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: boskos-crd-admin
 rules:
-  - apiGroups:
-      - apiextensions.k8s.io
-    verbs: ["*"]
-    resources:
-      - customresourcedefinitions
-  - apiGroups: ["boskos.k8s.io"]
-    verbs: ["*"]
-    resources: ["*"]
+- apiGroups:
+  - apiextensions.k8s.io
+  verbs: ["*"]
+  resources:
+  - customresourcedefinitions
+- apiGroups: ["boskos.k8s.io"]
+  verbs: ["*"]
+  resources: ["*"]
 
 ---
 kind: ClusterRoleBinding
@@ -29,9 +29,9 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: boskos-crd-admin-binding
 subjects:
-  - kind: ServiceAccount
-    name: boskos-admin
-    namespace: boskos
+- kind: ServiceAccount
+  name: boskos-admin
+  namespace: boskos
 roleRef:
   kind: ClusterRole
   apiGroup: rbac.authorization.k8s.io
@@ -63,8 +63,8 @@ spec:
         - --config=/etc/config/resources.yaml
         - --namespace=boskos
         ports:
-          - containerPort: 8080
-            protocol: TCP
+        - containerPort: 8080
+          protocol: TCP
         volumeMounts:
         - name: config
           mountPath: /etc/config
@@ -73,5 +73,10 @@ spec:
       - name: config
         configMap:
           name: boskos-config
+      tolerations:
+      - key: dedicated
+        operator: Equal
+        value: boskos
+        effect: NoSchedule
       nodeSelector:
         prod: boskos

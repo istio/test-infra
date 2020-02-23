@@ -18,6 +18,11 @@ spec:
         image: gcr.io/k8s-prow/boskos/reaper:v20190730-dbac84bd7
         args:
         - --resource-type=gke-perf-preset,gcp-perf-test,gcp-project,gke-e2e-test
+      tolerations:
+      - key: dedicated
+        operator: Equal
+        value: boskos
+        effect: NoSchedule
       nodeSelector:
         prod: boskos
 
