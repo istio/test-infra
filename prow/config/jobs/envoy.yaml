@@ -30,7 +30,8 @@ jobs:
     value: "--local_ram_resources=32768 --local_cpu_resources=12 --test_env=ENVOY_IP_TEST_VERSIONS=v4only"
   - name: ENVOY_SRCDIR
     value: "/home/prow/go/src/istio.io/envoy"
-  command: [./ci/do_ci.sh, bazel.release]
+  # TODO(change to "bazel.release" when we have enough resources)
+  command: [./ci/do_ci.sh, bazel.dev]
 
 resources:
   default:
