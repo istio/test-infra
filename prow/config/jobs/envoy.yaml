@@ -10,6 +10,8 @@ jobs:
 #   env:
 #   - name: BAZEL_BUILD_EXTRA_OPTIONS
 #     value: "--local_ram_resources=32768 --local_cpu_resources=12 --test_env=ENVOY_IP_TEST_VERSIONS=v4only"
+#   - name: ENVOY_SRCDIR
+#     value: "/home/prow/go/src/istio.io/envoy"
 #   command: [./ci/do_ci.sh, bazel.asan]
 
 # - name: test-tsan
@@ -17,6 +19,8 @@ jobs:
 #   env:
 #   - name: BAZEL_BUILD_EXTRA_OPTIONS
 #     value: "--local_ram_resources=32768 --local_cpu_resources=12 --test_env=ENVOY_IP_TEST_VERSIONS=v4only"
+#   - name: ENVOY_SRCDIR
+#     value: "/home/prow/go/src/istio.io/envoy"
 #   command: [./ci/do_ci.sh, bazel.tsan]
 
 - name: test-release
@@ -24,6 +28,8 @@ jobs:
   env:
   - name: BAZEL_BUILD_EXTRA_OPTIONS
     value: "--local_ram_resources=32768 --local_cpu_resources=12 --test_env=ENVOY_IP_TEST_VERSIONS=v4only"
+  - name: ENVOY_SRCDIR
+    value: "/home/prow/go/src/istio.io/envoy"
   command: [./ci/do_ci.sh, bazel.release]
 
 resources:
