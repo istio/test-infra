@@ -9,7 +9,7 @@ jobs:
 #   type: presubmit
 #   env:
 #   - name: BAZEL_BUILD_EXTRA_OPTIONS
-#     value: "--local_ram_resources=32768 --local_cpu_resources=12 --test_env=ENVOY_IP_TEST_VERSIONS=v4only"
+#     value: "--local_ram_resources=65536 --local_cpu_resources=28 --test_env=ENVOY_IP_TEST_VERSIONS=v4only"
 #   - name: ENVOY_SRCDIR
 #     value: "/home/prow/go/src/istio.io/envoy"
 #   command: [./ci/do_ci.sh, bazel.asan]
@@ -18,7 +18,7 @@ jobs:
 #   type: presubmit
 #   env:
 #   - name: BAZEL_BUILD_EXTRA_OPTIONS
-#     value: "--local_ram_resources=32768 --local_cpu_resources=12 --test_env=ENVOY_IP_TEST_VERSIONS=v4only"
+#     value: "--local_ram_resources=65536 --local_cpu_resources=28 --test_env=ENVOY_IP_TEST_VERSIONS=v4only"
 #   - name: ENVOY_SRCDIR
 #     value: "/home/prow/go/src/istio.io/envoy"
 #   command: [./ci/do_ci.sh, bazel.tsan]
@@ -27,7 +27,7 @@ jobs:
   type: presubmit
   env:
   - name: BAZEL_BUILD_EXTRA_OPTIONS
-    value: "--local_ram_resources=32768 --local_cpu_resources=12 --test_env=ENVOY_IP_TEST_VERSIONS=v4only"
+    value: "--local_ram_resources=65536 --local_cpu_resources=28 --test_env=ENVOY_IP_TEST_VERSIONS=v4only"
   - name: ENVOY_SRCDIR
     value: "/home/prow/go/src/istio.io/envoy"
   # TODO(change to "bazel.release" when we have enough resources)
@@ -36,8 +36,8 @@ jobs:
 resources:
   default:
     requests:
-      memory: "50Gi"
-      cpu: "14000m"
+      memory: "110Gi"
+      cpu: "30000m"
     limits:
-      memory: "60Gi"
-      cpu: "16000m"
+      memory: "120Gi"
+      cpu: "32000m"
