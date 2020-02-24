@@ -4,24 +4,23 @@ branches: [master, release-1.4, release-1.5]
 image: piotrsikora/envoy-build-ubuntu@sha256:e2775df4cf57e86920ca39886a877b4ccc12dbcfaa2a7c2a804f4cb83c797952
 
 jobs:
-# TODO(enabled these when we have enough resources)
-# - name: test-asan
-#   type: presubmit
-#   env:
-#   - name: BAZEL_BUILD_EXTRA_OPTIONS
-#     value: "--local_ram_resources=65536 --local_cpu_resources=28 --test_env=ENVOY_IP_TEST_VERSIONS=v4only"
-#   - name: ENVOY_SRCDIR
-#     value: "/home/prow/go/src/istio.io/envoy"
-#   command: [./ci/do_ci.sh, bazel.asan]
+- name: test-asan
+  type: presubmit
+  env:
+  - name: BAZEL_BUILD_EXTRA_OPTIONS
+    value: "--local_ram_resources=65536 --local_cpu_resources=28 --test_env=ENVOY_IP_TEST_VERSIONS=v4only"
+  - name: ENVOY_SRCDIR
+    value: "/home/prow/go/src/istio.io/envoy"
+  command: [./ci/do_ci.sh, bazel.asan]
 
-# - name: test-tsan
-#   type: presubmit
-#   env:
-#   - name: BAZEL_BUILD_EXTRA_OPTIONS
-#     value: "--local_ram_resources=65536 --local_cpu_resources=28 --test_env=ENVOY_IP_TEST_VERSIONS=v4only"
-#   - name: ENVOY_SRCDIR
-#     value: "/home/prow/go/src/istio.io/envoy"
-#   command: [./ci/do_ci.sh, bazel.tsan]
+- name: test-tsan
+  type: presubmit
+  env:
+  - name: BAZEL_BUILD_EXTRA_OPTIONS
+    value: "--local_ram_resources=65536 --local_cpu_resources=28 --test_env=ENVOY_IP_TEST_VERSIONS=v4only"
+  - name: ENVOY_SRCDIR
+    value: "/home/prow/go/src/istio.io/envoy"
+  command: [./ci/do_ci.sh, bazel.tsan]
 
 - name: test-release
   type: presubmit
@@ -30,8 +29,7 @@ jobs:
     value: "--local_ram_resources=65536 --local_cpu_resources=28 --test_env=ENVOY_IP_TEST_VERSIONS=v4only"
   - name: ENVOY_SRCDIR
     value: "/home/prow/go/src/istio.io/envoy"
-  # TODO(change to "bazel.release" when we have enough resources)
-  command: [./ci/do_ci.sh, bazel.dev]
+  command: [./ci/do_ci.sh, bazel.release]
 
 resources:
   default:
