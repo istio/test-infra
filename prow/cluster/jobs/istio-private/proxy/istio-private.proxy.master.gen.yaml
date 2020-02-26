@@ -37,8 +37,9 @@ postsubmits:
         name: ""
         resources:
           limits:
-            cpu: "32"
-            memory: 120G
+            cpu: "64"
+            ephemeral-storage: 1024G
+            memory: 240G
           requests:
             cpu: "30"
             memory: 100G
@@ -48,7 +49,7 @@ postsubmits:
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
-        testing: test-pool
+        testing: build-pool
       volumes:
       - emptyDir: {}
         name: docker-root
@@ -81,15 +82,16 @@ presubmits:
         name: ""
         resources:
           limits:
-            cpu: "32"
-            memory: 120G
+            cpu: "64"
+            ephemeral-storage: 1024G
+            memory: 240G
           requests:
             cpu: "30"
             memory: 100G
         securityContext:
           privileged: true
       nodeSelector:
-        testing: test-pool
+        testing: build-pool
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -117,15 +119,16 @@ presubmits:
         name: ""
         resources:
           limits:
-            cpu: "32"
-            memory: 120G
+            cpu: "64"
+            ephemeral-storage: 1024G
+            memory: 240G
           requests:
             cpu: "30"
             memory: 100G
         securityContext:
           privileged: true
       nodeSelector:
-        testing: test-pool
+        testing: build-pool
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -153,15 +156,16 @@ presubmits:
         name: ""
         resources:
           limits:
-            cpu: "32"
-            memory: 120G
+            cpu: "64"
+            ephemeral-storage: 1024G
+            memory: 240G
           requests:
             cpu: "30"
             memory: 100G
         securityContext:
           privileged: true
       nodeSelector:
-        testing: test-pool
+        testing: build-pool
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -190,15 +194,16 @@ presubmits:
         name: ""
         resources:
           limits:
-            cpu: "32"
-            memory: 120G
+            cpu: "64"
+            ephemeral-storage: 1024G
+            memory: 240G
           requests:
             cpu: "30"
             memory: 100G
         securityContext:
           privileged: true
       nodeSelector:
-        testing: test-pool
+        testing: build-pool
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -227,8 +232,9 @@ presubmits:
         name: ""
         resources:
           limits:
-            cpu: "32"
-            memory: 120G
+            cpu: "64"
+            ephemeral-storage: 1024G
+            memory: 240G
           requests:
             cpu: "30"
             memory: 100G
@@ -238,7 +244,7 @@ presubmits:
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
-        testing: test-pool
+        testing: build-pool
       volumes:
       - emptyDir: {}
         name: docker-root
