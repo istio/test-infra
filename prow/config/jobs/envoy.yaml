@@ -10,7 +10,7 @@ jobs:
   type: presubmit
   env:
   - name: BAZEL_BUILD_EXTRA_OPTIONS
-    value: "--local_ram_resources=65536 --local_cpu_resources=28 --test_env=ENVOY_IP_TEST_VERSIONS=v4only"
+    value: "--local_ram_resources=65536 --local_cpu_resources=28 --test_env=ENVOY_IP_TEST_VERSIONS=v4only --flaky_test_attempts=9"
   - name: ENVOY_SRCDIR
     value: "/home/prow/go/src/istio.io/envoy"
   command: [./ci/do_ci.sh, bazel.asan]
@@ -19,7 +19,7 @@ jobs:
   type: presubmit
   env:
   - name: BAZEL_BUILD_EXTRA_OPTIONS
-    value: "--local_ram_resources=65536 --local_cpu_resources=28 --test_env=ENVOY_IP_TEST_VERSIONS=v4only"
+    value: "--local_ram_resources=65536 --local_cpu_resources=28 --test_env=ENVOY_IP_TEST_VERSIONS=v4only --flaky_test_attempts=9"
   - name: ENVOY_SRCDIR
     value: "/home/prow/go/src/istio.io/envoy"
   command: [./ci/do_ci.sh, bazel.tsan]
@@ -28,7 +28,7 @@ jobs:
   type: presubmit
   env:
   - name: BAZEL_BUILD_EXTRA_OPTIONS
-    value: "--local_ram_resources=65536 --local_cpu_resources=28 --test_env=ENVOY_IP_TEST_VERSIONS=v4only"
+    value: "--local_ram_resources=65536 --local_cpu_resources=28 --test_env=ENVOY_IP_TEST_VERSIONS=v4only --flaky_test_attempts=9"
   - name: ENVOY_SRCDIR
     value: "/home/prow/go/src/istio.io/envoy"
   command: [./ci/do_ci.sh, bazel.release]
