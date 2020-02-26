@@ -2,6 +2,8 @@ org: istio
 repo: envoy
 branches: [master, release-1.4, release-1.5]
 image: piotrsikora/envoy-build-ubuntu@sha256:e2775df4cf57e86920ca39886a877b4ccc12dbcfaa2a7c2a804f4cb83c797952
+node_selector:
+  testing: build-pool
 
 jobs:
 - name: test-asan
@@ -38,6 +40,6 @@ resources:
       cpu: "30"
       ephemeral-storage: "400G"
     limits:
-      memory: "120G"
-      cpu: "32"
-      ephemeral-storage: "400G"
+      memory: "240G"
+      cpu: "64"
+      ephemeral-storage: "1024G"
