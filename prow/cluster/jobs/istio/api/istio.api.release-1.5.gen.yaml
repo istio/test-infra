@@ -76,6 +76,7 @@ postsubmits:
         - --org=istio
         - --repo=client-go
         - '--title=Automator: update istio/api@$AUTOMATOR_BRANCH dependency in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+        - --labels=auto-merge
         - --modifier=client-go_update_api
         - --token-path=/etc/github-token/oauth
         - --cmd=go get istio.io/api@$AUTOMATOR_SHA && go mod tidy && make gen
@@ -121,6 +122,7 @@ postsubmits:
         - --org=istio
         - --repo=istio
         - '--title=Automator: update istio/api@$AUTOMATOR_BRANCH dependency in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+        - --labels=auto-merge
         - --modifier=istio_update_api
         - --token-path=/etc/github-token/oauth
         - --cmd=go get istio.io/api@$AUTOMATOR_SHA && go mod tidy && make gen
