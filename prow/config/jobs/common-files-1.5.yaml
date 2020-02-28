@@ -21,6 +21,18 @@ jobs:
   requirements:
   - github
   type: postsubmit
+- name: update-common-proxy
+  type: postsubmit
+  command:
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=proxy
+  - "--title=Automator: update common-files@$AUTOMATOR_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+  - --modifier=commonfiles-proxy
+  - --token-path=/etc/github-token/oauth
+  - --cmd=make update-common
+  requirements: [github]
+  repos: [istio/test-infra]
 - name: update-build-tools-image
   type: postsubmit
   command:
