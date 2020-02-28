@@ -47,6 +47,10 @@ const (
 	yamlExt           = ".(yml|yaml)$"
 )
 
+var (
+	defaultJobTypes = []string{"presubmit", "postsubmit", "periodic"}
+)
+
 // sortOrder is the type to define sort order.
 type sortOrder string
 
@@ -55,108 +59,189 @@ const (
 	descending sortOrder = "desc"
 )
 
-// options are the available command-line flags.
-type options struct {
-	annotations      map[string]string
-	bucket           string
-	cluster          string
-	channel          string
-	sshKeySecret     string
-	modifier         string
-	input            string
-	output           string
-	sort             string
-	branches         []string
-	branchesOut      []string
-	presets          []string
-	rerunOrgs        []string
-	rerunUsers       []string
-	selector         map[string]string
-	labels           map[string]string
-	env              map[string]string
-	orgMap           map[string]string
-	jobWhitelist     sets.String
-	jobBlacklist     sets.String
-	repoWhitelist    sets.String
-	repoBlacklist    sets.String
-	jobType          sets.String
-	clean            bool
-	dryRun           bool
-	extraRefs        bool
-	resolve          bool
-	sshClone         bool
-	overrideSelector bool
+// configuration is the yaml configuration file format.
+type configuration struct {
+	Transforms []transform `json:"transforms,omitempty"`
 }
 
-// parseFlags parses the command-line flags.
-func (o *options) parseFlags() {
-	var (
-		_jobWhitelist  []string
-		_jobBlacklist  []string
-		_repoWhitelist []string
-		_repoBlacklist []string
-		_jobType       []string
-	)
+// transform are the available transformation fields.
+type transform struct {
+	Annotations      map[string]string `json:"annotations,omitempty"`
+	Bucket           string            `json:"bucket,omitempty"`
+	Cluster          string            `json:"cluster,omitempty"`
+	Channel          string            `json:"channel,omitempty"`
+	SSHKeySecret     string            `json:"ssh-key-secret,omitempty"`
+	Modifier         string            `json:"modifier,omitempty"`
+	Input            string            `json:"input,omitempty"`
+	Output           string            `json:"output,omitempty"`
+	Sort             string            `json:"sort,omitempty"`
+	Branches         []string          `json:"branches,omitempty"`
+	BranchesOut      []string          `json:"branches-out,omitempty"`
+	Presets          []string          `json:"presets,omitempty"`
+	RerunOrgs        []string          `json:"rerun-orgs,omitempty"`
+	RerunUsers       []string          `json:"rerun-users,omitempty"`
+	JobWhitelist     []string          `json:"job-whitelist,omitempty"`
+	JobBlacklist     []string          `json:"job-blacklist,omitempty"`
+	RepoWhitelist    []string          `json:"repo-whitelist,omitempty"`
+	RepoBlacklist    []string          `json:"repo-blacklist,omitempty"`
+	JobType          []string          `json:"job-type,omitempty"`
+	Selector         map[string]string `json:"selector,omitempty"`
+	Labels           map[string]string `json:"labels,omitempty"`
+	Env              map[string]string `json:"env,omitempty"`
+	OrgMap           map[string]string `json:"mapping,omitempty"`
+	Clean            bool              `json:"clean,omitempty"`
+	DryRun           bool              `json:"dry-run,omitempty"`
+	ExtraRefs        bool              `json:"extra-refs,omitempty"`
+	Resolve          bool              `json:"resolve,omitempty"`
+	SSHClone         bool              `json:"ssh-clone,omitempty"`
+	OverrideSelector bool              `json:"override-selector,omitempty"`
+	Verbose          bool              `json:"verbose,omitempty"`
+}
 
-	flag.StringVar(&o.bucket, "bucket", "", "GCS bucket name to upload logs and build artifacts to.")
-	flag.StringVar(&o.cluster, "cluster", "", "GCP cluster to run the job(s) in.")
-	flag.StringVar(&o.channel, "channel", "", "Slack channel to report job status notifications to.")
-	flag.StringVar(&o.sshKeySecret, "ssh-key-secret", "", "GKE cluster secrets containing the Github ssh private key.")
-	flag.StringVar(&o.modifier, "modifier", defaultModifier, "Modifier to apply to generated file and job name(s).")
-	flag.StringVarP(&o.input, "input", "i", ".", "Input file or directory containing job(s) to convert.")
-	flag.StringVarP(&o.output, "output", "o", ".", "Output file or directory to write generated job(s).")
-	flag.StringVarP(&o.sort, "sort", "s", "", "Sort the job(s) by name: (e.g. (asc)ending, (desc)ending).")
-	flag.StringSliceVar(&o.branches, "branches", []string{}, "Branch(es) to generate job(s) for.")
-	flag.StringSliceVar(&o.branchesOut, "branches-out", []string{}, "Override output branch(es) for generated job(s).")
-	flag.StringSliceVarP(&o.presets, "presets", "p", []string{}, "Path to file(s) containing additional presets.")
-	flag.StringSliceVar(&o.rerunOrgs, "rerun-orgs", []string{}, "GitHub organizations to authorize job rerun for.")
-	flag.StringSliceVar(&o.rerunUsers, "rerun-users", []string{}, "GitHub user to authorize job rerun for.")
-	flag.StringToStringVar(&o.selector, "selector", map[string]string{}, "Node selector(s) to constrain job(s).")
-	flag.StringToStringVarP(&o.labels, "labels", "l", map[string]string{}, "Prow labels to apply to the job(s).")
-	flag.StringToStringVarP(&o.env, "env", "e", map[string]string{}, "Environment variables to set for the job(s).")
-	flag.StringToStringVarP(&o.orgMap, "mapping", "m", map[string]string{}, "Mapping between public and private Github organization(s).")
-	flag.StringToStringVarP(&o.annotations, "annotations", "a", map[string]string{}, "Annotations to apply to the job(s)")
-	flag.StringSliceVar(&_jobWhitelist, "job-whitelist", []string{}, "Job(s) to whitelist in generation process.")
-	flag.StringSliceVar(&_jobBlacklist, "job-blacklist", []string{}, "Job(s) to blacklist in generation process.")
-	flag.StringSliceVarP(&_repoWhitelist, "repo-whitelist", "w", []string{}, "Repositories to whitelist in generation process.")
-	flag.StringSliceVarP(&_repoBlacklist, "repo-blacklist", "b", []string{}, "Repositories to blacklist in generation process.")
-	flag.StringSliceVarP(&_jobType, "job-type", "t", []string{"presubmit", "postsubmit", "periodic"},
-		"Job type(s) to process (e.g. presubmit, postsubmit. periodic).")
-	flag.BoolVar(&o.clean, "clean", false, "Clean output files before job(s) generation.")
-	flag.BoolVar(&o.dryRun, "dry-run", false, "Run in dry run mode.")
-	flag.BoolVar(&o.extraRefs, "extra-refs", false, "Apply translation to all extra refs regardless of repo.")
-	flag.BoolVar(&o.resolve, "resolve", false, "Resolve and expand values for presets in generated job(s).")
-	flag.BoolVar(&o.sshClone, "ssh-clone", false, "Enable a clone of the git repository over ssh.")
-	flag.BoolVar(&o.overrideSelector, "override-selector", false, "The existing node selector will be overridden rather than added to.")
+// options are the available command-line flags.
+type options struct {
+	Configs          []string
+	JobWhitelistSet  sets.String
+	JobBlacklistSet  sets.String
+	RepoWhitelistSet sets.String
+	RepoBlacklistSet sets.String
+	JobTypeSet       sets.String
+	transform
+}
+
+// parseOpts parses the command-line flags.
+func (o *options) parseOpts() {
+	flag.StringVar(&o.Bucket, "bucket", "", "GCS bucket name to upload logs and build artifacts to.")
+	flag.StringVar(&o.Cluster, "cluster", "", "GCP cluster to run the job(s) in.")
+	flag.StringVar(&o.Channel, "channel", "", "Slack channel to report job status notifications to.")
+	flag.StringVar(&o.SSHKeySecret, "ssh-key-secret", "", "GKE cluster secrets containing the Github ssh private key.")
+	flag.StringVar(&o.Modifier, "modifier", defaultModifier, "Modifier to apply to generated file and job name(s).")
+	flag.StringVarP(&o.Input, "input", "i", ".", "Input file or directory containing job(s) to convert.")
+	flag.StringVarP(&o.Output, "output", "o", ".", "Output file or directory to write generated job(s).")
+	flag.StringVarP(&o.Sort, "sort", "s", "", "Sort the job(s) by name: (e.g. (asc)ending, (desc)ending).")
+	flag.StringSliceVar(&o.Branches, "branches", []string{}, "Branch(es) to generate job(s) for.")
+	flag.StringSliceVar(&o.BranchesOut, "branches-out", []string{}, "Override output branch(es) for generated job(s).")
+	flag.StringSliceVar(&o.Configs, "configs", []string{}, "Path to files or directories containing yaml job transforms.")
+	flag.StringSliceVarP(&o.Presets, "presets", "p", []string{}, "Path to file(s) containing additional presets.")
+	flag.StringSliceVar(&o.RerunOrgs, "rerun-orgs", []string{}, "GitHub organizations to authorize job rerun for.")
+	flag.StringSliceVar(&o.RerunUsers, "rerun-users", []string{}, "GitHub user to authorize job rerun for.")
+	flag.StringToStringVar(&o.Selector, "selector", map[string]string{}, "Node selector(s) to constrain job(s).")
+	flag.StringToStringVarP(&o.Labels, "labels", "l", map[string]string{}, "Prow labels to apply to the job(s).")
+	flag.StringToStringVarP(&o.Env, "env", "e", map[string]string{}, "Environment variables to set for the job(s).")
+	flag.StringToStringVarP(&o.OrgMap, "mapping", "m", map[string]string{}, "Mapping between public and private Github organization(s).")
+	flag.StringToStringVarP(&o.Annotations, "annotations", "a", map[string]string{}, "Annotations to apply to the job(s)")
+	flag.StringSliceVar(&o.JobWhitelist, "job-whitelist", []string{}, "Job(s) to whitelist in generation process.")
+	flag.StringSliceVar(&o.JobBlacklist, "job-blacklist", []string{}, "Job(s) to blacklist in generation process.")
+	flag.StringSliceVarP(&o.RepoWhitelist, "repo-whitelist", "w", []string{}, "Repositories to whitelist in generation process.")
+	flag.StringSliceVarP(&o.RepoBlacklist, "repo-blacklist", "b", []string{}, "Repositories to blacklist in generation process.")
+	flag.StringSliceVarP(&o.JobType, "job-type", "t", defaultJobTypes, "Job type(s) to process (e.g. presubmit, postsubmit. periodic).")
+	flag.BoolVar(&o.Clean, "clean", false, "Clean output files before job(s) generation.")
+	flag.BoolVar(&o.DryRun, "dry-run", false, "Run in dry run mode.")
+	flag.BoolVar(&o.ExtraRefs, "extra-refs", false, "Apply translation to all extra refs regardless of repo.")
+	flag.BoolVar(&o.Resolve, "resolve", false, "Resolve and expand values for presets in generated job(s).")
+	flag.BoolVar(&o.SSHClone, "ssh-clone", false, "Enable a clone of the git repository over ssh.")
+	flag.BoolVar(&o.OverrideSelector, "override-selector", false, "The existing node selector will be overridden rather than added to.")
+	flag.BoolVar(&o.Verbose, "verbose", false, "Enable verbose output.")
 
 	flag.Parse()
 
-	o.jobWhitelist = sets.NewString(_jobWhitelist...)
-	o.jobBlacklist = sets.NewString(_jobBlacklist...)
-	o.repoWhitelist = sets.NewString(_repoWhitelist...)
-	o.repoBlacklist = sets.NewString(_repoBlacklist...)
-	o.jobType = sets.NewString(_jobType...)
+	o.JobWhitelistSet = sets.NewString(o.JobWhitelist...)
+	o.JobBlacklistSet = sets.NewString(o.JobBlacklist...)
+	o.RepoWhitelistSet = sets.NewString(o.RepoWhitelist...)
+	o.RepoBlacklistSet = sets.NewString(o.RepoBlacklist...)
+	o.JobTypeSet = sets.NewString(o.JobType...)
 }
 
-// validateFlags validates the command-line flags.
-func (o *options) validateFlags() error {
+// parseConfiguration parses the yaml configuration transforms.
+func (o *options) parseConfiguration() []options {
+	var optsList []options
+
+	for _, c := range o.Configs {
+
+		if err := filepath.Walk(c, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return nil
+			}
+
+			if !util.HasExtension(path, yamlExt) {
+				return nil
+			}
+
+			f, err := ioutil.ReadFile(path)
+			if err != nil {
+				return nil
+			}
+
+			var t configuration
+			if err := yaml.Unmarshal(f, &t); err != nil {
+				return nil
+			}
+
+			for _, t := range t.Transforms {
+				if len(t.JobType) == 0 {
+					t.JobType = defaultJobTypes
+				}
+
+				oc := options{
+					JobWhitelistSet:  sets.NewString(t.JobWhitelist...),
+					JobBlacklistSet:  sets.NewString(t.JobBlacklist...),
+					RepoWhitelistSet: sets.NewString(t.RepoWhitelist...),
+					RepoBlacklistSet: sets.NewString(t.RepoBlacklist...),
+					JobTypeSet:       sets.NewString(t.JobType...),
+					transform:        t,
+				}
+
+				if err := oc.validateOpts(); err != nil {
+					util.PrintErrAndExit(err)
+				}
+
+				optsList = append(optsList, oc)
+			}
+
+			return nil
+		}); err != nil {
+			util.PrintErr(err.Error())
+		}
+	}
+
+	return optsList
+}
+
+// validateOpts validates the command-line flags.
+func (o *options) validateOpts() error {
 	var err error
 
-	if len(o.orgMap) == 0 {
-		return &util.ExitError{Message: "-m, --mapping option is required.", Code: 1}
+	for i, c := range o.Configs {
+		if o.Configs[i], err = filepath.Abs(c); err != nil {
+			return &util.ExitError{Message: fmt.Sprintf("--configs option invalid: %v.", o.Configs[i]), Code: 1}
+		} else if !util.Exists(o.Configs[i]) {
+			return &util.ExitError{Message: fmt.Sprintf("--configs option path does not exists: %v.", o.Configs[i]), Code: 1}
+		} else if util.IsFile(o.Configs[i]) && !util.HasExtension(o.Configs[i], yamlExt) {
+			return &util.ExitError{Message: fmt.Sprintf("--configs option path is not a yaml file: %v.", o.Configs[i]), Code: 1}
+		}
 	}
 
-	if o.input, err = filepath.Abs(o.input); err != nil {
-		return &util.ExitError{Message: fmt.Sprintf("-i, --input option invalid: %v.", o.input), Code: 1}
-	}
+	if len(o.Configs) == 0 {
+		if len(o.OrgMap) == 0 {
+			return &util.ExitError{Message: "-m, --mapping option is required.", Code: 1}
+		}
 
-	if o.output, err = filepath.Abs(o.output); err != nil {
-		return &util.ExitError{Message: fmt.Sprintf("-o, --output option invalid: %v.", o.output), Code: 1}
-	}
+		if o.Input, err = filepath.Abs(o.Input); err != nil {
+			return &util.ExitError{Message: fmt.Sprintf("-i, --input option invalid: %v.", o.Input), Code: 1}
+		}
 
-	for i, p := range o.presets {
-		if o.presets[i], err = filepath.Abs(p); !util.HasExtension(o.presets[i], yamlExt) || err != nil {
-			return &util.ExitError{Message: fmt.Sprintf("-p, --preset option invalid: %v.", o.presets[i]), Code: 1}
+		if o.Output, err = filepath.Abs(o.Output); err != nil {
+			return &util.ExitError{Message: fmt.Sprintf("-o, --output option invalid: %v.", o.Output), Code: 1}
+		}
+
+		for i, c := range o.Presets {
+			if o.Presets[i], err = filepath.Abs(c); err != nil {
+				return &util.ExitError{Message: fmt.Sprintf("-p, --preset option invalid: %v.", o.Presets[i]), Code: 1}
+			} else if !util.Exists(o.Presets[i]) {
+				return &util.ExitError{Message: fmt.Sprintf("-p, --preset option path does not exists: %v.", o.Presets[i]), Code: 1}
+			} else if util.IsFile(o.Presets[i]) && !util.HasExtension(o.Presets[i], yamlExt) {
+				return &util.ExitError{Message: fmt.Sprintf("-p, --preset option path is not a yaml file: %v.", o.Presets[i]), Code: 1}
+			}
 		}
 	}
 
@@ -165,9 +250,9 @@ func (o *options) validateFlags() error {
 
 // validateOrgRepo validates that the org and repo for a job pass validation and should be converted.
 func validateOrgRepo(o options, org string, repo string) bool {
-	_, hasOrg := o.orgMap[org]
+	_, hasOrg := o.OrgMap[org]
 
-	if !hasOrg || o.repoBlacklist.Has(repo) || (len(o.repoWhitelist) > 0 && !o.repoWhitelist.Has(repo)) {
+	if !hasOrg || o.RepoBlacklistSet.Has(repo) || (len(o.RepoWhitelistSet) > 0 && !o.RepoWhitelistSet.Has(repo)) {
 		return false
 	}
 
@@ -176,7 +261,7 @@ func validateOrgRepo(o options, org string, repo string) bool {
 
 // validateJob validates that the job passes validation and should be converted.
 func validateJob(o options, name string, patterns []string, jType string) bool {
-	if o.jobBlacklist.Has(name) || (len(o.jobWhitelist) > 0 && !o.jobWhitelist.Has(name)) || !isMatchBranch(o, patterns) || !o.jobType.Has(jType) {
+	if o.JobBlacklistSet.Has(name) || (len(o.JobWhitelistSet) > 0 && !o.JobWhitelistSet.Has(name)) || !isMatchBranch(o, patterns) || !o.JobTypeSet.Has(jType) {
 		return false
 	}
 
@@ -185,11 +270,11 @@ func validateJob(o options, name string, patterns []string, jType string) bool {
 
 // isMatchBranch validates that the branch for a job passes validation and should be converted.
 func isMatchBranch(o options, patterns []string) bool {
-	if len(o.branches) == 0 {
+	if len(o.Branches) == 0 {
 		return true
 	}
 
-	for _, branch := range o.branches {
+	for _, branch := range o.Branches {
 		for _, pattern := range patterns {
 			if regexp.MustCompile(pattern).MatchString(branch) {
 				return true
@@ -220,7 +305,7 @@ func convertOrgRepoStr(o options, s string) string {
 		return ""
 	}
 
-	return strings.Join([]string{o.orgMap[org], repo}, "/")
+	return strings.Join([]string{o.OrgMap[org], repo}, "/")
 }
 
 // combinePresets reads a list of paths and aggregates the presets.
@@ -295,7 +380,7 @@ volume:
 
 // resolvePresets resolves all preset for a particular job Spec based on defined labels.
 func resolvePresets(o options, labels map[string]string, job *config.JobBase, presets []config.Preset) {
-	if !o.resolve {
+	if !o.Resolve {
 		return
 	}
 
@@ -310,8 +395,8 @@ func resolvePresets(o options, labels map[string]string, job *config.JobBase, pr
 func updateJobName(o options, job *config.JobBase) {
 	suffix := ""
 
-	if o.modifier != "" {
-		suffix = jobnameSeparator + o.modifier
+	if o.Modifier != "" {
+		suffix = jobnameSeparator + o.Modifier
 	}
 
 	maxNameLen := maxLabelLen - len(suffix)
@@ -325,16 +410,16 @@ func updateJobName(o options, job *config.JobBase) {
 
 // updateBrancher updates the jobs Brancher fields based on provided inputs.
 func updateBrancher(o options, job *config.Brancher) {
-	if len(o.branchesOut) == 0 {
+	if len(o.BranchesOut) == 0 {
 		return
 	}
 
-	job.Branches = o.branchesOut
+	job.Branches = o.BranchesOut
 }
 
 // updateUtilityConfig updates the jobs UtilityConfig fields based on provided inputs.
 func updateUtilityConfig(o options, job *config.UtilityConfig) {
-	if o.bucket == "" && o.sshKeySecret == "" {
+	if o.Bucket == "" && o.SSHKeySecret == "" {
 		return
 	}
 
@@ -348,35 +433,35 @@ func updateUtilityConfig(o options, job *config.UtilityConfig) {
 
 // updateGCSConfiguration updates the jobs GCSConfiguration fields based on provided inputs.
 func updateGCSConfiguration(o options, job *prowjob.DecorationConfig) {
-	if o.bucket == "" {
+	if o.Bucket == "" {
 		return
 	}
 
 	if job.GCSConfiguration == nil {
 		job.GCSConfiguration = &prowjob.GCSConfiguration{
-			Bucket: o.bucket,
+			Bucket: o.Bucket,
 		}
 	} else {
-		job.GCSConfiguration.Bucket = o.bucket
+		job.GCSConfiguration.Bucket = o.Bucket
 	}
 }
 
 // updateSSHKeySecrets updates the jobs SSHKeySecrets fields based on provided inputs.
 func updateSSHKeySecrets(o options, job *prowjob.DecorationConfig) {
-	if o.sshKeySecret == "" {
+	if o.SSHKeySecret == "" {
 		return
 	}
 
 	if job.SSHKeySecrets == nil {
-		job.SSHKeySecrets = []string{o.sshKeySecret}
+		job.SSHKeySecrets = []string{o.SSHKeySecret}
 	} else {
-		job.SSHKeySecrets = append(job.SSHKeySecrets, o.sshKeySecret)
+		job.SSHKeySecrets = append(job.SSHKeySecrets, o.SSHKeySecret)
 	}
 }
 
 // updateReporterConfig updates the jobs ReporterConfig fields based on provided inputs.
 func updateReporterConfig(o options, job *config.JobBase) {
-	if o.channel == "" {
+	if o.Channel == "" {
 		return
 	}
 
@@ -384,25 +469,25 @@ func updateReporterConfig(o options, job *config.JobBase) {
 		job.ReporterConfig = &prowjob.ReporterConfig{}
 	}
 
-	job.ReporterConfig.Slack = &prowjob.SlackReporterConfig{Channel: o.channel}
+	job.ReporterConfig.Slack = &prowjob.SlackReporterConfig{Channel: o.Channel}
 }
 
 // updateRerunAuthConfig updates the jobs RerunAuthConfig fields based on provided inputs.
 func updateRerunAuthConfig(o options, job *config.JobBase) {
-	if len(o.rerunOrgs) == 0 && len(o.rerunUsers) == 0 {
+	if len(o.RerunOrgs) == 0 && len(o.RerunUsers) == 0 {
 		return
 	}
 
 	// The original job `RerunAuthConfig` is overwritten with the user-defined values.
 	job.RerunAuthConfig = &prowjob.RerunAuthConfig{
-		GitHubOrgs:  o.rerunOrgs,
-		GitHubUsers: o.rerunUsers,
+		GitHubOrgs:  o.RerunOrgs,
+		GitHubUsers: o.RerunUsers,
 	}
 }
 
 // updateLabels updates the jobs Labels fields based on provided inputs.
 func updateLabels(o options, job *config.JobBase) {
-	if len(o.labels) == 0 {
+	if len(o.Labels) == 0 {
 		return
 	}
 
@@ -410,18 +495,18 @@ func updateLabels(o options, job *config.JobBase) {
 		job.Labels = make(map[string]string)
 	}
 
-	for labelK, labelV := range o.labels {
+	for labelK, labelV := range o.Labels {
 		job.Labels[labelK] = labelV
 	}
 }
 
 // updateNodeSelector updates the jobs NodeSelector fields based on provided inputs.
 func updateNodeSelector(o options, job *config.JobBase) {
-	if o.overrideSelector {
+	if o.OverrideSelector {
 		job.Spec.NodeSelector = make(map[string]string)
 	}
 
-	if len(o.selector) == 0 {
+	if len(o.Selector) == 0 {
 		return
 	}
 
@@ -429,18 +514,18 @@ func updateNodeSelector(o options, job *config.JobBase) {
 		job.Spec.NodeSelector = make(map[string]string)
 	}
 
-	for selK, selV := range o.selector {
+	for selK, selV := range o.Selector {
 		job.Spec.NodeSelector[selK] = selV
 	}
 }
 
 // updateEnvs updates the jobs Env fields based on provided inputs.
 func updateEnvs(o options, job *config.JobBase) {
-	if len(o.env) == 0 {
+	if len(o.Env) == 0 {
 		return
 	}
 
-	envKs := util.SortedKeys(o.env)
+	envKs := util.SortedKeys(o.Env)
 
 	for _, envK := range envKs {
 	container:
@@ -448,26 +533,26 @@ func updateEnvs(o options, job *config.JobBase) {
 
 			for j := range job.Spec.Containers[i].Env {
 				if job.Spec.Containers[i].Env[j].Name == envK {
-					job.Spec.Containers[i].Env[j].Value = o.env[envK]
+					job.Spec.Containers[i].Env[j].Value = o.Env[envK]
 					continue container
 				}
 			}
 
-			job.Spec.Containers[i].Env = append(job.Spec.Containers[i].Env, v1.EnvVar{Name: envK, Value: o.env[envK]})
+			job.Spec.Containers[i].Env = append(job.Spec.Containers[i].Env, v1.EnvVar{Name: envK, Value: o.Env[envK]})
 		}
 	}
 }
 
 // updateJobBase updates the jobs JobBase fields based on provided inputs to work with private repositories.
 func updateJobBase(o options, job *config.JobBase, orgrepo string) {
-	job.Annotations = o.annotations
+	job.Annotations = o.Annotations
 
-	if o.sshClone && orgrepo != "" {
+	if o.SSHClone && orgrepo != "" {
 		job.CloneURI = fmt.Sprintf("git@%s:%s.git", gitHost, orgrepo)
 	}
 
-	if o.cluster != "" && o.cluster != defaultCluster {
-		job.Cluster = o.cluster
+	if o.Cluster != "" && o.Cluster != defaultCluster {
+		job.Cluster = o.Cluster
 	}
 
 	updateJobName(o, job)
@@ -483,13 +568,13 @@ func updateExtraRefs(o options, refs []prowjob.Refs) {
 	for i, ref := range refs {
 		org, repo := ref.Org, ref.Repo
 
-		if o.extraRefs || validateOrgRepo(o, org, repo) {
+		if o.ExtraRefs || validateOrgRepo(o, org, repo) {
 			// Only transform known org mappings.
-			if newOrg, ok := o.orgMap[org]; ok {
+			if newOrg, ok := o.OrgMap[org]; ok {
 				org = newOrg
 			}
 			refs[i].Org = org
-			if o.sshClone {
+			if o.SSHClone {
 				refs[i].CloneURI = fmt.Sprintf("git@%s:%s/%s.git", gitHost, org, repo)
 			}
 		}
@@ -498,12 +583,12 @@ func updateExtraRefs(o options, refs []prowjob.Refs) {
 
 // sortJobs sorts jobs based on a provided sort order.
 func sortJobs(o options, pre map[string][]config.Presubmit, post map[string][]config.Postsubmit, per []config.Periodic) {
-	if o.sort == "" {
+	if o.Sort == "" {
 		return
 	}
 
 	choices := strings.Join([]string{string(ascending), string(descending)}, "|")
-	matches := regexp.MustCompile(`^(` + choices + `)(?:ending)?$`).FindStringSubmatch(o.sort)
+	matches := regexp.MustCompile(`^(` + choices + `)(?:ending)?$`).FindStringSubmatch(o.Sort)
 	if len(matches) < 2 {
 		return
 	}
@@ -550,32 +635,32 @@ func getOutPath(o options, p string, in string) string {
 	)
 
 	switch {
-	case util.HasExtension(o.output, yamlExt):
-		return o.output
+	case util.HasExtension(o.Output, yamlExt):
+		return o.Output
 	case len(segments) >= 3:
 		org = segments[len(segments)-3]
 		repo = segments[len(segments)-2]
 		file = segments[len(segments)-1]
-		if newOrg, ok := o.orgMap[org]; ok {
+		if newOrg, ok := o.OrgMap[org]; ok {
 			filename := util.RenameFile(`^`+util.NormalizeOrg(org, filenameSeparator)+`\b`, file, util.NormalizeOrg(newOrg, filenameSeparator))
-			return filepath.Join(o.output, util.GetTopLevelOrg(newOrg), repo, filename)
+			return filepath.Join(o.Output, util.GetTopLevelOrg(newOrg), repo, filename)
 		}
 	case len(segments) == 2:
 		org = segments[len(segments)-2]
 		file = segments[len(segments)-1]
-		if newOrg, ok := o.orgMap[org]; ok {
+		if newOrg, ok := o.OrgMap[org]; ok {
 			filename := util.RenameFile(`^`+util.NormalizeOrg(org, filenameSeparator)+`\b`, file, util.NormalizeOrg(newOrg, filenameSeparator))
-			return filepath.Join(o.output, util.GetTopLevelOrg(newOrg), filename)
+			return filepath.Join(o.Output, util.GetTopLevelOrg(newOrg), filename)
 		}
 	case len(segments) == 1:
 		file = segments[len(segments)-1]
-		if !strings.HasPrefix(file, o.modifier) {
-			return filepath.Join(o.output, o.modifier+filenameSeparator+file)
+		if !strings.HasPrefix(file, o.Modifier) {
+			return filepath.Join(o.Output, o.Modifier+filenameSeparator+file)
 		}
 	case len(segments) == 0:
 		file = filepath.Base(in)
-		if !strings.HasPrefix(file, o.modifier) {
-			return filepath.Join(o.output, o.modifier+filenameSeparator+file)
+		if !strings.HasPrefix(file, o.Modifier) {
+			return filepath.Join(o.Output, o.Modifier+filenameSeparator+file)
 		}
 	}
 
@@ -685,21 +770,11 @@ func writeOutFile(o options, p string, pre map[string][]config.Presubmit, post m
 	}
 }
 
-// main entry point.
-func Main() {
-	defer handleRecover()
+// generateJobs generates jobs based on the specified options.
+func generateJobs(o options) {
+	presets := combinePresets(o.Presets)
 
-	var o options
-
-	o.parseFlags()
-
-	if err := o.validateFlags(); err != nil {
-		util.PrintErrAndExit(err)
-	}
-
-	presets := combinePresets(o.presets)
-
-	_ = filepath.Walk(o.input, func(p string, info os.FileInfo, err error) error {
+	if err := filepath.Walk(o.Input, func(p string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -710,11 +785,11 @@ func Main() {
 			return nil
 		}
 
-		outPath := getOutPath(o, absPath, o.input)
+		outPath := getOutPath(o, absPath, o.Input)
 		if outPath == "" {
 			return nil
 		}
-		if o.clean {
+		if o.Clean {
 			cleanOutFile(outPath)
 		}
 
@@ -797,12 +872,36 @@ func Main() {
 			periodic = append(periodic, job)
 		}
 
-		if o.dryRun {
-			fmt.Printf("write %d presubmits, %d postsubmits, and %d periodics to path %s\n", len(presubmit), len(postsubmit), len(periodic), outPath)
-		} else {
+		if o.Verbose {
+			fmt.Printf("write %d presubmits, %d postsubmits, and %d periodics to path %v\n", len(presubmit), len(postsubmit), len(periodic), outPath)
+		}
+
+		if !o.DryRun {
 			writeOutFile(o, outPath, presubmit, postsubmit, periodic)
 		}
 
 		return nil
-	})
+	}); err != nil {
+		util.PrintErr(err.Error())
+	}
+}
+
+// main entry point.
+func Main() {
+	defer handleRecover()
+
+	var o options
+
+	o.parseOpts()
+
+	if err := o.validateOpts(); err != nil {
+		util.PrintErrAndExit(err)
+	}
+
+	optsList := []options{o}
+	optsList = append(optsList, o.parseConfiguration()...)
+
+	for _, o := range optsList {
+		generateJobs(o)
+	}
 }

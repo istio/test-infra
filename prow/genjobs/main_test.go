@@ -24,6 +24,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"text/template"
 
 	"github.com/spf13/pflag"
 
@@ -39,12 +40,45 @@ func resolvePath(t *testing.T, filename string) string {
 	return filepath.Join(testDir, strings.ToLower(name), name+filename)
 }
 
+func parseConfigTmpl(input, output, config, dir string) (string, error) {
+	var b bytes.Buffer
+
+	cfg, err := ioutil.ReadFile(config)
+	if err != nil {
+		return "", fmt.Errorf("failed reading config file %v: %v", config, err)
+	}
+
+	tmpl, err := template.New("test").Parse(string(cfg))
+	if err != nil {
+		return "", fmt.Errorf("failed parsing config template %v: %v", config, err)
+	}
+
+	if err := tmpl.Execute(&b, struct {
+		Input  string
+		Output string
+	}{
+		Input:  input,
+		Output: output,
+	}); err != nil {
+		return "", fmt.Errorf("failed executing config template %v: %v", config, err)
+	}
+
+	cfgO := filepath.Join(dir, "cfg.yaml")
+
+	if err := ioutil.WriteFile(cfgO, b.Bytes(), 0644); err != nil {
+		return "", fmt.Errorf("failed writing config file %v: %v", cfgO, err)
+	}
+
+	return cfgO, nil
+}
+
 func TestGenjobs(t *testing.T) {
 	tests := []struct {
-		name   string
-		output string
-		args   []string
-		equal  bool
+		name    string
+		output  string
+		args    []string
+		configs bool
+		equal   bool
 	}{
 		{
 			name:  "simple transform",
@@ -91,6 +125,11 @@ func TestGenjobs(t *testing.T) {
 			args:  []string{"--mapping=istio=istio-private", "--sort=desc"},
 			equal: true,
 		},
+		{
+			name:    "config file",
+			configs: true,
+			equal:   true,
+		},
 	}
 
 	for _, test := range tests {
@@ -100,43 +139,48 @@ func TestGenjobs(t *testing.T) {
 
 			expected, err := ioutil.ReadFile(outE)
 			if err != nil {
-				t.Errorf("Failed reading expected output file %v: %v", outE, err)
+				t.Fatalf("failed reading expected output file %v: %v", outE, err)
 			}
 
 			tmpDir, err := ioutil.TempDir("", "")
 			if err != nil {
-				t.Errorf("Failed creating temp file: %v", err)
+				t.Fatalf("failed creating temp file: %v", err)
 			}
 			defer os.Remove(tmpDir)
-
 			outA := filepath.Join(tmpDir, "out.yaml")
 
 			os.Args = []string{"genjobs"}
 			pflag.CommandLine = pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
 			os.Args = append(os.Args, test.args...)
-			os.Args = append(os.Args, "--input="+in, "--output="+outA)
+			if test.configs {
+				cfg, err := parseConfigTmpl(in, outA, resolvePath(t, "_cfg.yaml"), tmpDir)
+				if err != nil {
+					t.Fatal(err)
+				}
+				os.Args = append(os.Args, "--configs="+cfg)
+			} else {
+				os.Args = append(os.Args, "--input="+in, "--output="+outA)
+			}
 			genjobs.Main()
 
 			actual, err := ioutil.ReadFile(outA)
 			if err != nil {
-				t.Errorf("Failed reading actual output file %v: %v", outA, err)
+				t.Fatalf("failed reading actual output file %v: %v", outA, err)
 			}
 
-			if os.Getenv("VERBOSE") == "true" {
-				fmt.Printf("expected (%v):\n%v\n", test.name, string(expected))
-				fmt.Printf("actual (%v):\n%v\n", test.name, string(actual))
-			}
+			t.Logf("expected (%v):\n%s\n", test.name, expected)
+			t.Logf("actual (%v):\n%s\n", test.name, actual)
 
 			if os.Getenv("REFRESH_GOLDEN") == "true" {
 				if err = ioutil.WriteFile(outE, actual, 0644); err != nil {
-					t.Errorf("Failed writing expected output file %v: %v", outE, err)
+					t.Fatalf("failed writing expected output file %v: %v", outE, err)
 				}
 				expected = actual
 			}
 
 			equal := bytes.Equal(expected, actual)
 			if equal != test.equal {
-				t.Errorf("Expected output to be: %t.\nAdd env variable VERBOSE=true for details", test.equal)
+				t.Fatalf("expected output to be: %t", test.equal)
 			}
 		})
 	}
