@@ -19,10 +19,6 @@ VERSION ?= 0.0.2
 .PHONY: deploy
 deploy: image push
 
-.PHONY: gen-private-jobs
-gen-private-jobs:
-	@./gen-private-jobs.sh
-
 .PHONY: image
 image:
 	docker build -t "$(HUB)/$(PROJECT)/genjobs:$(VERSION)" -t "$(HUB)/$(PROJECT)/genjobs:latest" -f Dockerfile ../../
