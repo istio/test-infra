@@ -4,7 +4,8 @@ plank:
   job_url_prefix_config:
     '*': https://prow.istio.io/view/gcs/
     istio-private: https://prow-private.istio.io/view/gcs/
-  pod_pending_timeout: 60m
+  pod_pending_timeout: 15m
+  pod_unscheduled_timeout: 1m
   default_decoration_configs:
     '*':
       timeout: 2h
@@ -34,9 +35,10 @@ plank:
       - ssh-key-secret
 
 sinker:
-  resync_period: 1h
-  max_prowjob_age: 168h
-  max_pod_age: 6h
+  resync_period: 1m
+  max_prowjob_age: 48h
+  max_pod_age: 48h
+  terminated_pod_ttl: 30m
 
 deck:
   spyglass:
@@ -44,15 +46,29 @@ deck:
     gcs_browser_prefix: https://gcsweb.istio.io/gcs/
     testgrid_config: gs://k8s-testgrid/config
     testgrid_root: https://testgrid.k8s.io/
-    viewers:
-      "started.json|finished.json":
-      - "metadata"
-      "build-log.txt":
-      - "buildlog"
-      "artifacts/junit.*\\.xml":
-      - "junit"
-      "artifacts/filtered.cov":
-      - "coverage"
+    lenses:
+    - lens:
+        name: metadata
+      required_files:
+      - started.json|finished.json
+      optional_files:
+      - podinfo.json
+    - lens:
+        name: buildlog
+      required_files:
+      - build-log.txt
+    - lens:
+        name: junit
+      required_files:
+      - artifacts/junit.*\.xml
+    - lens:
+        name: coverage
+      required_files:
+      - artifacts/filtered.cov
+    - lens:
+        name: podinfo
+      required_files:
+      - podinfo.json
     announcement: "This page -- spyglass -- is the default viewer for prow.{{if .ArtifactPath}} For now, the deprecated gubernator page spyglass replaces <a href='https://gubernator.k8s.io/build/{{.ArtifactPath}}'>remains available</a>.{{end}}"
   hidden_repos:
   - istio-private
