@@ -25,8 +25,8 @@ postsubmits:
       - command:
         - ./prow/proxy-postsubmit.sh
         env:
-        - name: BAZEL_BUILD_RBE_JOBS
-          value: "0"
+        - name: BAZEL_BUILD_RBE_INSTANCE
+          value: projects/istio-prow-build/instances/default_instance
         - name: DOCKER_REPOSITORY
           value: istio-prow-build/envoy
         - name: ENVOY_PREFIX
@@ -77,8 +77,8 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit.sh
         env:
-        - name: BAZEL_BUILD_RBE_JOBS
-          value: "0"
+        - name: BAZEL_BUILD_RBE_INSTANCE
+          value: projects/istio-prow-build/instances/default_instance
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
@@ -119,8 +119,8 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-asan.sh
         env:
-        - name: BAZEL_BUILD_RBE_JOBS
-          value: "0"
+        - name: BAZEL_BUILD_RBE_INSTANCE
+          value: projects/istio-prow-build/instances/default_instance
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
@@ -161,8 +161,8 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-tsan.sh
         env:
-        - name: BAZEL_BUILD_RBE_JOBS
-          value: "0"
+        - name: BAZEL_BUILD_RBE_INSTANCE
+          value: projects/istio-prow-build/instances/default_instance
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
@@ -203,8 +203,8 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-release.sh
         env:
-        - name: BAZEL_BUILD_RBE_JOBS
-          value: "0"
+        - name: BAZEL_BUILD_RBE_INSTANCE
+          value: projects/istio-prow-build/instances/default_instance
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY

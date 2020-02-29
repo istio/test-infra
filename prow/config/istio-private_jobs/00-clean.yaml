@@ -1,0 +1,13 @@
+common_opts: &common_opts
+  mapping:
+    istio: istio-private
+  input: ./prow/cluster/jobs/
+  output: ./prow/cluster/jobs/
+  verbose: false
+
+transforms:
+
+# Clean step.
+- <<: *common_opts
+  clean: true
+  dry-run: true

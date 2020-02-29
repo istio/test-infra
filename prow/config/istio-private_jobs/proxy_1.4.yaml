@@ -1,0 +1,41 @@
+common_jobs_mods: &common_jobs_mods
+  mapping:
+    istio: istio-private
+  input: ./prow/cluster/jobs/
+  output: ./prow/cluster/jobs/
+  branches: [release-1.4]
+  repo-whitelist: [proxy]
+  ssh-clone: true
+  extra-refs: true
+  cluster: private
+  modifier: release-1.4_priv
+  annotations:
+    testgrid-create-test-group: "false"
+  verbose: false
+
+
+transforms:
+
+# istio/proxy release-1.4 test jobs(s) - presubmit(s)
+- <<: *common_jobs_mods
+  env:
+    BAZEL_BUILD_RBE_INSTANCE: projects/istio-prow-build/instances/default_instance
+    ENVOY_REPOSITORY: https://github.com/istio-private/envoy
+    ENVOY_PREFIX: envoy
+  labels:
+    preset-enable-netrc: "true"
+  job-type: [presubmit]
+
+
+# istio/proxy release-1.4 build jobs(s) - postsubmit(s)
+- <<: *common_jobs_mods
+  env:
+    BAZEL_BUILD_RBE_INSTANCE: projects/istio-prow-build/instances/default_instance
+    GCS_BUILD_BUCKET: istio-private-build
+    GCS_ARTIFACTS_BUCKET: istio-private-artifacts
+    DOCKER_REPOSITORY: istio-prow-build/envoy
+    ENVOY_REPOSITORY: https://github.com/istio-private/envoy
+    ENVOY_PREFIX: envoy
+  labels:
+    preset-enable-netrc: "true"
+  job-type: [postsubmit]

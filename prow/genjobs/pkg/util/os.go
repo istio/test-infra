@@ -17,6 +17,7 @@ limitations under the License.
 package util
 
 import (
+	"os"
 	"path/filepath"
 	"regexp"
 )
@@ -30,4 +31,28 @@ func RenameFile(pat string, src string, repl string) string {
 // HasExtension checks if a file's extension matches a pattern.
 func HasExtension(path string, pat string) bool {
 	return regexp.MustCompile(pat).MatchString(filepath.Ext(path))
+}
+
+// Exists checks if a path exists.
+func Exists(path string) bool {
+	_, err := os.Stat(path)
+	return !os.IsNotExist(err)
+}
+
+// IsFile checks if a path exists and is a file.
+func IsFile(path string) bool {
+	info, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return info.Mode().IsRegular()
+}
+
+// IsDirectory checks if a path exists and is a directory.
+func IsDirectory(path string) bool {
+	info, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return info.Mode().IsDir()
 }

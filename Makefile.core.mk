@@ -29,7 +29,7 @@ gen-check: gen check-clean-repo
 generate-config:
 	@rm -fr prow/cluster/jobs/istio/*/*.gen.yaml
 	@(cd prow/config/cmd; GOARCH=amd64 GOOS=linux go run generate.go write)
-	@$(MAKE) -C prow/genjobs gen-private-jobs
+	@go run prow/genjobs/main.go --configs=./prow/config/istio-private_jobs
 
 diff-config:
 	@(cd prow/config/cmd; GOARCH=amd64 GOOS=linux go run generate.go diff)
