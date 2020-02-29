@@ -345,7 +345,7 @@ func TestTrustedJobs(t *testing.T) {
 	}
 
 	// Trusted postsubmits must be defined in trustedPath
-	for _, post := range c.AllPostsubmits(nil) {
+	for _, post := range c.AllStaticPostsubmits(nil) {
 		if post.Cluster != trusted {
 			continue
 		}
