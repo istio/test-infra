@@ -2,7 +2,8 @@
 
 ## Description
 
-`genjobs` is a CLI tool used to generate **private** Github jobs from existing Prow job definitions. It translates *existing* jobs by adding decoration to the Prow job spec.
+`genjobs` is a command-line interface (CLI) tool used to generate [Prow job](https://github.com/kubernetes/test-infra/blob/master/prow/jobs.md)
+objects by transforming existing Prow job objects.
 
 ## Installation
 
@@ -51,6 +52,7 @@ The following is a list of supported options for `genjobs`. The only **required*
       --channel string               Slack channel to report job status notifications to.
       --clean                        Clean output files before job(s) generation.
       --cluster string               GCP cluster to run the job(s) in.
+      --configs strings              Path to files or directories containing yaml job transforms.
       --dry-run                      Run in dry run mode.
   -e, --env stringToString           Environment variables to set for the job(s). (default [])
       --extra-refs                   Apply translation to all extra refs regardless of repo.
@@ -73,14 +75,31 @@ The following is a list of supported options for `genjobs`. The only **required*
   -s, --sort string                  Sort the job(s) by name: (e.g. (asc)ending, (desc)ending).
       --ssh-clone                    Enable a clone of the git repository over ssh.
       --ssh-key-secret string        GKE cluster secrets containing the Github ssh private key.
+      --verbose                      Enable verbose output.
 ```
 
 ## Example
 
-Translate all public jobs with `istio` organization to private jobs with `istio-private` organization in `./jobs` directory:
+Transform all public jobs with `istio` organization to private jobs with `istio-private` organization in `./jobs` directory:
 
 ```shell
 genjobs --mapping istio=istio-private --input ./jobs --output ./jobs
+```
+
+To perform the same transforms using a yaml configuration file `./config.yaml`:
+
+```yaml
+# config.yaml
+
+transforms:
+- mapping:
+    istio: istio-private
+  input: ./jobs
+  output: ./jobs
+```
+
+```shell
+genjobs --configs=./config.yaml
 ```
 
 Limit job generation to *specific* branches:
@@ -135,3 +154,4 @@ genjobs --mapping istio=istio-private --clean
 
 - 0.0.1: initial release
 - 0.0.2: add `--branches-out` option for overriding the output branch(es) of generated jobs.
+- 0.0.3: add `--verbose` option to enable verbose output and `--configs` option for specifying transforms via a yaml configuration file(s).
