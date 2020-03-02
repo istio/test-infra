@@ -7,6 +7,11 @@ jobs:
   - name: unit-tests
     command: [entrypoint, make, -e, "T=-v", build, racetest, binaries-test]
 
+  - name: cache-experiment
+    requirements: [cache]
+    modifiers: [optional, hidden]
+    command: [entrypoint, make, -e, "T=-v", build, racetest, binaries-test]
+
   - name: codecov
     modifiers: [skipped]
     command: [entrypoint, make, coverage-diff]
