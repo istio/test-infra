@@ -2,6 +2,7 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: fileserver
+  namespace: test-pods
 spec:
   capacity:
     storage: 1T
@@ -15,6 +16,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: build-cache-claim
+  namespace: test-pods
 spec:
   accessModes:
   - ReadWriteMany
