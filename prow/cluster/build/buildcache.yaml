@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: fileserver
+spec:
+  capacity:
+    storage: 1T
+  accessModes:
+  - ReadWriteMany
+  nfs:
+    path: /istio_prow_cache
+    server: 10.3.165.146
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: build-cache-claim
+spec:
+  accessModes:
+  - ReadWriteMany
+  storageClassName: ""
+  volumeName: fileserver
+  resources:
+    requests:
+      storage: 500Gi
