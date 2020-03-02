@@ -21,13 +21,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
-	"text/template"
 	"time"
 
+	"github.com/Masterminds/sprig"
 	flag "github.com/spf13/pflag"
 	"google.golang.org/api/option"
 	"google.golang.org/api/transport"
@@ -82,52 +83,6 @@ func (errs namespacedErrors) Errors() string {
 // tokenTemplate is the template data structure.
 type tokenTemplate struct {
 	Token string
-}
-
-// tokenTemplate addition function.
-func (tt *tokenTemplate) Add(a, b int64) int64 {
-	return a + b
-}
-
-// tokenTemplate subtraction function.
-func (tt *tokenTemplate) Subtract(a, b int64) int64 {
-	return a - b
-}
-
-// tokenTemplate multiplication function.
-func (tt *tokenTemplate) Multiply(a, b int64) int64 {
-	return a * b
-}
-
-// tokenTemplate division function.
-func (tt *tokenTemplate) Divide(a, b int64) int64 {
-	return a / b
-}
-
-// tokenTemplate time now function.
-func (tt *tokenTemplate) Now() time.Time {
-	return time.Now()
-}
-
-// tokenTemplate time to unix function.
-func (tt *tokenTemplate) TimeToUnix(t time.Time) int64 {
-	return t.Unix()
-}
-
-// tokenTemplate unix to time function.
-func (tt *tokenTemplate) UnixToTime(t int64) time.Time {
-	return time.Unix(t, 0)
-}
-
-// tokenTemplate time parse function.
-func (tt *tokenTemplate) Parse(layout string, t string) time.Time {
-	r, _ := time.Parse(layout, t)
-	return r
-}
-
-// tokenTemplate time format function.
-func (tt *tokenTemplate) Format(layout string, t time.Time) string {
-	return t.Format(layout)
 }
 
 // options are the available command-line flags.
@@ -228,7 +183,7 @@ func fileExists(path string) bool {
 func generateTokenData(o options, data []byte) ([]byte, error) {
 	var b bytes.Buffer
 
-	tmpl, err := template.New("TokenData").Parse(o.template)
+	tmpl, err := template.New("TokenData").Funcs(sprig.FuncMap()).Parse(o.template)
 	if err != nil {
 		return nil, err
 	}
