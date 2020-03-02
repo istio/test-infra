@@ -581,7 +581,7 @@ func applyRequirements(job *config.JobBase, requirements []string) {
 			)
 			job.Spec.Containers[0].VolumeMounts = append(job.Spec.Containers[0].VolumeMounts,
 				v1.VolumeMount{
-					MountPath: "/go/pkg",
+					MountPath: "/home/prow/go/pkg",
 					Name:      "build-cache-pvc",
 					SubPath:   "gomod",
 				},
