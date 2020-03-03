@@ -52,3 +52,4 @@ The following is a list of supported options for `authentikos`:
 - 0.0.2: remove `--format` option and add `--template` and `--template-file` options.
 - 0.0.3: add new `TimeToUnix`, `UnixToTime`, and `Parse` template variable and change method signature for math template variables from `(a, b time.Duration) time.Duration` to `(a, b int64) int64`.
 - 0.0.4: add `--key` option for specifying the name of the data key in the created Kubernetes secret.
+- 0.0.5: use [Sprig](http://masterminds.github.io/sprig/) as the library for template functions.
