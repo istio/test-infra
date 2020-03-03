@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
+current_dir := $(dir $(mkfile_path))
+
 export KUBECONFIG
 
 # https://github.com/istio/test-infra/issues/1636
@@ -35,6 +38,15 @@ endif
 .PHONY: configure-docker
 configure-docker: activate-serviceaccount
 	gcloud auth configure-docker
+
+.PHONY: get-api-resources
+get-api-resources:
+	$(eval PRUNE_WL=$(shell KUBECONFIG=$(KUBECONFIG) \
+	python3 "$(current_dir)/api-resources.py" \
+	  --delimiter=" " \
+	  --format="--prune-whitelist='%s'" \
+	  --group-blacklist "authentication.k8s.io" "authorization.k8s.io"\
+	  ))
 
 get-%-credentials: save-kubeconfig activate-serviceaccount
 	gcloud container clusters get-credentials "$(CLUSTER)" --project="$(PROJECT)" --zone="$(ZONE)"
