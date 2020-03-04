@@ -1,6 +1,8 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
+  labels:
+    app.kubernetes.io/part-of: prow-build
   name: fileserver
   namespace: test-pods
 spec:
@@ -15,6 +17,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  labels:
+    app.kubernetes.io/part-of: prow-build
   name: build-cache-claim
   namespace: test-pods
 spec:

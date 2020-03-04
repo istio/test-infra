@@ -9,6 +9,7 @@ kind: ClusterRole
 metadata:
   name: boskos-crd-reader
   labels:
+    app.kubernetes.io/part-of: boskos
     rbac.authorization.k8s.io/aggregate-to-view: "true"
 rules:
 - apiGroups:
@@ -24,6 +25,8 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
+  labels:
+    app.kubernetes.io/part-of: boskos
   name: boskos-crd-reader-binding
   namespace: boskos
 subjects:
@@ -40,6 +43,7 @@ kind: Deployment
 metadata:
   name: boskos-cleaner
   labels:
+    app.kubernetes.io/part-of: boskos
     app: boskos-cleaner
   namespace: boskos
 spec:

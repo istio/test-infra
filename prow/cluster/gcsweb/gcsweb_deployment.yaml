@@ -1,12 +1,16 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: gcsweb
   namespace: gcs
   labels:
+    app.kubernetes.io/part-of: gcsweb
     app: gcsweb
 spec:
   replicas: 2
+  selector:
+    matchLabels:
+      app: gcsweb
   strategy:
     rollingUpdate:
       maxSurge: 1
