@@ -184,12 +184,12 @@ func ValidateJobConfig(jobConfig JobConfig) {
 			} else if job.Cron == "" && job.Interval == "" {
 				err = multierror.Append(err, fmt.Errorf("cron and interval cannot be both empty in periodic %s", job.Name))
 			} else if job.Cron != "" {
-				if _, err := cron.Parse(job.Cron); err != nil {
-					err = multierror.Append(err, fmt.Errorf("invalid cron string %s in periodic %s: %v", job.Cron, job.Name, err))
+				if _, e := cron.Parse(job.Cron); e != nil {
+					err = multierror.Append(err, fmt.Errorf("invalid cron string %s in periodic %s: %v", job.Cron, job.Name, e))
 				}
 			} else if job.Interval != "" {
-				if _, err := time.ParseDuration(job.Interval); err != nil {
-					err = multierror.Append(err, fmt.Errorf("cannot parse duration %s in periodic %s: %v", job.Interval, job.Name, err))
+				if _, e := time.ParseDuration(job.Interval); e != nil {
+					err = multierror.Append(err, fmt.Errorf("cannot parse duration %s in periodic %s: %v", job.Interval, job.Name, e))
 				}
 			}
 		}
