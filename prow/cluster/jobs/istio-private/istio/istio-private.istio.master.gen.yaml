@@ -82,37 +82,6 @@ postsubmits:
       preset-enable-ssh: "true"
       preset-override-deps: release-1.4-istio
       preset-override-envoy: "true"
-    name: codecov_istio_postsubmit_priv
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - make
-        - coverage-diff
-        image: gcr.io/istio-testing/build-tools:master-2020-02-14T13-09-14
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-ssh: "true"
-      preset-override-deps: release-1.4-istio
-      preset-override-envoy: "true"
     name: integ-distroless-k8s-tests_istio_postsubmit_priv
     path_alias: istio.io/istio
     spec:
@@ -695,47 +664,26 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
+    decoration_config:
+      timeout: 4h0m0s
     labels:
       preset-enable-ssh: "true"
       preset-override-deps: release-1.4-istio
       preset-override-envoy: "true"
-    name: lint_istio_postsubmit_priv
+    name: integ-k8s-118_istio_postsubmit_priv
     path_alias: istio.io/istio
+    skip_report: true
     spec:
       containers:
       - command:
-        - make
-        - lint
-        image: gcr.io/istio-testing/build-tools:master-2020-02-14T13-09-14
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "3"
-            memory: 16Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-ssh: "true"
-      preset-override-deps: release-1.4-istio
-      preset-override-envoy: "true"
-    name: gencheck_istio_postsubmit_priv
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - make
-        - gen-check
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.18.0-beta.1
+        - test.integration.kube.presubmit
+        env:
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
         image: gcr.io/istio-testing/build-tools:master-2020-02-14T13-09-14
         name: ""
         resources:
@@ -746,8 +694,28 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
 presubmits:
   istio-private/istio:
   - always_run: true
@@ -774,38 +742,6 @@ presubmits:
         - build
         - racetest
         - binaries-test
-        image: gcr.io/istio-testing/build-tools:master-2020-02-14T13-09-14
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - always_run: false
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-ssh: "true"
-      preset-override-deps: release-1.4-istio
-      preset-override-envoy: "true"
-    name: codecov_istio_priv
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - make
-        - coverage-diff
         image: gcr.io/istio-testing/build-tools:master-2020-02-14T13-09-14
         name: ""
         resources:
