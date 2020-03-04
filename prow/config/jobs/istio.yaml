@@ -12,10 +12,6 @@ jobs:
     modifiers: [optional, hidden]
     command: [entrypoint, make, -e, "T=-v", build, racetest, binaries-test]
 
-  - name: codecov
-    modifiers: [skipped]
-    command: [entrypoint, make, coverage-diff]
-
   - name: release-test
     type: presubmit
     command: [entrypoint, prow/release-test.sh]
@@ -172,11 +168,28 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: " --istio.test.retries=1 "
 
+  - name: integ-k8s-118
+    type: postsubmit
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - gcr.io/istio-testing/kind-node:v1.18.0-beta.1
+      - test.integration.kube.presubmit
+    requirements: [kind]
+    modifiers: [hidden]
+    timeout: 4h
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: " --istio.test.retries=1 "
+
   - name: lint
+    type: presubmit
     command: [make, lint]
     resources: lint
 
   - name: gencheck
+    type: presubmit
     command: [make, gen-check]
 
 resources:
