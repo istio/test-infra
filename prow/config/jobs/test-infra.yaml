@@ -29,6 +29,50 @@ jobs:
     node_selector:
       prod: prow
 
+  - name: deploy-boskos
+    type: postsubmit
+    regex: '^boskos/cluster/.*\.yaml$'
+    cluster: test-infra-trusted
+    max_concurrency: 1
+    command:
+    - make
+    - -C
+    - boskos
+    - deploy
+    requirements: [deploy]
+    node_selector:
+        prod: prow
+
+  - name: deploy-boskos-config
+    type: postsubmit
+    regex: '^boskos/resources.yaml$'
+    cluster: test-infra-trusted
+    max_concurrency: 1
+    command:
+    - make
+    - -C
+    - boskos
+    - boskos-config
+    requirements: [deploy]
+    node_selector:
+        prod: prow
+
+  - name: push-prowbazel
+    type: postsubmit
+    regex: '^docker/prowbazel/Makefile$'
+    cluster: test-infra-trusted
+    max_concurrency: 1
+    command:
+    - entrypoint
+    - make
+    - -C
+    - docker/prowbazel
+    - image
+    - push-safe
+    requirements: [docker, gcp]
+    node_selector:
+        prod: prow
+
   - name: push-authentikos
     type: postsubmit
     regex: '^authentikos/Makefile$'

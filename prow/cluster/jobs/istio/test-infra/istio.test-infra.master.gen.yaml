@@ -128,6 +128,116 @@ postsubmits:
     cluster: test-infra-trusted
     decorate: true
     labels:
+      preset-prow-deployer-service-account: "true"
+    max_concurrency: 1
+    name: deploy-boskos_test-infra_postsubmit
+    path_alias: istio.io/test-infra
+    run_if_changed: ^boskos/cluster/.*\.yaml$
+    spec:
+      containers:
+      - command:
+        - make
+        - -C
+        - boskos
+        - deploy
+        image: gcr.io/istio-testing/build-tools:master-2020-02-14T13-09-14
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        prod: prow
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_test-infra_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    cluster: test-infra-trusted
+    decorate: true
+    labels:
+      preset-prow-deployer-service-account: "true"
+    max_concurrency: 1
+    name: deploy-boskos-config_test-infra_postsubmit
+    path_alias: istio.io/test-infra
+    run_if_changed: ^boskos/resources.yaml$
+    spec:
+      containers:
+      - command:
+        - make
+        - -C
+        - boskos
+        - boskos-config
+        image: gcr.io/istio-testing/build-tools:master-2020-02-14T13-09-14
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        prod: prow
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_test-infra_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    cluster: test-infra-trusted
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    max_concurrency: 1
+    name: push-prowbazel_test-infra_postsubmit
+    path_alias: istio.io/test-infra
+    run_if_changed: ^docker/prowbazel/Makefile$
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - -C
+        - docker/prowbazel
+        - image
+        - push-safe
+        image: gcr.io/istio-testing/build-tools:master-2020-02-14T13-09-14
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        prod: prow
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_test-infra_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    cluster: test-infra-trusted
+    decorate: true
+    labels:
       preset-service-account: "true"
     max_concurrency: 1
     name: push-authentikos_test-infra_postsubmit
