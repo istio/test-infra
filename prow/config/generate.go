@@ -21,10 +21,12 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/ghodss/yaml"
 	"github.com/hashicorp/go-multierror"
 	"github.com/kr/pretty"
+	"gopkg.in/robfig/cron.v2"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	prowjob "k8s.io/test-infra/prow/apis/prowjobs/v1"
@@ -59,6 +61,7 @@ const (
 
 	TypePostsubmit = "postsubmit"
 	TypePresubmit  = "presubmit"
+	TypePeriodic   = "periodic"
 
 	RequirementRoot    = "root"
 	RequirementKind    = "kind"
@@ -94,6 +97,8 @@ type Job struct {
 	Timeout        *prowjob.Duration `json:"timeout,omitempty"`
 	Repos          []string          `json:"repos,omitempty"`
 	Image          string            `json:"image,omitempty"`
+	Interval       string            `json:"interval,omitempty"`
+	Cron           string            `json:"cron,omitempty"`
 	Regex          string            `json:"regex,omitempty"`
 	Cluster        string            `json:"cluster,omitempty"`
 	MaxConcurrency int               `json:"max_concurrency,omitempty"`
@@ -173,7 +178,22 @@ func ValidateJobConfig(jobConfig JobConfig) {
 				err = multierror.Append(err, e)
 			}
 		}
-		if e := validate(job.Type, []string{TypePostsubmit, TypePresubmit, ""}, "type"); e != nil {
+		if job.Type == TypePeriodic {
+			if job.Cron != "" && job.Interval != "" {
+				err = multierror.Append(err, fmt.Errorf("cron and interval cannot be both set in periodic %s", job.Name))
+			} else if job.Cron == "" && job.Interval == "" {
+				err = multierror.Append(err, fmt.Errorf("cron and interval cannot be both empty in periodic %s", job.Name))
+			} else if job.Cron != "" {
+				if _, e := cron.Parse(job.Cron); e != nil {
+					err = multierror.Append(err, fmt.Errorf("invalid cron string %s in periodic %s: %v", job.Cron, job.Name, e))
+				}
+			} else if job.Interval != "" {
+				if _, e := time.ParseDuration(job.Interval); e != nil {
+					err = multierror.Append(err, fmt.Errorf("cannot parse duration %s in periodic %s: %v", job.Interval, job.Name, e))
+				}
+			}
+		}
+		if e := validate(job.Type, []string{TypePostsubmit, TypePresubmit, TypePeriodic, ""}, "type"); e != nil {
 			err = multierror.Append(err, e)
 		}
 		for _, repo := range job.Repos {
@@ -190,10 +210,12 @@ func ValidateJobConfig(jobConfig JobConfig) {
 func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 	var presubmits []config.Presubmit
 	var postsubmits []config.Postsubmit
+	var periodics []config.Periodic
 
 	output := config.JobConfig{
 		PresubmitsStatic: map[string][]config.Presubmit{},
 		Postsubmits:      map[string][]config.Postsubmit{},
+		Periodics:        []config.Periodic{},
 	}
 	for _, job := range jobConfig.Jobs {
 		brancher := config.Brancher{
@@ -256,11 +278,34 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			applyRequirements(&postsubmit.JobBase, job.Requirements)
 			postsubmits = append(postsubmits, postsubmit)
 		}
+
+		if job.Type == TypePeriodic {
+			name := fmt.Sprintf("%s_%s", job.Name, jobConfig.Repo)
+			if branch != "master" {
+				name += "_" + branch
+			}
+			name += "_periodic"
+
+			periodic := config.Periodic{
+				JobBase:  createJobBase(jobConfig, job, name, jobConfig.Repo, branch, jobConfig.Resources),
+				Interval: job.Interval,
+				Cron:     job.Cron,
+			}
+			periodic.JobBase.Annotations[TestGridDashboard] = testgridJobPrefix + "_periodic"
+			periodic.JobBase.Annotations[TestGridAlertEmail] = "istio-oncall@googlegroups.com"
+			periodic.JobBase.Annotations[TestGridNumFailures] = "1"
+			applyRequirements(&periodic.JobBase, job.Requirements)
+			periodics = append(periodics, periodic)
+		}
+
 		if len(presubmits) > 0 {
 			output.PresubmitsStatic[fmt.Sprintf("%s/%s", jobConfig.Org, jobConfig.Repo)] = presubmits
 		}
 		if len(postsubmits) > 0 {
 			output.Postsubmits[fmt.Sprintf("%s/%s", jobConfig.Org, jobConfig.Repo)] = postsubmits
+		}
+		if len(periodics) > 0 {
+			output.Periodics = periodics
 		}
 	}
 	return output

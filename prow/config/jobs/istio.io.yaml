@@ -17,6 +17,20 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.kube.postsubmit]
     requirements: [kind, gcp]
 
+  - name: update-ref-docs
+    type: periodic
+    cron: "0 2 * * *"  # every day at 02:00AM UTC
+    command:
+    - ./tools/automator/automator.sh
+    - --org=istio
+    - --repo=istio.io
+    - "--title=Automator: update istio.io@$AUTOMATOR_BRANCH reference docs"
+    - --modifier=refdocs
+    - --token-path=/etc/github-token/oauth
+    - --cmd=make update_ref_docs
+    requirements: [github]
+    repos: [istio/test-infra]
+
 resources:
   default:
     requests:
