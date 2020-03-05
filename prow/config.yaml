@@ -387,6 +387,15 @@ tide:
     istio-releases/pipeline: squash
     istio-ecosystem/authservice: squash
     istio-private: squash
+  merge_commit_template:
+    istio:
+      body: "Co-authored-by: {{.Author.Login}} <{{.Author.Login}}@users.noreply.github.com>"
+    istio-releases/pipeline:
+      body: "Co-authored-by: {{.Author.Login}} <{{.Author.Login}}@users.noreply.github.com>"
+    istio-ecosystem/authservice:
+      body: "Co-authored-by: {{.Author.Login}} <{{.Author.Login}}@users.noreply.github.com>"
+    istio-private:
+      body: "Co-authored-by: {{.Author.Login}} <{{.Author.Login}}@users.noreply.github.com>"
   target_url: https://prow.istio.io/tide
   context_options:
     from-branch-protection: true
