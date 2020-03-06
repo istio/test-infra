@@ -56,6 +56,7 @@ The following is a list of supported options for `genjobs`. The only **required*
       --dry-run                      Run in dry run mode.
   -e, --env stringToString           Environment variables to set for the job(s). (default [])
       --extra-refs                   Apply translation to all extra refs regardless of repo.
+      --global string                Path to file containing global defaults configuration.
   -i, --input string                 Input file or directory containing job(s) to convert. (default ".")
       --job-blacklist strings        Job(s) to blacklist in generation process.
   -t, --job-type strings             Job type(s) to process (e.g. presubmit, postsubmit. periodic). (default [presubmit,postsubmit,periodic])
@@ -155,3 +156,4 @@ genjobs --mapping istio=istio-private --clean
 - 0.0.1: initial release
 - 0.0.2: add `--branches-out` option for overriding the output branch(es) of generated jobs.
 - 0.0.3: add `--verbose` option to enable verbose output and `--configs` option for specifying transforms via a yaml configuration file(s).
+- 0.0.4: add `defaults` key for specifying _file-level_ defaults, support a `.defaults.yaml` file for _local_ defaults, and add `--global` option for _global_ defaults.
