@@ -55,7 +55,6 @@ The following is a list of supported options for `genjobs`. The only **required*
       --configs strings              Path to files or directories containing yaml job transforms.
       --dry-run                      Run in dry run mode.
   -e, --env stringToString           Environment variables to set for the job(s). (default [])
-      --extra-refs                   Apply translation to all extra refs regardless of repo.
       --global string                Path to file containing global defaults configuration.
   -i, --input string                 Input file or directory containing job(s) to convert. (default ".")
       --job-blacklist strings        Job(s) to blacklist in generation process.
@@ -67,6 +66,7 @@ The following is a list of supported options for `genjobs`. The only **required*
   -o, --output string                Output file or directory to write generated job(s). (default ".")
       --override-selector            The existing node selector will be overridden rather than added to.
   -p, --presets strings              Path to file(s) containing additional presets.
+      --refs                         Apply translation to all extra refs regardless of repo.
   -b, --repo-blacklist strings       Repositories to blacklist in generation process.
   -w, --repo-whitelist strings       Repositories to whitelist in generation process.
       --rerun-orgs strings           GitHub organizations to authorize job rerun for.
@@ -157,3 +157,4 @@ genjobs --mapping istio=istio-private --clean
 - 0.0.2: add `--branches-out` option for overriding the output branch(es) of generated jobs.
 - 0.0.3: add `--verbose` option to enable verbose output and `--configs` option for specifying transforms via a yaml configuration file(s).
 - 0.0.4: add `defaults` key for specifying _file-level_ defaults, support a `.defaults.yaml` file for _local_ defaults, and add `--global` option for _global_ defaults.
+- 0.0.5: rename `--extra-refs` option to `--refs` and designate `extra-refs` key for specifying a list of extra refs to append to job.

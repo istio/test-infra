@@ -77,6 +77,7 @@ type transform struct {
 	Input            string            `json:"input,omitempty"`
 	Output           string            `json:"output,omitempty"`
 	Sort             string            `json:"sort,omitempty"`
+	ExtraRefs        []prowjob.Refs    `json:"extra-refs,omitempty"`
 	Branches         []string          `json:"branches,omitempty"`
 	BranchesOut      []string          `json:"branches-out,omitempty"`
 	Presets          []string          `json:"presets,omitempty"`
@@ -93,7 +94,7 @@ type transform struct {
 	OrgMap           map[string]string `json:"mapping,omitempty"`
 	Clean            bool              `json:"clean,omitempty"`
 	DryRun           bool              `json:"dry-run,omitempty"`
-	ExtraRefs        bool              `json:"extra-refs,omitempty"`
+	Refs             bool              `json:"refs,omitempty"`
 	Resolve          bool              `json:"resolve,omitempty"`
 	SSHClone         bool              `json:"ssh-clone,omitempty"`
 	OverrideSelector bool              `json:"override-selector,omitempty"`
@@ -141,7 +142,7 @@ func (o *options) parseOpts() {
 	flag.StringSliceVarP(&o.JobType, "job-type", "t", defaultJobTypes, "Job type(s) to process (e.g. presubmit, postsubmit. periodic).")
 	flag.BoolVar(&o.Clean, "clean", false, "Clean output files before job(s) generation.")
 	flag.BoolVar(&o.DryRun, "dry-run", false, "Run in dry run mode.")
-	flag.BoolVar(&o.ExtraRefs, "extra-refs", false, "Apply translation to all extra refs regardless of repo.")
+	flag.BoolVar(&o.Refs, "refs", false, "Apply translation to all extra refs regardless of repo.")
 	flag.BoolVar(&o.Resolve, "resolve", false, "Resolve and expand values for presets in generated job(s).")
 	flag.BoolVar(&o.SSHClone, "ssh-clone", false, "Enable a clone of the git repository over ssh.")
 	flag.BoolVar(&o.OverrideSelector, "override-selector", false, "The existing node selector will be overridden rather than added to.")
@@ -306,6 +307,9 @@ func applyDefaultTransforms(dst *transform, srcs ...*transform) {
 		if dst.Sort == "" {
 			dst.Sort = src.Sort
 		}
+		if len(dst.ExtraRefs) == 0 {
+			dst.ExtraRefs = src.ExtraRefs
+		}
 		if len(dst.Branches) == 0 {
 			dst.Branches = src.Branches
 		}
@@ -354,8 +358,8 @@ func applyDefaultTransforms(dst *transform, srcs ...*transform) {
 		if !dst.DryRun {
 			dst.DryRun = src.DryRun
 		}
-		if !dst.ExtraRefs {
-			dst.ExtraRefs = src.ExtraRefs
+		if !dst.Refs {
+			dst.Refs = src.Refs
 		}
 		if !dst.Resolve {
 			dst.Resolve = src.Resolve
@@ -694,21 +698,22 @@ func updateJobBase(o options, job *config.JobBase, orgrepo string) {
 }
 
 // updateExtraRefs updates the jobs ExtraRefs fields based on provided inputs to work with private repositories.
-func updateExtraRefs(o options, refs []prowjob.Refs) {
-	for i, ref := range refs {
+func updateExtraRefs(o options, job *config.UtilityConfig) {
+	for i, ref := range job.ExtraRefs {
 		org, repo := ref.Org, ref.Repo
 
-		if o.ExtraRefs || validateOrgRepo(o, org, repo) {
+		if o.Refs || validateOrgRepo(o, org, repo) {
 			// Only transform known org mappings.
 			if newOrg, ok := o.OrgMap[org]; ok {
 				org = newOrg
 			}
-			refs[i].Org = org
+			job.ExtraRefs[i].Org = org
 			if o.SSHClone {
-				refs[i].CloneURI = fmt.Sprintf("git@%s:%s/%s.git", gitHost, org, repo)
+				job.ExtraRefs[i].CloneURI = fmt.Sprintf("git@%s:%s/%s.git", gitHost, org, repo)
 			}
 		}
 	}
+	job.ExtraRefs = append(job.ExtraRefs, o.ExtraRefs...)
 }
 
 // sortJobs sorts jobs based on a provided sort order.
@@ -945,7 +950,7 @@ func generateJobs(o options) {
 					continue
 				}
 
-				updateExtraRefs(o, job.ExtraRefs)
+				updateExtraRefs(o, &job.UtilityConfig)
 				updateJobBase(o, &job.JobBase, orgrepo)
 				updateBrancher(o, &job.Brancher)
 				updateUtilityConfig(o, &job.UtilityConfig)
@@ -968,7 +973,7 @@ func generateJobs(o options) {
 					continue
 				}
 
-				updateExtraRefs(o, job.ExtraRefs)
+				updateExtraRefs(o, &job.UtilityConfig)
 				updateJobBase(o, &job.JobBase, orgrepo)
 				updateBrancher(o, &job.Brancher)
 				updateUtilityConfig(o, &job.UtilityConfig)
@@ -994,7 +999,7 @@ func generateJobs(o options) {
 				continue
 			}
 
-			updateExtraRefs(o, job.ExtraRefs)
+			updateExtraRefs(o, &job.UtilityConfig)
 			updateJobBase(o, &job.JobBase, "")
 			updateUtilityConfig(o, &job.UtilityConfig)
 			resolvePresets(o, job.Labels, &job.JobBase, append(presets, jobs.Presets...))
