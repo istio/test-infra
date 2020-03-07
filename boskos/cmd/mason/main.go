@@ -15,6 +15,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 
 	"os"
@@ -24,6 +25,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/test-infra/boskos/client"
 	"k8s.io/test-infra/boskos/crds"
 	"k8s.io/test-infra/boskos/mason"
@@ -42,6 +44,7 @@ const (
 var (
 	boskosURL         = flag.String("boskos-url", "http://boskos", "Boskos Server URL")
 	cleanerCount      = flag.Int("cleaner-count", defaultCleanerCount, "Number of threads running cleanup")
+	namespace         = flag.String("namespace", corev1.NamespaceDefault, "Kubernetes namespace to query")
 	serviceAccount    = flag.String("service-account", "", "Path to projects service account")
 	kubeClientOptions crds.KubernetesClientOptions
 )
@@ -68,13 +71,15 @@ func main() {
 		logrus.WithError(err).Fatal("unable to create gcp client")
 	}
 	gcp.SetClient(gcpClient)
-	dc, err := kubeClientOptions.Client(crds.DRLCType)
-	if err != nil {
-		logrus.WithError(err).Fatal("unable to create a DynamicResourceLifeCycle CRD client")
-	}
 
-	dRLCStorage := crds.NewCRDStorage(dc)
-	st, _ := ranch.NewStorage(nil, dRLCStorage, "")
+	kubeClient, err := kubeClientOptions.CacheBackedClient(*namespace, &crds.DRLCObject{})
+	if err != nil {
+		logrus.WithError(err).Fatal("unable to get kubernetes client")
+	}
+	st, err := ranch.NewStorage(context.Background(), kubeClient, *namespace, "")
+	if err != nil {
+		logrus.WithError(err).Fatalf("unable to create ranch storage")
+	}
 
 	mason := mason.NewMason(*cleanerCount, client, defaultBoskosRetryPeriod, defaultBoskosSyncPeriod, st)
 

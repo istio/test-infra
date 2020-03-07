@@ -213,9 +213,9 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 	var periodics []config.Periodic
 
 	output := config.JobConfig{
-		PresubmitsStatic: map[string][]config.Presubmit{},
-		Postsubmits:      map[string][]config.Postsubmit{},
-		Periodics:        []config.Periodic{},
+		PresubmitsStatic:  map[string][]config.Presubmit{},
+		PostsubmitsStatic: map[string][]config.Postsubmit{},
+		Periodics:         []config.Periodic{},
 	}
 	for _, job := range jobConfig.Jobs {
 		brancher := config.Brancher{
@@ -302,7 +302,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			output.PresubmitsStatic[fmt.Sprintf("%s/%s", jobConfig.Org, jobConfig.Repo)] = presubmits
 		}
 		if len(postsubmits) > 0 {
-			output.Postsubmits[fmt.Sprintf("%s/%s", jobConfig.Org, jobConfig.Repo)] = postsubmits
+			output.PostsubmitsStatic[fmt.Sprintf("%s/%s", jobConfig.Org, jobConfig.Repo)] = postsubmits
 		}
 		if len(periodics) > 0 {
 			output.Periodics = periodics
@@ -418,10 +418,10 @@ func diffConfigPresubmit(result config.JobConfig, pj config.JobConfig) {
 func diffConfigPostsubmit(result config.JobConfig, pj config.JobConfig) {
 	known := make(map[string]struct{})
 	allCurrentPostsubmits := []config.Postsubmit{}
-	for _, jobs := range pj.Postsubmits {
+	for _, jobs := range pj.PostsubmitsStatic {
 		allCurrentPostsubmits = append(allCurrentPostsubmits, jobs...)
 	}
-	for _, jobs := range result.Postsubmits {
+	for _, jobs := range result.PostsubmitsStatic {
 		for _, job := range jobs {
 			known[job.Name] = struct{}{}
 			var current *config.Postsubmit

@@ -702,8 +702,8 @@ func writeOutFile(o options, p string, pre map[string][]config.Presubmit, post m
 		if existingJobs.PresubmitsStatic != nil {
 			combinedPre = existingJobs.PresubmitsStatic
 		}
-		if existingJobs.Postsubmits != nil {
-			combinedPost = existingJobs.Postsubmits
+		if existingJobs.PostsubmitsStatic != nil {
+			combinedPost = existingJobs.PostsubmitsStatic
 		}
 		if existingJobs.Periodics != nil {
 			combinedPer = existingJobs.Periodics
@@ -826,7 +826,7 @@ func generateJobs(o options) {
 		}
 
 		// Postsubmits
-		for orgrepo, post := range jobs.Postsubmits {
+		for orgrepo, post := range jobs.PostsubmitsStatic {
 			orgrepo = convertOrgRepoStr(o, orgrepo)
 			if orgrepo == "" {
 				continue
