@@ -16,12 +16,21 @@
 
 set -euo pipefail
 
-print_error_and_exit() {
+print_error() {
+  local last_return="$?"
+
   {
     echo
-    echo "$1"
-    exit "${2:-1}"
+    echo "${1:-unknown error}"
+    echo
   } >&2
+
+  return "${2:-$last_return}"
+}
+
+print_error_and_exit() {
+  print_error "${1:-unknown error}"
+  exit "${2:-1}"
 }
 
 split_on_commas() {

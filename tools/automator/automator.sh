@@ -200,33 +200,35 @@ add_labels() {
 }
 
 commit() {
-  git add --all &&
-    git -c "user.name=$user" -c "user.email=$email" commit --message "$title" --author="$user <$email>" &&
-    git show --shortstat &&
-    git push --force "https://$user:$token@github.com/$user/$repo.git" "HEAD:$branch-$modifier" &&
-    pull_request="$(create_pr)" &&
-    add_labels "$pull_request"
+  git add --all
+  git -c "user.name=$user" -c "user.email=$email" commit --message "$title" --author="$user <$email>"
+  git show --shortstat
+  git push --force "https://$user:$token@github.com/$user/$repo.git" "HEAD:$branch-$modifier"
+  pull_request="$(create_pr)"
+  add_labels "$pull_request"
 }
 
-work() {
+work() { (
+  set -e
+
   evaluate_opts
 
   curl -XPOST -sSfLH "Authorization: token $token" "https://api.github.com/repos/$org/$repo/forks" >/dev/null
 
   git clone --single-branch --branch "$branch" "https://github.com/$org/$repo.git" "$repo"
 
-  pushd "$repo" || print_error_and_exit "invalid repo: $repo"
+  pushd "$repo"
 
   AUTOMATOR_REPO_DIR="$(pwd)"
 
-  bash "$script_path" "${script_args:-}" || exit_code=$?
+  bash "$script_path" "${script_args:-}" || print_error "unable to execute command for: $repo"
 
   if ! git diff --quiet --exit-code; then
-    commit || exit_code=$?
+    commit || print_error "unable to commit for: $repo"
   fi
 
-  popd || print_error_and_exit "invalid repo: $repo"
-}
+  popd
+); }
 
 main() {
   trap cleanup EXIT
@@ -241,12 +243,16 @@ main() {
 
   pushd "$tmp_dir" || print_error_and_exit "invalid dir: $tmp_dir"
 
+  set +e
   for repo in $repos; do
-    work || continue
+    work
+    local code="$?"
+    [ "$code" -ne 0 ] && exit_code="$code"
   done
+  set -e
 
   popd || print_error_and_exit "invalid dir: $tmp_dir"
 }
 
 main "$@"
-exit ${exit_code:-0}
+exit "${exit_code:-0}"
