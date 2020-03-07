@@ -24,7 +24,7 @@ ROOT="$(cd -P "$(dirname -- "$0")" && pwd -P)"
 source "$ROOT/../utils.sh"
 
 # Defaults
-image='gcr.io/istio-testing/build-tools'
+image='gcr.io/istio-testing/build-tools.*'
 tag='$AUTOMATOR_BRANCH-[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2}'
 paths='$AUTOMATOR_REPO_DIR/prow/cluster/jobs/**/*.yaml,$AUTOMATOR_REPO_DIR/prow/config/jobs/**/*.yaml'
 key="image"
