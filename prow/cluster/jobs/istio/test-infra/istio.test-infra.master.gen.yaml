@@ -196,6 +196,40 @@ postsubmits:
     cluster: test-infra-trusted
     decorate: true
     labels:
+      preset-prow-deployer-service-account: "true"
+    max_concurrency: 1
+    name: push-mason_test-infra_postsubmit
+    path_alias: istio.io/test-infra
+    run_if_changed: ^boskos/cmd/mason/.+
+    spec:
+      containers:
+      - command:
+        - make
+        - -C
+        - boskos
+        - mason-image
+        image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        prod: prow
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_test-infra_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    cluster: test-infra-trusted
+    decorate: true
+    labels:
       preset-service-account: "true"
     max_concurrency: 1
     name: push-prowbazel_test-infra_postsubmit

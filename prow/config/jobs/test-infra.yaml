@@ -57,6 +57,20 @@ jobs:
     node_selector:
         prod: prow
 
+  - name: push-mason
+    type: postsubmit
+    regex: '^boskos/cmd/mason/.+'
+    cluster: test-infra-trusted
+    max_concurrency: 1
+    command:
+    - make
+    - -C
+    - boskos
+    - mason-image
+    requirements: [deploy]
+    node_selector:
+        prod: prow
+
   - name: push-prowbazel
     type: postsubmit
     regex: '^docker/prowbazel/Makefile$'
