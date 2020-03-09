@@ -200,7 +200,6 @@ add_labels() {
 }
 
 commit() {
-  git add --all
   git -c "user.name=$user" -c "user.email=$email" commit --message "$title" --author="$user <$email>"
   git show --shortstat
   git push --force "https://$user:$token@github.com/$user/$repo.git" "HEAD:$branch-$modifier"
@@ -223,7 +222,9 @@ work() { (
 
   bash "$script_path" "${script_args:-}" || print_error "unable to execute command for: $repo"
 
-  if ! git diff --quiet --exit-code; then
+  git add --all
+
+  if ! git diff --cached --quiet --exit-code; then
     commit || print_error "unable to commit for: $repo"
   fi
 
