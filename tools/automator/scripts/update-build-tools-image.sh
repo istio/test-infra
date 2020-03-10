@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#set -euo pipefail
+set -euo pipefail
 shopt -s globstar
 
 ROOT="$(cd -P "$(dirname -- "$0")" && pwd -P)"
