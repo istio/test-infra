@@ -27,8 +27,6 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.galley.kube.presubmit]
     requirements: [kind]
     env:
-      - name: TEST_USE_OPERATOR
-        value: "true"
       - name: TEST_SELECT
         value: "-postsubmit,-flaky,-multicluster"
 
@@ -37,8 +35,6 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.mixer.kube.presubmit]
     requirements: [kind]
     env:
-      - name: TEST_USE_OPERATOR
-        value: "true"
       - name: TEST_SELECT
         value: "-postsubmit,-flaky,-multicluster"
 
@@ -47,8 +43,6 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
     requirements: [kind]
     env:
-      - name: TEST_USE_OPERATOR
-        value: "true"
       - name: TEST_SELECT
         value: "-postsubmit,-flaky,-multicluster"
 
@@ -57,8 +51,6 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube.presubmit]
     requirements: [kind]
     env:
-      - name: TEST_USE_OPERATOR
-        value: "true"
       - name: TEST_SELECT
         value: "-postsubmit,-flaky,-multicluster"
 
@@ -67,10 +59,17 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.telemetry.kube.presubmit]
     requirements: [kind]
     env:
-      - name: TEST_USE_OPERATOR
-        value: "true"
       - name: TEST_SELECT
         value: "-postsubmit,-flaky,-multicluster"
+
+  - name: integ-multicluster-k8s-tests
+    type: presubmit
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.presubmit]
+    requirements: [kind]
+    modifiers: [optional, hidden]
+    env:
+      - name: TEST_SELECT
+        value: "-postsubmit,-flaky,+multicluster"
 
   - name: integ-distroless-k8s-tests
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.reachability]
@@ -101,8 +100,6 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.galley.kube]
     requirements: [kind]
     env:
-      - name: TEST_USE_OPERATOR
-        value: "true"
       - name: TEST_SELECT
         value: "-multicluster"
 
@@ -111,8 +108,6 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.mixer.kube]
     requirements: [kind]
     env:
-      - name: TEST_USE_OPERATOR
-        value: "true"
       - name: TEST_SELECT
         value: "-multicluster"
 
@@ -121,8 +116,6 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
     requirements: [kind]
     env:
-      - name: TEST_USE_OPERATOR
-        value: "true"
       - name: TEST_SELECT
         value: "-multicluster"
 
@@ -131,8 +124,6 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube]
     requirements: [kind]
     env:
-      - name: TEST_USE_OPERATOR
-        value: "true"
       - name: TEST_SELECT
         value: "-multicluster"
 
@@ -141,8 +132,6 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.telemetry.kube]
     requirements: [kind]
     env:
-      - name: TEST_USE_OPERATOR
-        value: "true"
       - name: TEST_SELECT
         value: "-multicluster"
 
