@@ -98,7 +98,8 @@ postsubmits:
         - --modifier=buildtools
         - --token-path=/etc/github-token/oauth
         - --script-path=../test-infra/tools/automator/scripts/update-build-tools-image.sh
-        - --script-args=--post=make gen
+        - --script-args=--post=make gen --source="$AUTOMATOR_ROOT_DIR/files/common/scripts/setup_env.sh"
+        - --verbose
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
