@@ -1,24 +1,12 @@
-common_jobs_mods: &common_jobs_mods
-  mapping:
-    istio: istio-private
-  input: ./prow/cluster/jobs/
-  output: ./prow/cluster/jobs/
+defaults:
   branches: [master]
   repo-whitelist: [istio]
-  ssh-clone: true
-  extra-refs: true
-  cluster: private
-  modifier: priv
-  annotations:
-    testgrid-create-test-group: "false"
-  verbose: false
 
 
 transforms:
 
 # istio/istio master build job(s) - postsubmit(s)
-- <<: *common_jobs_mods
-  env:
+- env:
     DOCKER_HUB: gcr.io/istio-prow-build
     GCS_BUCKET: istio-private-build/dev
   labels:
@@ -28,8 +16,7 @@ transforms:
   job-whitelist: [release_istio_postsubmit]
 
 # istio/istio master test jobs(s) - presubmit(s) and postsubmit(s)
-- <<: *common_jobs_mods
-  labels:
+- labels:
     preset-enable-ssh: "true"
     preset-override-envoy: "true"
     preset-override-deps: release-1.4-istio

@@ -44,6 +44,7 @@ const (
 	maxLabelLen       = 63
 	defaultModifier   = "private"
 	defaultCluster    = "default"
+	defaultsFilename  = ".defaults.yaml"
 	yamlExt           = ".(yml|yaml)$"
 )
 
@@ -61,6 +62,7 @@ const (
 
 // configuration is the yaml configuration file format.
 type configuration struct {
+	Defaults   transform   `json:"defaults,omitempty"`
 	Transforms []transform `json:"transforms,omitempty"`
 }
 
@@ -101,6 +103,7 @@ type transform struct {
 // options are the available command-line flags.
 type options struct {
 	Configs          []string
+	Global           string
 	JobWhitelistSet  sets.String
 	JobBlacklistSet  sets.String
 	RepoWhitelistSet sets.String
@@ -114,6 +117,7 @@ func (o *options) parseOpts() {
 	flag.StringVar(&o.Bucket, "bucket", "", "GCS bucket name to upload logs and build artifacts to.")
 	flag.StringVar(&o.Cluster, "cluster", "", "GCP cluster to run the job(s) in.")
 	flag.StringVar(&o.Channel, "channel", "", "Slack channel to report job status notifications to.")
+	flag.StringVar(&o.Global, "global", "", "Path to file containing global defaults configuration.")
 	flag.StringVar(&o.SSHKeySecret, "ssh-key-secret", "", "GKE cluster secrets containing the Github ssh private key.")
 	flag.StringVar(&o.Modifier, "modifier", defaultModifier, "Modifier to apply to generated file and job name(s).")
 	flag.StringVarP(&o.Input, "input", "i", ".", "Input file or directory containing job(s) to convert.")
@@ -155,6 +159,13 @@ func (o *options) parseOpts() {
 // parseConfiguration parses the yaml configuration transforms.
 func (o *options) parseConfiguration() []options {
 	var optsList []options
+	var global configuration
+
+	if o.Global != "" {
+		if d, err := ioutil.ReadFile(o.Global); err == nil {
+			_ = yaml.Unmarshal(d, &global)
+		}
+	}
 
 	for _, c := range o.Configs {
 
@@ -163,8 +174,13 @@ func (o *options) parseConfiguration() []options {
 				return nil
 			}
 
-			if !util.HasExtension(path, yamlExt) {
+			if !util.HasExtension(path, yamlExt) || filepath.Base(path) == defaultsFilename {
 				return nil
+			}
+
+			var local configuration
+			if d, err := ioutil.ReadFile(filepath.Join(filepath.Dir(path), defaultsFilename)); err == nil {
+				_ = yaml.Unmarshal(d, &local)
 			}
 
 			f, err := ioutil.ReadFile(path)
@@ -172,15 +188,17 @@ func (o *options) parseConfiguration() []options {
 				return nil
 			}
 
-			var t configuration
-			if err := yaml.Unmarshal(f, &t); err != nil {
+			var c configuration
+			if err := yaml.Unmarshal(f, &c); err != nil {
 				return nil
 			}
 
-			for _, t := range t.Transforms {
+			for _, t := range c.Transforms {
 				if len(t.JobType) == 0 {
 					t.JobType = defaultJobTypes
 				}
+
+				applyDefaultTransforms(&t, &c.Defaults, &local.Defaults, &global.Defaults)
 
 				oc := options{
 					JobWhitelistSet:  sets.NewString(t.JobWhitelist...),
@@ -215,9 +233,19 @@ func (o *options) validateOpts() error {
 		if o.Configs[i], err = filepath.Abs(c); err != nil {
 			return &util.ExitError{Message: fmt.Sprintf("--configs option invalid: %v.", o.Configs[i]), Code: 1}
 		} else if !util.Exists(o.Configs[i]) {
-			return &util.ExitError{Message: fmt.Sprintf("--configs option path does not exists: %v.", o.Configs[i]), Code: 1}
+			return &util.ExitError{Message: fmt.Sprintf("--configs option path does not exist: %v.", o.Configs[i]), Code: 1}
 		} else if util.IsFile(o.Configs[i]) && !util.HasExtension(o.Configs[i], yamlExt) {
 			return &util.ExitError{Message: fmt.Sprintf("--configs option path is not a yaml file: %v.", o.Configs[i]), Code: 1}
+		}
+	}
+
+	if o.Global != "" {
+		if o.Global, err = filepath.Abs(o.Global); err != nil {
+			return &util.ExitError{Message: fmt.Sprintf("--global option invalid: %v.", o.Global), Code: 1}
+		} else if !util.Exists(o.Global) {
+			return &util.ExitError{Message: fmt.Sprintf("--global option path does not exist: %v.", o.Global), Code: 1}
+		} else if util.IsFile(o.Global) && !util.HasExtension(o.Global, yamlExt) {
+			return &util.ExitError{Message: fmt.Sprintf("--global option path is not a yaml file: %v.", o.Global), Code: 1}
 		}
 	}
 
@@ -238,7 +266,7 @@ func (o *options) validateOpts() error {
 			if o.Presets[i], err = filepath.Abs(c); err != nil {
 				return &util.ExitError{Message: fmt.Sprintf("-p, --preset option invalid: %v.", o.Presets[i]), Code: 1}
 			} else if !util.Exists(o.Presets[i]) {
-				return &util.ExitError{Message: fmt.Sprintf("-p, --preset option path does not exists: %v.", o.Presets[i]), Code: 1}
+				return &util.ExitError{Message: fmt.Sprintf("-p, --preset option path does not exist: %v.", o.Presets[i]), Code: 1}
 			} else if util.IsFile(o.Presets[i]) && !util.HasExtension(o.Presets[i], yamlExt) {
 				return &util.ExitError{Message: fmt.Sprintf("-p, --preset option path is not a yaml file: %v.", o.Presets[i]), Code: 1}
 			}
@@ -246,6 +274,108 @@ func (o *options) validateOpts() error {
 	}
 
 	return nil
+}
+
+// applyDefaultTransforms defaults transform struct from left to right with decreasing precedence.
+func applyDefaultTransforms(dst *transform, srcs ...*transform) {
+	for _, src := range srcs {
+		if dst.Annotations == nil {
+			dst.Annotations = src.Annotations
+		}
+		if dst.Bucket == "" {
+			dst.Bucket = src.Bucket
+		}
+		if dst.Cluster == "" {
+			dst.Cluster = src.Cluster
+		}
+		if dst.Channel == "" {
+			dst.Channel = src.Channel
+		}
+		if dst.SSHKeySecret == "" {
+			dst.SSHKeySecret = src.SSHKeySecret
+		}
+		if dst.Modifier == "" {
+			dst.Modifier = src.Modifier
+		}
+		if dst.Input == "" {
+			dst.Input = src.Input
+		}
+		if dst.Output == "" {
+			dst.Output = src.Output
+		}
+		if dst.Sort == "" {
+			dst.Sort = src.Sort
+		}
+		if len(dst.Branches) == 0 {
+			dst.Branches = src.Branches
+		}
+		if len(dst.BranchesOut) == 0 {
+			dst.BranchesOut = src.BranchesOut
+		}
+		if len(dst.Presets) == 0 {
+			dst.Presets = src.Presets
+		}
+		if len(dst.RerunOrgs) == 0 {
+			dst.RerunOrgs = src.RerunOrgs
+		}
+		if len(dst.RerunUsers) == 0 {
+			dst.RerunUsers = src.RerunUsers
+		}
+		if len(dst.JobWhitelist) == 0 {
+			dst.JobWhitelist = src.JobWhitelist
+		}
+		if len(dst.JobBlacklist) == 0 {
+			dst.JobBlacklist = src.JobBlacklist
+		}
+		if len(dst.RepoWhitelist) == 0 {
+			dst.RepoWhitelist = src.RepoWhitelist
+		}
+		if len(dst.RepoBlacklist) == 0 {
+			dst.RepoBlacklist = src.RepoBlacklist
+		}
+		if len(dst.JobType) == 0 {
+			dst.JobType = src.JobType
+		}
+		if len(dst.Selector) == 0 {
+			dst.Selector = src.Selector
+		}
+		if len(dst.Labels) == 0 {
+			dst.Labels = src.Labels
+		}
+		if len(dst.Env) == 0 {
+			dst.Env = src.Env
+		}
+		if len(dst.OrgMap) == 0 {
+			dst.OrgMap = src.OrgMap
+		}
+		if !dst.Clean {
+			dst.Clean = src.Clean
+		}
+		if !dst.DryRun {
+			dst.DryRun = src.DryRun
+		}
+		if !dst.ExtraRefs {
+			dst.ExtraRefs = src.ExtraRefs
+		}
+		if !dst.Resolve {
+			dst.Resolve = src.Resolve
+		}
+		if !dst.SSHClone {
+			dst.SSHClone = src.SSHClone
+		}
+		if !dst.OverrideSelector {
+			dst.OverrideSelector = src.OverrideSelector
+		}
+		if !dst.Verbose {
+			dst.Verbose = src.Verbose
+		}
+		if !dst.Clean {
+			dst.Clean = src.Clean
+		}
+		if !dst.Clean {
+			dst.Clean = src.Clean
+		}
+	}
 }
 
 // validateOrgRepo validates that the org and repo for a job pass validation and should be converted.
