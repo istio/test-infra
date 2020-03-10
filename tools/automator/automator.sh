@@ -27,7 +27,7 @@ cleanup() {
 }
 
 get_opts() {
-  if opt="$(getopt -o '' -l branch:,sha:,org:,repo:,title:,match-title:,body:,labels:,user:,email:,modifier:,script-path:,script-args:,cmd:,token-path:,token:,verbose -n "$(basename "$0")" -- "$@")"; then
+  if opt="$(getopt -o '' -l branch:,sha:,org:,repo:,title:,match-title:,body:,labels:,user:,email:,modifier:,script-path:,cmd:,token-path:,token:,verbose -n "$(basename "$0")" -- "$@")"; then
     eval set -- "$opt"
   else
     print_error_and_exit "unable to parse options"
@@ -84,10 +84,6 @@ get_opts() {
       script_path="$(realpath "$2")"
       shift 2
       ;;
-    --script-args)
-      script_args="$2"
-      shift 2
-      ;;
     --cmd)
       tmp_script="$(mktemp -t script-XXXXXXXXXX)"
       echo "$2" >"$tmp_script"
@@ -112,6 +108,7 @@ get_opts() {
       ;;
     --)
       shift
+      script_args=("$@")
       break
       ;;
     *)
@@ -224,7 +221,7 @@ work() { (
 
   AUTOMATOR_REPO_DIR="$(pwd)"
 
-  bash "${shell_args[@]}" "$script_path" "${script_args:-}" || print_error "unable to execute command for: $repo"
+  bash "${shell_args[@]}" "$script_path" "${script_args[@]}" || print_error "unable to execute command for: $repo"
 
   git add --all
 
