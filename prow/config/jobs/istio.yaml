@@ -27,101 +27,132 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.galley.kube.presubmit]
     requirements: [kind]
     env:
-    - name: TEST_USE_OPERATOR
-      value: "true"
+      - name: TEST_USE_OPERATOR
+        value: "true"
+      - name: TEST_SELECT
+        value: "-postsubmit,-flaky,-multicluster"
 
   - name: integ-mixer-k8s-tests
     type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.mixer.kube.presubmit]
     requirements: [kind]
     env:
-    - name: TEST_USE_OPERATOR
-      value: "true"
+      - name: TEST_USE_OPERATOR
+        value: "true"
+      - name: TEST_SELECT
+        value: "-postsubmit,-flaky,-multicluster"
 
   - name: integ-pilot-k8s-tests
     type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
     requirements: [kind]
     env:
-    - name: TEST_USE_OPERATOR
-      value: "true"
+      - name: TEST_USE_OPERATOR
+        value: "true"
+      - name: TEST_SELECT
+        value: "-postsubmit,-flaky,-multicluster"
 
   - name: integ-security-k8s-tests
     type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube.presubmit]
     requirements: [kind]
     env:
-    - name: TEST_USE_OPERATOR
-      value: "true"
+      - name: TEST_USE_OPERATOR
+        value: "true"
+      - name: TEST_SELECT
+        value: "-postsubmit,-flaky,-multicluster"
 
   - name: integ-telemetry-k8s-tests
     type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.telemetry.kube.presubmit]
     requirements: [kind]
     env:
-    - name: TEST_USE_OPERATOR
-      value: "true"
+      - name: TEST_USE_OPERATOR
+        value: "true"
+      - name: TEST_SELECT
+        value: "-postsubmit,-flaky,-multicluster"
 
   - name: integ-distroless-k8s-tests
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.reachability]
     requirements: [kind]
     env:
-    - name: VARIANT
-      value: "distroless"
+      - name: VARIANT
+        value: "distroless"
+      - name: TEST_SELECT
+        value: "-multicluster"
 
   - name: integ-conformance-k8s-tests
     type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.conformance.kube.presubmit]
     requirements: [kind]
+    env:
+      - name: TEST_SELECT
+        value: "-postsubmit,-flaky,-multicluster"
 
   - name: integ-local-tests
     command: [entrypoint, prow/integ-suite-local.sh, test.integration...local]
     requirements: [docker]
+    env:
+      - name: TEST_SELECT
+        value: "-multicluster"
 
   - name: integ-galley-k8s-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.galley.kube]
     requirements: [kind]
     env:
-    - name: TEST_USE_OPERATOR
-      value: "true"
+      - name: TEST_USE_OPERATOR
+        value: "true"
+      - name: TEST_SELECT
+        value: "-multicluster"
 
   - name: integ-mixer-k8s-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.mixer.kube]
     requirements: [kind]
     env:
-    - name: TEST_USE_OPERATOR
-      value: "true"
+      - name: TEST_USE_OPERATOR
+        value: "true"
+      - name: TEST_SELECT
+        value: "-multicluster"
 
   - name: integ-pilot-k8s-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
     requirements: [kind]
     env:
-    - name: TEST_USE_OPERATOR
-      value: "true"
+      - name: TEST_USE_OPERATOR
+        value: "true"
+      - name: TEST_SELECT
+        value: "-multicluster"
 
   - name: integ-security-k8s-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube]
     requirements: [kind]
     env:
-    - name: TEST_USE_OPERATOR
-      value: "true"
+      - name: TEST_USE_OPERATOR
+        value: "true"
+      - name: TEST_SELECT
+        value: "-multicluster"
 
   - name: integ-telemetry-k8s-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.telemetry.kube]
     requirements: [kind]
     env:
-    - name: TEST_USE_OPERATOR
-      value: "true"
+      - name: TEST_USE_OPERATOR
+        value: "true"
+      - name: TEST_SELECT
+        value: "-multicluster"
 
   - name: integ-conformance-k8s-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.conformance.kube]
     requirements: [kind]
+    env:
+      - name: TEST_SELECT
+        value: "-multicluster"
 
     # The node image must be kept in sync with the kind version we use.
     # See docker/istio/shared/tools/install-golang.sh for the kind image
@@ -139,6 +170,8 @@ jobs:
     env:
       - name: INTEGRATION_TEST_FLAGS
         value: " --istio.test.retries=1 "
+      - name: TEST_SELECT
+        value: "-multicluster"
 
   - name: integ-k8s-115
     type: postsubmit
@@ -153,6 +186,8 @@ jobs:
     env:
       - name: INTEGRATION_TEST_FLAGS
         value: " --istio.test.retries=1 "
+      - name: TEST_SELECT
+        value: "-multicluster"
 
   - name: integ-k8s-116
     type: postsubmit
@@ -167,6 +202,8 @@ jobs:
     env:
       - name: INTEGRATION_TEST_FLAGS
         value: " --istio.test.retries=1 "
+      - name: TEST_SELECT
+        value: "-multicluster"
 
   - name: integ-k8s-118
     type: postsubmit

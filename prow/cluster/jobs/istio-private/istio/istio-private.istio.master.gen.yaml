@@ -93,6 +93,8 @@ postsubmits:
         env:
         - name: VARIANT
           value: distroless
+        - name: TEST_SELECT
+          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
@@ -144,6 +146,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration...local
+        env:
+        - name: TEST_SELECT
+          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
@@ -184,6 +189,8 @@ postsubmits:
         env:
         - name: TEST_USE_OPERATOR
           value: "true"
+        - name: TEST_SELECT
+          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
@@ -238,6 +245,8 @@ postsubmits:
         env:
         - name: TEST_USE_OPERATOR
           value: "true"
+        - name: TEST_SELECT
+          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
@@ -292,6 +301,8 @@ postsubmits:
         env:
         - name: TEST_USE_OPERATOR
           value: "true"
+        - name: TEST_SELECT
+          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
@@ -346,6 +357,8 @@ postsubmits:
         env:
         - name: TEST_USE_OPERATOR
           value: "true"
+        - name: TEST_SELECT
+          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
@@ -400,6 +413,8 @@ postsubmits:
         env:
         - name: TEST_USE_OPERATOR
           value: "true"
+        - name: TEST_SELECT
+          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
@@ -451,6 +466,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.conformance.kube
+        env:
+        - name: TEST_SELECT
+          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
@@ -509,6 +527,8 @@ postsubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: TEST_SELECT
+          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
@@ -567,6 +587,8 @@ postsubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: TEST_SELECT
+          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
@@ -625,6 +647,8 @@ postsubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: TEST_SELECT
+          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
@@ -809,6 +833,8 @@ presubmits:
         env:
         - name: TEST_USE_OPERATOR
           value: "true"
+        - name: TEST_SELECT
+          value: -postsubmit,-flaky,-multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
@@ -864,6 +890,8 @@ presubmits:
         env:
         - name: TEST_USE_OPERATOR
           value: "true"
+        - name: TEST_SELECT
+          value: -postsubmit,-flaky,-multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
@@ -919,6 +947,8 @@ presubmits:
         env:
         - name: TEST_USE_OPERATOR
           value: "true"
+        - name: TEST_SELECT
+          value: -postsubmit,-flaky,-multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
@@ -974,6 +1004,8 @@ presubmits:
         env:
         - name: TEST_USE_OPERATOR
           value: "true"
+        - name: TEST_SELECT
+          value: -postsubmit,-flaky,-multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
@@ -1029,6 +1061,8 @@ presubmits:
         env:
         - name: TEST_USE_OPERATOR
           value: "true"
+        - name: TEST_SELECT
+          value: -postsubmit,-flaky,-multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
@@ -1084,6 +1118,8 @@ presubmits:
         env:
         - name: VARIANT
           value: distroless
+        - name: TEST_SELECT
+          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
@@ -1136,6 +1172,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.conformance.kube.presubmit
+        env:
+        - name: TEST_SELECT
+          value: -postsubmit,-flaky,-multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
@@ -1188,6 +1227,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-local.sh
         - test.integration...local
+        env:
+        - name: TEST_SELECT
+          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-05T18-27-04
         name: ""
         resources:
