@@ -76,10 +76,7 @@ func main() {
 	if err != nil {
 		logrus.WithError(err).Fatal("unable to get kubernetes client")
 	}
-	st, err := ranch.NewStorage(context.Background(), kubeClient, *namespace, "")
-	if err != nil {
-		logrus.WithError(err).Fatalf("unable to create ranch storage")
-	}
+	st := ranch.NewStorage(context.Background(), kubeClient, *namespace)
 
 	mason := mason.NewMason(*cleanerCount, client, defaultBoskosRetryPeriod, defaultBoskosSyncPeriod, st)
 

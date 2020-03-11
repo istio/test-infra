@@ -7,9 +7,10 @@ replace (
 	github.com/otiai10/curr => github.com/otiai10/curr v1.0.0 // for LICENSE
 	github.com/otiai10/mint => github.com/otiai10/mint v1.3.0 // remove dependency on bou.ke/monkey
 	github.com/pelletier/go-buffruneio => github.com/pelletier/go-buffruneio v0.2.1-0.20190103235659-25c428535bd3 // for LICENSE
-	k8s.io/api => k8s.io/api v0.0.0-20190918195907-bd6ac527cfd2
-	k8s.io/apimachinery => k8s.io/apimachinery v0.0.0-20190817020851-f2f3a405f61d
-	k8s.io/client-go => k8s.io/client-go v0.0.0-20190918200256-06eb1244587a
+	k8s.io/api => k8s.io/api v0.17.3
+	k8s.io/apimachinery => k8s.io/apimachinery v0.17.3
+	k8s.io/client-go => k8s.io/client-go v0.17.3
+	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.5.0
 )
 
 require (
@@ -32,6 +33,6 @@ require (
 	k8s.io/api v0.17.3
 	k8s.io/apimachinery v0.17.3
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
-	k8s.io/test-infra v0.0.0-20200304232039-27a0743d7806
+	k8s.io/test-infra v0.0.0-20200311191941-8d62498d3ccd
 	sigs.k8s.io/yaml v1.1.0
 )
