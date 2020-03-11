@@ -80,6 +80,16 @@ jobs:
       - name: TEST_SELECT
         value: "-multicluster"
 
+  - name: integ-ipv6-k8s-tests
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.reachability]
+    requirements: [kind]
+    modifiers: [optional, hidden]
+    env:
+      - name: IP_FAMILY
+        value: "ipv6"
+      - name: TEST_SELECT
+        value: "-multicluster"
+
   - name: integ-conformance-k8s-tests
     type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.conformance.kube.presubmit]
