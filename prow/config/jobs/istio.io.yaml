@@ -8,11 +8,6 @@ jobs:
     command: [make, lint]
 
   - name: k8s-tests
-    type: presubmit
-    command: [entrypoint, prow/integ-suite-kind.sh, test.kube.presubmit]
-    requirements: [kind]
-
-  - name: k8s-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.kube.postsubmit]
     requirements: [kind, gcp]
