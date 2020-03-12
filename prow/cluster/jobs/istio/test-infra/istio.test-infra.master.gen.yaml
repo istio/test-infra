@@ -196,7 +196,7 @@ postsubmits:
     cluster: test-infra-trusted
     decorate: true
     labels:
-      preset-prow-deployer-service-account: "true"
+      preset-service-account: "true"
     max_concurrency: 1
     name: push-mason_test-infra_postsubmit
     path_alias: istio.io/test-infra
@@ -219,8 +219,14 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         prod: prow
+      volumes:
+      - emptyDir: {}
+        name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_test-infra_postsubmit
