@@ -78,6 +78,12 @@ export CONTAINER_CLI="${CONTAINER_CLI:-docker}"
 
 export ENV_BLOCKLIST="${ENV_BLOCKLIST:-^_\|PATH\|SHELL\|EDITOR\|TMUX\|USER\|HOME\|PWD\|TERM\|GO\|rvm\|SSH\|TMPDIR}"
 
+# Remove functions from the list of exported variables, they mess up with the `env` command.
+for f in $(declare -F -x | cut -d ' ' -f 3);
+do
+  unset -f "${f}"
+done
+
 # Set up conditional host mounts for docker and kubernetes config
 export CONDITIONAL_HOST_MOUNTS=${CONDITIONAL_HOST_MOUNTS:-}
 if [[ -d "${HOME}/.docker" ]]; then
