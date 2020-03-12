@@ -158,3 +158,4 @@ genjobs --mapping istio=istio-private --clean
 - 0.0.3: add `--verbose` option to enable verbose output and `--configs` option for specifying transforms via a yaml configuration file(s).
 - 0.0.4: add `defaults` key for specifying _file-level_ defaults, support a `.defaults.yaml` file for _local_ defaults, and add `--global` option for _global_ defaults.
 - 0.0.5: rename `--extra-refs` option to `--refs` and designate `extra-refs` key for specifying a list of extra refs to append to job.
+- 0.0.6: `--extra-refs` will now replace existing refs, rather than adding to them.
