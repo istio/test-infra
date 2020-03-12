@@ -713,7 +713,9 @@ func updateExtraRefs(o options, job *config.UtilityConfig) {
 			}
 		}
 	}
-	job.ExtraRefs = append(job.ExtraRefs, o.ExtraRefs...)
+	if len(o.ExtraRefs) > 0 {
+		job.ExtraRefs = o.ExtraRefs
+	}
 }
 
 // sortJobs sorts jobs based on a provided sort order.
