@@ -91,13 +91,13 @@ func TestGenjobs(t *testing.T) {
 			equal: true,
 		},
 		{
-			name:  "extra-refs exists",
-			args:  []string{"--mapping=istio=istio-private", "--extra-refs"},
+			name:  "refs exists",
+			args:  []string{"--mapping=istio=istio-private", "--refs"},
 			equal: true,
 		},
 		{
-			name:  "extra-refs not exists",
-			args:  []string{"--mapping=istio=istio-private", "--extra-refs"},
+			name:  "refs not exists",
+			args:  []string{"--mapping=istio=istio-private", "--refs"},
 			equal: true,
 		},
 		{
