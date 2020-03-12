@@ -1,5 +1,6 @@
 org: istio
 repo: test-infra
+resolve_requirements: true
 image: gcr.io/istio-testing/build-tools:master-2020-03-12T14-20-34
 
 jobs:
@@ -67,7 +68,7 @@ jobs:
     - -C
     - boskos
     - mason-image
-    requirements: [docker, gcp]
+    requirements: [docker, push]
     node_selector:
         prod: prow
 
@@ -83,7 +84,7 @@ jobs:
     - docker/prowbazel
     - image
     - push-safe
-    requirements: [docker, gcp]
+    requirements: [docker, push]
     node_selector:
         prod: prow
 
@@ -98,7 +99,7 @@ jobs:
     - -C
     - authentikos
     - deploy
-    requirements: [docker, gcp]
+    requirements: [docker, push]
     node_selector:
       prod: prow
 
@@ -113,6 +114,6 @@ jobs:
     - -C
     - prow/genjobs
     - deploy
-    requirements: [docker, gcp]
+    requirements: [docker, push]
     node_selector:
       prod: prow

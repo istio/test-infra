@@ -70,6 +70,7 @@ const (
 	RequirementGitHub  = "github"
 	RequirementRelease = "release"
 	RequirementGCP     = "gcp"
+	RequirementPush    = "push"
 	RequirementDeploy  = "deploy"
 )
 
@@ -82,6 +83,7 @@ type JobConfig struct {
 	Resources               map[string]v1.ResourceRequirements `json:"resources,omitempty"`
 	Image                   string                             `json:"image,omitempty"`
 	SupportReleaseBranching bool                               `json:"support_release_branching,omitempty"`
+	ResolveRequirements     bool                               `json:"resolve_requirements,omitempty"`
 	NodeSelector            map[string]string                  `json:"node_selector,omitempty"`
 }
 
@@ -173,7 +175,8 @@ func ValidateJobConfig(jobConfig JobConfig) {
 		for _, req := range job.Requirements {
 			if e := validate(
 				req,
-				[]string{RequirementKind, RequirementDocker, RequirementGitHub, RequirementRelease, RequirementRoot, RequirementGCP, RequirementDeploy, RequirementCache},
+				[]string{RequirementKind, RequirementDocker, RequirementGitHub, RequirementRelease,
+					RequirementRoot, RequirementGCP, RequirementPush, RequirementDeploy, RequirementCache},
 				"requirements"); e != nil {
 				err = multierror.Append(err, e)
 			}
@@ -246,7 +249,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			}
 			presubmit.JobBase.Annotations[TestGridDashboard] = testgridJobPrefix
 			applyModifiersPresubmit(&presubmit, job.Modifiers)
-			applyRequirements(&presubmit.JobBase, job.Requirements)
+			applyRequirements(&presubmit.JobBase, job.Requirements, jobConfig.ResolveRequirements)
 			presubmits = append(presubmits, presubmit)
 		}
 
@@ -275,7 +278,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			postsubmit.JobBase.Annotations[TestGridAlertEmail] = "istio-oncall@googlegroups.com"
 			postsubmit.JobBase.Annotations[TestGridNumFailures] = "1"
 			applyModifiersPostsubmit(&postsubmit, job.Modifiers)
-			applyRequirements(&postsubmit.JobBase, job.Requirements)
+			applyRequirements(&postsubmit.JobBase, job.Requirements, jobConfig.ResolveRequirements)
 			postsubmits = append(postsubmits, postsubmit)
 		}
 
@@ -294,7 +297,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			periodic.JobBase.Annotations[TestGridDashboard] = testgridJobPrefix + "_periodic"
 			periodic.JobBase.Annotations[TestGridAlertEmail] = "istio-oncall@googlegroups.com"
 			periodic.JobBase.Annotations[TestGridNumFailures] = "1"
-			applyRequirements(&periodic.JobBase, job.Requirements)
+			applyRequirements(&periodic.JobBase, job.Requirements, jobConfig.ResolveRequirements)
 			periodics = append(periodics, periodic)
 		}
 
@@ -536,18 +539,150 @@ func createExtraRefs(extraRepos []string, defaultBranch string) []prowjob.Refs {
 	return refs
 }
 
-func applyRequirements(job *config.JobBase, requirements []string) {
+func applyRequirements(job *config.JobBase, requirements []string, resolve bool) {
 	for _, req := range requirements {
 		switch req {
 		case RequirementGCP:
-			// The preset service account will set up the required resources
-			job.Labels["preset-service-account"] = "true"
+			if resolve {
+				job.Spec.Volumes = append(job.Spec.Volumes,
+					v1.Volume{
+						Name: "service",
+						VolumeSource: v1.VolumeSource{
+							Secret: &v1.SecretVolumeSource{SecretName: "service-account"},
+						},
+					},
+				)
+				job.Spec.Containers[0].Env = append(job.Spec.Containers[0].Env,
+					v1.EnvVar{
+						Name:  "GOOGLE_APPLICATION_CREDENTIALS",
+						Value: "/etc/service-account/service-account.json",
+					},
+					v1.EnvVar{
+						Name:  "CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE",
+						Value: "/etc/service-account/service-account.json",
+					},
+				)
+				job.Spec.Containers[0].VolumeMounts = append(job.Spec.Containers[0].VolumeMounts,
+					v1.VolumeMount{
+						Name:      "service",
+						MountPath: "/etc/service-account",
+						ReadOnly:  true,
+					},
+				)
+			} else {
+				// The preset service account will set up the required resources
+				job.Labels["preset-service-account"] = "true"
+			}
+		case RequirementPush:
+			if resolve {
+				job.Spec.Volumes = append(job.Spec.Volumes,
+					v1.Volume{
+						Name: "creds",
+						VolumeSource: v1.VolumeSource{
+							Secret: &v1.SecretVolumeSource{SecretName: "prow-pusher-service-account"},
+						},
+					},
+				)
+				job.Spec.Containers[0].Env = append(job.Spec.Containers[0].Env,
+					v1.EnvVar{
+						Name:  "GOOGLE_APPLICATION_CREDENTIALS",
+						Value: "/creds/service-account.json",
+					},
+				)
+				job.Spec.Containers[0].VolumeMounts = append(job.Spec.Containers[0].VolumeMounts,
+					v1.VolumeMount{
+						Name:      "creds",
+						MountPath: "/creds",
+						ReadOnly:  true,
+					},
+				)
+			} else {
+				// The preset service account will set up the required resources to push to GCR.
+				job.Labels["preset-prow-pusher-service-account"] = "true"
+			}
 		case RequirementDeploy:
-			// The preset service account will set up the required resources
-			job.Labels["preset-prow-deployer-service-account"] = "true"
+			if resolve {
+				job.Spec.Volumes = append(job.Spec.Volumes,
+					v1.Volume{
+						Name: "creds",
+						VolumeSource: v1.VolumeSource{
+							Secret: &v1.SecretVolumeSource{SecretName: "prow-deployer-service-account"},
+						},
+					},
+				)
+				job.Spec.Containers[0].Env = append(job.Spec.Containers[0].Env,
+					v1.EnvVar{
+						Name:  "GOOGLE_APPLICATION_CREDENTIALS",
+						Value: "/creds/service-account.json",
+					},
+				)
+				job.Spec.Containers[0].VolumeMounts = append(job.Spec.Containers[0].VolumeMounts,
+					v1.VolumeMount{
+						Name:      "creds",
+						MountPath: "/creds",
+						ReadOnly:  true,
+					},
+				)
+			} else {
+				// The preset service account will set up the required resources to deploy to GKE.
+				job.Labels["preset-prow-deployer-service-account"] = "true"
+			}
 		case RequirementRelease:
-			// Grant access to release resources, such as docker and github
-			job.Labels["preset-release-pipeline"] = "true"
+			if resolve {
+				job.Spec.Volumes = append(job.Spec.Volumes,
+					v1.Volume{
+						Name: "rel-pipeline-service-account",
+						VolumeSource: v1.VolumeSource{
+							Secret: &v1.SecretVolumeSource{SecretName: "rel-pipeline-service-account"},
+						},
+					},
+					v1.Volume{
+						Name: "rel-pipeline-github",
+						VolumeSource: v1.VolumeSource{
+							Secret: &v1.SecretVolumeSource{SecretName: "rel-pipeline-github"},
+						},
+					},
+					v1.Volume{
+						Name: "rel-pipeline-docker-config",
+						VolumeSource: v1.VolumeSource{
+							Secret: &v1.SecretVolumeSource{SecretName: "rel-pipeline-docker-config"},
+						},
+					},
+				)
+				job.Spec.Containers[0].Env = append(job.Spec.Containers[0].Env,
+					v1.EnvVar{
+						Name:  "DOCKER_CONFIG",
+						Value: "/etc/rel-pipeline-docker-config",
+					},
+					v1.EnvVar{
+						Name:  "GITHUB_TOKEN_FILE",
+						Value: "/etc/github/rel-pipeline-github",
+					},
+					v1.EnvVar{
+						Name:  "GOOGLE_APPLICATION_CREDENTIALS",
+						Value: "/etc/service-account/rel-pipeline-service-account.json",
+					},
+				)
+				job.Spec.Containers[0].VolumeMounts = append(job.Spec.Containers[0].VolumeMounts,
+					v1.VolumeMount{
+						Name:      "rel-pipeline-docker-config",
+						MountPath: "/etc/rel-pipeline-docker-config",
+					},
+					v1.VolumeMount{
+						Name:      "rel-pipeline-github",
+						MountPath: "/etc/github",
+						ReadOnly:  true,
+					},
+					v1.VolumeMount{
+						Name:      "rel-pipeline-service-account",
+						MountPath: "/etc/service-account",
+						ReadOnly:  true,
+					},
+				)
+			} else {
+				// Grant access to release resources, such as docker and github
+				job.Labels["preset-release-pipeline"] = "true"
+			}
 		case RequirementRoot:
 			job.Spec.Containers[0].SecurityContext.Privileged = newTrue()
 		case RequirementKind:

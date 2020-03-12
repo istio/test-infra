@@ -90,8 +90,6 @@ postsubmits:
     - ^master$
     cluster: test-infra-trusted
     decorate: true
-    labels:
-      preset-prow-deployer-service-account: "true"
     max_concurrency: 1
     name: deploy-prow_test-infra_postsubmit
     path_alias: istio.io/test-infra
@@ -106,6 +104,9 @@ postsubmits:
         - deploy-gcsweb
         - deploy-build
         - deploy-private
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /creds/service-account.json
         image: gcr.io/istio-testing/build-tools:master-2020-03-12T14-20-34
         name: ""
         resources:
@@ -117,8 +118,16 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /creds
+          name: creds
+          readOnly: true
       nodeSelector:
         prod: prow
+      volumes:
+      - name: creds
+        secret:
+          secretName: prow-deployer-service-account
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_test-infra_postsubmit
@@ -127,8 +136,6 @@ postsubmits:
     - ^master$
     cluster: test-infra-trusted
     decorate: true
-    labels:
-      preset-prow-deployer-service-account: "true"
     max_concurrency: 1
     name: deploy-boskos_test-infra_postsubmit
     path_alias: istio.io/test-infra
@@ -140,6 +147,9 @@ postsubmits:
         - -C
         - boskos
         - deploy
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /creds/service-account.json
         image: gcr.io/istio-testing/build-tools:master-2020-03-12T14-20-34
         name: ""
         resources:
@@ -151,8 +161,16 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /creds
+          name: creds
+          readOnly: true
       nodeSelector:
         prod: prow
+      volumes:
+      - name: creds
+        secret:
+          secretName: prow-deployer-service-account
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_test-infra_postsubmit
@@ -161,8 +179,6 @@ postsubmits:
     - ^master$
     cluster: test-infra-trusted
     decorate: true
-    labels:
-      preset-prow-deployer-service-account: "true"
     max_concurrency: 1
     name: deploy-boskos-config_test-infra_postsubmit
     path_alias: istio.io/test-infra
@@ -174,6 +190,9 @@ postsubmits:
         - -C
         - boskos
         - boskos-config
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /creds/service-account.json
         image: gcr.io/istio-testing/build-tools:master-2020-03-12T14-20-34
         name: ""
         resources:
@@ -185,8 +204,16 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /creds
+          name: creds
+          readOnly: true
       nodeSelector:
         prod: prow
+      volumes:
+      - name: creds
+        secret:
+          secretName: prow-deployer-service-account
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_test-infra_postsubmit
@@ -195,8 +222,6 @@ postsubmits:
     - ^master$
     cluster: test-infra-trusted
     decorate: true
-    labels:
-      preset-service-account: "true"
     max_concurrency: 1
     name: push-mason_test-infra_postsubmit
     path_alias: istio.io/test-infra
@@ -208,6 +233,9 @@ postsubmits:
         - -C
         - boskos
         - mason-image
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /creds/service-account.json
         image: gcr.io/istio-testing/build-tools:master-2020-03-12T14-20-34
         name: ""
         resources:
@@ -222,11 +250,17 @@ postsubmits:
         volumeMounts:
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /creds
+          name: creds
+          readOnly: true
       nodeSelector:
         prod: prow
       volumes:
       - emptyDir: {}
         name: docker-root
+      - name: creds
+        secret:
+          secretName: prow-pusher-service-account
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_test-infra_postsubmit
@@ -235,8 +269,6 @@ postsubmits:
     - ^master$
     cluster: test-infra-trusted
     decorate: true
-    labels:
-      preset-service-account: "true"
     max_concurrency: 1
     name: push-prowbazel_test-infra_postsubmit
     path_alias: istio.io/test-infra
@@ -250,6 +282,9 @@ postsubmits:
         - docker/prowbazel
         - image
         - push-safe
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /creds/service-account.json
         image: gcr.io/istio-testing/build-tools:master-2020-03-12T14-20-34
         name: ""
         resources:
@@ -264,11 +299,17 @@ postsubmits:
         volumeMounts:
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /creds
+          name: creds
+          readOnly: true
       nodeSelector:
         prod: prow
       volumes:
       - emptyDir: {}
         name: docker-root
+      - name: creds
+        secret:
+          secretName: prow-pusher-service-account
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_test-infra_postsubmit
@@ -277,8 +318,6 @@ postsubmits:
     - ^master$
     cluster: test-infra-trusted
     decorate: true
-    labels:
-      preset-service-account: "true"
     max_concurrency: 1
     name: push-authentikos_test-infra_postsubmit
     path_alias: istio.io/test-infra
@@ -291,6 +330,9 @@ postsubmits:
         - -C
         - authentikos
         - deploy
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /creds/service-account.json
         image: gcr.io/istio-testing/build-tools:master-2020-03-12T14-20-34
         name: ""
         resources:
@@ -305,11 +347,17 @@ postsubmits:
         volumeMounts:
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /creds
+          name: creds
+          readOnly: true
       nodeSelector:
         prod: prow
       volumes:
       - emptyDir: {}
         name: docker-root
+      - name: creds
+        secret:
+          secretName: prow-pusher-service-account
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_test-infra_postsubmit
@@ -318,8 +366,6 @@ postsubmits:
     - ^master$
     cluster: test-infra-trusted
     decorate: true
-    labels:
-      preset-service-account: "true"
     max_concurrency: 1
     name: push-genjobs_test-infra_postsubmit
     path_alias: istio.io/test-infra
@@ -332,6 +378,9 @@ postsubmits:
         - -C
         - prow/genjobs
         - deploy
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /creds/service-account.json
         image: gcr.io/istio-testing/build-tools:master-2020-03-12T14-20-34
         name: ""
         resources:
@@ -346,11 +395,17 @@ postsubmits:
         volumeMounts:
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /creds
+          name: creds
+          readOnly: true
       nodeSelector:
         prod: prow
       volumes:
       - emptyDir: {}
         name: docker-root
+      - name: creds
+        secret:
+          secretName: prow-pusher-service-account
 presubmits:
   istio/test-infra:
   - always_run: true
