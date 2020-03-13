@@ -10,6 +10,7 @@ require (
 	github.com/mitchellh/copystructure v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.3
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
+	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 // indirect
 	google.golang.org/api v0.4.0
 	k8s.io/api v0.0.0-20191005115622-2e41325d9e4b

@@ -23,6 +23,8 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
+	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -30,6 +32,8 @@ import (
 
 	"github.com/Masterminds/sprig"
 	flag "github.com/spf13/pflag"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
 	"google.golang.org/api/transport"
 	corev1 "k8s.io/api/core/v1"
@@ -41,16 +45,39 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+// Command-line options.
 const (
-	defaultKey       = "token"                 // defaultKey is the kubernetes secret data key.
-	defaultSecret    = "authentikos-token"     // defaultSecret is the default kubernetes secret name.
-	defaultTemplate  = "{{.Token}}"            // defaultTemplate is the default token template string.
-	defaultNamespace = metav1.NamespaceDefault // defaultNamespace is the default kubernetes namespace.
-	tickInterval     = 30 * time.Minute        // tickInterval is the default tick interval.
+	defaultKey       = "token"                         // defaultKey is the kubernetes secret data key.
+	defaultSecret    = "authentikos-token"             // defaultSecret is the default kubernetes secret name.
+	defaultTemplate  = "{{.Token}}"                    // defaultTemplate is the default token template string.
+	defaultNamespace = metav1.NamespaceDefault         // defaultNamespace is the default kubernetes namespace.
+	defaultInterval  = 30 * time.Minute                // defaultInterval is the default tick interval.
+	minInterval      = 1 * time.Minute                 // minInterval is the minimum tick interval (inclusive).
+	maxInterval      = tokenExpiration - expiryDelta*2 // maxInterval is the maximum tick interval (exclusive).
 )
 
+// OAuth2 scopes.
+const (
+	userinfoEmailScope = "https://www.googleapis.com/auth/userinfo.email" // View your email address
+	cloudPlatformScope = "https://www.googleapis.com/auth/cloud-platform" // View and manage your data across Google Cloud Platform services
+	openIDScope        = "openid"                                         // Authenticate using OpenID Connect
+)
+
+var (
+	defaultScopes = []string{userinfoEmailScope, cloudPlatformScope, openIDScope} // defaultScopes is the default OAuth2 scopes.
+)
+
+// Token expiration parameters.
+const (
+	tokenExpiration = 60 * time.Minute // tokenExpiration is the oauth token expiration.
+	maxTries        = 5                // maxTries is the maximum number of consecutive attempts to force refresh a token.
+	expiryDelta     = 5 * time.Minute  // expiryDelta is how early a token is be considered expired before its actual expiration time.
+)
+
+var timeNow = time.Now
+
 // tokenCreator is a function that creates an oauth token.
-type tokenCreator func() ([]byte, error)
+type tokenCreator func(forceRefresh bool, tries int) ([]byte, error)
 
 // secretCreator is a function that creates a kubernetes secret.
 type secretCreator func() ([]*corev1.Secret, namespacedErrors)
@@ -87,7 +114,9 @@ type tokenTemplate struct {
 
 // options are the available command-line flags.
 type options struct {
+	forceRefresh bool
 	verbose      bool
+	interval     time.Duration
 	creds        string
 	key          string
 	secret       string
@@ -99,14 +128,16 @@ type options struct {
 
 // parseFlags parses the command-line flags.
 func (o *options) parseFlags() {
+	flag.BoolVarP(&o.forceRefresh, "force-refresh", "r", false, "Force a token refresh. Otherwise, the token will only refresh when necessary.")
 	flag.BoolVarP(&o.verbose, "verbose", "v", false, "Print verbose output.")
+	flag.DurationVarP(&o.interval, "interval", "i", defaultInterval, fmt.Sprintf("Token refresh interval [%v - %v).", minInterval, maxInterval))
 	flag.StringVarP(&o.creds, "creds", "c", "", "Path to a JSON credentials file.")
 	flag.StringVarP(&o.secret, "secret", "o", defaultSecret, "Name of secret to create.")
 	flag.StringVarP(&o.key, "key", "k", defaultKey, "Name of secret data key.")
 	flag.StringVarP(&o.template, "template", "t", "", "Template string for the token.")
 	flag.StringVarP(&o.templateFile, "template-file", "f", "", "Path to a template string for the token.")
 	flag.StringSliceVarP(&o.namespace, "namespace", "n", []string{defaultNamespace}, "Namespace(s) to create the secret in.")
-	flag.StringSliceVarP(&o.scopes, "scopes", "s", []string{}, "Oauth scope(s) to request for token.")
+	flag.StringSliceVarP(&o.scopes, "scopes", "s", []string{}, "Oauth scope(s) to request for token (see: https://developers.google.com/identity/protocols/oauth2/scopes).")
 
 	flag.Parse()
 }
@@ -134,6 +165,10 @@ func (o *options) validateFlags() error {
 		o.template = string(data)
 	}
 
+	if len(o.scopes) == 0 {
+		o.scopes = defaultScopes
+	}
+
 	// Secrets must have a name, so if unset then default to `defaultSecret`.
 	if len(o.secret) == 0 {
 		o.secret = defaultSecret
@@ -147,6 +182,11 @@ func (o *options) validateFlags() error {
 	// Secrets must have a namespace, so if unset then default to `defaultNamespace`.
 	if len(o.namespace) == 0 {
 		o.namespace = []string{defaultNamespace}
+	}
+
+	// Tick interval must be [1m - 50m), where 60m is the oauth token expiration, 5m is the token expiry delta, and another 5m for processing delta.
+	if o.interval < minInterval || o.interval >= maxInterval {
+		return fmt.Errorf("-i, --interval option must be in range [%v, %v): %v", minInterval, maxInterval, o.interval)
 	}
 
 	if len(o.creds) > 0 {
@@ -167,7 +207,7 @@ func printErrAndExit(err error, code int) {
 // printVerbose prints output based on verbosity level.
 func printVerbose(formatString string, verbose bool) {
 	if verbose {
-		fmt.Print(formatString)
+		log.Print(formatString)
 	}
 }
 
@@ -178,6 +218,26 @@ func fileExists(path string) bool {
 		return false
 	}
 	return info.Mode().IsRegular()
+}
+
+// isExpired determines if a token is expired and needs to be refreshed.
+func isExpired(o options, token *oauth2.Token) bool {
+	nextRec := timeNow().Add(o.interval)
+	expiry := token.Expiry.Add(-expiryDelta)
+	isExpired := expiry.Before(nextRec)
+	printVerbose(fmt.Sprintf("expired: %t; token expiry (minus delta): %v; next reconcile: %v\n", isExpired, expiry, nextRec), o.verbose)
+	return isExpired
+}
+
+// getBackoffTime returns a backoff time calculated using formula: `{backoff factor} * 2 ^ {# of retries}`.
+func getBackoffTime(factor float64, retry int) time.Duration {
+	return time.Duration(math.Max(factor*math.Exp2(float64(retry)), 0)) * time.Second
+}
+
+// withBackoff waits with a backoff and runs a function.
+func withBackoff(factor float64, retry int, f interface{}) interface{} {
+	time.Sleep(getBackoffTime(factor, retry))
+	return f
 }
 
 func generateTokenData(o options, data []byte) ([]byte, error) {
@@ -218,24 +278,51 @@ func loadClusterConfig() (*rest.Config, error) {
 
 // getOauthTokenCreator returns a function that creates/refreshes an oauth token.
 func getOauthTokenCreator(o options) (tokenCreator, error) {
+	var create tokenCreator
+
 	clientOpts := []option.ClientOption{option.WithScopes(o.scopes...)}
 
 	if len(o.creds) > 0 {
 		clientOpts = append(clientOpts, option.WithCredentialsFile(o.creds))
 	}
 
+	// Reusing the client leverages the token source cache.
 	client, err := transport.Creds(context.Background(), clientOpts...)
-	if err != nil {
-		return nil, err
+
+	clientCreator := func(forceRefresh bool) (*google.Credentials, error) {
+		if forceRefresh {
+			// Recreating the client invalidates the token source cache.
+			client, err = transport.Creds(context.Background(), clientOpts...)
+			printVerbose("force refreshing token\n", o.verbose)
+		}
+
+		return client, err
 	}
 
-	return func() ([]byte, error) {
+	create = func(forceRefresh bool, tries int) ([]byte, error) {
+		if tries <= 0 {
+			return nil, fmt.Errorf("maximum tries: %d exceeded to force refresh token", maxTries)
+		}
+
+		client, err := clientCreator(forceRefresh)
+		if err != nil {
+			return withBackoff(1, maxTries-tries, create).(tokenCreator)(forceRefresh, tries-1)
+		}
+
 		token, err := client.TokenSource.Token()
 		if err != nil {
-			return nil, err
+			return withBackoff(1, maxTries-tries, create).(tokenCreator)(forceRefresh, tries-1)
 		}
+
+		if isExpired(o, token) {
+			// Force recreate the token if it will expire before the next reconciliation.
+			return withBackoff(1, maxTries-tries, create).(tokenCreator)(true, tries-1)
+		}
+
 		return []byte(token.AccessToken), nil
-	}, nil
+	}
+
+	return create, nil
 }
 
 // createOrUpdateSecret creates or updates a kubernetes secrets.
@@ -285,7 +372,7 @@ func getSecretCreator(o options, create tokenCreator) (secretCreator, error) {
 		)
 
 		for _, ns := range o.namespace {
-			if secretData, err := create(); err != nil {
+			if secretData, err := create(o.forceRefresh, maxTries); err != nil {
 				errs = append(errs, &namespacedError{ns, err.Error()})
 			} else if secret, err := createOrUpdateSecret(o, client, ns, secretData); err != nil {
 				errs = append(errs, &namespacedError{ns, err.Error()})
@@ -301,17 +388,17 @@ func getSecretCreator(o options, create tokenCreator) (secretCreator, error) {
 
 // reconcile runs a reconciliation loop in order to achieve desired secret state.
 func reconcile(o options, create secretCreator) {
-	ticker := time.NewTicker(tickInterval)
+	ticker := time.NewTicker(o.interval)
 
 	work := func() {
 		secrets, errs := create()
 
 		printVerbose(fmt.Sprintf(
 			"%v: reconcile complete; secrets: %v; errors: %v; next reconcile: %vm\n",
-			time.Now().Format(time.RFC3339),
+			timeNow().Format(time.RFC3339),
 			len(secrets),
 			len(errs),
-			tickInterval.Minutes(),
+			o.interval.Minutes(),
 		), true)
 
 		if len(errs) > 0 {
