@@ -64,7 +64,12 @@ jobs:
 
   - name: integ-multicluster-k8s-tests
     type: presubmit
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.presubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --topology
+      - MULTICLUSTER_SINGLE_NETWORK
+      - test.integration.kube.presubmit
     requirements: [kind]
     modifiers: [optional, hidden]
     env:
