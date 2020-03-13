@@ -30,6 +30,12 @@ jobs:
     regex: 'docker/.+|cmd/.+'
     requirements: [gcp, docker]
 
+  - name: perf-test-validation
+      type: presubmit
+      command: [entrypoint, make, containers-test]
+      resources: build
+      requirements: [gcp, docker]
+
 resources:
   build:
     requests:
