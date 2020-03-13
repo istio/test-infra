@@ -39,6 +39,7 @@ The following is a list of supported options for `authentikos`:
   -c, --creds string           Path to a JSON credentials file.
   -k, --key string             Name of secret data key. (default "token")
   -n, --namespace strings      Namespace(s) to create the secret in. (default [default])
+  -r, --reuse                  Reuse a cached token until it is expired.
   -s, --scopes strings         Oauth scope(s) to request for token.
   -o, --secret string          Name of secret to create. (default "authentikos-token")
   -t, --template string        Template string for the token.
@@ -53,3 +54,4 @@ The following is a list of supported options for `authentikos`:
 - 0.0.3: add new `TimeToUnix`, `UnixToTime`, and `Parse` template variable and change method signature for math template variables from `(a, b time.Duration) time.Duration` to `(a, b int64) int64`.
 - 0.0.4: add `--key` option for specifying the name of the data key in the created Kubernetes secret.
 - 0.0.5: use [Sprig](http://masterminds.github.io/sprig/) as the library for template functions.
+- 0.0.6: add `--reuse` option for reusing (i.e. caching) a token until it is expired. If this option is omitted or false, credentials will be forcibly refreshed.
