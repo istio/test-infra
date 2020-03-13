@@ -42,11 +42,11 @@ import (
 )
 
 const (
-	defaultKey       = "token"                 // defaultKey is the kubernetes secret data key.
-	defaultSecret    = "authentikos-token"     // defaultSecret is the default kubernetes secret name.
-	defaultTemplate  = "{{.Token}}"            // defaultTemplate is the default token template string.
-	defaultNamespace = metav1.NamespaceDefault // defaultNamespace is the default kubernetes namespace.
-	tickInterval     = 30 * time.Minute        // tickInterval is the default tick interval.
+	defaultKey          = "token"                 // defaultKey is the kubernetes secret data key.
+	defaultSecret       = "authentikos-token"     // defaultSecret is the default kubernetes secret name.
+	defaultTemplate     = "{{.Token}}"            // defaultTemplate is the default token template string.
+	defaultNamespace    = metav1.NamespaceDefault // defaultNamespace is the default kubernetes namespace.
+	defaultTickInterval = 29                      // defaultTickInterval is the default tick interval (minutes).
 )
 
 // tokenCreator is a function that creates an oauth token.
@@ -88,6 +88,7 @@ type tokenTemplate struct {
 // options are the available command-line flags.
 type options struct {
 	verbose      bool
+	interval     int
 	creds        string
 	key          string
 	secret       string
@@ -100,6 +101,7 @@ type options struct {
 // parseFlags parses the command-line flags.
 func (o *options) parseFlags() {
 	flag.BoolVarP(&o.verbose, "verbose", "v", false, "Print verbose output.")
+	flag.IntVarP(&o.interval, "interval", "i", defaultTickInterval, "Token refresh interval in minutes [1 - 60).")
 	flag.StringVarP(&o.creds, "creds", "c", "", "Path to a JSON credentials file.")
 	flag.StringVarP(&o.secret, "secret", "o", defaultSecret, "Name of secret to create.")
 	flag.StringVarP(&o.key, "key", "k", defaultKey, "Name of secret data key.")
@@ -147,6 +149,11 @@ func (o *options) validateFlags() error {
 	// Secrets must have a namespace, so if unset then default to `defaultNamespace`.
 	if len(o.namespace) == 0 {
 		o.namespace = []string{defaultNamespace}
+	}
+
+	// Tick interval must be [1 - 60), so if invalid then default to `defaultTickInterval`.
+	if o.interval < 1 || o.interval >= 60 {
+		o.interval = defaultTickInterval
 	}
 
 	if len(o.creds) > 0 {
@@ -301,6 +308,7 @@ func getSecretCreator(o options, create tokenCreator) (secretCreator, error) {
 
 // reconcile runs a reconciliation loop in order to achieve desired secret state.
 func reconcile(o options, create secretCreator) {
+	tickInterval := time.Duration(o.interval) * time.Minute
 	ticker := time.NewTicker(tickInterval)
 
 	work := func() {
