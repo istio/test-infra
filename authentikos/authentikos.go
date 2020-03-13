@@ -30,6 +30,7 @@ import (
 
 	"github.com/Masterminds/sprig"
 	flag "github.com/spf13/pflag"
+	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
 	"google.golang.org/api/transport"
 	corev1 "k8s.io/api/core/v1"
@@ -48,6 +49,9 @@ const (
 	defaultNamespace = metav1.NamespaceDefault // defaultNamespace is the default kubernetes namespace.
 	tickInterval     = 30 * time.Minute        // tickInterval is the default tick interval.
 )
+
+// clientCreator is a function that creates an oauth client.
+type clientCreator func() (*google.Credentials, error)
 
 // tokenCreator is a function that creates an oauth token.
 type tokenCreator func() ([]byte, error)
@@ -87,6 +91,7 @@ type tokenTemplate struct {
 
 // options are the available command-line flags.
 type options struct {
+	reuse        bool
 	verbose      bool
 	creds        string
 	key          string
@@ -99,6 +104,7 @@ type options struct {
 
 // parseFlags parses the command-line flags.
 func (o *options) parseFlags() {
+	flag.BoolVarP(&o.reuse, "reuse", "r", false, "Reuse a cached token until it is expired.")
 	flag.BoolVarP(&o.verbose, "verbose", "v", false, "Print verbose output.")
 	flag.StringVarP(&o.creds, "creds", "c", "", "Path to a JSON credentials file.")
 	flag.StringVarP(&o.secret, "secret", "o", defaultSecret, "Name of secret to create.")
@@ -218,23 +224,34 @@ func loadClusterConfig() (*rest.Config, error) {
 
 // getOauthTokenCreator returns a function that creates/refreshes an oauth token.
 func getOauthTokenCreator(o options) (tokenCreator, error) {
+	var clientCreator clientCreator
 	clientOpts := []option.ClientOption{option.WithScopes(o.scopes...)}
 
 	if len(o.creds) > 0 {
 		clientOpts = append(clientOpts, option.WithCredentialsFile(o.creds))
 	}
 
-	client, err := transport.Creds(context.Background(), clientOpts...)
-	if err != nil {
-		return nil, err
+	if o.reuse {
+		// Reusing the client leverages the token source cache.
+		client, err := transport.Creds(context.Background(), clientOpts...)
+		clientCreator = func() (*google.Credentials, error) {
+			return client, err
+		}
+	} else {
+		// Recreating the client invalidates the token source cache.
+		clientCreator = func() (*google.Credentials, error) {
+			return transport.Creds(context.Background(), clientOpts...)
+		}
 	}
 
 	return func() ([]byte, error) {
-		token, err := client.TokenSource.Token()
-		if err != nil {
+		if client, err := clientCreator(); err != nil {
 			return nil, err
+		} else if token, err := client.TokenSource.Token(); err != nil {
+			return nil, err
+		} else {
+			return []byte(token.AccessToken), nil
 		}
-		return []byte(token.AccessToken), nil
 	}, nil
 }
 
