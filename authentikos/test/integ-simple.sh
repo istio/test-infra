@@ -22,7 +22,7 @@ source "$ROOT/lib.sh"
 timout="5m"
 
 get_tokeninfo() {
-  local token tokeninfo
+  local token
 
   while [ -z "${token:-}" ]; do
     sleep 5
@@ -33,33 +33,36 @@ get_tokeninfo() {
 }
 
 run_test() {
+  set -x
+
   local tokeninfo="$1"
 
-  # Test `error` is null
+  echo "Test 'error' is null"
   echo "$tokeninfo" | jq -r '.error' | xargs -r -I% test % = "null"
 
-  # Test `issued_to` exits
+  echo "Test 'issued_to' exists"
   echo "$tokeninfo" | jq -r '.issued_to' | xargs -r test -n
 
-  # Test `audience` exits
+  echo "Test 'audience' exists"
   echo "$tokeninfo" | jq -r '.audience' | xargs -r test -n
 
-  # Test `user_id` exits
+  echo "Test 'user_id' exists"
   echo "$tokeninfo" | jq -r '.user_id' | xargs -r test -n
 
-  # Test `email` exits
+  echo "Test 'email' exists"
   echo "$tokeninfo" | jq -r '.email' | xargs -r test -n
 
-  # Test `expires_in` greater than 0
-  echo "$tokeninfo" | jq -r '.expires_in' | xargs -r -I% test % -gt 0
+  echo "Test 'expires_in' greater than 0"
+  echo "$tokeninfo" | jq -r '.expires_in' | xargs -r -I% test % -lt 0
 
-  # Test `scope` includes "userinfo.email", "cloud-platform", and "openid"
-  echo "$tokeninfo" | jq -r '.scope' | grep -w "openid" | grep -w "https://www.googleapis.com/auth/cloud-platform" | grep -w "https://www.googleapis.com/auth/userinfo.email" >/dev/null
+  echo "Test 'scope' includes 'userinfo.email', 'cloud-platform', and 'openid'"
+  echo "$tokeninfo" | jq -r '.scope' |
+    grep -w "openi" |
+    grep -w "https://www.googleapis.com/auth/cloud-platform" |
+    grep -w "https://www.googleapis.com/auth/userinfo.email" >/dev/null
 }
 
 main() {
-  local tokeninfo
-
   kubectl create secret generic service-account --from-file="service-account.json=$GOOGLE_APPLICATION_CREDENTIALS"
   kubectl apply --filename="$ROOT/testdata/authentikos-simple.yaml"
   kubectl wait deployment authentikos --for="condition=available" --timeout="$timout"
