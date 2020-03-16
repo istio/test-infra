@@ -39,12 +39,12 @@ deploy-velodrome: get-cluster-credentials get-api-resources
 
 deploy-build: PROJECT=$(PROJECT_BUILD)
 deploy-build: CLUSTER=$(CLUSTER_BUILD)
-deploy-build: get-build-cluster-credentials get-api-resources
+deploy-build: get-build-cluster-credentials get-build-api-resources
 	kubectl apply -f ./cluster/build/ --prune -l app.kubernetes.io/part-of=prow-build $(PRUNE_WL)
 
 deploy-private: PROJECT=$(PROJECT_PRIVATE)
 deploy-private: CLUSTER=$(CLUSTER_PRIVATE)
-deploy-private: get-private-cluster-credentials get-api-resources
+deploy-private: get-private-cluster-credentials get-private-api-resources
 	kubectl apply -f ./cluster/private/ --prune -l app.kubernetes.io/part-of=prow-private $(PRUNE_WL)
 
 .PHONY: gen-private-jobs deploy deploy-gcsweb deploy-velodrome deploy-build deploy-private update-config update-config-dry-run

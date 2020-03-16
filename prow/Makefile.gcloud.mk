@@ -39,8 +39,7 @@ endif
 configure-docker: activate-serviceaccount
 	gcloud auth configure-docker
 
-.PHONY: get-api-resources
-get-api-resources:
+get%api-resources:
 	$(eval PRUNE_WL=$(shell KUBECONFIG=$(KUBECONFIG) \
 	python3 "$(current_dir)/api-resources.py" \
 	  --delimiter=" " \
@@ -48,5 +47,5 @@ get-api-resources:
 	  --group-blacklist "authentication.k8s.io" "authorization.k8s.io"\
 	  ))
 
-get-%-credentials: save-kubeconfig activate-serviceaccount
+get%cluster-credentials: save-kubeconfig activate-serviceaccount
 	gcloud container clusters get-credentials "$(CLUSTER)" --project="$(PROJECT)" --zone="$(ZONE)"
