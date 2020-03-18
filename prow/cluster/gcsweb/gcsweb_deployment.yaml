@@ -23,6 +23,13 @@ spec:
     spec:
       terminationGracePeriodSeconds: 30
       containers:
+      - name: nginx-proxy
+        image: nginx:1.17
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx
+          mountPath: /etc/nginx/conf.d
       - name: gcsweb
         image: k8s.gcr.io/gcsweb-amd64:v1.0.6
         args:
@@ -35,7 +42,6 @@ spec:
         - -p=8080
         ports:
         - containerPort: 8080
-          protocol: TCP
         resources:
           limits:
             cpu: 0.1
@@ -51,3 +57,7 @@ spec:
           initialDelaySeconds: 3
           timeoutSeconds: 2
           failureThreshold: 2
+      volumes:
+      - name: nginx
+        configMap:
+          name: nginx
