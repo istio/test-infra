@@ -6,15 +6,10 @@ metadata:
   name: gcsweb-ing
   namespace: gcs
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: k8s-fw-gcs-gcsweb-ing--c44bd72f22c73d37
+    kubernetes.io/ingress.global-static-ip-name: k8s-fw-gcs-gcsweb-ing--c44bd72f22c73d37, gcsweb
     networking.gke.io/managed-certificates: gcs-istio-io
     kubernetes.io/ingress.class: "gce"
 spec:
-  rules:
-  - host: gcsweb.istio.io
-    http:
-      paths:
-      - path: /*
-        backend:
-          serviceName: gcsweb
-          servicePort: 80
+  backend:
+    serviceName: gcsweb
+    servicePort: 80
