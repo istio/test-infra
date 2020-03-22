@@ -134,6 +134,21 @@ presets:
         path: id_rsa
         mode: 0600
 - labels:
+    preset-enable-gomod-netrc: "true"
+  volumeMounts:
+  - mountPath: /home/.netrc
+    subPath: .netrc
+    name: netrc
+    readOnly: true
+  volumes:
+  - name: netrc
+    secret:
+      secretName: netrc-secret
+      items:
+      - key: secret
+        path: .netrc
+        mode: 0600
+- labels:
     preset-enable-netrc: "true"
   volumeMounts:
   - mountPath: /home/bootstrap/.netrc
