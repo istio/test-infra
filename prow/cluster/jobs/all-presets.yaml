@@ -175,6 +175,22 @@ presets:
         name: release-1.4-istio-deps
         key: dependencies
 - labels:
+    preset-override-deps: "release-1.5-release"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: release-1.5-release-deps
+        key: dependencies
+- labels:
+    preset-override-deps: "release-1.5-istio"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: release-1.5-istio-deps
+        key: dependencies
+- labels:
     preset-goproxy: "true"
   env:
   - name: GOPROXY
