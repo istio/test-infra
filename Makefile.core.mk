@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+GOARCH ?= $(TARGET_ARCH)
+GOOS ?= $(TARGET_OS)
+
 lint: lint-all
 
 lint-buildifier:
@@ -28,10 +31,10 @@ gen-check: gen check-clean-repo
 
 generate-config:
 	@rm -fr prow/cluster/jobs/istio/*/*.gen.yaml
-	@(cd prow/config/cmd; GOARCH=amd64 GOOS=linux go run generate.go write)
+	@(cd prow/config/cmd; GOARCH=$(GOARCH) GOOS=$(GOOS) go run generate.go write)
 	@go run prow/genjobs/main.go --configs=./prow/config/istio-private_jobs
 
 diff-config:
-	@(cd prow/config/cmd; GOARCH=amd64 GOOS=linux go run generate.go diff)
+	@(cd prow/config/cmd; GOARCH=$(GOARCH) GOOS=$(GOOS) go run generate.go diff)
 
 include common/Makefile.common.mk
