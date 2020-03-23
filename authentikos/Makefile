@@ -27,3 +27,14 @@ image:
 push:
 	docker push "$(HUB)/$(PROJECT)/authentikos:$(VERSION)"
 	docker push "$(HUB)/$(PROJECT)/authentikos:latest"
+
+.PHONY: unit-test
+unit-test:
+	@go test ./...
+
+.PHONY: integ-test
+integ-test:
+	@bash ./test/integ-simple.sh
+
+.PHONY: test
+test: unit-test integ-test

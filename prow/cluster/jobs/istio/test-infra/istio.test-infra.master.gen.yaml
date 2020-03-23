@@ -432,3 +432,84 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - always_run: false
+    annotations:
+      testgrid-dashboards: istio_test-infra
+    branches:
+    - ^master$
+    decorate: true
+    name: unit-test-authentikos_test-infra
+    path_alias: istio.io/test-infra
+    run_if_changed: ^authentikos/(.+\.go|go\.mod)$
+    spec:
+      containers:
+      - command:
+        - make
+        - -C
+        - authentikos
+        - unit-test
+        image: gcr.io/istio-testing/build-tools:master-2020-03-18T15-19-34
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - always_run: false
+    annotations:
+      testgrid-dashboards: istio_test-infra
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    name: integ-test-authentikos_test-infra
+    path_alias: istio.io/test-infra
+    run_if_changed: ^authentikos/(test/.+|.+\.go|go\.mod)$
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - -C
+        - authentikos
+        - integ-test
+        image: gcr.io/istio-testing/build-tools:master-2020-03-18T15-19-34
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root

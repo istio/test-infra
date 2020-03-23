@@ -12,6 +12,25 @@ jobs:
   - name: gencheck
     command: [make, gen-check]
 
+  - name: unit-test-authentikos
+    type: presubmit
+    # trigger on changes in `authentikos/` directory to the following:
+    # - `.go`    : Golang source files. When the source code changes, test the validity of the change.
+    # - `go.mod` : Golang module dependencies. When the dependencies change, test the compatibility of the change.
+    regex: '^authentikos/(.+\.go|go\.mod)$'
+    command: [make, -C, authentikos, unit-test]
+
+  - name: integ-test-authentikos
+    type: presubmit
+    # trigger on changes in `authentikos/` directory to the following:
+    # - `test/`  : integration test library, scripts, and object configuration files.
+    #              If there are changes to the tests themselves, run the modified tests.
+    # - `.go`    : Golang source files. When the source code changes, test the validity of the change.
+    # - `go.mod` : Golang module dependencies. When the dependencies change, test the compatibility of the change.
+    regex: '^authentikos/(test/.+|.+\.go|go\.mod)$'
+    command: [entrypoint, make, -C, authentikos, integ-test]
+    requirements: [kind, gcp]
+
   - name: deploy-prow
     type: postsubmit
     regex: '^prow/cluster/(?:gcsweb/|build/|private/|[^/]+\.yaml$)'
