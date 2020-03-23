@@ -90,6 +90,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
+      preset-enable-gomod-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.4-release
       preset-override-envoy: "true"
@@ -105,6 +106,8 @@ postsubmits:
         env:
         - name: GCS_BUCKET
           value: istio-private-prerelease/prerelease
+        - name: GOPRIVATE
+          value: github.com/istio-private/operator
         - name: PRERELEASE_DOCKER_HUB
           value: gcr.io/istio-prow-build
         image: gcr.io/istio-testing/build-tools:release-1.4-2020-02-14T15-30-45
