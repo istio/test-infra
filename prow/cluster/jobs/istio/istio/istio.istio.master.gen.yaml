@@ -30,8 +30,19 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache-pvc
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache-pvc
+          subPath: gocache
       nodeSelector:
         testing: test-pool
+      volumes:
+      - name: build-cache-pvc
+        persistentVolumeClaim:
+          claimName: build-cache-claim
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_istio_postsubmit
@@ -46,12 +57,11 @@ postsubmits:
       containers:
       - command:
         - entrypoint
-        - make
-        - -e
-        - T=-v
-        - build
-        - racetest
-        - binaries-test
+        - prow/integ-suite-kind.sh
+        - test.integration.conformance.kube.presubmit
+        env:
+        - name: TEST_SELECT
+          value: -postsubmit,-flaky,-multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-18T15-19-34
         name: ""
         resources:
@@ -69,12 +79,30 @@ postsubmits:
         - mountPath: /gocache
           name: build-cache-pvc
           subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         testing: test-pool
       volumes:
       - name: build-cache-pvc
         persistentVolumeClaim:
           claimName: build-cache-claim
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_istio_postsubmit
@@ -799,8 +827,19 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache-pvc
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache-pvc
+          subPath: gocache
       nodeSelector:
         testing: test-pool
+      volumes:
+      - name: build-cache-pvc
+        persistentVolumeClaim:
+          claimName: build-cache-claim
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -815,12 +854,11 @@ presubmits:
       containers:
       - command:
         - entrypoint
-        - make
-        - -e
-        - T=-v
-        - build
-        - racetest
-        - binaries-test
+        - prow/integ-suite-kind.sh
+        - test.integration.conformance.kube.presubmit
+        env:
+        - name: TEST_SELECT
+          value: -postsubmit,-flaky,-multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-03-18T15-19-34
         name: ""
         resources:
@@ -838,12 +876,30 @@ presubmits:
         - mountPath: /gocache
           name: build-cache-pvc
           subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         testing: test-pool
       volumes:
       - name: build-cache-pvc
         persistentVolumeClaim:
           claimName: build-cache-claim
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
