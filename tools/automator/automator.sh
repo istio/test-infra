@@ -198,7 +198,7 @@ create_pr() {
     --title="$title" \
     --match-title="\"$match_title\"" \
     --body="$body" \
-    --source="$user:$src_branch-$modifier" \
+    --source="$user:$fork_name" \
     --confirm
 }
 
@@ -211,7 +211,7 @@ add_labels() {
 commit() {
   git -c "user.name=$user" -c "user.email=$email" commit --message "$title" --author="$user <$email>"
   git show --shortstat
-  git push --force "https://$user:$token@github.com/$user/$repo.git" "HEAD:$branch-$modifier"
+  git push --force "https://$user:$token@github.com/$user/$repo.git" "HEAD:$fork_name"
   pull_request="$(create_pr)"
   add_labels "$pull_request"
 }
@@ -234,6 +234,7 @@ work() { (
   git add --all
 
   if ! git diff --cached --quiet --exit-code; then
+    fork_name="$src_branch-$branch-$modifier-$(hash "$title")"
     commit || print_error "unable to commit for: $repo"
   fi
 
