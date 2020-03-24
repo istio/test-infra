@@ -27,7 +27,7 @@ cleanup() {
 }
 
 get_opts() {
-  if opt="$(getopt -o '' -l branch:,sha:,org:,repo:,title:,match-title:,body:,labels:,user:,email:,modifier:,script-path:,cmd:,token-path:,token:,verbose -n "$(basename "$0")" -- "$@")"; then
+  if opt="$(getopt -o '' -l branch:,src-branch:,sha:,org:,repo:,title:,match-title:,body:,labels:,user:,email:,modifier:,script-path:,cmd:,token-path:,token:,verbose -n "$(basename "$0")" -- "$@")"; then
     eval set -- "$opt"
   else
     print_error_and_exit "unable to parse options"
@@ -37,6 +37,10 @@ get_opts() {
     case "$1" in
     --branch)
       branch="$2"
+      shift 2
+      ;;
+    --src-branch)
+      src_branch="$2"
       shift 2
       ;;
     --sha)
@@ -123,6 +127,10 @@ validate_opts() {
     branch="$(git describe --contains --all HEAD)"
   fi
 
+  if [ -z "${src_branch:-}" ]; then
+    src_branch="$(git describe --contains --all HEAD)"
+  fi
+
   if [ -z "${sha:-}" ]; then
     sha="$(git rev-parse HEAD)"
     sha_short="$(git rev-parse --short HEAD)"
@@ -170,7 +178,7 @@ validate_opts() {
 }
 
 evaluate_opts() {
-  AUTOMATOR_ORG="$org" AUTOMATOR_REPO="$repo" AUTOMATOR_BRANCH="$branch" AUTOMATOR_SHA="$sha" AUTOMATOR_SHA_SHORT="$sha_short" AUTOMATOR_MODIFIER="$modifier"
+  AUTOMATOR_ORG="$org" AUTOMATOR_REPO="$repo" AUTOMATOR_BRANCH="$src_branch" AUTOMATOR_SHA="$sha" AUTOMATOR_SHA_SHORT="$sha_short" AUTOMATOR_MODIFIER="$modifier"
 
   title="$(evaluate_tmpl "$title_tmpl")"
   match_title="$(evaluate_tmpl "$match_title_tmpl")"
@@ -190,7 +198,7 @@ create_pr() {
     --title="$title" \
     --match-title="\"$match_title\"" \
     --body="$body" \
-    --source="$user:$branch-$modifier" \
+    --source="$user:$src_branch-$modifier" \
     --confirm
 }
 

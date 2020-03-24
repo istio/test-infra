@@ -48,12 +48,14 @@ postsubmits:
         - ../test-infra/tools/automator/automator.sh
         - --org=istio
         - --repo=test-infra
+        - --branch=master
         - '--title=Automator: update build-tools:$AUTOMATOR_BRANCH'
         - --modifier=buildtools
         - --token-path=/etc/github-token/oauth
         - --script-path=../test-infra/tools/automator/scripts/update-build-tools-image.sh
         - --
         - --post=make gen
+        - --var=IMG
         image: gcr.io/istio-testing/build-tools:release-1.4-2020-02-14T15-30-45
         name: ""
         resources:
