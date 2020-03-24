@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx
+  namespace: velodrome
+  labels:
+    app.kubernetes.io/part-of: velodrome
+data:
+  nginx.conf: |
+    server {
+      listen 80 default_server;
+
+      server_name _;
+
+      location / {
+        if ($http_x_forwarded_proto = 'http') {
+            return 301 https://$host$request_uri;
+        }
+        proxy_pass http://velodrome-external:80/;
+      }
+
+    }

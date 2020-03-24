@@ -10,11 +10,6 @@ metadata:
     networking.gke.io/managed-certificates: velodrome-istio-io
     kubernetes.io/ingress.class: "gce"
 spec:
-  rules:
-  - host: velodrome.istio.io
-    http:
-      paths:
-      - path: /*
-        backend:
-          serviceName: velodrome
-          servicePort: 80
+  backend:
+    serviceName: velodrome
+    servicePort: 80
