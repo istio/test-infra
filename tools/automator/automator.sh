@@ -213,7 +213,7 @@ commit() {
   git show --shortstat
   git push --force "https://$user:$token@github.com/$user/$repo.git" "HEAD:$fork_name"
   pull_request="$(create_pr)"
-  add_labels "$pull_request"
+  add_labels
 }
 
 work() { (
@@ -229,13 +229,13 @@ work() { (
 
   AUTOMATOR_REPO_DIR="$(pwd)"
 
-  bash "${shell_args[@]}" "$script_path" "${script_args[@]}" || print_error "unable to execute command for: $repo"
+  bash "${shell_args[@]}" "$script_path" "${script_args[@]}"
 
   git add --all
 
   if ! git diff --cached --quiet --exit-code; then
     fork_name="$src_branch-$branch-$modifier-$(hash "$title")"
-    commit || print_error "unable to commit for: $repo"
+    trace commit
   fi
 
   popd

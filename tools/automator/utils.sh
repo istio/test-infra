@@ -47,3 +47,8 @@ hash() {
   local val="$1"
   echo -n "$val" | md5sum | cut -c1-8
 }
+
+trace() {
+  set -x
+  "$@"
+}
