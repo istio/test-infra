@@ -79,13 +79,15 @@ def fetch_versions():
         return {}
 
 
-def main(delimiter, format, group_blacklist):
+def main(delimiter, format, group_blacklist, kind_blacklist):
     resources = fetch_resources()
     versions = fetch_versions()
+    group_blacklist = set(group_blacklist)
+    kind_blacklist = set(kind_blacklist)
     r = []
 
     for name, _, group, _, kind in resources:
-        if group in group_blacklist:
+        if kind in kind_blacklist or group in group_blacklist:
             continue
 
         for version in versions.get(group, []):
@@ -104,7 +106,7 @@ if __name__ == "__main__":
         help="delimiter string for the list of api resources.",
     )
     parser.add_argument(
-        "--format", type=str, default="%s", help="format string for each api resources."
+        "--format", type=str, default="%s", help="format string for each api resource."
     )
     parser.add_argument(
         "--group-blacklist",
@@ -113,5 +115,12 @@ if __name__ == "__main__":
         default=["authentication.k8s.io", "authorization.k8s.io"],
         help="set of api groups to blacklist.",
     )
+    parser.add_argument(
+        "--kind-blacklist",
+        type=str,
+        nargs="*",
+        default=["Binding"],
+        help="set of api kinds to blacklist.",
+    )
     args = parser.parse_args()
-    print(main(args.delimiter, args.format, args.group_blacklist))
+    print(main(args.delimiter, args.format, args.group_blacklist, args.kind_blacklist))
