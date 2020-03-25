@@ -235,7 +235,7 @@ work() { (
 
   if ! git diff --cached --quiet --exit-code; then
     fork_name="$src_branch-$branch-$modifier-$(hash "$title")"
-    commit
+    trace commit
   fi
 
   popd
