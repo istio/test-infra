@@ -16,10 +16,9 @@
 
 from argparse import ArgumentParser
 from collections import defaultdict
+from itertools import accumulate
 from re import findall
 from subprocess import run, PIPE, CalledProcessError
-
-from itertools import accumulate
 
 
 def fetch_resources():
@@ -86,14 +85,12 @@ def main(delimiter, format, group_blacklist):
     r = []
 
     for name, _, group, _, kind in resources:
-        group = group or "core"
-
         if group in group_blacklist:
             continue
 
         for version in versions.get(group, []):
             if fetch_version(name, f"{group}/{version}"):
-                r.append(f"{group}/{version}/{kind}")
+                r.append(f"{group or 'core'}/{version}/{kind}")
 
     return delimiter.join([format % v for v in r])
 
