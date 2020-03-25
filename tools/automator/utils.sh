@@ -42,3 +42,8 @@ split_on_commas() {
 evaluate_tmpl() {
   bash -c "eval echo \"$1\""
 }
+
+hash() {
+  local val="$1"
+  echo -n "$val" | md5sum | cut -c1-8
+}
