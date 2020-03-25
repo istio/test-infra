@@ -32,10 +32,10 @@ deploy: get-cluster-credentials get-api-resources
 	kubectl apply -f ./cluster/ --prune -l app.kubernetes.io/part-of=prow $(PRUNE_WL)
 
 deploy-gcsweb: get-cluster-credentials get-api-resources
-	kubectl apply -f ./cluster/gcsweb/ --prune -l app.kubernetes.io/part-of=gcsweb $(PRUNE_WL)
+	kubectl apply -f ./cluster/gcsweb/ --prune -l app.kubernetes.io/part-of=gcsweb -n gcs $(PRUNE_WL)
 
 deploy-velodrome: get-cluster-credentials get-api-resources
-	kubectl apply -f ./cluster/velodrome/ --prune -l app.kubernetes.io/part-of=velodrome $(PRUNE_WL)
+	kubectl apply -f ./cluster/velodrome/ --prune -l app.kubernetes.io/part-of=velodrome -n velodrome $(PRUNE_WL)
 
 deploy-build: PROJECT=$(PROJECT_BUILD)
 deploy-build: CLUSTER=$(CLUSTER_BUILD)
