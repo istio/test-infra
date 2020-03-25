@@ -15,12 +15,12 @@
 # limitations under the License.
 
 # This script will:
-#   Create a configmap in a K8s cluster for specifying Istio deps
+#   Create a configmap in a K8s cluster for specifying Istio or Release Builder deps
 
 # e.g.
 #  create-deps-cm.sh --context=gke_prow_us-west1-a_prow --branch=master --namespace=test-pods --key=dependencies --interactive master-deps
 
-# TODO: support both older releases and custom dependencies. As written, this only works for release-builder `release-1.5` or newer.
+# NOTE: this only works for istio and release-builder `release-1.5` or newer.
 
 set -o errexit
 set -o nounset
@@ -33,7 +33,9 @@ branch="master"
 context="$(kubectl config current-context)"
 namespace="test-pods"
 cm_key="dependencies"
+local=
 interactive=
+dry_run=
 
 ######################################################################
 
@@ -77,7 +79,7 @@ check_getopt() {
 get_options() {
   check_getopt
 
-  if opt=$(getopt -o b:c:n:k:i -l branch:,context:,namespace:,key:,interactive -n "$script_name" -- "$@"); then
+  if opt=$(getopt -o b:c:n:k:l:i -l branch:,context:,namespace:,key:,local,interactive,dry-run -n "$script_name" -- "$@"); then
     eval set -- "$opt"
   else
     {
@@ -105,8 +107,16 @@ get_options() {
       cm_key="$2"
       shift 2
       ;;
+    -l | --local)
+      local=1
+      shift
+      ;;
     -i | --interactive)
       interactive=1
+      shift
+      ;;
+    --dry-run)
+      dry_run=1
       shift
       ;;
     --)
@@ -141,10 +151,16 @@ template_configmap() {
   template_file="$(mktemp -t template-XXXXXXXXXX)"
   trap 'rm -rf ${template_file:?}' EXIT
 
+  if [ -n "$local" ]; then
+    istio_dep="localpath: /home/prow/go/src/istio.io/istio"
+  else
+    istio_dep="branch: $branch"
+  fi
+
   cat <<EOD >"$template_file"
   istio:
     git: git@github.com:istio-private/istio.git
-    branch: $branch
+    $istio_dep
   cni:
     git: git@github.com:istio-private/cni.git
     auto: deps
@@ -172,6 +188,16 @@ template_configmap() {
 EOD
 }
 
+handle_dry_run() {
+  cat <<EOD
+
+Create configmap: "$cm_name" in namespace: "$namespace" of context: "$context" with template:
+
+$(cat "$template_file")
+
+EOD
+}
+
 handle_namespace() {
   if ! kubectl --context "$context" get namespaces "$namespace" &>/dev/null; then
     kubectl --context "$context" create namespace "$namespace"
@@ -196,11 +222,34 @@ create_configmap() {
   kubectl --context "$context" create configmap --namespace "$namespace" "$cm_name" --from-file="$cm_key=$template_file"
 }
 
+print_usage_example() {
+  cat <<EOD
+
+To expose this configuration as an environment variable, add the following env declaration to your spec:
+
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: $cm_name
+        key: $cm_key
+
+EOD
+}
+
 main() {
   get_options "$@"
 
-  handle_namespace
-  handle_confimap
+  template_configmap
+
+  if [ -n "$dry_run" ]; then
+    handle_dry_run
+  else
+    handle_namespace
+    handle_confimap
+  fi
+
+  print_usage_example
 }
 
 main "$@"
