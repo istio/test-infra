@@ -528,62 +528,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-114_istio_postsubmit
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - --node-image
-        - kindest/node:v1.14.10
-        - test.integration.kube.presubmit
-        env:
-        - name: INTEGRATION_TEST_FLAGS
-          value: ' --istio.test.retries=1 '
-        - name: TEST_SELECT
-          value: -multicluster
-        image: gcr.io/istio-testing/build-tools:master-2020-03-24T16-16-03
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
     name: integ-k8s-115_istio_postsubmit
     path_alias: istio.io/istio
     spec:
@@ -696,16 +640,15 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-118_istio_postsubmit
+    name: integ-k8s-117_istio_postsubmit
     path_alias: istio.io/istio
-    skip_report: true
     spec:
       containers:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - gcr.io/istio-testing/kind-node:v1.18.0-rc.1
+        - kindest/node:v1.17.2
         - test.integration.kube.presubmit
         env:
         - name: INTEGRATION_TEST_FLAGS
