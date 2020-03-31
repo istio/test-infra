@@ -123,7 +123,7 @@ def main():
         "\n!!    ARE YOU SURE YOU WANT TO DO THIS? IF SO, ENTER 'YES'.    !! "
     ) + '\n' + '!' * 65 + '\n\n: '
     if args.wet:
-        if raw_input(prompt) != "YES":
+        if input(prompt) != "YES":
             print("you did not enter 'YES'")
             sys.exit(-1)
 
