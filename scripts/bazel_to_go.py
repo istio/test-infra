@@ -23,6 +23,7 @@
 # It does so by making symlinks from WORKSPACE/vendor to the bazel
 # sandbox dirs
 #
+from __future__ import print_function
 import glob
 import os
 
@@ -124,19 +125,19 @@ def makelink(target, linksrc):
         os.makedirs(os.path.dirname(linksrc))
     except Exception as e1:
         if 'File exists:' not in str(e1):
-            print type(e1), e1
+            print(type(e1), e1)
     try:
         os.remove(linksrc)
     except Exception as e1:
         if 'Is a directory' in str(e1):
             return
         if 'No such file or directory' not in str(e1):
-            print type(e1), e1
+            print(type(e1), e1)
     if not os.path.exists(target):
-        print target, "Does not exist"
+        print(target, "Does not exist")
         return
     os.symlink(target, linksrc)
-    print "Linked ", linksrc, '-->', target
+    print("Linked ", linksrc, '-->', target)
 
 
 def bazel_to_vendor(WKSPC):
@@ -144,8 +145,8 @@ def bazel_to_vendor(WKSPC):
     workspace = os.path.join(WKSPC, "WORKSPACE")
 
     if not os.path.isfile(workspace):
-        print "WORKSPACE file not found in " + WKSPC
-        print "prog BAZEL_WORKSPACE_DIR"
+        print("WORKSPACE file not found in " + WKSPC)
+        print("prog BAZEL_WORKSPACE_DIR")
         return -1
 
     vendor = os.path.join(WKSPC, "vendor")
@@ -162,7 +163,7 @@ def bazel_to_vendor(WKSPC):
 
     for (target, linksrc) in links.items():
         makelink(target, linksrc)
-        print "Vendored", linksrc, '-->', target
+        print("Vendored", linksrc, '-->', target)
         bysrc[linksrc] = target
 
     # check other directories in external
@@ -186,7 +187,7 @@ def bazel_to_vendor(WKSPC):
             continue
 
         makelink(target, linksrc)
-        print "Vendored", linksrc, '-->', target
+        print("Vendored", linksrc, '-->', target)
 
     protos(WKSPC)
 
