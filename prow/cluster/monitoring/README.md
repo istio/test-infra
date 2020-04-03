@@ -77,7 +77,7 @@ Developing a new dashboard can be achieved by
 
 ## Access components' Web page
 
-* For `grafana`, visit [monitoring.prow.k8s.io](https://monitoring.prow.k8s.io). Anonymous users are with read-only mode.
+* For `grafana`, visit [monitoring.prow.istio.io](https://monitoring.prow.istio.io). Anonymous users are with read-only mode.
 Use `adm` and [password](https://github.com/kubernetes/test-infra/blob/master/prow/cluster/monitoring/grafana_deployment.yaml#L39-L45) to become admin.
 
 * For `prometheus` and `alertmanager`, there is no public domain configured based on the security
