@@ -67,63 +67,17 @@ postsubmits:
       org: istio
       path_alias: istio.io/test-infra
       repo: test-infra
-    name: gen_client-go_api_postsubmit
+    name: update_api_dep_api_postsubmit
     path_alias: istio.io/api
     spec:
       containers:
       - command:
         - ../test-infra/tools/automator/automator.sh
         - --org=istio
-        - --repo=client-go
+        - --repo=istio,client-go
         - '--title=Automator: update istio/api@$AUTOMATOR_BRANCH dependency in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
         - --labels=auto-merge
-        - --modifier=client-go_update_api
-        - --token-path=/etc/github-token/oauth
-        - --cmd=go get istio.io/api@$AUTOMATOR_SHA && go mod tidy && make gen
-        image: gcr.io/istio-testing/build-tools:master-2020-03-24T16-16-03
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: 500m
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /etc/github-token
-          name: github
-          readOnly: true
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_api_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
-    extra_refs:
-    - base_ref: master
-      org: istio
-      path_alias: istio.io/test-infra
-      repo: test-infra
-    name: gen_istio_api_postsubmit
-    path_alias: istio.io/api
-    spec:
-      containers:
-      - command:
-        - ../test-infra/tools/automator/automator.sh
-        - --org=istio
-        - --repo=istio
-        - '--title=Automator: update istio/api@$AUTOMATOR_BRANCH dependency in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
-        - --labels=auto-merge
-        - --modifier=istio_update_api
+        - --modifier=update_api_dep
         - --token-path=/etc/github-token/oauth
         - --cmd=go get istio.io/api@$AUTOMATOR_SHA && go mod tidy && make gen
         image: gcr.io/istio-testing/build-tools:master-2020-03-24T16-16-03
