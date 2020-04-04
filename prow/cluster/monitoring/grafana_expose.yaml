@@ -1,0 +1,38 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: grafana
+  name: grafana
+  namespace: prow-monitoring
+spec:
+  type: NodePort
+  sessionAffinity: ClientIP
+  ports:
+  - name: http
+    port: 3001
+    targetPort: http
+  - name: nginx
+    port: 80
+    targetPort: nginx
+  selector:
+    app: grafana
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: prow-monitoring-grafana
+    kubernetes.io/ingress.class: "gce"
+    networking.gke.io/managed-certificates: monitoring-prow-k8s-io
+  name: grafana
+  namespace: prow-monitoring
+spec:
+  rules:
+    - host: monitoring.prow.istio.io
+      http:
+        paths:
+          - backend:
+              serviceName: grafana
+              servicePort: 80
