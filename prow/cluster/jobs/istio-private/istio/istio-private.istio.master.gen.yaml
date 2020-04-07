@@ -1254,6 +1254,66 @@ presubmits:
       preset-enable-ssh: "true"
       preset-override-deps: release-1.4-istio
       preset-override-envoy: "true"
+    name: integ-operator-controller-tests_istio_priv
+    optional: true
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.operator.kube.presubmit
+        env:
+        - name: HUB
+          value: gcr.io/istio-testing
+        - name: TAG
+          value: 1.6-dev
+        - name: TEST_SELECT
+          value: -postsubmit,-flaky,-multicluster
+        image: gcr.io/istio-testing/build-tools:master-2020-04-01T21-36-34
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-ssh: "true"
+      preset-override-deps: release-1.4-istio
+      preset-override-envoy: "true"
     name: integ-local-tests_istio_priv
     path_alias: istio.io/istio
     spec:

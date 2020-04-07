@@ -108,6 +108,19 @@ jobs:
       - name: TEST_SELECT
         value: "-postsubmit,-flaky,-multicluster"
 
+  - name: integ-operator-controller-tests
+    type: presubmit
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.operator.kube.presubmit]
+    requirements: [kind]
+    modifiers: [optional]
+    env:
+      - name: HUB
+        value: "gcr.io/istio-testing"
+      - name: TAG
+        value: "1.6-dev"
+      - name: TEST_SELECT
+        value: "-postsubmit,-flaky,-multicluster"
+
   - name: integ-local-tests
     command: [entrypoint, prow/integ-suite-local.sh, test.integration...local]
     requirements: [docker]
