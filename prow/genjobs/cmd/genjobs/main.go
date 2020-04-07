@@ -83,6 +83,8 @@ type transform struct {
 	Presets          []string          `json:"presets,omitempty"`
 	RerunOrgs        []string          `json:"rerun-orgs,omitempty"`
 	RerunUsers       []string          `json:"rerun-users,omitempty"`
+	EnvBlacklist     []string          `json:"env-blacklist,omitempty"`
+	VolumeBlacklist  []string          `json:"volume-blacklist,omitempty"`
 	JobWhitelist     []string          `json:"job-whitelist,omitempty"`
 	JobBlacklist     []string          `json:"job-blacklist,omitempty"`
 	RepoWhitelist    []string          `json:"repo-whitelist,omitempty"`
@@ -103,13 +105,15 @@ type transform struct {
 
 // options are the available command-line flags.
 type options struct {
-	Configs          []string
-	Global           string
-	JobWhitelistSet  sets.String
-	JobBlacklistSet  sets.String
-	RepoWhitelistSet sets.String
-	RepoBlacklistSet sets.String
-	JobTypeSet       sets.String
+	Configs            []string
+	Global             string
+	EnvBlacklistSet    sets.String
+	VolumeBlacklistSet sets.String
+	JobWhitelistSet    sets.String
+	JobBlacklistSet    sets.String
+	RepoWhitelistSet   sets.String
+	RepoBlacklistSet   sets.String
+	JobTypeSet         sets.String
 	transform
 }
 
@@ -135,6 +139,8 @@ func (o *options) parseOpts() {
 	flag.StringToStringVarP(&o.Env, "env", "e", map[string]string{}, "Environment variables to set for the job(s).")
 	flag.StringToStringVarP(&o.OrgMap, "mapping", "m", map[string]string{}, "Mapping between public and private Github organization(s).")
 	flag.StringToStringVarP(&o.Annotations, "annotations", "a", map[string]string{}, "Annotations to apply to the job(s)")
+	flag.StringSliceVar(&o.EnvBlacklist, "env-blacklist", []string{}, "Env(s) to blacklist in generation process.")
+	flag.StringSliceVar(&o.VolumeBlacklist, "volume-blacklist", []string{}, "Volume(s) to blacklist in generation process.")
 	flag.StringSliceVar(&o.JobWhitelist, "job-whitelist", []string{}, "Job(s) to whitelist in generation process.")
 	flag.StringSliceVar(&o.JobBlacklist, "job-blacklist", []string{}, "Job(s) to blacklist in generation process.")
 	flag.StringSliceVarP(&o.RepoWhitelist, "repo-whitelist", "w", []string{}, "Repositories to whitelist in generation process.")
@@ -150,6 +156,8 @@ func (o *options) parseOpts() {
 
 	flag.Parse()
 
+	o.EnvBlacklistSet = sets.NewString(o.EnvBlacklist...)
+	o.VolumeBlacklistSet = sets.NewString(o.VolumeBlacklist...)
 	o.JobWhitelistSet = sets.NewString(o.JobWhitelist...)
 	o.JobBlacklistSet = sets.NewString(o.JobBlacklist...)
 	o.RepoWhitelistSet = sets.NewString(o.RepoWhitelist...)
@@ -202,12 +210,14 @@ func (o *options) parseConfiguration() []options {
 				applyDefaultTransforms(&t, &c.Defaults, &local.Defaults, &global.Defaults)
 
 				oc := options{
-					JobWhitelistSet:  sets.NewString(t.JobWhitelist...),
-					JobBlacklistSet:  sets.NewString(t.JobBlacklist...),
-					RepoWhitelistSet: sets.NewString(t.RepoWhitelist...),
-					RepoBlacklistSet: sets.NewString(t.RepoBlacklist...),
-					JobTypeSet:       sets.NewString(t.JobType...),
-					transform:        t,
+					EnvBlacklistSet:    sets.NewString(t.EnvBlacklist...),
+					VolumeBlacklistSet: sets.NewString(t.VolumeBlacklist...),
+					JobWhitelistSet:    sets.NewString(t.JobWhitelist...),
+					JobBlacklistSet:    sets.NewString(t.JobBlacklist...),
+					RepoWhitelistSet:   sets.NewString(t.RepoWhitelist...),
+					RepoBlacklistSet:   sets.NewString(t.RepoBlacklist...),
+					JobTypeSet:         sets.NewString(t.JobType...),
+					transform:          t,
 				}
 
 				if err := oc.validateOpts(); err != nil {
@@ -324,6 +334,12 @@ func applyDefaultTransforms(dst *transform, srcs ...*transform) {
 		}
 		if len(dst.RerunUsers) == 0 {
 			dst.RerunUsers = src.RerunUsers
+		}
+		if len(dst.EnvBlacklist) == 0 {
+			dst.EnvBlacklist = src.EnvBlacklist
+		}
+		if len(dst.VolumeBlacklist) == 0 {
+			dst.VolumeBlacklist = src.VolumeBlacklist
 		}
 		if len(dst.JobWhitelist) == 0 {
 			dst.JobWhitelist = src.JobWhitelist
@@ -522,6 +538,58 @@ func resolvePresets(o options, labels map[string]string, job *config.JobBase, pr
 		for _, preset := range presets {
 			mergePreset(labels, job, preset)
 		}
+	}
+}
+
+// pruneJobBase prunes blacklisted fields from the job Spec.
+func pruneJobBase(o options, job *config.JobBase) {
+	if job.Spec != nil {
+		if len(o.VolumeBlacklistSet) > 0 {
+			pruneVolumes(o.VolumeBlacklistSet, job)
+		}
+		if len(o.EnvBlacklistSet) > 0 {
+			pruneEnvs(o.EnvBlacklistSet, job)
+		}
+	}
+}
+
+// pruneEnvs prunes blacklisted Env fields.
+func pruneEnvs(blacklist sets.String, job *config.JobBase) {
+	for i := range job.Spec.Containers {
+		var envs []v1.EnvVar
+
+		for _, env := range job.Spec.Containers[i].Env {
+			if blacklist.Has(env.Name) {
+				continue
+			}
+			envs = append(envs, env)
+		}
+		job.Spec.Containers[i].Env = envs
+	}
+}
+
+// pruneVolumes prunes blacklisted Volume and VolueMount fields.
+func pruneVolumes(blacklist sets.String, job *config.JobBase) {
+	var volumes []v1.Volume
+
+	for _, vol := range job.Spec.Volumes {
+		if blacklist.Has(vol.Name) {
+			continue
+		}
+		volumes = append(volumes, vol)
+	}
+	job.Spec.Volumes = volumes
+
+	for i := range job.Spec.Containers {
+		var volumeMounts []v1.VolumeMount
+
+		for _, volm := range job.Spec.Containers[i].VolumeMounts {
+			if blacklist.Has(volm.Name) {
+				continue
+			}
+			volumeMounts = append(volumeMounts, volm)
+		}
+		job.Spec.Containers[i].VolumeMounts = volumeMounts
 	}
 }
 
@@ -957,6 +1025,7 @@ func generateJobs(o options) {
 				updateBrancher(o, &job.Brancher)
 				updateUtilityConfig(o, &job.UtilityConfig)
 				resolvePresets(o, job.Labels, &job.JobBase, append(presets, jobs.Presets...))
+				pruneJobBase(o, &job.JobBase)
 
 				presubmit[orgrepo] = append(presubmit[orgrepo], job)
 			}
@@ -980,6 +1049,7 @@ func generateJobs(o options) {
 				updateBrancher(o, &job.Brancher)
 				updateUtilityConfig(o, &job.UtilityConfig)
 				resolvePresets(o, job.Labels, &job.JobBase, append(presets, jobs.Presets...))
+				pruneJobBase(o, &job.JobBase)
 
 				postsubmit[orgrepo] = append(postsubmit[orgrepo], job)
 			}
@@ -1005,6 +1075,7 @@ func generateJobs(o options) {
 			updateJobBase(o, &job.JobBase, "")
 			updateUtilityConfig(o, &job.UtilityConfig)
 			resolvePresets(o, job.Labels, &job.JobBase, append(presets, jobs.Presets...))
+			pruneJobBase(o, &job.JobBase)
 
 			periodic = append(periodic, job)
 		}
