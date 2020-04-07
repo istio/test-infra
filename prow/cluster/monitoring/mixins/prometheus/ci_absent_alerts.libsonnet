@@ -14,7 +14,7 @@
               severity: 'slack',
             },
             annotations: {
-              message: '@test-infra-oncall The service %s has been down for 5 minutes.' % name,
+              message: 'The service %s has been down for 5 minutes.' % name,
             },
           }
           for name in ['deck', 'ghproxy', 'hook', 'plank', 'sinker', 'tide']
