@@ -630,11 +630,6 @@ func applyRequirements(job *config.JobBase, requirements []string) {
 					Name:      "build-cache-pvc",
 					SubPath:   "gomod",
 				},
-				v1.VolumeMount{
-					MountPath: "/gocache",
-					Name:      "build-cache-pvc",
-					SubPath:   "gocache",
-				},
 			)
 		case RequirementGitHub:
 			job.Spec.Volumes = append(job.Spec.Volumes,
