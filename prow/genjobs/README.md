@@ -55,6 +55,7 @@ The following is a list of supported options for `genjobs`. The only **required*
       --configs strings              Path to files or directories containing yaml job transforms.
       --dry-run                      Run in dry run mode.
   -e, --env stringToString           Environment variables to set for the job(s). (default [])
+      --env-blacklist strings        Env(s) to blacklist in generation process.
       --global string                Path to file containing global defaults configuration.
   -i, --input string                 Input file or directory containing job(s) to convert. (default ".")
       --job-blacklist strings        Job(s) to blacklist in generation process.
@@ -77,6 +78,7 @@ The following is a list of supported options for `genjobs`. The only **required*
       --ssh-clone                    Enable a clone of the git repository over ssh.
       --ssh-key-secret string        GKE cluster secrets containing the Github ssh private key.
       --verbose                      Enable verbose output.
+      --volume-blacklist strings     Volume(s) to blacklist in generation process.
 ```
 
 ## Example
@@ -159,3 +161,4 @@ genjobs --mapping istio=istio-private --clean
 - 0.0.4: add `defaults` key for specifying _file-level_ defaults, support a `.defaults.yaml` file for _local_ defaults, and add `--global` option for _global_ defaults.
 - 0.0.5: rename `--extra-refs` option to `--refs` and designate `extra-refs` key for specifying a list of extra refs to append to job.
 - 0.0.6: `--extra-refs` will now replace existing refs, rather than adding to them.
+- 0.0.7: add `--env-blacklist` and `volume-blacklist` options for pruning env and volume/volumeMount objects, respectively, from generated jobs.

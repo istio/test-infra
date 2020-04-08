@@ -69,16 +69,8 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache-pvc
-          subPath: gomod
       nodeSelector:
         testing: test-pool
-      volumes:
-      - name: build-cache-pvc
-        persistentVolumeClaim:
-          claimName: build-cache-claim
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -772,16 +764,8 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache-pvc
-          subPath: gomod
       nodeSelector:
         testing: test-pool
-      volumes:
-      - name: build-cache-pvc
-        persistentVolumeClaim:
-          claimName: build-cache-claim
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"

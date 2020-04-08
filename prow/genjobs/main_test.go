@@ -126,6 +126,16 @@ func TestGenjobs(t *testing.T) {
 			equal: true,
 		},
 		{
+			name:  "env blacklist",
+			args:  []string{"--mapping=istio=istio-private", "--env-blacklist=bad-env"},
+			equal: true,
+		},
+		{
+			name:  "volume blacklist",
+			args:  []string{"--mapping=istio=istio-private", "--volume-blacklist=bad-volume"},
+			equal: true,
+		},
+		{
 			name:    "config file",
 			configs: true,
 			equal:   true,
