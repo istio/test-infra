@@ -28,7 +28,7 @@ grafana-dashboards:
 prow_prometheusrule.yaml:
 	@mkdir -p prometheus_out
 	@echo "Generating prow_prometheusrule.yaml ..."
-	jsonnet ./prometheus/prow_prometheusrule.jsonnet | gojsontoyaml > prometheus_out/$@
+	jsonnet ./prometheus/prow_prometheusrule.jsonnet | yq r -P - > prometheus_out/$@
 
 apply-configmaps: grafana-dashboards
 	@for input in $(shell ls dashboards_out); do \
