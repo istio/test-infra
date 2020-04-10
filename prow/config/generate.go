@@ -35,9 +35,9 @@ import (
 
 func exit(err error, context string) {
 	if context == "" {
-		_, _ = fmt.Fprint(os.Stderr, fmt.Sprintf("%v\n", err))
+		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
 	} else {
-		_, _ = fmt.Fprint(os.Stderr, fmt.Sprintf("%v: %v\n", context, err))
+		_, _ = fmt.Fprintf(os.Stderr, "%v: %v\n", context, err)
 	}
 	os.Exit(1)
 }
