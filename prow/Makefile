@@ -37,6 +37,11 @@ deploy-gcsweb: get-cluster-credentials get-api-resources
 deploy-velodrome: get-cluster-credentials get-api-resources
 	kubectl apply -f ./cluster/velodrome/ --prune -l app.kubernetes.io/part-of=velodrome -n velodrome $(PRUNE_WL)
 
+# TODO(clarketm): enable pruning
+deploy-monitoring: get-cluster-credentials
+	$(MAKE) -C cluster/monitoring/mixins clean install apply
+	kubectl apply -f ./cluster/monitoring/ -n prow-monitoring --dry-run
+
 get-build-cluster-credentials: PROJECT=$(PROJECT_BUILD)
 get-build-cluster-credentials: CLUSTER=$(CLUSTER_BUILD)
 

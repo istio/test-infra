@@ -33,7 +33,7 @@ jobs:
 
   - name: deploy-prow
     type: postsubmit
-    regex: '^prow/cluster/(?:gcsweb/|build/|private/|[^/]+\.yaml$)'
+    regex: '^prow/cluster/(?:gcsweb/|velodrome/|monitoring/|build/|private/|[^/]+\.yaml$)'
     cluster: test-infra-trusted
     max_concurrency: 1
     command:
@@ -43,11 +43,12 @@ jobs:
     - deploy
     - deploy-gcsweb
     - deploy-velodrome
+    - deploy-monitoring
     - deploy-build
     - deploy-private
     requirements: [deploy]
     node_selector:
-      prod: prow
+        prod: prow
 
   - name: deploy-boskos
     type: postsubmit
