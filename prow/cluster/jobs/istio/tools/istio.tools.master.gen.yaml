@@ -299,6 +299,39 @@ presubmits:
     decorate: true
     labels:
       preset-service-account: "true"
+    name: benchmark_check_tools
+    optional: true
+    path_alias: istio.io/tools
+    run_if_changed: ^perf/benchmark/
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - ./perf/benchmark/run_benchmark_job.sh
+        env:
+        - name: TRIALRUN
+          value: "True"
+        image: gcr.io/istio-testing/build-tools:master-2020-04-09T21-48-25
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - always_run: false
+    annotations:
+      testgrid-dashboards: istio_tools
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
     name: containers-test_tools
     path_alias: istio.io/tools
     run_if_changed: docker/.+|cmd/.+
