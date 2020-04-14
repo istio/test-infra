@@ -16,7 +16,6 @@
 # limitations under the License.
 
 set -euo pipefail
-shopt -s globstar
 
 ROOT="$(cd -P "$(dirname -- "$0")" && pwd -P)"
 

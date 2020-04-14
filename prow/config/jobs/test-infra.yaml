@@ -136,3 +136,24 @@ jobs:
     requirements: [docker, gcp]
     node_selector:
       prod: prow
+
+  - name: bump-k8s-prow-images
+    type: periodic
+    cron: "05 15-23 * * 1-5"  # Run at 7:05-15:05 PST (15:05 UTC) Mon-Fri
+    command:
+    - ./tools/automator/automator.sh
+    - --org=istio
+    - --repo=test-infra
+    - "--title=Automator: bump k8s-prow images"
+    - --modifier=bump-k8s-prow-images
+    - --token-path=/etc/github-token/oauth
+    - --script-path=../test-infra/tools/automator/scripts/update-images.sh
+    - --verbose
+    - --
+    - --paths=prow/cluster/jobs/**/!(*test-infra*).yaml,prow/config/jobs/**/!(*test-infra*).yaml
+    - --source=$AUTOMATOR_ROOT_DIR/prow/cluster/plank_deployment.yaml
+    - --image=gcr.io/k8s-prow/.*
+    - --tag=v[0-9]{8}-[a-f0-9]{9}
+    - --var=image
+    requirements: [github]
+    repos: [istio/test-infra]
