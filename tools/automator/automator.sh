@@ -23,7 +23,7 @@ ROOT="$(cd -P "$(dirname -- "$0")" && pwd -P)"
 source "$ROOT/utils.sh"
 
 cleanup() {
-  rm -rf "${tmp_dir:-}" "${tmp_token:-}" "${tmp_script:-}" "${tmp_git:-}"
+  rm -rf "${tmp_dir:-}" "${tmp_token:-}" "${tmp_script:-}"
 }
 
 get_opts() {
@@ -185,16 +185,20 @@ validate_opts() {
   fi
 }
 
-evaluate_opts() {
-  AUTOMATOR_ORG="$org" AUTOMATOR_REPO="$repo" AUTOMATOR_BRANCH="$src_branch" AUTOMATOR_SHA="$sha" AUTOMATOR_SHA_SHORT="$sha_short" AUTOMATOR_MODIFIER="$modifier"
-
+resolve() {
   title="$(evaluate_tmpl "$title_tmpl")"
   match_title="$(evaluate_tmpl "$match_title_tmpl")"
   body="$(evaluate_tmpl "$body_tmpl")"
+
+  fork_name="$src_branch-$branch-$modifier-$(hash "$title")"
+}
+
+setup_env() {
+  AUTOMATOR_ORG="$org" AUTOMATOR_REPO="$repo" AUTOMATOR_BRANCH="$src_branch" AUTOMATOR_SHA="$sha" AUTOMATOR_SHA_SHORT="$sha_short" AUTOMATOR_MODIFIER="$modifier"
 }
 
 export_globals() {
-  export AUTOMATOR_ORG AUTOMATOR_REPO AUTOMATOR_BRANCH AUTOMATOR_SHA AUTOMATOR_SHA_SHORT AUTOMATOR_MODIFIER AUTOMATOR_ROOT_DIR AUTOMATOR_REPO_DIR
+  export AUTOMATOR_ORG AUTOMATOR_REPO AUTOMATOR_BRANCH AUTOMATOR_SHA AUTOMATOR_SHA_SHORT AUTOMATOR_MODIFIER AUTOMATOR_ROOT_DIR AUTOMATOR_REPO_DIR AUTOMATOR_ENV
 }
 
 create_pr() {
@@ -227,7 +231,7 @@ commit() {
 work() { (
   set -e
 
-  evaluate_opts
+  setup_env
 
   curl -XPOST -sSfLH "Authorization: token $token" "https://api.github.com/repos/$org/$repo/forks" >/dev/null
 
@@ -242,7 +246,8 @@ work() { (
   git add --all
 
   if ! git diff --cached --quiet --exit-code; then
-    fork_name="$src_branch-$branch-$modifier-$(hash "$title")"
+    read_env
+    resolve
     commit
   elif $strict; then
     print_error "no diff for $repo" 1
@@ -260,6 +265,7 @@ main() {
   validate_opts
   export_globals
 
+  AUTOMATOR_ENV=$(mktemp -t env-XXXXXXXXXX)
   AUTOMATOR_ROOT_DIR="$(pwd)"
 
   pushd "$tmp_dir" || print_error_and_exit "invalid dir: $tmp_dir"

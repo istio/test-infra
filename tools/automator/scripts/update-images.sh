@@ -82,6 +82,11 @@ get_opts() {
   done
 }
 
+setup_env() {
+  export AUTOMATOR_NEW_TAG="$resolved_tag"
+  write_env
+}
+
 resolve() {
   image="$(evaluate_tmpl "$image")"
   tag="$(evaluate_tmpl "$tag")"
@@ -100,6 +105,7 @@ work() {
 main() {
   get_opts "$@"
   resolve
+  setup_env
   ${pre:-}
   work
   ${post:-}

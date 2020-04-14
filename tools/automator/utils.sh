@@ -46,6 +46,20 @@ evaluate_tmpl() {
   bash -c "eval echo \"$1\""
 }
 
+print_env() {
+  env | grep -oP "^AUTOMATOR_.*$" | sort
+}
+
+write_env() {
+  print_env >"$AUTOMATOR_ENV"
+}
+
+read_env() {
+  set -o allexport
+  # shellcheck disable=SC1090
+  source "$AUTOMATOR_ENV"
+}
+
 hash() {
   local val="$1"
   echo -n "$val" | md5sum | cut -c1-8
