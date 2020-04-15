@@ -40,7 +40,7 @@ deploy-velodrome: get-cluster-credentials get-api-resources
 # TODO(clarketm): enable pruning
 deploy-monitoring: get-cluster-credentials
 	$(MAKE) -C cluster/monitoring/mixins clean install apply
-	kubectl apply -f ./cluster/monitoring/ -n prow-monitoring --dry-run
+	kubectl apply -f ./cluster/monitoring/ -n prow-monitoring
 
 get-build-cluster-credentials: PROJECT=$(PROJECT_BUILD)
 get-build-cluster-credentials: CLUSTER=$(CLUSTER_BUILD)
