@@ -17,19 +17,33 @@
 
 SHELL=/bin/bash -o pipefail
 
-all: grafana-dashboards prow_prometheusrule.yaml
-
 grafana-dashboards:
-	for name in deck ghproxy hook plank prow sinker tide; do echo "Generating $${name}.json ..."; jsonnet -J vendor/ "grafana_dashboards/$${name}.jsonnet" > "./dashboards_out/$${name}.json"; done
+	@mkdir -p dashboards_out
+	@for input in $(shell ls grafana_dashboards); do \
+		output="$${input%.*}.json"; \
+		echo "Generating $${output} from $${input} ..."; \
+		jsonnet -J vendor/ "grafana_dashboards/$${input}" > "./dashboards_out/$${output}"; \
+	done
 
 prow_prometheusrule.yaml:
+	@mkdir -p prometheus_out
 	@echo "Generating prow_prometheusrule.yaml ..."
-	jsonnet  ./prometheus/prow_prometheusrule.jsonnet | gojsontoyaml > prometheus_out/$@
+	jsonnet ./prometheus/prow_prometheusrule.jsonnet | yq r -P - > prometheus_out/$@
 
-clean-vendor:
-	rm -rfv ./vendor
+apply-configmaps: grafana-dashboards
+	@for input in $(shell ls dashboards_out); do \
+		dashboard_name="grafana-dashboard-$${input%.*}"; \
+		echo "Generating dashboard $${dashboard_name} from $${input} ..."; \
+		kubectl create configmap -n prow-monitoring "$${dashboard_name}" --from-file="$${input}=dashboards_out/$${input}" --dry-run=client -o yaml | kubectl apply -f -; \
+	done
+
+apply-prow-prometheusrule: prow_prometheusrule.yaml
+	kubectl apply -f prometheus_out/
+
+apply: apply-configmaps apply-prow-prometheusrule
 
 clean:
+	rm -rfv ./vendor
 	rm -rfv ./dashboards_out/*.json
 	rm -rfv ./prometheus_out/*.json
 	rm -rfv ./prometheus_out/*.yaml

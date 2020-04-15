@@ -4,14 +4,29 @@ This folder contains the manifest files for monitoring prow resources.
 
 ## Deploy
 
-The deployment has been integrated into our CI system, except `secret` objects.
-Cluster admins need to create `secret`s  manually.
+The deployment has been integrated into our CI system, except `secret` and `CRD` objects.
+Cluster admins need to create `secrets` and `CRDs`  manually.
+
+Create `secrets`
 
 ```bash
-### replace the sensitive inforamtion in the files before executing:
-kubectl create -f grafana_secret.yaml
+# Replace `PASSWORD` with the Grafana password.
+kubectl create -f templates/grafana_secret.yaml
 
-kubectl create -f alertmanager-prow_secret.yaml
+# Replace `API_URL` with the Slack api url.
+kubectl create -f templates/alertmanager-prow_secret.yaml
+```
+
+Create `CRDs`
+
+```console
+REPO=https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.37/example/prometheus-operator-crd
+kubectl apply -f $REPO/monitoring.coreos.com_alertmanagers.yaml
+kubectl apply -f $REPO/monitoring.coreos.com_podmonitors.yaml
+kubectl apply -f $REPO/monitoring.coreos.com_prometheuses.yaml
+kubectl apply -f $REPO/monitoring.coreos.com_prometheusrules.yaml
+kubectl apply -f $REPO/monitoring.coreos.com_servicemonitors.yaml
+kubectl apply -f $REPO/monitoring.coreos.com_thanosrulers.yaml
 ```
 
 A successful deploy will spawn a stack of monitoring for prow in namespace `prow-monitoring`: _prometheus_, _alertmanager_, and _grafana_.
@@ -57,22 +72,10 @@ We use [jsonnet](https://jsonnet.org) to generate the json files for grafana das
 Developing a new dashboard can be achieved by
 
 * Create a new file `<dashhoard_name>.jsonnet` in folder [grafana_dashboards](grafana_dashboards).
-* Add `bazel` target to [grafana_dashboards/BUILD.bazel](grafana_dashboards/BUILD.bazel) for generating the corresponding json file `<dashhoard_name>.json`.
 
-    ```bash
-    ### if you want to take a look at some json file, eg, hook.json
-    bazel build //prow/cluster/monitoring/mixins/grafana_dashboards:hook
-    cat bazel-bin/prow/cluster/monitoring/mixins/grafana_dashboards/hook.json
-    ```
+* Add the configMap volume and mount to [grafana_deployment.yaml](grafana_deployment.yaml).
 
-* Add `bazel` target to [dashboards_out/BUILD.bazel](grafana_dashboards/BUILD.bazel) for generating the configMap with the json file above.
-
-    ```bash
-    ### if you want to apply the configMaps
-    bazel run //prow/cluster/monitoring/mixins/dashboards_out:grafana-configmaps.apply
-    ```
-
-* Use the configMap above in [grafana_deployment.yaml](grafana_deployment.yaml).
+* The corresponding dashboard json and configMaps are applied automatically on deployment.
 
 ## Access components' Web page
 
@@ -85,11 +88,11 @@ Cluster admins can use [k8s port-forward](https://kubernetes.io/docs/tasks/acces
 access the web.
 
     ```bash
-    kubectl -n prow-monitoring port-forward $( kubectl -n prow-monitoring get pods --selector app=prometheus -o jsonpath={.items[0].metadata.name} ) 9000
+    kubectl -n prow-monitoring port-forward $( kubectl -n prow-monitoring get pods --selector app=prometheus -o jsonpath='{.items[0].metadata.name}' ) 9090
 
-    kubectl -n prow-monitoring port-forward $( kubectl -n prow-monitoring get pods --selector app=alertmanager -o jsonpath={.items[0].metadata.name} ) 9093
+    kubectl -n prow-monitoring port-forward $( kubectl -n prow-monitoring get pods --selector app=alertmanager -o jsonpath='{.items[0].metadata.name}' ) 9093
     ```
 
-    Then, visit [127.0.0.1:9000](http://127.0.0.1:9000) for the `prometheus` pod and [127.0.0.1:9093](http://127.0.0.1:9093) for the `alertmanager` pod.
+    Then, visit [127.0.0.1:9090](http://127.0.0.1:9090) for the `prometheus` pod and [127.0.0.1:9093](http://127.0.0.1:9093) for the `alertmanager` pod.
 
     As a result of no public domain for those two components, some of the links on the UI do not work, eg, the links on the slack alerts.
