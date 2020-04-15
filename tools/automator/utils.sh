@@ -15,7 +15,9 @@
 # limitations under the License.
 
 set -euo pipefail
-shopt -s globstar nullglob dotglob extglob
+shopt -s globstar dotglob extglob
+
+export BASHOPTS
 
 print_error() {
   local last_return="$?"
