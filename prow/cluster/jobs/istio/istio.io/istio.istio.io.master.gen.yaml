@@ -80,6 +80,33 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
+    name: gencheck_istio.io_postsubmit
+    path_alias: istio.io/istio.io
+    spec:
+      containers:
+      - command:
+        - make
+        - gen-check
+        image: gcr.io/istio-testing/build-tools:master-2020-04-10T20-55-56
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_istio.io_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
     labels:
       preset-service-account: "true"
     name: k8s-tests_istio.io_postsubmit
@@ -138,6 +165,32 @@ presubmits:
       - command:
         - make
         - lint
+        image: gcr.io/istio-testing/build-tools:master-2020-04-10T20-55-56
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio.io
+    branches:
+    - ^master$
+    decorate: true
+    name: gencheck_istio.io
+    path_alias: istio.io/istio.io
+    spec:
+      containers:
+      - command:
+        - make
+        - gen-check
         image: gcr.io/istio-testing/build-tools:master-2020-04-10T20-55-56
         name: ""
         resources:
