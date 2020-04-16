@@ -58,6 +58,8 @@ periodics:
         command:
           - entrypoint
           - perf/benchmark/run_benchmark_job.sh
+    nodeSelector:
+      testing: test-pool
 
 - cron: "0 8 * * *" # starts every day at 08:00AM UTC
   name: daily-performance-benchmark-release-1.5
@@ -86,6 +88,8 @@ periodics:
         command:
           - entrypoint
           - perf/benchmark/run_benchmark_job.sh
+    nodeSelector:
+      testing: test-pool
 
 # upgrade using istioctl from 1.4 latest to 1.5 latest
 - cron: "0 4 * * *"  # starts every day at 04:00AM UTC
@@ -116,6 +120,8 @@ periodics:
         command:
           - entrypoint
           - upgrade/run_upgrade_test.sh
+    nodeSelector:
+      testing: test-pool
 
 # upgrade using istioctl from 1.5 latest to master
 - cron: "0 8 * * *"  # starts every day at 08:00AM UTC
@@ -146,3 +152,5 @@ periodics:
         command:
           - entrypoint
           - upgrade/run_upgrade_test.sh
+    nodeSelector:
+      testing: test-pool
