@@ -14,14 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This script deletes and recreates the prow configmaps
-# USE AT YOUR OWN RISK! This is a break-glass tool.
-# See September 25th, 2018 in docs/post-mortems.md
-
 #
 # USAGE: have KUBECONFIG pointed at your prow cluster then from test-infra root:
 #
-# hack/recreate_prow_configmaps.py [--wet]
+# prow/recreate_prow_configmaps.py [--wet]
 #
 
 from __future__ import print_function
