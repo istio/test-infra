@@ -110,7 +110,7 @@ def main():
 
     # debug the current context
     out = subprocess.check_output(['kubectl', 'config', 'current-context'])
-    print('Current KUBECONFIG context: ' + out)
+    print('Current KUBECONFIG context: ' + out.decode("utf-8"))
 
     # require additional confirmation in --wet mode
     prompt = '!' * 65 + (
@@ -118,7 +118,7 @@ def main():
         "\n!!    ARE YOU SURE YOU WANT TO DO THIS? IF SO, ENTER 'YES'.    !! "
     ) + '\n' + '!' * 65 + '\n\n: '
     if args.wet and not args.silent:
-        if raw_input(prompt) != "YES":
+        if input(prompt) != "YES":
             print("you did not enter 'YES'")
             sys.exit(-1)
 
