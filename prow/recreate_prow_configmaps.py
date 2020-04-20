@@ -14,14 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This script deletes and recreates the prow configmaps
-# USE AT YOUR OWN RISK! This is a break-glass tool.
-# See September 25th, 2018 in docs/post-mortems.md
-
 #
 # USAGE: have KUBECONFIG pointed at your prow cluster then from test-infra root:
 #
-# hack/recreate_prow_configmaps.py [--wet]
+# prow/recreate_prow_configmaps.py [--wet]
 #
 
 from __future__ import print_function
@@ -61,11 +57,6 @@ def recreate_plugins_config(wet, configmap_name, path):
 
 def recreate_job_config(wet, job_configmap, job_config_dir):
     print('recreating jobs config:')
-    # delete configmap (apply has size limit)
-    cmd = ["kubectl", "delete", "--ignore-not-found", "configmap", job_configmap]
-    print(cmd)
-    if wet:
-        subprocess.check_call(cmd)
 
     # regenerate
     paths = []
@@ -79,10 +70,12 @@ def recreate_job_config(wet, job_configmap, job_config_dir):
                 if wet:
                     subprocess.check_call(real_cmd)
                 paths.append(path)
-                cmd.append("--from-file=%s=%s" % (name, path + '.gz'))
-    print(cmd)
+                cmd.append('--from-file=%s=%s' % (name, path + '.gz'))
+    cmd.append('--dry-run -o yaml | kubectl replace configmap %s -f -' % (job_configmap))
+    real_cmd = ['/bin/sh', '-c', ' '.join(cmd)]
+    print(real_cmd)
     if wet:
-        subprocess.check_call(cmd)
+        subprocess.check_call(real_cmd)
     for path in paths:
         real_cmd = ['/bin/sh', '-c', 'rm ' + path + '.gz']
         print(real_cmd)
@@ -95,7 +88,7 @@ def main():
     # jobs config
     parser.add_argument("--job-configmap", default="job-config", help="name of prow jobs configmap")
     parser.add_argument(
-        "--job-config-dir", default="cluster/config",
+        "--job-config-dir", default="config/jobs",
         help="root dir of prow jobs configmap")
     # prow config
     parser.add_argument("--prow-configmap", default="config",
@@ -111,18 +104,20 @@ def main():
         help="path to the prow plugins config")
     # wet or dry?
     parser.add_argument("--wet", action="store_true")
+    parser.add_argument("--silent", action="store_true",
+                        help="if confirmation is needed for the change")
     args = parser.parse_args()
 
     # debug the current context
     out = subprocess.check_output(['kubectl', 'config', 'current-context'])
-    print('Current KUBECONFIG context: ' + out)
+    print('Current KUBECONFIG context: ' + out.decode("utf-8"))
 
     # require additional confirmation in --wet mode
     prompt = '!' * 65 + (
         "\n!!     WARNING THIS WILL RECREATE **ALL** PROW CONFIGMAPS.     !!"
         "\n!!    ARE YOU SURE YOU WANT TO DO THIS? IF SO, ENTER 'YES'.    !! "
     ) + '\n' + '!' * 65 + '\n\n: '
-    if args.wet:
+    if args.wet and not args.silent:
         if input(prompt) != "YES":
             print("you did not enter 'YES'")
             sys.exit(-1)
