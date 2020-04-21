@@ -34,7 +34,7 @@ apply-configmaps: grafana-dashboards
 	@for input in $(shell ls dashboards_out); do \
 		dashboard_name="grafana-dashboard-$${input%.*}"; \
 		echo "Generating dashboard $${dashboard_name} from $${input} ..."; \
-		kubectl create configmap -n prow-monitoring "$${dashboard_name}" --from-file="$${input}=dashboards_out/$${input}" --dry-run=client -o yaml | kubectl apply -f -; \
+		kubectl create configmap -n prow-monitoring "$${dashboard_name}" --from-file="$${input}=dashboards_out/$${input}" --dry-run -o yaml | kubectl apply -f -; \
 	done
 
 apply-prow-prometheusrule: prow_prometheusrule.yaml
