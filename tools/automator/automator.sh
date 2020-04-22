@@ -27,7 +27,7 @@ cleanup() {
 }
 
 get_opts() {
-  if opt="$(getopt -o '' -l branch:,src-branch:,sha:,org:,repo:,title:,match-title:,body:,labels:,user:,email:,modifier:,script-path:,cmd:,token-path:,token:,strict,verbose -n "$(basename "$0")" -- "$@")"; then
+  if opt="$(getopt -o '' -l branch:,src-branch:,sha:,org:,repo:,title:,match-title:,body:,labels:,user:,email:,modifier:,script-path:,cmd:,token-path:,token:,strict,dry-run,verbose -n "$(basename "$0")" -- "$@")"; then
     eval set -- "$opt"
   else
     print_error_and_exit "unable to parse options"
@@ -114,6 +114,10 @@ get_opts() {
       strict=true
       shift
       ;;
+    --dry-run)
+      dry_run=true
+      shift
+      ;;
     --)
       shift
       script_args=("$@")
@@ -176,6 +180,10 @@ validate_opts() {
     strict=false
   fi
 
+  if [ -z "${dry_run:-}" ]; then
+    dry_run=false
+  fi
+
   if [ -z "${user:-}" ]; then
     user="$(curl -sSfLH "Authorization: token $token" "https://api.github.com/user" | jq --raw-output ".login")"
   fi
@@ -217,6 +225,9 @@ add_labels() {
 }
 
 commit() {
+  $dry_run && return 0
+
+  fork_name="$src_branch-$branch-$modifier-$(hash "$title")"
   git -c "user.name=$user" -c "user.email=$email" commit --message "$title" --author="$user <$email>"
   git show --shortstat
   git push --force "https://$user:$token@github.com/$user/$repo.git" "HEAD:$fork_name"
@@ -242,7 +253,6 @@ work() { (
   git add --all
 
   if ! git diff --cached --quiet --exit-code; then
-    fork_name="$src_branch-$branch-$modifier-$(hash "$title")"
     commit
   elif $strict; then
     print_error "no diff for $repo" 1
