@@ -252,3 +252,47 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio.io
+    branches:
+    - ^master$
+    decorate: true
+    extra_refs:
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/test-infra
+      repo: test-infra
+    name: update-ref-docs-dry-run_istio.io
+    optional: true
+    path_alias: istio.io/istio.io
+    spec:
+      containers:
+      - command:
+        - ../test-infra/tools/automator/automator.sh
+        - --org=istio
+        - --repo=istio.io
+        - --token-path=/etc/github-token/oauth
+        - --cmd=make update_ref_docs
+        - --dry-run
+        image: gcr.io/istio-testing/build-tools:master-2020-04-28T21-48-12
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /etc/github-token
+          name: github
+          readOnly: true
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token

@@ -245,19 +245,6 @@ jobs:
     type: presubmit
     command: [make, gen-check]
 
-  - name: update-ref-docs-dry-run
-    type: presubmit
-    command:
-    - ../test-infra/tools/automator/automator.sh
-    - --org=istio
-    - --repo=istio.io
-    - --token-path=/etc/github-token/oauth
-    - --cmd=make update_ref_docs
-    - --dry-run
-    requirements: [github]
-    modifiers: [optional]
-    repos: [istio/test-infra]
-
 resources:
   default:
     requests:
