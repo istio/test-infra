@@ -25,14 +25,10 @@ metadata:
   annotations:
     kubernetes.io/ingress.global-static-ip-name: prow-monitoring-grafana
     kubernetes.io/ingress.class: "gce"
-    networking.gke.io/managed-certificates: monitoring-prow-k8s-io
+    networking.gke.io/managed-certificates: monitoring-prow-istio-io
   name: grafana
   namespace: prow-monitoring
 spec:
-  rules:
-  - host: monitoring.prow.istio.io
-    http:
-      paths:
-      - backend:
-          serviceName: grafana
-          servicePort: 80
+  backend:
+    serviceName: grafana
+    servicePort: 80
