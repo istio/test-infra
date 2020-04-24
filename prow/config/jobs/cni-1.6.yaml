@@ -1,0 +1,33 @@
+branches:
+- release-1.6
+image: gcr.io/istio-testing/build-tools:master-2020-04-22T02-05-07
+jobs:
+- command:
+  - entrypoint
+  - make
+  - docker
+  name: build
+- command:
+  - entrypoint
+  - make
+  - docker
+  - test
+  name: install
+- command:
+  - make
+  - lint
+  name: lint
+- command:
+  - make
+  - gen-check
+  name: gencheck
+org: istio
+repo: cni
+resources:
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: 500m
+      memory: 3Gi
