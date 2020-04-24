@@ -132,16 +132,16 @@ get_opts() {
 
 validate_opts() {
   if [ -z "${branch:-}" ]; then
-    branch="$(git describe --contains --all HEAD)"
+    branch="$(current_branch)"
   fi
 
   if [ -z "${src_branch:-}" ]; then
-    src_branch="$(git describe --contains --all HEAD)"
+    src_branch="$(current_branch)"
   fi
 
   if [ -z "${sha:-}" ]; then
-    sha="$(git rev-parse HEAD)"
-    sha_short="$(git rev-parse --short HEAD)"
+    sha="$(current_sha)"
+    sha_short="$(current_sha --short)"
   fi
 
   if [ -z "${title_tmpl:-}" ]; then
