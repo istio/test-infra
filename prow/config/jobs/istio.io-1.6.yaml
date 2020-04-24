@@ -29,21 +29,6 @@ jobs:
   - kind
   - gcp
   type: postsubmit
-- command:
-  - ./tools/automator/automator.sh
-  - --org=istio
-  - --repo=istio.io
-  - '--title=Automator: update istio.io@$AUTOMATOR_BRANCH reference docs'
-  - --modifier=refdocs
-  - --token-path=/etc/github-token/oauth
-  - --cmd=make update_ref_docs
-  cron: 0 2 * * *
-  name: update-ref-docs
-  repos:
-  - istio/test-infra
-  requirements:
-  - github
-  type: periodic
 org: istio
 repo: istio.io
 resources:
