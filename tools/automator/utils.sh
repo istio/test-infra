@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2120
 
 # Copyright Istio Authors
 #
@@ -44,6 +45,22 @@ split_on_commas() {
 
 evaluate_tmpl() {
   bash -c "eval echo \"$1\""
+}
+
+current_branch() {
+  git symbolic-ref --quiet --short "$@" HEAD
+}
+
+current_tag() {
+  git describe --tags --exact-match "$@"
+}
+
+current_sha() {
+  git rev-parse "$@" HEAD
+}
+
+current_ref() {
+  current_branch || current_tag || current_sha
 }
 
 hash() {
