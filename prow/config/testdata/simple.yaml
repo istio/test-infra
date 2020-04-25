@@ -26,6 +26,12 @@ jobs:
     node_selector:
       foo: baz
 
+  - name: periodic-job
+    type: periodic
+    cron: 0 2 * * *
+    command: [run/nightly.sh]
+
+
 resources:
   default:
     requests:

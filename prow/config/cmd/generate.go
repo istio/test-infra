@@ -63,6 +63,8 @@ func main() {
 			src := path.Join("..", "jobs", file.Name())
 
 			jobs := config.ReadJobConfig(src)
+			jobs.Jobs = config.FilterReleaseBranchingJobs(jobs.Jobs)
+
 			if jobs.SupportReleaseBranching {
 				jobs.Branches = []string{"release-" + os.Args[2]}
 				jobs.SupportReleaseBranching = false

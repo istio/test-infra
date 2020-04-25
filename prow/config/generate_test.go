@@ -17,6 +17,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"reflect"
 	"testing"
 )
 
@@ -35,5 +36,75 @@ func TestGenerateConfig(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestFilterReleaseBranchingJobs(t *testing.T) {
+	var testCases = []struct {
+		name         string
+		jobs         []Job
+		filteredJobs []Job
+	}{
+		{
+			name:         "filter an empty list of jobs",
+			jobs:         []Job{},
+			filteredJobs: []Job{},
+		},
+		{
+			name: "filter enabled release branching jobs",
+			jobs: []Job{
+				{
+					Name:    "job_1",
+					Command: []string{"exit", "0"},
+					Type:    "presubmit",
+				},
+				{
+					Name:                    "job_2",
+					Command:                 []string{"echo", "pass"},
+					DisableReleaseBranching: false,
+					Type:                    "postsubmit",
+				},
+			},
+			filteredJobs: []Job{
+				{
+					Name:    "job_1",
+					Command: []string{"exit", "0"},
+					Type:    "presubmit",
+				},
+				{
+					Name:                    "job_2",
+					Command:                 []string{"echo", "pass"},
+					DisableReleaseBranching: false,
+					Type:                    "postsubmit",
+				},
+			},
+		},
+		{
+			name: "filter disabled release branching jobs",
+			jobs: []Job{
+				{
+					Name:                    "job_1",
+					Command:                 []string{"exit", "0"},
+					DisableReleaseBranching: true,
+					Type:                    "presubmit",
+				},
+				{
+					Name:                    "job_2",
+					Command:                 []string{"echo", "pass"},
+					DisableReleaseBranching: true,
+					Type:                    "postsubmit",
+				},
+			},
+			filteredJobs: []Job{},
+		},
+	}
+
+	for _, tc := range testCases {
+		expected := tc.filteredJobs
+		actual := FilterReleaseBranchingJobs(tc.jobs)
+
+		if !reflect.DeepEqual(expected, actual) {
+			t.Errorf("Filtered jobs do not	 match; actual: %v\n expected %v\n", actual, expected)
+		}
 	}
 }
