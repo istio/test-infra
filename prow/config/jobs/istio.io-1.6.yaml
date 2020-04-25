@@ -1,0 +1,48 @@
+branches:
+- release-1.6
+image: gcr.io/istio-testing/build-tools:master-2020-04-22T02-05-07
+jobs:
+- command:
+  - make
+  - lint
+  name: lint
+- command:
+  - make
+  - gen-check
+  name: gencheck
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - test.kube.presubmit
+  modifiers:
+  - optional
+  name: k8s-tests
+  requirements:
+  - kind
+  type: presubmit
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - test.kube.postsubmit
+  name: k8s-tests
+  requirements:
+  - kind
+  - gcp
+  type: postsubmit
+org: istio
+repo: istio.io
+resources:
+  default:
+    limits:
+      cpu: "8"
+      memory: 24Gi
+    requests:
+      cpu: "5"
+      memory: 3Gi
+  lint:
+    limits:
+      cpu: "5"
+      memory: 24Gi
+    requests:
+      cpu: "3"
+      memory: 16Gi
