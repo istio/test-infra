@@ -122,6 +122,9 @@ get_opts() {
 }
 
 validate_opts() {
+  sha="$(current_sha)"
+  sha_short="$(current_sha --short)"
+
   if [ -z "${branch:-}" ]; then
     branch="$(current_branch)"
   fi
@@ -177,7 +180,7 @@ validate_opts() {
 
 evaluate_opts() {
   AUTOMATOR_SRC_ORG="${REPO_OWNER:-}" AUTOMATOR_SRC_REPO="${REPO_NAME:-}" AUTOMATOR_SRC_BRANCH="${PULL_BASE_REF:-}"
-  AUTOMATOR_SHA="$(current_sha)" AUTOMATOR_SHA_SHORT="$(current_sha --short)"
+  AUTOMATOR_SHA="$sha" AUTOMATOR_SHA_SHORT="$sha_short"
   AUTOMATOR_ORG="$org" AUTOMATOR_REPO="$repo" AUTOMATOR_BRANCH="$branch" AUTOMATOR_MODIFIER="$modifier"
 
   title="$(evaluate_tmpl "$title_tmpl")"
