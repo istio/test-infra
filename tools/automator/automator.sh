@@ -27,7 +27,7 @@ cleanup() {
 }
 
 get_opts() {
-  if opt="$(getopt -o '' -l branch:,src-branch:,sha:,org:,repo:,title:,match-title:,body:,labels:,user:,email:,modifier:,script-path:,cmd:,token-path:,token:,strict,dry-run,verbose -n "$(basename "$0")" -- "$@")"; then
+  if opt="$(getopt -o '' -l branch:,org:,repo:,title:,match-title:,body:,labels:,user:,email:,modifier:,script-path:,cmd:,token-path:,token:,strict,dry-run,verbose -n "$(basename "$0")" -- "$@")"; then
     eval set -- "$opt"
   else
     print_error_and_exit "unable to parse options"
@@ -37,15 +37,6 @@ get_opts() {
     case "$1" in
     --branch)
       branch="$2"
-      shift 2
-      ;;
-    --src-branch)
-      src_branch="$2"
-      shift 2
-      ;;
-    --sha)
-      sha="$2"
-      sha_short="$(echo "$2" | cut -c1-7)"
       shift 2
       ;;
     --org)
@@ -135,15 +126,6 @@ validate_opts() {
     branch="$(current_branch)"
   fi
 
-  if [ -z "${src_branch:-}" ]; then
-    src_branch="$(current_branch)"
-  fi
-
-  if [ -z "${sha:-}" ]; then
-    sha="$(current_sha)"
-    sha_short="$(current_sha --short)"
-  fi
-
   if [ -z "${title_tmpl:-}" ]; then
     title_tmpl='Automator: update $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH-$AUTOMATOR_MODIFIER'
   fi
@@ -194,7 +176,9 @@ validate_opts() {
 }
 
 evaluate_opts() {
-  AUTOMATOR_ORG="$org" AUTOMATOR_REPO="$repo" AUTOMATOR_BRANCH="$src_branch" AUTOMATOR_SHA="$sha" AUTOMATOR_SHA_SHORT="$sha_short" AUTOMATOR_MODIFIER="$modifier"
+  AUTOMATOR_SRC_ORG="${REPO_OWNER:-}" AUTOMATOR_SRC_REPO="${REPO_NAME:-}" AUTOMATOR_SRC_BRANCH="${PULL_BASE_REF:-}"
+  AUTOMATOR_SHA="$(current_sha)" AUTOMATOR_SHA_SHORT="$(current_sha --short)"
+  AUTOMATOR_ORG="$org" AUTOMATOR_REPO="$repo" AUTOMATOR_BRANCH="$branch" AUTOMATOR_MODIFIER="$modifier"
 
   title="$(evaluate_tmpl "$title_tmpl")"
   match_title="$(evaluate_tmpl "$match_title_tmpl")"
@@ -202,7 +186,8 @@ evaluate_opts() {
 }
 
 export_globals() {
-  export AUTOMATOR_ORG AUTOMATOR_REPO AUTOMATOR_BRANCH AUTOMATOR_SHA AUTOMATOR_SHA_SHORT AUTOMATOR_MODIFIER AUTOMATOR_ROOT_DIR AUTOMATOR_REPO_DIR
+  export AUTOMATOR_SRC_ORG AUTOMATOR_SRC_REPO AUTOMATOR_SRC_BRANCH AUTOMATOR_SHA AUTOMATOR_SHA_SHORT \
+    AUTOMATOR_ORG AUTOMATOR_REPO AUTOMATOR_BRANCH AUTOMATOR_MODIFIER AUTOMATOR_ROOT_DIR AUTOMATOR_REPO_DIR
 }
 
 create_pr() {
@@ -227,6 +212,7 @@ add_labels() {
 commit() {
   $dry_run && return 0
 
+  local src_branch="${AUTOMATOR_SRC_BRANCH:-none}"
   fork_name="$src_branch-$branch-$modifier-$(hash "$title")"
   git -c "user.name=$user" -c "user.email=$email" commit --message "$title" --author="$user <$email>"
   git show --shortstat
