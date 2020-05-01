@@ -15,7 +15,7 @@ postsubmits:
       - command:
         - make
         - presubmit
-        image: gcr.io/istio-testing/build-tools:master-2020-04-28T21-48-12
+        image: gcr.io/istio-testing/build-tools:release-1.6-2020-05-01T18-02-13
         name: ""
         resources:
           limits:
@@ -42,7 +42,7 @@ postsubmits:
       - command:
         - make
         - gen-check
-        image: gcr.io/istio-testing/build-tools:master-2020-04-28T21-48-12
+        image: gcr.io/istio-testing/build-tools:release-1.6-2020-05-01T18-02-13
         name: ""
         resources:
           limits:
@@ -81,7 +81,7 @@ postsubmits:
         - --modifier=update_api_dep
         - --token-path=/etc/github-token/oauth
         - --cmd=go get istio.io/api@$AUTOMATOR_SHA && go mod tidy && make gen
-        image: gcr.io/istio-testing/build-tools:master-2020-04-28T21-48-12
+        image: gcr.io/istio-testing/build-tools:release-1.6-2020-05-01T18-02-13
         name: ""
         resources:
           limits:
@@ -117,7 +117,7 @@ presubmits:
       - command:
         - make
         - presubmit
-        image: gcr.io/istio-testing/build-tools:master-2020-04-28T21-48-12
+        image: gcr.io/istio-testing/build-tools:release-1.6-2020-05-01T18-02-13
         name: ""
         resources:
           limits:
@@ -143,7 +143,7 @@ presubmits:
       - command:
         - make
         - gen-check
-        image: gcr.io/istio-testing/build-tools:master-2020-04-28T21-48-12
+        image: gcr.io/istio-testing/build-tools:release-1.6-2020-05-01T18-02-13
         name: ""
         resources:
           limits:

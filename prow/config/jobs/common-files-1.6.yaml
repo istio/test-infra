@@ -1,6 +1,6 @@
 branches:
 - release-1.6
-image: gcr.io/istio-testing/build-tools:master-2020-04-28T21-48-12
+image: gcr.io/istio-testing/build-tools:release-1.6-2020-05-01T18-02-13
 jobs:
 - command:
   - make
@@ -18,7 +18,7 @@ jobs:
   - --cmd=make update-common gen
   name: update-common
   repos:
-  - istio/test-infra
+  - istio/test-infra@master
   requirements:
   - github
   type: postsubmit
@@ -27,6 +27,7 @@ jobs:
   - --org=istio
   - --repo=test-infra
   - '--title=Automator: update build-tools:$AUTOMATOR_SRC_BRANCH'
+  - --branch=master
   - --modifier=buildtools
   - --token-path=/etc/github-token/oauth
   - --script-path=../test-infra/tools/automator/scripts/update-images.sh
@@ -36,7 +37,7 @@ jobs:
   - --source=$AUTOMATOR_ROOT_DIR/files/common/scripts/setup_env.sh
   name: update-build-tools-image
   repos:
-  - istio/test-infra
+  - istio/test-infra@master
   requirements:
   - github
   type: postsubmit

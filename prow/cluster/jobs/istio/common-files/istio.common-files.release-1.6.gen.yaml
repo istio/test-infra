@@ -15,7 +15,7 @@ postsubmits:
       - command:
         - make
         - lint
-        image: gcr.io/istio-testing/build-tools:master-2020-04-28T21-48-12
+        image: gcr.io/istio-testing/build-tools:release-1.6-2020-05-01T18-02-13
         name: ""
         resources:
           limits:
@@ -36,7 +36,7 @@ postsubmits:
     - ^release-1.6$
     decorate: true
     extra_refs:
-    - base_ref: release-1.6
+    - base_ref: master
       org: istio
       path_alias: istio.io/test-infra
       repo: test-infra
@@ -54,7 +54,7 @@ postsubmits:
         - --modifier=commonfiles
         - --token-path=/etc/github-token/oauth
         - --cmd=make update-common gen
-        image: gcr.io/istio-testing/build-tools:master-2020-04-28T21-48-12
+        image: gcr.io/istio-testing/build-tools:release-1.6-2020-05-01T18-02-13
         name: ""
         resources:
           limits:
@@ -83,7 +83,7 @@ postsubmits:
     - ^release-1.6$
     decorate: true
     extra_refs:
-    - base_ref: release-1.6
+    - base_ref: master
       org: istio
       path_alias: istio.io/test-infra
       repo: test-infra
@@ -96,6 +96,7 @@ postsubmits:
         - --org=istio
         - --repo=test-infra
         - '--title=Automator: update build-tools:$AUTOMATOR_SRC_BRANCH'
+        - --branch=master
         - --modifier=buildtools
         - --token-path=/etc/github-token/oauth
         - --script-path=../test-infra/tools/automator/scripts/update-images.sh
@@ -103,7 +104,7 @@ postsubmits:
         - --
         - --post=make gen
         - --source=$AUTOMATOR_ROOT_DIR/files/common/scripts/setup_env.sh
-        image: gcr.io/istio-testing/build-tools:master-2020-04-28T21-48-12
+        image: gcr.io/istio-testing/build-tools:release-1.6-2020-05-01T18-02-13
         name: ""
         resources:
           limits:
@@ -139,7 +140,7 @@ presubmits:
       - command:
         - make
         - lint
-        image: gcr.io/istio-testing/build-tools:master-2020-04-28T21-48-12
+        image: gcr.io/istio-testing/build-tools:release-1.6-2020-05-01T18-02-13
         name: ""
         resources:
           limits:
