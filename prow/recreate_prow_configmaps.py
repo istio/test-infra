@@ -34,7 +34,7 @@ def recreate_prow_config(wet, configmap_name, path):
     cmd = (
         'kubectl create configmap %s'
         ' --from-file=config.yaml=%s'
-        ' --dry-run -o yaml | kubectl replace configmap %s -f -'
+        ' --dry-run=client -o yaml | kubectl replace configmap %s -f -'
     ) % (configmap_name, path, configmap_name)
     real_cmd = ['/bin/sh', '-c', cmd]
     print(real_cmd)
@@ -47,7 +47,7 @@ def recreate_plugins_config(wet, configmap_name, path):
     cmd = (
         'kubectl create configmap %s'
         ' --from-file=plugins.yaml=%s'
-        ' --dry-run -o yaml | kubectl replace configmap %s -f -'
+        ' --dry-run=client -o yaml | kubectl replace configmap %s -f -'
     ) % (configmap_name, path, configmap_name)
     real_cmd = ['/bin/sh', '-c', cmd]
     print(real_cmd)
@@ -71,7 +71,7 @@ def recreate_job_config(wet, job_configmap, job_config_dir):
                     subprocess.check_call(real_cmd)
                 paths.append(path)
                 cmd.append('--from-file=%s=%s' % (name, path + '.gz'))
-    cmd.append('--dry-run -o yaml | kubectl replace configmap %s -f -' % (job_configmap))
+    cmd.append('--dry-run=client -o yaml | kubectl replace configmap %s -f -' % (job_configmap))
     real_cmd = ['/bin/sh', '-c', ' '.join(cmd)]
     print(real_cmd)
     if wet:
@@ -123,6 +123,7 @@ def main():
             sys.exit(-1)
 
     # first prow config
+    print('start create config map...')
     recreate_prow_config(args.wet, args.prow_configmap, args.prow_config_path)
     print('')
     # then plugins config
