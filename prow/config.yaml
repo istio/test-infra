@@ -1,6 +1,6 @@
 ---
 plank:
-  job_url_template: 'http://prow.dev.twistio.io/view/gcs/istio-prow{{if eq .Spec.Type "presubmit"}}/pr-logs/pull/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if eq .Spec.Type "batch"}}/pr-logs/pull/batch{{else}}/logs{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}'
+  job_url_template: 'http://prow.dev.twistio.io/view/gcs/dex-prow-artifacts{{if eq .Spec.Type "presubmit"}}/pr-logs/pull/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if eq .Spec.Type "batch"}}/pr-logs/pull/batch{{else}}/logs{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}'
   job_url_prefix_config:
     '*': http://prow.dev.twistio.io/view/gcs/
   pod_pending_timeout: 15m
@@ -61,10 +61,12 @@ deck:
   tide_update_period: 1s
   rerun_auth_configs:
     '*':
+      allow_anyone: true
+    dex80526/private_istio:  
       github_users:
-      - dex8026
+      - dex80526
       github_team_slugs:
-      - org: istio
+      - org: aspenmesh
         slug: maintainers
     istio-private:
       github_orgs:

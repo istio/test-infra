@@ -4,13 +4,9 @@
 ---
 triggers:
 - repos:
-  - istio
-  - istio-ecosystem
-  - istio-releases
-  - istio-private
   - dex80526/private_istio
+  - dex80526/test-infra
   - dex80526/aspenmesh_private_istio
-  trusted_org: istio
 
 config_updater:
   maps:
@@ -24,37 +20,30 @@ config_updater:
 slack:
   mergewarnings:
   - repos:
-    - istio/test-infra
+    - dex80526/test-infra
     - dex80526/private_istio
     - dex80526/aspenmesh_private_istio
     channels:
-    - test-and-release
     - am-prow
     whitelist:
     - istio-testing
 
 lgtm:
 - repos:
-  - istio
+  - dex80526/test-infra
   - dex80526/private_istio
   - dex80526/aspenmesh_private_istio
   review_acts_as_lgtm: true
 - repos:
-  - istio-releases/pipeline
+  - dex80526/test-infra
   - dex80526/private_istio
   - dex80526/aspenmesh_private_istio
   review_acts_as_lgtm: true
   trusted_team_for_sticky_lgtm: "Istio Hackers"
-- repos:
-  - istio-ecosystem/authservice
-  review_acts_as_lgtm: true
 
 approve:
 - repos:
-  - istio-releases/pipeline
-  implicit_self_approve: true
-- repos:
-  - istio-ecosystem/authservice
+  - dex80526/test-infra
   implicit_self_approve: true
 
 plugins:
@@ -68,23 +57,16 @@ plugins:
   - trigger
   - wip
 
-  istio:
+  dex80526/test-infra:
   - size
   - trigger
   - wip
+  - config-updater
 
   istio-ecosystem:
   - size
   - trigger
   - wip
-
-  istio-releases:
-  - size
-  - trigger
-  - wip
-
-  istio-private:
-  - trigger
 
   istio/test-infra:
   - assign
@@ -112,6 +94,18 @@ plugins:
   - verify-owners
 
 external_plugins:
+  dex80526/test-infra:
+  - name: needs-rebase
+    events:
+    - pull_request
+  dex80526/private_istio:
+  - name: needs-rebase
+    events:
+    - pull_request    
+  dex80526/aspenmesh_private_istio:
+  - name: needs-rebase
+    events:
+    - pull_request          
   istio:
   - name: needs-rebase
     events:
