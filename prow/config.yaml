@@ -1,9 +1,8 @@
 ---
 plank:
-  job_url_template: 'https://prow.istio.io/view/gcs/istio-prow{{if eq .Spec.Type "presubmit"}}/pr-logs/pull/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if eq .Spec.Type "batch"}}/pr-logs/pull/batch{{else}}/logs{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}'
+  job_url_template: 'http://prow.dev.twistio.io/view/gcs/istio-prow{{if eq .Spec.Type "presubmit"}}/pr-logs/pull/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if eq .Spec.Type "batch"}}/pr-logs/pull/batch{{else}}/logs{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}'
   job_url_prefix_config:
-    '*': https://prow.istio.io/view/gcs/
-    istio-private: https://prow-private.istio.io/view/gcs/
+    '*': http://prow.dev.twistio.io/view/gcs/
   pod_pending_timeout: 15m
   pod_unscheduled_timeout: 5m
   default_decoration_configs:
@@ -16,23 +15,9 @@ plank:
         entrypoint: "gcr.io/k8s-prow/entrypoint:v20200427-baaf248ed"
         sidecar: "gcr.io/k8s-prow/sidecar:v20200427-baaf248ed"
       gcs_configuration:
-        bucket: "istio-prow"
+        bucket: "dex-prow-artifacts"
         path_strategy: "explicit"
-      gcs_credentials_secret: "service-account"
-    istio-private:
-      timeout: 2h
-      grace_period: 15s
-      utility_images:
-        clonerefs: "gcr.io/k8s-prow/clonerefs:v20200427-baaf248ed"
-        initupload: "gcr.io/k8s-prow/initupload:v20200427-baaf248ed"
-        entrypoint: "gcr.io/k8s-prow/entrypoint:v20200427-baaf248ed"
-        sidecar: "gcr.io/k8s-prow/sidecar:v20200427-baaf248ed"
-      gcs_configuration:
-        bucket: "istio-private-build"
-        path_strategy: "explicit"
-      gcs_credentials_secret: "service-account"
-      ssh_key_secrets:
-      - ssh-key-secret
+      gcs_credentials_secret: gcs-credentials
 
 sinker:
   resync_period: 1m
@@ -77,13 +62,7 @@ deck:
   rerun_auth_configs:
     '*':
       github_users:
-      - cjwagner
-      - fejta
-      - clarketm
-      - chases2
-      - Katharine
-      - bentheelder
-      - michelle192837
+      - dex8026
       github_team_slugs:
       - org: istio
         slug: maintainers
@@ -114,7 +93,7 @@ slack_reporter_configs:
     job_states_to_report:
     - failure
     - error
-    channel: private-test-failures
+    channel: am-prow
     report_template: 'Job *{{.Spec.Job}}* of type *{{.Spec.Type}}* ended with state *{{.Status.State}}*. <{{.Status.URL}}|View logs>'
 
 # Report job status for presubmit and postsubmit
@@ -128,7 +107,7 @@ branch-protection:
   allow_disabled_job_policies: true
   protect: false
   orgs:
-    istio:
+    aspenmesh:
       required_status_checks:
         contexts:
         - cla/google

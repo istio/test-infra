@@ -8,6 +8,8 @@ triggers:
   - istio-ecosystem
   - istio-releases
   - istio-private
+  - dex80526/private_istio
+  - dex80526/aspenmesh_private_istio
   trusted_org: istio
 
 config_updater:
@@ -23,17 +25,24 @@ slack:
   mergewarnings:
   - repos:
     - istio/test-infra
+    - dex80526/private_istio
+    - dex80526/aspenmesh_private_istio
     channels:
     - test-and-release
+    - am-prow
     whitelist:
     - istio-testing
 
 lgtm:
 - repos:
   - istio
+  - dex80526/private_istio
+  - dex80526/aspenmesh_private_istio
   review_acts_as_lgtm: true
 - repos:
   - istio-releases/pipeline
+  - dex80526/private_istio
+  - dex80526/aspenmesh_private_istio
   review_acts_as_lgtm: true
   trusted_team_for_sticky_lgtm: "Istio Hackers"
 - repos:
@@ -49,6 +58,16 @@ approve:
   implicit_self_approve: true
 
 plugins:
+  dex80526/aspenmesh_private_istio:
+  - size
+  - trigger
+  - wip
+
+  dex80526/private_istio:
+  - size
+  - trigger
+  - wip
+
   istio:
   - size
   - trigger
