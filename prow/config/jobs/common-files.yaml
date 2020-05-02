@@ -1,6 +1,5 @@
 org: istio
 repo: common-files
-support_release_branching: true
 image: gcr.io/istio-testing/build-tools:master-2020-04-28T21-48-12
 
 jobs:
@@ -20,7 +19,7 @@ jobs:
     - --token-path=/etc/github-token/oauth
     - --cmd=make update-common gen
     requirements: [github]
-    repos: [istio/test-infra]
+    repos: [istio/test-infra@master]
 
   - name: update-build-tools-image
     type: postsubmit
@@ -29,6 +28,7 @@ jobs:
     - --org=istio
     - --repo=test-infra
     - "--title=Automator: update build-tools:$AUTOMATOR_SRC_BRANCH"
+    - --branch=master
     - --modifier=buildtools
     - --token-path=/etc/github-token/oauth
     - --script-path=../test-infra/tools/automator/scripts/update-images.sh
@@ -37,4 +37,4 @@ jobs:
     - --post=make gen
     - --source=$AUTOMATOR_ROOT_DIR/files/common/scripts/setup_env.sh
     requirements: [github]
-    repos: [istio/test-infra]
+    repos: [istio/test-infra@master]
