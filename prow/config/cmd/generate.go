@@ -18,8 +18,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
+	"regexp"
 
 	"istio.io/test-infra/prow/config"
 )
@@ -66,7 +68,18 @@ func main() {
 			jobs.Jobs = config.FilterReleaseBranchingJobs(jobs.Jobs)
 
 			if jobs.SupportReleaseBranching {
-				jobs.Branches = []string{"release-" + os.Args[2]}
+				tagRegex := regexp.MustCompile(`^(.+):(.+)-([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2})$`)
+				match := tagRegex.FindStringSubmatch(jobs.Image)
+				branch := "release-" + os.Args[2]
+				if len(match) == 4 {
+					newImage := fmt.Sprintf("%s:%s-%s", match[1], branch, match[3])
+					if err := exec.Command("gcloud", "container", "images", "add-tag", match[0], newImage).Run(); err != nil {
+						exit(err, "unable to add image tag: "+newImage)
+					} else {
+						jobs.Image = newImage
+					}
+				}
+				jobs.Branches = []string{branch}
 				jobs.SupportReleaseBranching = false
 
 				name := file.Name()
