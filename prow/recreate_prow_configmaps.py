@@ -65,22 +65,23 @@ def recreate_job_config(wet, job_configmap, job_config_dir):
         for name in files:
             if name.endswith(".yaml"):
                 path = os.path.join(root, name)
-                real_cmd = ['/bin/sh', '-c', 'gzip -k ' + path]
-                print(real_cmd)
-                if wet:
-                    subprocess.check_call(real_cmd)
+                #real_cmd = ['/bin/sh', '-c', 'gzip -k ' + path]
+                #print(real_cmd)
+                #if wet:
+                #    subprocess.check_call(real_cmd)
                 paths.append(path)
-                cmd.append('--from-file=%s=%s' % (name, path + '.gz'))
+                #cmd.append('--from-file=%s=%s' % (name, path + '.gz'))
+                cmd.append('--from-file=%s=%s' % (name, path))
     cmd.append('--dry-run=client -o yaml | kubectl replace configmap %s -f -' % (job_configmap))
     real_cmd = ['/bin/sh', '-c', ' '.join(cmd)]
     print(real_cmd)
     if wet:
         subprocess.check_call(real_cmd)
-    for path in paths:
-        real_cmd = ['/bin/sh', '-c', 'rm ' + path + '.gz']
-        print(real_cmd)
-        if wet:
-            subprocess.check_call(real_cmd)
+    #for path in paths:
+    #    real_cmd = ['/bin/sh', '-c', 'rm ' + path + '.gz']
+    #    print(real_cmd)
+    #    if wet:
+    #        subprocess.check_call(real_cmd)
 
 
 def main():
@@ -88,7 +89,7 @@ def main():
     # jobs config
     parser.add_argument("--job-configmap", default="job-config", help="name of prow jobs configmap")
     parser.add_argument(
-        "--job-config-dir", default="config/jobs",
+        "--job-config-dir", default="cluster/jobs",
         help="root dir of prow jobs configmap")
     # prow config
     parser.add_argument("--prow-configmap", default="config",

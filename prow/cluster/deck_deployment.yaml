@@ -31,6 +31,8 @@ spec:
         - --redirect-http-to=prow.dev.twistio.io
         - --tide-url=http://tide/
         - --kubeconfig=/etc/kubeconfig/istio-config
+        - --spyglass
+        - --gcs-credentials-file=/etc/service-account/service-account.json
         - --rerun-creates-job
         - --oauth-url=/github-login
         - --github-token-path=/etc/github/oauth
@@ -56,6 +58,9 @@ spec:
           readOnly: true
         - mountPath: /etc/kubeconfig
           name: kubeconfig
+          readOnly: true
+        - name: service
+          mountPath: /etc/service-account
           readOnly: true
         livenessProbe:
           httpGet:
@@ -90,3 +95,6 @@ spec:
         secret:
           defaultMode: 420
           secretName: kubeconfig
+      - name: service
+        secret:
+          secretName: service-account
