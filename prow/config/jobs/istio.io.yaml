@@ -21,6 +21,19 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.kube.postsubmit]
     requirements: [kind, gcp]
 
+  - name: update-ref-docs-dry-run
+    type: presubmit
+    command:
+    - ../test-infra/tools/automator/automator.sh
+    - --org=istio
+    - --repo=istio.io
+    - --token-path=/etc/github-token/oauth
+    - --cmd=make update_ref_docs
+    - --dry-run
+    requirements: [github]
+    modifiers: [optional]
+    repos: [istio/test-infra]
+
   - name: update-ref-docs
     type: periodic
     cron: "0 2 * * *"  # every day at 02:00AM UTC
