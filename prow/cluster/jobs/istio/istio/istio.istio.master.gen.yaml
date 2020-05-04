@@ -41,9 +41,9 @@ postsubmits:
         persistentVolumeClaim:
           claimName: build-cache-claim
   - annotations:
-      testgrid-alert-email: dex@aspenmesh.io
-      testgrid-dashboards: istio_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
+      #testgrid-alert-email: dex@aspenmesh.io
+      #testgrid-dashboards: istio_istio_postsubmit
+      #testgrid-num-failures-to-alert: "1"
     branches:
     - ^master$
     decorate: true
@@ -98,9 +98,9 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - annotations:
-      testgrid-alert-email: dex@aspenmesh.io
-      testgrid-dashboards: istio_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
+      #testgrid-alert-email: dex@aspenmesh.io
+      #testgrid-dashboards: istio_istio_postsubmit
+      #testgrid-num-failures-to-alert: "1"
     branches:
     - ^master$
     decorate: true
@@ -126,9 +126,9 @@ postsubmits:
       nodeSelector:
         testing: test-pool
   - annotations:
-      testgrid-alert-email: dex@aspenmesh.io
-      testgrid-dashboards: istio_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
+      #testgrid-alert-email: dex@aspenmesh.io
+      #testgrid-dashboards: istio_istio_postsubmit
+      #testgrid-num-failures-to-alert: "1"
     branches:
     - ^master$
     decorate: true
@@ -178,9 +178,9 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - annotations:
-      testgrid-alert-email: dex@aspenmesh.io
-      testgrid-dashboards: istio_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
+      #testgrid-alert-email: dex@aspenmesh.io
+      #testgrid-dashboards: istio_istio_postsubmit
+      #testgrid-num-failures-to-alert: "1"
     branches:
     - ^master$
     decorate: true
@@ -214,9 +214,9 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
   - annotations:
-      testgrid-alert-email: dex@aspenmesh.io
-      testgrid-dashboards: istio_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
+      #testgrid-alert-email: dex@aspenmesh.io
+      #testgrid-dashboards: istio_istio_postsubmit
+      #testgrid-num-failures-to-alert: "1"
     branches:
     - ^master$
     decorate: true
@@ -231,11 +231,12 @@ postsubmits:
         env:
         - name: TEST_SELECT
           value: -multicluster
-        image: gcr.io/istio-testing/build-tools:master-2020-04-28T21-48-12
+        image: gcr.io/istio-testing/build-tools:master-lastest
         name: ""
         resources:
           limits:
             memory: 24Gi
+            
           requests:
             cpu: "5"
             memory: 3Gi

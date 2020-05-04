@@ -14,7 +14,7 @@ config_updater:
       name: config
     prow/plugins.yaml:
       name: plugins
-    prow/cluster/jobs/**/*.yaml:
+    prow/cluster/jobs/istio/istio/*.yaml:
       name: job-config
 
 slack:
@@ -22,6 +22,8 @@ slack:
   - repos:
     - dex80526/test-infra
     - dex80526/private_istio
+    - dex80526/private_cni
+    - dex80526/private_proxy
     - dex80526/aspenmesh_private_istio
     channels:
     - am-prow
@@ -32,11 +34,15 @@ lgtm:
 - repos:
   - dex80526/test-infra
   - dex80526/private_istio
+  - dex80526/private_cni
+  - dex80526/private_proxy
   - dex80526/aspenmesh_private_istio
   review_acts_as_lgtm: true
 - repos:
   - dex80526/test-infra
   - dex80526/private_istio
+  - dex80526/private_cni
+  - dex80526/private_proxy
   - dex80526/aspenmesh_private_istio
   review_acts_as_lgtm: true
   trusted_team_for_sticky_lgtm: "Istio Hackers"
@@ -48,6 +54,16 @@ approve:
 
 plugins:
   dex80526/private_istio:
+  - size
+  - trigger
+  - wip
+
+  dex80526/private_cni:
+  - size
+  - trigger
+  - wip
+
+  dex80526/private_proxy:
   - size
   - trigger
   - wip
