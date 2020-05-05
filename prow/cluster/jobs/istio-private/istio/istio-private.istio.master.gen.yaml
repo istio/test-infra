@@ -444,60 +444,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.git
     cluster: private
     decorate: true
-    labels:
-      preset-enable-ssh: "true"
-      preset-override-deps: release-1.4-istio
-      preset-override-envoy: "true"
-    name: integ-conformance-k8s-tests_istio_postsubmit_priv
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.conformance.kube
-        env:
-        - name: TEST_SELECT
-          value: -multicluster
-        image: gcr.io/istio-testing/build-tools:master-2020-05-04T23-19-43
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
     decoration_config:
       timeout: 4h0m0s
     labels:
@@ -1155,61 +1101,6 @@ presubmits:
           value: distroless
         - name: TEST_SELECT
           value: -multicluster
-        image: gcr.io/istio-testing/build-tools:master-2020-05-04T23-19-43
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-ssh: "true"
-      preset-override-deps: release-1.4-istio
-      preset-override-envoy: "true"
-    name: integ-conformance-k8s-tests_istio_priv
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.conformance.kube.presubmit
-        env:
-        - name: TEST_SELECT
-          value: -postsubmit,-flaky,-multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-05-04T23-19-43
         name: ""
         resources:
