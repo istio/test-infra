@@ -20,19 +20,6 @@ jobs:
   name: gencheck
 - command:
   - entrypoint
-  - ./perf/benchmark/run_benchmark_job.sh
-  env:
-  - name: TRIALRUN
-    value: "True"
-  modifiers:
-  - optional
-  name: benchmark_check
-  regex: ^perf/benchmark/
-  requirements:
-  - gcp
-  type: presubmit
-- command:
-  - entrypoint
   - make
   - containers
   name: containers
