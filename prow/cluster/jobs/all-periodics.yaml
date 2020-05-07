@@ -91,9 +91,9 @@ periodics:
     nodeSelector:
       testing: test-pool
 
-# upgrade using istioctl from 1.4 latest to 1.5 latest
+# upgrade using istioctl from 1.5 latest to 1.6 latest
 - cron: "0 4 * * *"  # starts every day at 04:00AM UTC
-  name: istio-upgrade-using-istioctl-1.4_latest-1.5_latest
+  name: istio-upgrade-using-istioctl-1.5_latest-1.6_latest
   branches: master
   decorate: true
   extra_refs:
@@ -112,9 +112,9 @@ periodics:
       - <<: *istio_container_with_kind
         env:
           - name: SOURCE_TAG
-            value: 1.4_latest
-          - name: TARGET_TAG
             value: 1.5_latest
+          - name: TARGET_TAG
+            value: 1.6_latest
           - name: INSTALL_OPTIONS
             value: istioctl
         command:
@@ -123,9 +123,9 @@ periodics:
     nodeSelector:
       testing: test-pool
 
-# upgrade using istioctl from 1.5 latest to master
+# upgrade using istioctl from 1.6 latest to master
 - cron: "0 8 * * *"  # starts every day at 08:00AM UTC
-  name: istio-upgrade-using-istioctl-1.5_latest-master
+  name: istio-upgrade-using-istioctl-1.6_latest-master
   branches: master
   decorate: true
   extra_refs:
@@ -144,7 +144,7 @@ periodics:
       - <<: *istio_container_with_kind
         env:
           - name: SOURCE_TAG
-            value: 1.5_latest
+            value: 1.6_latest
           - name: TARGET_TAG
             value: master
           - name: INSTALL_OPTIONS
