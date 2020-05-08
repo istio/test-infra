@@ -157,40 +157,6 @@ periodics:
     nodeSelector:
       testing: test-pool
 
-# upgrade-downgrade test using istioctl from 1.5 latest to 1.6 latest
-- cron: "0 4 * * *"  # starts every day at 04:00AM UTC
-  name: istio-upgrade-downgrade-using-istioctl-1.5_latest-1.6_latest
-  branches: master
-  decorate: true
-  extra_refs:
-  - org: istio
-    repo: tools
-    base_ref: master
-    path_alias: istio.io/tools
-  annotations:
-    testgrid-dashboards: istio_release-pipeline
-    testgrid-alert-email: istio-oncall@googlegroups.com
-    testgrid-num-failures-to-alert: '1'
-  labels:
-    preset-service-account: "true"
-  spec:
-    containers:
-    - <<: *istio_container_with_kind
-      env:
-      - name: SOURCE_TAG
-        value: 1.5_latest
-      - name: TARGET_TAG
-        value: 1.6_latest
-      - name: INSTALL_OPTIONS
-        value: istioctl
-      - name: TEST_SCENARIO
-        value: upgrade-downgrade
-      command:
-      - entrypoint
-      - upgrade/run_upgrade_test.sh
-    nodeSelector:
-      testing: test-pool
-
 # upgrade test using istioctl from 1.5 latest to 1.6 latest
 - cron: "0 4 * * *"  # starts every day at 04:00AM UTC
   name: istio-upgrade-using-istioctl-1.5_latest-1.6_latest
@@ -256,40 +222,6 @@ periodics:
       command:
       - entrypoint
       - upgrade/run_upgrade_test.sh
-    nodeSelector:
-      testing: test-pool
-
-# upgrade-downgrade test using istioctl from 1.6 latest to master
-- cron: "0 8 * * *"  # starts every day at 08:00AM UTC
-  name: istio-upgrade-downgrade-using-istioctl-1.6_latest-master
-  branches: master
-  decorate: true
-  extra_refs:
-    - org: istio
-      repo: tools
-      base_ref: master
-      path_alias: istio.io/tools
-  annotations:
-    testgrid-dashboards: istio_release-pipeline
-    testgrid-alert-email: istio-oncall@googlegroups.com
-    testgrid-num-failures-to-alert: '1'
-  labels:
-    preset-service-account: "true"
-  spec:
-    containers:
-      - <<: *istio_container_with_kind
-        env:
-          - name: SOURCE_TAG
-            value: 1.6_latest
-          - name: TARGET_TAG
-            value: master
-          - name: INSTALL_OPTIONS
-            value: istioctl
-          - name: TEST_SCENARIO
-            value: upgrade-downgrade
-        command:
-          - entrypoint
-          - upgrade/run_upgrade_test.sh
     nodeSelector:
       testing: test-pool
 
