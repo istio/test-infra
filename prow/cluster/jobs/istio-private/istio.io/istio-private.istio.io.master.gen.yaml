@@ -62,8 +62,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.io.git
     cluster: private
     decorate: true
-    labels:
-      preset-service-account: "true"
     name: k8s-tests_istio.io_postsubmit_priv
     path_alias: istio.io/istio.io
     spec:
@@ -71,7 +69,7 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.kube.postsubmit
+        - test.kube.presubmit
         image: gcr.io/istio-testing/build-tools:master-2020-05-08T20-48-51
         name: ""
         resources:

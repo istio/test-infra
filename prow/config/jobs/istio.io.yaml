@@ -11,15 +11,9 @@ jobs:
     command: [make, gen-check]
 
   - name: k8s-tests
-    type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.kube.presubmit]
     requirements: [kind]
     modifiers: [optional]
-
-  - name: k8s-tests
-    type: postsubmit
-    command: [entrypoint, prow/integ-suite-kind.sh, test.kube.postsubmit]
-    requirements: [kind, gcp]
 
   - name: update-ref-docs-dry-run
     type: presubmit
