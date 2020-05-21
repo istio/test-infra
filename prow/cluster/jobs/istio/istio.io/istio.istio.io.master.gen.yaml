@@ -19,10 +19,10 @@ periodics:
       - ./tools/automator/automator.sh
       - --org=istio
       - --repo=istio.io
-      - '--title=Automator: update istio.io@release-1.6 reference docs'
+      - '--title=Automator: update istio.io@$AUTOMATOR_SRC_BRANCH reference docs'
       - --modifier=refdocs
       - --token-path=/etc/github-token/oauth
-      - --cmd=SOURCE_BRANCH_NAME=release-1.6 make update_ref_docs
+      - --cmd=make update_ref_docs
       image: gcr.io/istio-testing/build-tools:master-2020-05-20T22-13-03
       name: ""
       resources:
