@@ -86,23 +86,24 @@ type JobConfig struct {
 }
 
 type Job struct {
-	Name           string            `json:"name,omitempty"`
-	PostsubmitName string            `json:"postsubmit,omitempty"`
-	Command        []string          `json:"command,omitempty"`
-	Env            []v1.EnvVar       `json:"env,omitempty"`
-	Resources      string            `json:"resources,omitempty"`
-	Modifiers      []string          `json:"modifiers,omitempty"`
-	Requirements   []string          `json:"requirements,omitempty"`
-	Type           string            `json:"type,omitempty"`
-	Timeout        *prowjob.Duration `json:"timeout,omitempty"`
-	Repos          []string          `json:"repos,omitempty"`
-	Image          string            `json:"image,omitempty"`
-	Interval       string            `json:"interval,omitempty"`
-	Cron           string            `json:"cron,omitempty"`
-	Regex          string            `json:"regex,omitempty"`
-	Cluster        string            `json:"cluster,omitempty"`
-	MaxConcurrency int               `json:"max_concurrency,omitempty"`
-	NodeSelector   map[string]string `json:"node_selector,omitempty"`
+	Name                    string            `json:"name,omitempty"`
+	PostsubmitName          string            `json:"postsubmit,omitempty"`
+	Command                 []string          `json:"command,omitempty"`
+	Env                     []v1.EnvVar       `json:"env,omitempty"`
+	Resources               string            `json:"resources,omitempty"`
+	Modifiers               []string          `json:"modifiers,omitempty"`
+	Requirements            []string          `json:"requirements,omitempty"`
+	Type                    string            `json:"type,omitempty"`
+	Timeout                 *prowjob.Duration `json:"timeout,omitempty"`
+	Repos                   []string          `json:"repos,omitempty"`
+	Image                   string            `json:"image,omitempty"`
+	Interval                string            `json:"interval,omitempty"`
+	Cron                    string            `json:"cron,omitempty"`
+	Regex                   string            `json:"regex,omitempty"`
+	Cluster                 string            `json:"cluster,omitempty"`
+	MaxConcurrency          int               `json:"max_concurrency,omitempty"`
+	DisableReleaseBranching bool              `json:"disable_release_branching,omitempty"`
+	NodeSelector            map[string]string `json:"node_selector,omitempty"`
 }
 
 // Reads the job yaml
@@ -373,6 +374,18 @@ func DiffConfig(result config.JobConfig, existing config.JobConfig) {
 	diffConfigPresubmit(result, existing)
 	fmt.Println("\n\nPostsubmit diff:")
 	diffConfigPostsubmit(result, existing)
+}
+
+// FilterReleaseBranchingJobs filters then returns jobs with release branching enabled.
+func FilterReleaseBranchingJobs(jobs []Job) []Job {
+	jobsF := []Job{}
+	for _, j := range jobs {
+		if j.DisableReleaseBranching {
+			continue
+		}
+		jobsF = append(jobsF, j)
+	}
+	return jobsF
 }
 
 func getPresubmit(c config.JobConfig, jobName string) *config.Presubmit {
