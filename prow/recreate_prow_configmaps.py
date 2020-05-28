@@ -90,18 +90,21 @@ def main():
     parser.add_argument(
         "--job-config-dir", default="config/jobs",
         help="root dir of prow jobs configmap")
+    parser.add_argument("--skip-job-configmap", action="store_true")
     # prow config
     parser.add_argument("--prow-configmap", default="config",
                         help="name of prow primary configmap")
     parser.add_argument(
         "--prow-config-path", default="config.yaml",
         help="path to the primary prow config")
+    parser.add_argument("--skip-prow-configmap", action="store_true")
     # plugins config
     parser.add_argument("--plugins-configmap", default="plugins",
                         help="name of prow plugins configmap")
     parser.add_argument(
         "--plugins-config-path", default="plugins.yaml",
         help="path to the prow plugins config")
+    parser.add_argument("--skip-plugins-configmap", action="store_true")
     # wet or dry?
     parser.add_argument("--wet", action="store_true")
     parser.add_argument("--silent", action="store_true",
@@ -113,23 +116,42 @@ def main():
     print('Current KUBECONFIG context: ' + out.decode("utf-8"))
 
     # require additional confirmation in --wet mode
-    prompt = '!' * 65 + (
-        "\n!!     WARNING THIS WILL RECREATE **ALL** PROW CONFIGMAPS.     !!"
-        "\n!!    ARE YOU SURE YOU WANT TO DO THIS? IF SO, ENTER 'YES'.    !! "
-    ) + '\n' + '!' * 65 + '\n\n: '
+    configs_to_update=[]
+    if not args.skip_prow_configmap:
+        configs_to_update.append("\n!!      - '%s' from file '%s'  !!" % (args.prow_configmap, args.prow_config_path))
+    if not args.skip_plugins_configmap:
+        configs_to_update.append("\n!!      - '%s' from file '%s'  !!" % (args.plugins_configmap, args.plugins_config_path))
+    if not args.skip_job_configmap:
+        configs_to_update.append("\n!!      - '%s' from file '%s'  !!" % (args.job_configmap, args.job_config_dir))
+    configs_to_update_str=''.join(configs_to_update)
+    if len(configs_to_update) == 0:
+        configs_to_update_str = "\n!!     WARNING: ALL CONFIGMAPS ARE SKIPPED, ARE YOU DEBUGGING? !!"
+    
+    prompt = (
+        "%s"
+        "\n!!     WARNING THIS WILL RECREATE FOLLOWING PROW CONFIGMAPS(%d):   !!"
+        "%s"
+        "\n!!    ARE YOU SURE YOU WANT TO DO THIS? IF SO, ENTER 'YES'.    !!"
+        '\n'
+        "%s"
+        '\n\n: '
+    ) % ('!' * 65, len(configs_to_update), configs_to_update_str, '!' * 65)
     if args.wet and not args.silent:
         if input(prompt) != "YES":
             print("you did not enter 'YES'")
             sys.exit(-1)
 
     # first prow config
-    recreate_prow_config(args.wet, args.prow_configmap, args.prow_config_path)
-    print('')
+    if not args.skip_prow_configmap:
+        recreate_prow_config(args.wet, args.prow_configmap, args.prow_config_path)
+        print('')
     # then plugins config
-    recreate_plugins_config(args.wet, args.plugins_configmap, args.plugins_config_path)
-    print('')
+    if not args.skip_plugins_configmap:
+        recreate_plugins_config(args.wet, args.plugins_configmap, args.plugins_config_path)
+        print('')
     # finally jobs config
-    recreate_job_config(args.wet, args.job_configmap, args.job_config_dir)
+    if not args.skip_job_configmap:
+        recreate_job_config(args.wet, args.job_configmap, args.job_config_dir)
 
 
 if __name__ == '__main__':
