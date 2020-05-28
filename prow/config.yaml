@@ -259,30 +259,12 @@ branch-protection:
             <<: *blocked_branches
             master:
               protect: false
-    istio-releases:
-      repos:
-        pipeline:
-          required_pull_request_reviews: &tide_reviews
-            required_approving_review_count: 0
-            require_code_owner_reviews: false
-          restrictions:
-          branches:
-            krishna-test:
-              protect: true
-            master:
-              protect: true
-            release-1.2:
-              protect: true
-            release-1.3:
-              protect: true
-            release-1.1:
-              protect: true
-            release-1.0:
-              protect: true
     istio-ecosystem:
       repos:
         authservice:
-          required_pull_request_reviews: *tide_reviews
+          required_pull_request_reviews:
+            required_approving_review_count: 0
+            require_code_owner_reviews: false
           restrictions:
           branches:
             master:
@@ -327,14 +309,6 @@ tide:
     - do-not-merge
     - do-not-merge/hold
     - do-not-merge/work-in-progress
-    - needs-rebase
-  - repos:
-    - istio-releases/pipeline
-    missingLabels:
-    - do-not-merge
-    - do-not-merge/hold
-    - do-not-merge/work-in-progress
-    - needs-ok-to-test
     - needs-rebase
   - repos:
     - istio/istio
@@ -392,7 +366,6 @@ tide:
     reviewApprovedRequired: true
   merge_method:
     istio: squash
-    istio-releases/pipeline: squash
     istio-ecosystem/authservice: squash
     istio-private: squash
   target_url: https://prow.istio.io/tide

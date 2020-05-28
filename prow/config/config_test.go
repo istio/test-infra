@@ -182,24 +182,11 @@ func TestConfig(t *testing.T) {
 			unprotected: true,
 		},
 		{
-			name:        "all istio-releases repos define a policy",
-			org:         "istio-releases",
-			repo:        "random-repo",
-			branch:      "master",
-			unprotected: true,
-		},
-		{
 			name:        "all istio-ecosystem repos define a policy",
 			org:         "istio-ecosystem",
 			repo:        "random-repo",
 			branch:      "master",
 			unprotected: true,
-		},
-		{
-			name:   "istio-releases/pipeline protects master",
-			org:    "istio-releases",
-			repo:   "pipeline",
-			branch: "master",
 		},
 		{
 			name:   "istio-ecosystem/authservice protects master",
