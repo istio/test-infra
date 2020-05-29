@@ -142,6 +142,36 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: build-pool
+  - always_run: false
+    annotations:
+      testgrid-dashboards: istio_proxy
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    name: release-centos-test_proxy
+    optional: true
+    path_alias: istio.io/proxy
+    run_if_changed: centos
+    skip_report: true
+    spec:
+      containers:
+      - command:
+        - ./prow/proxy-presubmit-centos-release.sh
+        image: gcr.io/istio-testing/build-tools-centos:master-2020-05-29T06-04-34
+        name: ""
+        resources:
+          limits:
+            cpu: "64"
+            memory: 240G
+          requests:
+            cpu: "30"
+            memory: 100G
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: build-pool
   - always_run: true
     annotations:
       testgrid-dashboards: istio_proxy
