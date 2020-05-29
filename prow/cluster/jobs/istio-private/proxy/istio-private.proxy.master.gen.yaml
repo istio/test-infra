@@ -199,6 +199,46 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: build-pool
+  - always_run: false
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/proxy.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-netrc: "true"
+      preset-service-account: "true"
+    name: release-centos-test_proxy_master_priv
+    optional: true
+    path_alias: istio.io/proxy
+    run_if_changed: centos
+    skip_report: true
+    spec:
+      containers:
+      - command:
+        - ./prow/proxy-presubmit-release.sh
+        env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
+          value: projects/istio-prow-build/instances/default_instance
+        - name: ENVOY_PREFIX
+          value: envoy-wasm
+        - name: ENVOY_REPOSITORY
+          value: https://github.com/envoyproxy/envoy-wasm
+        image: gcr.io/istio-testing/build-tools-centos:master-2020-05-29T06-04-34
+        name: ""
+        resources:
+          limits:
+            cpu: "64"
+            memory: 240G
+          requests:
+            cpu: "30"
+            memory: 100G
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: build-pool
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"

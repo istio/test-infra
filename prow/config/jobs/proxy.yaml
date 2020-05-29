@@ -23,6 +23,16 @@ jobs:
   command: [./prow/proxy-presubmit-release.sh]
   requirements: [gcp]
 
+- name: release-centos-test
+  type: presubmit
+  command: [./prow/proxy-presubmit-release.sh]
+  requirements: [gcp]
+  image: gcr.io/istio-testing/build-tools-centos:master-2020-05-29T06-04-34
+  # This job is under development. It is currently hidden and optional and only triggered for changes to
+  # A file with "centos" in the name
+  modifiers: [hidden, optional]
+  regex: 'centos'
+
 - name: check-wasm
   type: presubmit
   command: [entrypoint, ./prow/proxy-presubmit-wasm.sh]
