@@ -24,8 +24,8 @@ import (
 
 	container "google.golang.org/api/container/v1beta1"
 
-	"k8s.io/test-infra/boskos/common"
-	"k8s.io/test-infra/boskos/mason"
+	"sigs.k8s.io/boskos/common"
+	"sigs.k8s.io/boskos/mason"
 )
 
 func TestParseInvalidConfig(t *testing.T) {

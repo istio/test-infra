@@ -29,8 +29,8 @@ import (
 	container "google.golang.org/api/container/v1beta1"
 	"google.golang.org/api/option"
 	yaml "gopkg.in/yaml.v2"
-	"k8s.io/test-infra/boskos/common"
-	"k8s.io/test-infra/boskos/mason"
+	"sigs.k8s.io/boskos/common"
+	"sigs.k8s.io/boskos/mason"
 )
 
 var (
