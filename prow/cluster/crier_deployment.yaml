@@ -21,18 +21,18 @@ spec:
       - name: crier
         image: gcr.io/k8s-prow/crier:v20200601-4efada0619
         args:
-        - --github-workers=5
+        - --blob-storage-workers=1
+        - --config-path=/etc/config/config.yaml
+        - --gcs-credentials-file=/etc/service-account/service-account.json
         - --github-endpoint=http://ghproxy
         - --github-endpoint=https://api.github.com
         - --github-token-path=/etc/github/oauth
-        - --slack-workers=1
-        - --slack-token-file=/etc/slack/token
-        - --gcs-workers=1
-        - --kubernetes-gcs-workers=1
-        - --gcs-credentials-file=/etc/service-account/service-account.json
-        - --kubeconfig=/etc/kubeconfig/istio-config
-        - --config-path=/etc/config/config.yaml
+        - --github-workers=5
         - --job-config-path=/etc/job-config
+        - --kubeconfig=/etc/kubeconfig/istio-config
+        - --kubernetes-blob-storage-workers=1
+        - --slack-token-file=/etc/slack/token
+        - --slack-workers=1
         volumeMounts:
         - name: oauth
           mountPath: /etc/github
