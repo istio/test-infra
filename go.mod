@@ -4,6 +4,7 @@ go 1.12
 
 replace (
 	github.com/Azure/go-autorest => github.com/Azure/go-autorest v12.2.0+incompatible
+	github.com/garyburd/redigo => github.com/garyburd/redigo v1.6.0 // for LICENSE
 	github.com/otiai10/curr => github.com/otiai10/curr v1.0.0 // for LICENSE
 	github.com/otiai10/mint => github.com/otiai10/mint v1.3.0 // remove dependency on bou.ke/monkey
 	github.com/pelletier/go-buffruneio => github.com/pelletier/go-buffruneio v0.2.1-0.20190103235659-25c428535bd3 // for LICENSE
