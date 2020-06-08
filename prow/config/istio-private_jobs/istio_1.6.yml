@@ -1,0 +1,24 @@
+defaults:
+  branches: [release-1.6]
+  repo-whitelist: [istio]
+
+
+transforms:
+
+# istio/istio master build job(s) - postsubmit(s)
+- env:
+    DOCKER_HUB: gcr.io/istio-prow-build
+    GCS_BUCKET: istio-private-build/dev
+  labels:
+    preset-enable-ssh: "true"
+    preset-override-deps: release-1.6-istio
+  job-type: [postsubmit]
+  job-whitelist: [release_istio_release-1.6_postsubmit]
+
+# istio/istio master test jobs(s) - presubmit(s) and postsubmit(s)
+- labels:
+    preset-enable-ssh: "true"
+    preset-override-envoy: "true"
+    preset-override-deps: release-1.6-istio
+  job-type: [presubmit, postsubmit]
+  job-blacklist: [release_istio_release-1.6_postsubmit]
