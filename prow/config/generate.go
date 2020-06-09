@@ -493,6 +493,7 @@ func createContainer(jobConfig JobConfig, job Job, resources map[string]v1.Resou
 }
 
 func createJobBase(jobConfig JobConfig, job Job, name string, repo string, branch string, resources map[string]v1.ResourceRequirements) config.JobBase {
+	yes := true
 	jb := config.JobBase{
 		Name:           name,
 		MaxConcurrency: job.MaxConcurrency,
@@ -501,7 +502,7 @@ func createJobBase(jobConfig JobConfig, job Job, name string, repo string, branc
 			Containers:   createContainer(jobConfig, job, resources),
 		},
 		UtilityConfig: config.UtilityConfig{
-			Decorate:  true,
+			Decorate:  &yes,
 			PathAlias: fmt.Sprintf("istio.io/%s", repo),
 			ExtraRefs: createExtraRefs(job.Repos, branch),
 		},
