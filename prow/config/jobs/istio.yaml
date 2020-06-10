@@ -11,12 +11,12 @@ jobs:
   - name: release-test
     type: presubmit
     command: [entrypoint, prow/release-test.sh]
-    requirements: [gcp]
+    requirements: [gcp, docker]
 
   - name: release
     type: postsubmit
     command: [entrypoint, prow/release-commit.sh]
-    requirements: [gcp]
+    requirements: [gcp, docker]
 
   - name: integ-galley-k8s-tests
     type: presubmit
