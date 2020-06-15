@@ -12,15 +12,5 @@ jobs:
   - name: sync-org
     image: gcr.io/k8s-prow/peribolos:v20200601-4efada0619
     type: postsubmit
-    command:
-    - /app/prow/cmd/peribolos/app.binary
-    - --fix-org
-    - --fix-org-members
-    - --fix-teams
-    - --fix-team-members
-    - --config-path
-    - org/istio.yaml
-    - --github-token-path
-    - /etc/github-token/oauth
-    - --confirm
+    command: [prow/sync-org.sh]
     requirements: [github]
