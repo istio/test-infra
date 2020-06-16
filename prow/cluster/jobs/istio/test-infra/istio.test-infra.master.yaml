@@ -1,24 +1,25 @@
 presubmits:
   istio/test-infra:
 
-  - name: pull-test-infra-check-testgrid-config
-    run_if_changed: '^(prow/cluster/jobs/.*\.yaml)|(testgrid/default\.yaml)$'
-    decorate: true
-    branches:
-    - master
-    annotations:
-      testgrid-create-test-group: "false"
-    spec:
-      containers:
-      - image: gcr.io/k8s-prow/transfigure
-        command:
-        - /transfigure.sh
-        args:
-        - test
-        - prow/config.yaml
-        - prow/cluster/jobs
-        - testgrid/default.yaml
-        - istio
+  # TODO(https://github.com/istio/test-infra/issues/2708) re-enable this
+  # - name: pull-test-infra-check-testgrid-config
+  #   run_if_changed: '^(prow/cluster/jobs/.*\.yaml)|(testgrid/default\.yaml)$'
+  #   decorate: true
+  #   branches:
+  #   - master
+  #   annotations:
+  #     testgrid-create-test-group: "false"
+  #   spec:
+  #     containers:
+  #     - image: gcr.io/k8s-prow/transfigure
+  #       command:
+  #       - /transfigure.sh
+  #       args:
+  #       - test
+  #       - prow/config.yaml
+  #       - prow/cluster/jobs
+  #       - testgrid/default.yaml
+  #       - istio
 
   - name: flakey-run
     branches:
