@@ -133,6 +133,61 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
+    name: integ-ipv6-k8s-tests_istio_postsubmit
+    path_alias: istio.io/istio
+    skip_report: true
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.kube.reachability
+        env:
+        - name: DOCKER_IN_DOCKER_IPV6_ENABLED
+          value: "true"
+        - name: IP_FAMILY
+          value: ipv6
+        - name: TEST_SELECT
+          value: -multicluster
+        image: gcr.io/istio-testing/build-tools:master-2020-05-31T23-50-32
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_istio_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
     name: integ-galley-k8s-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
@@ -927,6 +982,61 @@ presubmits:
         env:
         - name: VARIANT
           value: distroless
+        - name: TEST_SELECT
+          value: -multicluster
+        image: gcr.io/istio-testing/build-tools:master-2020-05-31T23-50-32
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    name: integ-ipv6-k8s-tests_istio
+    optional: true
+    path_alias: istio.io/istio
+    skip_report: true
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.kube.reachability
+        env:
+        - name: DOCKER_IN_DOCKER_IPV6_ENABLED
+          value: "true"
+        - name: IP_FAMILY
+          value: ipv6
         - name: TEST_SELECT
           value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2020-05-31T23-50-32

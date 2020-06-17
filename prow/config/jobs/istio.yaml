@@ -80,17 +80,17 @@ jobs:
       - name: TEST_SELECT
         value: "-multicluster"
 
-  # - name: integ-ipv6-k8s-tests
-  #   command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.reachability]
-  #   requirements: [kind]
-  #   modifiers: [optional, hidden]
-  #   env:
-  #     - name: DOCKER_IN_DOCKER_IPV6_ENABLED
-  #       value: "true"
-  #     - name: IP_FAMILY
-  #       value: "ipv6"
-  #     - name: TEST_SELECT
-  #       value: "-multicluster"
+  - name: integ-ipv6-k8s-tests
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.reachability]
+    requirements: [kind]
+    modifiers: [optional, hidden]
+    env:
+      - name: DOCKER_IN_DOCKER_IPV6_ENABLED
+        value: "true"
+      - name: IP_FAMILY
+        value: "ipv6"
+      - name: TEST_SELECT
+        value: "-multicluster"
 
   - name: integ-operator-controller-tests
     type: presubmit
