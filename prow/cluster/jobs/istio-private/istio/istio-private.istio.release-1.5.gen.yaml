@@ -35,8 +35,14 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         testing: test-pool
+      volumes:
+      - emptyDir: {}
+        name: docker-root
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1397,8 +1403,14 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         testing: test-pool
+      volumes:
+      - emptyDir: {}
+        name: docker-root
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
