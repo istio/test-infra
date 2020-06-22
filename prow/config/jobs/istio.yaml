@@ -83,7 +83,6 @@ jobs:
   - name: integ-ipv6-k8s-tests
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.reachability]
     requirements: [kind]
-    modifiers: [optional, hidden, skipped]
     env:
       - name: DOCKER_IN_DOCKER_IPV6_ENABLED
         value: "true"
@@ -182,7 +181,6 @@ jobs:
       - gcr.io/istio-testing/kind-node:v1.19.0-beta.1
       - test.integration.kube.presubmit
     requirements: [kind]
-    modifiers: [hidden]
     timeout: 4h
     env:
       - name: INTEGRATION_TEST_FLAGS

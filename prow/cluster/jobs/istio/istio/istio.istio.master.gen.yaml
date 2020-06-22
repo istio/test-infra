@@ -135,7 +135,6 @@ postsubmits:
     decorate: true
     name: integ-ipv6-k8s-tests_istio_postsubmit
     path_alias: istio.io/istio
-    skip_report: true
     spec:
       containers:
       - command:
@@ -552,7 +551,6 @@ postsubmits:
       timeout: 4h0m0s
     name: integ-k8s-119_istio_postsubmit
     path_alias: istio.io/istio
-    skip_report: true
     spec:
       containers:
       - command:
@@ -1016,16 +1014,14 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-  - always_run: false
+  - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
     branches:
     - ^master$
     decorate: true
     name: integ-ipv6-k8s-tests_istio
-    optional: true
     path_alias: istio.io/istio
-    skip_report: true
     spec:
       containers:
       - command:
