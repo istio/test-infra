@@ -146,8 +146,14 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         testing: test-pool
+      volumes:
+      - emptyDir: {}
+        name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_release-1.6_release-builder_postsubmit
@@ -176,8 +182,14 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         testing: test-pool
+      volumes:
+      - emptyDir: {}
+        name: docker-root
 presubmits:
   istio/release-builder:
   - always_run: true
