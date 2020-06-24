@@ -30,16 +30,8 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache-pvc
-          subPath: gomod
       nodeSelector:
         testing: test-pool
-      volumes:
-      - name: build-cache-pvc
-        persistentVolumeClaim:
-          claimName: build-cache-claim
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_istio_postsubmit
@@ -675,16 +667,8 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache-pvc
-          subPath: gomod
       nodeSelector:
         testing: test-pool
-      volumes:
-      - name: build-cache-pvc
-        persistentVolumeClaim:
-          claimName: build-cache-claim
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -1243,16 +1227,8 @@ presubmits:
             memory: 16Gi
         securityContext:
           privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache-pvc
-          subPath: gomod
       nodeSelector:
         testing: test-pool
-      volumes:
-      - name: build-cache-pvc
-        persistentVolumeClaim:
-          claimName: build-cache-claim
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -1276,13 +1252,5 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache-pvc
-          subPath: gomod
       nodeSelector:
         testing: test-pool
-      volumes:
-      - name: build-cache-pvc
-        persistentVolumeClaim:
-          claimName: build-cache-claim
