@@ -1392,3 +1392,34 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-ssh: "true"
+      preset-override-deps: release-1.4-istio
+      preset-override-envoy: "true"
+    name: analyze-tests_istio_priv
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - make
+        - test.integration.analyze
+        image: gcr.io/istio-testing/build-tools:master-2020-06-30T00-03-39
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
