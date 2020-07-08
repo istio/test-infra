@@ -20,33 +20,3 @@ presubmits:
   #       - prow/cluster/jobs
   #       - testgrid/default.yaml
   #       - istio
-
-  - name: flakey-run
-    branches:
-      - ^master$
-    context: "prow: flakey-run"
-    run_if_changed: "flakeyTest/.*"
-    optional: true
-    decorate: true
-    path_alias: istio.io/test-infra
-    labels:
-      preset-service-account: "true"
-    spec:
-      containers:
-      - image: gcr.io/istio-testing/test-flakey-builder:v20190611-65b6bb45
-        # TODO(fejta): not true, remove privileged mode unless actually required
-        # Bazel needs privileged mode in order to sandbox builds.
-        securityContext:
-          privileged: true
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "1000m"
-          limits:
-            memory: "24Gi"
-            cpu: "1000m"
-        command:
-        - entrypoint
-        - flakeyTest/daily-flakey-test.sh
-      nodeSelector:
-        testing: test-pool
