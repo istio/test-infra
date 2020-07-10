@@ -73,6 +73,38 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
+    labels:
+      preset-service-account: "true"
+    name: benchmark-report_istio_postsubmit
+    path_alias: istio.io/istio
+    skip_report: true
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - benchtest
+        - report-benchtest
+        image: gcr.io/istio-testing/build-tools:master-2020-07-08T14-39-36
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 8Gi
+          requests:
+            cpu: "8"
+            memory: 8Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_istio_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
     name: integ-distroless-k8s-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
@@ -702,6 +734,35 @@ presubmits:
       volumes:
       - emptyDir: {}
         name: docker-root
+  - always_run: false
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    name: benchmark_istio
+    optional: true
+    path_alias: istio.io/istio
+    skip_report: true
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - benchtest
+        image: gcr.io/istio-testing/build-tools:master-2020-07-08T14-39-36
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 8Gi
+          requests:
+            cpu: "8"
+            memory: 8Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio

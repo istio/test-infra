@@ -17,6 +17,19 @@ jobs:
     command: [entrypoint, prow/release-commit.sh]
     requirements: [gcp, docker]
 
+  - name: benchmark
+    type: presubmit
+    modifiers: [optional, skipped, hidden]
+    command: [entrypoint, make, benchtest]
+    resources: benchmark
+
+  - name: benchmark-report
+    type: postsubmit
+    modifiers: [hidden]
+    command: [entrypoint, make, benchtest, report-benchtest]
+    requirements: [gcp]
+    resources: benchmark
+
   - name: integ-galley-k8s-tests
     type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.galley.kube.presubmit]
@@ -218,3 +231,11 @@ resources:
       cpu: "3000m"
     limits:
       memory: "24Gi"
+  # Give Guaranteed QOS for consistency in the benchmarks
+  benchmark:
+    requests:
+      memory: "8Gi"
+      cpu: "8000m"
+    limits:
+      memory: "8Gi"
+      cpu: "8000m"
