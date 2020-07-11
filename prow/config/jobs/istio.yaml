@@ -19,13 +19,12 @@ jobs:
 
   - name: benchmark
     type: presubmit
-    modifiers: [optional, skipped, hidden]
+    modifiers: [optional, skipped]
     command: [entrypoint, make, benchtest]
     resources: benchmark
 
   - name: benchmark-report
     type: postsubmit
-    modifiers: [hidden]
     command: [entrypoint, make, benchtest, report-benchtest]
     requirements: [gcp]
     resources: benchmark
@@ -237,5 +236,5 @@ resources:
       memory: "8Gi"
       cpu: "8000m"
     limits:
-      memory: "8Gi"
+      memory: "24Gi"
       cpu: "8000m"
