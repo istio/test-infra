@@ -144,6 +144,9 @@ branch-protection:
             required_approving_review_count: 2
           branches: &blocked_branches
             master:
+              required_status_checks:
+                contexts:
+                - "merges-blocked-see-issue-25463"
               protect: true
             release-0.1: &blocking_merge
               required_status_checks:
