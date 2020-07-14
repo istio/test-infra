@@ -55,12 +55,12 @@ The following is a list of supported options for `genjobs`. The only **required*
       --configs strings              Path to files or directories containing yaml job transforms.
       --dry-run                      Run in dry run mode.
   -e, --env stringToString           Environment variables to set for the job(s). (default [])
-      --env-blacklist strings        Env(s) to blacklist in generation process.
+      --env-denylist strings        Env(s) to denylist in generation process.
       --global string                Path to file containing global defaults configuration.
   -i, --input string                 Input file or directory containing job(s) to convert. (default ".")
-      --job-blacklist strings        Job(s) to blacklist in generation process.
+      --job-denylist strings        Job(s) to denylist in generation process.
   -t, --job-type strings             Job type(s) to process (e.g. presubmit, postsubmit. periodic). (default [presubmit,postsubmit,periodic])
-      --job-whitelist strings        Job(s) to whitelist in generation process.
+      --job-allowlist strings        Job(s) to allowlist in generation process.
   -l, --labels stringToString        Prow labels to apply to the job(s). (default [])
   -m, --mapping stringToString       Mapping between public and private Github organization(s). (default [])
       --modifier string              Modifier to apply to generated file and job name(s). (default "private")
@@ -68,8 +68,8 @@ The following is a list of supported options for `genjobs`. The only **required*
       --override-selector            The existing node selector will be overridden rather than added to.
   -p, --presets strings              Path to file(s) containing additional presets.
       --refs                         Apply translation to all extra refs regardless of repo.
-  -b, --repo-blacklist strings       Repositories to blacklist in generation process.
-  -w, --repo-whitelist strings       Repositories to whitelist in generation process.
+  -b, --repo-denylist strings       Repositories to denylist in generation process.
+  -w, --repo-allowlist strings       Repositories to allowlist in generation process.
       --rerun-orgs strings           GitHub organizations to authorize job rerun for.
       --rerun-users strings          GitHub user to authorize job rerun for.
       --resolve                      Resolve and expand values for presets in generated job(s).
@@ -78,7 +78,7 @@ The following is a list of supported options for `genjobs`. The only **required*
       --ssh-clone                    Enable a clone of the git repository over ssh.
       --ssh-key-secret string        GKE cluster secrets containing the Github ssh private key.
       --verbose                      Enable verbose output.
-      --volume-blacklist strings     Volume(s) to blacklist in generation process.
+      --volume-denylist strings     Volume(s) to denylist in generation process.
 ```
 
 ## Example
@@ -114,13 +114,13 @@ genjobs --mapping istio=istio-private --branches master
 Limit job generation to *specific* repositories:
 
 ```shell
-genjobs --mapping istio=istio-private --repo-whitelist cni, api
+genjobs --mapping istio=istio-private --repo-allowlist cni, api
 ```
 
 Limit job generation to *specific* job names:
 
 ```shell
-genjobs --mapping istio=istio-private --job-whitelist build_bots_postsubmit
+genjobs --mapping istio=istio-private --job-allowlist build_bots_postsubmit
 ```
 
 Define the `bucket` to upload job results to:

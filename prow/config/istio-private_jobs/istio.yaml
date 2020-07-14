@@ -1,6 +1,6 @@
 defaults:
   branches: [master]
-  repo-whitelist: [istio]
+  repo-allowlist: [istio]
 
 
 transforms:
@@ -13,7 +13,7 @@ transforms:
     preset-enable-ssh: "true"
     preset-override-deps: release-1.4-istio
   job-type: [postsubmit]
-  job-whitelist: [release_istio_postsubmit]
+  job-allowlist: [release_istio_postsubmit]
 
 # istio/istio master test jobs(s) - presubmit(s) and postsubmit(s)
 - labels:
@@ -21,4 +21,4 @@ transforms:
     preset-override-envoy: "true"
     preset-override-deps: release-1.4-istio
   job-type: [presubmit, postsubmit]
-  job-blacklist: [benchmark-report_istio_postsubmit, release_istio_postsubmit, cache-experiment_istio_postsubmit, cache-experiment_istio, update-ref-docs-dry-run_istio]
+  job-denylist: [benchmark-report_istio_postsubmit, release_istio_postsubmit, cache-experiment_istio_postsubmit, cache-experiment_istio, update-ref-docs-dry-run_istio]
