@@ -36,7 +36,6 @@ periodics:
   timeout: 24h
   decoration_config:
     timeout: 24h0m0s
-  requirements: [docker]
   extra_refs:
     - org: istio
       repo: tools
@@ -59,6 +58,12 @@ periodics:
         command:
           - entrypoint
           - perf/benchmark/run_benchmark_job.sh
+        volumeMounts:
+          - mountPath: /var/lib/docker
+            name: docker-root
+    volumes:
+      - emptyDir: {}
+        name: docker-root
     nodeSelector:
       testing: test-pool
 
@@ -69,7 +74,6 @@ periodics:
   timeout: 24h
   decoration_config:
     timeout: 24h0m0s
-  requirements: [docker]
   extra_refs:
     - org: istio
       repo: tools
@@ -92,6 +96,12 @@ periodics:
         command:
           - entrypoint
           - perf/benchmark/run_benchmark_job.sh
+        volumeMounts:
+          - mountPath: /var/lib/docker
+            name: docker-root
+    volumes:
+      - emptyDir: {}
+        name: docker-root
     nodeSelector:
       testing: test-pool
 
@@ -102,7 +112,6 @@ periodics:
   timeout: 24h
   decoration_config:
     timeout: 24h0m0s
-  requirements: [docker]
   extra_refs:
     - org: istio
       repo: tools
@@ -125,6 +134,12 @@ periodics:
         command:
           - entrypoint
           - perf/benchmark/run_benchmark_job.sh
+        volumeMounts:
+          - mountPath: /var/lib/docker
+            name: docker-root
+    volumes:
+      - emptyDir: {}
+        name: docker-root
     nodeSelector:
       testing: test-pool
 
@@ -135,7 +150,6 @@ periodics:
   timeout: 24h
   decoration_config:
     timeout: 24h0m0s
-  requirements: [docker]
   extra_refs:
     - org: istio
       repo: tools
@@ -158,6 +172,12 @@ periodics:
         command:
           - entrypoint
           - perf/benchmark/run_benchmark_job.sh
+        volumeMounts:
+          - mountPath: /var/lib/docker
+            name: docker-root
+    volumes:
+      - emptyDir: {}
+        name: docker-root
     nodeSelector:
       testing: test-pool
 
