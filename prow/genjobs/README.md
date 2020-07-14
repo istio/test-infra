@@ -162,3 +162,4 @@ genjobs --mapping istio=istio-private --clean
 - 0.0.5: rename `--extra-refs` option to `--refs` and designate `extra-refs` key for specifying a list of extra refs to append to job.
 - 0.0.6: `--extra-refs` will now replace existing refs, rather than adding to them.
 - 0.0.7: add `--env-blacklist` and `volume-blacklist` options for pruning env and volume/volumeMount objects, respectively, from generated jobs.
+- 0.0.8: rename `--env-blacklist`, `--volume-blacklist`, `--job-blacklist`, `--job-whitelist`, `--repo-blacklist`, and `--repo-whitelist` options to `--env-denylist`, `--volume-denylist`, `--job-denylist`, `--job-allowlist`, `--repo-denylist`, and `--repo-allowlist` and drop `-b` and `-w` shorthands
