@@ -83,12 +83,12 @@ type transform struct {
 	Presets          []string          `json:"presets,omitempty"`
 	RerunOrgs        []string          `json:"rerun-orgs,omitempty"`
 	RerunUsers       []string          `json:"rerun-users,omitempty"`
-	EnvBlacklist     []string          `json:"env-blacklist,omitempty"`
-	VolumeBlacklist  []string          `json:"volume-blacklist,omitempty"`
-	JobWhitelist     []string          `json:"job-whitelist,omitempty"`
-	JobBlacklist     []string          `json:"job-blacklist,omitempty"`
-	RepoWhitelist    []string          `json:"repo-whitelist,omitempty"`
-	RepoBlacklist    []string          `json:"repo-blacklist,omitempty"`
+	EnvDenylist      []string          `json:"env-denylist,omitempty"`
+	VolumeDenylist   []string          `json:"volume-denylist,omitempty"`
+	JobAllowlist     []string          `json:"job-allowlist,omitempty"`
+	JobDenylist      []string          `json:"job-denylist,omitempty"`
+	RepoAllowlist    []string          `json:"repo-allowlist,omitempty"`
+	RepoDenylist     []string          `json:"repo-denylist,omitempty"`
 	JobType          []string          `json:"job-type,omitempty"`
 	Selector         map[string]string `json:"selector,omitempty"`
 	Labels           map[string]string `json:"labels,omitempty"`
@@ -105,15 +105,15 @@ type transform struct {
 
 // options are the available command-line flags.
 type options struct {
-	Configs            []string
-	Global             string
-	EnvBlacklistSet    sets.String
-	VolumeBlacklistSet sets.String
-	JobWhitelistSet    sets.String
-	JobBlacklistSet    sets.String
-	RepoWhitelistSet   sets.String
-	RepoBlacklistSet   sets.String
-	JobTypeSet         sets.String
+	Configs           []string
+	Global            string
+	EnvDenylistSet    sets.String
+	VolumeDenylistSet sets.String
+	JobAllowlistSet   sets.String
+	JobDenylistSet    sets.String
+	RepoAllowlistSet  sets.String
+	RepoDenylistSet   sets.String
+	JobTypeSet        sets.String
 	transform
 }
 
@@ -139,12 +139,12 @@ func (o *options) parseOpts() {
 	flag.StringToStringVarP(&o.Env, "env", "e", map[string]string{}, "Environment variables to set for the job(s).")
 	flag.StringToStringVarP(&o.OrgMap, "mapping", "m", map[string]string{}, "Mapping between public and private Github organization(s).")
 	flag.StringToStringVarP(&o.Annotations, "annotations", "a", map[string]string{}, "Annotations to apply to the job(s)")
-	flag.StringSliceVar(&o.EnvBlacklist, "env-blacklist", []string{}, "Env(s) to blacklist in generation process.")
-	flag.StringSliceVar(&o.VolumeBlacklist, "volume-blacklist", []string{}, "Volume(s) to blacklist in generation process.")
-	flag.StringSliceVar(&o.JobWhitelist, "job-whitelist", []string{}, "Job(s) to whitelist in generation process.")
-	flag.StringSliceVar(&o.JobBlacklist, "job-blacklist", []string{}, "Job(s) to blacklist in generation process.")
-	flag.StringSliceVarP(&o.RepoWhitelist, "repo-whitelist", "w", []string{}, "Repositories to whitelist in generation process.")
-	flag.StringSliceVarP(&o.RepoBlacklist, "repo-blacklist", "b", []string{}, "Repositories to blacklist in generation process.")
+	flag.StringSliceVar(&o.EnvDenylist, "env-denylist", []string{}, "Env(s) to denylist in generation process.")
+	flag.StringSliceVar(&o.VolumeDenylist, "volume-denylist", []string{}, "Volume(s) to denylist in generation process.")
+	flag.StringSliceVar(&o.JobAllowlist, "job-allowlist", []string{}, "Job(s) to allowlist in generation process.")
+	flag.StringSliceVar(&o.JobDenylist, "job-denylist", []string{}, "Job(s) to denylist in generation process.")
+	flag.StringSliceVar(&o.RepoAllowlist, "repo-allowlist", []string{}, "Repositories to allowlist in generation process.")
+	flag.StringSliceVar(&o.RepoDenylist, "repo-denylist", []string{}, "Repositories to denylist in generation process.")
 	flag.StringSliceVarP(&o.JobType, "job-type", "t", defaultJobTypes, "Job type(s) to process (e.g. presubmit, postsubmit. periodic).")
 	flag.BoolVar(&o.Clean, "clean", false, "Clean output files before job(s) generation.")
 	flag.BoolVar(&o.DryRun, "dry-run", false, "Run in dry run mode.")
@@ -156,12 +156,12 @@ func (o *options) parseOpts() {
 
 	flag.Parse()
 
-	o.EnvBlacklistSet = sets.NewString(o.EnvBlacklist...)
-	o.VolumeBlacklistSet = sets.NewString(o.VolumeBlacklist...)
-	o.JobWhitelistSet = sets.NewString(o.JobWhitelist...)
-	o.JobBlacklistSet = sets.NewString(o.JobBlacklist...)
-	o.RepoWhitelistSet = sets.NewString(o.RepoWhitelist...)
-	o.RepoBlacklistSet = sets.NewString(o.RepoBlacklist...)
+	o.EnvDenylistSet = sets.NewString(o.EnvDenylist...)
+	o.VolumeDenylistSet = sets.NewString(o.VolumeDenylist...)
+	o.JobAllowlistSet = sets.NewString(o.JobAllowlist...)
+	o.JobDenylistSet = sets.NewString(o.JobDenylist...)
+	o.RepoAllowlistSet = sets.NewString(o.RepoAllowlist...)
+	o.RepoDenylistSet = sets.NewString(o.RepoDenylist...)
 	o.JobTypeSet = sets.NewString(o.JobType...)
 }
 
@@ -210,14 +210,14 @@ func (o *options) parseConfiguration() []options {
 				applyDefaultTransforms(&t, &c.Defaults, &local.Defaults, &global.Defaults)
 
 				oc := options{
-					EnvBlacklistSet:    sets.NewString(t.EnvBlacklist...),
-					VolumeBlacklistSet: sets.NewString(t.VolumeBlacklist...),
-					JobWhitelistSet:    sets.NewString(t.JobWhitelist...),
-					JobBlacklistSet:    sets.NewString(t.JobBlacklist...),
-					RepoWhitelistSet:   sets.NewString(t.RepoWhitelist...),
-					RepoBlacklistSet:   sets.NewString(t.RepoBlacklist...),
-					JobTypeSet:         sets.NewString(t.JobType...),
-					transform:          t,
+					EnvDenylistSet:    sets.NewString(t.EnvDenylist...),
+					VolumeDenylistSet: sets.NewString(t.VolumeDenylist...),
+					JobAllowlistSet:   sets.NewString(t.JobAllowlist...),
+					JobDenylistSet:    sets.NewString(t.JobDenylist...),
+					RepoAllowlistSet:  sets.NewString(t.RepoAllowlist...),
+					RepoDenylistSet:   sets.NewString(t.RepoDenylist...),
+					JobTypeSet:        sets.NewString(t.JobType...),
+					transform:         t,
 				}
 
 				if err := oc.validateOpts(); err != nil {
@@ -335,23 +335,23 @@ func applyDefaultTransforms(dst *transform, srcs ...*transform) {
 		if len(dst.RerunUsers) == 0 {
 			dst.RerunUsers = src.RerunUsers
 		}
-		if len(dst.EnvBlacklist) == 0 {
-			dst.EnvBlacklist = src.EnvBlacklist
+		if len(dst.EnvDenylist) == 0 {
+			dst.EnvDenylist = src.EnvDenylist
 		}
-		if len(dst.VolumeBlacklist) == 0 {
-			dst.VolumeBlacklist = src.VolumeBlacklist
+		if len(dst.VolumeDenylist) == 0 {
+			dst.VolumeDenylist = src.VolumeDenylist
 		}
-		if len(dst.JobWhitelist) == 0 {
-			dst.JobWhitelist = src.JobWhitelist
+		if len(dst.JobAllowlist) == 0 {
+			dst.JobAllowlist = src.JobAllowlist
 		}
-		if len(dst.JobBlacklist) == 0 {
-			dst.JobBlacklist = src.JobBlacklist
+		if len(dst.JobDenylist) == 0 {
+			dst.JobDenylist = src.JobDenylist
 		}
-		if len(dst.RepoWhitelist) == 0 {
-			dst.RepoWhitelist = src.RepoWhitelist
+		if len(dst.RepoAllowlist) == 0 {
+			dst.RepoAllowlist = src.RepoAllowlist
 		}
-		if len(dst.RepoBlacklist) == 0 {
-			dst.RepoBlacklist = src.RepoBlacklist
+		if len(dst.RepoDenylist) == 0 {
+			dst.RepoDenylist = src.RepoDenylist
 		}
 		if len(dst.JobType) == 0 {
 			dst.JobType = src.JobType
@@ -402,7 +402,7 @@ func applyDefaultTransforms(dst *transform, srcs ...*transform) {
 func validateOrgRepo(o options, org string, repo string) bool {
 	_, hasOrg := o.OrgMap[org]
 
-	if !hasOrg || o.RepoBlacklistSet.Has(repo) || (len(o.RepoWhitelistSet) > 0 && !o.RepoWhitelistSet.Has(repo)) {
+	if !hasOrg || o.RepoDenylistSet.Has(repo) || (len(o.RepoAllowlistSet) > 0 && !o.RepoAllowlistSet.Has(repo)) {
 		return false
 	}
 
@@ -411,7 +411,7 @@ func validateOrgRepo(o options, org string, repo string) bool {
 
 // validateJob validates that the job passes validation and should be converted.
 func validateJob(o options, name string, patterns []string, jType string) bool {
-	if o.JobBlacklistSet.Has(name) || (len(o.JobWhitelistSet) > 0 && !o.JobWhitelistSet.Has(name)) || !isMatchBranch(o, patterns) || !o.JobTypeSet.Has(jType) {
+	if o.JobDenylistSet.Has(name) || (len(o.JobAllowlistSet) > 0 && !o.JobAllowlistSet.Has(name)) || !isMatchBranch(o, patterns) || !o.JobTypeSet.Has(jType) {
 		return false
 	}
 
@@ -541,25 +541,25 @@ func resolvePresets(o options, labels map[string]string, job *config.JobBase, pr
 	}
 }
 
-// pruneJobBase prunes blacklisted fields from the job Spec.
+// pruneJobBase prunes denylisted fields from the job Spec.
 func pruneJobBase(o options, job *config.JobBase) {
 	if job.Spec != nil {
-		if len(o.VolumeBlacklistSet) > 0 {
-			pruneVolumes(o.VolumeBlacklistSet, job)
+		if len(o.VolumeDenylistSet) > 0 {
+			pruneVolumes(o.VolumeDenylistSet, job)
 		}
-		if len(o.EnvBlacklistSet) > 0 {
-			pruneEnvs(o.EnvBlacklistSet, job)
+		if len(o.EnvDenylistSet) > 0 {
+			pruneEnvs(o.EnvDenylistSet, job)
 		}
 	}
 }
 
-// pruneEnvs prunes blacklisted Env fields.
-func pruneEnvs(blacklist sets.String, job *config.JobBase) {
+// pruneEnvs prunes denylisted Env fields.
+func pruneEnvs(denylist sets.String, job *config.JobBase) {
 	for i := range job.Spec.Containers {
 		var envs []v1.EnvVar
 
 		for _, env := range job.Spec.Containers[i].Env {
-			if blacklist.Has(env.Name) {
+			if denylist.Has(env.Name) {
 				continue
 			}
 			envs = append(envs, env)
@@ -568,12 +568,12 @@ func pruneEnvs(blacklist sets.String, job *config.JobBase) {
 	}
 }
 
-// pruneVolumes prunes blacklisted Volume and VolueMount fields.
-func pruneVolumes(blacklist sets.String, job *config.JobBase) {
+// pruneVolumes prunes denylisted Volume and VolueMount fields.
+func pruneVolumes(denylist sets.String, job *config.JobBase) {
 	var volumes []v1.Volume
 
 	for _, vol := range job.Spec.Volumes {
-		if blacklist.Has(vol.Name) {
+		if denylist.Has(vol.Name) {
 			continue
 		}
 		volumes = append(volumes, vol)
@@ -584,7 +584,7 @@ func pruneVolumes(blacklist sets.String, job *config.JobBase) {
 		var volumeMounts []v1.VolumeMount
 
 		for _, volm := range job.Spec.Containers[i].VolumeMounts {
-			if blacklist.Has(volm.Name) {
+			if denylist.Has(volm.Name) {
 				continue
 			}
 			volumeMounts = append(volumeMounts, volm)

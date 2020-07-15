@@ -1,20 +1,20 @@
 defaults:
   branches: [master]
-  repo-whitelist: [release-builder]
+  repo-allowlist: [release-builder]
 
 
 transforms:
 
 # istio/release-builder master test jobs(s) - pre/postsubmit(s)
 - job-type: [presubmit, postsubmit]
-  job-whitelist: [lint_release-builder,lint_release-builder_postsubmit,test_release-builder,test_release-builder_postsubmit,gencheck_release-builder,gencheck_release-builder_postsubmit]
+  job-allowlist: [lint_release-builder,lint_release-builder_postsubmit,test_release-builder,test_release-builder_postsubmit,gencheck_release-builder,gencheck_release-builder_postsubmit]
 
 # istio/release-builder master build warning jobs(s) - presubmit(s)
 - env:
     PRERELEASE_DOCKER_HUB: gcr.io/istio-prow-build
     GCS_BUCKET: istio-private-prerelease/prerelease
   job-type: [presubmit]
-  job-whitelist: [build-warning_release-builder]
+  job-allowlist: [build-warning_release-builder]
 
   # istio/release-builder master build jobs(s) - postsubmit(s)
 - env:
@@ -25,4 +25,4 @@ transforms:
     preset-override-envoy: "true"
     preset-override-deps: release-1.4-release
   job-type: [postsubmit]
-  job-whitelist: [build-release_release-builder_postsubmit]
+  job-allowlist: [build-release_release-builder_postsubmit]

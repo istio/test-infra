@@ -14,7 +14,7 @@
 
 PROJECT = istio-testing
 HUB = gcr.io
-VERSION ?= 0.0.7
+VERSION ?= 0.0.8
 
 .PHONY: deploy
 deploy: image push

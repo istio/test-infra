@@ -1,22 +1,22 @@
 defaults:
   branches: [release-1.4]
-  repo-whitelist: [release-builder]
+  repo-allowlist: [release-builder]
 
 
 transforms:
 
 # istio/release-builder release-1.4 test jobs(s) - pre/postsubmit(s)
 - job-type: [presubmit, postsubmit]
-  repo-whitelist: [release-builder]
-  job-whitelist: [lint_release-builder_release-1.4,lint_release-builder_release-1.4_postsubmit,test_release-builder_release-1.4,test_release-builder_release-1.4_postsubmit,gencheck_release-builder_release-1.4,gencheck_release-builder_release-1.4_postsubmit]
+  repo-allowlist: [release-builder]
+  job-allowlist: [lint_release-builder_release-1.4,lint_release-builder_release-1.4_postsubmit,test_release-builder_release-1.4,test_release-builder_release-1.4_postsubmit,gencheck_release-builder_release-1.4,gencheck_release-builder_release-1.4_postsubmit]
 
 # istio/release-builder release-1.4 build warning jobs(s) - presubmit(s)
 - env:
     PRERELEASE_DOCKER_HUB: gcr.io/istio-prow-build
     GCS_BUCKET: istio-private-prerelease/prerelease
   job-type: [presubmit]
-  repo-whitelist: [release-builder]
-  job-whitelist: [build-warning_release-builder_release-1.4]
+  repo-allowlist: [release-builder]
+  job-allowlist: [build-warning_release-builder_release-1.4]
 
   # istio/release-builder release-1.4 build jobs(s) - postsubmit(s)
 - env:
@@ -29,5 +29,5 @@ transforms:
     preset-override-deps: release-1.4-release
     preset-enable-gomod-netrc: "true"
   job-type: [postsubmit]
-  repo-whitelist: [release-builder]
-  job-whitelist: [build-release_release-builder_release-1.4_postsubmit]
+  repo-allowlist: [release-builder]
+  job-allowlist: [build-release_release-builder_release-1.4_postsubmit]
