@@ -44,6 +44,19 @@ jobs:
   requirements: [gcp, docker]
   timeout: 4h
 
+- name: update-istio
+  type: postsubmit
+  command:
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=istio
+  - "--title=Automator: update proxy@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+  - --modifier=update_proxy_dep
+  - --token-path=/etc/github-token/oauth
+  - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
+  requirements: [github]
+  repos: [istio/test-infra@master]
+
 resources:
   default:
     requests:

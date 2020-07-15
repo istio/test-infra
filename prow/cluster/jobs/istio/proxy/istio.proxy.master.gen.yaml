@@ -38,6 +38,51 @@ postsubmits:
       volumes:
       - emptyDir: {}
         name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_proxy_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    extra_refs:
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/test-infra
+      repo: test-infra
+    name: update-istio_proxy_postsubmit
+    path_alias: istio.io/proxy
+    spec:
+      containers:
+      - command:
+        - ../test-infra/tools/automator/automator.sh
+        - --org=istio
+        - --repo=istio
+        - '--title=Automator: update proxy@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+        - --modifier=update_proxy_dep
+        - --token-path=/etc/github-token/oauth
+        - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
+        image: gcr.io/istio-testing/build-tools-proxy:master-2020-07-13T16-10-49
+        name: ""
+        resources:
+          limits:
+            cpu: "64"
+            memory: 240G
+          requests:
+            cpu: "30"
+            memory: 100G
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /etc/github-token
+          name: github
+          readOnly: true
+      nodeSelector:
+        testing: build-pool
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
 presubmits:
   istio/proxy:
   - always_run: true
