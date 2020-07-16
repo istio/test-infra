@@ -1263,6 +1263,32 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+  - always_run: false
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    name: analyze-tests_istio
+    optional: true
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - make
+        - test.integration.analyze
+        image: gcr.io/istio-testing/build-tools:master-2020-07-13T16-10-49
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+      nodeSelector:
+        testing: test-pool
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio

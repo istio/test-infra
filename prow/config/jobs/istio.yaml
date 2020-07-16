@@ -208,6 +208,11 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: " --istio.test.retries=1 "
 
+  - name: analyze-tests
+    modifiers: [optional, skipped]
+    type: presubmit
+    command: [make, test.integration.analyze]
+
   - name: lint
     type: presubmit
     command: [make, lint]
