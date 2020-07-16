@@ -139,14 +139,13 @@ checkForLabel() {
         ghPR=$(curl -L -s --show-error --fail  \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/pulls/${PULL_NUMBER}")
-
     else
         ghPR=$(curl -L -s --show-error --fail \
             --header "Accept: application/vnd.github.v3+json" \
             --header "Authorization: Bearer ${token}" \
             "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/pulls/${PULL_NUMBER}")
-
     fi
+
 
     labels=$(echo "${ghPR}" | jq '.labels | map(.name)')
 
@@ -158,6 +157,9 @@ checkForLabel() {
     if [ -z "${releaseNotesLabelPresent}" ]; then
         echo "Missing release notes and missing ${RELEASE_NOTES_NONE_LABEL} label. If this pull request contains user facing changes, please follow the instructions at https://github.com/istio/istio/tree/master/releasenotes to add an entry. If not, please add the release-notes-none label to the pull request"
         exit 1
+    else
+        echo "Found ${RELEASE_NOTES_NONE_LABEL} label. This pull request will not include release notes."
+        exit 0
     fi
 }
 
