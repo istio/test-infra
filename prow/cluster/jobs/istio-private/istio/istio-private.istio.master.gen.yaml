@@ -1426,3 +1426,42 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - always_run: false
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-ssh: "true"
+      preset-override-deps: release-1.4-istio
+      preset-override-envoy: "true"
+    name: checkReleaseNotes_istio_priv
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - ./tools/check_release_notes.sh
+        - --token-path=/etc/github-token/auth
+        image: gcr.io/istio-testing/build-tools:master-2020-07-10T02-22-20
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /etc/github-token
+          name: github
+          readOnly: true
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
