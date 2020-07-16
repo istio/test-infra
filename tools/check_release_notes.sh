@@ -13,6 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+set -e
+
 print_error() {
     local last_return="$?"
 
@@ -114,17 +116,14 @@ checkForFiles() {
             "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/pulls/${PULL_NUMBER}/files")
     fi
 
-    #if return code isn't 0, print the error and exit.
-    #shellcheck disable=SC2181
-    if [ $? != 0 ]; then
-        exit 1
-    fi
-
+    # grep returns a non-zero error code on not found. Reset -e so we don't fail silently.
+    set +e
     releaseNotesFiles=$(echo "${ghFiles}" | jq 'map(.filename)' |
             grep 'releasenotes\/notes\/.*\.yaml' )
-
+    set -e
     if [ -z "${releaseNotesFiles}" ]; then
         echo "No release notes files found."
+        echo ""
     else
         echo "Found release notes entries"
         exit 0
@@ -149,17 +148,15 @@ checkForLabel() {
 
     fi
 
-    #if return code isn't 0, print the error and exit.
-    #shellcheck disable=SC2181
-    if [ $? != 0 ]; then
-        exit 1
-    fi
-
     labels=$(echo "${ghPR}" | jq '.labels | map(.name)')
+
+    # grep returns a non-zero error code on not found. Reset -e so we don't fail silently.
+    set +e
     releaseNotesLabelPresent=$(echo "${labels}" | grep $RELEASE_NOTES_NONE_LABEL)
+    set -e
 
     if [ -z "${releaseNotesLabelPresent}" ]; then
-        echo "Missing release notes and missing release notes label. If this pull request contains user facing changes, please follow the instructions at https://github.com/istio/istio/tree/master/releasenotes to add an entry. If not, please add the release-notes-none label to the pull request"
+        echo "Missing release notes and missing ${RELEASE_NOTES_NONE_LABEL} label. If this pull request contains user facing changes, please follow the instructions at https://github.com/istio/istio/tree/master/releasenotes to add an entry. If not, please add the release-notes-none label to the pull request"
         exit 1
     fi
 }
@@ -175,4 +172,3 @@ main() {
 }
 
 main "$@"
-exit "${exit_code:-0}"
