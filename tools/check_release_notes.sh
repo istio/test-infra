@@ -146,7 +146,6 @@ checkForLabel() {
             "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/pulls/${PULL_NUMBER}")
     fi
 
-
     labels=$(echo "${ghPR}" | jq '.labels | map(.name)')
 
     # grep returns a non-zero error code on not found. Reset -e so we don't fail silently.
