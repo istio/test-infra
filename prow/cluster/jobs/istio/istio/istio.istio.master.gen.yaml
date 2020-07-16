@@ -1313,3 +1313,37 @@ presubmits:
           privileged: true
       nodeSelector:
         testing: test-pool
+  - always_run: false
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    name: checkReleaseNotes_istio
+    optional: true
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - ../test-infra/tools/check_release_notes.sh
+        - --token-path=/etc/github-token/auth
+        image: gcr.io/istio-testing/build-tools:master-2020-07-13T16-10-49
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /etc/github-token
+          name: github
+          readOnly: true
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
