@@ -51,7 +51,7 @@ const (
 
 	DefaultResource      = "default"
 	DefaultMemoryRequest = "3Gi"
-	DefaultCPURequest    = "500m"
+	DefaultCPURequest    = "1000m"
 	DefaultMemoryLimit   = "24Gi"
 	DefaultCPULimit      = "3000m"
 
