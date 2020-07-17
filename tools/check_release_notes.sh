@@ -122,7 +122,7 @@ checkForFiles() {
             grep 'releasenotes\/notes\/.*\.yaml' )
     set -e
     if [ -z "${releaseNotesFiles}" ]; then
-        echo "No release notes files found."
+        echo "No release notes files found in '/releasenotes/notes/'."
         echo ""
     else
         echo "Found release notes entries"
@@ -154,6 +154,8 @@ checkForLabel() {
     set -e
 
     if [ -z "${releaseNotesLabelPresent}" ]; then
+        echo "Missing ${RELEASE_NOTES_NONE_LABEL}"
+        echo ""
         echo "Missing release notes and missing ${RELEASE_NOTES_NONE_LABEL} label. If this pull request contains user facing changes, please follow the instructions at https://github.com/istio/istio/tree/master/releasenotes to add an entry. If not, please add the release-notes-none label to the pull request. Note that the test will have to be manually retriggered after adding the label."
         exit 1
     else
