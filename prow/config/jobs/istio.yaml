@@ -208,6 +208,11 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: " --istio.test.retries=1 "
 
+  - name: install-cni-test
+    modifiers: [hidden, optional]
+    command: [make, cni.install-test]
+    requirements: [docker]
+
   - name: analyze-tests
     modifiers: [optional, skipped]
     type: presubmit
