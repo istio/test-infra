@@ -2,22 +2,24 @@
 
 ## Description
 
-`automator.sh` is a bash script used to automate cross-repository workloads. It clones an user-defined list of GitHub repositories, runs a series of 
-user-defined commands in each of those repositories, then forks, commits, and pull requests any changes back to the upstream repository. It can be executed 
-either as a standalone script or in Prow CI as a presubmit, postsubmit, or peridoic job. 
+`automator.sh` is a bash script used to automate cross-repository workloads. It clones an user-defined list of GitHub repositories, runs a series of
+user-defined commands in each of those repositories, then forks, commits, and pull requests any changes back to the upstream repository. It can be executed
+either as a standalone script or in Prow CI as a presubmit, postsubmit, or peridoic job.
 
 ## Prerequisites
 
-1. [Bash 4.0+] interpreter. 
+1. [Bash 4.0+] interpreter.
 
-2. The following third-party tools must be available in the execution environment: 
-    * [`jq`]
-    * [`curl`] 
-    * [`git`] 
-    * [`pr-creator`]  
+1. The following third-party tools must be available in the execution environment:
+   - [`curl`]
+   - [`getopt`]
+   - [`git`]
+   - [`jq`]
+   - [`pr-creator`]
+   - [`realpath`]
 
-3. Unless executed in dry-run mode (i.e. `--dry-run`), it requires the use of a [GitHub access token] to identify the user and interact 
-with the GitHub API.
+1. Unless executed in dry-run mode (i.e. `--dry-run`), it requires the use of a [GitHub access token] to identify the user and interact
+   with the GitHub API.
 
 ## Usage
 
@@ -27,7 +29,7 @@ automator.sh [options]...
 
 ### Options
 
-The following is a list of supported options for `automator.sh`. If an option is **optional**, then its *default* value will be used. If an option is 
+The following is a list of supported options for `automator.sh`. If an option is **optional**, then its _default_ value will be used. If an option is
 **required** and unspecified, then execution will fail with a non-zero exit code.
 
 | Option          | Argument   | Description                                                                                                                                                                                                                                                 | Example(s)                                                                                      |
@@ -50,11 +52,10 @@ The following is a list of supported options for `automator.sh`. If an option is
 | `--strict`      |            | Enable strict mode. When enabled, if the command does not produce a [git diff] it will exit with a non-zero exit code.                                                                                                                                      |                                                                                                 |
 | `--dry-run`     |            | Enable dry run mode. When enabled, the command will terminate early and **NOT** perform a commit, push, or pull request for any changes. This is useful for local testing/debugging or when concerned only with the [git diff] or exit code of the command. |                                                                                                 |
 
-
 ### Environment Variables
 
-The following is a list of environment variables supported by `automator.sh`. These variables can be specified in any of the **template** [options](#options) 
-above (e.g. `--title`) or in the **command** (e.g. `--cmd`) or **script** (e.g. `--script-path`) executed by `automator.sh`. 
+The following is a list of environment variables supported by `automator.sh`. These variables can be specified in any of the **template** [options](#options)
+above (e.g. `--title`) or in the **command** (e.g. `--cmd`) or **script** (e.g. `--script-path`) executed by `automator.sh`.
 
 | Variable               | Description                                                                                                                                                                                       | Example(s)                                 |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
@@ -70,18 +71,16 @@ above (e.g. `--title`) or in the **command** (e.g. `--cmd`) or **script** (e.g. 
 | `AUTOMATOR_SHA`        | Set to the git commit sha (if inside a git directory).                                                                                                                                            | `c6418d1439d12eab2f1a4eae89f6eee46a34c31b` |
 | `AUTOMATOR_SHA_SHORT`  | Set to the git commit sha trimmed to 8 character (if inside a git directory).                                                                                                                     | `c6418d14`                                 |
 
-
 ### Examples
 
-*  [Prow presubmit job][presubmit example]
-*  [Prow postsubmit job][postsubmit example]
-*  [Prow periodic job][periodic example]
-
+- [Prow presubmit job][presubmit example]
+- [Prow postsubmit job][postsubmit example]
+- [Prow periodic job][periodic example]
 
 ## Testing / Debugging
 
-To test or debug `automator.sh` locally, first ensure the execution environment meets the above [prerequisites](#prerequisites). Additionally, supply 
-the `--dry-run` option. This will prevent all GitHub state modifications (i.e. fork, commit, and pull request). Instead, it will print a `git diff` to 
+To test or debug `automator.sh` locally, first ensure the execution environment meets the above [prerequisites](#prerequisites). Additionally, supply
+the `--dry-run` option. This will prevent all GitHub state modifications (i.e. fork, commit, and pull request). Instead, it will print a `git diff` to
 standard out if any files were changed, then exit.
 
 ```bash
@@ -92,7 +91,7 @@ standard out if any files were changed, then exit.
 --title='my automator test' \
 --cmd="echo 'do something fun' > file.txt" \
 --dry-run
-``` 
+```
 
 ```diff
 --- /dev/null
@@ -105,11 +104,13 @@ standard out if any files were changed, then exit.
 [presubmit example]: https://github.com/istio/test-infra/blob/de701f31e850f48fc035a5ec383c2595661dcc7b/prow/cluster/jobs/istio/istio.io/istio.istio.io.master.gen.yaml#L253-L296
 [postsubmit example]: https://github.com/istio/test-infra/blob/f70e0ea292c56acb62c2ff6c7f618af119d4c67c/prow/cluster/jobs/istio/common-files/istio.common-files.master.gen.yaml#L31-L77
 [periodic example]: https://github.com/istio/test-infra/blob/de701f31e850f48fc035a5ec383c2595661dcc7b/prow/cluster/jobs/istio/istio.io/istio.istio.io.master.gen.yaml#L3-L46
-[Prow Jobs]: https://github.com/istio/test-infra/blob/de701f31e850f48fc035a5ec383c2595661dcc7b/prow/cluster/jobs/istio/istio.io/istio.istio.io.master.gen.yaml#L3-L46
-[GitHub access token]: https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token
-[Bash 4.0+]: https://www.tldp.org/LDP/abs/html/bashver4.html
+[prow jobs]: https://github.com/istio/test-infra/blob/de701f31e850f48fc035a5ec383c2595661dcc7b/prow/cluster/jobs/istio/istio.io/istio.istio.io.master.gen.yaml#L3-L46
+[github access token]: https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token
+[bash 4.0+]: https://www.tldp.org/LDP/abs/html/bashver4.html
 [git diff]: https://git-scm.com/docs/git-diff
-[`jq`]: https://github.com/stedolan/jq
 [`curl`]: https://curl.haxx.se/
+[`getopt`]: https://linux.die.net/man/1/getopt
 [`git`]: https://git-scm.com/
+[`jq`]: https://github.com/stedolan/jq
 [`pr-creator`]: https://github.com/kubernetes/test-infra/tree/master/robots/pr-creator
+[`reealpath`]: https://linux.die.net/man/1/realpath
