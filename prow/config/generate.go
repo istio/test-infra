@@ -627,13 +627,14 @@ func applyRequirements(job *config.JobBase, requirements []string) {
 				},
 			)
 		case RequirementCache:
+			d := v1.HostPathDirectoryOrCreate
 			job.Spec.Volumes = append(job.Spec.Volumes,
 				v1.Volume{
-					Name: "build-cache-pvc",
+					Name: "build-cache",
 					VolumeSource: v1.VolumeSource{
-						PersistentVolumeClaim: &v1.PersistentVolumeClaimVolumeSource{
-							ClaimName: "build-cache-claim",
-							ReadOnly:  false,
+						HostPath: &v1.HostPathVolumeSource{
+							Path: "/tmp/prow/cache",
+							Type: &d,
 						},
 					},
 				},
@@ -641,7 +642,7 @@ func applyRequirements(job *config.JobBase, requirements []string) {
 			job.Spec.Containers[0].VolumeMounts = append(job.Spec.Containers[0].VolumeMounts,
 				v1.VolumeMount{
 					MountPath: "/home/prow/go/pkg",
-					Name:      "build-cache-pvc",
+					Name:      "build-cache",
 					SubPath:   "gomod",
 				},
 			)

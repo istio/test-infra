@@ -30,73 +30,8 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache-pvc
-          subPath: gomod
       nodeSelector:
         testing: test-pool
-      volumes:
-      - name: build-cache-pvc
-        persistentVolumeClaim:
-          claimName: build-cache-claim
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.6_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^release-1.6$
-    decorate: true
-    name: cache-experiment_istio_release-1.6_postsubmit
-    path_alias: istio.io/istio
-    skip_report: true
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.conformance.kube.presubmit
-        env:
-        - name: TEST_SELECT
-          value: -postsubmit,-flaky,-multicluster
-        image: gcr.io/istio-testing/build-tools:release-1.6-2020-05-08T22-06-04
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache-pvc
-          subPath: gomod
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - name: build-cache-pvc
-        persistentVolumeClaim:
-          claimName: build-cache-claim
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_release-1.6_istio_postsubmit
@@ -770,73 +705,8 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache-pvc
-          subPath: gomod
       nodeSelector:
         testing: test-pool
-      volumes:
-      - name: build-cache-pvc
-        persistentVolumeClaim:
-          claimName: build-cache-claim
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_release-1.6_istio
-    branches:
-    - ^release-1.6$
-    decorate: true
-    name: cache-experiment_istio_release-1.6
-    optional: true
-    path_alias: istio.io/istio
-    skip_report: true
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.conformance.kube.presubmit
-        env:
-        - name: TEST_SELECT
-          value: -postsubmit,-flaky,-multicluster
-        image: gcr.io/istio-testing/build-tools:release-1.6-2020-05-08T22-06-04
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache-pvc
-          subPath: gomod
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - name: build-cache-pvc
-        persistentVolumeClaim:
-          claimName: build-cache-claim
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.6_istio
