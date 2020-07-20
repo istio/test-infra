@@ -51,12 +51,14 @@ jobs:
   - --org=istio
   - --repo=istio
   - "--title=Automator: update proxy@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+  - --labels=auto-merge
   - --modifier=update_proxy_dep
   - --token-path=/etc/github-token/oauth
   - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
   requirements: [github]
   repos: [istio/test-infra@master]
   image: gcr.io/istio-testing/build-tools:master-2020-07-16T22-57-32
+  timeout: 4h
 
 resources:
   default:
