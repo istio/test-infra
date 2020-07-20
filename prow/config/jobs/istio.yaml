@@ -7,6 +7,20 @@ jobs:
   - name: unit-tests
     command: [entrypoint, make, -e, "T=-v", build, racetest, binaries-test]
 
+    # Test job to ensure caching works. Set up two jobs to ensure that there are no conflicts of concurrent jobs.
+  - name: cache-unit-test
+    command: [entrypoint, make, -e, "T=-v", build, racetest, binaries-test]
+    modifiers: [optional, hidden]
+    requirements: [cache]
+  - name: cache-integ-pilot-k8s-tests
+    type: presubmit
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
+    modifiers: [optional, hidden]
+    requirements: [kind, cache]
+    env:
+    - name: TEST_SELECT
+      value: "-postsubmit,-flaky,-multicluster"
+
   - name: release-test
     type: presubmit
     command: [entrypoint, prow/release-test.sh]
