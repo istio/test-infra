@@ -45,11 +45,18 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
         testing: build-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - emptyDir: {}
         name: docker-root
 presubmits:
@@ -88,8 +95,17 @@ presubmits:
             memory: 100G
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: build-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -124,8 +140,17 @@ presubmits:
             memory: 100G
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: build-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -160,8 +185,17 @@ presubmits:
             memory: 100G
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: build-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -197,8 +231,17 @@ presubmits:
             memory: 100G
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: build-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -235,10 +278,17 @@ presubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
         testing: build-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - emptyDir: {}
         name: docker-root

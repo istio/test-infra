@@ -35,11 +35,18 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - emptyDir: {}
         name: docker-root
   - annotations:
@@ -55,42 +62,6 @@ postsubmits:
       preset-override-envoy: "true"
     name: unit-tests_istio_postsubmit_priv
     path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - make
-        - -e
-        - T=-v
-        - build
-        - racetest
-        - binaries-test
-        image: gcr.io/istio-testing/build-tools:master-2020-07-16T22-57-32
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-      nodeSelector:
-        testing: test-pool
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-ssh: "true"
-      preset-override-deps: release-1.4-istio
-      preset-override-envoy: "true"
-    name: cache-unit-test_istio_postsubmit_priv
-    path_alias: istio.io/istio
-    skip_report: true
     spec:
       containers:
       - command:
@@ -157,6 +128,9 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -168,6 +142,10 @@ postsubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -215,6 +193,9 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -226,6 +207,10 @@ postsubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -269,6 +254,9 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -280,6 +268,10 @@ postsubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -323,6 +315,9 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -334,6 +329,10 @@ postsubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -377,6 +376,9 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -388,6 +390,10 @@ postsubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -434,6 +440,9 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -445,6 +454,10 @@ postsubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -488,6 +501,9 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -499,6 +515,10 @@ postsubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -542,6 +562,9 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -553,6 +576,10 @@ postsubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -600,6 +627,9 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -611,6 +641,10 @@ postsubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -658,6 +692,9 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -669,6 +706,10 @@ postsubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -716,6 +757,9 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -727,6 +771,10 @@ postsubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -767,11 +815,18 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - emptyDir: {}
         name: docker-root
 presubmits:
@@ -810,44 +865,6 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
-      nodeSelector:
-        testing: test-pool
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-ssh: "true"
-      preset-override-deps: release-1.4-istio
-      preset-override-envoy: "true"
-    name: cache-unit-test_istio_priv
-    optional: true
-    path_alias: istio.io/istio
-    skip_report: true
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - make
-        - -e
-        - T=-v
-        - build
-        - racetest
-        - binaries-test
-        image: gcr.io/istio-testing/build-tools:master-2020-07-16T22-57-32
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
         volumeMounts:
         - mountPath: /home/prow/go/pkg
           name: build-cache
@@ -855,70 +872,6 @@ presubmits:
       nodeSelector:
         testing: test-pool
       volumes:
-      - hostPath:
-          path: /tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-ssh: "true"
-      preset-override-deps: release-1.4-istio
-      preset-override-envoy: "true"
-    name: cache-integ-pilot-k8s-tests_istio_priv
-    optional: true
-    path_alias: istio.io/istio
-    skip_report: true
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.pilot.kube.presubmit
-        env:
-        - name: TEST_SELECT
-          value: -postsubmit,-flaky,-multicluster
-        image: gcr.io/istio-testing/build-tools:master-2020-07-16T22-57-32
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
       - hostPath:
           path: /tmp/prow/cache
           type: DirectoryOrCreate
@@ -954,11 +907,18 @@ presubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - emptyDir: {}
         name: docker-root
   - always_run: false
@@ -992,8 +952,17 @@ presubmits:
             memory: 8Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -1028,6 +997,9 @@ presubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -1039,6 +1011,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -1083,6 +1059,9 @@ presubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -1094,6 +1073,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -1138,6 +1121,9 @@ presubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -1149,6 +1135,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -1193,6 +1183,9 @@ presubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -1204,6 +1197,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -1248,6 +1245,9 @@ presubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -1259,6 +1259,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -1305,6 +1309,9 @@ presubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -1316,6 +1323,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -1362,6 +1373,9 @@ presubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -1373,6 +1387,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -1421,6 +1439,9 @@ presubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -1432,6 +1453,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -1476,6 +1501,9 @@ presubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -1487,6 +1515,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -1535,6 +1567,9 @@ presubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -1546,6 +1581,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -1588,11 +1627,18 @@ presubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - emptyDir: {}
         name: docker-root
   - always_run: false
@@ -1625,8 +1671,17 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -1656,8 +1711,17 @@ presubmits:
             memory: 16Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -1687,8 +1751,17 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -1726,12 +1799,19 @@ presubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /etc/github-token
           name: github
           readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - name: github
         secret:
           secretName: oauth-token
