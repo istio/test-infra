@@ -125,6 +125,14 @@ validate_opts() {
   sha="$(current_sha)"
   sha_short="$(current_sha --short)"
 
+  if [ -z "${strict:-}" ]; then
+    strict=false
+  fi
+
+  if [ -z "${dry_run:-}" ]; then
+    dry_run=false
+  fi
+
   if [ -z "${branch:-}" ]; then
     branch="$(current_branch)"
   fi
@@ -149,7 +157,7 @@ validate_opts() {
     print_error_and_exit "repo is a required option"
   fi
 
-  if [ ! -f "${token_path:-}" ] || [ -z "${token:-}" ]; then
+  if [ ! -f "${token_path:-}" ] || [ -z "${token:-}" ] && ! $dry_run; then
     print_error_and_exit "token_path or token is a required option"
   fi
 
@@ -161,19 +169,11 @@ validate_opts() {
     modifier="automator"
   fi
 
-  if [ -z "${strict:-}" ]; then
-    strict=false
-  fi
-
-  if [ -z "${dry_run:-}" ]; then
-    dry_run=false
-  fi
-
-  if [ -z "${user:-}" ]; then
+  if [ -z "${user:-}" ] && ! $dry_run; then
     user="$(curl -sSfLH "Authorization: token $token" "https://api.github.com/user" | jq --raw-output ".login")"
   fi
 
-  if [ -z "${email:-}" ]; then
+  if [ -z "${email:-}" ] && ! $dry_run; then
     email="$(curl -sSfLH "Authorization: token $token" "https://api.github.com/user" | jq --raw-output ".email")"
   fi
 }
@@ -213,7 +213,10 @@ add_labels() {
 }
 
 commit() {
-  $dry_run && return 0
+  if $dry_run; then
+    git diff --cached
+    return 0
+  fi
 
   local src_branch="${AUTOMATOR_SRC_BRANCH:-none}"
   fork_name="$src_branch-$branch-$modifier-$(hash "$title")"
@@ -229,7 +232,9 @@ work() { (
 
   evaluate_opts
 
-  curl -XPOST -sSfLH "Authorization: token $token" "https://api.github.com/repos/$org/$repo/forks" >/dev/null
+  if ! $dry_run; then
+    curl -XPOST -sSfLH "Authorization: token $token" "https://api.github.com/repos/$org/$repo/forks" >/dev/null
+  fi
 
   git clone --single-branch --branch "$branch" "https://github.com/$org/$repo.git" "$repo"
 
