@@ -1,0 +1,71 @@
+branches:
+- release-1.7
+image: gcr.io/istio-testing/build-tools:master-2020-07-16T22-57-32
+jobs:
+- command:
+  - make
+  - build
+  name: build
+- command:
+  - make
+  - lint
+  name: lint
+- command:
+  - make
+  - test
+  name: test
+- command:
+  - make
+  - gen-check
+  name: gencheck
+- command:
+  - entrypoint
+  - make
+  - containers
+  name: containers
+  regex: docker/.+|cmd/.+
+  requirements:
+  - gcp
+  - docker
+  resources: build
+  type: postsubmit
+- command:
+  - entrypoint
+  - make
+  - containers-test
+  name: containers-test
+  regex: docker/.+|cmd/.+
+  requirements:
+  - gcp
+  - docker
+  resources: build
+  type: presubmit
+- command:
+  - entrypoint
+  - make
+  - -C
+  - perf_dashboard
+  - deploy
+  name: deploy-perf-dashboard
+  regex: ^perf_dashboard/
+  requirements:
+  - docker
+  - gcp
+  type: postsubmit
+org: istio
+repo: tools
+resources:
+  build:
+    limits:
+      cpu: "8"
+      memory: 24Gi
+    requests:
+      cpu: "8"
+      memory: 4Gi
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: "1"
+      memory: 3Gi
