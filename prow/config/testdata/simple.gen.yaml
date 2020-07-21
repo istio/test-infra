@@ -20,8 +20,17 @@ periodics:
           memory: 1Gi
       securityContext:
         privileged: true
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
     nodeSelector:
       testing: test-pool
+    volumes:
+    - hostPath:
+        path: /tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
 postsubmits:
   istio/istio:
   - annotations:
@@ -46,8 +55,17 @@ postsubmits:
             memory: 1Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
 presubmits:
   istio/istio:
   - always_run: false
@@ -71,8 +89,17 @@ presubmits:
             memory: 1Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -105,6 +132,9 @@ presubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -116,6 +146,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -146,5 +180,14 @@ presubmits:
             memory: 1Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         foo: baz
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache

@@ -26,8 +26,17 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_release-1.6_tools_postsubmit
@@ -53,8 +62,17 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_release-1.6_tools_postsubmit
@@ -80,8 +98,17 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_release-1.6_tools_postsubmit
@@ -107,8 +134,17 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_release-1.6_tools_postsubmit
@@ -139,11 +175,18 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - emptyDir: {}
         name: docker-root
   - annotations:
@@ -178,11 +221,18 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - emptyDir: {}
         name: docker-root
 presubmits:
@@ -211,8 +261,17 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.6_tools
@@ -237,8 +296,17 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.6_tools
@@ -263,8 +331,17 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.6_tools
@@ -289,8 +366,17 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.6_tools
@@ -320,10 +406,17 @@ presubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - emptyDir: {}
         name: docker-root

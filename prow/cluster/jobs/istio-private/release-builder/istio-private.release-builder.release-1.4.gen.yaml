@@ -26,8 +26,17 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -53,8 +62,17 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -80,8 +98,17 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -121,8 +148,17 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
 presubmits:
   istio-private/release-builder:
   - always_run: true
@@ -151,8 +187,17 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -179,8 +224,17 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -207,8 +261,17 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
@@ -241,5 +304,14 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache

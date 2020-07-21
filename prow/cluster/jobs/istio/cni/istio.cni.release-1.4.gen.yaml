@@ -27,8 +27,17 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_release-1.4_cni_postsubmit
@@ -56,8 +65,17 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_release-1.4_cni_postsubmit
@@ -90,6 +108,9 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -101,6 +122,10 @@ postsubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -136,8 +161,17 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
 presubmits:
   istio/cni:
   - always_run: true
@@ -165,8 +199,17 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.4_cni
@@ -193,8 +236,17 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.4_cni
@@ -226,6 +278,9 @@ presubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -237,6 +292,10 @@ presubmits:
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -271,5 +330,14 @@ presubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
       nodeSelector:
         testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache

@@ -482,6 +482,11 @@ func createContainer(jobConfig JobConfig, job Job, resources map[string]v1.Resou
 		SecurityContext: &v1.SecurityContext{Privileged: newTrue()},
 		Command:         job.Command,
 		Env:             envs,
+		VolumeMounts: []v1.VolumeMount{{
+			MountPath: "/home/prow/go/pkg",
+			Name:      "build-cache",
+			SubPath:   "gomod",
+		}},
 	}
 	resource := DefaultResource
 	if job.Resources != "" {
@@ -494,12 +499,22 @@ func createContainer(jobConfig JobConfig, job Job, resources map[string]v1.Resou
 
 func createJobBase(jobConfig JobConfig, job Job, name string, repo string, branch string, resources map[string]v1.ResourceRequirements) config.JobBase {
 	yes := true
+	hostPathType := v1.HostPathDirectoryOrCreate
 	jb := config.JobBase{
 		Name:           name,
 		MaxConcurrency: job.MaxConcurrency,
 		Spec: &v1.PodSpec{
 			NodeSelector: map[string]string{"testing": "test-pool"},
 			Containers:   createContainer(jobConfig, job, resources),
+			Volumes: []v1.Volume{{
+				Name: "build-cache",
+				VolumeSource: v1.VolumeSource{
+					HostPath: &v1.HostPathVolumeSource{
+						Path: "/tmp/prow/cache",
+						Type: &hostPathType,
+					},
+				},
+			}},
 		},
 		UtilityConfig: config.UtilityConfig{
 			Decorate:  &yes,
@@ -627,25 +642,7 @@ func applyRequirements(job *config.JobBase, requirements []string) {
 				},
 			)
 		case RequirementCache:
-			d := v1.HostPathDirectoryOrCreate
-			job.Spec.Volumes = append(job.Spec.Volumes,
-				v1.Volume{
-					Name: "build-cache",
-					VolumeSource: v1.VolumeSource{
-						HostPath: &v1.HostPathVolumeSource{
-							Path: "/tmp/prow/cache",
-							Type: &d,
-						},
-					},
-				},
-			)
-			job.Spec.Containers[0].VolumeMounts = append(job.Spec.Containers[0].VolumeMounts,
-				v1.VolumeMount{
-					MountPath: "/home/prow/go/pkg",
-					Name:      "build-cache",
-					SubPath:   "gomod",
-				},
-			)
+			// This is now default. Requirement is kept in case of future additional opt-in caching
 		case RequirementGitHub:
 			job.Spec.Volumes = append(job.Spec.Volumes,
 				v1.Volume{
