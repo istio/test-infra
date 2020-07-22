@@ -100,6 +100,7 @@ type transform struct {
 	Resolve          bool              `json:"resolve,omitempty"`
 	SSHClone         bool              `json:"ssh-clone,omitempty"`
 	OverrideSelector bool              `json:"override-selector,omitempty"`
+	Internal         bool              `json:"internal,omitempty"`
 	Verbose          bool              `json:"verbose,omitempty"`
 }
 
@@ -152,6 +153,7 @@ func (o *options) parseOpts() {
 	flag.BoolVar(&o.Resolve, "resolve", false, "Resolve and expand values for presets in generated job(s).")
 	flag.BoolVar(&o.SSHClone, "ssh-clone", false, "Enable a clone of the git repository over ssh.")
 	flag.BoolVar(&o.OverrideSelector, "override-selector", false, "The existing node selector will be overridden rather than added to.")
+	flag.BoolVar(&o.Internal, "internal", false, "Generate Prow jobs for the internal repos.")
 	flag.BoolVar(&o.Verbose, "verbose", false, "Enable verbose output.")
 
 	flag.Parse()
@@ -661,6 +663,13 @@ func updateSSHKeySecrets(o options, job *prowjob.DecorationConfig) {
 	}
 }
 
+// updateInternalLabel updates the jobs Labels fields based on provided inputs.
+func updateInternalLabel(o options, skipReport bool, labels map[string]string) {
+	if o.Internal && !skipReport {
+		labels["prow.k8s.io/gerrit-report-label"] = "Verified"
+	}
+}
+
 // updateReporterConfig updates the jobs ReporterConfig fields based on provided inputs.
 func updateReporterConfig(o options, job *config.JobBase) {
 	if o.Channel == "" {
@@ -1024,6 +1033,7 @@ func generateJobs(o options) {
 				updateJobBase(o, &job.JobBase, orgrepo)
 				updateBrancher(o, &job.Brancher)
 				updateUtilityConfig(o, &job.UtilityConfig)
+				updateInternalLabel(o, job.SkipReport, job.Labels)
 				resolvePresets(o, job.Labels, &job.JobBase, append(presets, jobs.Presets...))
 				pruneJobBase(o, &job.JobBase)
 
