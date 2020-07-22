@@ -642,6 +642,11 @@ func applyRequirements(job *config.JobBase, requirements []string) {
 				},
 			)
 		case RequirementCache:
+			job.Spec.Containers[0].VolumeMounts = append(job.Spec.Containers[0].VolumeMounts, v1.VolumeMount{
+				MountPath: "/gocache",
+				Name:      "build-cache",
+				SubPath:   "gocache",
+			})
 			// This is now default. Requirement is kept in case of future additional opt-in caching
 		case RequirementGitHub:
 			job.Spec.Volumes = append(job.Spec.Volumes,
