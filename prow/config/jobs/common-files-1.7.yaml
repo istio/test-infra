@@ -11,7 +11,7 @@ jobs:
   - --org=istio
   - --repo=istio,istio.io,api,test-infra,tools,bots,release-builder,pkg,cri,client-go,gogo-genproto,proxy
   - '--title=Automator: update common-files@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
-  - --labels=auto-merge
+  - --labels=auto-merge,release-notes-none
   - --strict
   - --modifier=commonfiles
   - --token-path=/etc/github-token/oauth
@@ -31,6 +31,7 @@ jobs:
   - --modifier=buildtools
   - --token-path=/etc/github-token/oauth
   - --script-path=../test-infra/tools/automator/scripts/update-images.sh
+  - --labels=release-notes-none
   - --verbose
   - --
   - --post=make gen
