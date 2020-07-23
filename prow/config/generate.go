@@ -73,7 +73,16 @@ const (
 	RequirementDeploy  = "deploy"
 )
 
-var AllRequirements = []string{RequirementKind, RequirementDocker, RequirementGitHub, RequirementRelease, RequirementRoot, RequirementGCP, RequirementDeploy, RequirementCache}
+var AllRequirements = []string{
+	RequirementKind,
+	RequirementDocker,
+	RequirementGitHub,
+	RequirementRelease,
+	RequirementRoot,
+	RequirementGCP,
+	RequirementDeploy,
+	RequirementCache,
+}
 
 type JobConfig struct {
 	Jobs                    []Job                              `json:"jobs,omitempty"`
