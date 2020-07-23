@@ -73,6 +73,8 @@ const (
 	RequirementDeploy  = "deploy"
 )
 
+var AllRequirements = []string{RequirementKind, RequirementDocker, RequirementGitHub, RequirementRelease, RequirementRoot, RequirementGCP, RequirementDeploy, RequirementCache}
+
 type JobConfig struct {
 	Jobs                    []Job                              `json:"jobs,omitempty"`
 	Repo                    string                             `json:"repo,omitempty"`
@@ -83,6 +85,7 @@ type JobConfig struct {
 	Image                   string                             `json:"image,omitempty"`
 	SupportReleaseBranching bool                               `json:"support_release_branching,omitempty"`
 	NodeSelector            map[string]string                  `json:"node_selector,omitempty"`
+	Requirements            []string                           `json:"requirements,omitempty"`
 }
 
 type Job struct {
@@ -159,7 +162,14 @@ func ValidateJobConfig(jobConfig JobConfig) {
 	if jobConfig.Image == "" {
 		err = multierror.Append(err, fmt.Errorf("'image' must be set"))
 	}
-
+	for _, r := range jobConfig.Requirements {
+		if e := validate(
+			r,
+			AllRequirements,
+			"requirements"); e != nil {
+			err = multierror.Append(err, e)
+		}
+	}
 	for _, job := range jobConfig.Jobs {
 		if job.Resources != "" {
 			if _, f := jobConfig.Resources[job.Resources]; !f {
@@ -174,7 +184,7 @@ func ValidateJobConfig(jobConfig JobConfig) {
 		for _, req := range job.Requirements {
 			if e := validate(
 				req,
-				[]string{RequirementKind, RequirementDocker, RequirementGitHub, RequirementRelease, RequirementRoot, RequirementGCP, RequirementDeploy, RequirementCache},
+				AllRequirements,
 				"requirements"); e != nil {
 				err = multierror.Append(err, e)
 			}
@@ -247,7 +257,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			}
 			presubmit.JobBase.Annotations[TestGridDashboard] = testgridJobPrefix
 			applyModifiersPresubmit(&presubmit, job.Modifiers)
-			applyRequirements(&presubmit.JobBase, job.Requirements)
+			applyRequirements(&presubmit.JobBase, append(job.Requirements, jobConfig.Requirements...))
 			presubmits = append(presubmits, presubmit)
 		}
 

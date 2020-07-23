@@ -60,73 +60,6 @@ postsubmits:
       preset-enable-ssh: "true"
       preset-override-deps: release-1.4-istio
       preset-override-envoy: "true"
-    name: cache-integ-pilot-k8s-tests_istio_postsubmit_priv
-    path_alias: istio.io/istio
-    skip_report: true
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.pilot.kube.presubmit
-        env:
-        - name: TEST_SELECT
-          value: -postsubmit,-flaky,-multicluster
-        - name: T
-          value: -v -count=1
-        image: gcr.io/istio-testing/build-tools:master-2020-07-16T22-57-32
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-ssh: "true"
-      preset-override-deps: release-1.4-istio
-      preset-override-envoy: "true"
     name: unit-tests_istio_postsubmit_priv
     path_alias: istio.io/istio
     spec:
@@ -135,7 +68,7 @@ postsubmits:
         - entrypoint
         - make
         - -e
-        - T=-v
+        - T=-v -count=1
         - build
         - racetest
         - binaries-test
@@ -850,75 +783,6 @@ presubmits:
       preset-enable-ssh: "true"
       preset-override-deps: release-1.4-istio
       preset-override-envoy: "true"
-    name: cache-integ-pilot-k8s-tests_istio_priv
-    optional: true
-    path_alias: istio.io/istio
-    skip_report: true
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.pilot.kube.presubmit
-        env:
-        - name: TEST_SELECT
-          value: -postsubmit,-flaky,-multicluster
-        - name: T
-          value: -v -count=1
-        image: gcr.io/istio-testing/build-tools:master-2020-07-16T22-57-32
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-ssh: "true"
-      preset-override-deps: release-1.4-istio
-      preset-override-envoy: "true"
     name: unit-tests_istio_priv
     path_alias: istio.io/istio
     spec:
@@ -927,7 +791,7 @@ presubmits:
         - entrypoint
         - make
         - -e
-        - T=-v
+        - T=-v -count=1
         - build
         - racetest
         - binaries-test
@@ -945,6 +809,9 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -988,6 +855,9 @@ presubmits:
           subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1032,6 +902,9 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1084,6 +957,9 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1146,6 +1022,9 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1208,6 +1087,9 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1270,6 +1152,9 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1334,6 +1219,9 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1398,6 +1286,9 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1464,6 +1355,9 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1526,6 +1420,9 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1592,6 +1489,9 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1647,6 +1547,9 @@ presubmits:
           subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1690,6 +1593,9 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1730,6 +1636,9 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1770,6 +1679,9 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1820,6 +1732,9 @@ presubmits:
         - mountPath: /etc/github-token
           name: github
           readOnly: true
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:

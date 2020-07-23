@@ -3,18 +3,8 @@ repo: istio
 support_release_branching: true
 image: gcr.io/istio-testing/build-tools:master-2020-07-16T22-57-32
 jobs:
-  - name: cache-integ-pilot-k8s-tests
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
-    requirements: [kind, cache]
-    modifiers: [optional,hidden]
-    env:
-    - name: TEST_SELECT
-      value: "-postsubmit,-flaky,-multicluster"
-    - name: T
-      value: "-v -count=1"
-
   - name: unit-tests
-    command: [entrypoint, make, -e, "T=-v", build, racetest, binaries-test]
+    command: [entrypoint, make, -e, "T=-v -count=1", build, racetest, binaries-test]
 
   - name: release-test
     type: presubmit
@@ -249,3 +239,4 @@ resources:
       cpu: "15000m"
     limits:
       memory: "24Gi"
+requirements: [cache]
