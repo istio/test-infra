@@ -68,40 +68,40 @@ type configuration struct {
 
 // transform are the available transformation fields.
 type transform struct {
-	Annotations      map[string]string `json:"annotations,omitempty"`
-	Bucket           string            `json:"bucket,omitempty"`
-	Cluster          string            `json:"cluster,omitempty"`
-	Channel          string            `json:"channel,omitempty"`
-	SSHKeySecret     string            `json:"ssh-key-secret,omitempty"`
-	Modifier         string            `json:"modifier,omitempty"`
-	Input            string            `json:"input,omitempty"`
-	Output           string            `json:"output,omitempty"`
-	Sort             string            `json:"sort,omitempty"`
-	ExtraRefs        []prowjob.Refs    `json:"extra-refs,omitempty"`
-	Branches         []string          `json:"branches,omitempty"`
-	BranchesOut      []string          `json:"branches-out,omitempty"`
-	Presets          []string          `json:"presets,omitempty"`
-	RerunOrgs        []string          `json:"rerun-orgs,omitempty"`
-	RerunUsers       []string          `json:"rerun-users,omitempty"`
-	EnvDenylist      []string          `json:"env-denylist,omitempty"`
-	VolumeDenylist   []string          `json:"volume-denylist,omitempty"`
-	JobAllowlist     []string          `json:"job-allowlist,omitempty"`
-	JobDenylist      []string          `json:"job-denylist,omitempty"`
-	RepoAllowlist    []string          `json:"repo-allowlist,omitempty"`
-	RepoDenylist     []string          `json:"repo-denylist,omitempty"`
-	JobType          []string          `json:"job-type,omitempty"`
-	Selector         map[string]string `json:"selector,omitempty"`
-	Labels           map[string]string `json:"labels,omitempty"`
-	Env              map[string]string `json:"env,omitempty"`
-	OrgMap           map[string]string `json:"mapping,omitempty"`
-	Clean            bool              `json:"clean,omitempty"`
-	DryRun           bool              `json:"dry-run,omitempty"`
-	Refs             bool              `json:"refs,omitempty"`
-	Resolve          bool              `json:"resolve,omitempty"`
-	SSHClone         bool              `json:"ssh-clone,omitempty"`
-	OverrideSelector bool              `json:"override-selector,omitempty"`
-	Internal         bool              `json:"internal,omitempty"`
-	Verbose          bool              `json:"verbose,omitempty"`
+	Annotations            map[string]string `json:"annotations,omitempty"`
+	Bucket                 string            `json:"bucket,omitempty"`
+	Cluster                string            `json:"cluster,omitempty"`
+	Channel                string            `json:"channel,omitempty"`
+	SSHKeySecret           string            `json:"ssh-key-secret,omitempty"`
+	Modifier               string            `json:"modifier,omitempty"`
+	Input                  string            `json:"input,omitempty"`
+	Output                 string            `json:"output,omitempty"`
+	Sort                   string            `json:"sort,omitempty"`
+	ExtraRefs              []prowjob.Refs    `json:"extra-refs,omitempty"`
+	Branches               []string          `json:"branches,omitempty"`
+	BranchesOut            []string          `json:"branches-out,omitempty"`
+	Presets                []string          `json:"presets,omitempty"`
+	RerunOrgs              []string          `json:"rerun-orgs,omitempty"`
+	RerunUsers             []string          `json:"rerun-users,omitempty"`
+	EnvDenylist            []string          `json:"env-denylist,omitempty"`
+	VolumeDenylist         []string          `json:"volume-denylist,omitempty"`
+	JobAllowlist           []string          `json:"job-allowlist,omitempty"`
+	JobDenylist            []string          `json:"job-denylist,omitempty"`
+	RepoAllowlist          []string          `json:"repo-allowlist,omitempty"`
+	RepoDenylist           []string          `json:"repo-denylist,omitempty"`
+	JobType                []string          `json:"job-type,omitempty"`
+	Selector               map[string]string `json:"selector,omitempty"`
+	Labels                 map[string]string `json:"labels,omitempty"`
+	Env                    map[string]string `json:"env,omitempty"`
+	OrgMap                 map[string]string `json:"mapping,omitempty"`
+	Clean                  bool              `json:"clean,omitempty"`
+	DryRun                 bool              `json:"dry-run,omitempty"`
+	Refs                   bool              `json:"refs,omitempty"`
+	Resolve                bool              `json:"resolve,omitempty"`
+	SSHClone               bool              `json:"ssh-clone,omitempty"`
+	OverrideSelector       bool              `json:"override-selector,omitempty"`
+	SupportGerritReporting bool              `json:"support-gerrit-reporting,omitempty"`
+	Verbose                bool              `json:"verbose,omitempty"`
 }
 
 // options are the available command-line flags.
@@ -153,7 +153,7 @@ func (o *options) parseOpts() {
 	flag.BoolVar(&o.Resolve, "resolve", false, "Resolve and expand values for presets in generated job(s).")
 	flag.BoolVar(&o.SSHClone, "ssh-clone", false, "Enable a clone of the git repository over ssh.")
 	flag.BoolVar(&o.OverrideSelector, "override-selector", false, "The existing node selector will be overridden rather than added to.")
-	flag.BoolVar(&o.Internal, "internal", false, "Generate Prow jobs for the internal repos.")
+	flag.BoolVar(&o.SupportGerritReporting, "support-gerrit-reporting", false, "Generate Prow jobs that supports Gerrit reporting.")
 	flag.BoolVar(&o.Verbose, "verbose", false, "Enable verbose output.")
 
 	flag.Parse()
@@ -663,9 +663,9 @@ func updateSSHKeySecrets(o options, job *prowjob.DecorationConfig) {
 	}
 }
 
-// updateInternalLabel updates the jobs Labels fields based on provided inputs.
-func updateInternalLabel(o options, skipReport bool, labels map[string]string) {
-	if o.Internal && !skipReport {
+// updateGerritReportingLabels updates the gerrit reporting labels based on provided inputs.
+func updateGerritReportingLabels(o options, skipReport bool, labels map[string]string) {
+	if o.SupportGerritReporting && !skipReport {
 		labels["prow.k8s.io/gerrit-report-label"] = "Verified"
 	}
 }
@@ -1033,7 +1033,7 @@ func generateJobs(o options) {
 				updateJobBase(o, &job.JobBase, orgrepo)
 				updateBrancher(o, &job.Brancher)
 				updateUtilityConfig(o, &job.UtilityConfig)
-				updateInternalLabel(o, job.SkipReport, job.Labels)
+				updateGerritReportingLabels(o, job.SkipReport, job.Labels)
 				resolvePresets(o, job.Labels, &job.JobBase, append(presets, jobs.Presets...))
 				pruneJobBase(o, &job.JobBase)
 
