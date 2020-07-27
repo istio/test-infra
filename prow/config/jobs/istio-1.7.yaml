@@ -107,7 +107,7 @@ jobs:
   - prow/integ-suite-kind.sh
   - --topology
   - MULTICLUSTER
-  - test.integration.kube.presubmit
+  - test.integration.multicluster.kube.presubmit
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky,+multicluster
@@ -118,7 +118,7 @@ jobs:
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
-  - test.integration.multicluster.kube.reachability
+  - test.integration.kube.reachability
   env:
   - name: VARIANT
     value: distroless
