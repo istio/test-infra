@@ -112,11 +112,6 @@ validate_opts() {
         exit 1
     fi
 
-    if [ -z "${REPO_PATH:-}" ]; then
-        echo "REPO_PATH not specified. Using current working directory."
-        REPO_PATH=$(pwd)
-    fi
-
     if [ -z "${PULL_PULL_SHA:-}" ]; then
         echo "PULL_PULL_SHA not specified. This must match the HEAD SHA for the pull request."
         exit 1
@@ -126,6 +121,14 @@ validate_opts() {
         echo "PULL_BASE_REF not specified. This must match the target branch for the pull request."
         exit 1
     fi
+
+    if [ -z "${REPO_PATH:-}" ]; then
+        echo "REPO_PATH not specified. Using current working directory."
+        REPO_PATH=$(pwd)
+    else
+        echo "Using REPO_PATH ${REPO_PATH}"
+    fi
+
 }
 
 # Curl the GitHub API to get a list of files for the specified PR. If files are
@@ -137,7 +140,7 @@ checkForFiles() {
 
     addedFiles=$(git diff "${PULL_BASE_REF}...${PULL_PULL_SHA}" --name-only --diff-filter=AMR)
     echo "Added files: ${addedFiles}"
-    echo ""
+    echo
     popd
 
     # grep returns a non-zero error code on not found. Reset -e so we don't fail silently.
@@ -146,7 +149,7 @@ checkForFiles() {
     set -e
     if [ -z "${releaseNotesFiles}" ]; then
         echo "No release notes files found in '/releasenotes/notes/'."
-        echo ""
+        echo
     else
         echo "Found release notes entries"
         exit 0
@@ -178,7 +181,7 @@ checkForLabel() {
 
     if [ -z "${releaseNotesLabelPresent}" ]; then
         echo "Missing \"${RELEASE_NOTES_NONE_LABEL}\" label"
-        echo ""
+        echo
         echo "Missing release notes and missing \"${RELEASE_NOTES_NONE_LABEL}\" label. If this pull request contains user facing changes, please follow the instructions at https://github.com/istio/istio/tree/master/releasenotes to add an entry. If not, please add the release-notes-none label to the pull request. Note that the test will have to be manually retriggered after adding the label."
         exit 1
     else
