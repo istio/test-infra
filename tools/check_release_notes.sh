@@ -134,7 +134,7 @@ validate_opts() {
 # Curl the GitHub API to get a list of files for the specified PR. If files are
 # found, exit. We might eventually want to validate the data here.
 checkForFiles() {
-    echo "Checking files from pull request ${REPO_OWNER}/${REPO_NAME}#${PULL_NUMBER} head SHA: ${PULL_PULL_SHA} destination branch: ${PULL_BASE_REF}, base SHA: ${PULL_BASE_REF}"
+    echo "Checking files from pull request ${REPO_OWNER}/${REPO_NAME}#${PULL_NUMBER} head SHA: ${PULL_PULL_SHA} destination branch: ${PULL_BASE_REF}, base SHA: ${PULL_BASE_SHA}"
 
     pushd "${REPO_PATH}"
 
