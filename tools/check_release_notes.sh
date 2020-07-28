@@ -71,8 +71,8 @@ get_opts() {
             PULL_NUMBER="$2"
             shift 2
             ;;
-        --dest-branch)
-            PULL_BASE_REF="$2"
+        --base-sha)
+            PULL_BASE_SHA="$2"
             shift 2
             ;;
         --pr-head-sha)
@@ -117,8 +117,8 @@ validate_opts() {
         exit 1
     fi
 
-    if [ -z "${PULL_BASE_REF:-}" ]; then
-        echo "PULL_BASE_REF not specified. This must match the target branch for the pull request."
+    if [ -z "${PULL_BASE_SHA:-}" ]; then
+        echo "PULL_BASE_SHA not specified. This must match the base SHA for the pull request."
         exit 1
     fi
 
@@ -134,11 +134,11 @@ validate_opts() {
 # Curl the GitHub API to get a list of files for the specified PR. If files are
 # found, exit. We might eventually want to validate the data here.
 checkForFiles() {
-    echo "Checking files from pull request ${REPO_OWNER}/${REPO_NAME}#${PULL_NUMBER} head SHA: ${PULL_PULL_SHA} destination branch: ${PULL_BASE_REF}"
+    echo "Checking files from pull request ${REPO_OWNER}/${REPO_NAME}#${PULL_NUMBER} head SHA: ${PULL_PULL_SHA} destination branch: ${PULL_BASE_REF}, base SHA: ${PULL_BASE_REF}"
 
     pushd "${REPO_PATH}"
 
-    addedFiles=$(git diff "${PULL_BASE_REF}...${PULL_PULL_SHA}" --name-only --diff-filter=AMR)
+    addedFiles=$(git diff "${PULL_BASE_SHA}...${PULL_PULL_SHA}" --name-only --diff-filter=AMR)
     echo "Added files: ${addedFiles}"
     echo
     popd
