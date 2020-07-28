@@ -111,6 +111,21 @@ validate_opts() {
         print_error_and_exit "PULL_NUMBER is a required option. It must match the GitHub pull request number."
         exit 1
     fi
+
+    if [ -z "${REPO_PATH:-}" ]; then
+        echo "REPO_PATH not specified. Using current working directory."
+        REPO_PATH=$(pwd)
+    fi
+
+    if [ -z "${PULL_PULL_SHA:-}" ]; then
+        echo "PULL_PULL_SHA not specified. This must match the HEAD SHA for the pull request."
+        exit 1
+    fi
+
+    if [ -z "${PULL_BASE_REF:-}" ]; then
+        echo "PULL_BASE_REF not specified. This must match the target branch for the pull request."
+        exit 1
+    fi
 }
 
 # Curl the GitHub API to get a list of files for the specified PR. If files are
@@ -164,7 +179,7 @@ checkForLabel() {
     if [ -z "${releaseNotesLabelPresent}" ]; then
         echo "Missing \"${RELEASE_NOTES_NONE_LABEL}\" label"
         echo ""
-        echo "Missing release notes and missing ${RELEASE_NOTES_NONE_LABEL} label. If this pull request contains user facing changes, please follow the instructions at https://github.com/istio/istio/tree/master/releasenotes to add an entry. If not, please add the release-notes-none label to the pull request. Note that the test will have to be manually retriggered after adding the label."
+        echo "Missing release notes and missing \"${RELEASE_NOTES_NONE_LABEL}\" label. If this pull request contains user facing changes, please follow the instructions at https://github.com/istio/istio/tree/master/releasenotes to add an entry. If not, please add the release-notes-none label to the pull request. Note that the test will have to be manually retriggered after adding the label."
         exit 1
     else
         echo "Found ${RELEASE_NOTES_NONE_LABEL} label. This pull request will not include release notes."
