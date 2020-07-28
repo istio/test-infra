@@ -39,7 +39,7 @@ cleanup() {
 }
 
 get_opts() {
-    if opt="$(getopt -o '' -l token-path:,token:,pr:,org:,repo: -n "$(basename "$0")" -- "$@")"; then
+    if opt="$(getopt -o '' -l token-path:,token:,pr:,org:,repo:,dest-branch:,pr-head-sha:,repo-path: -n "$(basename "$0")" -- "$@")"; then
         eval set -- "$opt"
     else
         print_error_and_exit "unable to parse options"
@@ -69,6 +69,18 @@ get_opts() {
             ;;
         --pr)
             PULL_NUMBER="$2"
+            shift 2
+            ;;
+        --dest-branch)
+            PULL_BASE_REF="$2"
+            shift 2
+            ;;
+        --pr-head-sha)
+            PULL_PULL_SHA="$2"
+            shift 2
+            ;;
+        --repo-path)
+            REPO_PATH="$2"
             shift 2
             ;;
         --)
@@ -104,22 +116,18 @@ validate_opts() {
 # Curl the GitHub API to get a list of files for the specified PR. If files are
 # found, exit. We might eventually want to validate the data here.
 checkForFiles() {
-    echo "Requesting files from pull request ${REPO_OWNER}/${REPO_NAME}#${PULL_NUMBER}"
-    if [ -z "${token}" ]; then
-        ghFiles=$(curl -L -s --show-error --fail \
-            --header "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/pulls/${PULL_NUMBER}/files")
-    else
-        ghFiles=$(curl -L -s --show-error --fail \
-            --header "Accept: application/vnd.github.v3+json" \
-            --header "Authorization: Bearer ${token}" \
-            "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/pulls/${PULL_NUMBER}/files")
-    fi
+    echo "Checking files from pull request ${REPO_OWNER}/${REPO_NAME}#${PULL_NUMBER} head SHA: ${PULL_PULL_SHA} destination branch: ${PULL_BASE_REF}"
+
+    pushd "${REPO_PATH}"
+
+    addedFiles=$(git diff ${PULL_BASE_REF}...${PULL_PULL_SHA} --name-only --diff-filter=A)
+    echo "Added files: ${addedFiles}"
+    echo ""
+    popd
 
     # grep returns a non-zero error code on not found. Reset -e so we don't fail silently.
     set +e
-    releaseNotesFiles=$(echo "${ghFiles}" | jq 'map(.filename)' |
-            grep 'releasenotes\/notes\/.*\.yaml' )
+    releaseNotesFiles=$(echo "${addedFiles}" | grep 'releasenotes\/notes\/.*\.yaml' )
     set -e
     if [ -z "${releaseNotesFiles}" ]; then
         echo "No release notes files found in '/releasenotes/notes/'."
@@ -154,7 +162,7 @@ checkForLabel() {
     set -e
 
     if [ -z "${releaseNotesLabelPresent}" ]; then
-        echo "Missing ${RELEASE_NOTES_NONE_LABEL}"
+        echo "Missing \"${RELEASE_NOTES_NONE_LABEL}\" label"
         echo ""
         echo "Missing release notes and missing ${RELEASE_NOTES_NONE_LABEL} label. If this pull request contains user facing changes, please follow the instructions at https://github.com/istio/istio/tree/master/releasenotes to add an entry. If not, please add the release-notes-none label to the pull request. Note that the test will have to be manually retriggered after adding the label."
         exit 1
