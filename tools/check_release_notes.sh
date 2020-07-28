@@ -135,7 +135,7 @@ checkForFiles() {
 
     pushd "${REPO_PATH}"
 
-    addedFiles=$(git diff ${PULL_BASE_REF}...${PULL_PULL_SHA} --name-only --diff-filter=AMR)
+    addedFiles=$(git diff "${PULL_BASE_REF}...${PULL_PULL_SHA}" --name-only --diff-filter=AMR)
     echo "Added files: ${addedFiles}"
     echo ""
     popd
