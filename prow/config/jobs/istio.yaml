@@ -28,14 +28,6 @@ jobs:
     requirements: [gcp]
     resources: benchmark
 
-  - name: integ-galley-k8s-tests
-    type: presubmit
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.galley.kube.presubmit]
-    requirements: [kind]
-    env:
-      - name: TEST_SELECT
-        value: "-postsubmit,-flaky,-multicluster"
-
   - name: integ-pilot-k8s-tests
     type: presubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
@@ -100,14 +92,6 @@ jobs:
     env:
       - name: TEST_SELECT
         value: "-postsubmit,-flaky,-multicluster"
-
-  - name: integ-galley-k8s-tests
-    type: postsubmit
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.galley.kube]
-    requirements: [kind]
-    env:
-      - name: TEST_SELECT
-        value: "-multicluster"
 
   - name: integ-pilot-k8s-tests
     type: postsubmit
