@@ -1,9 +1,9 @@
 ---
 plank:
-  job_url_template: 'https://prow.istio.io/view/gcs/istio-prow{{if eq .Spec.Type "presubmit"}}/pr-logs/pull/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if eq .Spec.Type "batch"}}/pr-logs/pull/batch{{else}}/logs{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}'
+  job_url_template: 'https://prow.istio.io/view/istio-prow{{if eq .Spec.Type "presubmit"}}/pr-logs/pull/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if eq .Spec.Type "batch"}}/pr-logs/pull/batch{{else}}/logs{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}'
   job_url_prefix_config:
-    '*': https://prow.istio.io/view/gcs/
-    istio-private: https://prow-private.istio.io/view/gcs/
+    '*': https://prow.istio.io/view/
+    istio-private: https://prow-private.istio.io/view/
   pod_pending_timeout: 15m
   pod_unscheduled_timeout: 30m
   default_decoration_configs:
