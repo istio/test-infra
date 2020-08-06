@@ -1350,14 +1350,13 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
-  - always_run: false
+  - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
     branches:
     - ^master$
     decorate: true
     name: analyze-tests_istio
-    optional: true
     path_alias: istio.io/istio
     spec:
       containers:
