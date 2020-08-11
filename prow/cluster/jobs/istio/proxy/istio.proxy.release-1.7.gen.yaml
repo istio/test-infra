@@ -240,45 +240,6 @@ presubmits:
           path: /tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-  - always_run: false
-    annotations:
-      testgrid-dashboards: istio_release-1.7_proxy
-    branches:
-    - ^release-1.7$
-    decorate: true
-    labels:
-      preset-service-account: "true"
-    name: release-centos-test_proxy_release-1.7
-    optional: true
-    path_alias: istio.io/proxy
-    run_if_changed: centos
-    skip_report: true
-    spec:
-      containers:
-      - command:
-        - ./prow/proxy-presubmit-centos-release.sh
-        image: gcr.io/istio-testing/build-tools-centos:master-2020-08-07T13-59-49
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        testing: build-pool
-      volumes:
-      - hostPath:
-          path: /tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.7_proxy
