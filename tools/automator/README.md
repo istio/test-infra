@@ -18,6 +18,12 @@ either as a standalone script or in Prow CI as a presubmit, postsubmit, or perid
    - [`pr-creator`]
    - [`realpath`]
 
+1. For MacOS, additionally install the `coreutils` and `gnu-getopt` Homebrew packages, then follow the postinstall instructions to add the commands to your `PATH`:
+
+    ```bash
+    brew install gnu-getopt coreutils
+    ```
+
 1. Unless executed in dry-run mode (i.e. `--dry-run`), it requires the use of a [GitHub access token] to identify the user and interact
    with the GitHub API.
 
@@ -113,4 +119,4 @@ standard out if any files were changed, then exit.
 [`git`]: https://git-scm.com/
 [`jq`]: https://github.com/stedolan/jq
 [`pr-creator`]: https://github.com/kubernetes/test-infra/tree/master/robots/pr-creator
-[`reealpath`]: https://linux.die.net/man/1/realpath
+[`realpath`]: https://linux.die.net/man/1/realpath
