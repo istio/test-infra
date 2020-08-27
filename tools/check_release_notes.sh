@@ -138,22 +138,15 @@ checkForFiles() {
 
     pushd "${REPO_PATH}"
 
-    addedFiles=$(git diff "${PULL_BASE_SHA}...${PULL_PULL_SHA}" --name-only --diff-filter=AMR)
-    echo "Added files: ${addedFiles}"
-    echo
+    GEN_RELEASE_NOTES_PATH=../tools/cmd/gen-release-notes
+    pushd ${GEN_RELEASE_NOTES_PATH}
+    go build
     popd
 
-    # grep returns a non-zero error code on not found. Reset -e so we don't fail silently.
-    set +e
-    releaseNotesFiles=$(echo "${addedFiles}" | grep 'releasenotes\/notes\/.*\.yaml' )
-    set -e
-    if [ -z "${releaseNotesFiles}" ]; then
-        echo "No release notes files found in '/releasenotes/notes/'."
-        echo
-    else
-        echo "Found release notes entries"
-        exit 0
-    fi
+    "${GEN_RELEASE_NOTES_PATH}"/gen-release-notes --oldBranch "${PULL_BASE_SHA}" --newBranch "${PULL_PULL_SHA}" --templates "${GEN_RELEASE_NOTES_PATH}"/templates --notes ./releasenotes/notes --validateOnly
+    exit 0
+    popd
+
 }
 
 checkForLabel() {
