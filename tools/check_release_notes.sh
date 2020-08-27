@@ -143,8 +143,18 @@ checkForFiles() {
     go build
     popd
 
+    set +e
     "${GEN_RELEASE_NOTES_PATH}"/gen-release-notes --oldBranch "${PULL_BASE_SHA}" --newBranch "${PULL_PULL_SHA}" --templates "${GEN_RELEASE_NOTES_PATH}"/templates --notes ./releasenotes/notes --validateOnly
-    exit 0
+    returnCode=$?
+    set -e
+
+    # gen-release-notes returns EX_NOINPUT (return code 66) for files not found. Any other error codes or return codes are valid reasons to exit.
+    EX_NOINPUT=66
+    if [ "${returnCode}" -eq ${EX_NOINPUT} ]; then
+        echo ""
+        return
+    fi
+    exit "${returnCode}"
     popd
 
 }
