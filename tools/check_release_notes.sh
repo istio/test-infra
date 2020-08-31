@@ -154,9 +154,7 @@ checkForFiles() {
         echo "No release notes files found in '/releasenotes/notes/'."
         echo ""
         popd
-        return
     else
-        echo "found release notes entries"
         #gen-release-notes will either return 0 (no error) or an error.
         exit "${returnCode}"
     fi
