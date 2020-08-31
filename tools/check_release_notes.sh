@@ -138,22 +138,27 @@ checkForFiles() {
 
     pushd "${REPO_PATH}"
 
-    addedFiles=$(git diff "${PULL_BASE_SHA}...${PULL_PULL_SHA}" --name-only --diff-filter=AMR)
-    echo "Added files: ${addedFiles}"
-    echo
+    GEN_RELEASE_NOTES_PATH=../tools/cmd/gen-release-notes
+    pushd ${GEN_RELEASE_NOTES_PATH}
+    go build
     popd
 
-    # grep returns a non-zero error code on not found. Reset -e so we don't fail silently.
     set +e
-    releaseNotesFiles=$(echo "${addedFiles}" | grep 'releasenotes\/notes\/.*\.yaml' )
+    "${GEN_RELEASE_NOTES_PATH}"/gen-release-notes --oldBranch "${PULL_BASE_SHA}" --newBranch "${PULL_PULL_SHA}" --templates "${GEN_RELEASE_NOTES_PATH}"/templates --notes ./releasenotes/notes --validateOnly
+    returnCode=$?
     set -e
-    if [ -z "${releaseNotesFiles}" ]; then
+
+    # gen-release-notes returns EX_NOINPUT (return code 66) for files not found. Any other error codes or return codes are valid reasons to exit.
+    EX_NOINPUT=66
+    if [ "${returnCode}" -eq ${EX_NOINPUT} ]; then
         echo "No release notes files found in '/releasenotes/notes/'."
-        echo
+        echo ""
+        popd
     else
-        echo "Found release notes entries"
-        exit 0
+        #gen-release-notes will either return 0 (no error) or an error.
+        exit "${returnCode}"
     fi
+
 }
 
 checkForLabel() {
