@@ -151,11 +151,15 @@ checkForFiles() {
     # gen-release-notes returns EX_NOINPUT (return code 66) for files not found. Any other error codes or return codes are valid reasons to exit.
     EX_NOINPUT=66
     if [ "${returnCode}" -eq ${EX_NOINPUT} ]; then
+        echo "No release notes files found in '/releasenotes/notes/'."
         echo ""
+        popd
         return
+    else
+        echo "found release notes entries"
+        #gen-release-notes will either return 0 (no error) or an error.
+        exit "${returnCode}"
     fi
-    exit "${returnCode}"
-    popd
 
 }
 
