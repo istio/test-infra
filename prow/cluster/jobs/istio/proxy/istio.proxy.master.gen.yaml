@@ -54,6 +54,50 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
+    labels:
+      preset-service-account: "true"
+    name: release-centos_proxy_postsubmit
+    path_alias: istio.io/proxy
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - ./prow/proxy-postsubmit-centos.sh
+        image: gcr.io/istio-testing/build-tools-centos:master-2020-09-04T21-07-25
+        name: ""
+        resources:
+          limits:
+            cpu: "64"
+            memory: 240G
+          requests:
+            cpu: "30"
+            memory: 100G
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: build-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_proxy_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
     extra_refs:
     - base_ref: master
       org: istio
@@ -240,7 +284,7 @@ presubmits:
           path: /tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-  - always_run: false
+  - always_run: true
     annotations:
       testgrid-dashboards: istio_proxy
     branches:
@@ -251,8 +295,6 @@ presubmits:
     name: release-centos-test_proxy
     optional: true
     path_alias: istio.io/proxy
-    run_if_changed: centos
-    skip_report: true
     spec:
       containers:
       - command:
