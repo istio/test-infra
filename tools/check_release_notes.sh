@@ -178,6 +178,8 @@ checkForLabel() {
     fi
 
     labels=$(echo "${ghPR}" | jq '.labels | map(.name)')
+    owner=$(echo "${ghPR}" | jq -r '.user.login')
+    branch=$(echo "${ghPR}" | jq -r '.head.ref')
 
     # grep returns a non-zero error code on not found. Reset -e so we don't fail silently.
     set +e
@@ -187,7 +189,10 @@ checkForLabel() {
     if [ -z "${releaseNotesLabelPresent}" ]; then
         echo "Missing \"${RELEASE_NOTES_NONE_LABEL}\" label"
         echo
-        echo "Missing release notes and missing \"${RELEASE_NOTES_NONE_LABEL}\" label. If this pull request contains user facing changes, please follow the instructions at https://github.com/istio/istio/tree/master/releasenotes to add an entry. If not, please add the release-notes-none label to the pull request. Note that the test will have to be manually retriggered after adding the label."
+        echo "Missing release notes and missing \"${RELEASE_NOTES_NONE_LABEL}\" label."
+        echo "If this pull request contains user facing changes, please create a release note based on the template: https://github.com/istio/istio/blob/master/releasenotes/template.yaml by going here: https://github.com/${owner}/istio/new/${branch}/releasenotes/notes"
+        echo "Release notes documentation can be found here: https://github.com/istio/istio/tree/master/releasenotes"
+        echo "If this pull request has no user facing changes, please add the release-notes-none label to the pull request. Note that the test will have to be manually retriggered after adding the label."
         exit 1
     else
         echo "Found ${RELEASE_NOTES_NONE_LABEL} label. This pull request will not include release notes."
