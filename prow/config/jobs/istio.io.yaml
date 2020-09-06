@@ -24,6 +24,13 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, doc.test.profile_none]
     requirements: [kind]
     modifiers: [optional]
+  
+  - name: k8s-multicluster-tests
+    command: [entrypoint, prow/integ-suite-kind.sh, doc.test.multicluster]
+    requirements: [kind]
+    env:
+      - name: TOPOLOGY
+        value: MULTICLUSTER
 
   - name: update-ref-docs-dry-run
     type: presubmit
