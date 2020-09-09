@@ -18,9 +18,10 @@ spec:
       - name: boskos-janitor
         image: gcr.io/k8s-staging-boskos/janitor:v20200819-984516e
         args:
-        - --service-account=/etc/service-account/service-account.json
         - --resource-type=gcp-project,gcp-perf-test
         - --pool-size=20
+        - --
+        - --service-account=/etc/service-account/service-account.json
         volumeMounts:
         - mountPath: /etc/service-account
           name: boskos-service-account
