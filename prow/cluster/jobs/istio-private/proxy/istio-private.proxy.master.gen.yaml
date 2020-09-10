@@ -68,6 +68,64 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
+    labels:
+      preset-enable-netrc: "true"
+      preset-service-account: "true"
+    name: release-centos_proxy_postsubmit_master_priv
+    path_alias: istio.io/proxy
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - ./prow/proxy-postsubmit-centos.sh
+        env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
+          value: projects/istio-prow-build/instances/default_instance
+        - name: DOCKER_REPOSITORY
+          value: istio-prow-build/envoy
+        - name: ENVOY_PREFIX
+          value: envoy-wasm
+        - name: ENVOY_REPOSITORY
+          value: https://github.com/envoyproxy/envoy-wasm
+        - name: GCS_ARTIFACTS_BUCKET
+          value: istio-private-artifacts
+        - name: GCS_BUILD_BUCKET
+          value: istio-private-build
+        image: gcr.io/istio-testing/build-tools-centos:master-2020-09-04T21-07-25
+        name: ""
+        resources:
+          limits:
+            cpu: "64"
+            memory: 240G
+          requests:
+            cpu: "30"
+            memory: 100G
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: build-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/proxy.git
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
     extra_refs:
     - base_ref: master
       clone_uri: git@github.com:istio-private/test-infra.git
@@ -313,7 +371,7 @@ presubmits:
           path: /tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-  - always_run: false
+  - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -327,8 +385,6 @@ presubmits:
     name: release-centos-test_proxy_master_priv
     optional: true
     path_alias: istio.io/proxy
-    run_if_changed: centos
-    skip_report: true
     spec:
       containers:
       - command:
