@@ -28,6 +28,7 @@ jobs:
   - name: k8s-multicluster-tests
     command: [entrypoint, prow/integ-suite-kind.sh, doc.test.multicluster]
     requirements: [kind]
+    modifiers: [optional]
     env:
       - name: TOPOLOGY
         value: MULTICLUSTER
