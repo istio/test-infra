@@ -80,14 +80,124 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.io.git
     cluster: private
     decorate: true
-    name: k8s-tests_istio.io_postsubmit_priv
+    name: doc.test.profile_default_istio.io_postsubmit_priv
     path_alias: istio.io/istio.io
     spec:
       containers:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.kube.presubmit
+        - doc.test.profile_default
+        image: gcr.io/istio-testing/build-tools:master-2020-09-04T21-07-25
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.io.git
+    cluster: private
+    decorate: true
+    name: doc.test.profile_demo_istio.io_postsubmit_priv
+    path_alias: istio.io/istio.io
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - doc.test.profile_demo
+        image: gcr.io/istio-testing/build-tools:master-2020-09-04T21-07-25
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.io.git
+    cluster: private
+    decorate: true
+    name: doc.test.profile_none_istio.io_postsubmit_priv
+    path_alias: istio.io/istio.io
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - doc.test.profile_none
         image: gcr.io/istio-testing/build-tools:master-2020-09-04T21-07-25
         name: ""
         resources:
@@ -212,7 +322,7 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.io.git
     cluster: private
     decorate: true
-    name: k8s-tests_istio.io_priv
+    name: doc.test.profile_default_istio.io_priv
     optional: true
     path_alias: istio.io/istio.io
     spec:
@@ -220,7 +330,121 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.kube.presubmit
+        - doc.test.profile_default
+        image: gcr.io/istio-testing/build-tools:master-2020-09-04T21-07-25
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.io.git
+    cluster: private
+    decorate: true
+    name: doc.test.profile_demo_istio.io_priv
+    optional: true
+    path_alias: istio.io/istio.io
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - doc.test.profile_demo
+        image: gcr.io/istio-testing/build-tools:master-2020-09-04T21-07-25
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.io.git
+    cluster: private
+    decorate: true
+    name: doc.test.profile_none_istio.io_priv
+    optional: true
+    path_alias: istio.io/istio.io
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - doc.test.profile_none
         image: gcr.io/istio-testing/build-tools:master-2020-09-04T21-07-25
         name: ""
         resources:
