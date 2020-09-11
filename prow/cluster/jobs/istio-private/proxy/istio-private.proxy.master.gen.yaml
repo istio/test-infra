@@ -76,7 +76,6 @@ postsubmits:
     spec:
       containers:
       - command:
-        - entrypoint
         - ./prow/proxy-postsubmit-centos.sh
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -106,8 +105,6 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /var/lib/docker
-          name: docker-root
       nodeSelector:
         testing: build-pool
       volumes:
@@ -115,8 +112,6 @@ postsubmits:
           path: /tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - emptyDir: {}
-        name: docker-root
   - annotations:
       testgrid-create-test-group: "false"
     branches:
