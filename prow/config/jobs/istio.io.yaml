@@ -10,8 +10,18 @@ jobs:
   - name: gencheck
     command: [make, gen-check]
 
-  - name: k8s-tests
-    command: [entrypoint, prow/integ-suite-kind.sh, test.kube.presubmit]
+  - name: k8s-tests-default
+    command: [entrypoint, prow/integ-suite-kind.sh, doc.test.default]
+    requirements: [kind]
+    modifiers: [optional]
+
+  - name: k8s-tests-demo
+    command: [entrypoint, prow/integ-suite-kind.sh, doc.test.demo]
+    requirements: [kind]
+    modifiers: [optional]
+
+  - name: k8s-tests-none
+    command: [entrypoint, prow/integ-suite-kind.sh, doc.test.none]
     requirements: [kind]
     modifiers: [optional]
 
