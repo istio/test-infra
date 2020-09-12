@@ -27,11 +27,11 @@ resources:
   min-count: 4
   max-count: 4
   needs:
-    gcp-perf-test: 1
+    gcp-perf-test-project: 1
   config:
     type: GCPResourceConfig
     content: |
-      gcp-perf-test:
+      gcp-perf-test-project:
         - clusters:
           - machinetype: n1-standard-32
             numnodes: 3
@@ -40,7 +40,7 @@ resources:
             scopes:
             - https://www.googleapis.com/auth/cloud-platform
             - https://www.googleapis.com/auth/trace.append
-- type: gcp-perf-test
+- type: gcp-perf-test-project
   state: dirty
   names:
   - istio-boskos-perf-01
