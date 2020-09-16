@@ -422,6 +422,66 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
+    name: integ-security-multicluster-tests_istio_postsubmit
+    path_alias: istio.io/istio
+    skip_report: true
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --topology
+        - MULTICLUSTER
+        - test.integration.security.kube
+        env:
+        - name: TEST_SELECT
+          value: -multicluster
+        image: gcr.io/istio-testing/build-tools:master-2020-09-15T14-05-50
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_istio_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
     name: integ-telemetry-k8s-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
@@ -1261,6 +1321,69 @@ presubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.pilot.kube
+        env:
+        - name: TEST_SELECT
+          value: -multicluster
+        image: gcr.io/istio-testing/build-tools:master-2020-09-15T14-05-50
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - always_run: false
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    name: integ-security-multicluster-tests_istio
+    optional: true
+    path_alias: istio.io/istio
+    skip_report: true
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --topology
+        - MULTICLUSTER
+        - test.integration.security.kube
         env:
         - name: TEST_SELECT
           value: -multicluster

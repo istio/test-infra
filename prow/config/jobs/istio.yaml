@@ -122,6 +122,19 @@ jobs:
       - name: TEST_SELECT
         value: "-multicluster"
 
+  - name: integ-security-multicluster-tests
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --topology
+      - MULTICLUSTER
+      - test.integration.security.kube
+    requirements: [kind]
+    modifiers: [skipped, optional, hidden]
+    env:
+      - name: TEST_SELECT
+        value: "-multicluster"
+
   - name: integ-telemetry-k8s-tests
     type: postsubmit
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.telemetry.kube]
