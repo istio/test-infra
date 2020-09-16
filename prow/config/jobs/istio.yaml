@@ -139,7 +139,7 @@ jobs:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - kindest/node:v1.16.9
+      - kindest/node:v1.16.15
       - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
@@ -153,7 +153,7 @@ jobs:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - kindest/node:v1.17.5
+      - kindest/node:v1.17.11
       - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
@@ -161,13 +161,13 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: " --istio.test.retries=1 "
 
-  - name: integ-k8s-119
+  - name: integ-k8s-118
     type: postsubmit
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - gcr.io/istio-testing/kind-node:v1.19.0-rc.2
+      - kindest/node:v1.18.8
       - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
