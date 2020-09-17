@@ -35,7 +35,7 @@ func TestParseInvalidConfig(t *testing.T) {
 				{
 					MachineType: "n1-standard-2",
 					NumNodes:    4,
-					Version:     "1.7",
+					Version:     "1.17",
 					Zone:        "us-central-1f",
 					Scopes: []string{
 						"https://www.googleapis.com/auth/cloud-platform",
@@ -67,9 +67,41 @@ func TestParseInvalidConfig(t *testing.T) {
 				{
 					MachineType:   "n1-standard-2",
 					NumNodes:      4,
-					Version:       "1.7",
+					Version:       "1.17",
 					Zone:          "us-central-1f",
 					NetworkPolicy: &container.NetworkPolicy{Enabled: true, Provider: "CALICO"},
+					Scopes: []string{
+						"https://www.googleapis.com/auth/cloud-platform",
+						"https://www.googleapis.com/auth/trace.append",
+					},
+				},
+			},
+			Vms: []virtualMachineConfig{
+				{
+					MachineType: "n1-standard-4",
+					SourceImage: "projects/debian-cloud/global/images/debian-9-stretch-v20180105",
+					Zone:        "us-central-1f",
+					Tags: []string{
+						"http-server",
+						"https-server",
+					},
+					Scopes: []string{
+						"https://www.googleapis.com/auth/cloud-platform",
+						"https://www.googleapis.com/auth/trace.append",
+					},
+				},
+			},
+		}},
+	}
+	expectedChannel := resourceConfigs{
+		"type1": {{
+			Clusters: []clusterConfig{
+				{
+					MachineType:    "n1-standard-2",
+					NumNodes:       4,
+					Version:        "1.17",
+					Zone:           "us-central-1f",
+					ReleaseChannel: &container.ReleaseChannel{Channel: "RAPID"},
 					Scopes: []string{
 						"https://www.googleapis.com/auth/cloud-platform",
 						"https://www.googleapis.com/auth/trace.append",
@@ -106,11 +138,18 @@ func TestParseInvalidConfig(t *testing.T) {
 	if err != nil {
 		t.Errorf("cannot parse networkpolicy object")
 	}
+	configChannel, err := ConfigConverter(conf.Resources[2].Config.Content)
+	if err != nil {
+		t.Errorf("cannot parse releasechannel object")
+	}
 	if !reflect.DeepEqual(expected, *config.(*resourceConfigs)) {
 		t.Error("Object differ")
 	}
 	if !reflect.DeepEqual(expectedCni, *configCni.(*resourceConfigs)) {
-		t.Error("Object with Networkpolicy differ")
+		t.Error("Object networkpolicy differ")
+	}
+	if !reflect.DeepEqual(expectedChannel, *configChannel.(*resourceConfigs)) {
+		t.Error("Object releasechannel differ")
 	}
 }
 
