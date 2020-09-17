@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: boskos-metrics
@@ -7,6 +7,9 @@ metadata:
     app: boskos-metrics
   namespace: boskos
 spec:
+  selector:
+    matchLabels:
+      app: boskos-metrics
   replicas: 1
   template:
     metadata:
