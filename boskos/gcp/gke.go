@@ -37,15 +37,16 @@ const (
 )
 
 type clusterConfig struct {
-	Scopes                  []string                 `json:"scopes,omitempty"`
-	MachineType             string                   `json:"machinetype,omitempty"`
-	Version                 string                   `json:"version,omitempty"`
-	Zone                    string                   `json:"zone,omitempty"`
-	NumNodes                int64                    `json:"numnodes,omitempty"`
-	NetworkPolicy           *container.NetworkPolicy `json:"networkpolicy,omitempty"`
-	EnableKubernetesAlpha   bool                     `json:"enablekubernetesalpha"`
-	EnableWorkloadIdentity  bool                     `json:"enableworkloadidentity"`
-	EnableClientCertificate bool                     `json:"enableclientcertificate"`
+	Scopes                  []string                  `json:"scopes,omitempty"`
+	MachineType             string                    `json:"machinetype,omitempty"`
+	Version                 string                    `json:"version,omitempty"`
+	Zone                    string                    `json:"zone,omitempty"`
+	NumNodes                int64                     `json:"numnodes,omitempty"`
+	ReleaseChannel          *container.ReleaseChannel `json:"releasechannel,omitempty"`
+	NetworkPolicy           *container.NetworkPolicy  `json:"networkpolicy,omitempty"`
+	EnableKubernetesAlpha   bool                      `json:"enablekubernetesalpha"`
+	EnableWorkloadIdentity  bool                      `json:"enableworkloadidentity"`
+	EnableClientCertificate bool                      `json:"enableclientcertificate"`
 }
 
 type containerEngine struct {
@@ -136,6 +137,7 @@ func (cc *containerEngine) create(ctx context.Context, project string, config cl
 	}
 	clusterRequest := &container.CreateClusterRequest{
 		Cluster: &container.Cluster{
+			ReleaseChannel:        config.ReleaseChannel,
 			Name:                  name,
 			InitialClusterVersion: version,
 			InitialNodeCount:      config.NumNodes,
