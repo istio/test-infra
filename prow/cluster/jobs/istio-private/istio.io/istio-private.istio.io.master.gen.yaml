@@ -245,18 +245,17 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.io.git
     cluster: private
     decorate: true
-    name: k8s-multicluster-tests_istio.io_postsubmit_priv
+    name: doc.test.multicluster_istio.io_postsubmit_priv
     path_alias: istio.io/istio.io
     spec:
       containers:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - doc.test.multicluster
-        env:
-        - name: TOPOLOGY
-          value: MULTICLUSTER
-        image: gcr.io/istio-testing/build-tools:master-2020-08-31T18-26-34
+        - --topology
+        - MULTICLUSTER
+        - doc.test.multicluster]
+        image: gcr.io/istio-testing/build-tools:master-2020-09-15T14-05-50
         name: ""
         resources:
           limits:
@@ -551,7 +550,7 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.io.git
     cluster: private
     decorate: true
-    name: k8s-multicluster-tests_istio.io_priv
+    name: doc.test.multicluster_istio.io_priv
     optional: true
     path_alias: istio.io/istio.io
     spec:
@@ -559,11 +558,10 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - doc.test.multicluster
-        env:
-        - name: TOPOLOGY
-          value: MULTICLUSTER
-        image: gcr.io/istio-testing/build-tools:master-2020-08-31T18-26-34
+        - --topology
+        - MULTICLUSTER
+        - doc.test.multicluster]
+        image: gcr.io/istio-testing/build-tools:master-2020-09-15T14-05-50
         name: ""
         resources:
           limits:
