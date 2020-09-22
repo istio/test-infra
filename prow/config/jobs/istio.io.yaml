@@ -25,13 +25,15 @@ jobs:
     requirements: [kind]
     modifiers: [optional]
   
-  - name: k8s-multicluster-tests
-    command: [entrypoint, prow/integ-suite-kind.sh, doc.test.multicluster]
+  - name: doc.test.multicluster
+    command: 
+    - entrypoint
+    - prow/integ-suite-kind.sh
+    - --topology
+    - MULTICLUSTER
+    - doc.test.multicluster]
     requirements: [kind]
     modifiers: [optional]
-    env:
-      - name: TOPOLOGY
-        value: MULTICLUSTER
 
   - name: update-ref-docs-dry-run
     type: presubmit
