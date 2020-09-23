@@ -22,7 +22,7 @@ deploy: get-cluster-credentials get-api-resources
 boskos-config: get-cluster-credentials
 	kubectl create configmap boskos-config\
 		--from-file=resources.yaml\
-		-n $(NAMESPACE) --dry-run=client -o yaml\
+		-n $(NAMESPACE) --dry-run=true -o yaml\
 		| kubectl apply -f -
 
 create-serviceaccount: get-cluster-credentials
@@ -32,7 +32,7 @@ ifndef SERVICE-ACCOUNT-JSON
 endif
 	kubectl create secret generic boskos-service-account \
 		--from-file=service-account.json="$(SERVICE-ACCOUNT-JSON)" \
-		-n $(NAMESPACE) --dry-run=client -o yaml \
+		-n $(NAMESPACE) --dry-run=true -o yaml \
 		| kubectl apply -f -
 
 namespace: get-cluster-credentials
