@@ -76,6 +76,7 @@ above (e.g. `--title`) or in the **command** (e.g. `--cmd`) or **script** (e.g. 
 | `AUTOMATOR_SRC_BRANCH` | Set to the value of Prow's [`PULL_BASE_REF`][prow jobs].                                                                                                                                          | `master`                                   |
 | `AUTOMATOR_SHA`        | Set to the git commit sha (if inside a git directory).                                                                                                                                            | `c6418d1439d12eab2f1a4eae89f6eee46a34c31b` |
 | `AUTOMATOR_SHA_SHORT`  | Set to the git commit sha trimmed to 8 character (if inside a git directory).                                                                                                                     | `c6418d14`                                 |
+| `AUTOMATOR_SHA_COMMIT_DATE` | Set to the git sha committed date.                                                                                                                                                           | `2020-09-24`
 
 ### Examples
 

@@ -16,7 +16,7 @@
 # limitations under the License.
 
 set -euo pipefail
-shopt -s globstar dotglob extglob
+#shopt -s globstar dotglob extglob
 
 export BASHOPTS
 
@@ -57,6 +57,10 @@ current_tag() {
 
 current_sha() {
   git rev-parse "$@" HEAD
+}
+
+commit_date() {
+   git show -s --date=short --pretty='format:%ad' "$(current_sha)"
 }
 
 current_ref() {
