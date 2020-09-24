@@ -33,6 +33,22 @@ jobs:
     value: "/home/prow/go/src/istio.io/envoy"
   command: [./ci/do_ci.sh, bazel.release]
 
+- name: update-proxy
+  type: postsubmit
+  command:
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=proxy
+  - "--title=Automator: update envoy@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+  - --labels=auto-merge,release-notes-none
+  - --modifier=update_envoy_dep
+  - --token-path=/etc/github-token/oauth
+  - --cmd=scripts/update_envoy.sh $AUTOMATOR_SHA
+  requirements: [github]
+  repos: [istio/test-infra@master]
+  image: gcr.io/istio-testing/build-tools:master-2020-09-15T14-05-50
+  timeout: 4h
+
 resources:
   default:
     requests:
