@@ -16,7 +16,7 @@
 # limitations under the License.
 
 set -euo pipefail
-#shopt -s globstar dotglob extglob
+shopt -s globstar dotglob extglob
 
 export BASHOPTS
 
