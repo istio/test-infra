@@ -33,9 +33,9 @@ jobs:
     value: "/home/prow/go/src/istio.io/envoy"
   command: [./ci/do_ci.sh, bazel.release]
 
-periodics:
-- interval: 168h
-  name: update-proxy
+- name: update-proxy
+  type: periodic
+  interval: 168h
   command:
   - ../test-infra/tools/automator/automator.sh
   - --org=istio
