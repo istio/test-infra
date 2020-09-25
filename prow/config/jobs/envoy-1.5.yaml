@@ -1,6 +1,6 @@
 org: istio
 repo: envoy
-branches: [master]
+branches: [release-1.5]
 image: piotrsikora/envoy-build-ubuntu@sha256:e2775df4cf57e86920ca39886a877b4ccc12dbcfaa2a7c2a804f4cb83c797952
 node_selector:
   testing: build-pool
@@ -14,7 +14,7 @@ jobs:
   - name: ENVOY_SRCDIR
     value: "/home/prow/go/src/istio.io/envoy"
   command: [./ci/do_ci.sh, bazel.asan]
-  timeout: 4h0m0s
+  timeout: 4h
 
 - name: test-tsan
   type: presubmit
@@ -33,23 +33,6 @@ jobs:
   - name: ENVOY_SRCDIR
     value: "/home/prow/go/src/istio.io/envoy"
   command: [./ci/do_ci.sh, bazel.release]
-
-- name: update-proxy
-  type: periodic
-  interval: 168h
-  command:
-  - ../test-infra/tools/automator/automator.sh
-  - --org=istio
-  - --repo=proxy
-  - "--title=Automator: update envoy@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
-  - --labels=auto-merge
-  - --modifier=update_envoy_dep
-  - --token-path=/etc/github-token/oauth
-  - --cmd=scripts/update_envoy.sh $AUTOMATOR_SHA $AUTOMATOR_SHA_COMMIT_DATE
-  requirements: [github]
-  repos: [istio/test-infra@master]
-  image: gcr.io/istio-testing/build-tools:master-2020-09-15T14-05-50
-  timeout: 4h
 
 resources:
   default:

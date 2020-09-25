@@ -124,6 +124,7 @@ get_opts() {
 validate_opts() {
   sha="$(current_sha)"
   sha_short="$(current_sha --short)"
+  commit_date="$(commit_date)"
 
   if [ -z "${strict:-}" ]; then
     strict=false
@@ -181,6 +182,7 @@ validate_opts() {
 evaluate_opts() {
   AUTOMATOR_SRC_ORG="${REPO_OWNER:-}" AUTOMATOR_SRC_REPO="${REPO_NAME:-}" AUTOMATOR_SRC_BRANCH="${PULL_BASE_REF:-}"
   AUTOMATOR_SHA="$sha" AUTOMATOR_SHA_SHORT="$sha_short"
+  AUTOMATOR_SHA_COMMIT_DATE="$commit_date"
   AUTOMATOR_ORG="$org" AUTOMATOR_REPO="$repo" AUTOMATOR_BRANCH="$branch" AUTOMATOR_MODIFIER="$modifier"
 
   title="$(evaluate_tmpl "$title_tmpl")"
@@ -189,7 +191,7 @@ evaluate_opts() {
 }
 
 export_globals() {
-  export AUTOMATOR_SRC_ORG AUTOMATOR_SRC_REPO AUTOMATOR_SRC_BRANCH AUTOMATOR_SHA AUTOMATOR_SHA_SHORT \
+  export AUTOMATOR_SRC_ORG AUTOMATOR_SRC_REPO AUTOMATOR_SRC_BRANCH AUTOMATOR_SHA AUTOMATOR_SHA_SHORT AUTOMATOR_SHA_COMMIT_DATE \
     AUTOMATOR_ORG AUTOMATOR_REPO AUTOMATOR_BRANCH AUTOMATOR_MODIFIER AUTOMATOR_ROOT_DIR AUTOMATOR_REPO_DIR
 }
 
