@@ -126,6 +126,20 @@ jobs:
     env:
       - name: TEST_SELECT
         value: "-multicluster"
+  - name: integ-external-istiod-multicluster-tests
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --topology
+      - MULTICLUSTER
+      - test.integration.multicluster.kube.presubmit
+      - --topology-config
+      - ${ROOT}/prow/config/topology/externalistiod.json
+    requirements: [kind]
+    modifiers: [optional, hidden]
+    env:
+      - name: TEST_SELECT
+        value: "-postsubmit,-flaky,+externalistiod"
 
   - name: integ-security-k8s-tests
     type: postsubmit
