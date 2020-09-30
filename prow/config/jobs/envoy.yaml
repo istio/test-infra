@@ -37,6 +37,9 @@ jobs:
 - name: update-proxy
   type: periodic
   interval: 168h
+  env:
+    - name: ENVOY_SRCDIR
+      value: "/home/prow/go/src/istio.io/envoy"
   command:
   - ../test-infra/tools/automator/automator.sh
   - --org=istio
