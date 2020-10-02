@@ -215,6 +215,41 @@ periodics:
     nodeSelector:
       testing: test-pool
 
+# upgrade test using istioctl from 1.6 latest to 1.7 latest
+# with dual control plane and deployment-by-deployment
+- cron: "0 4 * * *"  # starts every day at 04:00AM UTC
+  name: istio-dual-control-plane-upgrade-1.6-1.7
+  branches: master
+  decorate: true
+  extra_refs:
+  - org: istio
+    repo: tools
+    base_ref: master
+    path_alias: istio.io/tools
+  annotations:
+    testgrid-dashboards: istio_release-pipeline
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
+  labels:
+    preset-service-account: "true"
+  spec:
+    containers:
+    - <<: *istio_container_with_kind
+      env:
+      - name: SOURCE_TAG
+        value: 1.6_latest
+      - name: TARGET_TAG
+        value: 1.7_latest
+      - name: INSTALL_OPTIONS
+        value: istioctl
+      - name: TEST_SCENARIO
+        value: dual-control-plane-upgrade
+      command:
+      - entrypoint
+      - upgrade_downgrade/run_upgrade_downgrade_test.sh
+    nodeSelector:
+      testing: test-pool
+
 # downgrade test using istioctl from 1.7 latest to 1.6 latest
 - cron: "0 4 * * *"  # starts every day at 04:00AM UTC
   name: istio-downgrade-using-istioctl-1.7_latest-1.6_latest
@@ -243,6 +278,41 @@ periodics:
         value: istioctl
       - name: TEST_SCENARIO
         value: downgrade
+      command:
+      - entrypoint
+      - upgrade_downgrade/run_upgrade_downgrade_test.sh
+    nodeSelector:
+      testing: test-pool
+
+# dual control plane rollback (canary upgrade rolled back) test
+# Canary upgrade to 1.7 rolled back to 1.6
+- cron: "0 4 * * *"  # starts every day at 04:00AM UTC
+  name: istio-dual-control-plane-rollback-1.7-1.6
+  branches: master
+  decorate: true
+  extra_refs:
+  - org: istio
+    repo: tools
+    base_ref: master
+    path_alias: istio.io/tools
+  annotations:
+    testgrid-dashboards: istio_release-pipeline
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
+  labels:
+    preset-service-account: "true"
+  spec:
+    containers:
+    - <<: *istio_container_with_kind
+      env:
+      - name: SOURCE_TAG
+        value: 1.6_latest
+      - name: TARGET_TAG
+        value: 1.7_latest
+      - name: INSTALL_OPTIONS
+        value: istioctl
+      - name: TEST_SCENARIO
+        value: dual-control-plane-rollback
       command:
       - entrypoint
       - upgrade_downgrade/run_upgrade_downgrade_test.sh
@@ -283,6 +353,42 @@ periodics:
     nodeSelector:
       testing: test-pool
 
+# upgrade test using istioctl from 1.7 latest to master
+# with dual control plane method
+- cron: "0 8 * * *"  # starts every day at 08:00AM UTC
+  name: istio-dual-control-plane-upgrade-1.7-master
+  branches: master
+  decorate: true
+  extra_refs:
+    - org: istio
+      repo: tools
+      base_ref: master
+      path_alias: istio.io/tools
+  annotations:
+    testgrid-dashboards: istio_release-pipeline
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
+  labels:
+    preset-service-account: "true"
+  spec:
+    containers:
+      - <<: *istio_container_with_kind
+        env:
+          - name: SOURCE_TAG
+            value: 1.7_latest
+          - name: TARGET_TAG
+            value: master
+          - name: INSTALL_OPTIONS
+            value: istioctl
+          - name: TEST_SCENARIO
+            value: dual-control-plane-upgrade
+        command:
+          - entrypoint
+          - upgrade_downgrade/run_upgrade_downgrade_test.sh
+    nodeSelector:
+      testing: test-pool
+
+
 # downgrade test using istioctl from master to 1.7 latest
 - cron: "0 8 * * *"  # starts every day at 08:00AM UTC
   name: istio-downgrade-using-istioctl-master-1.7_latest
@@ -311,6 +417,40 @@ periodics:
         value: istioctl
       - name: TEST_SCENARIO
         value: downgrade
+      command:
+      - entrypoint
+      - upgrade_downgrade/run_upgrade_downgrade_test.sh
+    nodeSelector:
+      testing: test-pool
+
+# dual control plane rollback test using istioctl from master to 1.7 latest
+- cron: "0 8 * * *"  # starts every day at 08:00AM UTC
+  name: istio-dual-control-plane-rollback-master-1.7
+  branches: master
+  decorate: true
+  extra_refs:
+  - org: istio
+    repo: tools
+    base_ref: master
+    path_alias: istio.io/tools
+  annotations:
+    testgrid-dashboards: istio_release-pipeline
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
+  labels:
+    preset-service-account: "true"
+  spec:
+    containers:
+    - <<: *istio_container_with_kind
+      env:
+      - name: SOURCE_TAG
+        value: 1.7_latest
+      - name: TARGET_TAG
+        value: master
+      - name: INSTALL_OPTIONS
+        value: istioctl
+      - name: TEST_SCENARIO
+        value: dual-control-plane-rollback
       command:
       - entrypoint
       - upgrade_downgrade/run_upgrade_downgrade_test.sh
