@@ -1,0 +1,46 @@
+org: istio
+repo: envoy
+branches: [release-1.8]
+image: envoyproxy/envoy-build-ubuntu:f21773ab398a879f976936f72c78c9dd3718ca1e
+node_selector:
+  testing: build-pool
+
+jobs:
+- name: test-asan
+  type: presubmit
+  env:
+  - name: BAZEL_BUILD_EXTRA_OPTIONS
+    value: "--local_ram_resources=131072 --local_cpu_resources=42 --test_env=ENVOY_IP_TEST_VERSIONS=v4only --flaky_test_attempts=9"
+  - name: ENVOY_SRCDIR
+    value: "/home/prow/go/src/istio.io/envoy"
+  command: [./ci/do_ci.sh, bazel.asan]
+  timeout: 4h0m0s
+
+- name: test-tsan
+  type: presubmit
+  env:
+  - name: BAZEL_BUILD_EXTRA_OPTIONS
+    value: "--local_ram_resources=131072 --local_cpu_resources=42 --test_env=ENVOY_IP_TEST_VERSIONS=v4only --flaky_test_attempts=9"
+  - name: ENVOY_SRCDIR
+    value: "/home/prow/go/src/istio.io/envoy"
+  command: [./ci/do_ci.sh, bazel.tsan]
+
+- name: test-release
+  type: presubmit
+  env:
+  - name: BAZEL_BUILD_EXTRA_OPTIONS
+    value: "--local_ram_resources=131072 --local_cpu_resources=42 --test_env=ENVOY_IP_TEST_VERSIONS=v4only --flaky_test_attempts=9"
+  - name: ENVOY_SRCDIR
+    value: "/home/prow/go/src/istio.io/envoy"
+  command: [./ci/do_ci.sh, bazel.release]
+
+resources:
+  default:
+    requests:
+      memory: "180G"
+      cpu: "48"
+      ephemeral-storage: "1500G"
+    limits:
+      memory: "240G"
+      cpu: "64"
+      ephemeral-storage: "1790G"
