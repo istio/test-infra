@@ -19,6 +19,10 @@ SHELL=/bin/bash -o pipefail
 
 include ../../../Makefile.gcloud.mk
 
+PROJECT ?= istio-testing
+CLUSTER ?= prow
+ZONE    ?= us-west1-a
+
 grafana-dashboards:
 	@mkdir -p dashboards_out
 	@for input in $(shell ls grafana_dashboards); do \
