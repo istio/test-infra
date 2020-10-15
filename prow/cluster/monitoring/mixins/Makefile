@@ -17,6 +17,12 @@
 
 SHELL=/bin/bash -o pipefail
 
+include ../../../Makefile.gcloud.mk
+
+PROJECT ?= istio-testing
+CLUSTER ?= prow
+ZONE    ?= us-west1-a
+
 grafana-dashboards:
 	@mkdir -p dashboards_out
 	@for input in $(shell ls grafana_dashboards); do \
@@ -30,14 +36,14 @@ prow_prometheusrule.yaml:
 	@echo "Generating prow_prometheusrule.yaml ..."
 	jsonnet ./prometheus/prow_prometheusrule.jsonnet | yq r -P - > prometheus_out/$@
 
-apply-configmaps: grafana-dashboards
+apply-configmaps: get-cluster-credentials grafana-dashboards
 	@for input in $(shell ls dashboards_out); do \
 		dashboard_name="grafana-dashboard-$${input%.*}"; \
 		echo "Generating dashboard $${dashboard_name} from $${input} ..."; \
 		kubectl create configmap -n prow-monitoring "$${dashboard_name}" --from-file="$${input}=dashboards_out/$${input}" --dry-run -o yaml | kubectl apply -f -; \
 	done
 
-apply-prow-prometheusrule: prow_prometheusrule.yaml
+apply-prow-prometheusrule: get-cluster-credentials prow_prometheusrule.yaml
 	kubectl apply -f prometheus_out/
 
 apply: apply-configmaps apply-prow-prometheusrule
