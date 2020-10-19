@@ -35,5 +35,18 @@
 
     // Tide pools that are important enough to have their own graphs on the dashboard.
     tideDashboardExplicitPools: [],
+
+    // Additional scraping endpoints
+    probeTargets: [
+    # ATTENTION: Keep this in sync with the list in ../../additional-scrape-configs_secret.yaml
+      {url: 'https://prow.istio.io', labels: {slo: comps.deck}},
+      {url: 'https://monitoring.prow.istio.io', labels: {}},
+    ],
+
+    // Boskos endpoints to be monitored
+    boskosResourcetypes: [],
+
+    // How long we go during work hours without seeing a webhook before alerting.
+    webhookMissingAlertInterval: '30m',
   },
 }
