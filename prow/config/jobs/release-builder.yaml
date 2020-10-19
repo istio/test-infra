@@ -45,6 +45,12 @@ jobs:
     requirements: [release, docker]
     resources: build
 
+  - name: branch-release
+    type: presubmit
+    regex: '^release/trigger-branch$'
+    command: [release/brach.sh]
+    modifiers: [optional]
+
 resources:
   build:
     requests:
