@@ -1,0 +1,82 @@
+branches:
+- release-1.8
+image: gcr.io/istio-testing/build-tools:release-1.8-2020-10-15T20-33-46
+jobs:
+- command:
+  - make
+  - lint
+  name: lint
+- command:
+  - make
+  - gen-check
+  name: gencheck
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - doc.test.profile_default
+  modifiers:
+  - optional
+  name: doc.test.profile_default
+  requirements:
+  - kind
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - doc.test.profile_demo
+  modifiers:
+  - optional
+  name: doc.test.profile_demo
+  requirements:
+  - kind
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - doc.test.profile_none
+  modifiers:
+  - optional
+  name: doc.test.profile_none
+  requirements:
+  - kind
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --topology
+  - MULTICLUSTER
+  - doc.test.multicluster
+  modifiers:
+  - optional
+  name: doc.test.multicluster
+  requirements:
+  - kind
+- command:
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=istio.io
+  - --token-path=/etc/github-token/oauth
+  - --cmd=make update_ref_docs
+  - --dry-run
+  modifiers:
+  - optional
+  name: update-ref-docs-dry-run
+  repos:
+  - istio/test-infra@master
+  requirements:
+  - github
+  type: presubmit
+org: istio
+repo: istio.io
+resources:
+  default:
+    limits:
+      cpu: "8"
+      memory: 24Gi
+    requests:
+      cpu: "5"
+      memory: 3Gi
+  lint:
+    limits:
+      cpu: "5"
+      memory: 24Gi
+    requests:
+      cpu: "3"
+      memory: 16Gi

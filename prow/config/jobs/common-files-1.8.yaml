@@ -1,0 +1,54 @@
+branches:
+- release-1.8
+image: gcr.io/istio-testing/build-tools:release-1.8-2020-10-15T20-33-46
+jobs:
+- command:
+  - make
+  - lint
+  name: lint
+- command:
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=istio,istio.io,api,test-infra,tools,bots,release-builder,pkg,cri,client-go,gogo-genproto,proxy
+  - '--title=Automator: update common-files@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+  - --labels=auto-merge,release-notes-none
+  - --strict
+  - --modifier=commonfiles
+  - --token-path=/etc/github-token/oauth
+  - --cmd=make update-common gen
+  name: update-common
+  repos:
+  - istio/test-infra@master
+  requirements:
+  - github
+  type: postsubmit
+- command:
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=test-infra
+  - '--title=Automator: update build-tools:$AUTOMATOR_SRC_BRANCH'
+  - --branch=master
+  - --modifier=buildtools
+  - --token-path=/etc/github-token/oauth
+  - --script-path=../test-infra/tools/automator/scripts/update-images.sh
+  - --labels=release-notes-none
+  - --verbose
+  - --
+  - --post=make gen
+  - --source=$AUTOMATOR_ROOT_DIR/files/common/scripts/setup_env.sh
+  name: update-build-tools-image
+  repos:
+  - istio/test-infra@master
+  requirements:
+  - github
+  type: postsubmit
+org: istio
+repo: common-files
+resources:
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: "1"
+      memory: 3Gi
