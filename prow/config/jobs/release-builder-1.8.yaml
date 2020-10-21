@@ -1,0 +1,76 @@
+branches:
+- release-1.8
+image: gcr.io/istio-testing/build-tools:release-1.8-2020-10-15T20-33-46
+jobs:
+- command:
+  - make
+  - lint
+  name: lint
+- command:
+  - make
+  - test
+  name: test
+- command:
+  - make
+  - gen-check
+  name: gencheck
+- command:
+  - entrypoint
+  - test/publish.sh
+  name: dry-run
+  regex: \.go$|\.sh$
+  requirements:
+  - gcp
+  - docker
+  resources: build
+- command:
+  - release/build-warning.sh
+  modifiers:
+  - optional
+  name: build-warning
+  regex: ^release/trigger-build$
+  type: presubmit
+- command:
+  - release/publish-warning.sh
+  modifiers:
+  - optional
+  name: publish-warning
+  regex: ^release/trigger-publish$
+  type: presubmit
+- command:
+  - entrypoint
+  - release/build.sh
+  name: build-release
+  regex: ^release/trigger-build$
+  requirements:
+  - release
+  - docker
+  resources: build
+  type: postsubmit
+- command:
+  - entrypoint
+  - release/publish.sh
+  name: publish-release
+  regex: ^release/trigger-publish$
+  requirements:
+  - release
+  - docker
+  resources: build
+  type: postsubmit
+org: istio
+repo: release-builder
+resources:
+  build:
+    limits:
+      cpu: "8"
+      memory: 24Gi
+    requests:
+      cpu: "5"
+      memory: 3Gi
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: "1"
+      memory: 3Gi

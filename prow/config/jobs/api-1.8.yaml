@@ -1,0 +1,37 @@
+branches:
+- release-1.8
+image: gcr.io/istio-testing/build-tools:release-1.8-2020-10-15T20-33-46
+jobs:
+- command:
+  - make
+  - presubmit
+  name: build
+- command:
+  - make
+  - gen-check
+  name: gencheck
+- command:
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=istio,client-go
+  - '--title=Automator: update istio/api@$AUTOMATOR_SRC_BRANCH dependency in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+  - --labels=auto-merge,release-notes-none
+  - --modifier=update_api_dep
+  - --token-path=/etc/github-token/oauth
+  - --cmd=go get istio.io/api@$AUTOMATOR_SHA && go mod tidy && make clean gen
+  name: update_api_dep
+  repos:
+  - istio/test-infra@master
+  requirements:
+  - github
+  type: postsubmit
+org: istio
+repo: api
+resources:
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: "1"
+      memory: 3Gi
