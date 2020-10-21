@@ -82,7 +82,13 @@ You can also run the command directly, which provides more options:
 
 ```bash
 $ cd prow/config/cmd
-$ go run generate.go [diff|print|write|check|branch]`
+$ go run generate.go [diff|print|write|check|branch]
+```
+
+for example, to generate jobs for 1.8 branch, run:
+
+```bash
+$ go run generate.go branch 1.8
 ```
 
 * diff will produce a semantic diff of the current config and the newly generated config. This is useful when making changes
