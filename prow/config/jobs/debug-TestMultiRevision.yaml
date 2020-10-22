@@ -1,0 +1,37 @@
+branches:
+- debug-TestMultiRevision
+image: gcr.io/istio-testing/build-tools:release-1.7-2020-10-12T16-50-25
+jobs:
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --node-image
+  - kindest/node:v1.16.9
+  - debug-TestMultiRevision
+  name: debug-TestMultiRevision-k8s-116
+  requirements:
+  - kind
+  timeout: 4h0m0s
+  type: presubmit
+
+org: istio
+repo: istio
+resources:
+  benchmark:
+    limits:
+      memory: 24Gi
+    requests:
+      cpu: "15"
+      memory: 8Gi
+  default:
+    limits:
+      memory: 24Gi
+    requests:
+      cpu: "5"
+      memory: 3Gi
+  lint:
+    limits:
+      memory: 24Gi
+    requests:
+      cpu: "3"
+      memory: 16Gi
