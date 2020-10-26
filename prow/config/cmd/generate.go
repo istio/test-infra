@@ -15,8 +15,10 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"path"
@@ -25,8 +27,6 @@ import (
 
 	"istio.io/test-infra/prow/config"
 )
-
-const ConfigOutput = "../../cluster/jobs"
 
 func exit(err error, context string) {
 	if context == "" {
@@ -39,30 +39,36 @@ func exit(err error, context string) {
 
 func GetFileName(repo string, org string, branch string) string {
 	key := fmt.Sprintf("%s.%s.%s.gen.yaml", org, repo, branch)
-	return path.Join(ConfigOutput, org, repo, key)
+	return path.Join(*outputDir, org, repo, key)
 }
 
+var (
+	inputDir  = flag.String("input-dir", "../jobs", "directory of input jobs")
+	outputDir = flag.String("output-dir", "../../cluster/jobs", "directory of output jobs")
+)
+
 func main() {
+	flag.Parse()
 
 	// TODO: deserves a better CLI...
-	if len(os.Args) < 2 {
+	if len(flag.Args()) < 1 {
 		panic("must provide one of write, diff, print, branch")
-	} else if os.Args[1] == "branch" {
-		if len(os.Args) != 3 {
+	} else if flag.Arg(0) == "branch" {
+		if len(flag.Args()) != 2 {
 			panic("must specify branch name")
 		}
-	} else if len(os.Args) != 2 {
+	} else if len(flag.Args()) != 1 {
 		panic("too many arguments")
 	}
 
-	files, err := ioutil.ReadDir("../jobs")
+	files, err := ioutil.ReadDir(*inputDir)
 	if err != nil {
 		exit(err, "failed to read jobs")
 	}
 
 	if os.Args[1] == "branch" {
 		for _, file := range files {
-			src := path.Join("..", "jobs", file.Name())
+			src := path.Join(*inputDir, file.Name())
 
 			jobs := config.ReadJobConfig(src)
 			jobs.Jobs = config.FilterReleaseBranchingJobs(jobs.Jobs)
@@ -70,7 +76,7 @@ func main() {
 			if jobs.SupportReleaseBranching {
 				tagRegex := regexp.MustCompile(`^(.+):(.+)-([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2})$`)
 				match := tagRegex.FindStringSubmatch(jobs.Image)
-				branch := "release-" + os.Args[2]
+				branch := "release-" + flag.Arg(1)
 				if len(match) == 4 {
 					newImage := fmt.Sprintf("%s:%s-%s", match[1], branch, match[3])
 					if err := exec.Command("gcloud", "container", "images", "add-tag", match[0], newImage).Run(); err != nil {
@@ -84,7 +90,7 @@ func main() {
 
 				name := file.Name()
 				ext := filepath.Ext(name)
-				name = name[:len(name)-len(ext)] + "-" + os.Args[2] + ext
+				name = name[:len(name)-len(ext)] + "-" + flag.Arg(1) + ext
 
 				dst := path.Join("..", "jobs", name)
 				if err := config.WriteJobConfig(jobs, dst); err != nil {
@@ -94,12 +100,16 @@ func main() {
 		}
 	} else {
 		for _, file := range files {
-			jobs := config.ReadJobConfig(path.Join("..", "jobs", file.Name()))
+			if filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml" {
+				log.Println("skipping ", file.Name())
+				continue
+			}
+			jobs := config.ReadJobConfig(path.Join(*inputDir, file.Name()))
 			for _, branch := range jobs.Branches {
 				config.ValidateJobConfig(jobs)
 				output := config.ConvertJobConfig(jobs, branch)
 				fname := GetFileName(jobs.Repo, jobs.Org, branch)
-				switch os.Args[1] {
+				switch flag.Arg(0) {
 				case "write":
 					config.WriteConfig(output, fname)
 				case "diff":
