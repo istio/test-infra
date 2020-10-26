@@ -181,9 +181,9 @@ periodics:
     nodeSelector:
       testing: test-pool
 
-# upgrade test using istioctl from 1.6 latest to 1.7 latest
+# upgrade test using istioctl from 1.7 latest to 1.8 latest
 - cron: "0 4 * * *"  # starts every day at 04:00AM UTC
-  name: istio-upgrade-using-istioctl-1.6_latest-1.7_latest
+  name: istio-upgrade-using-istioctl-1.7_latest-1.8_latest
   branches: master
   decorate: true
   extra_refs:
@@ -202,9 +202,9 @@ periodics:
     - <<: *istio_container_with_kind
       env:
       - name: SOURCE_TAG
-        value: 1.6_latest
-      - name: TARGET_TAG
         value: 1.7_latest
+      - name: TARGET_TAG
+        value: 1.8_latest
       - name: INSTALL_OPTIONS
         value: istioctl
       - name: TEST_SCENARIO
@@ -215,10 +215,10 @@ periodics:
     nodeSelector:
       testing: test-pool
 
-# upgrade test using istioctl from 1.6 latest to 1.7 latest
+# upgrade test using istioctl from 1.7 latest to 1.8 latest
 # with dual control plane and deployment-by-deployment
 - cron: "0 4 * * *"  # starts every day at 04:00AM UTC
-  name: istio-dual-control-plane-upgrade-1.6-1.7
+  name: istio-dual-control-plane-upgrade-1.7-1.8
   branches: master
   decorate: true
   extra_refs:
@@ -237,9 +237,9 @@ periodics:
     - <<: *istio_container_with_kind
       env:
       - name: SOURCE_TAG
-        value: 1.6_latest
-      - name: TARGET_TAG
         value: 1.7_latest
+      - name: TARGET_TAG
+        value: 1.8_latest
       - name: INSTALL_OPTIONS
         value: istioctl
       - name: TEST_SCENARIO
@@ -250,9 +250,9 @@ periodics:
     nodeSelector:
       testing: test-pool
 
-# downgrade test using istioctl from 1.7 latest to 1.6 latest
+# downgrade test using istioctl from 1.8 latest to 1.7 latest
 - cron: "0 4 * * *"  # starts every day at 04:00AM UTC
-  name: istio-downgrade-using-istioctl-1.7_latest-1.6_latest
+  name: istio-downgrade-using-istioctl-1.8_latest-1.7_latest
   branches: master
   decorate: true
   extra_refs:
@@ -271,9 +271,9 @@ periodics:
     - <<: *istio_container_with_kind
       env:
       - name: SOURCE_TAG
-        value: 1.7_latest
+        value: 1.8_latest
       - name: TARGET_TAG
-        value: 1.6_latest
+        value: 1.7_latest
       - name: INSTALL_OPTIONS
         value: istioctl
       - name: TEST_SCENARIO
@@ -285,9 +285,9 @@ periodics:
       testing: test-pool
 
 # dual control plane rollback (canary upgrade rolled back) test
-# Canary upgrade to 1.7 rolled back to 1.6
+# Canary upgrade to 1.8 rolled back to 1.7
 - cron: "0 4 * * *"  # starts every day at 04:00AM UTC
-  name: istio-dual-control-plane-rollback-1.7-1.6
+  name: istio-dual-control-plane-rollback-1.8-1.7
   branches: master
   decorate: true
   extra_refs:
@@ -306,9 +306,9 @@ periodics:
     - <<: *istio_container_with_kind
       env:
       - name: SOURCE_TAG
-        value: 1.6_latest
-      - name: TARGET_TAG
         value: 1.7_latest
+      - name: TARGET_TAG
+        value: 1.8_latest
       - name: INSTALL_OPTIONS
         value: istioctl
       - name: TEST_SCENARIO
@@ -319,9 +319,9 @@ periodics:
     nodeSelector:
       testing: test-pool
 
-# upgrade test using istioctl from 1.7 latest to master
+# upgrade test using istioctl from 1.8 latest to master
 - cron: "0 8 * * *"  # starts every day at 08:00AM UTC
-  name: istio-upgrade-using-istioctl-1.7_latest-master
+  name: istio-upgrade-using-istioctl-1.8_latest-master
   branches: master
   decorate: true
   extra_refs:
@@ -340,7 +340,7 @@ periodics:
       - <<: *istio_container_with_kind
         env:
           - name: SOURCE_TAG
-            value: 1.7_latest
+            value: 1.8_latest
           - name: TARGET_TAG
             value: master
           - name: INSTALL_OPTIONS
@@ -353,10 +353,10 @@ periodics:
     nodeSelector:
       testing: test-pool
 
-# upgrade test using istioctl from 1.7 latest to master
+# upgrade test using istioctl from 1.8 latest to master
 # with dual control plane method
 - cron: "0 8 * * *"  # starts every day at 08:00AM UTC
-  name: istio-dual-control-plane-upgrade-1.7-master
+  name: istio-dual-control-plane-upgrade-1.8-master
   branches: master
   decorate: true
   extra_refs:
@@ -375,7 +375,7 @@ periodics:
       - <<: *istio_container_with_kind
         env:
           - name: SOURCE_TAG
-            value: 1.7_latest
+            value: 1.8_latest
           - name: TARGET_TAG
             value: master
           - name: INSTALL_OPTIONS
@@ -389,9 +389,9 @@ periodics:
       testing: test-pool
 
 
-# downgrade test using istioctl from master to 1.7 latest
+# downgrade test using istioctl from master to 1.8 latest
 - cron: "0 8 * * *"  # starts every day at 08:00AM UTC
-  name: istio-downgrade-using-istioctl-master-1.7_latest
+  name: istio-downgrade-using-istioctl-master-1.8_latest
   branches: master
   decorate: true
   extra_refs:
@@ -412,7 +412,7 @@ periodics:
       - name: SOURCE_TAG
         value: master
       - name: TARGET_TAG
-        value: 1.7_latest
+        value: 1.8_latest
       - name: INSTALL_OPTIONS
         value: istioctl
       - name: TEST_SCENARIO
@@ -423,9 +423,9 @@ periodics:
     nodeSelector:
       testing: test-pool
 
-# dual control plane rollback test using istioctl from master to 1.7 latest
+# dual control plane rollback test using istioctl from master to 1.8 latest
 - cron: "0 8 * * *"  # starts every day at 08:00AM UTC
-  name: istio-dual-control-plane-rollback-master-1.7
+  name: istio-dual-control-plane-rollback-master-1.8
   branches: master
   decorate: true
   extra_refs:
@@ -444,7 +444,7 @@ periodics:
     - <<: *istio_container_with_kind
       env:
       - name: SOURCE_TAG
-        value: 1.7_latest
+        value: 1.8_latest
       - name: TARGET_TAG
         value: master
       - name: INSTALL_OPTIONS
