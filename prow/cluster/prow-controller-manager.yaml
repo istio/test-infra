@@ -7,8 +7,7 @@ metadata:
     app.kubernetes.io/part-of: prow
     app: prow-controller-manager
 spec:
-  # Mutually exclusive with plank. Only one of them may have more than zero replicas.
-  replicas: 0
+  replicas: 1 # TODO(fejta) - delete plank
   revisionHistoryLimit: 2
   selector:
     matchLabels:
@@ -29,26 +28,26 @@ spec:
         - --job-config-path=/etc/job-config
         - --kubeconfig=/etc/kubeconfig/config
         volumeMounts:
-        - mountPath: /etc/kubeconfig
-          name: kubeconfig
-          readOnly: true
         - name: config
           mountPath: /etc/config
           readOnly: true
         - name: job-config
           mountPath: /etc/job-config
           readOnly: true
+        - mountPath: /etc/kubeconfig
+          name: kubeconfig
+          readOnly: true
       volumes:
-      - name: kubeconfig
-        secret:
-          defaultMode: 420
-          secretName: kubeconfig
       - name: config
         configMap:
           name: config
       - name: job-config
         configMap:
           name: job-config
+      - name: kubeconfig
+        secret:
+          defaultMode: 420
+          secretName: kubeconfig
 ---
 apiVersion: v1
 kind: ServiceAccount
