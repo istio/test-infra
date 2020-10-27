@@ -97,6 +97,11 @@ get_opts() {
 #This script relies on the REPO_OWNER, REPO_NAME, and PULL_NUMBER environment
 #variables as defined in https://github.com/kubernetes/test-infra/blob/master/prow/jobs.md#job-environment-variables.
 validate_opts() {
+    if [[ "${JOB_TYPE:-}" == "batch" ]]; then
+        echo "Release notes checker not applicable for batch jobs. Skipping"
+        exit 0
+    fi
+
     if [ -z "${REPO_OWNER:-}" ]; then
         print_error_and_exit "REPO_OWNER is a required option. It must match the GitHub org."
         exit 1
