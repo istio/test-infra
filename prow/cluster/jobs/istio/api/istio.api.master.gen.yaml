@@ -199,3 +199,54 @@ presubmits:
           path: /tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_api
+    branches:
+    - ^master$
+    decorate: true
+    extra_refs:
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/test-infra
+      repo: test-infra
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/tools
+      repo: tools
+    name: release-notes_api
+    optional: true
+    path_alias: istio.io/api
+    spec:
+      containers:
+      - command:
+        - ../test-infra/tools/check_release_notes.sh
+        - --token-path=/etc/github-token/oauth
+        image: gcr.io/istio-testing/build-tools:master-2020-09-15T14-05-50
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /etc/github-token
+          name: github
+          readOnly: true
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - name: github
+        secret:
+          secretName: oauth-token
