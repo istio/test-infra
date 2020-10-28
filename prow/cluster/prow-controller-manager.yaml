@@ -26,7 +26,7 @@ spec:
         - --dry-run=false
         - --enable-controller=plank
         - --job-config-path=/etc/job-config
-        - --kubeconfig=/etc/kubeconfig/config
+        - --kubeconfig=/etc/kubeconfig/istio-config
         volumeMounts:
         - name: config
           mountPath: /etc/config
@@ -54,12 +54,16 @@ kind: ServiceAccount
 metadata:
   namespace: default
   name: "prow-controller-manager"
+  labels:
+    app.kubernetes.io/part-of: prow
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   namespace: default
   name: "prow-controller-manager"
+  labels:
+    app.kubernetes.io/part-of: prow
 rules:
 - apiGroups:
   - ""
@@ -94,6 +98,8 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   namespace: test-pods
   name: "prow-controller-manager"
+  labels:
+    app.kubernetes.io/part-of: prow
 rules:
 - apiGroups:
    - ""
@@ -112,6 +118,8 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   namespace: default
   name: "prow-controller-manager"
+  labels:
+    app.kubernetes.io/part-of: prow
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -125,6 +133,8 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   namespace: test-pods
   name: "prow-controller-manager"
+  labels:
+    app.kubernetes.io/part-of: prow
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
