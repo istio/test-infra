@@ -21,14 +21,14 @@ dashboard.new(
 .addPanel(
     (graphPanel.new(
         'number of Prow jobs by type',
-        description='sum(prowjobs{job="plank"}) by (type)',
+        description='sum(prowjobs{job="plank|prow-controller-manager"}) by (type)',
         datasource='prometheus',
         legend_alignAsTable=true,
         legend_rightSide=true,
         
     ) + legendConfig)
     .addTarget(prometheus.target(
-        'sum(prowjobs{job="plank"}) by (type)',
+        'sum(prowjobs{job="plank|prow-controller-manager"}) by (type)',
         legendFormat='{{type}}',
     )), gridPos={
     h: 9,
@@ -39,14 +39,14 @@ dashboard.new(
 .addPanel(
     (graphPanel.new(
         'number of Prow jobs by state',
-        description='sum(prowjobs{job="plank"}) by (state)',
+        description='sum(prowjobs{job="plank|prow-controller-manager"}) by (state)',
         datasource='prometheus',
         legend_alignAsTable=true,
         legend_rightSide=true,
         
     ) + legendConfig)
     .addTarget(prometheus.target(
-        'sum(prowjobs{job="plank"}) by (state)',
+        'sum(prowjobs{job="plank|prow-controller-manager"}) by (state)',
         legendFormat='{{state}}',
     )), gridPos={
     h: 9,
