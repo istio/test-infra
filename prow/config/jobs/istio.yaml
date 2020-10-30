@@ -170,6 +170,11 @@ jobs:
       - name: TEST_SELECT
         value: "-multicluster"
 
+  - name: integ-helm-tests
+    type: presubmit
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.helm.kube.presubmit]
+    requirements: [kind]
+
     # The node image must be kept in sync with the kind version we use.
     # See istio.io/tools/docker/build-tools for the kind image
     # https://github.com/kubernetes-sigs/kind/releases for node corresponding node image
