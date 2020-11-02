@@ -76,7 +76,7 @@ periodics:
     testgrid-create-test-group: "false"
   spec:
     containers:
-    - image: gcr.io/k8s-prow/autobump:v20201026-f7d653694b
+    - image: gcr.io/k8s-prow/autobump:v20201102-45eeca6478
       command:
       - /autobump.sh
       args:
@@ -92,8 +92,8 @@ periodics:
         value: istio
       - name: GH_REPO
         value: test-infra
-      - name: PLANK_DEPLOYMENT_FILE
-        value: prow/cluster/plank_deployment.yaml
+      - name: PROW_CONTROLLER_MANAGER_FILE
+        value: prow/cluster/prow-controller-manager.yaml
       - name: COMPONENT_FILE_DIR
         value: prow/cluster,prow/cluster/jobs/istio/test-infra,.
       - name: CONFIG_PATH
