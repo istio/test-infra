@@ -28,7 +28,7 @@ grafana-dashboards:
 	@for input in $(shell ls grafana_dashboards); do \
 		output="$${input%.*}.json"; \
 		echo "Generating $${output} from $${input} ..."; \
-		jsonnet -J vendor/ "grafana_dashboards/$${input}" > "./dashboards_out/$${output}"; \
+		jsonnet -J vendor/ -J lib "grafana_dashboards/$${input}" > "./dashboards_out/$${output}"; \
 	done
 
 prow_prometheusrule.yaml:

@@ -16,7 +16,7 @@ spec:
         resources:
           requests:
             storage: 100Gi
-  retention: "30d"
+  retention: "180d"
   serviceAccountName: prometheus-prow
   alerting:
     alertmanagers:
@@ -41,3 +41,6 @@ spec:
     fsGroup: 2000
     runAsNonRoot: true
     runAsUser: 1000
+  additionalScrapeConfigs:
+    name: additional-scrape-configs
+    key: prometheus-additional.yaml

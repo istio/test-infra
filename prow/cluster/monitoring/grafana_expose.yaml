@@ -19,6 +19,17 @@ spec:
   selector:
     app: grafana
 ---
+apiVersion: networking.gke.io/v1beta1
+kind: ManagedCertificate
+metadata:
+  labels:
+    app.kubernetes.io/part-of: prow
+  name: monitoring-prow-istio-io
+  namespace: prow-monitoring
+spec:
+  domains:
+  - monitoring.prow.istio.io
+---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
