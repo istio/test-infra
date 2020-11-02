@@ -28,13 +28,13 @@ grafana-dashboards:
 	@for input in $(shell ls grafana_dashboards); do \
 		output="$${input%.*}.json"; \
 		echo "Generating $${output} from $${input} ..."; \
-		jsonnet -J vendor/ -J lib "grafana_dashboards/$${input}" > "./dashboards_out/$${output}"; \
+		jsonnet -J vendor/ -J lib/ "grafana_dashboards/$${input}" > "./dashboards_out/$${output}"; \
 	done
 
 prow_prometheusrule.yaml:
 	@mkdir -p prometheus_out
 	@echo "Generating prow_prometheusrule.yaml ..."
-	jsonnet ./prometheus/prow_prometheusrule.jsonnet | yq r -P - > prometheus_out/$@
+	jsonnet -J lib/ ./prometheus/prow_prometheusrule.jsonnet | yq r -P - > prometheus_out/$@
 
 apply-configmaps: get-cluster-credentials grafana-dashboards
 	@for input in $(shell ls dashboards_out); do \
@@ -49,7 +49,6 @@ apply-prow-prometheusrule: get-cluster-credentials prow_prometheusrule.yaml
 apply: apply-configmaps apply-prow-prometheusrule
 
 clean:
-	rm -rfv ./vendor
 	rm -rfv ./dashboards_out/*.json
 	rm -rfv ./prometheus_out/*.json
 	rm -rfv ./prometheus_out/*.yaml
