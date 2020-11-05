@@ -21,6 +21,7 @@ import (
 	"flag"
 	"time"
 
+	"github.com/spf13/pflag"
 	"istio.io/test-infra/authentikos/pkg/authentikos"
 	"istio.io/test-infra/authentikos/pkg/plugins/google"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -36,7 +37,7 @@ const (
 	defaultKey       = "token"                 // defaultKey is the kubernetes secret data key.
 	defaultSecret    = "authentikos-token"     // defaultSecret is the default kubernetes secret name.
 	defaultNamespace = metav1.NamespaceDefault // defaultNamespace is the default kubernetes namespace.
-	defaultInterval  = 30 * time.Minute        // defaultInterval is the default tick interval.
+	defaultInterval  = 1 * time.Minute         // defaultInterval is the default tick interval.
 )
 
 // createClusterConfig creates kubernetes cluster configuration.
@@ -60,20 +61,22 @@ func loadClusterConfig() (*rest.Config, error) {
 
 // main entry point.
 func main() {
-	flag.Parse()
+	klog.InitFlags(nil)
+	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
+	pflag.Parse()
 
 	g, err := google.NewSecretGenerator()
 	if err != nil {
-		klog.Exit(err)
+		klog.Exit("error creating secret generator: %v", err)
 	}
 
 	config, err := loadClusterConfig()
 	if err != nil {
-		klog.Exit(err)
+		klog.Exitf("error loading cluster config: %v", err)
 	}
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		klog.Exit(err)
+		klog.Exit("error creating k8s clientset: %v", err)
 	}
 
 	client := authentikos.NewSecretCreator(clientset.CoreV1(), g)
