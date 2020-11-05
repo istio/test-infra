@@ -139,13 +139,14 @@ func TestValidateFlags(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			var o options
+
+			o = options{}
 
 			os.Args = []string{"authentikos"}
 			os.Args = append(os.Args, tc.args...)
 			pflag.CommandLine = pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
-
-			o.parseFlags()
+			flags(&o)
+			pflag.Parse()
 
 			t.Logf("Options (pre-validate):  %+v", o)
 			t.Cleanup(func() { t.Logf("Options (post-validate): %+v", o) })

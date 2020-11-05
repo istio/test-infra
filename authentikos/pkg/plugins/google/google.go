@@ -35,8 +35,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	_ "k8s.io/client-go/plugin/pkg/client/auth" // Enable all auth provider plugins
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog"
 )
 
@@ -93,10 +91,16 @@ type options struct {
 	scopes       []string
 }
 
-// parseFlags parses the command-line flags.
-func (o *options) parseFlags() {
+var (
+	o = options{}
+)
+
+func init() {
+	flags(&o)
+}
+
+func flags(o *options) {
 	flag.BoolVarP(&o.forceRefresh, "force-refresh", "r", false, "Force a token refresh. Otherwise, the token will only refresh when necessary.")
-	flag.BoolVarP(&o.verbose, "verbose", "v", false, "Print verbose output.")
 	flag.DurationVarP(&o.interval, "interval", "i", defaultInterval, fmt.Sprintf("Token refresh interval [%v - %v).", minInterval, maxInterval))
 	flag.StringVarP(&o.creds, "creds", "c", "", "Path to a JSON credentials file.")
 	flag.StringVarP(&o.secret, "secret", "o", defaultSecret, "Name of secret to create.")
@@ -105,8 +109,6 @@ func (o *options) parseFlags() {
 	flag.StringVarP(&o.templateFile, "template-file", "f", "", "Path to a template string for the token.")
 	flag.StringSliceVarP(&o.namespace, "namespace", "n", []string{defaultNamespace}, "Namespace(s) to create the secret in.")
 	flag.StringSliceVarP(&o.scopes, "scopes", "s", []string{}, "Oauth scope(s) to request for token (see: https://developers.google.com/identity/protocols/oauth2/scopes).")
-
-	flag.Parse()
 }
 
 // validateFlags validates the command-line flags.
@@ -211,25 +213,6 @@ func generateTokenData(o options, data []byte) ([]byte, error) {
 
 }
 
-// createClusterConfig creates kubernetes cluster configuration.
-func createClusterConfig() (*rest.Config, error) {
-	return clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-		clientcmd.NewDefaultClientConfigLoadingRules(),
-		&clientcmd.ConfigOverrides{},
-	).ClientConfig()
-}
-
-// loadClusterConfig loads kubernetes cluster configuration.
-func loadClusterConfig() (*rest.Config, error) {
-	if clusterConfig, err := rest.InClusterConfig(); err == nil {
-		return clusterConfig, nil
-	} else if clusterConfig, err := createClusterConfig(); err == nil {
-		return clusterConfig, nil
-	} else {
-		return nil, err
-	}
-}
-
 // getOauthTokenCreator returns a function that creates/refreshes an oauth token.
 func getOauthTokenCreator(o options) (tokenCreator, error) {
 	var create tokenCreator
@@ -265,6 +248,7 @@ func getOauthTokenCreator(o options) (tokenCreator, error) {
 
 		token, err := client.TokenSource.Token()
 		if err != nil {
+			klog.Errorf("error getting token: %v", err)
 			return withBackoff(1, maxTries-tries, create).(tokenCreator)(forceRefresh, tries-1)
 		}
 
@@ -284,8 +268,6 @@ type Google struct {
 }
 
 func NewSecretGenerator() (*Google, error) {
-	var o options
-	o.parseFlags()
 	if err := o.validateFlags(); err != nil {
 		return nil, err
 	}
@@ -296,15 +278,18 @@ func NewSecretGenerator() (*Google, error) {
 func (g *Google) Secret(ctx context.Context, namespace, name string) (*corev1.Secret, error) {
 	tokenCreator, err := getOauthTokenCreator(g.o)
 	if err != nil {
+		klog.Errorf("error getting OAuth creator: %v", err)
 		return nil, err
 	}
 
 	secretData, err := tokenCreator(g.o.forceRefresh, maxTries)
 	if err != nil {
+		klog.Errorf("error getting OAuth token: %v", err)
 		return nil, err
 	}
 	data, err := generateTokenData(g.o, secretData)
 	if err != nil {
+		klog.Errorf("error generating token data: %v", err)
 		return nil, err
 	}
 
@@ -312,6 +297,9 @@ func (g *Google) Secret(ctx context.Context, namespace, name string) (*corev1.Se
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
+			Labels: map[string]string{
+				"app.kubernetes.io/managed-by": "authentikos",
+			},
 		},
 		Data: map[string][]byte{g.o.key: data},
 	}, nil

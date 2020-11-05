@@ -53,19 +53,23 @@ func NewSecretCreator(client v1.SecretsGetter, gen SecretGenerator) *SecretCreat
 func (c *SecretCreator) Create(ctx context.Context, namespace, name string) (*corev1.Secret, error) {
 	req, err := c.gen.Secret(ctx, namespace, name)
 	if err != nil {
+		klog.Errorf("error getting secret: %v", err)
 		return nil, err
 	}
 	if secret, err := c.client.Secrets(namespace).Create(req); err == nil {
+		klog.V(1).Infof("error creating secret (this may be expected): %v", err)
 		return secret, nil
 	}
 
 	// Only update the secret data, leave metadata untouched.
 	patch, err := json.Marshal([]jsonpatch.JsonPatchOperation{jsonpatch.NewPatch("replace", "/data", req.Data)})
 	if err != nil {
+		klog.V(1).Infof("error generating patch: %v", err)
 		return nil, err
 	}
 	secret, err := c.client.Secrets(namespace).Patch(req.GetName(), types.JSONPatchType, patch)
 	if err != nil {
+		klog.Errorf("error patching secret: %v", err)
 		return nil, err
 	}
 	return secret, nil
