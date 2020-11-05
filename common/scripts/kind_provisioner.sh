@@ -156,7 +156,7 @@ EOF
     kubectl apply -f "${METRICS_SERVER_CONFIG_DIR}"
   fi
 
-  # Install Metallb 
+  # Install Metallb
   install_metallb ""
 }
 
