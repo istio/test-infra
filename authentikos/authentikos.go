@@ -67,7 +67,7 @@ func main() {
 
 	g, err := google.NewSecretGenerator()
 	if err != nil {
-		klog.Exit("error creating secret generator: %v", err)
+		klog.Exitf("error creating secret generator: %v", err)
 	}
 
 	config, err := loadClusterConfig()
@@ -76,7 +76,7 @@ func main() {
 	}
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		klog.Exit("error creating k8s clientset: %v", err)
+		klog.Exitf("error creating k8s clientset: %v", err)
 	}
 
 	client := authentikos.NewSecretCreator(clientset.CoreV1(), g)
