@@ -238,13 +238,16 @@ work() { (
     curl -XPOST -sSfLH "Authorization: token $token" "https://api.github.com/repos/$org/$repo/forks" >/dev/null
   fi
 
-  git clone --single-branch --branch "$branch" "https://github.com/$org/$repo.git" "$repo"
+  # Some jobs expect GOPATH setup, so simulate this
+  mkdir -p src/istio.io/"$repo"
+  git clone --single-branch --branch "$branch" "https://github.com/$org/$repo.git" src/istio.io/"$repo"
 
-  pushd "$repo"
+  gopath=${PWD}
+  pushd src/istio.io/"$repo"
 
   AUTOMATOR_REPO_DIR="$(pwd)"
 
-  bash "${shell_args[@]}" "$script_path" "${script_args[@]}"
+  GOPATH="${gopath}" bash "${shell_args[@]}" "$script_path" "${script_args[@]}"
 
   git add --all
 
