@@ -18,6 +18,8 @@ package util
 
 import (
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestNormalizeHost(t *testing.T) {
@@ -93,8 +95,8 @@ func TestNormalizeHost(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			actual := NormalizeOrg(test.input, test.sep)
 
-			if actual != test.expected {
-				t.Errorf("Actual: %v ; Expected: %v", actual, test.expected)
+			if diff := cmp.Diff(test.expected, actual); diff != "" {
+				t.Error("TestNormalizeHost (-want, +got):", diff)
 			}
 		})
 	}

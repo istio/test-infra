@@ -247,6 +247,9 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			testgridJobPrefix += "_" + branch
 		}
 		testgridJobPrefix += "_" + jobConfig.Repo
+
+		requirements := append(job.Requirements, jobConfig.Requirements...)
+
 		if job.Type == TypePresubmit || job.Type == "" {
 			name := fmt.Sprintf("%s_%s", job.Name, jobConfig.Repo)
 			if branch != "master" {
@@ -266,7 +269,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			}
 			presubmit.JobBase.Annotations[TestGridDashboard] = testgridJobPrefix
 			applyModifiersPresubmit(&presubmit, job.Modifiers)
-			applyRequirements(&presubmit.JobBase, append(job.Requirements, jobConfig.Requirements...))
+			applyRequirements(&presubmit.JobBase, requirements)
 			presubmits = append(presubmits, presubmit)
 		}
 
@@ -295,7 +298,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			postsubmit.JobBase.Annotations[TestGridAlertEmail] = "istio-oncall@googlegroups.com"
 			postsubmit.JobBase.Annotations[TestGridNumFailures] = "1"
 			applyModifiersPostsubmit(&postsubmit, job.Modifiers)
-			applyRequirements(&postsubmit.JobBase, job.Requirements)
+			applyRequirements(&postsubmit.JobBase, requirements)
 			postsubmits = append(postsubmits, postsubmit)
 		}
 
@@ -306,6 +309,10 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			}
 			name += "_periodic"
 
+			// If no repos are provided, add itself to the repo list.
+			if len(job.Repos) == 0 {
+				job.Repos = []string{jobConfig.Org + "/" + jobConfig.Repo}
+			}
 			periodic := config.Periodic{
 				JobBase:  createJobBase(jobConfig, job, name, jobConfig.Repo, branch, jobConfig.Resources),
 				Interval: job.Interval,
@@ -314,7 +321,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			periodic.JobBase.Annotations[TestGridDashboard] = testgridJobPrefix + "_periodic"
 			periodic.JobBase.Annotations[TestGridAlertEmail] = "istio-oncall@googlegroups.com"
 			periodic.JobBase.Annotations[TestGridNumFailures] = "1"
-			applyRequirements(&periodic.JobBase, job.Requirements)
+			applyRequirements(&periodic.JobBase, requirements)
 			periodics = append(periodics, periodic)
 		}
 

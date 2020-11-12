@@ -18,6 +18,7 @@ require (
 	cloud.google.com/go/storage v1.1.2
 	github.com/ghodss/yaml v1.0.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
+	github.com/google/go-cmp v0.4.0
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/kr/pretty v0.2.0

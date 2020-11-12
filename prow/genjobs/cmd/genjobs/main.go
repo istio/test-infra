@@ -80,6 +80,7 @@ type transform struct {
 	ExtraRefs              []prowjob.Refs    `json:"extra-refs,omitempty"`
 	Branches               []string          `json:"branches,omitempty"`
 	BranchesOut            []string          `json:"branches-out,omitempty"`
+	RefBranchOut           string            `json:"ref-branch-out,omitempty"`
 	Presets                []string          `json:"presets,omitempty"`
 	RerunOrgs              []string          `json:"rerun-orgs,omitempty"`
 	RerunUsers             []string          `json:"rerun-users,omitempty"`
@@ -93,6 +94,7 @@ type transform struct {
 	Selector               map[string]string `json:"selector,omitempty"`
 	Labels                 map[string]string `json:"labels,omitempty"`
 	Env                    map[string]string `json:"env,omitempty"`
+	RefOrgMap              map[string]string `json:"ref-mapping,omitempty"`
 	OrgMap                 map[string]string `json:"mapping,omitempty"`
 	Clean                  bool              `json:"clean,omitempty"`
 	DryRun                 bool              `json:"dry-run,omitempty"`
@@ -130,7 +132,8 @@ func (o *options) parseOpts() {
 	flag.StringVarP(&o.Output, "output", "o", ".", "Output file or directory to write generated job(s).")
 	flag.StringVarP(&o.Sort, "sort", "s", "", "Sort the job(s) by name: (e.g. (asc)ending, (desc)ending).")
 	flag.StringSliceVar(&o.Branches, "branches", []string{}, "Branch(es) to generate job(s) for.")
-	flag.StringSliceVar(&o.BranchesOut, "branches-out", []string{}, "Override output branch(es) for generated job(s).")
+	flag.StringSliceVar(&o.BranchesOut, "branches-out", []string{}, "Override output branch(es) for generated presubmit and postsubmit job(s).")
+	flag.StringVar(&o.RefBranchOut, "ref-branch-out", "", "Override ref branch for generated periodici job(s).")
 	flag.StringSliceVar(&o.Configs, "configs", []string{}, "Path to files or directories containing yaml job transforms.")
 	flag.StringSliceVarP(&o.Presets, "presets", "p", []string{}, "Path to file(s) containing additional presets.")
 	flag.StringSliceVar(&o.RerunOrgs, "rerun-orgs", []string{}, "GitHub organizations to authorize job rerun for.")
@@ -139,6 +142,7 @@ func (o *options) parseOpts() {
 	flag.StringToStringVarP(&o.Labels, "labels", "l", map[string]string{}, "Prow labels to apply to the job(s).")
 	flag.StringToStringVarP(&o.Env, "env", "e", map[string]string{}, "Environment variables to set for the job(s).")
 	flag.StringToStringVarP(&o.OrgMap, "mapping", "m", map[string]string{}, "Mapping between public and private Github organization(s).")
+	flag.StringToStringVar(&o.RefOrgMap, "ref-mapping", map[string]string{}, "Mapping between public and private Github organization(s) in refs.")
 	flag.StringToStringVarP(&o.Annotations, "annotations", "a", map[string]string{}, "Annotations to apply to the job(s)")
 	flag.StringSliceVar(&o.EnvDenylist, "env-denylist", []string{}, "Env(s) to denylist in generation process.")
 	flag.StringSliceVar(&o.VolumeDenylist, "volume-denylist", []string{}, "Volume(s) to denylist in generation process.")
@@ -328,6 +332,9 @@ func applyDefaultTransforms(dst *transform, srcs ...*transform) {
 		if len(dst.BranchesOut) == 0 {
 			dst.BranchesOut = src.BranchesOut
 		}
+		if len(dst.RefBranchOut) == 0 {
+			dst.RefBranchOut = src.RefBranchOut
+		}
 		if len(dst.Presets) == 0 {
 			dst.Presets = src.Presets
 		}
@@ -369,6 +376,9 @@ func applyDefaultTransforms(dst *transform, srcs ...*transform) {
 		}
 		if len(dst.OrgMap) == 0 {
 			dst.OrgMap = src.OrgMap
+		}
+		if len(dst.RefOrgMap) == 0 {
+			dst.RefOrgMap = src.RefOrgMap
 		}
 		if !dst.Clean {
 			dst.Clean = src.Clean
@@ -780,13 +790,20 @@ func updateExtraRefs(o options, job *config.UtilityConfig) {
 		org, repo := ref.Org, ref.Repo
 
 		if o.Refs || validateOrgRepo(o, org, repo) {
-			// Only transform known org mappings.
-			if newOrg, ok := o.OrgMap[org]; ok {
+			// Try to transform known ref org mappings first.
+			if newOrg, ok := o.RefOrgMap[org]; ok {
+				org = newOrg
+				job.ExtraRefs[i].CloneURI = fmt.Sprintf("https://%s/%s", org, repo)
+				// Then try to transform general org mappings.
+			} else if newOrg, ok := o.OrgMap[org]; ok {
 				org = newOrg
 			}
 			job.ExtraRefs[i].Org = org
 			if o.SSHClone {
 				job.ExtraRefs[i].CloneURI = fmt.Sprintf("git@%s:%s/%s.git", gitHost, org, repo)
+			}
+			if o.RefBranchOut != "" {
+				job.ExtraRefs[i].BaseRef = o.RefBranchOut
 			}
 		}
 	}
@@ -901,7 +918,7 @@ func handleRecover() {
 	}
 }
 
-// writeOutFile writes presubmit and postsubmit jobs definitions to the designated output path.
+// writeOutFile writes all jobs definitions to the designated output path.
 func writeOutFile(o options, p string, pre map[string][]config.Presubmit, post map[string][]config.Postsubmit, per []config.Periodic) {
 	if len(pre) == 0 && len(post) == 0 && len(per) == 0 {
 		return
@@ -1067,10 +1084,6 @@ func generateJobs(o options) {
 
 		// Periodic
 		for _, job := range jobs.Periodics {
-			if !validateJob(o, job.Name, []string{}, "periodic") {
-				continue
-			}
-
 			if len(job.ExtraRefs) == 0 {
 				continue
 			}
@@ -1078,6 +1091,16 @@ func generateJobs(o options) {
 			if allRefs(job.ExtraRefs, func(val prowjob.Refs, idx int) bool {
 				return !validateOrgRepo(o, val.Org, val.Repo)
 			}) {
+				continue
+			}
+
+			branches := make([]string, 0)
+			for _, ref := range job.ExtraRefs {
+				if validateOrgRepo(o, ref.Org, ref.Repo) {
+					branches = append(branches, ref.BaseRef)
+				}
+			}
+			if !validateJob(o, job.Name, branches, "periodic") {
 				continue
 			}
 
