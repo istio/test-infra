@@ -1,6 +1,6 @@
 branches:
 - release-1.8
-image: gcr.io/istio-testing/build-tools-proxy:release-1.8-2020-10-30T18-41-36
+image: gcr.io/istio-testing/build-tools-proxy:release-1.8-2020-11-12T22-53-11
 jobs:
 - command:
   - ./prow/proxy-presubmit.sh
@@ -26,7 +26,7 @@ jobs:
   type: presubmit
 - command:
   - ./prow/proxy-presubmit-centos-release.sh
-  image: gcr.io/istio-testing/build-tools-centos:release-1.8-2020-10-30T18-41-36
+  image: gcr.io/istio-testing/build-tools-centos:release-1.8-2020-11-12T22-53-11
   modifiers:
   - optional
   name: release-centos-test
@@ -53,7 +53,7 @@ jobs:
   type: postsubmit
 - command:
   - ./prow/proxy-postsubmit-centos.sh
-  image: gcr.io/istio-testing/build-tools-centos:release-1.8-2020-10-30T18-41-36
+  image: gcr.io/istio-testing/build-tools-centos:release-1.8-2020-11-12T22-53-11
   name: release-centos
   requirements:
   - gcp
@@ -68,7 +68,7 @@ jobs:
   - --modifier=update_proxy_dep
   - --token-path=/etc/github-token/oauth
   - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
-  image: gcr.io/istio-testing/build-tools:release-1.8-2020-10-30T18-41-36
+  image: gcr.io/istio-testing/build-tools:release-1.8-2020-11-12T22-53-11
   name: update-istio
   repos:
   - istio/test-infra@master
