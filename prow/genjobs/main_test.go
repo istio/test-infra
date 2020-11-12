@@ -26,6 +26,7 @@ import (
 	"testing"
 	"text/template"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/spf13/pflag"
 
 	"istio.io/test-infra/prow/genjobs/cmd/genjobs"
@@ -78,67 +79,54 @@ func TestGenjobs(t *testing.T) {
 		output  string
 		args    []string
 		configs bool
-		equal   bool
 	}{
 		{
-			name:  "simple transform",
-			args:  []string{"--mapping=istio=istio-private"},
-			equal: true,
+			name: "simple transform",
+			args: []string{"--mapping=istio=istio-private"},
 		},
 		{
-			name:  "branches-out",
-			args:  []string{"--mapping=istio=istio-private", "--branches-out=custom-1,^custom-2$"},
-			equal: true,
+			name: "branches-out",
+			args: []string{"--mapping=istio=istio-private", "--branches-out=custom-1,^custom-2$"},
 		},
 		{
-			name:  "refs exists",
-			args:  []string{"--mapping=istio=istio-private", "--refs"},
-			equal: true,
+			name: "refs exists",
+			args: []string{"--mapping=istio=istio-private", "--refs"},
 		},
 		{
-			name:  "refs not exists",
-			args:  []string{"--mapping=istio=istio-private", "--refs"},
-			equal: true,
+			name: "refs not exists",
+			args: []string{"--mapping=istio=istio-private", "--refs"},
 		},
 		{
-			name:  "rerun-orgs",
-			args:  []string{"--mapping=istio=istio-private", "--rerun-orgs=istio-private,istio-secret"},
-			equal: true,
+			name: "rerun-orgs",
+			args: []string{"--mapping=istio=istio-private", "--rerun-orgs=istio-private,istio-secret"},
 		},
 		{
-			name:  "rerun-users",
-			args:  []string{"--mapping=istio=istio-private", "--rerun-users=clarketm,scoobydoo"},
-			equal: true,
+			name: "rerun-users",
+			args: []string{"--mapping=istio=istio-private", "--rerun-users=clarketm,scoobydoo"},
 		},
 		{
-			name:  "override annotations",
-			args:  []string{"--mapping=istio=istio-private", "--annotations=testgrid-create-test-group=false"},
-			equal: true,
+			name: "override annotations",
+			args: []string{"--mapping=istio=istio-private", "--annotations=testgrid-create-test-group=false"},
 		},
 		{
-			name:  "sort ascending",
-			args:  []string{"--mapping=istio=istio-private", "--sort=asc"},
-			equal: true,
+			name: "sort ascending",
+			args: []string{"--mapping=istio=istio-private", "--sort=asc"},
 		},
 		{
-			name:  "sort descending",
-			args:  []string{"--mapping=istio=istio-private", "--sort=desc"},
-			equal: true,
+			name: "sort descending",
+			args: []string{"--mapping=istio=istio-private", "--sort=desc"},
 		},
 		{
-			name:  "env denylist",
-			args:  []string{"--mapping=istio=istio-private", "--env-denylist=bad-env"},
-			equal: true,
+			name: "env denylist",
+			args: []string{"--mapping=istio=istio-private", "--env-denylist=bad-env"},
 		},
 		{
-			name:  "volume denylist",
-			args:  []string{"--mapping=istio=istio-private", "--volume-denylist=bad-volume"},
-			equal: true,
+			name: "volume denylist",
+			args: []string{"--mapping=istio=istio-private", "--volume-denylist=bad-volume"},
 		},
 		{
 			name:    "config file",
 			configs: true,
-			equal:   true,
 		},
 	}
 
@@ -178,9 +166,6 @@ func TestGenjobs(t *testing.T) {
 				t.Fatalf("failed reading actual output file %v: %v", outA, err)
 			}
 
-			t.Logf("expected (%v):\n%s\n", test.name, expected)
-			t.Logf("actual (%v):\n%s\n", test.name, actual)
-
 			if os.Getenv("REFRESH_GOLDEN") == "true" {
 				if err = ioutil.WriteFile(outE, actual, 0644); err != nil {
 					t.Fatalf("failed writing expected output file %v: %v", outE, err)
@@ -188,9 +173,8 @@ func TestGenjobs(t *testing.T) {
 				expected = actual
 			}
 
-			equal := bytes.Equal(expected, actual)
-			if equal != test.equal {
-				t.Fatalf("expected output to be: %t", test.equal)
+			if diff := cmp.Diff(expected, actual); diff != "" {
+				t.Error("TestGenjobs (-want, +got):", diff)
 			}
 		})
 	}
