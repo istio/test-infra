@@ -130,11 +130,35 @@ func (cc *containerEngine) create(ctx context.Context, project string, config cl
 	if err != nil {
 		return nil, err
 	}
-	if config.Version == "" {
-		version = serverConfig.DefaultClusterVersion
+
+	// If release channel is specified, find the corresponding valid version in the release channel.
+	if config.ReleaseChannel != nil && config.ReleaseChannel.Channel != "" {
+		var chConfig *container.ReleaseChannelConfig
+		for _, ch := range serverConfig.Channels {
+			if ch.Channel == config.ReleaseChannel.Channel {
+				chConfig = ch
+			}
+		}
+
+		if chConfig != nil {
+			if config.Version == "" {
+				version = chConfig.DefaultVersion
+			} else {
+				validVersions := make([]string, len(chConfig.AvailableVersions))
+				for i, v := range chConfig.AvailableVersions {
+					validVersions[i] = v.Version
+				}
+				version = findVersionMatch(config.Version, validVersions)
+			}
+		}
 	} else {
-		version = findVersionMatch(config.Version, serverConfig.ValidMasterVersions)
+		if config.Version == "" {
+			version = serverConfig.DefaultClusterVersion
+		} else {
+			version = findVersionMatch(config.Version, serverConfig.ValidMasterVersions)
+		}
 	}
+
 	clusterRequest := &container.CreateClusterRequest{
 		Cluster: &container.Cluster{
 			ReleaseChannel:        config.ReleaseChannel,
