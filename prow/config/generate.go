@@ -92,6 +92,7 @@ type JobConfig struct {
 	Env                     []v1.EnvVar                        `json:"env,omitempty"`
 	Resources               map[string]v1.ResourceRequirements `json:"resources,omitempty"`
 	Image                   string                             `json:"image,omitempty"`
+	ImagePullPolicy         string                             `json:"image_pull_policy,omitempty"`
 	SupportReleaseBranching bool                               `json:"support_release_branching,omitempty"`
 	NodeSelector            map[string]string                  `json:"node_selector,omitempty"`
 	Requirements            []string                           `json:"requirements,omitempty"`
@@ -109,6 +110,7 @@ type Job struct {
 	Timeout                 *prowjob.Duration `json:"timeout,omitempty"`
 	Repos                   []string          `json:"repos,omitempty"`
 	Image                   string            `json:"image,omitempty"`
+	ImagePullPolicy         string            `json:"image_pull_policy,omitempty"`
 	Interval                string            `json:"interval,omitempty"`
 	Cron                    string            `json:"cron,omitempty"`
 	Regex                   string            `json:"regex,omitempty"`
@@ -498,6 +500,11 @@ func createContainer(jobConfig JobConfig, job Job, resources map[string]v1.Resou
 		img = jobConfig.Image
 	}
 
+	imgPullPolicy := job.ImagePullPolicy
+	if imgPullPolicy == "" {
+		imgPullPolicy = jobConfig.ImagePullPolicy
+	}
+
 	envs := job.Env
 	if len(envs) == 0 {
 		envs = jobConfig.Env
@@ -513,6 +520,9 @@ func createContainer(jobConfig JobConfig, job Job, resources map[string]v1.Resou
 			Name:      "build-cache",
 			SubPath:   "gomod",
 		}},
+	}
+	if imgPullPolicy != "" {
+		c.ImagePullPolicy = v1.PullPolicy(imgPullPolicy)
 	}
 	resource := DefaultResource
 	if job.Resources != "" {
