@@ -554,11 +554,13 @@ func createJobBase(jobConfig JobConfig, job Job, name string, repo string, branc
 		},
 		UtilityConfig: config.UtilityConfig{
 			Decorate:  &yes,
-			PathAlias: fmt.Sprintf("istio.io/%s", repo),
 			ExtraRefs: createExtraRefs(job.Repos, branch),
 		},
 		Labels:      make(map[string]string),
 		Annotations: make(map[string]string),
+	}
+	if job.Type != TypePeriodic {
+		jb.UtilityConfig.PathAlias = fmt.Sprintf("istio.io/%s", repo)
 	}
 	if jobConfig.NodeSelector != nil {
 		jb.Spec.NodeSelector = jobConfig.NodeSelector
