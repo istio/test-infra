@@ -49,6 +49,60 @@ postsubmits:
       org: istio
       path_alias: istio.io/test-infra
       repo: test-infra
+    name: update-common-mainonly_common-files_postsubmit
+    path_alias: istio.io/common-files
+    spec:
+      containers:
+      - command:
+        - ../test-infra/tools/automator/automator.sh
+        - --org=istio
+        - --repo=test-infra,bots,cri
+        - '--title=Automator: update common-files@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+        - --labels=auto-merge,release-notes-none
+        - --strict
+        - --modifier=commonfiles
+        - --token-path=/etc/github-token/oauth
+        - --cmd=make update-common gen
+        image: gcr.io/istio-testing/build-tools:master-2020-11-12T22-29-05
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /etc/github-token
+          name: github
+          readOnly: true
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - name: github
+        secret:
+          secretName: oauth-token
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_common-files_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    extra_refs:
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/test-infra
+      repo: test-infra
     name: update-common_common-files_postsubmit
     path_alias: istio.io/common-files
     spec:
@@ -56,7 +110,61 @@ postsubmits:
       - command:
         - ../test-infra/tools/automator/automator.sh
         - --org=istio
-        - --repo=istio,istio.io,api,test-infra,tools,bots,release-builder,pkg,cri,client-go,gogo-genproto,proxy
+        - --repo=istio,api,tools,release-builder,pkg,client-go,gogo-genproto,proxy
+        - '--title=Automator: update common-files@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+        - --labels=auto-merge,release-notes-none
+        - --strict
+        - --modifier=commonfiles
+        - --token-path=/etc/github-token/oauth
+        - --cmd=make update-common gen
+        image: gcr.io/istio-testing/build-tools:master-2020-11-12T22-29-05
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /etc/github-token
+          name: github
+          readOnly: true
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - name: github
+        secret:
+          secretName: oauth-token
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_common-files_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    extra_refs:
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/test-infra
+      repo: test-infra
+    name: update-common-istio.io_common-files_postsubmit
+    path_alias: istio.io/common-files
+    spec:
+      containers:
+      - command:
+        - ../test-infra/tools/automator/automator.sh
+        - --org=istio
+        - --repo=istio.io
         - '--title=Automator: update common-files@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
         - --labels=auto-merge,release-notes-none
         - --strict

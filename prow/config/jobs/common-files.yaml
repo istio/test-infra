@@ -7,12 +7,43 @@ jobs:
   - name: lint
     command: [make, lint]
 
+  - name: update-common-mainonly
+    type: postsubmit
+    command:
+    - ../test-infra/tools/automator/automator.sh
+    - --org=istio
+    - --repo=test-infra,bots,cri
+    - "--title=Automator: update common-files@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+    - --labels=auto-merge,release-notes-none
+    - --strict
+    - --modifier=commonfiles
+    - --token-path=/etc/github-token/oauth
+    - --cmd=make update-common gen
+    requirements: [github]
+    repos: [istio/test-infra@master]
+    disable_release_branching: true
+
   - name: update-common
     type: postsubmit
     command:
     - ../test-infra/tools/automator/automator.sh
     - --org=istio
-    - --repo=istio,istio.io,api,test-infra,tools,bots,release-builder,pkg,cri,client-go,gogo-genproto,proxy
+    - --repo=istio,api,tools,release-builder,pkg,client-go,gogo-genproto,proxy
+    - "--title=Automator: update common-files@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+    - --labels=auto-merge,release-notes-none
+    - --strict
+    - --modifier=commonfiles
+    - --token-path=/etc/github-token/oauth
+    - --cmd=make update-common gen
+    requirements: [github]
+    repos: [istio/test-infra@master]
+
+  - name: update-common-istio.io
+    type: postsubmit
+    command:
+    - ../test-infra/tools/automator/automator.sh
+    - --org=istio
+    - --repo=istio.io
     - "--title=Automator: update common-files@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
     - --labels=auto-merge,release-notes-none
     - --strict
