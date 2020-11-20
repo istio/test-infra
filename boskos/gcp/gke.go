@@ -140,16 +140,18 @@ func (cc *containerEngine) create(ctx context.Context, project string, config cl
 			}
 		}
 
-		if chConfig != nil {
-			if config.Version == "" {
-				version = chConfig.DefaultVersion
-			} else {
-				validVersions := make([]string, len(chConfig.AvailableVersions))
-				for i, v := range chConfig.AvailableVersions {
-					validVersions[i] = v.Version
-				}
-				version = findVersionMatch(config.Version, validVersions)
+		if chConfig == nil {
+			return nil, fmt.Errorf("invalid release channel from the config file: %s", config.ReleaseChannel.Channel)
+		}
+
+		if config.Version == "" {
+			version = chConfig.DefaultVersion
+		} else {
+			validVersions := make([]string, len(chConfig.AvailableVersions))
+			for i, v := range chConfig.AvailableVersions {
+				validVersions[i] = v.Version
 			}
+			version = findVersionMatch(config.Version, validVersions)
 		}
 	} else {
 		if config.Version == "" {
