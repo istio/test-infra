@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: horologium
@@ -7,6 +7,9 @@ metadata:
     app: horologium
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: horologium
   template:
     metadata:
       labels:
