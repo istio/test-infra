@@ -674,9 +674,13 @@ func updateSSHKeySecrets(o options, job *prowjob.DecorationConfig) {
 }
 
 // updateGerritReportingLabels updates the gerrit reporting labels based on provided inputs.
-func updateGerritReportingLabels(o options, skipReport bool, labels map[string]string) {
+func updateGerritReportingLabels(o options, skipReport, optional bool, labels map[string]string) {
 	if o.SupportGerritReporting && !skipReport {
-		labels["prow.k8s.io/gerrit-report-label"] = "Verified"
+		if !optional {
+			labels["prow.k8s.io/gerrit-report-label"] = "Verified"
+		} else {
+			labels["prow.k8s.io/gerrit-report-label"] = "Advisory"
+		}
 	}
 }
 
@@ -1050,7 +1054,7 @@ func generateJobs(o options) {
 				updateJobBase(o, &job.JobBase, orgrepo)
 				updateBrancher(o, &job.Brancher)
 				updateUtilityConfig(o, &job.UtilityConfig)
-				updateGerritReportingLabels(o, job.SkipReport, job.Labels)
+				updateGerritReportingLabels(o, job.SkipReport, job.Optional, job.Labels)
 				resolvePresets(o, job.Labels, &job.JobBase, append(presets, jobs.Presets...))
 				pruneJobBase(o, &job.JobBase)
 
