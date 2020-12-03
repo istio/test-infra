@@ -284,7 +284,12 @@ branch-protection:
             master:
               protect: true
         wasm-extensions:
-          protect: false
+          required_pull_request_reviews:
+            required_approving_review_count: 1
+            require_code_owner_reviews: true
+          branches:
+            master:
+              protect: true
     istio-private:
       required_pull_request_reviews:
         <<: *protection_required_pull_request_reviews
