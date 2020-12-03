@@ -125,20 +125,6 @@ jobs:
     env:
       - name: TEST_SELECT
         value: "-multicluster"
-  - name: integ-external-istiod-mc-tests
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --topology
-      - MULTICLUSTER
-      - test.integration.multicluster.kube.presubmit
-      - --topology-config
-      - ${ROOT}/prow/config/topology/externalistiod.json
-    requirements: [kind]
-    modifiers: [optional, hidden]
-    env:
-      - name: TEST_SELECT
-        value: "-postsubmit,-flaky,+externalistiod"
 
   - name: integ-security-k8s-tests
     type: postsubmit
@@ -243,7 +229,6 @@ jobs:
       - gcr.io/istio-testing/kind-node:v1.20.0-rc.0
       - test.integration.kube.presubmit
     requirements: [kind]
-    modifiers: [hidden] # Until this is verified to be stable
     timeout: 4h
     env:
       - name: INTEGRATION_TEST_FLAGS
