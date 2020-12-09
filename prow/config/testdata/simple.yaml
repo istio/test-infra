@@ -6,12 +6,13 @@ branches:
 
 jobs:
   - name: test
+    types: [presubmit, postsubmit]
     command: [prow/command.sh]
     image: barimage
     regex: "foo.*"
 
   - name: presubmit-kind
-    type: presubmit
+    types: [presubmit]
     resources: custom
     requirements: [kind]
     command: [prow/istio-lint.sh]
@@ -21,13 +22,13 @@ jobs:
     repos: [istio/istio]
 
   - name: custom-node-selector
-    type: presubmit
+    types: [presubmit]
     command: [prow/command.sh]
     node_selector:
       foo: baz
 
   - name: periodic-job
-    type: periodic
+    types: [periodic]
     cron: 0 2 * * *
     command: [run/nightly.sh]
 

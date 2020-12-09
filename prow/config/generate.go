@@ -106,7 +106,7 @@ type Job struct {
 	Resources               string            `json:"resources,omitempty"`
 	Modifiers               []string          `json:"modifiers,omitempty"`
 	Requirements            []string          `json:"requirements,omitempty"`
-	Type                    string            `json:"type,omitempty"`
+	Types                   []string          `json:"types,omitempty"`
 	Timeout                 *prowjob.Duration `json:"timeout,omitempty"`
 	Repos                   []string          `json:"repos,omitempty"`
 	Image                   string            `json:"image,omitempty"`
@@ -200,7 +200,7 @@ func ValidateJobConfig(jobConfig JobConfig) {
 				err = multierror.Append(err, e)
 			}
 		}
-		if job.Type == TypePeriodic {
+		if contains(job.Types, TypePeriodic) {
 			if job.Cron != "" && job.Interval != "" {
 				err = multierror.Append(err, fmt.Errorf("cron and interval cannot be both set in periodic %s", job.Name))
 			} else if job.Cron == "" && job.Interval == "" {
@@ -215,8 +215,10 @@ func ValidateJobConfig(jobConfig JobConfig) {
 				}
 			}
 		}
-		if e := validate(job.Type, []string{TypePostsubmit, TypePresubmit, TypePeriodic, ""}, "type"); e != nil {
-			err = multierror.Append(err, e)
+		for _, t := range job.Types {
+			if e := validate(t, []string{TypePostsubmit, TypePresubmit, TypePeriodic}, "type"); e != nil {
+				err = multierror.Append(err, e)
+			}
 		}
 		for _, repo := range job.Repos {
 			if len(strings.Split(repo, "/")) != 2 {
@@ -252,17 +254,18 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 
 		requirements := append(job.Requirements, jobConfig.Requirements...)
 
-		if job.Type == TypePresubmit || job.Type == "" {
+		if len(job.Types) == 0 || contains(job.Types, TypePresubmit) {
 			name := fmt.Sprintf("%s_%s", job.Name, jobConfig.Repo)
 			if branch != "master" {
 				name += "_" + branch
 			}
 
 			presubmit := config.Presubmit{
-				JobBase:   createJobBase(jobConfig, job, name, jobConfig.Repo, branch, jobConfig.Resources),
+				JobBase:   createJobBase(jobConfig, job, name, branch, jobConfig.Resources),
 				AlwaysRun: true,
 				Brancher:  brancher,
 			}
+			presubmit.UtilityConfig.PathAlias = fmt.Sprintf("istio.io/%s", jobConfig.Repo)
 			if job.Regex != "" {
 				presubmit.RegexpChangeMatcher = config.RegexpChangeMatcher{
 					RunIfChanged: job.Regex,
@@ -275,7 +278,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			presubmits = append(presubmits, presubmit)
 		}
 
-		if job.Type == TypePostsubmit || job.Type == "" {
+		if len(job.Types) == 0 || contains(job.Types, TypePostsubmit) {
 			postName := job.PostsubmitName
 			if postName == "" {
 				postName = job.Name
@@ -288,9 +291,10 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			name += "_postsubmit"
 
 			postsubmit := config.Postsubmit{
-				JobBase:  createJobBase(jobConfig, job, name, jobConfig.Repo, branch, jobConfig.Resources),
+				JobBase:  createJobBase(jobConfig, job, name, branch, jobConfig.Resources),
 				Brancher: brancher,
 			}
+			postsubmit.UtilityConfig.PathAlias = fmt.Sprintf("istio.io/%s", jobConfig.Repo)
 			if job.Regex != "" {
 				postsubmit.RegexpChangeMatcher = config.RegexpChangeMatcher{
 					RunIfChanged: job.Regex,
@@ -304,7 +308,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 			postsubmits = append(postsubmits, postsubmit)
 		}
 
-		if job.Type == TypePeriodic {
+		if contains(job.Types, TypePeriodic) {
 			name := fmt.Sprintf("%s_%s", job.Name, jobConfig.Repo)
 			if branch != "master" {
 				name += "_" + branch
@@ -316,7 +320,7 @@ func ConvertJobConfig(jobConfig JobConfig, branch string) config.JobConfig {
 				job.Repos = []string{jobConfig.Org + "/" + jobConfig.Repo}
 			}
 			periodic := config.Periodic{
-				JobBase:  createJobBase(jobConfig, job, name, jobConfig.Repo, branch, jobConfig.Resources),
+				JobBase:  createJobBase(jobConfig, job, name, branch, jobConfig.Resources),
 				Interval: job.Interval,
 				Cron:     job.Cron,
 			}
@@ -533,7 +537,7 @@ func createContainer(jobConfig JobConfig, job Job, resources map[string]v1.Resou
 	return []v1.Container{c}
 }
 
-func createJobBase(jobConfig JobConfig, job Job, name string, repo string, branch string, resources map[string]v1.ResourceRequirements) config.JobBase {
+func createJobBase(jobConfig JobConfig, job Job, name string, branch string, resources map[string]v1.ResourceRequirements) config.JobBase {
 	yes := true
 	hostPathType := v1.HostPathDirectoryOrCreate
 	jb := config.JobBase{
@@ -558,9 +562,6 @@ func createJobBase(jobConfig JobConfig, job Job, name string, repo string, branc
 		},
 		Labels:      make(map[string]string),
 		Annotations: make(map[string]string),
-	}
-	if job.Type != TypePeriodic {
-		jb.UtilityConfig.PathAlias = fmt.Sprintf("istio.io/%s", repo)
 	}
 	if jobConfig.NodeSelector != nil {
 		jb.Spec.NodeSelector = jobConfig.NodeSelector
@@ -748,4 +749,14 @@ func ReadProwJobConfig(file string) config.JobConfig {
 func newTrue() *bool {
 	b := true
 	return &b
+}
+
+func contains(slice []string, item string) bool {
+	set := make(map[string]struct{}, len(slice))
+	for _, s := range slice {
+		set[s] = struct{}{}
+	}
+
+	_, ok := set[item]
+	return ok
 }

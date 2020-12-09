@@ -6,24 +6,24 @@ jobs:
   - ./prow/proxy-presubmit.sh
   name: test
   timeout: 4h0m0s
-  type: presubmit
+  types: [presubmit]
 - command:
   - ./prow/proxy-presubmit-asan.sh
   name: test-asan
   timeout: 4h0m0s
-  type: presubmit
+  types: [presubmit]
 - command:
   - ./prow/proxy-presubmit-tsan.sh
   name: test-tsan
   timeout: 4h0m0s
-  type: presubmit
+  types: [presubmit]
 - command:
   - ./prow/proxy-presubmit-release.sh
   name: release-test
   requirements:
   - gcp
   timeout: 4h0m0s
-  type: presubmit
+  types: [presubmit]
 - command:
   - ./prow/proxy-presubmit-centos-release.sh
   image: gcr.io/istio-testing/build-tools-centos:release-1.8-2020-11-12T22-53-11
@@ -33,7 +33,7 @@ jobs:
   requirements:
   - gcp
   timeout: 4h0m0s
-  type: presubmit
+  types: [presubmit]
 - command:
   - entrypoint
   - ./prow/proxy-presubmit-wasm.sh
@@ -41,7 +41,7 @@ jobs:
   requirements:
   - docker
   timeout: 4h0m0s
-  type: presubmit
+  types: [presubmit]
 - command:
   - entrypoint
   - ./prow/proxy-postsubmit.sh
@@ -50,7 +50,7 @@ jobs:
   - gcp
   - docker
   timeout: 4h0m0s
-  type: postsubmit
+  types: [postsubmit]
 - command:
   - ./prow/proxy-postsubmit-centos.sh
   image: gcr.io/istio-testing/build-tools-centos:release-1.8-2020-11-12T22-53-11
@@ -58,7 +58,7 @@ jobs:
   requirements:
   - gcp
   timeout: 4h0m0s
-  type: postsubmit
+  types: [postsubmit]
 - command:
   - ../test-infra/tools/automator/automator.sh
   - --org=istio
@@ -75,7 +75,7 @@ jobs:
   requirements:
   - github
   timeout: 4h0m0s
-  type: postsubmit
+  types: [postsubmit]
 node_selector:
   testing: build-pool
 org: istio
