@@ -14,7 +14,7 @@
               severity: 'critical',
             },
             annotations: {
-              message: '@test-infra-oncall The prow images are older than %d days.' % $._config.prowImageStaleByDays,
+              message: 'The prow images are older than %d days.' % $._config.prowImageStaleByDays,
             },
           }
         ],
