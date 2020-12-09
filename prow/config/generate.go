@@ -512,6 +512,8 @@ func createContainer(jobConfig JobConfig, job Job, resources map[string]v1.Resou
 	envs := job.Env
 	if len(envs) == 0 {
 		envs = jobConfig.Env
+	} else {
+		envs = append(envs, jobConfig.Env...)
 	}
 
 	c := v1.Container{
