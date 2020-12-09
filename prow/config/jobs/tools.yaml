@@ -19,7 +19,7 @@ jobs:
   - name: benchmark_check
     disable_release_branching: true
     regex: '^perf/benchmark/'
-    type: presubmit
+    types: [presubmit]
     command: [entrypoint, ./perf/benchmark/run_benchmark_job.sh]
     env:
       - name: TRIALRUN
@@ -28,14 +28,14 @@ jobs:
     requirements: [gcp]
 
   - name: containers
-    type: postsubmit
+    types: [postsubmit]
     command: [entrypoint, make, containers]
     resources: build
     regex: 'docker/.+|cmd/.+'
     requirements: [gcp, docker]
 
   - name: containers-test
-    type: presubmit
+    types: [presubmit]
     command: [entrypoint, make, containers-test]
     resources: build
     regex: 'docker/.+|cmd/.+'
@@ -43,7 +43,7 @@ jobs:
 
   - name: deploy-perf-dashboard
     regex: '^perf_dashboard/'
-    type: postsubmit
+    types: [postsubmit]
     command: [entrypoint, make, -C, perf_dashboard, deploy]
     requirements: [docker, gcp]
 

@@ -7,28 +7,28 @@ node_selector:
 
 jobs:
 - name: test
-  type: presubmit
+  types: [presubmit]
   command: [./prow/proxy-presubmit.sh]
   timeout: 4h
 
 - name: test-asan
-  type: presubmit
+  types: [presubmit]
   command: [./prow/proxy-presubmit-asan.sh]
   timeout: 4h
 
 - name: test-tsan
-  type: presubmit
+  types: [presubmit]
   command: [./prow/proxy-presubmit-tsan.sh]
   timeout: 4h
 
 - name: release-test
-  type: presubmit
+  types: [presubmit]
   command: [./prow/proxy-presubmit-release.sh]
   requirements: [gcp]
   timeout: 4h
 
 - name: release-centos-test
-  type: presubmit
+  types: [presubmit]
   command: [./prow/proxy-presubmit-centos-release.sh]
   requirements: [gcp]
   image: gcr.io/istio-testing/build-tools-centos:master-2020-11-12T22-29-05
@@ -37,26 +37,26 @@ jobs:
   timeout: 4h
 
 - name: check-wasm
-  type: presubmit
+  types: [presubmit]
   command: [entrypoint, ./prow/proxy-presubmit-wasm.sh]
   requirements: [docker]
   timeout: 4h
 
 - name: release
-  type: postsubmit
+  types: [postsubmit]
   command: [entrypoint, ./prow/proxy-postsubmit.sh]
   requirements: [gcp, docker]
   timeout: 4h
 
 - name: release-centos
-  type: postsubmit
+  types: [postsubmit]
   command: [./prow/proxy-postsubmit-centos.sh]
   requirements: [gcp]
   image: gcr.io/istio-testing/build-tools-centos:master-2020-11-12T22-29-05
   timeout: 4h
 
 - name: update-istio
-  type: postsubmit
+  types: [postsubmit]
   command:
   - ../test-infra/tools/automator/automator.sh
   - --org=istio

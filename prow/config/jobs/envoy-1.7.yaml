@@ -7,7 +7,7 @@ node_selector:
 
 jobs:
 - name: test-asan
-  type: presubmit
+  types: [presubmit]
   env:
   - name: BAZEL_BUILD_EXTRA_OPTIONS
     value: "--local_ram_resources=131072 --local_cpu_resources=42 --test_env=ENVOY_IP_TEST_VERSIONS=v4only --flaky_test_attempts=9"
@@ -17,7 +17,7 @@ jobs:
   timeout: 4h0m0s
 
 - name: test-tsan
-  type: presubmit
+  types: [presubmit]
   env:
   - name: BAZEL_BUILD_EXTRA_OPTIONS
     value: "--local_ram_resources=131072 --local_cpu_resources=42 --test_env=ENVOY_IP_TEST_VERSIONS=v4only --flaky_test_attempts=9"
@@ -26,7 +26,7 @@ jobs:
   command: [./ci/do_ci.sh, bazel.tsan]
 
 - name: test-release
-  type: presubmit
+  types: [presubmit]
   env:
   - name: BAZEL_BUILD_EXTRA_OPTIONS
     value: "--local_ram_resources=131072 --local_cpu_resources=42 --test_env=ENVOY_IP_TEST_VERSIONS=v4only --flaky_test_attempts=9"

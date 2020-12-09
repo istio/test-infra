@@ -18,7 +18,7 @@ jobs:
   requirements:
   - gcp
   - docker
-  type: presubmit
+  types: [presubmit]
 - command:
   - entrypoint
   - prow/release-commit.sh
@@ -26,7 +26,7 @@ jobs:
   requirements:
   - gcp
   - docker
-  type: postsubmit
+  types: [postsubmit]
 - command:
   - entrypoint
   - make
@@ -36,7 +36,7 @@ jobs:
   - skipped
   name: benchmark
   resources: benchmark
-  type: presubmit
+  types: [presubmit]
 - command:
   - entrypoint
   - make
@@ -46,7 +46,7 @@ jobs:
   requirements:
   - gcp
   resources: benchmark
-  type: postsubmit
+  types: [postsubmit]
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
@@ -57,7 +57,7 @@ jobs:
   name: integ-galley-k8s-tests
   requirements:
   - kind
-  type: presubmit
+  types: [presubmit]
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
@@ -68,7 +68,7 @@ jobs:
   name: integ-mixer-k8s-tests
   requirements:
   - kind
-  type: presubmit
+  types: [presubmit]
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
@@ -79,7 +79,7 @@ jobs:
   name: integ-pilot-k8s-tests
   requirements:
   - kind
-  type: presubmit
+  types: [presubmit]
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
@@ -90,7 +90,7 @@ jobs:
   name: integ-security-k8s-tests
   requirements:
   - kind
-  type: presubmit
+  types: [presubmit]
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
@@ -101,7 +101,7 @@ jobs:
   name: integ-telemetry-k8s-tests
   requirements:
   - kind
-  type: presubmit
+  types: [presubmit]
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
@@ -114,7 +114,7 @@ jobs:
   name: integ-multicluster-k8s-tests
   requirements:
   - kind
-  type: presubmit
+  types: [presubmit]
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
@@ -151,7 +151,7 @@ jobs:
   name: integ-operator-controller-tests
   requirements:
   - kind
-  type: presubmit
+  types: [presubmit]
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
@@ -162,7 +162,7 @@ jobs:
   name: integ-galley-k8s-tests
   requirements:
   - kind
-  type: postsubmit
+  types: [postsubmit]
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
@@ -173,7 +173,7 @@ jobs:
   name: integ-mixer-k8s-tests
   requirements:
   - kind
-  type: postsubmit
+  types: [postsubmit]
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
@@ -184,7 +184,7 @@ jobs:
   name: integ-pilot-k8s-tests
   requirements:
   - kind
-  type: postsubmit
+  types: [postsubmit]
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
@@ -211,7 +211,7 @@ jobs:
   name: integ-security-k8s-tests
   requirements:
   - kind
-  type: postsubmit
+  types: [postsubmit]
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
@@ -222,7 +222,7 @@ jobs:
   name: integ-telemetry-k8s-tests
   requirements:
   - kind
-  type: postsubmit
+  types: [postsubmit]
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
@@ -236,7 +236,7 @@ jobs:
   requirements:
   - kind
   timeout: 4h0m0s
-  type: postsubmit
+  types: [postsubmit]
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
@@ -250,7 +250,7 @@ jobs:
   requirements:
   - kind
   timeout: 4h0m0s
-  type: postsubmit
+  types: [postsubmit]
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
@@ -264,7 +264,7 @@ jobs:
   requirements:
   - kind
   timeout: 4h0m0s
-  type: postsubmit
+  types: [postsubmit]
 - command:
   - entrypoint
   - make
@@ -282,18 +282,18 @@ jobs:
   - optional
   - skipped
   name: analyze-tests
-  type: presubmit
+  types: [presubmit]
 - command:
   - make
   - lint
   name: lint
   resources: lint
-  type: presubmit
+  types: [presubmit]
 - command:
   - make
   - gen-check
   name: gencheck
-  type: presubmit
+  types: [presubmit]
 - command:
   - ../test-infra/tools/check_release_notes.sh
   - --token-path=/etc/github-token/oauth
@@ -301,7 +301,7 @@ jobs:
   repos: [istio/test-infra@master,istio/tools@master]
   requirements:
   - github
-  type: presubmit
+  types: [presubmit]
 org: istio
 repo: istio
 resources:

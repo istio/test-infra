@@ -11,7 +11,7 @@ jobs:
     command: [make, gen-check]
 
   - name: update_api_dep
-    type: postsubmit
+    types: [postsubmit]
     command:
     - ../test-infra/tools/automator/automator.sh
     - --org=istio
@@ -25,7 +25,7 @@ jobs:
     repos: [istio/test-infra@master]
 
   - name: release-notes
-    type: presubmit
+    types: [presubmit]
     modifiers: [optional]
     command:
       - ../test-infra/tools/check_release_notes.sh

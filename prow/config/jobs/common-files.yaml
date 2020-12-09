@@ -8,7 +8,7 @@ jobs:
     command: [make, lint]
 
   - name: update-common-mainonly
-    type: postsubmit
+    types: [postsubmit]
     command:
     - ../test-infra/tools/automator/automator.sh
     - --org=istio
@@ -24,7 +24,7 @@ jobs:
     disable_release_branching: true
 
   - name: update-common
-    type: postsubmit
+    types: [postsubmit]
     command:
     - ../test-infra/tools/automator/automator.sh
     - --org=istio
@@ -39,7 +39,7 @@ jobs:
     repos: [istio/test-infra@master]
 
   - name: update-common-istio.io
-    type: postsubmit
+    types: [postsubmit]
     command:
     - ../test-infra/tools/automator/automator.sh
     - --org=istio
@@ -54,7 +54,7 @@ jobs:
     repos: [istio/test-infra@master]
 
   - name: update-build-tools-image
-    type: postsubmit
+    types: [postsubmit]
     command:
     - ../test-infra/tools/automator/automator.sh
     - --org=istio

@@ -36,7 +36,7 @@ jobs:
     modifiers: [optional]
 
   - name: update-ref-docs-dry-run
-    type: presubmit
+    types: [presubmit]
     command:
     - ../test-infra/tools/automator/automator.sh
     - --org=istio
@@ -50,7 +50,7 @@ jobs:
 
   - name: update-ref-docs
     disable_release_branching: true
-    type: periodic
+    types: [periodic]
     cron: "0 2 * * *"  # every day at 02:00AM UTC
     command:
     - ./tools/automator/automator.sh

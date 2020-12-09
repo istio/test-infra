@@ -20,26 +20,26 @@ jobs:
     regex: '\.go$|\.sh$'
 
   - name: build-warning
-    type: presubmit
+    types: [presubmit]
     regex: '^release/trigger-build$'
     command: [release/build-warning.sh]
     modifiers: [optional]
 
   - name: publish-warning
-    type: presubmit
+    types: [presubmit]
     regex: '^release/trigger-publish$'
     command: [release/publish-warning.sh]
     modifiers: [optional]
 
   - name: build-release
-    type: postsubmit
+    types: [postsubmit]
     regex: '^release/trigger-build$'
     command: [entrypoint, release/build.sh]
     requirements: [release, docker]
     resources: build
 
   - name: publish-release
-    type: postsubmit
+    types: [postsubmit]
     regex: '^release/trigger-publish$'
     command: [entrypoint, release/publish.sh]
     requirements: [release, docker]
