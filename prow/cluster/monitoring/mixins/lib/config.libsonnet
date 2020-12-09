@@ -48,5 +48,8 @@
 
     // How long we go during work hours without seeing a webhook before alerting.
     webhookMissingAlertInterval: '30m',
+
+    // How many days prow hasn't been bumped.
+    prowImageStaleByDays: 14,
   },
 }
