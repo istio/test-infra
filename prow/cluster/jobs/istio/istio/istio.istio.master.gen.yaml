@@ -946,7 +946,7 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-120_istio_postsubmit
+    name: integ-k8s-119_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       containers:
@@ -954,7 +954,7 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - gcr.io/istio-testing/kind-node:v1.20.0-rc.0
+        - kindest/node:v1.19.4
         - test.integration.kube.presubmit
         env:
         - name: INTEGRATION_TEST_FLAGS
