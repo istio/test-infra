@@ -25,6 +25,8 @@ import (
 	"path/filepath"
 	"regexp"
 
+	k8sProwConfig "k8s.io/test-infra/prow/config"
+
 	"istio.io/test-infra/prow/config"
 )
 
@@ -99,6 +101,15 @@ func main() {
 			}
 		}
 	} else {
+		type ref struct {
+			org    string
+			repo   string
+			branch string
+		}
+		// Store the job config generated from all meta-config files in a cache map, and combine the
+		// job configs before we generate the final config files.
+		// In this way we can have multiple meta-config files for the same org/repo:branch
+		cachedOutput := map[ref]k8sProwConfig.JobConfig{}
 		for _, file := range files {
 			if filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml" {
 				log.Println("skipping ", file.Name())
@@ -108,17 +119,43 @@ func main() {
 			for _, branch := range jobs.Branches {
 				config.ValidateJobConfig(jobs)
 				output := config.ConvertJobConfig(jobs, branch)
-				fname := GetFileName(jobs.Repo, jobs.Org, branch)
-				switch flag.Arg(0) {
-				case "write":
-					config.WriteConfig(output, fname)
-				case "diff":
-					existing := config.ReadProwJobConfig(fname)
-					config.DiffConfig(output, existing)
-				default:
-					config.PrintConfig(output)
+				rf := ref{jobs.Org, jobs.Repo, branch}
+				if _, ok := cachedOutput[rf]; !ok {
+					cachedOutput[rf] = output
+				} else {
+					cachedOutput[rf] = combineJobConfigs(cachedOutput[rf], output,
+						fmt.Sprintf("%s/%s", jobs.Org, jobs.Repo))
 				}
 			}
 		}
+
+		for r, output := range cachedOutput {
+			fname := GetFileName(r.repo, r.org, r.branch)
+			switch flag.Arg(0) {
+			case "write":
+				config.WriteConfig(output, fname)
+			case "diff":
+				existing := config.ReadProwJobConfig(fname)
+				config.DiffConfig(output, existing)
+			default:
+				config.PrintConfig(output)
+			}
+		}
+	}
+}
+
+func combineJobConfigs(jc1, jc2 k8sProwConfig.JobConfig, orgRepo string) k8sProwConfig.JobConfig {
+	presubmits := jc1.PresubmitsStatic
+	postsubmits := jc1.PostsubmitsStatic
+	periodics := jc1.Periodics
+
+	presubmits[orgRepo] = append(presubmits[orgRepo], jc2.PresubmitsStatic[orgRepo]...)
+	postsubmits[orgRepo] = append(postsubmits[orgRepo], jc2.PostsubmitsStatic[orgRepo]...)
+	periodics = append(periodics, jc2.Periodics...)
+
+	return k8sProwConfig.JobConfig{
+		PresubmitsStatic:  presubmits,
+		PostsubmitsStatic: postsubmits,
+		Periodics:         periodics,
 	}
 }
