@@ -17,7 +17,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -63,15 +62,8 @@ func main() {
 		panic("too many arguments")
 	}
 
-	files, err := ioutil.ReadDir(*inputDir)
-	if err != nil {
-		exit(err, "failed to read jobs")
-	}
-
 	if os.Args[1] == "branch" {
-		for _, file := range files {
-			src := path.Join(*inputDir, file.Name())
-
+		if err := filepath.Walk(*inputDir, func(src string, file os.FileInfo, err error) error {
 			jobs := config.ReadJobConfig(src)
 			jobs.Jobs = config.FilterReleaseBranchingJobs(jobs.Jobs)
 
@@ -99,6 +91,10 @@ func main() {
 					exit(err, "writing branched config failed")
 				}
 			}
+
+			return nil
+		}); err != nil {
+			exit(err, "walking through the meta config files failed")
 		}
 	} else {
 		type ref struct {
@@ -110,12 +106,12 @@ func main() {
 		// job configs before we generate the final config files.
 		// In this way we can have multiple meta-config files for the same org/repo:branch
 		cachedOutput := map[ref]k8sProwConfig.JobConfig{}
-		for _, file := range files {
+		if err := filepath.Walk(*inputDir, func(src string, file os.FileInfo, err error) error {
 			if filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml" {
 				log.Println("skipping ", file.Name())
-				continue
+				return nil
 			}
-			jobs := config.ReadJobConfig(path.Join(*inputDir, file.Name()))
+			jobs := config.ReadJobConfig(src)
 			for _, branch := range jobs.Branches {
 				config.ValidateJobConfig(jobs)
 				output := config.ConvertJobConfig(jobs, branch)
@@ -127,6 +123,9 @@ func main() {
 						fmt.Sprintf("%s/%s", jobs.Org, jobs.Repo))
 				}
 			}
+			return nil
+		}); err != nil {
+			exit(err, "walking through the meta config files failed")
 		}
 
 		for r, output := range cachedOutput {
