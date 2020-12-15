@@ -250,6 +250,43 @@ periodics:
     nodeSelector:
       testing: test-pool
 
+# kind-enabled upgrade test using istioctl from 1.7 latest to 1.8 latest
+# with dual control plane and deployment-by-deployment
+- cron: "0 4 * * *"  # starts every day at 04:00AM UTC
+  name: istio-dual-control-plane-upgrade-kind-1.7-1.8
+  branches: master
+  decorate: true
+  extra_refs:
+  - org: istio
+    repo: tools
+    base_ref: master
+    path_alias: istio.io/tools
+  annotations:
+    testgrid-dashboards: istio_release-pipeline
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
+  labels:
+    preset-service-account: "true"
+  spec:
+    containers:
+    - <<: *istio_container_with_kind
+      env:
+      - name: SOURCE_TAG
+        value: 1.7_latest
+      - name: TARGET_TAG
+        value: 1.8_latest
+      - name: INSTALL_OPTIONS
+        value: istioctl
+      - name: TEST_SCENARIO
+        value: dual-control-plane-upgrade
+      - name: UPGRADE_DOWNGRADE_TEST_LOCAL
+        value: kind
+      command:
+      - entrypoint
+      - upgrade_downgrade/run_upgrade_downgrade_test.sh
+    nodeSelector:
+      testing: test-pool
+
 # downgrade test using istioctl from 1.8 latest to 1.7 latest
 - cron: "0 4 * * *"  # starts every day at 04:00AM UTC
   name: istio-downgrade-using-istioctl-1.8_latest-1.7_latest
