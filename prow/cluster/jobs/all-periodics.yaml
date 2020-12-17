@@ -10,6 +10,33 @@ istio_container_with_kind: &istio_container_with_kind
       memory: "24Gi"
       cpu: "3000m"
 
+istio_container_with_kind_mounts: &istio_container_with_kind_mounts
+  image: gcr.io/istio-testing/build-tools:master-2020-12-09T23-05-01
+  securityContext:
+    privileged: true
+  resources:
+    requests:
+      memory: "2Gi"
+      cpu: "3000m"
+    limits:
+      memory: "24Gi"
+      cpu: "3000m"
+  volumeMounts:
+    - mountPath: /home/prow/go/pkg
+      name: build-cache
+      subPath: gomod
+    - mountPath: /lib/modules
+      name: modules
+      readOnly: true
+    - mountPath: /sys/fs/cgroup
+      name: cgroup
+      readOnly: true
+    - mountPath: /var/lib/docker
+      name: docker-root
+    - mountPath: /gocache
+      name: build-cache
+      subPath: gocache
+
 periodics:
 - interval: 5m
   name: monitoring-verify-gcsweb
@@ -269,7 +296,7 @@ periodics:
     preset-service-account: "true"
   spec:
     containers:
-    - <<: *istio_container_with_kind
+    - <<: *istio_container_with_kind_mounts
       env:
       - name: SOURCE_TAG
         value: 1.7_latest
@@ -286,6 +313,21 @@ periodics:
       - upgrade_downgrade/run_upgrade_downgrade_test.sh
     nodeSelector:
       testing: test-pool
+    volumes:
+    - hostPath:
+        path: /tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+    - hostPath:
+        path: /lib/modules
+        type: Directory
+      name: modules
+    - hostPath:
+        path: /sys/fs/cgroup
+        type: Directory
+      name: cgroup
+    - emptyDir: {}
+      name: docker-root
 
 # downgrade test using istioctl from 1.8 latest to 1.7 latest
 - cron: "0 4 * * *"  # starts every day at 04:00AM UTC
