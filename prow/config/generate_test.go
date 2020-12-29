@@ -22,16 +22,18 @@ import (
 )
 
 func TestGenerateConfig(t *testing.T) {
-	tests := []string{"simple"}
+	settings := ReadGlobalSettings("testdata/.global.yaml")
+	cli := &Client{GlobalConfig: settings}
+	tests := []string{"simple", "simple-matrix"}
 	for _, tt := range tests {
 		t.Run(tt, func(t *testing.T) {
-			jobs := ReadJobConfig(fmt.Sprintf("testdata/%s.yaml", tt))
+			jobs := cli.ReadJobConfig(fmt.Sprintf("testdata/%s.yaml", tt))
 			for _, branch := range jobs.Branches {
-				output := ConvertJobConfig(jobs, branch)
+				output := cli.ConvertJobConfig(jobs, branch)
 				if os.Getenv("REFRESH_GOLDEN") == "true" {
-					WriteConfig(output, fmt.Sprintf("testdata/%s.gen.yaml", tt))
+					cli.WriteConfig(output, fmt.Sprintf("testdata/%s.gen.yaml", tt))
 				}
-				if err := CheckConfig(output, fmt.Sprintf("testdata/%s.gen.yaml", tt)); err != nil {
+				if err := cli.CheckConfig(output, fmt.Sprintf("testdata/%s.gen.yaml", tt)); err != nil {
 					t.Fatal(err.Error())
 				}
 			}

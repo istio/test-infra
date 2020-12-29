@@ -62,16 +62,19 @@ func main() {
 		panic("too many arguments")
 	}
 
+	settings := config.ReadGlobalSettings(filepath.Join(*inputDir, ".global.yaml"))
+	cli := &config.Client{GlobalConfig: settings}
+
 	if os.Args[1] == "branch" {
 		if err := filepath.Walk(*inputDir, func(src string, file os.FileInfo, err error) error {
 			if file.IsDir() {
 				return nil
 			}
-			if filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml" {
+			if filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml" || file.Name() == ".global.yaml" {
 				log.Println("skipping", file.Name())
 				return nil
 			}
-			jobs := config.ReadJobConfig(src)
+			jobs := cli.ReadJobConfig(src)
 			jobs.Jobs = config.FilterReleaseBranchingJobs(jobs.Jobs)
 
 			if jobs.SupportReleaseBranching {
@@ -117,14 +120,14 @@ func main() {
 			if file.IsDir() {
 				return nil
 			}
-			if filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml" {
+			if filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml" || file.Name() == ".global.yaml" {
 				log.Println("skipping", file.Name())
 				return nil
 			}
-			jobs := config.ReadJobConfig(src)
+			jobs := cli.ReadJobConfig(src)
 			for _, branch := range jobs.Branches {
-				config.ValidateJobConfig(jobs)
-				output := config.ConvertJobConfig(jobs, branch)
+				cli.ValidateJobConfig(file.Name(), jobs)
+				output := cli.ConvertJobConfig(jobs, branch)
 				rf := ref{jobs.Org, jobs.Repo, branch}
 				if _, ok := cachedOutput[rf]; !ok {
 					cachedOutput[rf] = output
@@ -142,12 +145,12 @@ func main() {
 			fname := GetFileName(r.repo, r.org, r.branch)
 			switch flag.Arg(0) {
 			case "write":
-				config.WriteConfig(output, fname)
+				cli.WriteConfig(output, fname)
 			case "diff":
 				existing := config.ReadProwJobConfig(fname)
-				config.DiffConfig(output, existing)
+				cli.DiffConfig(output, existing)
 			default:
-				config.PrintConfig(output)
+				cli.PrintConfig(output)
 			}
 		}
 	}

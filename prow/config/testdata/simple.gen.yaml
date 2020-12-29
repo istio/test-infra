@@ -28,6 +28,9 @@ periodics:
       - mountPath: /home/prow/go/pkg
         name: build-cache
         subPath: gomod
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
     nodeSelector:
       testing: test-pool
     volumes:
@@ -63,6 +66,9 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -97,6 +103,9 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -147,6 +156,9 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
@@ -188,6 +200,9 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
       nodeSelector:
         foo: baz
       volumes:
