@@ -64,6 +64,10 @@ func main() {
 
 	if os.Args[1] == "branch" {
 		if err := filepath.Walk(*inputDir, func(src string, file os.FileInfo, err error) error {
+			if filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml" {
+				log.Println("skipping ", file.Name())
+				return nil
+			}
 			jobs := config.ReadJobConfig(src)
 			jobs.Jobs = config.FilterReleaseBranchingJobs(jobs.Jobs)
 
