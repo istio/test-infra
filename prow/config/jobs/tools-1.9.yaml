@@ -1,0 +1,61 @@
+branches:
+- release-1.9
+image: gcr.io/istio-testing/build-tools:release-1.9-2021-01-13T15-02-13
+jobs:
+- command:
+  - make
+  - build
+  name: build
+- command:
+  - make
+  - lint
+  name: lint
+- command:
+  - make
+  - test
+  name: test
+- command:
+  - make
+  - gen-check
+  name: gencheck
+- command:
+  - entrypoint
+  - make
+  - containers
+  name: containers
+  regex: docker/.+|cmd/.+
+  requirements:
+  - gcp
+  - docker
+  resources: build
+  types:
+  - postsubmit
+- command:
+  - entrypoint
+  - make
+  - containers-test
+  name: containers-test
+  regex: docker/.+|cmd/.+
+  requirements:
+  - gcp
+  - docker
+  resources: build
+  types:
+  - presubmit
+org: istio
+repo: tools
+resources:
+  build:
+    limits:
+      cpu: "8"
+      memory: 24Gi
+    requests:
+      cpu: "8"
+      memory: 4Gi
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: "1"
+      memory: 3Gi
