@@ -64,8 +64,11 @@ func main() {
 
 	if os.Args[1] == "branch" {
 		if err := filepath.Walk(*inputDir, func(src string, file os.FileInfo, err error) error {
+			if file.IsDir() {
+				return nil
+			}
 			if filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml" {
-				log.Println("skipping ", file.Name())
+				log.Println("skipping", file.Name())
 				return nil
 			}
 			jobs := config.ReadJobConfig(src)
@@ -111,8 +114,11 @@ func main() {
 		// In this way we can have multiple meta-config files for the same org/repo:branch
 		cachedOutput := map[ref]k8sProwConfig.JobConfig{}
 		if err := filepath.Walk(*inputDir, func(src string, file os.FileInfo, err error) error {
+			if file.IsDir() {
+				return nil
+			}
 			if filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml" {
-				log.Println("skipping ", file.Name())
+				log.Println("skipping", file.Name())
 				return nil
 			}
 			jobs := config.ReadJobConfig(src)
