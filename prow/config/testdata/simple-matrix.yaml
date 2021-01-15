@@ -1,0 +1,22 @@
+org: istio
+repo: istio
+image: fooimage
+branches:
+  - master
+matrix:
+  command-arg: [arg1, arg2, arg3]
+  requirement: [kind, gcloud]
+  env-val: [val1, val2]
+
+jobs:
+  - name: test-$(matrix.requirement)-$(matrix.command-arg)-$(matrix.env-val)
+    types: [presubmit, postsubmit]
+    image: barimage
+    command:
+    - prow/command.sh
+    - $(matrix.command-arg)
+    requirements:
+    - $(matrix.requirement)
+    env:
+    - name: var
+      value: $(matrix.env-val)
