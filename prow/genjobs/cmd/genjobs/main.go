@@ -423,7 +423,8 @@ func validateOrgRepo(o options, org string, repo string) bool {
 
 // validateJob validates that the job passes validation and should be converted.
 func validateJob(o options, name string, patterns []string, jType string) bool {
-	if o.JobDenylistSet.Has(name) || (len(o.JobAllowlistSet) > 0 && !o.JobAllowlistSet.Has(name)) || !isMatchBranch(o, patterns) || !o.JobTypeSet.Has(jType) {
+	if hasMatch(name, o.JobDenylistSet.List()) || (len(o.JobAllowlistSet) > 0 && !hasMatch(name, o.JobAllowlistSet.List())) ||
+		!isMatchBranch(o, patterns) || !o.JobTypeSet.Has(jType) {
 		return false
 	}
 
@@ -437,13 +438,21 @@ func isMatchBranch(o options, patterns []string) bool {
 	}
 
 	for _, branch := range o.Branches {
-		for _, pattern := range patterns {
-			if regexp.MustCompile(pattern).MatchString(branch) {
-				return true
-			}
+		if hasMatch(branch, patterns) {
+			return true
 		}
 	}
 
+	return false
+}
+
+// hasMatch checks if there is any match in patterns for the given name.
+func hasMatch(name string, patterns []string) bool {
+	for _, pattern := range patterns {
+		if regexp.MustCompile(pattern).MatchString(name) {
+			return true
+		}
+	}
 	return false
 }
 
