@@ -103,6 +103,7 @@ type transform struct {
 	SSHClone               bool              `json:"ssh-clone,omitempty"`
 	OverrideSelector       bool              `json:"override-selector,omitempty"`
 	SupportGerritReporting bool              `json:"support-gerrit-reporting,omitempty"`
+	AllowLongJobNames      bool              `json:"allow-long-job-names,omitempty"`
 	Verbose                bool              `json:"verbose,omitempty"`
 }
 
@@ -158,6 +159,7 @@ func (o *options) parseOpts() {
 	flag.BoolVar(&o.SSHClone, "ssh-clone", false, "Enable a clone of the git repository over ssh.")
 	flag.BoolVar(&o.OverrideSelector, "override-selector", false, "The existing node selector will be overridden rather than added to.")
 	flag.BoolVar(&o.SupportGerritReporting, "support-gerrit-reporting", false, "Generate Prow jobs that supports Gerrit reporting.")
+	flag.BoolVar(&o.AllowLongJobNames, "allow-long-job-names", false, "Allow job names that have more than 63 characters.")
 	flag.BoolVar(&o.Verbose, "verbose", false, "Enable verbose output.")
 
 	flag.Parse()
@@ -380,9 +382,6 @@ func applyDefaultTransforms(dst *transform, srcs ...*transform) {
 		if len(dst.RefOrgMap) == 0 {
 			dst.RefOrgMap = src.RefOrgMap
 		}
-		if !dst.Clean {
-			dst.Clean = src.Clean
-		}
 		if !dst.DryRun {
 			dst.DryRun = src.DryRun
 		}
@@ -398,11 +397,11 @@ func applyDefaultTransforms(dst *transform, srcs ...*transform) {
 		if !dst.OverrideSelector {
 			dst.OverrideSelector = src.OverrideSelector
 		}
+		if !dst.AllowLongJobNames {
+			dst.AllowLongJobNames = src.AllowLongJobNames
+		}
 		if !dst.Verbose {
 			dst.Verbose = src.Verbose
-		}
-		if !dst.Clean {
-			dst.Clean = src.Clean
 		}
 		if !dst.Clean {
 			dst.Clean = src.Clean
@@ -622,10 +621,12 @@ func updateJobName(o options, job *config.JobBase) {
 		suffix = jobnameSeparator + o.Modifier
 	}
 
-	maxNameLen := maxLabelLen - len(suffix)
+	if !o.AllowLongJobNames {
+		maxNameLen := maxLabelLen - len(suffix)
 
-	if len(job.Name) > maxNameLen {
-		job.Name = job.Name[:maxNameLen]
+		if len(job.Name) > maxNameLen {
+			job.Name = job.Name[:maxNameLen]
+		}
 	}
 
 	job.Name += suffix
