@@ -13,7 +13,7 @@ jobs:
     value: "--local_ram_resources=131072 --local_cpu_resources=42 --test_env=ENVOY_IP_TEST_VERSIONS=v4only --flaky_test_attempts=9"
   - name: ENVOY_SRCDIR
     value: "/home/prow/go/src/istio.io/envoy"
-  - name: ENVOY_BUILD_FILTER_EXAMPLE
+  - name: FILTER_WORKSPACE_SET
     value: "false"
   command: [./ci/do_ci.sh, bazel.asan]
   timeout: 4h0m0s
@@ -25,7 +25,7 @@ jobs:
     value: "--local_ram_resources=131072 --local_cpu_resources=42 --test_env=ENVOY_IP_TEST_VERSIONS=v4only --flaky_test_attempts=9"
   - name: ENVOY_SRCDIR
     value: "/home/prow/go/src/istio.io/envoy"
-  - name: ENVOY_BUILD_FILTER_EXAMPLE
+  - name: FILTER_WORKSPACE_SET
     value: "false"
   command: [./ci/do_ci.sh, bazel.tsan]
 
