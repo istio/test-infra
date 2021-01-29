@@ -53,7 +53,6 @@ presubmits:
     - ^release-1.7$
     decorate: true
     name: test-tsan_envoy_release-1.7
-    optional: true
     path_alias: istio.io/envoy
     spec:
       containers:
@@ -66,6 +65,8 @@ presubmits:
             --flaky_test_attempts=9
         - name: ENVOY_SRCDIR
           value: /home/prow/go/src/istio.io/envoy
+        - name: ENVOY_BUILD_FILTER_EXAMPLE
+          value: "false"
         image: envoyproxy/envoy-build-ubuntu:f21773ab398a879f976936f72c78c9dd3718ca1e
         name: ""
         resources:
