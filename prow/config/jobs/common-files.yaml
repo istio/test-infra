@@ -1,7 +1,7 @@
 org: istio
 support_release_branching: true
 repo: common-files
-image: gcr.io/istio-testing/build-tools:master-2021-01-27T16-26-22
+image: gcr.io/istio-testing/build-tools:master-2021-01-29T01-18-46
 
 jobs:
   - name: lint
@@ -12,7 +12,7 @@ jobs:
     command:
     - ../test-infra/tools/automator/automator.sh
     - --org=istio
-    - --repo=test-infra,bots,cri
+    - --repo=test-infra,bots
     - "--title=Automator: update common-files@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
     - --labels=auto-merge,release-notes-none
     - --strict

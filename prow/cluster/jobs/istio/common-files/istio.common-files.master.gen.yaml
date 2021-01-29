@@ -15,7 +15,7 @@ postsubmits:
       - command:
         - make
         - lint
-        image: gcr.io/istio-testing/build-tools:master-2021-01-27T16-26-22
+        image: gcr.io/istio-testing/build-tools:master-2021-01-29T01-18-46
         name: ""
         resources:
           limits:
@@ -56,14 +56,14 @@ postsubmits:
       - command:
         - ../test-infra/tools/automator/automator.sh
         - --org=istio
-        - --repo=test-infra,bots,cri
+        - --repo=test-infra,bots
         - '--title=Automator: update common-files@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
         - --labels=auto-merge,release-notes-none
         - --strict
         - --modifier=commonfiles
         - --token-path=/etc/github-token/oauth
         - --cmd=make update-common gen
-        image: gcr.io/istio-testing/build-tools:master-2021-01-27T16-26-22
+        image: gcr.io/istio-testing/build-tools:master-2021-01-29T01-18-46
         name: ""
         resources:
           limits:
@@ -117,7 +117,7 @@ postsubmits:
         - --modifier=commonfiles
         - --token-path=/etc/github-token/oauth
         - --cmd=make update-common gen
-        image: gcr.io/istio-testing/build-tools:master-2021-01-27T16-26-22
+        image: gcr.io/istio-testing/build-tools:master-2021-01-29T01-18-46
         name: ""
         resources:
           limits:
@@ -171,7 +171,7 @@ postsubmits:
         - --modifier=commonfiles
         - --token-path=/etc/github-token/oauth
         - --cmd=make update-common gen
-        image: gcr.io/istio-testing/build-tools:master-2021-01-27T16-26-22
+        image: gcr.io/istio-testing/build-tools:master-2021-01-29T01-18-46
         name: ""
         resources:
           limits:
@@ -229,7 +229,7 @@ postsubmits:
         - --
         - --post=make gen
         - --source=$AUTOMATOR_ROOT_DIR/files/common/scripts/setup_env.sh
-        image: gcr.io/istio-testing/build-tools:master-2021-01-27T16-26-22
+        image: gcr.io/istio-testing/build-tools:master-2021-01-29T01-18-46
         name: ""
         resources:
           limits:
@@ -272,7 +272,7 @@ presubmits:
       - command:
         - make
         - lint
-        image: gcr.io/istio-testing/build-tools:master-2021-01-27T16-26-22
+        image: gcr.io/istio-testing/build-tools:master-2021-01-29T01-18-46
         name: ""
         resources:
           limits:
