@@ -9,16 +9,19 @@ jobs:
 - name: test
   types: [presubmit]
   command: [./prow/proxy-presubmit.sh]
+  requirements: [gcp]
   timeout: 4h
 
 - name: test-asan
   types: [presubmit]
   command: [./prow/proxy-presubmit-asan.sh]
+  requirements: [gcp]
   timeout: 4h
 
 - name: test-tsan
   types: [presubmit]
   command: [./prow/proxy-presubmit-tsan.sh]
+  requirements: [gcp]
   timeout: 4h
 
 - name: release-test
@@ -39,7 +42,7 @@ jobs:
 - name: check-wasm
   types: [presubmit]
   command: [entrypoint, ./prow/proxy-presubmit-wasm.sh]
-  requirements: [docker]
+  requirements: [gcp, docker]
   timeout: 4h
 
 - name: release
