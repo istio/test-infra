@@ -21,6 +21,7 @@ postsubmits:
         - entrypoint
         - ./prow/proxy-postsubmit.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: DOCKER_REPOSITORY
           value: istio-prow-build/envoy
         - name: ENVOY_PREFIX
@@ -76,6 +77,7 @@ postsubmits:
       - command:
         - ./prow/proxy-postsubmit-centos.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: DOCKER_REPOSITORY
           value: istio-prow-build/envoy
         - name: ENVOY_PREFIX
@@ -139,6 +141,7 @@ postsubmits:
         - --token-path=/etc/github-token/oauth
         - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: DOCKER_REPOSITORY
           value: istio-prow-build/envoy
         - name: ENVOY_PREFIX
@@ -149,132 +152,6 @@ postsubmits:
           value: istio-private-artifacts
         - name: GCS_BUILD_BUCKET
           value: istio-private-build
-        image: gcr.io/istio-testing/build-tools:release-1.8-2020-11-12T22-53-11
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /etc/github-token
-          name: github
-          readOnly: true
-      nodeSelector:
-        testing: build-pool
-      volumes:
-      - hostPath:
-          path: /tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - name: github
-        secret:
-          secretName: oauth-token
-  - branches:
-    - ^release-1.8$
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    labels:
-      preset-service-account: "true"
-    name: release_proxy_release-1.8_postsubmit_private
-    path_alias: istio.io/proxy
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - ./prow/proxy-postsubmit.sh
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.8-2020-11-12T22-53-11
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: build-pool
-      volumes:
-      - hostPath:
-          path: /tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - emptyDir: {}
-        name: docker-root
-  - branches:
-    - ^release-1.8$
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    labels:
-      preset-service-account: "true"
-    name: release-centos_proxy_release-1.8_postsubmit_private
-    path_alias: istio.io/proxy
-    spec:
-      containers:
-      - command:
-        - ./prow/proxy-postsubmit-centos.sh
-        image: gcr.io/istio-testing/build-tools-centos:release-1.8-2020-11-12T22-53-11
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        testing: build-pool
-      volumes:
-      - hostPath:
-          path: /tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-  - branches:
-    - ^release-1.8$
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    extra_refs:
-    - base_ref: master
-      org: istio-private
-      path_alias: istio.io/test-infra
-      repo: test-infra
-    name: update-istio_proxy_release-1.8_postsubmit_private
-    path_alias: istio.io/proxy
-    spec:
-      containers:
-      - command:
-        - ../test-infra/tools/automator/automator.sh
-        - --org=istio
-        - --repo=istio
-        - '--title=Automator: update proxy@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
-        - --labels=auto-merge,release-notes-none
-        - --modifier=update_proxy_dep
-        - --token-path=/etc/github-token/oauth
-        - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
         image: gcr.io/istio-testing/build-tools:release-1.8-2020-11-12T22-53-11
         name: ""
         resources:
@@ -325,6 +202,7 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
@@ -371,6 +249,7 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-asan.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
@@ -417,6 +296,7 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-tsan.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
@@ -463,6 +343,7 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-release.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
@@ -510,6 +391,7 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-centos-release.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
@@ -557,232 +439,11 @@ presubmits:
         - entrypoint
         - ./prow/proxy-presubmit-wasm.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
           value: https://github.com/istio-private/envoy
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.8-2020-11-12T22-53-11
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: build-pool
-      volumes:
-      - hostPath:
-          path: /tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - emptyDir: {}
-        name: docker-root
-  - always_run: true
-    branches:
-    - ^release-1.8$
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    labels:
-      preset-service-account: "true"
-    name: test_proxy_release-1.8_private
-    path_alias: istio.io/proxy
-    spec:
-      containers:
-      - command:
-        - ./prow/proxy-presubmit.sh
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.8-2020-11-12T22-53-11
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        testing: build-pool
-      volumes:
-      - hostPath:
-          path: /tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-  - always_run: true
-    branches:
-    - ^release-1.8$
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    labels:
-      preset-service-account: "true"
-    name: test-asan_proxy_release-1.8_private
-    path_alias: istio.io/proxy
-    spec:
-      containers:
-      - command:
-        - ./prow/proxy-presubmit-asan.sh
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.8-2020-11-12T22-53-11
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        testing: build-pool
-      volumes:
-      - hostPath:
-          path: /tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-  - always_run: true
-    branches:
-    - ^release-1.8$
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    labels:
-      preset-service-account: "true"
-    name: test-tsan_proxy_release-1.8_private
-    path_alias: istio.io/proxy
-    spec:
-      containers:
-      - command:
-        - ./prow/proxy-presubmit-tsan.sh
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.8-2020-11-12T22-53-11
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        testing: build-pool
-      volumes:
-      - hostPath:
-          path: /tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-  - always_run: true
-    branches:
-    - ^release-1.8$
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    labels:
-      preset-service-account: "true"
-    name: release-test_proxy_release-1.8_private
-    path_alias: istio.io/proxy
-    spec:
-      containers:
-      - command:
-        - ./prow/proxy-presubmit-release.sh
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.8-2020-11-12T22-53-11
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        testing: build-pool
-      volumes:
-      - hostPath:
-          path: /tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-  - always_run: true
-    branches:
-    - ^release-1.8$
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    labels:
-      preset-service-account: "true"
-    name: release-centos-test_proxy_release-1.8_private
-    optional: true
-    path_alias: istio.io/proxy
-    spec:
-      containers:
-      - command:
-        - ./prow/proxy-presubmit-centos-release.sh
-        image: gcr.io/istio-testing/build-tools-centos:release-1.8-2020-11-12T22-53-11
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        testing: build-pool
-      volumes:
-      - hostPath:
-          path: /tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-  - always_run: true
-    branches:
-    - ^release-1.8$
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    labels:
-      preset-service-account: "true"
-    name: check-wasm_proxy_release-1.8_private
-    path_alias: istio.io/proxy
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - ./prow/proxy-presubmit-wasm.sh
         image: gcr.io/istio-testing/build-tools-proxy:release-1.8-2020-11-12T22-53-11
         name: ""
         resources:
