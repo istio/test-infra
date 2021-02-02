@@ -8,6 +8,7 @@ transforms:
 
 # istio/proxy release-1.8 test jobs(s) - presubmit(s)
 - env:
+    BAZEL_BUILD_RBE_INSTANCE: null
     ENVOY_REPOSITORY: https://github.com/istio-private/envoy
     ENVOY_PREFIX: envoy
   labels:
@@ -17,6 +18,7 @@ transforms:
 
 # istio/proxy release-1.8 build jobs(s) - postsubmit(s)
 - env:
+    BAZEL_BUILD_RBE_INSTANCE: null
     GCS_BUILD_BUCKET: istio-private-build
     GCS_ARTIFACTS_BUCKET: istio-private-artifacts
     DOCKER_REPOSITORY: istio-prow-build/envoy

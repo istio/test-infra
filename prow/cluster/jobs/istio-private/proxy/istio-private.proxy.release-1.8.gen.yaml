@@ -21,6 +21,7 @@ postsubmits:
         - entrypoint
         - ./prow/proxy-postsubmit.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: DOCKER_REPOSITORY
           value: istio-prow-build/envoy
         - name: ENVOY_PREFIX
@@ -76,6 +77,7 @@ postsubmits:
       - command:
         - ./prow/proxy-postsubmit-centos.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: DOCKER_REPOSITORY
           value: istio-prow-build/envoy
         - name: ENVOY_PREFIX
@@ -139,6 +141,7 @@ postsubmits:
         - --token-path=/etc/github-token/oauth
         - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: DOCKER_REPOSITORY
           value: istio-prow-build/envoy
         - name: ENVOY_PREFIX
@@ -199,6 +202,7 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
@@ -245,6 +249,7 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-asan.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
@@ -291,6 +296,7 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-tsan.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
@@ -337,6 +343,7 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-release.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
@@ -384,6 +391,7 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-centos-release.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
@@ -431,6 +439,7 @@ presubmits:
         - entrypoint
         - ./prow/proxy-presubmit-wasm.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
