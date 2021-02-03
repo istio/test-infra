@@ -25,6 +25,7 @@
               comps.ghproxy,
               comps.hook,
               comps.horologium,
+              comps.prowControllerManager,
               comps.sinker,
               comps.tide,
           ]
