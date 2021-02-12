@@ -51,6 +51,56 @@ periodics:
     - name: github
       secret:
         secretName: oauth-token
+- annotations:
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-dashboards: istio_istio.io_periodic
+    testgrid-num-failures-to-alert: "1"
+  cron: 0 2 * * 0
+  decorate: true
+  extra_refs:
+  - base_ref: master
+    org: istio
+    path_alias: istio.io/test-infra
+    repo: test-infra
+  name: update-istio-ref_istio.io_periodic
+  spec:
+    containers:
+    - command:
+      - ./tools/automator/automator.sh
+      - --org=istio
+      - --repo=istio.io
+      - '--title=Automator: update istio@$AUTOMATOR_SRC_BRANCH test reference'
+      - --labels=release-notes-none
+      - --token-path=/etc/github-token/oauth
+      - --cmd=go get istio.io/istio && go mod tidy
+      image: gcr.io/istio-testing/build-tools:master-2021-01-29T01-18-46
+      name: ""
+      resources:
+        limits:
+          cpu: "8"
+          memory: 24Gi
+        requests:
+          cpu: "5"
+          memory: 3Gi
+      securityContext:
+        privileged: true
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+    nodeSelector:
+      testing: test-pool
+    volumes:
+    - hostPath:
+        path: /tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+    - name: github
+      secret:
+        secretName: oauth-token
 postsubmits:
   istio/istio.io:
   - annotations:

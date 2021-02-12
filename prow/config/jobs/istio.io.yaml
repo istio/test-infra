@@ -64,6 +64,21 @@ jobs:
     requirements: [github]
     repos: [istio/test-infra@master]
 
+  - name: update-istio-ref
+    disable_release_branching: true
+    types: [periodic]
+    cron: "0 2 * * 0"  # every Sunday at 02:00AM UTC
+    command:
+    - ./tools/automator/automator.sh
+    - --org=istio
+    - --repo=istio.io
+    - "--title=Automator: update istio@$AUTOMATOR_SRC_BRANCH test reference"
+    - --labels=release-notes-none
+    - --token-path=/etc/github-token/oauth
+    - --cmd=go get istio.io/istio && go mod tidy
+    requirements: [github]
+    repos: [istio/test-infra@master]
+
 resources:
   default:
     requests:
