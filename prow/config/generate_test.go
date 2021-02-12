@@ -42,7 +42,7 @@ func TestGenerateConfig(t *testing.T) {
 }
 
 func TestFilterReleaseBranchingJobs(t *testing.T) {
-	var testCases = []struct {
+	testCases := []struct {
 		name         string
 		jobs         []Job
 		filteredJobs []Job

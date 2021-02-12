@@ -48,9 +48,7 @@ const (
 	yamlExt           = ".(yml|yaml)$"
 )
 
-var (
-	defaultJobTypes = []string{"presubmit", "postsubmit", "periodic"}
-)
+var defaultJobTypes = []string{"presubmit", "postsubmit", "periodic"}
 
 // sortOrder is the type to define sort order.
 type sortOrder string
@@ -185,7 +183,6 @@ func (o *options) parseConfiguration() []options {
 	}
 
 	for _, c := range o.Configs {
-
 		if err := filepath.Walk(c, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return nil
@@ -527,7 +524,6 @@ volume:
 				job.Spec.Volumes[i] = vol
 				continue volume
 			}
-
 		}
 
 		job.Spec.Volumes = append(job.Spec.Volumes, vol)
@@ -866,7 +862,6 @@ func sortJobs(o options, pre map[string][]config.Presubmit, post map[string][]co
 	sort.Slice(per, func(a, b int) bool {
 		return comparator(per[a].Name, per[b].Name)
 	})
-
 }
 
 // getOutPath derives the output path from the specified input directory and current path.

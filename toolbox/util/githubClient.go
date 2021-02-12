@@ -28,9 +28,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-var (
-	commitType = "commit"
-)
+var commitType = "commit"
 
 const (
 	maxCommitDistance   = 200
@@ -171,7 +169,6 @@ func (g *GithubClient) AddAutoMergeLabelsToPR(repo string, pr *github.PullReques
 // AddlabelsToPR adds labels to the pull request
 func (g *GithubClient) AddlabelsToPR(
 	repo string, pr *github.PullRequest, labels ...string) error {
-
 	// skip existing labels
 	existingLabels, _, err := g.client.Issues.ListLabelsByIssue(context.Background(), g.owner, repo, *pr.Number, &github.ListOptions{})
 	if err != nil {

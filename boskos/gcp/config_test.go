@@ -23,7 +23,6 @@ import (
 	"time"
 
 	container "google.golang.org/api/container/v1beta1"
-
 	"sigs.k8s.io/boskos/common"
 	"sigs.k8s.io/boskos/mason"
 )
@@ -178,9 +177,7 @@ func TestParseConfig(t *testing.T) {
 						t.Errorf("Needs do not match for config %s. Expected %v found %v", config.Type, config.Needs, needs)
 					}
 				}
-
 			}
-
 		}
 	}
 
@@ -255,7 +252,7 @@ func TestResourcesConfig_Construct(t *testing.T) {
 		info *ResourceInfo
 	}
 
-	var testCases = []struct {
+	testCases := []struct {
 		name      string
 		rc        resourceConfigs
 		res       common.Resource
@@ -336,13 +333,15 @@ func TestResourcesConfig_Construct(t *testing.T) {
 			name:      "timeout vm creation",
 			setClient: true,
 			rc: resourceConfigs{
-				"test": {{
-					Clusters: []clusterConfig{
-						{},
+				"test": {
+					{
+						Clusters: []clusterConfig{
+							{},
+						},
+						Vms: []virtualMachineConfig{
+							{},
+						},
 					},
-					Vms: []virtualMachineConfig{
-						{},
-					}},
 				},
 			},
 			res: common.Resource{
@@ -364,13 +363,15 @@ func TestResourcesConfig_Construct(t *testing.T) {
 			name:      "timeout cluster creation",
 			setClient: true,
 			rc: resourceConfigs{
-				"test": {{
-					Clusters: []clusterConfig{
-						{},
+				"test": {
+					{
+						Clusters: []clusterConfig{
+							{},
+						},
+						Vms: []virtualMachineConfig{
+							{},
+						},
 					},
-					Vms: []virtualMachineConfig{
-						{},
-					}},
 				},
 			},
 			res: common.Resource{
@@ -420,13 +421,15 @@ func TestResourcesConfig_Construct(t *testing.T) {
 			name:      "failed cluster creation",
 			setClient: true,
 			rc: resourceConfigs{
-				"test": {{
-					Clusters: []clusterConfig{
-						{},
+				"test": {
+					{
+						Clusters: []clusterConfig{
+							{},
+						},
+						Vms: []virtualMachineConfig{
+							{},
+						},
 					},
-					Vms: []virtualMachineConfig{
-						{},
-					}},
 				},
 			},
 			res: common.Resource{
@@ -448,13 +451,15 @@ func TestResourcesConfig_Construct(t *testing.T) {
 			name:      "running out project",
 			setClient: true,
 			rc: resourceConfigs{
-				"test": {{
-					Clusters: []clusterConfig{
-						{},
+				"test": {
+					{
+						Clusters: []clusterConfig{
+							{},
+						},
+						Vms: []virtualMachineConfig{
+							{},
+						},
 					},
-					Vms: []virtualMachineConfig{
-						{},
-					}},
 				},
 			},
 			res: common.Resource{
@@ -472,13 +477,15 @@ func TestResourcesConfig_Construct(t *testing.T) {
 		{
 			name: "client not set",
 			rc: resourceConfigs{
-				"test": {{
-					Clusters: []clusterConfig{
-						{},
+				"test": {
+					{
+						Clusters: []clusterConfig{
+							{},
+						},
+						Vms: []virtualMachineConfig{
+							{},
+						},
 					},
-					Vms: []virtualMachineConfig{
-						{},
-					}},
 				},
 			},
 			res: common.Resource{

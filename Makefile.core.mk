@@ -22,7 +22,7 @@ fmt: format-go tidy-go
 test:
 	@go test -race ./...
 
-gen: generate-config tidy-go mirror-licenses
+gen: generate-config fmt mirror-licenses
 
 gen-check: gen check-clean-repo
 

@@ -287,7 +287,7 @@ func (h helper) updatePullRequest(pr *github.PullRequest, s *github.CombinedStat
 		for _, check := range h.CheckToSkip {
 			pattern := fmt.Sprintf("(^|/)%s(/|$)", check)
 			if match, _ := regexp.MatchString(pattern, context); match {
-				//Find a match so that this failure can be skipped
+				// Find a match so that this failure can be skipped
 				return true
 			}
 		}
