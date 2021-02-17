@@ -110,3 +110,51 @@ func TestFilterReleaseBranchingJobs(t *testing.T) {
 		}
 	}
 }
+
+func TestMergeMaps(t *testing.T) {
+	var testCases = []struct {
+		name     string
+		mp1      map[string]string
+		mp2      map[string]string
+		expected map[string]string
+	}{
+		{
+			name:     "combine two empty maps",
+			mp1:      nil,
+			mp2:      nil,
+			expected: map[string]string{},
+		},
+		{
+			name:     "the first map is empty",
+			mp1:      map[string]string{},
+			mp2:      map[string]string{"a": "aa", "b": "bb"},
+			expected: map[string]string{"a": "aa", "b": "bb"},
+		},
+		{
+			name:     "the second map is empty",
+			mp1:      map[string]string{"a": "aa", "b": "bb"},
+			mp2:      map[string]string{},
+			expected: map[string]string{"a": "aa", "b": "bb"},
+		},
+		{
+			name:     "two maps without duplicated keys",
+			mp1:      map[string]string{"a": "aa"},
+			mp2:      map[string]string{"b": "bb"},
+			expected: map[string]string{"a": "aa", "b": "bb"},
+		},
+		{
+			name:     "two maps with duplicated keys",
+			mp1:      map[string]string{"a": "aa", "b": "b"},
+			mp2:      map[string]string{"b": "bb"},
+			expected: map[string]string{"a": "aa", "b": "bb"},
+		},
+	}
+
+	for _, tc := range testCases {
+		actual := mergeMaps(tc.mp1, tc.mp2)
+
+		if !reflect.DeepEqual(tc.expected, actual) {
+			t.Errorf("mergeMaps does not work as intended; actual: %v\n expected %v\n", actual, tc.expected)
+		}
+	}
+}

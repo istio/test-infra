@@ -46,6 +46,7 @@ const (
 	defaultCluster    = "default"
 	defaultsFilename  = ".defaults.yaml"
 	yamlExt           = ".(yml|yaml)$"
+	gerritReportLabel = "prow.k8s.io/gerrit-report-label"
 )
 
 var (
@@ -687,9 +688,13 @@ func updateSSHKeySecrets(o options, job *prowjob.DecorationConfig) {
 func updateGerritReportingLabels(o options, skipReport, optional bool, labels map[string]string) {
 	if o.SupportGerritReporting && !skipReport {
 		if !optional {
-			labels["prow.k8s.io/gerrit-report-label"] = "Verified"
+			// For non-optional jobs, only add the label if it's not configured,
+			// this allows us defining internal jobs that report to a different label.
+			if _, ok := labels[gerritReportLabel]; !ok {
+				labels[gerritReportLabel] = "Verified"
+			}
 		} else {
-			labels["prow.k8s.io/gerrit-report-label"] = "Advisory"
+			labels[gerritReportLabel] = "Advisory"
 		}
 	}
 }
