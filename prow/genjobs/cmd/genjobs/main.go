@@ -696,6 +696,8 @@ func updateGerritReportingLabels(o options, skipReport, optional bool, labels ma
 		} else {
 			labels[gerritReportLabel] = "Advisory"
 		}
+	} else {
+		delete(labels, gerritReportLabel)
 	}
 }
 
