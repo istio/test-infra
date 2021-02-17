@@ -78,6 +78,9 @@ type GlobalConfig struct {
 
 	TestgridConfig TestgridConfig `json:"testgrid_config,omitempty"`
 
+	Annotations map[string]string `json:"annotations,omitempty"`
+	Labels      map[string]string `json:"labels,omitempty"`
+
 	Resources          map[string]v1.ResourceRequirements `json:"resources,omitempty"`
 	BaseRequirements   []string                           `json:"base_requirements,omitempty"`
 	RequirementPresets map[string]RequirementPreset       `json:"requirement_presets,omitempty"`
@@ -106,6 +109,9 @@ type JobsConfig struct {
 	Cluster      string            `json:"cluster,omitempty"`
 	NodeSelector map[string]string `json:"node_selector,omitempty"`
 
+	Annotations map[string]string `json:"annotations,omitempty"`
+	Labels      map[string]string `json:"labels,omitempty"`
+
 	Resources          map[string]v1.ResourceRequirements `json:"resources,omitempty"`
 	Requirements       []string                           `json:"requirements,omitempty"`
 	RequirementPresets map[string]RequirementPreset       `json:"requirement_presets,omitempty"`
@@ -130,6 +136,9 @@ type Job struct {
 
 	Cluster      string            `json:"cluster,omitempty"`
 	NodeSelector map[string]string `json:"node_selector,omitempty"`
+
+	Annotations map[string]string `json:"annotations,omitempty"`
+	Labels      map[string]string `json:"labels,omitempty"`
 
 	Resources    string   `json:"resources,omitempty"`
 	Modifiers    []string `json:"modifiers,omitempty"`
@@ -615,6 +624,26 @@ func createJobBase(globalConfig GlobalConfig, jobConfig JobsConfig, job Job,
 		jb.Spec.NodeSelector = job.NodeSelector
 	}
 
+	if globalConfig.Annotations != nil {
+		jb.Annotations = globalConfig.Annotations
+	}
+	if jobConfig.Annotations != nil {
+		jb.Annotations = mergeMaps(jb.Annotations, jobConfig.Annotations)
+	}
+	if job.Annotations != nil {
+		jb.Annotations = mergeMaps(jb.Annotations, job.Annotations)
+	}
+
+	if globalConfig.Labels != nil {
+		jb.Labels = globalConfig.Labels
+	}
+	if jobConfig.Labels != nil {
+		jb.Labels = mergeMaps(jb.Labels, jobConfig.Labels)
+	}
+	if job.Labels != nil {
+		jb.Labels = mergeMaps(jb.Labels, job.Labels)
+	}
+
 	if job.Timeout != nil {
 		jb.DecorationConfig = &prowjob.DecorationConfig{
 			Timeout: job.Timeout,
@@ -794,4 +823,17 @@ func contains(slice []string, item string) bool {
 
 	_, ok := set[item]
 	return ok
+}
+
+// mergeMaps will merge the two maps into one.
+// If there are duplicated keys in the two maps, the value in mp2 will overwrite that of mp1.
+func mergeMaps(mp1, mp2 map[string]string) map[string]string {
+	newMap := make(map[string]string, len(mp1))
+	for k, v := range mp1 {
+		newMap[k] = v
+	}
+	for k, v := range mp2 {
+		newMap[k] = v
+	}
+	return newMap
 }
