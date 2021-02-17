@@ -160,20 +160,6 @@ jobs:
     # The node image must be kept in sync with the kind version we use.
     # See istio.io/tools/docker/build-tools for the kind image
     # https://github.com/kubernetes-sigs/kind/releases for node corresponding node image
-  - name: integ-k8s-115
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - kindest/node:v1.15.12
-      - test.integration.kube.presubmit
-    requirements: [kind]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
   - name: integ-k8s-116
     types: [postsubmit]
     command:
