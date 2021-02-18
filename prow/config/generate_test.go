@@ -112,7 +112,7 @@ func TestFilterReleaseBranchingJobs(t *testing.T) {
 }
 
 func TestMergeMaps(t *testing.T) {
-	var testCases = []struct {
+	testCases := []struct {
 		name     string
 		mp1      map[string]string
 		mp2      map[string]string
