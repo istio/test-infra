@@ -787,7 +787,9 @@ func updateEnvs(o options, job *config.JobBase) {
 
 // updateJobBase updates the jobs JobBase fields based on provided inputs to work with private repositories.
 func updateJobBase(o options, job *config.JobBase, orgrepo string) {
-	job.Annotations = o.Annotations
+	if len(o.Annotations) != 0 {
+		job.Annotations = o.Annotations
+	}
 
 	if o.SSHClone && orgrepo != "" {
 		job.CloneURI = fmt.Sprintf("git@%s:%s.git", gitHost, orgrepo)
