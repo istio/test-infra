@@ -91,7 +91,6 @@ repos:
 	if strings.Compare(output, string(correctOutput)) != 0 {
 		t.Fail()
 	}
-
 }
 
 func TestMasterForMasterWithConentsNoNeedsAdmin(t *testing.T) {

@@ -83,7 +83,7 @@ func getCoverage(r io.ReadCloser) (Coverage, error) {
 		}
 	}()
 
-	//Line example: "istio.io/mixer/adapter/denyChecker	99"
+	// Line example: "istio.io/mixer/adapter/denyChecker	99"
 	scanner := bufio.NewScanner(r)
 	reg := regexp.MustCompile(`(.*)\t(.*)`)
 	for scanner.Scan() {

@@ -22,7 +22,6 @@ import (
 
 	"github.com/ghodss/yaml"
 	container "google.golang.org/api/container/v1beta1"
-
 	clientapi "k8s.io/client-go/tools/clientcmd/api/v1"
 
 	"istio.io/test-infra/toolbox/util"

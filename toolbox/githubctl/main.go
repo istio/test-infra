@@ -64,7 +64,7 @@ func getBaseSha(repo string, prNumber int) (string, error) {
 		return "", err
 	}
 
-	var allCommitShas = make(map[string]bool)
+	allCommitShas := make(map[string]bool)
 	for _, commit := range commits {
 		allCommitShas[*commit.SHA] = true
 	}
@@ -78,7 +78,6 @@ func getBaseSha(repo string, prNumber int) (string, error) {
 		}
 	}
 	return "", errors.New("base cannot be found")
-
 }
 
 // CreateReleaseRequest triggers release pipeline by creating a PR.

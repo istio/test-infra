@@ -90,7 +90,7 @@ func GetAgeMetrics(owner, repo, branch string) ([]DepFreshness, error) {
 		return stats, err
 	}
 	var wg sync.WaitGroup
-	var mutex = &sync.Mutex{} // used to synchronize access to stats and multiErr
+	mutex := &sync.Mutex{} // used to synchronize access to stats and multiErr
 	var multiErr error
 	for _, dep := range deps {
 		wg.Add(1)

@@ -254,7 +254,6 @@ func (rc resourceConfigs) construct(ctx context.Context, res common.Resource, ty
 				})
 			}
 		}
-
 	}
 	if err := errGroup.Wait(); err != nil {
 		logrus.WithError(err).Errorf("failed to construct resources for %s", res.Name)

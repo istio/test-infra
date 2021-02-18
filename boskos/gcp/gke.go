@@ -77,7 +77,6 @@ func (cc *containerEngine) waitForReady(ctx context.Context, cluster, project, z
 		if err := os.Remove(kubeconfigFile.Name()); err != nil {
 			logrus.WithError(err).Errorf("failed to delete file %s", kubeconfigFile.Name())
 		}
-
 	}()
 
 	if err := SetKubeConfig(project, zone, cluster, kubeconfigFile.Name()); err != nil {
@@ -92,7 +91,6 @@ func (cc *containerEngine) waitForReady(ctx context.Context, cluster, project, z
 			err := checkCluster(kubeconfigFile.Name())
 			if err != nil {
 				logrus.WithError(err).Errorf("cluster %s in zone %s for project %s is not ready", cluster, zone, project)
-
 			} else {
 				logrus.Infof("cluster %s in zone %s for project %s is ready", cluster, zone, project)
 				return nil

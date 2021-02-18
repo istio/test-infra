@@ -33,13 +33,11 @@ const (
 	ReleaseNoteNone = "none"
 )
 
-var (
-	kvSplitters = []string{
-		" = ",
-		"=",
-		":",
-	}
-)
+var kvSplitters = []string{
+	" = ",
+	"=",
+	":",
+}
 
 // Retry executes do() until no error was returned or numTrials has reached
 func Retry(interval time.Duration, numTrials int, do func() error) error {

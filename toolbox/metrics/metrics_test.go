@@ -24,9 +24,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var (
-	m *Publisher
-)
+var m *Publisher
 
 func newGauge(n string) prometheus.Gauge {
 	return prometheus.NewGauge(prometheus.GaugeOpts{

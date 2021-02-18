@@ -19,10 +19,10 @@ import (
 	"encoding/json"
 	"strconv"
 
-	u "istio.io/test-infra/toolbox/util"
-
 	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
+
+	u "istio.io/test-infra/toolbox/util"
 )
 
 const (
@@ -30,9 +30,7 @@ const (
 	latestFlakesMetric = "istio-job-flakes-latest.json"
 )
 
-var (
-	gcsClient = u.NewGCSClient(bucket)
-)
+var gcsClient = u.NewGCSClient(bucket)
 
 // FlakeGauge implement the metrics.Metric interface
 type FlakeGauge struct {

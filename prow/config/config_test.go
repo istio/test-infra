@@ -28,8 +28,10 @@ import (
 	"k8s.io/test-infra/prow/plugins"
 )
 
-var configPath = flag.String("config", "../config.yaml", "Path to prow config")
-var jobConfigPath = flag.String("job-config", "../cluster/jobs/", "Path to prow job config")
+var (
+	configPath    = flag.String("config", "../config.yaml", "Path to prow config")
+	jobConfigPath = flag.String("job-config", "../cluster/jobs/", "Path to prow job config")
+)
 
 // Loaded at TestMain.
 var c *config.Config

@@ -17,14 +17,12 @@ package main
 import (
 	"context"
 	"flag"
-
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/sirupsen/logrus"
-
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/boskos/client"
 	"sigs.k8s.io/boskos/crds"

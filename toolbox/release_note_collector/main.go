@@ -29,8 +29,10 @@ import (
 	u "istio.io/test-infra/toolbox/util"
 )
 
-type orderV string
-type sortV string
+type (
+	orderV string
+	sortV  string
+)
 
 const (
 	// Allowed field values can be found at https://developer.github.com/v3/search/#search-repositories
@@ -66,7 +68,6 @@ func init() {
 	} else {
 		gh = u.NewGithubClientNoAuth(*org)
 	}
-
 }
 
 func main() {
