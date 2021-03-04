@@ -16,6 +16,7 @@ package config
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -98,6 +99,7 @@ type JobsConfig struct {
 	Repo     string   `json:"repo,omitempty"`
 	Org      string   `json:"org,omitempty"`
 	Branches []string `json:"branches,omitempty"`
+	CloneURI string   `json:"clone_uri,omitempty"`
 
 	Matrix map[string][]string `json:"matrix,omitempty"`
 
@@ -372,10 +374,9 @@ func (cli *Client) ConvertJobConfig(jobsConfig JobsConfig, branch string) config
 				}
 				name += "_periodic"
 
-				// If no repos are provided, add itself to the repo list.
-				if len(job.Repos) == 0 {
-					job.Repos = []string{jobsConfig.Org + "/" + jobsConfig.Repo}
-				}
+				// For periodic jobs, the repo needs to be added to the clonerefs and its root directory
+				// should be set as the working directory, so add itself to the repo list here.
+				job.Repos = append([]string{jobsConfig.Org + "/" + jobsConfig.Repo}, job.Repos...)
 				periodic := config.Periodic{
 					JobBase:  createJobBase(settings, jobsConfig, job, name, branch, jobsConfig.Resources),
 					Interval: job.Interval,
@@ -470,7 +471,7 @@ func (cli *Client) DiffConfig(result config.JobConfig, existing config.JobConfig
 
 // FilterReleaseBranchingJobs filters then returns jobs with release branching enabled.
 func FilterReleaseBranchingJobs(jobs []Job) []Job {
-	jobsF := []Job{}
+	jobsF := make([]Job, 0)
 	for _, j := range jobs {
 		if j.DisableReleaseBranching {
 			continue
@@ -663,15 +664,16 @@ func createJobBase(globalConfig GlobalConfig, jobConfig JobsConfig, job Job,
 }
 
 func createExtraRefs(extraRepos []string, defaultBranch string, pathAliases map[string]string) []prowjob.Refs {
-	refs := []prowjob.Refs{}
+	refs := make([]prowjob.Refs, 0)
 	for _, extraRepo := range extraRepos {
 		branch := defaultBranch
 		repobranch := strings.Split(extraRepo, "@")
 		if len(repobranch) > 1 {
 			branch = repobranch[1]
 		}
-		orgrepo := strings.Split(repobranch[0], "/")
-		org, repo := orgrepo[0], orgrepo[1]
+		orgrepo := repobranch[0]
+		repo := orgrepo[strings.LastIndex(orgrepo, "/")+1:]
+		org := strings.TrimSuffix(orgrepo, "/"+repo)
 		ref := prowjob.Refs{
 			Org:     org,
 			Repo:    repo,
@@ -679,6 +681,10 @@ func createExtraRefs(extraRepos []string, defaultBranch string, pathAliases map[
 		}
 		if pa, ok := pathAliases[org]; ok {
 			ref.PathAlias = fmt.Sprintf("%s/%s", pa, repo)
+		}
+		// If the org name contains '/', it's not a GitHub org, so CloneURI needs to be explicitly set.
+		if strings.Contains(org, "/") {
+			ref.CloneURI = "https://" + orgrepo
 		}
 		refs = append(refs, ref)
 	}
@@ -741,9 +747,13 @@ func applyMatrix(yamlStr string, matrix map[string][]string) []string {
 
 	combs := make([]string, 0)
 	for _, exp := range subsExps {
-		exp = strings.TrimPrefix(exp, "matrix.")
-		if _, ok := matrix[exp]; ok {
-			combs = append(combs, exp)
+		if strings.HasPrefix(exp, "matrix.") {
+			exp = strings.TrimPrefix(exp, "matrix.")
+			if _, ok := matrix[exp]; ok {
+				combs = append(combs, exp)
+			} else {
+				exit(errors.New("dimension is not configured in the matrix"), exp)
+			}
 		}
 	}
 

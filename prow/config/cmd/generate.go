@@ -62,7 +62,10 @@ func main() {
 		panic("too many arguments")
 	}
 
-	settings := config.ReadGlobalSettings(filepath.Join(*inputDir, ".global.yaml"))
+	var settings config.GlobalConfig
+	if _, err := os.Stat(filepath.Join(*inputDir, ".global.yaml")); !os.IsNotExist(err) {
+		settings = config.ReadGlobalSettings(filepath.Join(*inputDir, ".global.yaml"))
+	}
 	cli := &config.Client{GlobalConfig: settings}
 
 	if os.Args[1] == "branch" {
