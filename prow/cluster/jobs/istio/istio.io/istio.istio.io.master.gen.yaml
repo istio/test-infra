@@ -9,13 +9,17 @@ periodics:
   extra_refs:
   - base_ref: master
     org: istio
+    path_alias: istio.io/istio.io
+    repo: istio.io
+  - base_ref: master
+    org: istio
     path_alias: istio.io/test-infra
     repo: test-infra
   name: update-ref-docs_istio.io_periodic
   spec:
     containers:
     - command:
-      - ./tools/automator/automator.sh
+      - ../test-infra/tools/automator/automator.sh
       - --org=istio
       - --repo=istio.io
       - '--title=Automator: update istio.io@$AUTOMATOR_SRC_BRANCH reference docs'
@@ -60,13 +64,17 @@ periodics:
   extra_refs:
   - base_ref: master
     org: istio
+    path_alias: istio.io/istio.io
+    repo: istio.io
+  - base_ref: master
+    org: istio
     path_alias: istio.io/test-infra
     repo: test-infra
   name: update-istio-ref_istio.io_periodic
   spec:
     containers:
     - command:
-      - ./tools/automator/automator.sh
+      - ../test-infra/tools/automator/automator.sh
       - --org=istio
       - --repo=istio.io
       - '--title=Automator: update istio@$AUTOMATOR_SRC_BRANCH test reference'

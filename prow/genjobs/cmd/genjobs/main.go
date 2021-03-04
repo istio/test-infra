@@ -827,7 +827,7 @@ func updateExtraRefs(o options, job *config.UtilityConfig) {
 		}
 	}
 	if len(o.ExtraRefs) > 0 {
-		job.ExtraRefs = o.ExtraRefs
+		job.ExtraRefs = append(job.ExtraRefs, o.ExtraRefs...)
 	}
 }
 
