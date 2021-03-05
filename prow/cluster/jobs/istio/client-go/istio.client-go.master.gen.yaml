@@ -109,6 +109,61 @@ postsubmits:
           path: /tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_client-go_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    extra_refs:
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/test-infra
+      repo: test-infra
+    name: update_client-go_dep_client-go_postsubmit
+    path_alias: istio.io/client-go
+    spec:
+      containers:
+      - command:
+        - ../test-infra/tools/automator/automator.sh
+        - --org=istio
+        - --repo=istio
+        - '--title=Automator: update istio/client-go@$AUTOMATOR_SRC_BRANCH dependency
+          in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+        - --labels=auto-merge,release-notes-none
+        - --modifier=update_client-go_dep
+        - --token-path=/etc/github-token/oauth
+        - --cmd=go get istio.io/client-go@$AUTOMATOR_SHA && go mod tidy && make clean
+          gen
+        image: gcr.io/istio-testing/build-tools:master-2021-03-01T22-30-49
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /etc/github-token
+          name: github
+          readOnly: true
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - name: github
+        secret:
+          secretName: oauth-token
 presubmits:
   istio/client-go:
   - always_run: true
