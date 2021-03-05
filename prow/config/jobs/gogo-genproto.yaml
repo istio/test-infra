@@ -12,3 +12,17 @@ jobs:
 
   - name: gencheck
     command: [make, gen-check]
+
+  - name: update_gogo-genproto_dep
+    types: [postsubmit]
+    command:
+    - ../test-infra/tools/automator/automator.sh
+    - --org=istio
+    - --repo=istio
+    - "--title=Automator: update istio/gogo-genproto@$AUTOMATOR_SRC_BRANCH dependency in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+    - --labels=auto-merge,release-notes-none
+    - --modifier=update_gogo-genproto_dep
+    - --token-path=/etc/github-token/oauth
+    - --cmd=go get istio.io/gogo_genproto@$AUTOMATOR_SHA && go mod tidy && make clean gen
+    requirements: [github]
+    repos: [istio/test-infra@master]
