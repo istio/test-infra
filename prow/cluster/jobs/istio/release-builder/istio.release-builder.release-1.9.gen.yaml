@@ -186,6 +186,9 @@ postsubmits:
           subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /etc/github-token
+          name: github
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -195,6 +198,9 @@ postsubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+      - name: github
+        secret:
+          secretName: oauth-token
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_release-1.9_release-builder_postsubmit
