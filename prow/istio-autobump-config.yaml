@@ -1,0 +1,23 @@
+---
+gitHubLogin: "istio-testing"
+gitHubToken: "/etc/github-token/oauth"
+onCallAddress: "https://storage.googleapis.com/kubernetes-jenkins/oncall.json"
+skipPullRequest: false
+gitHubOrg: "istio"
+gitHubRepo: "test-infra"
+remoteName: "test-infra"
+headBranchName: "autobump-prow"
+upstreamURLBase: "https://raw.githubusercontent.com/kubernetes/test-infra/master"
+includedConfigPaths:
+  - prow/cluster
+targetVersion: "upstream"
+extraFiles:
+  - ".prow.yaml"
+  - "prow/config.yaml"
+prefixes: 
+  - name: "Prow"
+    prefix: "gcr.io/k8s-prow/"
+    repo: "https://github.com/kubernetes/test-infra"
+    refConfigFile: "config/prow/cluster/deck_deployment.yaml"
+    summarise: false
+    consistentImages: true
