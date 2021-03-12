@@ -76,31 +76,22 @@ periodics:
     testgrid-create-test-group: "false"
   spec:
     containers:
-    - image: gcr.io/k8s-prow/autobump:v20210305-64a6d4d83a
+    - image: gcr.io/k8s-prow/generic-autobumper:v20210310-a49501d5de
       command:
-      - /autobump.sh
+      - /app/prow/cmd/generic-autobumper/app.binary
       args:
-      - /etc/github-token/oauth
-      - "Istio Automation"
-      - istio.testing@gmail.com
+      - --config=prow/istio-autobump-config.yaml
       volumeMounts:
       - name: github
         mountPath: /etc/github-token
         readOnly: true
-      env:
-      - name: GH_ORG
-        value: istio
-      - name: GH_REPO
-        value: test-infra
-      - name: PROW_CONTROLLER_MANAGER_FILE
-        value: prow/cluster/prow-controller-manager.yaml
-      - name: COMPONENT_FILE_DIR
-        value: prow/cluster,prow/cluster/jobs/istio/test-infra,.
-      - name: CONFIG_PATH
-        value: prow/config.yaml
-      - name: JOB_CONFIG_PATH
-        value: prow/config/jobs/test-infra.yaml
+      - name: ssh
+        mountPath: /root/.ssh
     volumes:
     - name: github
       secret:
         secretName: oauth-token
+    - name: ssh
+      secret:
+        secretName: istio-testing-robot-ssh-key
+        defaultMode: 0400
