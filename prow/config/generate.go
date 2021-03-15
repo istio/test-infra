@@ -30,6 +30,7 @@ import (
 	"github.com/kr/pretty"
 	"gopkg.in/robfig/cron.v2"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/util/sets"
 	prowjob "k8s.io/test-infra/prow/apis/prowjobs/v1"
 	"k8s.io/test-infra/prow/config"
 )
@@ -82,7 +83,7 @@ type GlobalConfig struct {
 	Annotations map[string]string `json:"annotations,omitempty"`
 	Labels      map[string]string `json:"labels,omitempty"`
 
-	Resources          map[string]v1.ResourceRequirements `json:"resources,omitempty"`
+	ResourcePresets    map[string]v1.ResourceRequirements `json:"resources,omitempty"`
 	BaseRequirements   []string                           `json:"base_requirements,omitempty"`
 	RequirementPresets map[string]RequirementPreset       `json:"requirement_presets,omitempty"`
 }
@@ -108,33 +109,36 @@ type JobsConfig struct {
 	ImagePullPolicy         string      `json:"image_pull_policy,omitempty"`
 	SupportReleaseBranching bool        `json:"support_release_branching,omitempty"`
 
+	Interval string `json:"interval,omitempty"`
+	Cron     string `json:"cron,omitempty"`
+
 	Cluster      string            `json:"cluster,omitempty"`
 	NodeSelector map[string]string `json:"node_selector,omitempty"`
 
 	Annotations map[string]string `json:"annotations,omitempty"`
 	Labels      map[string]string `json:"labels,omitempty"`
 
-	Resources          map[string]v1.ResourceRequirements `json:"resources,omitempty"`
+	ResourcePresets    map[string]v1.ResourceRequirements `json:"resources,omitempty"`
 	Requirements       []string                           `json:"requirements,omitempty"`
 	RequirementPresets map[string]RequirementPreset       `json:"requirement_presets,omitempty"`
 }
 
 type Job struct {
-	Name    string            `json:"name,omitempty"`
-	Command []string          `json:"command,omitempty"`
-	Env     []v1.EnvVar       `json:"env,omitempty"`
-	Types   []string          `json:"types,omitempty"`
-	Timeout *prowjob.Duration `json:"timeout,omitempty"`
-	Repos   []string          `json:"repos,omitempty"`
+	Name           string            `json:"name,omitempty"`
+	Command        []string          `json:"command,omitempty"`
+	Types          []string          `json:"types,omitempty"`
+	Timeout        *prowjob.Duration `json:"timeout,omitempty"`
+	Repos          []string          `json:"repos,omitempty"`
+	Regex          string            `json:"regex,omitempty"`
+	MaxConcurrency int               `json:"max_concurrency,omitempty"`
 
-	Image                   string `json:"image,omitempty"`
-	ImagePullPolicy         string `json:"image_pull_policy,omitempty"`
-	DisableReleaseBranching bool   `json:"disable_release_branching,omitempty"`
+	Env                     []v1.EnvVar `json:"env,omitempty"`
+	Image                   string      `json:"image,omitempty"`
+	ImagePullPolicy         string      `json:"image_pull_policy,omitempty"`
+	DisableReleaseBranching bool        `json:"disable_release_branching,omitempty"`
 
-	Interval       string `json:"interval,omitempty"`
-	Cron           string `json:"cron,omitempty"`
-	Regex          string `json:"regex,omitempty"`
-	MaxConcurrency int    `json:"max_concurrency,omitempty"`
+	Interval string `json:"interval,omitempty"`
+	Cron     string `json:"cron,omitempty"`
 
 	Cluster      string            `json:"cluster,omitempty"`
 	NodeSelector map[string]string `json:"node_selector,omitempty"`
@@ -142,7 +146,7 @@ type Job struct {
 	Annotations map[string]string `json:"annotations,omitempty"`
 	Labels      map[string]string `json:"labels,omitempty"`
 
-	Resources    string   `json:"resources,omitempty"`
+	Resource     string   `json:"resources,omitempty"`
 	Modifiers    []string `json:"modifiers,omitempty"`
 	Requirements []string `json:"requirements,omitempty"`
 }
@@ -162,40 +166,98 @@ func ReadGlobalSettings(file string) GlobalConfig {
 	return globalSettings
 }
 
-// Reads the job yaml
-func (cli *Client) ReadJobConfig(file string) JobsConfig {
+// Reads the jobs yaml
+func (cli *Client) ReadJobsConfig(file string) JobsConfig {
 	yamlFile, err := ioutil.ReadFile(file)
 	if err != nil {
 		exit(err, "failed to read "+file)
 	}
-	jobs := JobsConfig{}
-	if err := yaml.Unmarshal(yamlFile, &jobs); err != nil {
+	jobsConfig := JobsConfig{}
+	if err := yaml.Unmarshal(yamlFile, &jobsConfig); err != nil {
 		exit(err, "failed to unmarshal "+file)
 	}
 
-	if len(jobs.Branches) == 0 {
-		jobs.Branches = []string{"master"}
+	if len(jobsConfig.Branches) == 0 {
+		jobsConfig.Branches = []string{"master"}
 	}
 
-	resources := cli.GlobalConfig.Resources
+	return resolveOverwrites(cli.GlobalConfig, jobsConfig)
+}
+
+func resolveOverwrites(globalConfig GlobalConfig, jobsConfig JobsConfig) JobsConfig {
+	// Resolve globalConfig -> jobsConfig overwriting
+	resources := globalConfig.ResourcePresets
 	if resources == nil {
 		resources = map[string]v1.ResourceRequirements{}
 	}
-	for k, v := range jobs.Resources {
+	for k, v := range jobsConfig.ResourcePresets {
 		resources[k] = v
 	}
-	jobs.Resources = resources
+	jobsConfig.ResourcePresets = resources
 
-	requirementPresets := cli.GlobalConfig.RequirementPresets
+	requirementPresets := globalConfig.RequirementPresets
 	if requirementPresets == nil {
 		requirementPresets = map[string]RequirementPreset{}
 	}
-	for k, v := range jobs.RequirementPresets {
+	for k, v := range jobsConfig.RequirementPresets {
 		requirementPresets[k] = v
 	}
-	jobs.RequirementPresets = requirementPresets
+	jobsConfig.RequirementPresets = requirementPresets
 
-	return jobs
+	// Resolve jobsConfig -> job overwriting
+	for i, job := range jobsConfig.Jobs {
+		job.Annotations = mergeMaps(globalConfig.Annotations, jobsConfig.Annotations, job.Annotations)
+
+		job.Labels = mergeMaps(globalConfig.Labels, jobsConfig.Labels, job.Labels)
+
+		job.Requirements = mergeSlices(globalConfig.BaseRequirements, job.Requirements, jobsConfig.Requirements)
+
+		nodeSelector := globalConfig.NodeSelector
+		if jobsConfig.NodeSelector != nil {
+			nodeSelector = jobsConfig.NodeSelector
+		}
+		if job.NodeSelector != nil {
+			nodeSelector = job.NodeSelector
+		}
+		job.NodeSelector = nodeSelector
+
+		cluster := globalConfig.Cluster
+		if jobsConfig.Cluster != "" {
+			cluster = jobsConfig.Cluster
+		}
+		if job.Cluster != "" {
+			cluster = job.Cluster
+		}
+		job.Cluster = cluster
+
+		image := jobsConfig.Image
+		if job.Image != "" {
+			image = job.Image
+		}
+		job.Image = image
+
+		imagePullPolicy := jobsConfig.ImagePullPolicy
+		if job.ImagePullPolicy != "" {
+			imagePullPolicy = job.ImagePullPolicy
+		}
+		job.ImagePullPolicy = imagePullPolicy
+
+		interval := jobsConfig.Interval
+		if job.Interval != "" {
+			interval = job.Interval
+		}
+		job.Interval = interval
+
+		cronStr := jobsConfig.Cron
+		if job.Cron != "" {
+			cronStr = job.Cron
+		}
+		job.Cron = cronStr
+
+		jobsConfig.Jobs[i] = job
+	}
+
+	return jobsConfig
 }
 
 // Writes the job yaml
@@ -210,27 +272,25 @@ func WriteJobConfig(jobsConfig JobsConfig, file string) error {
 
 func (cli *Client) ValidateJobConfig(fileName string, jobsConfig JobsConfig) {
 	var err error
-	if jobsConfig.Image == "" {
-		err = multierror.Append(err, fmt.Errorf("%s: image must be set", fileName))
+	if jobsConfig.Org == "" {
+		err = multierror.Append(err, fmt.Errorf("%s: org must be set", fileName))
+	}
+	if jobsConfig.Repo == "" {
+		err = multierror.Append(err, fmt.Errorf("%s: repo must be set", fileName))
 	}
 
 	requirements := make([]string, 0)
 	for name := range jobsConfig.RequirementPresets {
 		requirements = append(requirements, name)
 	}
-	for _, r := range jobsConfig.Requirements {
-		if e := validate(
-			r,
-			requirements,
-			"requirements"); e != nil {
-			err = multierror.Append(err, e)
-		}
-	}
 
 	for _, job := range jobsConfig.Jobs {
-		if job.Resources != "" {
-			if _, f := jobsConfig.Resources[job.Resources]; !f {
-				err = multierror.Append(err, fmt.Errorf("%s: job '%v' has nonexistant resource '%v'", fileName, job.Name, job.Resources))
+		if job.Image == "" {
+			err = multierror.Append(err, fmt.Errorf("%s: image must be set for job %v", fileName, job.Name))
+		}
+		if job.Resource != "" {
+			if _, f := jobsConfig.ResourcePresets[job.Resource]; !f {
+				err = multierror.Append(err, fmt.Errorf("%s: job '%v' has nonexistant resource '%v'", fileName, job.Name, job.Resource))
 			}
 		}
 		for _, mod := range job.Modifiers {
@@ -246,7 +306,7 @@ func (cli *Client) ValidateJobConfig(fileName string, jobsConfig JobsConfig) {
 				err = multierror.Append(err, e)
 			}
 		}
-		if contains(job.Types, TypePeriodic) {
+		if sets.NewString(job.Types...).Has(TypePeriodic) {
 			if job.Cron != "" && job.Interval != "" {
 				err = multierror.Append(err, fmt.Errorf("%s: cron and interval cannot be both set in periodic %s", fileName, job.Name))
 			} else if job.Cron == "" && job.Interval == "" {
@@ -278,8 +338,8 @@ func (cli *Client) ValidateJobConfig(fileName string, jobsConfig JobsConfig) {
 }
 
 func (cli *Client) ConvertJobConfig(jobsConfig JobsConfig, branch string) config.JobConfig {
-	settings := cli.GlobalConfig
-	testgridConfig := settings.TestgridConfig
+	globalConfig := cli.GlobalConfig
+	testgridConfig := globalConfig.TestgridConfig
 
 	var presubmits []config.Presubmit
 	var postsubmits []config.Postsubmit
@@ -303,25 +363,18 @@ func (cli *Client) ConvertJobConfig(jobsConfig JobsConfig, branch string) config
 			}
 			testgridJobPrefix += "_" + jobsConfig.Repo
 
-			requirements := settings.BaseRequirements
-			for _, req := range append(job.Requirements, jobsConfig.Requirements...) {
-				if !contains(requirements, req) {
-					requirements = append(requirements, req)
-				}
-			}
-
-			if len(job.Types) == 0 || contains(job.Types, TypePresubmit) {
+			if len(job.Types) == 0 || sets.NewString(job.Types...).Has(TypePresubmit) {
 				name := fmt.Sprintf("%s_%s", job.Name, jobsConfig.Repo)
 				if branch != "master" {
 					name += "_" + branch
 				}
 
 				presubmit := config.Presubmit{
-					JobBase:   createJobBase(settings, jobsConfig, job, name, branch, jobsConfig.Resources),
+					JobBase:   createJobBase(globalConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets),
 					AlwaysRun: true,
 					Brancher:  brancher,
 				}
-				if pa, ok := settings.PathAliases[jobsConfig.Org]; ok {
+				if pa, ok := globalConfig.PathAliases[jobsConfig.Org]; ok {
 					presubmit.UtilityConfig.PathAlias = fmt.Sprintf("%s/%s", pa, jobsConfig.Repo)
 				}
 				if job.Regex != "" {
@@ -331,14 +384,16 @@ func (cli *Client) ConvertJobConfig(jobsConfig JobsConfig, branch string) config
 					presubmit.AlwaysRun = false
 				}
 				if testgridConfig.Enabled {
-					presubmit.JobBase.Annotations[TestGridDashboard] = testgridJobPrefix
+					presubmit.JobBase.Annotations = mergeMaps(presubmit.JobBase.Annotations, map[string]string{
+						TestGridDashboard: testgridJobPrefix,
+					})
 				}
 				applyModifiersPresubmit(&presubmit, job.Modifiers)
-				applyRequirements(&presubmit.JobBase, requirements, settings.RequirementPresets)
+				applyRequirements(&presubmit.JobBase, job.Requirements, jobsConfig.RequirementPresets)
 				presubmits = append(presubmits, presubmit)
 			}
 
-			if len(job.Types) == 0 || contains(job.Types, TypePostsubmit) {
+			if len(job.Types) == 0 || sets.NewString(job.Types...).Has(TypePostsubmit) {
 				name := fmt.Sprintf("%s_%s", job.Name, jobsConfig.Repo)
 				if branch != "master" {
 					name += "_" + branch
@@ -346,10 +401,10 @@ func (cli *Client) ConvertJobConfig(jobsConfig JobsConfig, branch string) config
 				name += "_postsubmit"
 
 				postsubmit := config.Postsubmit{
-					JobBase:  createJobBase(settings, jobsConfig, job, name, branch, jobsConfig.Resources),
+					JobBase:  createJobBase(globalConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets),
 					Brancher: brancher,
 				}
-				if pa, ok := settings.PathAliases[jobsConfig.Org]; ok {
+				if pa, ok := globalConfig.PathAliases[jobsConfig.Org]; ok {
 					postsubmit.UtilityConfig.PathAlias = fmt.Sprintf("%s/%s", pa, jobsConfig.Repo)
 				}
 				if job.Regex != "" {
@@ -358,16 +413,18 @@ func (cli *Client) ConvertJobConfig(jobsConfig JobsConfig, branch string) config
 					}
 				}
 				if testgridConfig.Enabled {
-					postsubmit.JobBase.Annotations[TestGridDashboard] = testgridJobPrefix + "_postsubmit"
-					postsubmit.JobBase.Annotations[TestGridAlertEmail] = testgridConfig.AlertEmail
-					postsubmit.JobBase.Annotations[TestGridNumFailures] = testgridConfig.NumFailuresToAlert
+					postsubmit.JobBase.Annotations = mergeMaps(postsubmit.JobBase.Annotations, map[string]string{
+						TestGridDashboard:   testgridJobPrefix + "_postsubmit",
+						TestGridAlertEmail:  testgridConfig.AlertEmail,
+						TestGridNumFailures: testgridConfig.NumFailuresToAlert,
+					})
 				}
 				applyModifiersPostsubmit(&postsubmit, job.Modifiers)
-				applyRequirements(&postsubmit.JobBase, requirements, settings.RequirementPresets)
+				applyRequirements(&postsubmit.JobBase, job.Requirements, jobsConfig.RequirementPresets)
 				postsubmits = append(postsubmits, postsubmit)
 			}
 
-			if contains(job.Types, TypePeriodic) {
+			if sets.NewString(job.Types...).Has(TypePeriodic) {
 				name := fmt.Sprintf("%s_%s", job.Name, jobsConfig.Repo)
 				if branch != "master" {
 					name += "_" + branch
@@ -378,16 +435,18 @@ func (cli *Client) ConvertJobConfig(jobsConfig JobsConfig, branch string) config
 				// should be set as the working directory, so add itself to the repo list here.
 				job.Repos = append([]string{jobsConfig.Org + "/" + jobsConfig.Repo}, job.Repos...)
 				periodic := config.Periodic{
-					JobBase:  createJobBase(settings, jobsConfig, job, name, branch, jobsConfig.Resources),
+					JobBase:  createJobBase(globalConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets),
 					Interval: job.Interval,
 					Cron:     job.Cron,
 				}
 				if testgridConfig.Enabled {
-					periodic.JobBase.Annotations[TestGridDashboard] = testgridJobPrefix + "_periodic"
-					periodic.JobBase.Annotations[TestGridAlertEmail] = testgridConfig.AlertEmail
-					periodic.JobBase.Annotations[TestGridNumFailures] = testgridConfig.NumFailuresToAlert
+					periodic.JobBase.Annotations = mergeMaps(periodic.JobBase.Annotations, map[string]string{
+						TestGridDashboard:   testgridJobPrefix + "_periodic",
+						TestGridAlertEmail:  testgridConfig.AlertEmail,
+						TestGridNumFailures: testgridConfig.NumFailuresToAlert,
+					})
 				}
-				applyRequirements(&periodic.JobBase, requirements, settings.RequirementPresets)
+				applyRequirements(&periodic.JobBase, job.Requirements, jobsConfig.RequirementPresets)
 				periodics = append(periodics, periodic)
 			}
 		}
@@ -523,7 +582,7 @@ func diffConfigPresubmit(result config.JobConfig, pj config.JobConfig) {
 
 func diffConfigPostsubmit(result config.JobConfig, pj config.JobConfig) {
 	known := make(map[string]struct{})
-	allCurrentPostsubmits := []config.Postsubmit{}
+	var allCurrentPostsubmits []config.Postsubmit
 	for _, jobs := range pj.PostsubmitsStatic {
 		allCurrentPostsubmits = append(allCurrentPostsubmits, jobs...)
 	}
@@ -560,16 +619,6 @@ func diffConfigPostsubmit(result config.JobConfig, pj config.JobConfig) {
 }
 
 func createContainer(jobConfig JobsConfig, job Job, resources map[string]v1.ResourceRequirements) []v1.Container {
-	img := job.Image
-	if img == "" {
-		img = jobConfig.Image
-	}
-
-	imgPullPolicy := job.ImagePullPolicy
-	if imgPullPolicy == "" {
-		imgPullPolicy = jobConfig.ImagePullPolicy
-	}
-
 	envs := job.Env
 	if len(envs) == 0 {
 		envs = jobConfig.Env
@@ -579,17 +628,17 @@ func createContainer(jobConfig JobsConfig, job Job, resources map[string]v1.Reso
 	}
 
 	c := v1.Container{
-		Image:           img,
+		Image:           job.Image,
 		SecurityContext: &v1.SecurityContext{Privileged: newTrue()},
 		Command:         job.Command,
 		Env:             envs,
 	}
-	if imgPullPolicy != "" {
-		c.ImagePullPolicy = v1.PullPolicy(imgPullPolicy)
+	if job.ImagePullPolicy != "" {
+		c.ImagePullPolicy = v1.PullPolicy(job.ImagePullPolicy)
 	}
 	jobResource := DefaultResource
-	if job.Resources != "" {
-		jobResource = job.Resources
+	if job.Resource != "" {
+		jobResource = job.Resource
 	}
 	if _, ok := resources[jobResource]; ok {
 		c.Resources = resources[jobResource]
@@ -605,44 +654,22 @@ func createJobBase(globalConfig GlobalConfig, jobConfig JobsConfig, job Job,
 		Name:           name,
 		MaxConcurrency: job.MaxConcurrency,
 		Spec: &v1.PodSpec{
-			Containers: createContainer(jobConfig, job, resources),
+			Containers:   createContainer(jobConfig, job, resources),
+			NodeSelector: job.NodeSelector,
 		},
 		UtilityConfig: config.UtilityConfig{
 			Decorate:  &yes,
 			ExtraRefs: createExtraRefs(job.Repos, branch, globalConfig.PathAliases),
 		},
-		Labels:      make(map[string]string),
-		Annotations: make(map[string]string),
+		Labels:      job.Labels,
+		Annotations: job.Annotations,
+		Cluster:     job.Cluster,
 	}
-
-	if globalConfig.NodeSelector != nil {
-		jb.Spec.NodeSelector = globalConfig.NodeSelector
+	if jb.Labels == nil {
+		jb.Labels = map[string]string{}
 	}
-	if jobConfig.NodeSelector != nil {
-		jb.Spec.NodeSelector = jobConfig.NodeSelector
-	}
-	if job.NodeSelector != nil {
-		jb.Spec.NodeSelector = job.NodeSelector
-	}
-
-	if globalConfig.Annotations != nil {
-		jb.Annotations = globalConfig.Annotations
-	}
-	if jobConfig.Annotations != nil {
-		jb.Annotations = mergeMaps(jb.Annotations, jobConfig.Annotations)
-	}
-	if job.Annotations != nil {
-		jb.Annotations = mergeMaps(jb.Annotations, job.Annotations)
-	}
-
-	if globalConfig.Labels != nil {
-		jb.Labels = globalConfig.Labels
-	}
-	if jobConfig.Labels != nil {
-		jb.Labels = mergeMaps(jb.Labels, jobConfig.Labels)
-	}
-	if job.Labels != nil {
-		jb.Labels = mergeMaps(jb.Labels, job.Labels)
+	if jb.Annotations == nil {
+		jb.Annotations = map[string]string{}
 	}
 
 	if job.Timeout != nil {
@@ -651,15 +678,6 @@ func createJobBase(globalConfig GlobalConfig, jobConfig JobsConfig, job Job,
 		}
 	}
 
-	if globalConfig.Cluster != "" && globalConfig.Cluster != "default" {
-		jb.Cluster = globalConfig.Cluster
-	}
-	if jobConfig.Cluster != "" && jobConfig.Cluster != "default" {
-		jb.Cluster = jobConfig.Cluster
-	}
-	if job.Cluster != "" && job.Cluster != "default" {
-		jb.Cluster = job.Cluster
-	}
 	return jb
 }
 
@@ -825,25 +843,29 @@ func newTrue() *bool {
 	return &b
 }
 
-func contains(slice []string, item string) bool {
-	set := make(map[string]struct{}, len(slice))
-	for _, s := range slice {
-		set[s] = struct{}{}
-	}
-
-	_, ok := set[item]
-	return ok
-}
-
-// mergeMaps will merge the two maps into one.
-// If there are duplicated keys in the two maps, the value in mp2 will overwrite that of mp1.
-func mergeMaps(mp1, mp2 map[string]string) map[string]string {
-	newMap := make(map[string]string, len(mp1))
-	for k, v := range mp1 {
-		newMap[k] = v
-	}
-	for k, v := range mp2 {
-		newMap[k] = v
+// mergeMaps will merge multiple maps into one.
+// If there are duplicated keys in the maps, the value in the later maps will overwrite that of the previous ones.
+func mergeMaps(mps ...map[string]string) map[string]string {
+	newMap := make(map[string]string)
+	for _, mp := range mps {
+		for k, v := range mp {
+			newMap[k] = v
+		}
 	}
 	return newMap
+}
+
+func mergeSlices(slices ...[]string) []string {
+	set := sets.NewString()
+	// Use res to store the merged results to keep the sequence.
+	res := make([]string, 0)
+	for _, slice := range slices {
+		for _, str := range slice {
+			if !set.Has(str) {
+				res = append(res, str)
+			}
+			set.Insert(str)
+		}
+	}
+	return res
 }

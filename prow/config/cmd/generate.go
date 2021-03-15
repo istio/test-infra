@@ -77,7 +77,7 @@ func main() {
 				log.Println("skipping", file.Name())
 				return nil
 			}
-			jobs := cli.ReadJobConfig(src)
+			jobs := cli.ReadJobsConfig(src)
 			jobs.Jobs = config.FilterReleaseBranchingJobs(jobs.Jobs)
 
 			if jobs.SupportReleaseBranching {
@@ -127,7 +127,7 @@ func main() {
 				log.Println("skipping", file.Name())
 				return nil
 			}
-			jobs := cli.ReadJobConfig(src)
+			jobs := cli.ReadJobsConfig(src)
 			for _, branch := range jobs.Branches {
 				cli.ValidateJobConfig(file.Name(), jobs)
 				output := cli.ConvertJobConfig(jobs, branch)

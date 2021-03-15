@@ -3,6 +3,7 @@ repo: istio
 image: fooimage
 branches:
   - master
+cron: 0 2 * * *
 
 jobs:
   - name: test
@@ -24,12 +25,12 @@ jobs:
   - name: custom-node-selector
     types: [presubmit]
     command: [prow/command.sh]
+    requirements: [gcp]
     node_selector:
       foo: baz
 
   - name: periodic-job
     types: [periodic]
-    cron: 0 2 * * *
     command: [run/nightly.sh]
 
 requirements: [gocache]
