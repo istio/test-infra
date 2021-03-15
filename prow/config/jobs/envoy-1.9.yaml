@@ -65,7 +65,7 @@ jobs:
   - --labels=auto-merge
   - --modifier=merge_upstream_changes
   - --token-path=/etc/github-token/oauth
-  - --cmd=export VERSION="v$(cut --fields=1,2 -d. VERSION)"; git remote add upstream https://github.com/envoyproxy/envoy.git && git fetch upstream release/"${VERSION}" && git merge upstream/release/"${VERSION}"
+  - --cmd=VERSION="v$(cut --fields=1,2 -d. VERSION)"; git remote add upstream https://github.com/envoyproxy/envoy.git && git fetch upstream release/"${VERSION}" && git merge upstream/release/"${VERSION}"
   requirements: [github]
   repos: [istio/test-infra@master]
   image: gcr.io/istio-testing/build-tools:master-2021-03-01T22-30-49
