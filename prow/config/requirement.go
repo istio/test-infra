@@ -20,21 +20,25 @@ import (
 
 // RequirementPreset can be used to re-use settings across multiple jobs.
 type RequirementPreset struct {
+	Annotations  map[string]string `json:"annotations"`
 	Labels       map[string]string `json:"labels"`
 	Env          []v1.EnvVar       `json:"env"`
 	Volumes      []v1.Volume       `json:"volumes"`
 	VolumeMounts []v1.VolumeMount  `json:"volumeMounts"`
 }
 
-func resolveRequirements(labels map[string]string, spec *v1.PodSpec, requirements []RequirementPreset) {
+func resolveRequirements(annotations, labels map[string]string, spec *v1.PodSpec, requirements []RequirementPreset) {
 	if spec != nil {
 		for _, req := range requirements {
-			mergeRequirement(req, labels, spec.Containers, &spec.Volumes)
+			mergeRequirement(req, annotations, labels, spec.Containers, &spec.Volumes)
 		}
 	}
 }
 
-func mergeRequirement(req RequirementPreset, labels map[string]string, containers []v1.Container, volumes *[]v1.Volume) {
+func mergeRequirement(req RequirementPreset, annotations, labels map[string]string, containers []v1.Container, volumes *[]v1.Volume) {
+	for a, v := range req.Annotations {
+		annotations[a] = v
+	}
 	for l, v := range req.Labels {
 		labels[l] = v
 	}

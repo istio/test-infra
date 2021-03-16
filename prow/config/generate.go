@@ -714,7 +714,7 @@ func applyRequirements(job *config.JobBase, requirements []string, presetMap map
 	for _, req := range requirements {
 		presets = append(presets, presetMap[req])
 	}
-	resolveRequirements(job.Labels, job.Spec, presets)
+	resolveRequirements(job.Annotations, job.Labels, job.Spec, presets)
 }
 
 func applyModifiersPresubmit(presubmit *config.Presubmit, jobModifiers []string) {
