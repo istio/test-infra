@@ -62,7 +62,7 @@ jobs:
   - --org=istio
   - --repo=envoy
   - "--title=Automator: merge upstream changes to $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
-  - --labels=auto-merge
+  - --labels=tide/merge-method-merge
   - --modifier=merge_upstream_changes
   - --token-path=/etc/github-token/oauth
   - --cmd=VERSION="v$(cut --fields=1,2 -d. VERSION)"; git remote add upstream https://github.com/envoyproxy/envoy.git && git fetch upstream release/"${VERSION}" && git merge upstream/release/"${VERSION}"
