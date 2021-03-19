@@ -25,7 +25,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/test-infra/prow/config"
 	_ "k8s.io/test-infra/prow/hook"
-	"k8s.io/test-infra/prow/plugins"
 )
 
 var (
@@ -351,14 +350,5 @@ func TestTrustedJobs(t *testing.T) {
 		if !strings.HasPrefix(per.SourcePath, trustedPath) {
 			t.Errorf("%s defined in %s may not run in trusted cluster", per.Name, per.SourcePath)
 		}
-	}
-}
-
-// Make sure that our plugins are valid.
-func TestPlugins(t *testing.T) {
-	pa := &plugins.ConfigAgent{}
-	checkUnknownPlugins := true
-	if err := pa.Load("../plugins.yaml", checkUnknownPlugins); err != nil {
-		t.Fatalf("could not load plugins: %v", err)
 	}
 }
