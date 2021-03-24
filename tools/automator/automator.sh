@@ -27,7 +27,7 @@ cleanup() {
 }
 
 get_opts() {
-  if opt="$(getopt -o '' -l branch:,org:,repo:,title:,match-title:,body:,labels:,user:,email:,modifier:,script-path:,cmd:,token-path:,token:,strict,dry-run,verbose -n "$(basename "$0")" -- "$@")"; then
+  if opt="$(getopt -o '' -l branch:,org:,repo:,title:,match-title:,body:,labels:,user:,email:,modifier:,script-path:,cmd:,token-path:,token:,merge-repository:,merge-branch:,strict,dry-run,verbose -n "$(basename "$0")" -- "$@")"; then
     eval set -- "$opt"
   else
     print_error_and_exit "unable to parse options"
@@ -97,6 +97,14 @@ get_opts() {
       token_path="$tmp_token"
       shift 2
       ;;
+    --merge-repository)
+      merge_repository="$2"
+      shift 2
+      ;;
+    --merge-branch)
+      merge_branch="$2"
+      shift 2
+      ;;
     --verbose)
       shell_args+=("-x")
       shift
@@ -125,6 +133,7 @@ validate_opts() {
   sha="$(current_sha)"
   sha_short="$(current_sha --short)"
   commit_date="$(commit_date)"
+  merge=false
 
   if [ -z "${strict:-}" ]; then
     strict=false
@@ -136,6 +145,10 @@ validate_opts() {
 
   if [ -z "${branch:-}" ]; then
     branch="$(current_branch)"
+  fi
+
+  if [ ! -z "${merge_repository:-}" ] && [ ! -z "${merge_branch:-}" ]; then
+    merge=true
   fi
 
   if [ -z "${title_tmpl:-}" ]; then
@@ -162,8 +175,8 @@ validate_opts() {
     print_error_and_exit "token_path or token is a required option"
   fi
 
-  if [ ! -f "${script_path:-}" ]; then
-    print_error_and_exit "script-path or cmd is a required option"
+  if [ ! -f "${script_path:-}" ] && ! $merge; then
+    print_error_and_exit "either script-path, cmd, or merge-repository and merge-branch are required"
   fi
 
   if [ -z "${modifier:-}" ]; then
@@ -229,6 +242,26 @@ commit() {
   add_labels
 }
 
+merge() {
+  local src_branch="${AUTOMATOR_SRC_BRANCH:-none}"
+  fork_name="$src_branch-$branch-$modifier-$(hash "$title")"
+  git remote add -f -t "$merge_branch" upstream "$merge_repository"
+  git -c "user.name=$user" -c "user.email=$email" merge --no-ff -m "$title" --log upstream/"$merge_branch"
+  local code=$?
+  if [ "$code" -ne 0 ]; then
+    print_error "$(git status)" 1
+  else
+    if [[ "$(git show --shortstat)" =~ "$title" ]]; then
+      git show --shortstat
+      git push --force "https://$user:$token@github.com/$user/$repo.git" "HEAD:$fork_name"
+      pull_request="$(create_pr)"
+      add_labels
+    else
+      print_error "No changes to merge" 0
+    fi
+  fi  
+}
+
 work() { (
   set -e
 
@@ -247,14 +280,18 @@ work() { (
 
   AUTOMATOR_REPO_DIR="$(pwd)"
 
-  GOPATH="${gopath}" bash "${shell_args[@]}" "$script_path" "${script_args[@]}"
+  if $merge; then
+    merge
+  else
+    GOPATH="${gopath}" bash "${shell_args[@]}" "$script_path" "${script_args[@]}"
 
-  git add --all
+    git add --all
 
-  if ! git diff --cached --quiet --exit-code; then
-    commit
-  elif $strict; then
-    print_error "no diff for $repo" 1
+    if ! git diff --cached --quiet --exit-code; then
+      commit
+    elif $strict; then
+      print_error "no diff for $repo" 1
+    fi
   fi
 
   popd
