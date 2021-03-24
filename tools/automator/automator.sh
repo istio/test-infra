@@ -147,7 +147,7 @@ validate_opts() {
     branch="$(current_branch)"
   fi
 
-  if [ ! -z "${merge_repository:-}" ] && [ ! -z "${merge_branch:-}" ]; then
+  if [ -n "${merge_repository:-}" ] && [ -n "${merge_branch:-}" ]; then
     merge=true
   fi
 
@@ -251,7 +251,7 @@ merge() {
   if [ "$code" -ne 0 ]; then
     print_error "$(git status)" 1
   else
-    if [[ "$(git show --shortstat)" =~ "$title" ]]; then
+    if [[ "$(git show --shortstat)" =~ $title ]]; then
       git show --shortstat
       git push --force "https://$user:$token@github.com/$user/$repo.git" "HEAD:$fork_name"
       pull_request="$(create_pr)"
