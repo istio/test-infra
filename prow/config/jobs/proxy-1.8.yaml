@@ -59,11 +59,13 @@ jobs:
   timeout: 4h0m0s
   types: [postsubmit]
 - command:
+  - entrypoint
   - ./prow/proxy-postsubmit-centos.sh
   image: gcr.io/istio-testing/build-tools-centos:release-1.8-2021-02-05T16-03-58
   name: release-centos
   requirements:
   - gcp
+  - docker
   timeout: 4h0m0s
   types: [postsubmit]
 - command:
