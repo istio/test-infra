@@ -61,6 +61,7 @@ postsubmits:
     spec:
       containers:
       - command:
+        - entrypoint
         - ./prow/proxy-postsubmit-centos.sh
         image: gcr.io/istio-testing/build-tools-centos:release-1.8-2021-02-05T16-03-58
         name: ""
@@ -77,6 +78,8 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         testing: build-pool
       volumes:
@@ -84,6 +87,8 @@ postsubmits:
           path: /tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - emptyDir: {}
+        name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_release-1.8_proxy_postsubmit
