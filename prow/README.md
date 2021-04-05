@@ -182,3 +182,10 @@ repos:
             contexts:
             - "merges-blocked-needs-admin"
 ```
+
+## Prow Secrets
+
+Some of the prow secrets are managed by kubernetes external secrets, which
+allows prow cluster creating secrets based on values from google secret manager
+(Not necessarily the same GCP project where prow is located). See more detailed
+instruction at [Prow Secret](https://github.com/kubernetes/test-infra/blob/master/prow/prow_secrets.md).
