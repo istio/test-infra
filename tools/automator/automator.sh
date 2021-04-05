@@ -27,7 +27,7 @@ cleanup() {
 }
 
 get_opts() {
-  if opt="$(getopt -o '' -l branch:,org:,repo:,title:,match-title:,body:,labels:,user:,email:,modifier:,script-path:,cmd:,token-path:,token:,merge-repository:,merge-branch:,strict,dry-run,verbose -n "$(basename "$0")" -- "$@")"; then
+  if opt="$(getopt -o '' -l branch:,org:,repo:,title:,match-title:,body:,labels:,user:,email:,modifier:,script-path:,cmd:,token-path:,token:,merge-repository:,merge-branch:,git-exclude:,strict,dry-run,verbose -n "$(basename "$0")" -- "$@")"; then
     eval set -- "$opt"
   else
     print_error_and_exit "unable to parse options"
@@ -117,6 +117,10 @@ get_opts() {
       dry_run=true
       shift
       ;;
+    --git-exclude)
+      git_exclude=(":^$2")
+      shift 2
+      ;;
     --)
       shift
       script_args=("$@")
@@ -190,6 +194,10 @@ validate_opts() {
   if [ -z "${email:-}" ] && ! $dry_run; then
     email="$(curl -sSfLH "Authorization: token $token" "https://api.github.com/user" | jq --raw-output ".email")"
   fi
+
+  if [ -z "${git_exclude:-}" ]; then
+    git_exclude=()
+  fi
 }
 
 evaluate_opts() {
@@ -229,7 +237,7 @@ add_labels() {
 
 commit() {
   if $dry_run; then
-    git diff --cached
+    git diff --cached "${git_exclude[@]}"
     return 0
   fi
 
@@ -259,7 +267,7 @@ merge() {
     else
       print_error "No changes to merge" 0
     fi
-  fi  
+  fi
 }
 
 work() { (
@@ -287,7 +295,7 @@ work() { (
 
     git add --all
 
-    if ! git diff --cached --quiet --exit-code; then
+    if ! git diff --cached --quiet --exit-code "${git_exclude[@]}"; then
       commit
     elif $strict; then
       print_error "no diff for $repo" 1
