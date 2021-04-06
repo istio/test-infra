@@ -1,0 +1,237 @@
+branches:
+- release-1.10
+image: gcr.io/istio-testing/build-tools-proxy:release-1.10-2021-04-02T23-15-48
+jobs:
+- command:
+  - ./prow/proxy-presubmit.sh
+  image: gcr.io/istio-testing/build-tools-proxy:master-2021-04-02T23-15-48
+  name: test
+  node_selector:
+    testing: build-pool
+  requirements:
+  - cache
+  - gcp
+  timeout: 4h0m0s
+  types:
+  - presubmit
+- command:
+  - ./prow/proxy-presubmit-asan.sh
+  image: gcr.io/istio-testing/build-tools-proxy:master-2021-04-02T23-15-48
+  name: test-asan
+  node_selector:
+    testing: build-pool
+  requirements:
+  - cache
+  - gcp
+  timeout: 4h0m0s
+  types:
+  - presubmit
+- command:
+  - ./prow/proxy-presubmit-tsan.sh
+  image: gcr.io/istio-testing/build-tools-proxy:master-2021-04-02T23-15-48
+  name: test-tsan
+  node_selector:
+    testing: build-pool
+  requirements:
+  - cache
+  - gcp
+  timeout: 4h0m0s
+  types:
+  - presubmit
+- command:
+  - ./prow/proxy-presubmit-release.sh
+  image: gcr.io/istio-testing/build-tools-proxy:master-2021-04-02T23-15-48
+  name: release-test
+  node_selector:
+    testing: build-pool
+  requirements:
+  - cache
+  - gcp
+  timeout: 4h0m0s
+  types:
+  - presubmit
+- command:
+  - ./prow/proxy-presubmit-centos-release.sh
+  image: gcr.io/istio-testing/build-tools-centos:master-2021-04-02T23-15-48
+  modifiers:
+  - optional
+  name: release-centos-test
+  node_selector:
+    testing: build-pool
+  requirements:
+  - cache
+  - gcp
+  timeout: 4h0m0s
+  types:
+  - presubmit
+- command:
+  - entrypoint
+  - ./prow/proxy-presubmit-wasm.sh
+  image: gcr.io/istio-testing/build-tools-proxy:master-2021-04-02T23-15-48
+  name: check-wasm
+  node_selector:
+    testing: build-pool
+  requirements:
+  - cache
+  - gcp
+  - docker
+  timeout: 4h0m0s
+  types:
+  - presubmit
+- command:
+  - entrypoint
+  - ./prow/proxy-postsubmit.sh
+  image: gcr.io/istio-testing/build-tools-proxy:master-2021-04-02T23-15-48
+  name: release
+  node_selector:
+    testing: build-pool
+  requirements:
+  - cache
+  - gcp
+  - docker
+  timeout: 4h0m0s
+  types:
+  - postsubmit
+- command:
+  - ./prow/proxy-postsubmit-centos.sh
+  image: gcr.io/istio-testing/build-tools-centos:master-2021-04-02T23-15-48
+  name: release-centos
+  node_selector:
+    testing: build-pool
+  requirements:
+  - cache
+  - gcp
+  timeout: 4h0m0s
+  types:
+  - postsubmit
+- command:
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=istio
+  - '--title=Automator: update proxy@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+  - --labels=auto-merge,release-notes-none
+  - --modifier=update_proxy_dep
+  - --token-path=/etc/github-token/oauth
+  - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
+  image: gcr.io/istio-testing/build-tools:master-2021-04-02T23-15-48
+  name: update-istio
+  node_selector:
+    testing: build-pool
+  repos:
+  - istio/test-infra@master
+  requirements:
+  - cache
+  - github
+  timeout: 4h0m0s
+  types:
+  - postsubmit
+node_selector:
+  testing: build-pool
+org: istio
+repo: proxy
+requirement_presets:
+  cache:
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /home/prow/go/pkg
+      name: build-cache
+      subPath: gomod
+    volumes:
+    - hostPath:
+        path: /tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+  deploy:
+    env: null
+    labels:
+      preset-prow-deployer-service-account: "true"
+    volumeMounts: null
+    volumes: null
+  docker:
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /var/lib/docker
+      name: docker-root
+    volumes:
+    - emptyDir: {}
+      name: docker-root
+  gcp:
+    env: null
+    labels:
+      preset-service-account: "true"
+    volumeMounts: null
+    volumes: null
+  github:
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /etc/github-token
+      name: github
+      readOnly: true
+    volumes:
+    - name: github
+      secret:
+        secretName: oauth-token
+  gocache:
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /gocache
+      name: build-cache
+      subPath: gocache
+    volumes:
+    - hostPath:
+        path: /tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+  kind:
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /lib/modules
+      name: modules
+      readOnly: true
+    - mountPath: /sys/fs/cgroup
+      name: cgroup
+      readOnly: true
+    - mountPath: /var/lib/docker
+      name: docker-root
+    volumes:
+    - hostPath:
+        path: /lib/modules
+        type: Directory
+      name: modules
+    - hostPath:
+        path: /sys/fs/cgroup
+        type: Directory
+      name: cgroup
+    - emptyDir: {}
+      name: docker-root
+  release:
+    env: null
+    labels:
+      preset-release-pipeline: "true"
+    volumeMounts: null
+    volumes: null
+resources:
+  benchmark:
+    limits:
+      memory: 24Gi
+    requests:
+      cpu: "15"
+      memory: 8Gi
+  default:
+    limits:
+      cpu: "64"
+      memory: 240G
+    requests:
+      cpu: "30"
+      memory: 100G
+  lint:
+    limits:
+      memory: 24Gi
+    requests:
+      cpu: "3"
+      memory: 16Gi
