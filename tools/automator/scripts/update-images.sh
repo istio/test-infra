@@ -93,6 +93,7 @@ resolve() {
 }
 
 work() {
+  # Update build-tools and build-tools-centos images
   # shellcheck disable=SC2086
   sed -Ei "s|($key:\s+$image:)$tag|\1$resolved_tag|g" $resolved_paths
 }
