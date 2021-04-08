@@ -1,0 +1,22 @@
+defaults:
+  branches: [master]
+  repo-allowlist: [api]
+
+
+transforms:
+
+# istio/api master build job(s) - presubmit(s)
+- env:
+    GCS_BUCKET: istio-private-build/dev
+  labels:
+    preset-enable-ssh: "true"
+  job-type: [presubmit]
+  job-allowlist: [build, gencheck]
+  job-denylist: [release-notes]
+
+# istio/api master test jobs(s) - postsubmit(s)
+- labels:
+    preset-enable-ssh: "true"
+    preset-override-envoy: "true"
+  job-type: [postsubmit]
+  job-denylist: [update_api_dep]

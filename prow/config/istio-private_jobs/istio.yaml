@@ -11,7 +11,7 @@ transforms:
     GCS_BUCKET: istio-private-build/dev
   labels:
     preset-enable-ssh: "true"
-    preset-override-deps: release-1.4-istio
+    preset-override-deps: master-istio
   job-type: [postsubmit]
   job-allowlist: [release_istio_postsubmit]
 
@@ -19,6 +19,6 @@ transforms:
 - labels:
     preset-enable-ssh: "true"
     preset-override-envoy: "true"
-    preset-override-deps: release-1.4-istio
+    preset-override-deps: master-istio
   job-type: [presubmit, postsubmit]
   job-denylist: [benchmark-report_istio_postsubmit, release_istio_postsubmit, cache-experiment_istio_postsubmit, cache-experiment_istio, update-ref-docs-dry-run_istio]
