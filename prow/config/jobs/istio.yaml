@@ -224,11 +224,9 @@ jobs:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - gcr.io/istio-testing/kind-node:v1.21.0-rc.0
+      - gcr.io/istio-testing/kind-node:v1.21.0
       - test.integration.kube.presubmit
     requirements: [kind]
-    # Hidden until stability is measure
-    modifiers: [hidden]
     timeout: 4h
     env:
       - name: INTEGRATION_TEST_FLAGS
@@ -243,8 +241,6 @@ jobs:
       - gcr.io/istio-testing/kind-node:v1.22.0-alpha.0
       - test.integration.kube.presubmit
     requirements: [kind]
-    # Hidden until stability is measure
-    modifiers: [hidden]
     timeout: 4h
     env:
       - name: INTEGRATION_TEST_FLAGS
