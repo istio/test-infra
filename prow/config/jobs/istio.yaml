@@ -265,7 +265,7 @@ jobs:
         # Skip revision test because CNI is not revisioned.
         # Skip traffic test because dns is not supported yet.
         # TODO: enable traffic test when https://github.com/istio/istio/issues/29511 is closed.
-        value: " --istio.test.retries=1 --istio.components.cni.enabled=true --istio.components.cni.namespace=kube-system --istio.test.skip=^TestTraffic --istio.test.skip=^TestRevisionCommand "
+        value: " --istio.test.retries=1 --istio.test.istio.operatorOptions=components.cni.enabled=true,components.cni.namespace=kube-system --istio.test.skip=^TestTraffic --istio.test.skip=^TestRevisionCommand "
 
   - name: analyze-tests
     types: [presubmit]

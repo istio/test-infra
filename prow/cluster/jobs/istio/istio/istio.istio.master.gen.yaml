@@ -1087,7 +1087,7 @@ postsubmits:
         - test.integration.kube.presubmit
         env:
         - name: INTEGRATION_TEST_FLAGS
-          value: ' --istio.test.retries=1 --istio.components.cni.enabled=true --istio.components.cni.namespace=kube-system
+          value: ' --istio.test.retries=1 --istio.test.istio.operatorOptions=components.cni.enabled=true,components.cni.namespace=kube-system
             --istio.test.skip=^TestTraffic --istio.test.skip=^TestRevisionCommand '
         image: gcr.io/istio-testing/build-tools:master-2021-04-06T17-14-07
         name: ""
