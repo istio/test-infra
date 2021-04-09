@@ -79,6 +79,16 @@ requirement_presets:
     - name: github
       secret:
         secretName: oauth-token
+  github-optional:
+    volumeMounts:
+    - mountPath: /etc/github-token
+      name: github
+      readOnly: true
+      optional: true
+    volumes:
+    - name: github
+      secret:
+        secretName: oauth-token
   release:
     labels:
       preset-release-pipeline: "true"
