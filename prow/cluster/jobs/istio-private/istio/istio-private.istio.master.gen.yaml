@@ -973,14 +973,13 @@ postsubmits:
       preset-override-envoy: "true"
     name: integ-k8s-121_istio_postsubmit_priv
     path_alias: istio.io/istio
-    skip_report: true
     spec:
       containers:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - gcr.io/istio-testing/kind-node:v1.21.0-rc.0
+        - gcr.io/istio-testing/kind-node:v1.21.0
         - test.integration.kube.presubmit
         env:
         - name: INTEGRATION_TEST_FLAGS
@@ -1042,7 +1041,6 @@ postsubmits:
       preset-override-envoy: "true"
     name: integ-k8s-122_istio_postsubmit_priv
     path_alias: istio.io/istio
-    skip_report: true
     spec:
       containers:
       - command:
