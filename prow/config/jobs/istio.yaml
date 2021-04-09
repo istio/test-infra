@@ -250,6 +250,23 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: " --istio.test.retries=1 "
 
+  - name: integ-cni-k8s-tests
+    types: [postsubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - test.integration.kube.presubmit
+    requirements: [kind]
+    # Hidden until stability is measure
+    modifiers: [hidden]
+    timeout: 4h
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        # Skip revision test because CNI is not revisioned.
+        # Skip traffic test because dns is not supported yet.
+        # TODO: enable traffic test when https://github.com/istio/istio/issues/29511 is closed.
+        value: " --istio.test.retries=1 --istio.test.istio.operatorOptions=components.cni.enabled=true,components.cni.namespace=kube-system --istio.test.skip=^TestTraffic --istio.test.skip=^TestRevisionCommand "
+
   - name: analyze-tests
     types: [presubmit]
     command: [make, test.integration.analyze]
