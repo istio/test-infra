@@ -133,6 +133,45 @@ presets:
       - key: secret
         path: id_rsa
         mode: 0600
+- labels: 
+    preset-use-api-private: "true"
+  volumeMounts:
+  - mountPath: $HOME/.gitconfig
+    name: gitconfig
+    readOnly: true
+  volumes:
+  - name: gitconfig
+    secret:
+      secretName: gitconfig
+  env:
+  - name: GOPRIVATE
+    value: istio.io/api
+- labels:
+    preset-use-go-control-plane-private: "true"
+  volumeMounts:
+  - mountPath: $HOME/.gitconfig
+    name: gitconfig
+    readOnly: true
+  volumes:
+  - name: gitconfig
+    secret:
+      secretName: gitconfig
+  env:
+  - name: GOPRIVATE
+    value: github.com/envoyproxy/go-control-plane
+- labels:
+    preset-use-go-control-plane-api-private: "true"
+  volumeMounts:
+  - mountPath: $HOME/.gitconfig
+    name: gitconfig
+    readOnly: true
+  volumes:
+  - name: gitconfig
+    secret:
+      secretName: gitconfig
+  env:
+  - name: GOPRIVATE
+    value: github.com/envoyproxy/go-control-plane,istio.io/api
 - labels:
     preset-enable-gomod-netrc: "true"
   volumeMounts:
