@@ -1,9 +1,10 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
+  annotations:
+    iam.gke.io/gcp-service-account: prow-control-plane@istio-testing.iam.gserviceaccount.com
   labels:
     app.kubernetes.io/part-of: prow
-    iam.gke.io/gcp-service-account: prow-control-plane@istio-testing.iam.gserviceaccount.com
   namespace: default
   name: "deck"
 ---
