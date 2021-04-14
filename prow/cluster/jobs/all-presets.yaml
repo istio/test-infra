@@ -133,10 +133,11 @@ presets:
       - key: secret
         path: id_rsa
         mode: 0600
-- labels: 
+- labels:
     preset-use-api-private: "true"
   volumeMounts:
   - mountPath: $HOME/.gitconfig
+    subPath: .gitconfig
     name: gitconfig
     readOnly: true
   volumes:
@@ -150,6 +151,7 @@ presets:
     preset-use-go-control-plane-private: "true"
   volumeMounts:
   - mountPath: $HOME/.gitconfig
+    subPath: .gitconfig
     name: gitconfig
     readOnly: true
   volumes:
@@ -163,6 +165,7 @@ presets:
     preset-use-go-control-plane-api-private: "true"
   volumeMounts:
   - mountPath: $HOME/.gitconfig
+    subPath: .gitconfig
     name: gitconfig
     readOnly: true
   volumes:
