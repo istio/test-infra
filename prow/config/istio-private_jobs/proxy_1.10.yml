@@ -1,0 +1,31 @@
+defaults:
+  branches: [release-1.10]
+  repo-allowlist: [proxy]
+  modifier: release-1.10_priv
+
+
+transforms:
+
+# istio/proxy release-1.10 test jobs(s) - presubmit(s)
+- env:
+    BAZEL_BUILD_RBE_INSTANCE: null
+    ENVOY_REPOSITORY: https://github.com/istio-private/envoy
+    ENVOY_PREFIX: envoy
+  labels:
+    preset-enable-netrc: "true"
+    preset-use-go-control-plane-api-private: "true"
+  job-type: [presubmit]
+
+
+# istio/proxy release-1.10 build jobs(s) - postsubmit(s)
+- env:
+    BAZEL_BUILD_RBE_INSTANCE: null
+    GCS_BUILD_BUCKET: istio-private-build
+    GCS_ARTIFACTS_BUCKET: istio-private-artifacts
+    DOCKER_REPOSITORY: istio-prow-build/envoy
+    ENVOY_REPOSITORY: https://github.com/istio-private/envoy
+    ENVOY_PREFIX: envoy
+  labels:
+    preset-enable-netrc: "true"
+    preset-use-go-control-plane-api-private: "true"
+  job-type: [postsubmit]
