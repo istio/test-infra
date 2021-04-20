@@ -21,13 +21,14 @@ spec:
       - name: cherrypicker
         image: gcr.io/k8s-prow/cherrypicker:v20210419-8262f2d0c6
         args:
-        - --dry-run=false
-        - --use-prow-assignments=false
-        - "--labels=cla: yes"
-        - --labels=release-notes-none
         - --create-issue-on-conflict
+        - --dry-run=false
         - --github-endpoint=http://ghproxy
         - --github-endpoint=https://api.github.com
+        - --github-token-path=/etc/github/oauth
+        - "--labels=cla: yes"
+        - --labels=release-notes-none
+        - --use-prow-assignments=false
         ports:
         - name: http
           containerPort: 8888
