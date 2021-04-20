@@ -54,24 +54,6 @@ jobs:
   image: gcr.io/istio-testing/build-tools:release-1.10-2021-04-06T22-07-25
   timeout: 4h
 
-- name: update-envoy
-  types: [periodic]
-  interval: 24h
-  command:
-  - ../test-infra/tools/automator/automator.sh
-  - --org=istio
-  - --repo=envoy
-  - "--title=Automator: merge upstream changes to $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
-  - --labels=tide/merge-method-merge
-  - --modifier=merge_upstream_changes
-  - --token-path=/etc/github-token/oauth
-  - --merge-repository=https://github.com/envoyproxy/envoy.git
-  - --merge-branch=release/v1.18
-  requirements: [github]
-  repos: [istio/test-infra@master]
-  image: gcr.io/istio-testing/build-tools:release-1.10-2021-04-06T22-07-25
-  timeout: 4h
-
 resources:
   default:
     requests:
