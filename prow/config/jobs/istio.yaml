@@ -36,6 +36,18 @@ jobs:
       - name: TEST_SELECT
         value: "-postsubmit,-flaky,-multicluster"
 
+  - name: integ-cni-k8s-tests
+    types: [presubmit]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
+    requirements: [kind]
+    # Hidden until stability is measure
+    modifiers: [hidden]
+    env:
+      - name: TEST_SELECT
+        value: "-postsubmit,-flaky,-multicluster"
+      - name: INTEGRATION_TEST_FLAGS
+        value: " --istio.test.istio.operatorOptions=components.cni.enabled=true,components.cni.namespace=kube-system "
+
   - name: integ-security-k8s-tests
     types: [presubmit]
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube.presubmit]
@@ -253,8 +265,6 @@ jobs:
       - prow/integ-suite-kind.sh
       - test.integration.kube.presubmit
     requirements: [kind]
-    # Hidden until stability is measure
-    modifiers: [hidden]
     timeout: 4h
     env:
       - name: INTEGRATION_TEST_FLAGS
