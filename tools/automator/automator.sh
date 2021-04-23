@@ -258,8 +258,10 @@ merge() {
   local code=$?
   if [ "$code" -ne 0 ]; then
     echo "$token" | gh auth login --with-token
-    local issue_exists=$(gh issue list -S "Automatic merge of $merge_branch into $branch failed." -R "istio/isio" | wc -l)
-    if [ $issue_exists -eq 0 ]; then
+    export GITHUB_TOKEN="$token"
+    local issue_exists
+    issue_exists=$(gh issue list -S "Automatic merge of $merge_branch into $branch failed." -R "istio/isio" | wc -l)
+    if [ "$issue_exists" -eq 0 ]; then
       gh issue create -b "Automatic merge of $merge_branch into $branch failed. @istio/wg-networking-maintainers" -t "Automatic merge of upstream envoy release branch failed" -l "area/networking/envoy" -R "istio/istio"
       print_error "Conflicts detected, manual merge is required. An issue in istio/istio has been created." 0
     else
