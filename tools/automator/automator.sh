@@ -257,7 +257,6 @@ merge() {
   git -c "user.name=$user" -c "user.email=$email" merge --no-ff -m "$title" --log upstream/"$merge_branch"
   local code=$?
   if [ "$code" -ne 0 ]; then
-    echo "$token" | gh auth login --with-token
     export GITHUB_TOKEN="$token"
     local issue_exists
     issue_exists=$(gh issue list -S "Automatic merge of $merge_branch into $branch failed." -R "istio/isio" | wc -l)
