@@ -257,7 +257,14 @@ merge() {
   git -c "user.name=$user" -c "user.email=$email" merge --no-ff -m "$title" --log upstream/"$merge_branch"
   local code=$?
   if [ "$code" -ne 0 ]; then
-    print_error "$(git status)" 1
+    echo "$token" | gh auth login --with-token
+    local issue_exists=$(gh issue list -S "Automatic merge of $merge_branch into $branch failed." -R "istio/isio" | wc -l)
+    if [ $issue_exists -eq 0 ]; then
+      gh issue create -b "Automatic merge of $merge_branch into $branch failed. @istio/wg-networking-maintainers" -t "Automatic merge of upstream envoy release branch failed" -l "area/networking/envoy" -R "istio/istio"
+      print_error "Conflicts detected, manual merge is required. An issue in istio/istio has been created." 0
+    else
+      print_error "Conflicts detected, manual merge is required. An issue in istio/istio already exists." 0
+    fi
   else
     if [[ "$(git show --shortstat)" =~ $title ]]; then
       git show --shortstat
