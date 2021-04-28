@@ -254,8 +254,10 @@ merge() {
   local src_branch="${AUTOMATOR_SRC_BRANCH:-none}"
   fork_name="$src_branch-$branch-$modifier-$(hash "$title")"
   git remote add -f -t "$merge_branch" upstream "$merge_repository"
+  set +e # git return a non-zero exit code on merge failure, which fails the script
   git -c "user.name=$user" -c "user.email=$email" merge --no-ff -m "$title" --log upstream/"$merge_branch"
   local code=$?
+  set -e
   if [ "$code" -ne 0 ]; then
     export GITHUB_TOKEN="$token"
     local issue_exists
