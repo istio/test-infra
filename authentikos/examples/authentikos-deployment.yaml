@@ -71,7 +71,7 @@ spec:
         - --creds=/etc/creds/service-account.json
         - --namespace=default,test-pods
         - --scopes=https://www.googleapis.com/auth/devstorage.full_control
-        - --template='I acquired a {{.Token}} at {{now | date "3:04PM"}}'
+        - --template='I acquired a {{.Token}} at {{now | date "3:04PM"}} expire at {{.Expire}}'
         volumeMounts:
         - name: creds
           mountPath: /etc/creds
