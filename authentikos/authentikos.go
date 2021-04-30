@@ -131,7 +131,7 @@ func (o *options) parseFlags() {
 	flag.BoolVarP(&o.forceRefresh, "force-refresh", "r", false, "Force a token refresh. Otherwise, the token will only refresh when necessary.")
 	flag.BoolVarP(&o.verbose, "verbose", "v", false, "Print verbose output.")
 	flag.DurationVarP(&o.interval, "interval", "i", defaultInterval, fmt.Sprintf("Token refresh interval [%v - %v).", minInterval, maxInterval))
-	flag.StringVarP(&o.creds, "creds", "c", "", "Path to a JSON credentials file.")
+	flag.StringVarP(&o.creds, "creds", "c", "", "Path to a JSON credentials file")
 	flag.StringVarP(&o.secret, "secret", "o", defaultSecret, "Name of secret to create.")
 	flag.StringVarP(&o.key, "key", "k", defaultKey, "Name of secret data key.")
 	flag.StringVarP(&o.template, "template", "t", "", "Template string for the token.")
