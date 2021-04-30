@@ -73,8 +73,8 @@ spec:
         - --namespace=test-pods
         - --scopes=https://www.googleapis.com/auth/gerritcodereview
         - |
-          --template=.googlesource.com	TRUE	/	TRUE	{{now | unixEpoch | add 3600}}	o	{{.Token}}
-          source.developers.google.com	FALSE	/	TRUE	{{now | unixEpoch | add 3600}}	o	{{.Token}}
+          --template=.googlesource.com	TRUE	/	TRUE	{{.Expire}}	o	{{.Token}}
+          source.developers.google.com	FALSE	/	TRUE	{{.Expire}}	o	{{.Token}}
         volumeMounts:
         - name: creds
           mountPath: /etc/creds
