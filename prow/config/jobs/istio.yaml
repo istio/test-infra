@@ -76,6 +76,24 @@ jobs:
       - name: TEST_SELECT
         value: "-multicluster"
 
+  - name: integ-telemetry-istiodless-mc-k8s-tests
+    modifiers:
+      - optional
+      - hidden
+      - skipped
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --topology
+      - MULTICLUSTER
+      - test.integration.telemetry.kube
+    requirements: [kind]
+    env:
+      - name: TEST_SELECT
+        value: "-multicluster"
+      - name: INTEGRATION_TEST_FLAGS
+        value: --istio.test.istiodlessRemotes
+
   - name: integ-multicluster-k8s-tests
     types: [presubmit]
     command:
@@ -137,6 +155,24 @@ jobs:
       - name: TEST_SELECT
         value: "-multicluster"
 
+  - name: integ-pilot-istiodless-multicluster-tests
+    modifiers:
+      - optional
+      - hidden
+      - skipped
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --topology
+      - MULTICLUSTER
+      - test.integration.pilot.kube
+    requirements: [kind]
+    env:
+      - name: TEST_SELECT
+        value: "-multicluster"
+      - name: INTEGRATION_TEST_FLAGS
+        value: --istio.test.istiodlessRemotes
+
   - name: integ-security-k8s-tests
     types: [postsubmit]
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube]
@@ -156,6 +192,24 @@ jobs:
     env:
       - name: TEST_SELECT
         value: "-multicluster"
+
+  - name: integ-security-istiodless-multicluster-tests
+    modifiers:
+      - optional
+      - hidden
+      - skipped
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --topology
+      - MULTICLUSTER
+      - test.integration.security.kube
+    requirements: [kind]
+    env:
+      - name: TEST_SELECT
+        value: "-multicluster"
+      - name: INTEGRATION_TEST_FLAGS
+        value: --istio.test.istiodlessRemotes
 
   - name: integ-telemetry-k8s-tests
     types: [postsubmit]
