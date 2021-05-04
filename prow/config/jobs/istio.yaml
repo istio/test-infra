@@ -46,7 +46,7 @@ jobs:
       - name: TEST_SELECT
         value: "-postsubmit,-flaky,-multicluster"
       - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.istio.operatorOptions=components.cni.enabled=true,components.cni.namespace=kube-system "
+        value: " --istio.test.istio.enableCNI=true "
 
   - name: integ-security-k8s-tests
     types: [presubmit]
@@ -322,10 +322,7 @@ jobs:
     timeout: 4h
     env:
       - name: INTEGRATION_TEST_FLAGS
-        # Skip revision test because CNI is not revisioned.
-        # Skip traffic test because dns is not supported yet.
-        # TODO: enable traffic test when https://github.com/istio/istio/issues/29511 is closed.
-        value: " --istio.test.retries=1 --istio.test.istio.operatorOptions=components.cni.enabled=true,components.cni.namespace=kube-system --istio.test.skip=^TestTraffic --istio.test.skip=^TestRevisionCommand "
+        value: " --istio.test.retries=1 --istio.test.istio.enableCNI=true "
 
   - name: analyze-tests
     types: [presubmit]
