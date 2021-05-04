@@ -1344,8 +1344,7 @@ postsubmits:
         - test.integration.kube.presubmit
         env:
         - name: INTEGRATION_TEST_FLAGS
-          value: ' --istio.test.retries=1 --istio.test.istio.operatorOptions=components.cni.enabled=true,components.cni.namespace=kube-system
-            --istio.test.skip=^TestTraffic --istio.test.skip=^TestRevisionCommand '
+          value: ' --istio.test.retries=1 --istio.test.istio.enableCNI=true '
         image: gcr.io/istio-testing/build-tools:master-2021-04-12T17-40-14
         name: ""
         resources:
@@ -1626,7 +1625,7 @@ presubmits:
         - name: TEST_SELECT
           value: -postsubmit,-flaky,-multicluster
         - name: INTEGRATION_TEST_FLAGS
-          value: ' --istio.test.istio.operatorOptions=components.cni.enabled=true,components.cni.namespace=kube-system '
+          value: ' --istio.test.istio.enableCNI=true '
         image: gcr.io/istio-testing/build-tools:master-2021-04-12T17-40-14
         name: ""
         resources:
