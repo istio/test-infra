@@ -39,7 +39,7 @@ cleanup() {
 }
 
 get_opts() {
-    if opt="$(getopt -o '' -l token-path:,token:,pr:,org:,repo:,dest-branch:,pr-head-sha:,repo-path: -n "$(basename "$0")" -- "$@")"; then
+    if opt="$(getopt -o '' -l token-path:,token:,pr:,org:,repo:,base-sha:,pr-head-sha:,repo-path: -n "$(basename "$0")" -- "$@")"; then
         eval set -- "$opt"
     else
         print_error_and_exit "unable to parse options"
@@ -163,6 +163,36 @@ checkForFiles() {
         #gen-release-notes will either return 0 (no error) or an error.
         exit "${returnCode}"
     fi
+}
+
+## Validate the release notes against the schema
+function validateNote() {
+    out=$(../tools/cmd/schema-validator/schema-validator  --schemaPath ../tools/cmd/gen-release-notes/release_notes_schema.json --documentPath "${1}")
+    returnCode=$?
+    if [ "${returnCode}" != 0 ]; then
+        echo "${out}"
+    fi
+    return $returnCode
+}
+
+function validateNotes() {
+    local errorOccurred=0
+    git diff-tree -r --diff-filter=AMR --name-only --relative=releasenotes/notes "${PULL_BASE_SHA}" "${PULL_PULL_SHA}" | \
+    {
+    set +e
+    while read -r line; do
+    if ! validateNote "./releasenotes/notes/${line}"; then
+        errorOccurred=1
+    fi
+
+    done
+    set -e
+    if [ "${errorOccurred}" != 0 ]; then
+        echo ""
+        echo "Failed to validate release notes. Exiting"
+        exit "${errorOccurred}"
+    fi
+    }
 
 }
 
@@ -211,6 +241,7 @@ main() {
     get_opts "$@"
     validate_opts
 
+    validateNotes
     checkForFiles
     checkForLabel
     return 1
