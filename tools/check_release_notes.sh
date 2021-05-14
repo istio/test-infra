@@ -176,6 +176,12 @@ function validateNote() {
 }
 
 function validateNotes() {
+    #Build the schema validator
+    SCHEMA_VALIDATOR_PATH=../tools/cmd/schema-validator
+    pushd ${SCHEMA_VALIDATOR_PATH}
+    go build
+    popd
+
     local errorOccurred=0
     git diff-tree -r --diff-filter=AMR --name-only --relative=releasenotes/notes "${PULL_BASE_SHA}" "${PULL_PULL_SHA}" | \
     {
