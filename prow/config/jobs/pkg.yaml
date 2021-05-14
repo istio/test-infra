@@ -26,6 +26,7 @@ jobs:
     - --labels=auto-merge,release-notes-none
     - --modifier=update_pkg_dep
     - --token-path=/etc/github-token/oauth
+    - --git-exclude=common
     - --cmd=go get istio.io/pkg@$AUTOMATOR_SHA && go mod tidy && make clean gen
     requirements: [github]
     repos: [istio/test-infra@master]
