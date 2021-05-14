@@ -170,8 +170,9 @@ postsubmits:
         - --labels=auto-merge,release-notes-none
         - --modifier=update_pkg_dep
         - --token-path=/etc/github-token/oauth
+        - --git-exclude=common
         - --cmd=go get istio.io/pkg@$AUTOMATOR_SHA && go mod tidy && make clean gen
-        image: gcr.io/istio-testing/build-tools:master-2021-03-01T22-30-49
+        image: gcr.io/istio-testing/build-tools:master-2021-05-07T04-05-01
         name: ""
         resources:
           limits:
