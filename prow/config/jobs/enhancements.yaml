@@ -1,0 +1,14 @@
+org: istio
+repo: enhancements
+branches: [master]
+support_release_branching: true
+image: gcr.io/istio-testing/build-tools:master-2021-05-07T04-05-01
+jobs:
+- name: validate-features
+  types: [presubmit]
+  optional: true
+  command:
+    - ../test-infra/scripts/validate_schema.sh
+    - --document-path ./features.yaml
+    - --schema-path ./features_schema.yaml
+  repos: [istio/test-infra@master,istio/tools@master]
