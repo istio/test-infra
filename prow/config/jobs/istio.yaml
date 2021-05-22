@@ -72,6 +72,7 @@ jobs:
       - MULTICLUSTER
       - test.integration.telemetry.kube
     requirements: [kind]
+    resources: multicluster
     env:
       - name: TEST_SELECT
         value: "-multicluster"
@@ -88,6 +89,7 @@ jobs:
       - MULTICLUSTER
       - test.integration.telemetry.kube
     requirements: [kind]
+    resources: multicluster
     env:
       - name: TEST_SELECT
         value: "-multicluster"
@@ -103,6 +105,7 @@ jobs:
       - MULTICLUSTER
       - test.integration.multicluster.kube.presubmit
     requirements: [kind]
+    resources: multicluster
     env:
       - name: TEST_SELECT
         value: "-postsubmit,-flaky,+multicluster"
@@ -151,6 +154,7 @@ jobs:
       - MULTICLUSTER
       - test.integration.pilot.kube
     requirements: [kind]
+    resources: multicluster
     env:
       - name: TEST_SELECT
         value: "-multicluster"
@@ -167,6 +171,7 @@ jobs:
       - MULTICLUSTER
       - test.integration.pilot.kube
     requirements: [kind]
+    resources: multicluster
     env:
       - name: TEST_SELECT
         value: "-multicluster"
@@ -189,6 +194,7 @@ jobs:
       - MULTICLUSTER
       - test.integration.security.kube
     requirements: [kind]
+    resources: multicluster
     env:
       - name: TEST_SELECT
         value: "-multicluster"
@@ -205,6 +211,7 @@ jobs:
       - MULTICLUSTER
       - test.integration.security.kube
     requirements: [kind]
+    resources: multicluster
     env:
       - name: TEST_SELECT
         value: "-multicluster"
@@ -349,6 +356,16 @@ resources:
     requests:
       memory: "3Gi"
       cpu: "5000m"
+    limits:
+      memory: "24Gi"
+  # TODO: this was set while investigating https://github.com/istio/istio/issues/32985
+  # We should consider if this is needed long term, as its expensive
+  multicluster:
+    requests:
+      memory: "3Gi"
+      # This ensures we have at most one multicluster job on a node
+      # Nodes have 16CPUs, with some overhead
+      cpu: "8000m"
     limits:
       memory: "24Gi"
   lint:
