@@ -6,8 +6,10 @@ jobs:
   - name: unit-tests
     command: [entrypoint, make, -e, "T=-v -count=1", build, racetest, binaries-test]
 
+  # TODO(https://github.com/istio/istio/issues/32985) make this required again
   - name: release-test
     types: [presubmit]
+    modifiers: [optional, skipped]
     command: [entrypoint, prow/release-test.sh]
     requirements: [gcp, docker]
 
