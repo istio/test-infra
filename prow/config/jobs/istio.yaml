@@ -110,6 +110,25 @@ jobs:
       - name: TEST_SELECT
         value: "-postsubmit,-flaky,+multicluster"
 
+  # To test for https://github.com/istio/istio/issues/32985
+  # and give a stable job to analyze performance against, that is running at all times
+  # Once solved, we should remove this. Periodic jobs may be useful in general, but we should probably
+  # refine it a bit (ie not so often, and not just one random test).
+  - name: integ-multicluster-k8s-tests
+    types: [periodic]
+    interval: 10m
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --topology
+      - MULTICLUSTER
+      - test.integration.multicluster.kube.presubmit
+    requirements: [kind]
+    resources: multicluster
+    env:
+      - name: TEST_SELECT
+        value: "-postsubmit,-flaky,+multicluster"
+
   - name: integ-distroless-k8s-tests
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.reachability]
     requirements: [kind]
