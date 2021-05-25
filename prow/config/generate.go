@@ -591,6 +591,7 @@ func diffConfigPostsubmit(result config.JobConfig, pj config.JobConfig) {
 			known[job.Name] = struct{}{}
 			var current *config.Postsubmit
 			for _, ps := range allCurrentPostsubmits {
+				ps := ps
 				if ps.Name == job.Name {
 					current = &ps
 					break
