@@ -1562,7 +1562,7 @@ presubmits:
           path: /tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-  - always_run: false
+  - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
     branches:
@@ -1571,7 +1571,6 @@ presubmits:
     labels:
       preset-service-account: "true"
     name: release-test_istio
-    optional: true
     path_alias: istio.io/istio
     spec:
       containers:
