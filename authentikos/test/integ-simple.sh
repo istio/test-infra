@@ -32,10 +32,13 @@ get_tokeninfo() {
   curl -sSfL "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=$token"
 }
 
-run_test() {
-  set -x
+run_test() { (
+  set -ex
 
   local tokeninfo="$1"
+
+  echo "Test 'tokeninfo' response body exists"
+  test -n "$tokeninfo"
 
   echo "Test 'error' is null"
   test "$(echo "$tokeninfo" | jq -r '.error')" = "null"
@@ -60,15 +63,20 @@ run_test() {
     grep -w "openid" |
     grep -w "https://www.googleapis.com/auth/cloud-platform" |
     grep -w "https://www.googleapis.com/auth/userinfo.email" >/dev/null
-}
+); }
 
 main() {
   kubectl create secret generic service-account --from-file="service-account.json=$GOOGLE_APPLICATION_CREDENTIALS"
   kubectl apply --filename="$ROOT/testdata/authentikos-simple.yaml"
   kubectl wait deployment authentikos --for="condition=available" --timeout="$timout"
 
-  run_test "$(with_timeout get_tokeninfo "$timout")"
+  # Unset "errexit" to allow execution to continue if "run_test" fails.
+  set +e
+  run_test "$(with_timeout get_tokeninfo "$timout")"; exit_code="$?"
+  set -e
+
   kubectl logs -l app=authentikos
 }
 
 main
+exit "$exit_code"
