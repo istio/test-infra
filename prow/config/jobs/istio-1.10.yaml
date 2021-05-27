@@ -182,6 +182,11 @@ jobs:
     value: ipv6
   - name: TEST_SELECT
     value: -multicluster
+  node_selector:
+    # COS does not currently support IPv6
+    # Consider moving all nodes back to COS after https://github.com/istio/istio/issues/32985
+    testing: test-pool
+    cloud.google.com/gke-os-distribution: ubuntu
   name: integ-ipv6-k8s-tests
   node_selector:
     testing: test-pool
