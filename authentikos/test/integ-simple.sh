@@ -32,42 +32,62 @@ get_tokeninfo() {
   curl -sSfL "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=$token"
 }
 
-run_test() {
-  set -x
+run_test() { (
+  set -ex
 
   local tokeninfo="$1"
 
+  echo "Test 'tokeninfo' response body exists"
+  test -n "$tokeninfo"
+
   echo "Test 'error' is null"
-  echo "$tokeninfo" | jq -r '.error' | xargs -r -I% test % = "null"
+  test "$(echo "$tokeninfo" | jq -r '.error')" = "null"
 
   echo "Test 'issued_to' exists"
-  echo "$tokeninfo" | jq -r '.issued_to' | xargs -r test -n
+  test -n "$(echo "$tokeninfo" | jq -r '.issued_to')"
 
   echo "Test 'audience' exists"
-  echo "$tokeninfo" | jq -r '.audience' | xargs -r test -n
+  test -n "$(echo "$tokeninfo" | jq -r '.audience')"
 
   echo "Test 'user_id' exists"
-  echo "$tokeninfo" | jq -r '.user_id' | xargs -r test -n
+  test -n "$(echo "$tokeninfo" | jq -r '.user_id')"
 
   echo "Test 'email' exists"
-  echo "$tokeninfo" | jq -r '.email' | xargs -r test -n
+  test -n "$(echo "$tokeninfo" | jq -r '.email')"
 
   echo "Test 'expires_in' greater than 0"
-  echo "$tokeninfo" | jq -r '.expires_in' | xargs -r -I% test % -lt 0
+  test "$(echo "$tokeninfo" | jq -r '.expires_in')" -gt 0
 
   echo "Test 'scope' includes 'userinfo.email', 'cloud-platform', and 'openid'"
   echo "$tokeninfo" | jq -r '.scope' |
-    grep -w "openi" |
+    grep -w "openid" |
     grep -w "https://www.googleapis.com/auth/cloud-platform" |
     grep -w "https://www.googleapis.com/auth/userinfo.email" >/dev/null
-}
+); }
 
 main() {
+
+  echo "Try curling https://accounts.google.com/o/oauth2/token outside kind"
+  curl -v  https://accounts.google.com/o/oauth2/token || echo "FAILED"
+
+  echo "Try curling https://accounts.google.com/o/oauth2/token from kind"
+  kubectl run -i --rm hello --image=curlimages/curl --restart=Never -- curl -v https://accounts.google.com/o/oauth2/token || echo "FAILED"
+
+
+  echo "Beginning setup"
   kubectl create secret generic service-account --from-file="service-account.json=$GOOGLE_APPLICATION_CREDENTIALS"
   kubectl apply --filename="$ROOT/testdata/authentikos-simple.yaml"
   kubectl wait deployment authentikos --for="condition=available" --timeout="$timout"
 
-  run_test "$(with_timeout get_tokeninfo "$timout")"
+  echo "Begin tests"
+  # Unset "errexit" to allow execution to continue if "run_test" fails.
+  set +e
+  run_test "$(with_timeout get_tokeninfo "$timout")"; exit_code="$?"
+  set -e
+
+  echo "Dumping authentikos logs VV"
+  kubectl logs -l app=authentikos
 }
 
 main
+exit "$exit_code"
