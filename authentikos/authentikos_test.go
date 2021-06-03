@@ -28,26 +28,39 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func makeFile(data string, readable bool) string {
+func makeFile(data string, readable bool) (string, error) {
 	f, _ := ioutil.TempFile("", "")
 	fname := f.Name()
 
-	_ = ioutil.WriteFile(fname, []byte(data), 0644)
-
-	if !readable {
-		_ = os.Chmod(fname, 0000)
+	if err := ioutil.WriteFile(fname, []byte(data), 0644); err != nil {
+		return "", fmt.Errorf("failed to write file: %w", err)
 	}
 
-	return fname
+	if !readable {
+		if err := os.Chmod(fname, 0000); err != nil {
+			return "", fmt.Errorf("failed to make file unreadable: %w", err)
+		}
+	}
+
+	return fname, nil
 }
 
 func TestValidateFlags(t *testing.T) {
 	creds := "super secret data"
 	template := "{{.Token}}"
 
-	deletedCredsFile := makeFile(creds, true)
-	validTFile := makeFile(template, true)
-	invalidTFile := makeFile(template, false)
+	deletedCredsFile, err := makeFile(creds, true)
+	if err != nil {
+		t.Errorf("Error making deleted creds file: %v.", err)
+	}
+	validTFile, err := makeFile(template, true)
+	if err != nil {
+		t.Errorf("Error making valid template file: %v.", err)
+	}
+	invalidTFile, err := makeFile(template, false)
+	if err != nil {
+		t.Errorf("Error making invalid template file: %v.", err)
+	}
 
 	os.Remove(deletedCredsFile)
 	defer os.Remove(validTFile)
