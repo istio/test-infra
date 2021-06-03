@@ -50,7 +50,7 @@ var (
 func main() {
 	kubeClientOptions.AddFlags(flag.CommandLine)
 	flag.Parse()
-	if err := kubeClientOptions.Validate(); err != nil {
+	if err := kubeClientOptions.Validate(false); err != nil {
 		logrus.WithError(err).Fatal("Bad kube client options")
 	}
 	logrus.SetFormatter(&logrus.JSONFormatter{})
@@ -70,11 +70,11 @@ func main() {
 	}
 	gcp.SetClient(gcpClient)
 
-	kubeClient, err := kubeClientOptions.CacheBackedClient(*namespace, &crds.DRLCObject{})
+	kubeClient, err := kubeClientOptions.Manager(*namespace, &crds.DRLCObject{})
 	if err != nil {
 		logrus.WithError(err).Fatal("unable to get kubernetes client")
 	}
-	st := ranch.NewStorage(context.Background(), kubeClient, *namespace)
+	st := ranch.NewStorage(context.Background(), kubeClient.GetClient(), *namespace)
 
 	mason := mason.NewMason(*cleanerCount, client, defaultBoskosRetryPeriod, defaultBoskosSyncPeriod, st)
 
