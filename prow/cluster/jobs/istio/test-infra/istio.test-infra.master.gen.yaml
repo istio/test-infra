@@ -180,6 +180,17 @@ postsubmits:
     max_concurrency: 1
     name: deploy-prow_test-infra_postsubmit
     path_alias: istio.io/test-infra
+    reporter_config:
+      slack:
+        channel: oncall
+        job_states_to_report:
+        - success
+        - failure
+        - aborted
+        - error
+        report_template: 'Deploying prow: {{.Status.State}}. <{{.Spec.Refs.BaseLink}}|Commit
+          {{.Spec.Refs.BaseSHA}}> <{{.Status.URL}}|View logs> <https://testgrid.k8s.io/istio_test-infra_postsubmit#deploy-prow_test-infra_postsubmit|Job
+          history on Testgrid>'
     run_if_changed: ^prow/cluster/(?:gcsweb/|velodrome/|monitoring/|build/|private/|[^/]+\.yaml$)
     spec:
       containers:

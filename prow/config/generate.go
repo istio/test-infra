@@ -124,13 +124,14 @@ type JobsConfig struct {
 }
 
 type Job struct {
-	Name           string            `json:"name,omitempty"`
-	Command        []string          `json:"command,omitempty"`
-	Types          []string          `json:"types,omitempty"`
-	Timeout        *prowjob.Duration `json:"timeout,omitempty"`
-	Repos          []string          `json:"repos,omitempty"`
-	Regex          string            `json:"regex,omitempty"`
-	MaxConcurrency int               `json:"max_concurrency,omitempty"`
+	Name           string                  `json:"name,omitempty"`
+	Command        []string                `json:"command,omitempty"`
+	Types          []string                `json:"types,omitempty"`
+	Timeout        *prowjob.Duration       `json:"timeout,omitempty"`
+	Repos          []string                `json:"repos,omitempty"`
+	Regex          string                  `json:"regex,omitempty"`
+	MaxConcurrency int                     `json:"max_concurrency,omitempty"`
+	ReporterConfig *prowjob.ReporterConfig `json:"reporter_config,omitempty"`
 
 	Env                     []v1.EnvVar `json:"env,omitempty"`
 	Image                   string      `json:"image,omitempty"`
@@ -662,9 +663,10 @@ func createJobBase(globalConfig GlobalConfig, jobConfig JobsConfig, job Job,
 			Decorate:  &yes,
 			ExtraRefs: createExtraRefs(job.Repos, branch, globalConfig.PathAliases),
 		},
-		Labels:      job.Labels,
-		Annotations: job.Annotations,
-		Cluster:     job.Cluster,
+		ReporterConfig: job.ReporterConfig,
+		Labels:         job.Labels,
+		Annotations:    job.Annotations,
+		Cluster:        job.Cluster,
 	}
 	if jb.Labels == nil {
 		jb.Labels = map[string]string{}
