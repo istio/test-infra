@@ -306,16 +306,19 @@ func getOauthTokenCreator(o options) (tokenCreator, error) {
 
 		client, err := clientCreator(forceRefresh)
 		if err != nil {
+			printVerbose(fmt.Sprintf("Failed to create oauth token client: %v.", err), o.verbose)
 			return withBackoff(1, maxTries-tries, create).(tokenCreator)(forceRefresh, tries-1)
 		}
 
 		token, err := client.TokenSource.Token()
 		if err != nil {
+			printVerbose(fmt.Sprintf("Failed to get oauth token from client: %v.", err), o.verbose)
 			return withBackoff(1, maxTries-tries, create).(tokenCreator)(forceRefresh, tries-1)
 		}
 
 		if isExpired(o, token) {
 			// Force recreate the token if it will expire before the next reconciliation.
+			printVerbose("Token will expire before next reconciliation.", o.verbose)
 			return withBackoff(1, maxTries-tries, create).(tokenCreator)(true, tries-1)
 		}
 
