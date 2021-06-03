@@ -11,7 +11,7 @@ replace (
 	k8s.io/api => k8s.io/api v0.20.2
 	k8s.io/apimachinery => k8s.io/apimachinery v0.20.2
 	k8s.io/client-go => k8s.io/client-go v0.20.2
-	// k8s.io/client-go => k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
+	k8s.io/test-infra => k8s.io/test-infra v0.0.0-20210120232930-f266370f38ea // The last version before introducing fgprof, which causing LICENSE issue
 	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.7.0-alpha.6.0.20201106193838-8d0107636985
 )
 
@@ -35,7 +35,7 @@ require (
 	k8s.io/api v0.20.2
 	k8s.io/apimachinery v0.20.2
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
-	k8s.io/test-infra v0.0.0-20210603220643-40c7c74791d0
+	k8s.io/test-infra v0.0.0-20201214190528-57362ae63e51
 	sigs.k8s.io/boskos v0.0.0-20210521134047-36bb085667e7
 	sigs.k8s.io/yaml v1.2.0
 )
