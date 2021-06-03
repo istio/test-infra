@@ -57,14 +57,8 @@ func TestValidateFlags(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error making valid template file: %v.", err)
 	}
-	invalidTFile, err := makeFile(template, false)
-	if err != nil {
-		t.Errorf("Error making invalid template file: %v.", err)
-	}
-
 	os.Remove(deletedCredsFile)
 	defer os.Remove(validTFile)
-	defer os.Remove(invalidTFile)
 
 	testCases := []struct {
 		name         string
@@ -117,11 +111,6 @@ func TestValidateFlags(t *testing.T) {
 		{
 			name:        "error: template and template-file are mutually exclusive",
 			args:        []string{"--template=" + template, "--template-file=/path/to/file"},
-			expectedErr: true,
-		},
-		{
-			name:        "error: template-file unreadable",
-			args:        []string{"--template-file=" + invalidTFile},
 			expectedErr: true,
 		},
 		{
