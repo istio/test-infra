@@ -20,7 +20,7 @@ export KUBECONFIG
 KUBECONFIG=$(mktemp -t kubeconfig-XXXXXXXXXX)
 
 name="authentikos"
-image="${IMAGE:-kindest/node:v1.17.0}"
+image="${IMAGE:-kindest/node:v1.21.1}"
 verbosity="${VERBOSITY:-9}"
 
 cleanup_cluster() {
