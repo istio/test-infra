@@ -78,7 +78,7 @@ const (
 var timeNow = time.Now
 
 // tokenCreator is a function that creates an oauth token.
-type tokenCreator func(forceRefresh bool, tries int) ([]byte, error)
+type tokenCreator func(forceRefresh bool, tries int) ([]byte, *time.Time, error)
 
 // secretCreator is a function that creates a kubernetes secret.
 type secretCreator func() ([]*corev1.Secret, namespacedErrors)
@@ -110,7 +110,8 @@ func (errs namespacedErrors) Errors() string {
 
 // tokenTemplate is the template data structure.
 type tokenTemplate struct {
-	Token string
+	Token  string
+	Expire int64
 }
 
 // options are the available command-line flags.
@@ -241,7 +242,7 @@ func withBackoff(factor float64, retry int, f interface{}) interface{} {
 	return f
 }
 
-func generateTokenData(o options, data []byte) ([]byte, error) {
+func generateTokenData(o options, data []byte, expiration *time.Time) ([]byte, error) {
 	var b bytes.Buffer
 
 	tmpl, err := template.New("TokenData").Funcs(sprig.FuncMap()).Parse(o.template)
@@ -249,7 +250,10 @@ func generateTokenData(o options, data []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	err = tmpl.Execute(&b, &tokenTemplate{Token: string(data)})
+	err = tmpl.Execute(&b, &tokenTemplate{
+		Token:  string(data),
+		Expire: expiration.Unix(),
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -300,9 +304,9 @@ func getOauthTokenCreator(o options) (tokenCreator, error) {
 		return client, err
 	}
 
-	create = func(forceRefresh bool, tries int) ([]byte, error) {
+	create = func(forceRefresh bool, tries int) ([]byte, *time.Time, error) {
 		if tries <= 0 {
-			return nil, fmt.Errorf("maximum tries: %d exceeded to force refresh token", maxTries)
+			return nil, nil, fmt.Errorf("maximum tries: %d exceeded to force refresh token", maxTries)
 		}
 
 		client, err := clientCreator(forceRefresh)
@@ -323,15 +327,15 @@ func getOauthTokenCreator(o options) (tokenCreator, error) {
 			return withBackoff(1, maxTries-tries, create).(tokenCreator)(true, tries-1)
 		}
 
-		return []byte(token.AccessToken), nil
+		return []byte(token.AccessToken), &token.Expiry, nil
 	}
 
 	return create, nil
 }
 
 // createOrUpdateSecret creates or updates a kubernetes secrets.
-func createOrUpdateSecret(o options, client v1.SecretsGetter, ns string, secretData []byte) (*corev1.Secret, error) {
-	data, err := generateTokenData(o, secretData)
+func createOrUpdateSecret(o options, client v1.SecretsGetter, ns string, secretData []byte, expiration *time.Time) (*corev1.Secret, error) {
+	data, err := generateTokenData(o, secretData, expiration)
 	if err != nil {
 		return nil, err
 	}
@@ -377,9 +381,9 @@ func getSecretCreator(o options, create tokenCreator) (secretCreator, error) {
 		)
 
 		for _, ns := range o.namespace {
-			if secretData, err := create(o.forceRefresh, maxTries); err != nil {
+			if secretData, expiration, err := create(o.forceRefresh, maxTries); err != nil {
 				errs = append(errs, &namespacedError{ns, err.Error()})
-			} else if secret, err := createOrUpdateSecret(o, client, ns, secretData); err != nil {
+			} else if secret, err := createOrUpdateSecret(o, client, ns, secretData, expiration); err != nil {
 				errs = append(errs, &namespacedError{ns, err.Error()})
 			} else {
 				secrets = append(secrets, secret)
