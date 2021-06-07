@@ -57,3 +57,4 @@ The following is a list of supported options for `authentikos`:
 - 0.0.5: Use [Sprig](http://masterminds.github.io/sprig/) as the library for template functions.
 - 0.0.6: Add `--force-refresh` option for forcing a token refresh. If this option is omitted or false, the token will only refresh when necessary. Add `--interval` option for customizing the token refresh interval. If unspecified, default scopes to _userinfo.email_, _cloud-platform_, and _openid_.
 - 0.0.7: Add more descriptive error logging for token creation failure.
+- 0.0.8: Support displaying real expiration time in token, print md5sum of token in logs.
