@@ -19,6 +19,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/md5"
 	"errors"
 	"fmt"
 	"html/template"
@@ -343,6 +344,7 @@ func createOrUpdateSecret(o options, client v1.SecretsGetter, ns string, secretD
 		Data: map[string][]byte{o.key: data},
 	}
 
+	printVerbose(fmt.Sprintf("md5sum of token created is: %x", md5.Sum(data)), o.verbose)
 	if secret, err := client.Secrets(ns).Create(req); err == nil {
 		printVerbose(fmt.Sprintf("creating secret: %v in namespace: %v\n", o.secret, ns), o.verbose)
 		return secret, nil
