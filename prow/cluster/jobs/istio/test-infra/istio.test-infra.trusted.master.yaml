@@ -95,3 +95,36 @@ periodics:
       secret:
         secretName: istio-testing-robot-ssh-key
         defaultMode: 0400
+- cron: "30 20 * * 1-5"  # Bump with label `auto-merge`. Run at 13:30 PST (20:05 UTC) Mon-Fri
+  name: ci-prow-autobump-for-auto-deploy
+  cluster: test-infra-trusted
+  decorate: true
+  extra_refs:
+  - org: istio
+    repo: test-infra
+    base_ref: master
+  annotations:
+    testgrid-create-test-group: "false"
+  spec:
+    containers:
+    - image: gcr.io/k8s-prow/generic-autobumper:v20210607-a3457f6e65
+      command:
+      - /app/prow/cmd/generic-autobumper/app.binary
+      args:
+      - --config=prow/istio-autobump-config.yaml
+      - --labels-override=auto-merge # This label is used by tide for identifying trusted PR
+      - --skip-if-no-oncall # Only apply `auto-merge` label when oncall is active
+      volumeMounts:
+      - name: github
+        mountPath: /etc/github-token
+        readOnly: true
+      - name: ssh
+        mountPath: /root/.ssh
+    volumes:
+    - name: github
+      secret:
+        secretName: oauth-token
+    - name: ssh
+      secret:
+        secretName: istio-testing-robot-ssh-key
+        defaultMode: 0400
