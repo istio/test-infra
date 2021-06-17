@@ -34,7 +34,7 @@ jobs:
   types: [presubmit]
   command: [./prow/proxy-presubmit-centos-release.sh]
   requirements: [gcp]
-  image: gcr.io/istio-testing/build-tools-centos:master-2021-06-15T16-37-30
+  image: gcr.io/istio-testing/build-tools-centos:master-2021-06-16T23-16-54
   timeout: 4h
 
 - name: check-wasm
@@ -53,7 +53,7 @@ jobs:
   types: [postsubmit]
   command: [./prow/proxy-postsubmit-centos.sh]
   requirements: [gcp]
-  image: gcr.io/istio-testing/build-tools-centos:master-2021-06-15T16-37-30
+  image: gcr.io/istio-testing/build-tools-centos:master-2021-06-16T23-16-54
   timeout: 4h
 
 - name: update-istio
@@ -69,7 +69,7 @@ jobs:
   - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
   requirements: [github]
   repos: [istio/test-infra@master]
-  image: gcr.io/istio-testing/build-tools:master-2021-06-15T16-37-30
+  image: gcr.io/istio-testing/build-tools:master-2021-06-16T23-16-54
   timeout: 4h
 
 resources:
