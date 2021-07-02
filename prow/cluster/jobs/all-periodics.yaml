@@ -398,32 +398,6 @@ periodics:
     nodeSelector:
       testing: test-pool
 
-# Security policy fuzz testing
-- cron: "0 7 * * *"  # starts every day at 07:00AM UTC
-  name: istio-security-fuzz-tests-master
-  branches: master
-  decorate: true
-  extra_refs:
-  - org: istio
-    repo: istio
-    base_ref: master
-    path_alias: istio.io/istio
-  annotations:
-    testgrid-dashboards: istio_release-pipeline
-    testgrid-alert-email: istio-oncall@googlegroups.com
-    testgrid-num-failures-to-alert: '1'
-  labels:
-    preset-service-account: "true"
-  spec:
-    containers:
-    - <<: *istio_container_with_kind
-      command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - test.integration-fuzz.security.fuzz.kube
-    nodeSelector:
-      testing: test-pool
-
 # upgrade test using istioctl from 1.9 latest to master
 - cron: "0 8 * * *"  # starts every day at 08:00AM UTC
   name: istio-upgrade-using-istioctl-1.9_latest-master
