@@ -726,6 +726,11 @@ func applyModifiersPresubmit(presubmit *config.Presubmit, jobModifiers []string)
 			presubmit.Optional = true
 		} else if modifier == ModifierHidden {
 			presubmit.SkipReport = true
+			presubmit.ReporterConfig = &prowjob.ReporterConfig{
+				Slack: &prowjob.SlackReporterConfig{
+					JobStatesToReport: []prowjob.ProwJobState{},
+				},
+			}
 		} else if modifier == ModifierSkipped {
 			presubmit.AlwaysRun = false
 		}
@@ -738,6 +743,11 @@ func applyModifiersPostsubmit(postsubmit *config.Postsubmit, jobModifiers []stri
 			// Does not exist on postsubmit
 		} else if modifier == ModifierHidden {
 			postsubmit.SkipReport = true
+			postsubmit.ReporterConfig = &prowjob.ReporterConfig{
+				Slack: &prowjob.SlackReporterConfig{
+					JobStatesToReport: []prowjob.ProwJobState{},
+				},
+			}
 		}
 		// Cannot skip a postsubmit; instead just make `type: presubmit`
 	}
