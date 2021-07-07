@@ -23,7 +23,6 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
-	"strings"
 
 	k8sProwConfig "k8s.io/test-infra/prow/config"
 
@@ -45,24 +44,9 @@ func GetFileName(repo string, org string, branch string) string {
 }
 
 var (
-	inputDir        = flag.String("input-dir", "../jobs", "directory of input jobs")
-	outputDir       = flag.String("output-dir", "../../cluster/jobs", "directory of output jobs")
-	privateInputDir = flag.String("private-input-dir", "../istio-private_jobs", "directory of istio-private input jobs")
+	inputDir  = flag.String("input-dir", "../jobs", "directory of input jobs")
+	outputDir = flag.String("output-dir", "../../cluster/jobs", "directory of output jobs")
 )
-
-func privateTransformJobs(in []string, branch string) []string {
-	for key, val := range in {
-		if strings.HasSuffix(val, "_postsubmit") {
-			val = strings.Replace(val, "_postsubmit", fmt.Sprintf("_%s_postsubmit", branch), 1)
-		} else if strings.HasSuffix(val, "_presubmit") {
-			val = strings.Replace(val, "_presubmit", fmt.Sprintf("_%s_presubmit", branch), 1)
-		} else {
-			val = fmt.Sprintf("%s_%s", val, branch)
-		}
-		in[key] = val
-	}
-	return in
-}
 
 func main() {
 	flag.Parse()
@@ -89,6 +73,7 @@ func main() {
 			if err != nil {
 				fmt.Printf("error: %s\n", err.Error())
 			}
+
 			if file.IsDir() {
 				return nil
 			}
@@ -118,7 +103,7 @@ func main() {
 				ext := filepath.Ext(name)
 				name = name[:len(name)-len(ext)] + "-" + flag.Arg(1) + ext
 
-				dst := path.Join("..", "jobs", name)
+				dst := path.Join(*inputDir, name)
 				if err := config.WriteJobConfig(jobs, dst); err != nil {
 					exit(err, "writing branched config failed")
 				}
@@ -127,52 +112,6 @@ func main() {
 			return nil
 		}); err != nil {
 			exit(err, "walking through the meta config files failed")
-		}
-
-		// istio-private
-		if err := filepath.Walk(*privateInputDir, func(src string, file os.FileInfo, err error) error {
-			if err != nil {
-				fmt.Printf("error: %s\n", err.Error())
-			}
-
-			if file.IsDir() {
-				return nil
-			}
-			if filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml" || file.Name() == ".global.yaml" {
-				log.Println("skipping", file.Name())
-				return nil
-			}
-			jobs := cli.ReadPrivateJobsConfig(src)
-			if jobs.SupportReleaseBranching {
-				branch := "release-" + flag.Arg(1)
-				jobs.Defaults.Branches = []string{branch}
-				jobs.SupportReleaseBranching = false
-				jobs.Defaults.Modifier = strings.Replace(jobs.Defaults.Modifier, "master_", fmt.Sprintf("%s_", branch), 1)
-
-				for key, transform := range jobs.Transforms {
-					transform.JobAllowlist = privateTransformJobs(transform.JobAllowlist, branch)
-					transform.JobDenylist = privateTransformJobs(transform.JobDenylist, branch)
-
-					for key, val := range transform.Labels {
-						transform.Labels[key] = strings.Replace(val, "master", branch, 1)
-					}
-
-					jobs.Transforms[key] = transform
-
-				}
-				name := file.Name()
-				ext := filepath.Ext(name)
-				name = name[:len(name)-len(ext)] + "-" + flag.Arg(1) + ext
-
-				dst := path.Join("..", "istio-private_jobs", name)
-				if err := config.WritePrivateJobConfig(jobs, dst); err != nil {
-					exit(err, "writing branched config failed")
-				}
-			}
-
-			return nil
-		}); err != nil {
-			exit(err, "walking through the private meta config files failed")
 		}
 	} else {
 		type ref struct {

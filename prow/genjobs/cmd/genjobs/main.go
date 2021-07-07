@@ -33,6 +33,7 @@ import (
 	"k8s.io/test-infra/prow/config"
 	"sigs.k8s.io/yaml"
 
+	"istio.io/test-infra/prow/genjobs/pkg/configuration"
 	"istio.io/test-infra/prow/genjobs/pkg/util"
 )
 
@@ -59,57 +60,6 @@ const (
 	descending sortOrder = "desc"
 )
 
-// Configuration is the yaml configuration file format.
-type Configuration struct {
-	Org                     string      `json:"org,omitempty"`
-	Repo                    string      `json:"repo,omitempty"`
-	SupportReleaseBranching bool        `json:"support_release_branching,omitempty"`
-	Defaults                transform   `json:"defaults,omitempty"`
-	Transforms              []transform `json:"transforms,omitempty"`
-}
-
-// transform are the available transformation fields.
-type transform struct {
-	Annotations            map[string]string       `json:"annotations,omitempty"`
-	Bucket                 string                  `json:"bucket,omitempty"`
-	Cluster                string                  `json:"cluster,omitempty"`
-	Channel                string                  `json:"channel,omitempty"`
-	SSHKeySecret           string                  `json:"ssh-key-secret,omitempty"`
-	Modifier               string                  `json:"modifier,omitempty"`
-	Input                  string                  `json:"input,omitempty"`
-	Output                 string                  `json:"output,omitempty"`
-	Sort                   string                  `json:"sort,omitempty"`
-	ExtraRefs              []prowjob.Refs          `json:"extra-refs,omitempty"`
-	ReporterConfig         *prowjob.ReporterConfig `json:"reporter_config,omitempty"`
-	Branches               []string                `json:"branches,omitempty"`
-	BranchesOut            []string                `json:"branches-out,omitempty"`
-	RefBranchOut           string                  `json:"ref-branch-out,omitempty"`
-	Presets                []string                `json:"presets,omitempty"`
-	RerunOrgs              []string                `json:"rerun-orgs,omitempty"`
-	RerunUsers             []string                `json:"rerun-users,omitempty"`
-	EnvDenylist            []string                `json:"env-denylist,omitempty"`
-	VolumeDenylist         []string                `json:"volume-denylist,omitempty"`
-	JobAllowlist           []string                `json:"job-allowlist,omitempty"`
-	JobDenylist            []string                `json:"job-denylist,omitempty"`
-	RepoAllowlist          []string                `json:"repo-allowlist,omitempty"`
-	RepoDenylist           []string                `json:"repo-denylist,omitempty"`
-	JobType                []string                `json:"job-type,omitempty"`
-	Selector               map[string]string       `json:"selector,omitempty"`
-	Labels                 map[string]string       `json:"labels,omitempty"`
-	Env                    map[string]string       `json:"env,omitempty"`
-	RefOrgMap              map[string]string       `json:"ref-mapping,omitempty"`
-	OrgMap                 map[string]string       `json:"mapping,omitempty"`
-	Clean                  bool                    `json:"clean,omitempty"`
-	DryRun                 bool                    `json:"dry-run,omitempty"`
-	Refs                   bool                    `json:"refs,omitempty"`
-	Resolve                bool                    `json:"resolve,omitempty"`
-	SSHClone               bool                    `json:"ssh-clone,omitempty"`
-	OverrideSelector       bool                    `json:"override-selector,omitempty"`
-	SupportGerritReporting bool                    `json:"support-gerrit-reporting,omitempty"`
-	AllowLongJobNames      bool                    `json:"allow-long-job-names,omitempty"`
-	Verbose                bool                    `json:"verbose,omitempty"`
-}
-
 // options are the available command-line flags.
 type options struct {
 	Configs           []string
@@ -121,7 +71,7 @@ type options struct {
 	RepoAllowlistSet  sets.String
 	RepoDenylistSet   sets.String
 	JobTypeSet        sets.String
-	transform
+	configuration.Transform
 }
 
 // parseOpts parses the command-line flags.
@@ -179,7 +129,7 @@ func (o *options) parseOpts() {
 // parseConfiguration parses the yaml configuration transforms.
 func (o *options) parseConfiguration() []options {
 	var optsList []options
-	var global Configuration
+	var global configuration.Configuration
 
 	if o.Global != "" {
 		if d, err := ioutil.ReadFile(o.Global); err == nil {
@@ -197,7 +147,7 @@ func (o *options) parseConfiguration() []options {
 				return nil
 			}
 
-			var local Configuration
+			var local configuration.Configuration
 			if d, err := ioutil.ReadFile(filepath.Join(filepath.Dir(path), defaultsFilename)); err == nil {
 				_ = yaml.Unmarshal(d, &local)
 			}
@@ -207,7 +157,7 @@ func (o *options) parseConfiguration() []options {
 				return nil
 			}
 
-			var c Configuration
+			var c configuration.Configuration
 			if err := yaml.Unmarshal(f, &c); err != nil {
 				return nil
 			}
@@ -227,7 +177,7 @@ func (o *options) parseConfiguration() []options {
 					RepoAllowlistSet:  sets.NewString(t.RepoAllowlist...),
 					RepoDenylistSet:   sets.NewString(t.RepoDenylist...),
 					JobTypeSet:        sets.NewString(t.JobType...),
-					transform:         t,
+					Transform:         t,
 				}
 
 				if err := oc.validateOpts(); err != nil {
@@ -298,7 +248,7 @@ func (o *options) validateOpts() error {
 }
 
 // applyDefaultTransforms defaults transform struct from left to right with decreasing precedence.
-func applyDefaultTransforms(dst *transform, srcs ...*transform) {
+func applyDefaultTransforms(dst *configuration.Transform, srcs ...*configuration.Transform) {
 	for _, src := range srcs {
 		if dst.Annotations == nil {
 			dst.Annotations = src.Annotations
