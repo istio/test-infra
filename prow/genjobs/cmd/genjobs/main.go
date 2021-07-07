@@ -59,10 +59,13 @@ const (
 	descending sortOrder = "desc"
 )
 
-// configuration is the yaml configuration file format.
-type configuration struct {
-	Defaults   transform   `json:"defaults,omitempty"`
-	Transforms []transform `json:"transforms,omitempty"`
+// Configuration is the yaml configuration file format.
+type Configuration struct {
+	Org                     string      `json:"org,omitempty"`
+	Repo                    string      `json:"repo,omitempty"`
+	SupportReleaseBranching bool        `json:"support_release_branching,omitempty"`
+	Defaults                transform   `json:"defaults,omitempty"`
+	Transforms              []transform `json:"transforms,omitempty"`
 }
 
 // transform are the available transformation fields.
@@ -176,7 +179,7 @@ func (o *options) parseOpts() {
 // parseConfiguration parses the yaml configuration transforms.
 func (o *options) parseConfiguration() []options {
 	var optsList []options
-	var global configuration
+	var global Configuration
 
 	if o.Global != "" {
 		if d, err := ioutil.ReadFile(o.Global); err == nil {
@@ -194,7 +197,7 @@ func (o *options) parseConfiguration() []options {
 				return nil
 			}
 
-			var local configuration
+			var local Configuration
 			if d, err := ioutil.ReadFile(filepath.Join(filepath.Dir(path), defaultsFilename)); err == nil {
 				_ = yaml.Unmarshal(d, &local)
 			}
@@ -204,7 +207,7 @@ func (o *options) parseConfiguration() []options {
 				return nil
 			}
 
-			var c configuration
+			var c Configuration
 			if err := yaml.Unmarshal(f, &c); err != nil {
 				return nil
 			}

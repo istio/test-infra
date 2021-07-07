@@ -1,3 +1,7 @@
+org: istio
+repo: release-builder
+support_release_branching: true
+
 defaults:
   branches: [master]
   repo-allowlist: [release-builder]
@@ -8,7 +12,9 @@ transforms:
 # istio/release-builder master test jobs(s) - pre/postsubmit(s)
 - job-type: [presubmit, postsubmit]
   job-allowlist: [lint_release-builder,lint_release-builder_postsubmit,test_release-builder,test_release-builder_postsubmit,gencheck_release-builder,gencheck_release-builder_postsubmit]
+  repo-allowlist: [release-builder]
   labels:
+    preset-enable-netrc: true
 
 # istio/release-builder master build warning jobs(s) - presubmit(s)
 - env:
@@ -16,6 +22,8 @@ transforms:
     GCS_BUCKET: istio-private-prerelease/prerelease
   job-type: [presubmit]
   job-allowlist: [build-warning_release-builder]
+  repo-allowlist: [release-builder]
+  labels:
 
   # istio/release-builder master build jobs(s) - postsubmit(s)
 - env:
@@ -25,5 +33,7 @@ transforms:
     preset-enable-ssh: "true"
     preset-override-envoy: "true"
     preset-override-deps: master-release
+    preset-enable-netrc: "true"
   job-type: [postsubmit]
   job-allowlist: [build-release_release-builder_postsubmit]
+  repo-allowlist: [release-builder]
