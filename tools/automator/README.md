@@ -57,7 +57,7 @@ The following is a list of supported options for `automator.sh`. If an option is
 | `--verbose`     |            | Enable verbose output. Print commands and their arguments as they are executed. **WARNING**: this has the potential to print sensitive data to standard output.                                                                                             |                                                                                                 |
 | `--strict`      |            | Enable strict mode. When enabled, if the command does not produce a [git diff] it will exit with a non-zero exit code.                                                                                                                                      |                                                                                                 |
 | `--dry-run`     |            | Enable dry run mode. When enabled, the command will terminate early and **NOT** perform a commit, push, or pull request for any changes. This is useful for local testing/debugging or when concerned only with the [git diff] or exit code of the command. |                                                                                                 |
-| `--git-exclude` | string | Applied to list of file changes in the PR CAUSING this automator run using grep -vE '\<string\>'. If no additional changes remain, the automator task will stop. | `^common/`<br> `^pkg/\|^pilot/`|
+| `--git-exclude` | string | Applied to list of file changes in the commit CAUSING this automator run using grep -vE '\<string\>'. If no additional changes remain, the automator task will stop. | `^common/`<br> `^pkg/\|^pilot/`|
 
 ### Environment Variables
 
