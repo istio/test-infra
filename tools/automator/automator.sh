@@ -194,6 +194,10 @@ validate_opts() {
   if [ -z "${email:-}" ] && ! $dry_run; then
     email="$(curl -sSfLH "Authorization: token $token" "https://api.github.com/user" | jq --raw-output ".email")"
   fi
+
+  if [ -z "${git_exclude:-}" ]; then
+    git_exclude=""
+  fi
 }
 
 evaluate_opts() {
