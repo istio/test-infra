@@ -118,7 +118,7 @@ get_opts() {
       shift
       ;;
     --git-exclude)
-      git_exclude=(":^$2")
+      git_exclude="$2"
       shift 2
       ;;
     --)
@@ -194,10 +194,6 @@ validate_opts() {
   if [ -z "${email:-}" ] && ! $dry_run; then
     email="$(curl -sSfLH "Authorization: token $token" "https://api.github.com/user" | jq --raw-output ".email")"
   fi
-
-  if [ -z "${git_exclude:-}" ]; then
-    git_exclude=()
-  fi
 }
 
 evaluate_opts() {
@@ -237,7 +233,7 @@ add_labels() {
 
 commit() {
   if $dry_run; then
-    git diff --cached "${git_exclude[@]}"
+    git diff --cached
     return 0
   fi
 
@@ -280,6 +276,18 @@ merge() {
   fi
 }
 
+validate_changes_exist_in_prior_pr() {
+  if [ -n "$git_exclude" ]; then
+    pr="$(curl -sSfLH "Authorization: token $token" -H "Accept: application/vnd.github.groot-preview+json" "https://api.github.com/repos/$user/$repo/commits/$sha/pulls" | jq ".[0].number")"
+    export GITHUB_TOKEN="$token"
+    changes=$(gh pr view "$pr" --repo "$user"/"$repo" --json files | jq -r '.files[].path' | grep -cvE '$git_exclude')
+    if [ "${changes}" -eq 0 ]
+    then
+      print_error_and_exit "No changes remaining in upstream PR after excluding" 0  # not really an error so return 0
+    fi
+  fi
+}
+
 work() { (
   set -e
 
@@ -305,7 +313,7 @@ work() { (
 
     git add --all
 
-    if ! git diff --cached --quiet --exit-code "${git_exclude[@]}"; then
+    if ! git diff --cached --quiet --exit-code; then
       commit
     elif $strict; then
       print_error "no diff for $repo" 1
@@ -323,6 +331,7 @@ main() {
   get_opts "$@"
   validate_opts
   export_globals
+  validate_changes_exist_in_prior_pr
 
   AUTOMATOR_ROOT_DIR="$(pwd)"
 
