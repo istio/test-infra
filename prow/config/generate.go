@@ -33,6 +33,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 	prowjob "k8s.io/test-infra/prow/apis/prowjobs/v1"
 	"k8s.io/test-infra/prow/config"
+	"k8s.io/test-infra/prow/gerrit/client"
 )
 
 func exit(err error, context string) {
@@ -75,6 +76,9 @@ type GlobalConfig struct {
 
 	PathAliases map[string]string `json:"path_aliases,omitempty"`
 
+	GCSLogBucket                  string `json:"gcs_log_bucket,omitempty"`
+	TerminationGracePeriodSeconds int64  `json:"termination_grace_period_seconds,omitempty"`
+
 	Cluster      string            `json:"cluster,omitempty"`
 	NodeSelector map[string]string `json:"node_selector,omitempty"`
 
@@ -112,11 +116,16 @@ type JobsConfig struct {
 	Interval string `json:"interval,omitempty"`
 	Cron     string `json:"cron,omitempty"`
 
+	GCSLogBucket                  string `json:"gcs_log_bucket,omitempty"`
+	TerminationGracePeriodSeconds int64  `json:"termination_grace_period_seconds,omitempty"`
+
 	Cluster      string            `json:"cluster,omitempty"`
 	NodeSelector map[string]string `json:"node_selector,omitempty"`
 
 	Annotations map[string]string `json:"annotations,omitempty"`
 	Labels      map[string]string `json:"labels,omitempty"`
+
+	Trigger string `json:"trigger,omitempty"`
 
 	ResourcePresets    map[string]v1.ResourceRequirements `json:"resources,omitempty"`
 	Requirements       []string                           `json:"requirements,omitempty"`
@@ -141,11 +150,18 @@ type Job struct {
 	Interval string `json:"interval,omitempty"`
 	Cron     string `json:"cron,omitempty"`
 
+	GCSLogBucket                  string `json:"gcs_log_bucket,omitempty"`
+	TerminationGracePeriodSeconds int64  `json:"termination_grace_period_seconds,omitempty"`
+
 	Cluster      string            `json:"cluster,omitempty"`
 	NodeSelector map[string]string `json:"node_selector,omitempty"`
 
-	Annotations map[string]string `json:"annotations,omitempty"`
-	Labels      map[string]string `json:"labels,omitempty"`
+	Annotations           map[string]string `json:"annotations,omitempty"`
+	Labels                map[string]string `json:"labels,omitempty"`
+	GerritPresubmitLabel  string            `json:"gerrit_presubmit_label,omitempty"`
+	GerritPostsubmitLabel string            `json:"gerrit_postsubmit_label,omitempty"`
+
+	Trigger string `json:"trigger,omitempty"`
 
 	Resource     string   `json:"resources,omitempty"`
 	Modifiers    []string `json:"modifiers,omitempty"`
@@ -231,6 +247,24 @@ func resolveOverwrites(globalConfig GlobalConfig, jobsConfig JobsConfig) JobsCon
 		}
 		job.Cluster = cluster
 
+		gcsLogBucket := globalConfig.GCSLogBucket
+		if jobsConfig.GCSLogBucket != "" {
+			gcsLogBucket = jobsConfig.GCSLogBucket
+		}
+		if job.GCSLogBucket != "" {
+			gcsLogBucket = job.GCSLogBucket
+		}
+		job.GCSLogBucket = gcsLogBucket
+
+		terminateGracePeriodSeconds := globalConfig.TerminationGracePeriodSeconds
+		if jobsConfig.TerminationGracePeriodSeconds != 0 {
+			terminateGracePeriodSeconds = jobsConfig.TerminationGracePeriodSeconds
+		}
+		if job.TerminationGracePeriodSeconds != 0 {
+			terminateGracePeriodSeconds = job.TerminationGracePeriodSeconds
+		}
+		job.TerminationGracePeriodSeconds = terminateGracePeriodSeconds
+
 		image := jobsConfig.Image
 		if job.Image != "" {
 			image = job.Image
@@ -254,6 +288,12 @@ func resolveOverwrites(globalConfig GlobalConfig, jobsConfig JobsConfig) JobsCon
 			cronStr = job.Cron
 		}
 		job.Cron = cronStr
+
+		trigger := jobsConfig.Trigger
+		if job.Trigger != "" {
+			trigger = job.Trigger
+		}
+		job.Trigger = trigger
 
 		jobsConfig.Jobs[i] = job
 	}
@@ -375,6 +415,9 @@ func (cli *Client) ConvertJobConfig(jobsConfig JobsConfig, branch string) config
 					AlwaysRun: true,
 					Brancher:  brancher,
 				}
+				if job.GerritPresubmitLabel != "" {
+					presubmit.Labels[client.GerritReportLabel] = job.GerritPresubmitLabel
+				}
 				if pa, ok := globalConfig.PathAliases[jobsConfig.Org]; ok {
 					presubmit.UtilityConfig.PathAlias = fmt.Sprintf("%s/%s", pa, jobsConfig.Repo)
 				}
@@ -383,6 +426,10 @@ func (cli *Client) ConvertJobConfig(jobsConfig JobsConfig, branch string) config
 						RunIfChanged: job.Regex,
 					}
 					presubmit.AlwaysRun = false
+				}
+				if job.Trigger != "" {
+					presubmit.Trigger = job.Trigger
+					presubmit.RerunCommand = job.Trigger
 				}
 				if testgridConfig.Enabled {
 					presubmit.JobBase.Annotations = mergeMaps(presubmit.JobBase.Annotations, map[string]string{
@@ -404,6 +451,9 @@ func (cli *Client) ConvertJobConfig(jobsConfig JobsConfig, branch string) config
 				postsubmit := config.Postsubmit{
 					JobBase:  createJobBase(globalConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets),
 					Brancher: brancher,
+				}
+				if job.GerritPostsubmitLabel != "" {
+					postsubmit.Labels[client.GerritReportLabel] = job.GerritPostsubmitLabel
 				}
 				if pa, ok := globalConfig.PathAliases[jobsConfig.Org]; ok {
 					postsubmit.UtilityConfig.PathAlias = fmt.Sprintf("%s/%s", pa, jobsConfig.Repo)
@@ -675,9 +725,23 @@ func createJobBase(globalConfig GlobalConfig, jobConfig JobsConfig, job Job,
 		jb.Annotations = map[string]string{}
 	}
 
+	if job.TerminationGracePeriodSeconds != 0 {
+		jb.Spec.TerminationGracePeriodSeconds = &job.TerminationGracePeriodSeconds
+	}
+
 	if job.Timeout != nil {
-		jb.DecorationConfig = &prowjob.DecorationConfig{
-			Timeout: job.Timeout,
+		if jb.DecorationConfig == nil {
+			jb.DecorationConfig = &prowjob.DecorationConfig{}
+		}
+		jb.DecorationConfig.Timeout = job.Timeout
+	}
+	if job.GCSLogBucket != "" {
+		if jb.DecorationConfig == nil {
+			jb.DecorationConfig = &prowjob.DecorationConfig{}
+		}
+		jb.DecorationConfig.GCSConfiguration = &prowjob.GCSConfiguration{
+			Bucket:       globalConfig.GCSLogBucket,
+			PathStrategy: "explicit",
 		}
 	}
 

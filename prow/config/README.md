@@ -103,6 +103,13 @@ image: gcr.io/istio-testing/build-tools:master
 # version
 supports_release_branching: false
 
+# A matrix can contain arbitrary number of dimensions, and can be used to easily define a combination of Prow jobs.
+# Each dimension will only be respected for computation if they are referenced in the Prow job config, and the syntax
+# to use the dimension is $(matrix.dimension_name)
+matrix:
+  greet: [hey, hello, hi]
+  name: [foo, bar]
+
 # Defines the actual jobs
 jobs:
   # A basic test requires just a name and a command to run
@@ -127,6 +134,10 @@ jobs:
     - skipped # if set, the test will run only in postsubmit or by explicitly calling /test on it
     - hidden # if set, the test will run but not be reported to the GitHub UI
     - optional # if set, the test will not be required
+  - name: $(matrix.greet)-$(matrix.name)
+    # Prow jobs will be generated based on the combinations of each dimension.
+    # In this case 3*2=6 Prow jobs will be generated.
+    command: [echo, "${matrix.greet} $(matrix.name)"]
 
 # Defines preset resource allocations for tests
 # The map here will be intersected with the map in the global config (if there is),
