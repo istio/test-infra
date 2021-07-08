@@ -278,9 +278,10 @@ merge() {
 
 validate_changes_exist_in_prior_pr() {
   if [ -n "$git_exclude" ]; then
-    pr="$(curl -sSfLH "Authorization: token $token" -H "Accept: application/vnd.github.groot-preview+json" "https://api.github.com/repos/$user/$repo/commits/$sha/pulls" | jq ".[0].number")"
+    repo0=$(echo $repos | cut -d' ' -f1)  #just use first repo if multiple specified
+    pr="$(curl -sSfLH "Accept: application/vnd.github.groot-preview+json" "https://api.github.com/repos/$org/${repo0}/commits/$sha/pulls" | jq ".[0].number")"
     export GITHUB_TOKEN="$token"
-    changes=$(gh pr view "$pr" --repo "$user"/"$repo" --json files | jq -r '.files[].path' | grep -cvE '$git_exclude')
+    changes=$(gh pr view "$pr" --repo "$org"/"$repo0" --json files | jq -r '.files[].path' | grep -cvE "$git_exclude")
     if [ "${changes}" -eq 0 ]
     then
       print_error_and_exit "No changes remaining in upstream PR after excluding" 0  # not really an error so return 0
