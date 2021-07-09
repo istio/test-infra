@@ -280,7 +280,9 @@ merge() {
   fi
 }
 
-validate_changes_exist_in_prior_pr() {
+# validate_changes_exist_in_latest_commit validates changes exist in the prior commit after removing files specified
+# in the git_exclude list. If no files remain after exclusion, the automation script exits.
+validate_changes_exist_in_latest_commit() {
   if [ -n "$git_exclude" ]; then
     changes=$(git show --name-only --pretty=oneline | sed 1d | grep -cvE "$git_exclude") # need to remove first line
     if [ "${changes}" -eq 0 ]
@@ -333,7 +335,7 @@ main() {
   get_opts "$@"
   validate_opts
   export_globals
-  validate_changes_exist_in_prior_pr
+  validate_changes_exist_in_latest_commit
 
   AUTOMATOR_ROOT_DIR="$(pwd)"
 
