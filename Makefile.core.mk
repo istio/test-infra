@@ -29,6 +29,7 @@ gen-check: gen check-clean-repo
 generate-config:
 	@rm -fr prow/cluster/jobs/istio/*/*.gen.yaml
 	@(cd prow/config/cmd; go run generate.go write)
+	@rm -fr prow/cluster/jobs/istio-private/*/*.gen.yaml
 	@go run prow/genjobs/main.go --configs=./prow/config/istio-private_jobs
 
 diff-config:

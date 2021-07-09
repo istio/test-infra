@@ -70,6 +70,10 @@ func main() {
 
 	if os.Args[1] == "branch" {
 		if err := filepath.Walk(*inputDir, func(src string, file os.FileInfo, err error) error {
+			if err != nil {
+				fmt.Printf("error: %s\n", err.Error())
+			}
+
 			if file.IsDir() {
 				return nil
 			}
@@ -99,7 +103,7 @@ func main() {
 				ext := filepath.Ext(name)
 				name = name[:len(name)-len(ext)] + "-" + flag.Arg(1) + ext
 
-				dst := path.Join("..", "jobs", name)
+				dst := path.Join(*inputDir, name)
 				if err := config.WriteJobConfig(jobs, dst); err != nil {
 					exit(err, "writing branched config failed")
 				}

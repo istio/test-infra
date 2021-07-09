@@ -1,3 +1,7 @@
+org: istio
+repo: istio
+support_release_branching: true
+
 defaults:
   branches: [master]
   repo-allowlist: [istio]
@@ -11,6 +15,7 @@ transforms:
     GCS_BUCKET: istio-private-build/dev
   labels:
     preset-enable-ssh: "true"
+    preset-enable-gomod-netrc: "true"
     preset-override-deps: master-istio
   job-type: [postsubmit]
   job-allowlist: [release_istio_postsubmit]
@@ -18,7 +23,8 @@ transforms:
 # istio/istio master test jobs(s) - presubmit(s) and postsubmit(s)
 - labels:
     preset-enable-ssh: "true"
+    preset-enable-gomod-netrc: "true"
     preset-override-envoy: "true"
     preset-override-deps: master-istio
   job-type: [presubmit, postsubmit]
-  job-denylist: [benchmark-report_istio_postsubmit, release_istio_postsubmit, cache-experiment_istio_postsubmit, cache-experiment_istio, update-ref-docs-dry-run_istio]
+  job-denylist: [benchmark-report_istio_postsubmit, release_istio_postsubmit, release-notes_istio]

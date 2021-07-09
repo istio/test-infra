@@ -5,14 +5,14 @@ defaults:
 
 transforms:
 
-# istio/release-builder release-1.9 test jobs(s) - pre/postsubmit(s)
+# istio/release-builder test jobs(s) - pre/postsubmit(s)
 - job-type: [presubmit, postsubmit]
   repo-allowlist: [release-builder]
   job-allowlist: [lint_release-builder_release-1.9,lint_release-builder_release-1.9_postsubmit,test_release-builder_release-1.9,test_release-builder_release-1.9_postsubmit,gencheck_release-builder_release-1.9,gencheck_release-builder_release-1.9_postsubmit]
   labels:
     preset-enable-netrc: "true"
 
-# istio/release-builder release-1.9 build warning jobs(s) - presubmit(s)
+# istio/release-builder build warning jobs(s) - presubmit(s)
 - env:
     PRERELEASE_DOCKER_HUB: gcr.io/istio-prow-build
     GCS_BUCKET: istio-private-prerelease/prerelease
@@ -20,7 +20,7 @@ transforms:
   repo-allowlist: [release-builder]
   job-allowlist: [build-warning_release-builder_release-1.9]
 
-  # istio/release-builder release-1.9 build jobs(s) - postsubmit(s)
+  # istio/release-builder build jobs(s) - postsubmit(s)
 - env:
     PRERELEASE_DOCKER_HUB: gcr.io/istio-prow-build
     GCS_BUCKET: istio-private-prerelease/prerelease
