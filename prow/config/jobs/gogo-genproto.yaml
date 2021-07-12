@@ -23,7 +23,7 @@ jobs:
     - --labels=auto-merge,release-notes-none
     - --modifier=update_gogo-genproto_dep
     - --token-path=/etc/github-token/oauth
-    - --git-exclude=common
+    - --git-exclude=^common/
     - --cmd=go get istio.io/gogo-genproto@$AUTOMATOR_SHA && go mod tidy && make clean gen
     requirements: [github]
     repos: [istio/test-infra@master]
