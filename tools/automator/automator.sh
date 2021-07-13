@@ -284,7 +284,9 @@ merge() {
 # in the git_exclude list. If no files remain after exclusion, the automation script exits.
 validate_changes_exist_in_latest_commit() {
   if [ -n "$git_exclude" ]; then
+    set +e # grep will have an exit code of 1 if all files are excluded causing the script to fail
     changes=$(git show --name-only --pretty=oneline | sed 1d | grep -cvE "$git_exclude") # need to remove first line
+    set -e
     if [ "${changes}" -eq 0 ]
     then
       print_error_and_exit "No changes remaining in upstream PR after excluding" 0  # not really an error so return 0
