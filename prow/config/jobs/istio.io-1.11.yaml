@@ -1,0 +1,218 @@
+branches:
+- release-1.11
+image: gcr.io/istio-testing/build-tools:master-2021-07-13T17-42-03
+jobs:
+- command:
+  - make
+  - lint
+  image: gcr.io/istio-testing/build-tools:master-2021-07-13T17-42-03
+  name: lint
+  node_selector:
+    testing: test-pool
+  requirements:
+  - cache
+- command:
+  - make
+  - gen-check
+  image: gcr.io/istio-testing/build-tools:master-2021-07-13T17-42-03
+  name: gencheck
+  node_selector:
+    testing: test-pool
+  requirements:
+  - cache
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - doc.test.profile_default
+  image: gcr.io/istio-testing/build-tools:master-2021-07-13T17-42-03
+  name: doc.test.profile_default
+  node_selector:
+    testing: test-pool
+  requirements:
+  - cache
+  - kind
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - doc.test.profile_demo
+  image: gcr.io/istio-testing/build-tools:master-2021-07-13T17-42-03
+  name: doc.test.profile_demo
+  node_selector:
+    testing: test-pool
+  requirements:
+  - cache
+  - kind
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - doc.test.profile_none
+  image: gcr.io/istio-testing/build-tools:master-2021-07-13T17-42-03
+  name: doc.test.profile_none
+  node_selector:
+    testing: test-pool
+  requirements:
+  - cache
+  - kind
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --topology
+  - MULTICLUSTER
+  - doc.test.multicluster
+  image: gcr.io/istio-testing/build-tools:master-2021-07-13T17-42-03
+  name: doc.test.multicluster
+  node_selector:
+    testing: test-pool
+  requirements:
+  - cache
+  - kind
+- command:
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=istio.io
+  - --token-path=/etc/github-token/oauth
+  - --cmd=make update_ref_docs
+  - --dry-run
+  image: gcr.io/istio-testing/build-tools:master-2021-07-13T17-42-03
+  modifiers:
+  - optional
+  name: update-ref-docs-dry-run
+  node_selector:
+    testing: test-pool
+  repos:
+  - istio/test-infra@master
+  requirements:
+  - cache
+  - github
+  types:
+  - presubmit
+org: istio
+repo: istio.io
+requirement_presets:
+  cache:
+    annotations: null
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /home/prow/go/pkg
+      name: build-cache
+      subPath: gomod
+    volumes:
+    - hostPath:
+        path: /tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+  deploy:
+    annotations: null
+    env: null
+    labels:
+      preset-prow-deployer-service-account: "true"
+    volumeMounts: null
+    volumes: null
+  docker:
+    annotations: null
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /var/lib/docker
+      name: docker-root
+    volumes:
+    - emptyDir: {}
+      name: docker-root
+  gcp:
+    annotations: null
+    env: null
+    labels:
+      preset-service-account: "true"
+    volumeMounts: null
+    volumes: null
+  github:
+    annotations: null
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /etc/github-token
+      name: github
+      readOnly: true
+    volumes:
+    - name: github
+      secret:
+        secretName: oauth-token
+  github-optional:
+    annotations: null
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /etc/github-token
+      name: github
+      readOnly: true
+    volumes:
+    - name: github
+      secret:
+        optional: true
+        secretName: oauth-token
+  gocache:
+    annotations: null
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /gocache
+      name: build-cache
+      subPath: gocache
+    volumes:
+    - hostPath:
+        path: /tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+  kind:
+    annotations: null
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /lib/modules
+      name: modules
+      readOnly: true
+    - mountPath: /sys/fs/cgroup
+      name: cgroup
+      readOnly: true
+    - mountPath: /var/lib/docker
+      name: docker-root
+    volumes:
+    - hostPath:
+        path: /lib/modules
+        type: Directory
+      name: modules
+    - hostPath:
+        path: /sys/fs/cgroup
+        type: Directory
+      name: cgroup
+    - emptyDir: {}
+      name: docker-root
+  release:
+    annotations: null
+    env: null
+    labels:
+      preset-release-pipeline: "true"
+    volumeMounts: null
+    volumes: null
+resources:
+  benchmark:
+    limits:
+      memory: 24Gi
+    requests:
+      cpu: "15"
+      memory: 8Gi
+  default:
+    limits:
+      cpu: "8"
+      memory: 24Gi
+    requests:
+      cpu: "5"
+      memory: 3Gi
+  lint:
+    limits:
+      cpu: "5"
+      memory: 24Gi
+    requests:
+      cpu: "3"
+      memory: 16Gi

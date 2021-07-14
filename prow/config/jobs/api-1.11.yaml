@@ -1,0 +1,197 @@
+branches:
+- release-1.11
+image: gcr.io/istio-testing/build-tools:master-2021-07-13T17-42-03
+jobs:
+- command:
+  - make
+  - presubmit
+  image: gcr.io/istio-testing/build-tools:master-2021-07-13T17-42-03
+  name: build
+  node_selector:
+    testing: test-pool
+  requirements:
+  - cache
+- command:
+  - make
+  - gen-check
+  image: gcr.io/istio-testing/build-tools:master-2021-07-13T17-42-03
+  name: gencheck
+  node_selector:
+    testing: test-pool
+  requirements:
+  - cache
+- command:
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=client-go
+  - '--title=Automator: update istio/api@$AUTOMATOR_SRC_BRANCH dependency in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+  - --labels=auto-merge,release-notes-none
+  - --modifier=update_api_dep
+  - --token-path=/etc/github-token/oauth
+  - --cmd=go get istio.io/api@$AUTOMATOR_SHA && go mod tidy && make clean gen
+  image: gcr.io/istio-testing/build-tools:master-2021-07-13T17-42-03
+  name: update_api_dep_client_go
+  node_selector:
+    testing: test-pool
+  repos:
+  - istio/test-infra@master
+  requirements:
+  - cache
+  - github
+  types:
+  - postsubmit
+- command:
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=istio
+  - '--title=Automator: update istio/api@$AUTOMATOR_SRC_BRANCH dependency in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+  - --labels=auto-merge,release-notes-none
+  - --modifier=update_api_dep
+  - --token-path=/etc/github-token/oauth
+  - --git-exclude=^common/
+  - --cmd=go get istio.io/api@$AUTOMATOR_SHA && go mod tidy && make clean gen
+  image: gcr.io/istio-testing/build-tools:master-2021-07-13T17-42-03
+  name: update_api_dep_istio
+  node_selector:
+    testing: test-pool
+  repos:
+  - istio/test-infra@master
+  requirements:
+  - cache
+  - github
+  types:
+  - postsubmit
+- command:
+  - ../test-infra/tools/check_release_notes.sh
+  - --token-path=/etc/github-token/oauth
+  image: gcr.io/istio-testing/build-tools:master-2021-07-13T17-42-03
+  modifiers:
+  - optional
+  name: release-notes
+  node_selector:
+    testing: test-pool
+  repos:
+  - istio/test-infra@master
+  - istio/tools@master
+  requirements:
+  - cache
+  - github
+  types:
+  - presubmit
+org: istio
+repo: api
+requirement_presets:
+  cache:
+    annotations: null
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /home/prow/go/pkg
+      name: build-cache
+      subPath: gomod
+    volumes:
+    - hostPath:
+        path: /tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+  deploy:
+    annotations: null
+    env: null
+    labels:
+      preset-prow-deployer-service-account: "true"
+    volumeMounts: null
+    volumes: null
+  docker:
+    annotations: null
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /var/lib/docker
+      name: docker-root
+    volumes:
+    - emptyDir: {}
+      name: docker-root
+  gcp:
+    annotations: null
+    env: null
+    labels:
+      preset-service-account: "true"
+    volumeMounts: null
+    volumes: null
+  github:
+    annotations: null
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /etc/github-token
+      name: github
+      readOnly: true
+    volumes:
+    - name: github
+      secret:
+        secretName: oauth-token
+  github-optional:
+    annotations: null
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /etc/github-token
+      name: github
+      readOnly: true
+    volumes:
+    - name: github
+      secret:
+        optional: true
+        secretName: oauth-token
+  gocache:
+    annotations: null
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /gocache
+      name: build-cache
+      subPath: gocache
+    volumes:
+    - hostPath:
+        path: /tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+  kind:
+    annotations: null
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /lib/modules
+      name: modules
+      readOnly: true
+    - mountPath: /sys/fs/cgroup
+      name: cgroup
+      readOnly: true
+    - mountPath: /var/lib/docker
+      name: docker-root
+    volumes:
+    - hostPath:
+        path: /lib/modules
+        type: Directory
+      name: modules
+    - hostPath:
+        path: /sys/fs/cgroup
+        type: Directory
+      name: cgroup
+    - emptyDir: {}
+      name: docker-root
+  release:
+    annotations: null
+    env: null
+    labels:
+      preset-release-pipeline: "true"
+    volumeMounts: null
+    volumes: null
+resources:
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: "1"
+      memory: 3Gi
