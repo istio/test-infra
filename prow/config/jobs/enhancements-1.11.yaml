@@ -1,0 +1,138 @@
+branches:
+- release-1.11
+image: gcr.io/istio-testing/build-tools:master-2021-07-13T17-42-03
+jobs:
+- command:
+  - ../test-infra/scripts/validate_schema.sh
+  - --document-path=./features.yaml
+  - --schema-path=./features_schema.json
+  image: gcr.io/istio-testing/build-tools:master-2021-07-13T17-42-03
+  modifiers:
+  - optional
+  name: validate-features
+  node_selector:
+    testing: test-pool
+  repos:
+  - istio/test-infra@master
+  - istio/tools@master
+  requirements:
+  - cache
+  types:
+  - presubmit
+org: istio
+repo: enhancements
+requirement_presets:
+  cache:
+    annotations: null
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /home/prow/go/pkg
+      name: build-cache
+      subPath: gomod
+    volumes:
+    - hostPath:
+        path: /tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+  deploy:
+    annotations: null
+    env: null
+    labels:
+      preset-prow-deployer-service-account: "true"
+    volumeMounts: null
+    volumes: null
+  docker:
+    annotations: null
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /var/lib/docker
+      name: docker-root
+    volumes:
+    - emptyDir: {}
+      name: docker-root
+  gcp:
+    annotations: null
+    env: null
+    labels:
+      preset-service-account: "true"
+    volumeMounts: null
+    volumes: null
+  github:
+    annotations: null
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /etc/github-token
+      name: github
+      readOnly: true
+    volumes:
+    - name: github
+      secret:
+        secretName: oauth-token
+  github-optional:
+    annotations: null
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /etc/github-token
+      name: github
+      readOnly: true
+    volumes:
+    - name: github
+      secret:
+        optional: true
+        secretName: oauth-token
+  gocache:
+    annotations: null
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /gocache
+      name: build-cache
+      subPath: gocache
+    volumes:
+    - hostPath:
+        path: /tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+  kind:
+    annotations: null
+    env: null
+    labels: null
+    volumeMounts:
+    - mountPath: /lib/modules
+      name: modules
+      readOnly: true
+    - mountPath: /sys/fs/cgroup
+      name: cgroup
+      readOnly: true
+    - mountPath: /var/lib/docker
+      name: docker-root
+    volumes:
+    - hostPath:
+        path: /lib/modules
+        type: Directory
+      name: modules
+    - hostPath:
+        path: /sys/fs/cgroup
+        type: Directory
+      name: cgroup
+    - emptyDir: {}
+      name: docker-root
+  release:
+    annotations: null
+    env: null
+    labels:
+      preset-release-pipeline: "true"
+    volumeMounts: null
+    volumes: null
+resources:
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: "1"
+      memory: 3Gi
