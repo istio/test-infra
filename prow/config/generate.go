@@ -543,9 +543,6 @@ func (cli *Client) WriteConfig(jobs config.JobConfig, fname string) {
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 		exit(err, "failed to create directory: "+dir)
 	}
-	// Horrible hack to workaround https://github.com/kubernetes/test-infra/issues/22888
-	bs = bytes.ReplaceAll(bs, []byte(`      slack: {}`), []byte(`      slack:
-        job_states_to_report: []`))
 	output := []byte(cli.GlobalConfig.AutogenHeader)
 	output = append(output, bs...)
 	err = ioutil.WriteFile(fname, output, 0644)
