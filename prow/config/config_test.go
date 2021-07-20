@@ -38,7 +38,7 @@ var c *config.Config
 func TestMain(m *testing.M) {
 	flag.Parse()
 
-	cfg, err := config.Load(*configPath, *jobConfigPath)
+	cfg, err := config.Load(*configPath, *jobConfigPath, []string{}, "")
 	if err != nil {
 		fmt.Printf("Could not load config: %v\n", err)
 		os.Exit(1)
