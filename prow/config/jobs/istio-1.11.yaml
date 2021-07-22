@@ -215,7 +215,7 @@ jobs:
   - prow/integ-suite-kind.sh
   - --topology
   - MULTICLUSTER
-  - --istio.test.kube.topology
+  - --topology-config
   - prow/config/topology/external-istiod.json
   - test.integration.istiodremote.kube.presubmit
   env:
@@ -224,7 +224,7 @@ jobs:
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-07-14T19-43-48
   modifiers:
     - optional
-  name: integ-instiodremote-k8s-tests
+  name: integ-istiodremote-k8s-tests
   node_selector:
     testing: test-pool
   requirements:
