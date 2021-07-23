@@ -140,7 +140,7 @@ checkForFiles() {
     popd
 
     set +e
-    "${GEN_RELEASE_NOTES_PATH}"/gen-release-notes --pullRequest "${PULL_NUMBER}" --templates "${GEN_RELEASE_NOTES_PATH}"/templates --notes ./releasenotes/notes --validateOnly
+    "${GEN_RELEASE_NOTES_PATH}"/gen-release-notes --pullRequest "${PULL_NUMBER}" --templates "${GEN_RELEASE_NOTES_PATH}"/templates --notes . --validateOnly
     returnCode=$?
     set -e
 
@@ -173,14 +173,16 @@ function validateNotes() {
     go build
     popd
 
+    pushd "${REPO_PATH}"
     local errorOccurred=0
     gh pr view "${PULL_NUMBER}" --json files | jq -r '.files[].path' | grep -E '^releasenotes' | \
     {
     set +e
     while read -r line; do
-    if ! validateNote "./releasenotes/notes/${line}"; then
+    if ! validateNote "./${line}"; then
         errorOccurred=1
     fi
+    popd
 
     done
     set -e
