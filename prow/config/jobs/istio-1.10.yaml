@@ -394,6 +394,19 @@ jobs:
   timeout: 4h0m0s
   types:
   - postsubmit
+- name: integ-k8s-122
+  types: [postsubmit]
+  command:
+    - entrypoint
+    - prow/integ-suite-kind.sh
+    - --node-image
+    - gcr.io/istio-testing/kind-node:v1.22.0-beta.2
+    - test.integration.kube.presubmit
+  requirements: [kind]
+  timeout: 4h
+  env:
+    - name: INTEGRATION_TEST_FLAGS
+      value: " --istio.test.retries=1 "
 - command:
   - make
   - test.integration.analyze
