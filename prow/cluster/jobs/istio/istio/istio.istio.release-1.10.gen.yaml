@@ -1001,6 +1001,70 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_release-1.10_istio_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^release-1.10$
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    name: integ-k8s-122_istio_release-1.10_postsubmit
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.22.0-beta.2
+        - test.integration.kube.presubmit
+        env:
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
+        image: gcr.io/istio-testing/build-tools:release-1.10-2021-07-21T19-44-12
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
 presubmits:
   istio/istio:
   - always_run: true
