@@ -71,6 +71,10 @@ get_opts() {
             PULL_NUMBER="$2"
             shift 2
             ;;
+        --base-sha)
+            base_sha="$2"
+            shift 2
+            ;;
         --pr-head-sha)
             PULL_PULL_SHA="$2"
             shift 2
@@ -125,12 +129,17 @@ validate_opts() {
         echo "Using REPO_PATH ${REPO_PATH}"
     fi
 
+        if [ -z "${base_sha:-}" ]; then
+        echo "base-sha not specified. Calculating from the PULL_NUMBER"
+        base_sha=$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/"${REPO_OWNER}"/"${REPO_NAME}"/pulls/"${PULL_NUMBER}"/commits | jq -r '.[0].parents[0].sha')
+        echo "base_sha: ""${base_sha}"""
+    fi
 }
 
 # Curl the GitHub API to get a list of files for the specified PR. If files are
 # found, exit. We might eventually want to validate the data here.
 checkForFiles() {
-    echo "Checking files from pull request ${REPO_OWNER}/${REPO_NAME}#${PULL_NUMBER}"
+    echo "Checking files from pull request ${REPO_OWNER}/${REPO_NAME}#${PULL_NUMBER} head SHA: ${PULL_PULL_SHA} destination branch: ${PULL_BASE_REF}, base SHA: ${base_sha}"
 
     pushd "${REPO_PATH}"
 
@@ -140,7 +149,7 @@ checkForFiles() {
     popd
 
     set +e
-    "${GEN_RELEASE_NOTES_PATH}"/gen-release-notes --pullRequest "${PULL_NUMBER}" --templates "${GEN_RELEASE_NOTES_PATH}"/templates --notes . --validateOnly
+    "${GEN_RELEASE_NOTES_PATH}"/gen-release-notes --oldBranch "${base_sha}" --newBranch "${PULL_PULL_SHA}" --templates "${GEN_RELEASE_NOTES_PATH}"/templates --notes ./releasenotes/notes --validateOnly
     returnCode=$?
     set -e
 
@@ -173,16 +182,14 @@ function validateNotes() {
     go build
     popd
 
-    pushd "${REPO_PATH}"
     local errorOccurred=0
-    gh pr view "${PULL_NUMBER}" --json files | jq -r '.files[].path' | grep -E '^releasenotes' | \
+    git diff-tree -r --diff-filter=AMR --name-only --relative=releasenotes/notes "${base_sha}" "${PULL_PULL_SHA}" | \
     {
     set +e
     while read -r line; do
-    if ! validateNote "./${line}"; then
+    if ! validateNote "./releasenotes/notes/${line}"; then
         errorOccurred=1
     fi
-    popd
 
     done
     set -e
