@@ -149,7 +149,7 @@ checkForFiles() {
     popd
 
     set +e
-    "${GEN_RELEASE_NOTES_PATH}"/gen-release-notes --oldBranch "${base_sha}" --newBranch "${PULL_PULL_SHA}" --templates "${GEN_RELEASE_NOTES_PATH}"/templates --notes ./releasenotes/notes --validateOnly
+    "${GEN_RELEASE_NOTES_PATH}"/gen-release-notes --oldBranch "${base_sha}" --newBranch "${PULL_PULL_SHA}" --templates "${GEN_RELEASE_NOTES_PATH}"/templates --notes . --validateOnly
     returnCode=$?
     set -e
 
