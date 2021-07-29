@@ -131,9 +131,9 @@ jobs:
     command: [echo, "hello world"]
     # modifiers change various parts of the test config. See the values below
     modifiers:
-    - skipped # if set, the test will run only in postsubmit or by explicitly calling /test on it
+    - presubmit_skipped # if set, the test will only be run in presubmit by explicitly calling /test on it
+    - presubmit_optional # if set, the test will not be required in presubmit
     - hidden # if set, the test will run but not be reported to the GitHub UI
-    - optional # if set, the test will not be required
   - name: $(matrix.greet)-$(matrix.name)
     # Prow jobs will be generated based on the combinations of each dimension.
     # In this case 3*2=6 Prow jobs will be generated.

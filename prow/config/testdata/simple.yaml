@@ -35,6 +35,13 @@ jobs:
     annotations:
       whatever-annotation-name: whatever-annotation-value
     requirements: [desc]
+  
+  - name: presubmit-skipped
+    types: [presubmit, periodic]
+    resources: custom
+    command: [prow/command.sh]
+    repos: [istio/istio]
+    modifier: [presubmit_skipped]
 
 requirements: [gocache]
 

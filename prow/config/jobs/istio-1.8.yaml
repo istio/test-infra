@@ -32,8 +32,8 @@ jobs:
   - make
   - benchtest
   modifiers:
-  - optional
-  - skipped
+  - presubmit_optional
+  - presubmit_skipped
   name: benchmark
   resources: benchmark
   types: [presubmit]
@@ -90,7 +90,7 @@ jobs:
   - name: TEST_SELECT
     value: -multicluster
   modifiers:
-  - optional
+  - presubmit_optional
   name: integ-telemetry-mc-k8s-tests
   requirements:
   - kind
@@ -179,7 +179,7 @@ jobs:
   - name: TEST_SELECT
     value: -postsubmit,-flaky,+externalistiod
   modifiers:
-  - optional
+  - presubmit_optional
   - hidden
   name: integ-external-istiod-mc-tests
   requirements:
@@ -205,7 +205,7 @@ jobs:
   - name: TEST_SELECT
     value: -multicluster
   modifiers:
-  - optional
+  - presubmit_optional
   name: integ-security-multicluster-tests
   requirements:
   - kind
@@ -305,7 +305,7 @@ jobs:
   - cni.install-test
   modifiers:
   - hidden
-  - optional
+  - presubmit_optional
   name: install-cni-test
   requirements:
   - docker
