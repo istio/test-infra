@@ -162,7 +162,9 @@ checkForFiles() {
 
 ## Validate the release notes against the schema
 function validateNote() {
-    out=$(../tools/cmd/schema-validator/schema-validator  --schemaPath ../tools/cmd/gen-release-notes/release_notes_schema.json --documentPath "${1}")
+    cmd="../tools/cmd/schema-validator/schema-validator  --schemaPath ../tools/cmd/gen-release-notes/release_notes_schema.json --documentPath ${1}"
+    echo "Executing ${cmd}"
+    out=$(${cmd})
     returnCode=$?
     if [ "${returnCode}" != 0 ]; then
         echo "${out}"
@@ -179,7 +181,7 @@ function validateNotes() {
 
     pushd "${REPO_PATH}"
     local errorOccurred=0
-    gh pr view "${PULL_NUMBER}" --json files | jq -r '.files[].path' | grep -E '^releasenotes' | \
+    gh pr view "https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/${PULL_NUMBER}" --json files | jq -r '.files[].path' | grep -E '^releasenotes' | \
     {
     set +e
     while read -r line; do
