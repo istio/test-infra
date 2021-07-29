@@ -88,6 +88,10 @@ get_opts() {
             ;;
         esac
     done
+
+    if [[ ${token} != "" ]]; then
+        export GH_TOKEN=${token}
+    fi
 }
 
 #This script relies on the REPO_OWNER, REPO_NAME, and PULL_NUMBER environment
