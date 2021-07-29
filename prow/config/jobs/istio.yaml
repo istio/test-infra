@@ -18,7 +18,7 @@ jobs:
 
   - name: benchmark
     types: [presubmit]
-    modifiers: [optional, skipped]
+    modifiers: [presubmit_optional, presubmit_skipped]
     command: [entrypoint, make, benchtest]
     resources: benchmark
 
@@ -77,9 +77,9 @@ jobs:
 
   - name: integ-telemetry-istiodless-mc-k8s-tests
     modifiers:
-      - optional
+      - presubmit_optional
+      - presubmit_skipped
       - hidden
-      - skipped
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -162,9 +162,9 @@ jobs:
 
   - name: integ-pilot-istiodless-multicluster-tests
     modifiers:
-      - optional
+      - presubmit_optional
+      - presubmit_skipped
       - hidden
-      - skipped
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -208,9 +208,9 @@ jobs:
 
   - name: integ-security-istiodless-multicluster-tests
     modifiers:
-      - optional
+      - presubmit_optional
+      - presubmit_skipped
       - hidden
-      - skipped
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -340,7 +340,7 @@ jobs:
 
   # Test with assertions enabled.
   - name: integ-assertion-k8s-tests
-    modifiers: [optional, skipped] #  We run this in postsubmit always, but let developers explicitly run in presubmit
+    modifiers: [presubmit_optional, presubmit_skipped] #  We run this in postsubmit always, but let developers explicitly run in presubmit
     command:
       - entrypoint
       - prow/integ-suite-kind.sh

@@ -40,6 +40,51 @@ periodics:
         path: /tmp/prow/cache
         type: DirectoryOrCreate
       name: build-cache
+- annotations:
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-dashboards: istio_istio_periodic
+    testgrid-num-failures-to-alert: "1"
+  cron: 0 2 * * *
+  decorate: true
+  extra_refs:
+  - base_ref: master
+    org: istio
+    path_alias: istio.io/istio
+    repo: istio
+  - base_ref: master
+    org: istio
+    path_alias: istio.io/istio
+    repo: istio
+  name: presubmit-skipped_istio_periodic
+  spec:
+    containers:
+    - command:
+      - prow/command.sh
+      image: fooimage
+      name: ""
+      resources:
+        limits:
+          cpu: "5"
+          memory: 5Gi
+        requests:
+          cpu: "3"
+          memory: 3Gi
+      securityContext:
+        privileged: true
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+    nodeSelector:
+      testing: test-pool
+    volumes:
+    - hostPath:
+        path: /tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
 postsubmits:
   istio/istio:
   - annotations:
@@ -209,6 +254,48 @@ presubmits:
           subPath: gocache
       nodeSelector:
         foo: baz
+      volumes:
+      - hostPath:
+          path: /tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    extra_refs:
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/istio
+      repo: istio
+    name: presubmit-skipped_istio
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - prow/command.sh
+        image: fooimage
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 5Gi
+          requests:
+            cpu: "3"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        testing: test-pool
       volumes:
       - hostPath:
           path: /tmp/prow/cache

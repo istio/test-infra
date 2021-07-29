@@ -54,9 +54,9 @@ const (
 
 	DefaultResource = "default"
 
-	ModifierHidden   = "hidden"
-	ModifierOptional = "optional"
-	ModifierSkipped  = "skipped"
+	ModifierHidden            = "hidden"
+	ModifierPresubmitOptional = "presubmit_optional"
+	ModifierPresubmitSkipped  = "presubmit_skipped"
 
 	TypePostsubmit = "postsubmit"
 	TypePresubmit  = "presubmit"
@@ -335,7 +335,7 @@ func (cli *Client) ValidateJobConfig(fileName string, jobsConfig JobsConfig) {
 			}
 		}
 		for _, mod := range job.Modifiers {
-			if e := validate(mod, []string{ModifierHidden, ModifierOptional, ModifierSkipped}, "status"); e != nil {
+			if e := validate(mod, []string{ModifierHidden, ModifierPresubmitOptional, ModifierPresubmitSkipped}, "status"); e != nil {
 				err = multierror.Append(err, e)
 			}
 		}
@@ -786,7 +786,7 @@ func applyRequirements(job *config.JobBase, requirements []string, presetMap map
 
 func applyModifiersPresubmit(presubmit *config.Presubmit, jobModifiers []string) {
 	for _, modifier := range jobModifiers {
-		if modifier == ModifierOptional {
+		if modifier == ModifierPresubmitOptional {
 			presubmit.Optional = true
 		} else if modifier == ModifierHidden {
 			presubmit.SkipReport = true
@@ -795,7 +795,7 @@ func applyModifiersPresubmit(presubmit *config.Presubmit, jobModifiers []string)
 					JobStatesToReport: []prowjob.ProwJobState{},
 				},
 			}
-		} else if modifier == ModifierSkipped {
+		} else if modifier == ModifierPresubmitSkipped {
 			presubmit.AlwaysRun = false
 		}
 	}
@@ -803,7 +803,7 @@ func applyModifiersPresubmit(presubmit *config.Presubmit, jobModifiers []string)
 
 func applyModifiersPostsubmit(postsubmit *config.Postsubmit, jobModifiers []string) {
 	for _, modifier := range jobModifiers {
-		if modifier == ModifierOptional {
+		if modifier == ModifierPresubmitOptional {
 			// Does not exist on postsubmit
 		} else if modifier == ModifierHidden {
 			postsubmit.SkipReport = true
