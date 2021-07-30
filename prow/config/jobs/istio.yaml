@@ -335,6 +335,8 @@ jobs:
     requirements: [kind]
     timeout: 4h
     env:
+      - name: TEST_SELECT
+        value: "-multicluster,-flaky"
       - name: INTEGRATION_TEST_FLAGS
         value: " --istio.test.retries=1 --istio.test.istio.enableCNI=true "
 
