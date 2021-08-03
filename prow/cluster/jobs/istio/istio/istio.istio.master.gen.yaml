@@ -2019,6 +2019,10 @@ presubmits:
     name: integ-istiodremote-k8s-tests_istio
     optional: true
     path_alias: istio.io/istio
+    reporter_config:
+      slack:
+        job_states_to_report: []
+    skip_report: true
     spec:
       containers:
       - command:
@@ -2028,7 +2032,7 @@ presubmits:
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod.json
-        - test.integration.isitodremote.kube.presubmit
+        - test.integration.istiodremote.kube.presubmit
         env:
         - name: TEST_SELECT
           value: -postsubmit,-flaky,+multicluster
