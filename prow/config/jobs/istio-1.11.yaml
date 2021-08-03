@@ -213,6 +213,31 @@ jobs:
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
+  - --topology
+  - MULTICLUSTER
+  - --topology-config
+  - prow/config/topology/external-istiod.json
+  - test.integration.istiodremote.kube.presubmit
+  env:
+  - name: TEST_SELECT
+    value: -postsubmit,-flaky,+multicluster
+  image: gcr.io/istio-testing/build-tools:release-1.11-2021-07-23T13-28-18
+  modifiers:
+    - presubmit_optional
+    - presubmit_skipped
+  name: integ-istiodremote-k8s-tests
+  node_selector:
+    testing: test-pool
+  requirements:
+  - cache
+  - kind
+  - gocache
+  resources: multicluster
+  types:
+  - presubmit
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
   - test.integration.kube.reachability
   env:
   - name: VARIANT

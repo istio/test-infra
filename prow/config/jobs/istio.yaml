@@ -108,6 +108,25 @@ jobs:
       - name: TEST_SELECT
         value: "-postsubmit,-flaky,+multicluster"
 
+  - name: integ-istiodremote-k8s-tests
+    modifiers:
+      - presubmit_optional
+      - presubmit_skipped
+    types: [presubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --topology
+      - MULTICLUSTER
+      - --topology-config
+      - prow/config/topology/external-istiod.json
+      - test.integration.isitodremote.kube.presubmit
+    requirements: [kind]
+    resources: multicluster
+    env:
+      - name: TEST_SELECT
+        value: "-postsubmit,-flaky,+multicluster"
+
   - name: integ-distroless-k8s-tests
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.reachability]
     requirements: [kind]
