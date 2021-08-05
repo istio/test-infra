@@ -30,12 +30,7 @@ jobs:
 
   - name: integ-pilot-k8s-tests
     types: [presubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --kind-config
-      - prow/config/mixedlb-service.yaml
-      - test.integration.pilot.kube.presubmit
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
     requirements: [kind]
     env:
       - name: TEST_SELECT
@@ -53,12 +48,7 @@ jobs:
 
   - name: integ-security-k8s-tests
     types: [presubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --kind-config
-      - prow/config/mixedlb-service.yaml
-      - test.integration.security.kube.presubmit
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube.presubmit]
     requirements: [kind]
     env:
       - name: TEST_SELECT
@@ -169,12 +159,7 @@ jobs:
 
   - name: integ-pilot-k8s-tests
     types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --kind-config
-      - prow/config/mixedlb-service.yaml
-      - test.integration.pilot.kube
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
     requirements: [kind]
     env:
       - name: TEST_SELECT
@@ -214,12 +199,7 @@ jobs:
 
   - name: integ-security-k8s-tests
     types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --kind-config
-      - prow/config/mixedlb-service.yaml
-      - test.integration.security.kube
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube]
     requirements: [kind]
     env:
       - name: TEST_SELECT
@@ -285,6 +265,8 @@ jobs:
       - prow/integ-suite-kind.sh
       - --node-image
       - kindest/node:v1.16.15
+      - --kind-config
+      - prow/config/trustworthy-jwt.yaml
       - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
@@ -315,6 +297,8 @@ jobs:
       - prow/integ-suite-kind.sh
       - --node-image
       - kindest/node:v1.18.19
+      - --kind-config
+      - prow/config/trustworthy-jwt.yaml
       - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
@@ -329,6 +313,8 @@ jobs:
       - prow/integ-suite-kind.sh
       - --node-image
       - kindest/node:v1.19.11
+      - --kind-config
+      - prow/config/trustworthy-jwt.yaml
       - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
@@ -343,8 +329,6 @@ jobs:
       - prow/integ-suite-kind.sh
       - --node-image
       - gcr.io/istio-testing/kind-node:v1.20.7
-      - --kind-config
-      - prow/config/mixedlb-service.yaml
       - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
@@ -359,8 +343,6 @@ jobs:
       - prow/integ-suite-kind.sh
       - --node-image
       - gcr.io/istio-testing/kind-node:v1.22.0
-      - --kind-config
-      - prow/config/mixedlb-service.yaml
       - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
