@@ -30,7 +30,12 @@ jobs:
 
   - name: integ-pilot-k8s-tests
     types: [presubmit]
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --kind-config
+      - prow/config/mixedlb-service.yaml
+      - test.integration.pilot.kube.presubmit
     requirements: [kind]
     env:
       - name: TEST_SELECT
@@ -48,7 +53,12 @@ jobs:
 
   - name: integ-security-k8s-tests
     types: [presubmit]
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube.presubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --kind-config
+      - prow/config/mixedlb-service.yaml
+      - test.integration.security.kube.presubmit
     requirements: [kind]
     env:
       - name: TEST_SELECT
@@ -159,7 +169,12 @@ jobs:
 
   - name: integ-pilot-k8s-tests
     types: [postsubmit]
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --kind-config
+      - prow/config/mixedlb-service.yaml
+      - test.integration.pilot.kube
     requirements: [kind]
     env:
       - name: TEST_SELECT
@@ -199,7 +214,12 @@ jobs:
 
   - name: integ-security-k8s-tests
     types: [postsubmit]
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --kind-config
+      - prow/config/mixedlb-service.yaml
+      - test.integration.security.kube
     requirements: [kind]
     env:
       - name: TEST_SELECT
