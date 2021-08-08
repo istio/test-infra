@@ -265,6 +265,8 @@ jobs:
       - prow/integ-suite-kind.sh
       - --node-image
       - kindest/node:v1.16.15
+      - --kind-config
+      - prow/config/trustworthy-jwt.yaml
       - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
@@ -295,6 +297,8 @@ jobs:
       - prow/integ-suite-kind.sh
       - --node-image
       - kindest/node:v1.18.19
+      - --kind-config
+      - prow/config/trustworthy-jwt.yaml
       - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
@@ -309,6 +313,8 @@ jobs:
       - prow/integ-suite-kind.sh
       - --node-image
       - kindest/node:v1.19.11
+      - --kind-config
+      - prow/config/trustworthy-jwt.yaml
       - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
@@ -323,8 +329,6 @@ jobs:
       - prow/integ-suite-kind.sh
       - --node-image
       - gcr.io/istio-testing/kind-node:v1.20.7
-      - --kind-config
-      - prow/config/mixedlb-service.yaml
       - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
@@ -339,8 +343,6 @@ jobs:
       - prow/integ-suite-kind.sh
       - --node-image
       - gcr.io/istio-testing/kind-node:v1.22.0
-      - --kind-config
-      - prow/config/mixedlb-service.yaml
       - test.integration.kube.presubmit
     requirements: [kind]
     timeout: 4h
