@@ -27,6 +27,37 @@ type RequirementPreset struct {
 	VolumeMounts []v1.VolumeMount  `json:"volumeMounts"`
 }
 
+func copyRequirementsMap(m map[string]RequirementPreset) map[string]RequirementPreset {
+	ret := map[string]RequirementPreset{}
+	for k, v := range m {
+		ret[k] = v.DeepCopy()
+	}
+	return ret
+}
+
+func (r RequirementPreset) DeepCopy() RequirementPreset {
+	ret := RequirementPreset{
+		Annotations: map[string]string{},
+		Labels:      map[string]string{},
+	}
+	for k, v := range r.Annotations {
+		ret.Annotations[k] = v
+	}
+	for k, v := range r.Labels {
+		ret.Labels[k] = v
+	}
+	for _, v := range r.Env {
+		ret.Env = append(ret.Env, v)
+	}
+	for _, v := range r.Volumes {
+		ret.Volumes = append(ret.Volumes, v)
+	}
+	for _, v := range r.VolumeMounts {
+		ret.VolumeMounts = append(ret.VolumeMounts, v)
+	}
+	return ret
+}
+
 func resolveRequirements(annotations, labels map[string]string, spec *v1.PodSpec, requirements []RequirementPreset) {
 	if spec != nil {
 		for _, req := range requirements {
@@ -36,6 +67,7 @@ func resolveRequirements(annotations, labels map[string]string, spec *v1.PodSpec
 }
 
 func mergeRequirement(req RequirementPreset, annotations, labels map[string]string, containers []v1.Container, volumes *[]v1.Volume) {
+	// log.Println(req.Volumes)
 	for a, v := range req.Annotations {
 		annotations[a] = v
 	}

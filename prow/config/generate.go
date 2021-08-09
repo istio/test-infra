@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -198,6 +199,7 @@ func (cli *Client) ReadJobsConfig(file string) JobsConfig {
 		jobsConfig.Branches = []string{"master"}
 	}
 
+	log.Println("GLOBAL", cli.GlobalConfig.RequirementPresets["cache"])
 	return resolveOverwrites(cli.GlobalConfig, jobsConfig)
 }
 
@@ -211,15 +213,17 @@ func resolveOverwrites(globalConfig GlobalConfig, jobsConfig JobsConfig) JobsCon
 		resources[k] = v
 	}
 	jobsConfig.ResourcePresets = resources
-
-	requirementPresets := globalConfig.RequirementPresets
+	requirementPresets := copyRequirementsMap(globalConfig.RequirementPresets)
 	if requirementPresets == nil {
 		requirementPresets = map[string]RequirementPreset{}
 	}
+	log.Println(jobsConfig.Repo, jobsConfig.Branches)
+	log.Println("before", requirementPresets["cache"])
 	for k, v := range jobsConfig.RequirementPresets {
 		requirementPresets[k] = v
 	}
 	jobsConfig.RequirementPresets = requirementPresets
+	log.Println("after", requirementPresets["cache"])
 
 	// Resolve jobsConfig -> job overwriting
 	for i, job := range jobsConfig.Jobs {
