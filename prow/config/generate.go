@@ -211,11 +211,11 @@ func resolveOverwrites(globalConfig GlobalConfig, jobsConfig JobsConfig) JobsCon
 		resources[k] = v
 	}
 	jobsConfig.ResourcePresets = resources
-
-	requirementPresets := globalConfig.RequirementPresets
+	requirementPresets := copyRequirementsMap(globalConfig.RequirementPresets)
 	if requirementPresets == nil {
 		requirementPresets = map[string]RequirementPreset{}
 	}
+
 	for k, v := range jobsConfig.RequirementPresets {
 		requirementPresets[k] = v
 	}
