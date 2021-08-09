@@ -46,15 +46,9 @@ func (r RequirementPreset) DeepCopy() RequirementPreset {
 	for k, v := range r.Labels {
 		ret.Labels[k] = v
 	}
-	for _, v := range r.Env {
-		ret.Env = append(ret.Env, v)
-	}
-	for _, v := range r.Volumes {
-		ret.Volumes = append(ret.Volumes, v)
-	}
-	for _, v := range r.VolumeMounts {
-		ret.VolumeMounts = append(ret.VolumeMounts, v)
-	}
+	ret.Env = append(ret.Env, r.Env...)
+	ret.Volumes = append(ret.Volumes, r.Volumes...)
+	ret.VolumeMounts = append(ret.VolumeMounts, r.VolumeMounts...)
 	return ret
 }
 
@@ -67,7 +61,6 @@ func resolveRequirements(annotations, labels map[string]string, spec *v1.PodSpec
 }
 
 func mergeRequirement(req RequirementPreset, annotations, labels map[string]string, containers []v1.Container, volumes *[]v1.Volume) {
-	// log.Println(req.Volumes)
 	for a, v := range req.Annotations {
 		annotations[a] = v
 	}
