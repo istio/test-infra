@@ -70,7 +70,7 @@ requirement_presets:
       subPath: gomod
     volumes:
     - hostPath:
-        path: /prow/cache
+        path: /var/tmp/prow/cache
         type: DirectoryOrCreate
       name: build-cache
   gcp:
