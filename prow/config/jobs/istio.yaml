@@ -176,6 +176,21 @@ jobs:
       - name: TEST_SELECT
         value: "-multicluster"
 
+  - name: integ-pilot-istiodremote-tests
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --topology
+      - MULTICLUSTER
+      - --topology-config
+      - prow/config/topology/external-istiod.json
+      - test.integration.pilot.kube
+    requirements: [kind]
+    modifiers: [presubmit_optional]
+    env:
+      - name: TEST_SELECT
+        value: "-multicluster"
+
   - name: integ-pilot-istiodless-multicluster-tests
     modifiers:
       - presubmit_optional
