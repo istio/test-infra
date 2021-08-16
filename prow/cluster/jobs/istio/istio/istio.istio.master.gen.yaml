@@ -561,6 +561,74 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
+    name: integ-pilot-istiodremote-tests_istio_postsubmit
+    path_alias: istio.io/istio
+    reporter_config:
+      slack:
+        job_states_to_report: []
+    skip_report: true
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --topology
+        - MULTICLUSTER
+        - --topology-config
+        - prow/config/topology/external-istiod.json
+        - test.integration.pilot.kube
+        env:
+        - name: TEST_SELECT
+          value: -multicluster
+        image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_istio_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
     name: integ-pilot-istiodless-multicluster-tests_istio_postsubmit
     path_alias: istio.io/istio
     reporter_config:
@@ -2248,6 +2316,74 @@ presubmits:
             memory: 24Gi
           requests:
             cpu: "8"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - always_run: false
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    name: integ-pilot-istiodremote-tests_istio
+    optional: true
+    path_alias: istio.io/istio
+    reporter_config:
+      slack:
+        job_states_to_report: []
+    skip_report: true
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --topology
+        - MULTICLUSTER
+        - --topology-config
+        - prow/config/topology/external-istiod.json
+        - test.integration.pilot.kube
+        env:
+        - name: TEST_SELECT
+          value: -multicluster
+        image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "5"
             memory: 3Gi
         securityContext:
           privileged: true
