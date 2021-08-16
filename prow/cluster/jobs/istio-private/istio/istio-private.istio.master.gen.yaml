@@ -123,9 +123,6 @@ postsubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.telemetry.kube
-        env:
-        - name: TEST_SELECT
-          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -195,8 +192,6 @@ postsubmits:
         - MULTICLUSTER
         - test.integration.telemetry.kube
         env:
-        - name: TEST_SELECT
-          value: -multicluster
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
@@ -264,8 +259,6 @@ postsubmits:
         env:
         - name: VARIANT
           value: distroless
-        - name: TEST_SELECT
-          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -333,8 +326,6 @@ postsubmits:
           value: "true"
         - name: IP_FAMILY
           value: ipv6
-        - name: TEST_SELECT
-          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -397,9 +388,6 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.pilot.kube
-        env:
-        - name: TEST_SELECT
-          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -464,9 +452,6 @@ postsubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.pilot.kube
-        env:
-        - name: TEST_SELECT
-          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -536,8 +521,6 @@ postsubmits:
         - MULTICLUSTER
         - test.integration.pilot.kube
         env:
-        - name: TEST_SELECT
-          value: -multicluster
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
@@ -602,9 +585,6 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.security.kube
-        env:
-        - name: TEST_SELECT
-          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -669,9 +649,6 @@ postsubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.security.kube
-        env:
-        - name: TEST_SELECT
-          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -741,8 +718,6 @@ postsubmits:
         - MULTICLUSTER
         - test.integration.security.kube
         env:
-        - name: TEST_SELECT
-          value: -multicluster
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
@@ -807,9 +782,6 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.telemetry.kube
-        env:
-        - name: TEST_SELECT
-          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -1360,7 +1332,7 @@ postsubmits:
         - test.integration.kube.presubmit
         env:
         - name: TEST_SELECT
-          value: -multicluster,-flaky
+          value: -flaky
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 --istio.test.istio.enableCNI=true '
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
@@ -1641,7 +1613,7 @@ presubmits:
         - test.integration.pilot.kube.presubmit
         env:
         - name: TEST_SELECT
-          value: -postsubmit,-flaky,-multicluster
+          value: -postsubmit,-flaky
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -1707,7 +1679,7 @@ presubmits:
         - test.integration.pilot.kube.presubmit
         env:
         - name: TEST_SELECT
-          value: -postsubmit,-flaky,-multicluster
+          value: -postsubmit,-flaky
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.enableCNI=true '
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
@@ -1775,7 +1747,7 @@ presubmits:
         - test.integration.security.kube.presubmit
         env:
         - name: TEST_SELECT
-          value: -postsubmit,-flaky,-multicluster
+          value: -postsubmit,-flaky
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -1841,7 +1813,7 @@ presubmits:
         - test.integration.telemetry.kube.presubmit
         env:
         - name: TEST_SELECT
-          value: -postsubmit,-flaky,-multicluster
+          value: -postsubmit,-flaky
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -1907,9 +1879,6 @@ presubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.telemetry.kube
-        env:
-        - name: TEST_SELECT
-          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -1981,8 +1950,6 @@ presubmits:
         - MULTICLUSTER
         - test.integration.telemetry.kube
         env:
-        - name: TEST_SELECT
-          value: -multicluster
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
@@ -2052,7 +2019,7 @@ presubmits:
         - test.integration.multicluster.kube.presubmit
         env:
         - name: TEST_SELECT
-          value: -postsubmit,-flaky,+multicluster
+          value: -postsubmit,-flaky
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -2122,7 +2089,7 @@ presubmits:
         - test.integration.istiodremote.kube.presubmit
         env:
         - name: TEST_SELECT
-          value: -postsubmit,-flaky,+multicluster
+          value: -postsubmit,-flaky
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -2189,8 +2156,6 @@ presubmits:
         env:
         - name: VARIANT
           value: distroless
-        - name: TEST_SELECT
-          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -2259,8 +2224,6 @@ presubmits:
           value: "true"
         - name: IP_FAMILY
           value: ipv6
-        - name: TEST_SELECT
-          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -2326,7 +2289,7 @@ presubmits:
         - test.integration.operator.kube.presubmit
         env:
         - name: TEST_SELECT
-          value: -postsubmit,-flaky,-multicluster
+          value: -postsubmit,-flaky
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -2392,9 +2355,6 @@ presubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.pilot.kube
-        env:
-        - name: TEST_SELECT
-          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -2466,8 +2426,6 @@ presubmits:
         - MULTICLUSTER
         - test.integration.pilot.kube
         env:
-        - name: TEST_SELECT
-          value: -multicluster
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
@@ -2535,9 +2493,6 @@ presubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.security.kube
-        env:
-        - name: TEST_SELECT
-          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -2609,8 +2564,6 @@ presubmits:
         - MULTICLUSTER
         - test.integration.security.kube
         env:
-        - name: TEST_SELECT
-          value: -multicluster
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12

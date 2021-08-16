@@ -34,7 +34,7 @@ jobs:
     requirements: [kind]
     env:
       - name: TEST_SELECT
-        value: "-postsubmit,-flaky,-multicluster"
+        value: "-postsubmit,-flaky"
 
   - name: integ-cni-k8s-tests
     types: [presubmit]
@@ -42,7 +42,7 @@ jobs:
     requirements: [kind]
     env:
       - name: TEST_SELECT
-        value: "-postsubmit,-flaky,-multicluster"
+        value: "-postsubmit,-flaky"
       - name: INTEGRATION_TEST_FLAGS
         value: " --istio.test.istio.enableCNI=true "
 
@@ -52,7 +52,7 @@ jobs:
     requirements: [kind]
     env:
       - name: TEST_SELECT
-        value: "-postsubmit,-flaky,-multicluster"
+        value: "-postsubmit,-flaky"
 
   - name: integ-telemetry-k8s-tests
     types: [presubmit]
@@ -60,7 +60,7 @@ jobs:
     requirements: [kind]
     env:
       - name: TEST_SELECT
-        value: "-postsubmit,-flaky,-multicluster"
+        value: "-postsubmit,-flaky"
 
   - name: integ-telemetry-mc-k8s-tests
     command:
@@ -71,9 +71,6 @@ jobs:
       - test.integration.telemetry.kube
     requirements: [kind]
     resources: multicluster
-    env:
-      - name: TEST_SELECT
-        value: "-multicluster"
 
   - name: integ-telemetry-istiodless-mc-k8s-tests
     modifiers:
@@ -89,8 +86,6 @@ jobs:
     requirements: [kind]
     resources: multicluster
     env:
-      - name: TEST_SELECT
-        value: "-multicluster"
       - name: INTEGRATION_TEST_FLAGS
         value: --istio.test.istio.istiodlessRemotes
 
@@ -106,7 +101,7 @@ jobs:
     resources: multicluster
     env:
       - name: TEST_SELECT
-        value: "-postsubmit,-flaky,+multicluster"
+        value: "-postsubmit,-flaky"
 
   - name: integ-istiodremote-k8s-tests
     types: [presubmit]
@@ -122,7 +117,7 @@ jobs:
     resources: multicluster
     env:
       - name: TEST_SELECT
-        value: "-postsubmit,-flaky,+multicluster"
+        value: "-postsubmit,-flaky"
 
   - name: integ-distroless-k8s-tests
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.reachability]
@@ -130,8 +125,6 @@ jobs:
     env:
       - name: VARIANT
         value: "distroless"
-      - name: TEST_SELECT
-        value: "-multicluster"
 
   - name: integ-ipv6-k8s-tests
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.reachability]
@@ -144,8 +137,6 @@ jobs:
         value: "true"
       - name: IP_FAMILY
         value: "ipv6"
-      - name: TEST_SELECT
-        value: "-multicluster"
 
   - name: integ-operator-controller-tests
     types: [presubmit]
@@ -153,15 +144,12 @@ jobs:
     requirements: [kind]
     env:
       - name: TEST_SELECT
-        value: "-postsubmit,-flaky,-multicluster"
+        value: "-postsubmit,-flaky"
 
   - name: integ-pilot-k8s-tests
     types: [postsubmit]
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
     requirements: [kind]
-    env:
-      - name: TEST_SELECT
-        value: "-multicluster"
 
   - name: integ-pilot-multicluster-tests
     command:
@@ -172,9 +160,6 @@ jobs:
       - test.integration.pilot.kube
     requirements: [kind]
     resources: multicluster
-    env:
-      - name: TEST_SELECT
-        value: "-multicluster"
 
   - name: integ-pilot-istiodless-multicluster-tests
     modifiers:
@@ -190,8 +175,6 @@ jobs:
     requirements: [kind]
     resources: multicluster
     env:
-      - name: TEST_SELECT
-        value: "-multicluster"
       - name: INTEGRATION_TEST_FLAGS
         value: --istio.test.istio.istiodlessRemotes
 
@@ -199,9 +182,6 @@ jobs:
     types: [postsubmit]
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube]
     requirements: [kind]
-    env:
-      - name: TEST_SELECT
-        value: "-multicluster"
 
   - name: integ-security-fuzz-k8s-tests
     types: [periodic]
@@ -218,9 +198,6 @@ jobs:
       - test.integration.security.kube
     requirements: [kind]
     resources: multicluster
-    env:
-      - name: TEST_SELECT
-        value: "-multicluster"
 
   - name: integ-security-istiodless-multicluster-tests
     modifiers:
@@ -236,8 +213,6 @@ jobs:
     requirements: [kind]
     resources: multicluster
     env:
-      - name: TEST_SELECT
-        value: "-multicluster"
       - name: INTEGRATION_TEST_FLAGS
         value: --istio.test.istio.istiodlessRemotes
 
@@ -245,9 +220,6 @@ jobs:
     types: [postsubmit]
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.telemetry.kube]
     requirements: [kind]
-    env:
-      - name: TEST_SELECT
-        value: "-multicluster"
 
   - name: integ-helm-tests
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.helm.kube]
@@ -358,7 +330,7 @@ jobs:
     timeout: 4h
     env:
       - name: TEST_SELECT
-        value: "-multicluster,-flaky"
+        value: "-flaky"
       - name: INTEGRATION_TEST_FLAGS
         value: " --istio.test.retries=1 --istio.test.istio.enableCNI=true "
 
@@ -418,7 +390,7 @@ resources:
       cpu: "3000m"
     limits:
       memory: "24Gi"
-  # Give 15 CPUs which will put us on a dedicate node, for consistency
+  # Give 15 CPUs which will put us on a dedicated node, for consistency
   benchmark:
     requests:
       memory: "8Gi"
