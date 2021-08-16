@@ -186,7 +186,10 @@ jobs:
       - prow/config/topology/external-istiod.json
       - test.integration.pilot.kube
     requirements: [kind]
-    modifiers: [presubmit_optional]
+    modifiers:
+      - presubmit_optional
+      - presubmit_skipped
+      - hidden
     env:
       - name: TEST_SELECT
         value: "-multicluster"
