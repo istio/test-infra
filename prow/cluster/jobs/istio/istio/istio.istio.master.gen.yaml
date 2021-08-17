@@ -577,16 +577,13 @@ postsubmits:
         - --topology-config
         - prow/config/topology/external-istiod.json
         - test.integration.pilot.kube
-        env:
-        - name: TEST_SELECT
-          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
           limits:
             memory: 24Gi
           requests:
-            cpu: "5"
+            cpu: "8"
             memory: 3Gi
         securityContext:
           privileged: true
@@ -2374,16 +2371,13 @@ presubmits:
         - --topology-config
         - prow/config/topology/external-istiod.json
         - test.integration.pilot.kube
-        env:
-        - name: TEST_SELECT
-          value: -multicluster
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
           limits:
             memory: 24Gi
           requests:
-            cpu: "5"
+            cpu: "8"
             memory: 3Gi
         securityContext:
           privileged: true
