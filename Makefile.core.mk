@@ -31,6 +31,7 @@ generate-config:
 	@(cd prow/config/cmd; go run generate.go write)
 	@rm -fr prow/cluster/jobs/istio-private/*/*.gen.yaml
 	@go run prow/genjobs/main.go --configs=./prow/config/istio-private_jobs
+	@go run prow/genjobs/main.go --configs=./prow/config/istio-private_jobs
 
 diff-config:
 	@(cd prow/config/cmd; GOARCH=$(GOARCH) GOOS=$(GOOS) go run generate.go diff)
