@@ -22,7 +22,6 @@ spec:
         args:
         - --config-path=/etc/config/config.yaml
         - --dry-run=false
-        - --gcs-credentials-file=/etc/service-account/service-account.json
         - --github-endpoint=http://ghproxy
         - --github-endpoint=https://api.github.com
         - --github-token-path=/etc/github/oauth
@@ -42,9 +41,6 @@ spec:
         - name: oauth
           mountPath: /etc/github
           readOnly: true
-        - name: service-account
-          mountPath: /etc/service-account
-          readOnly: true
       volumes:
       - name: oauth
         secret:
@@ -55,6 +51,3 @@ spec:
       - name: job-config
         configMap:
           name: job-config
-      - name: service-account
-        secret:
-          secretName: prow-service-account
