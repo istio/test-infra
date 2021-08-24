@@ -23,7 +23,6 @@ spec:
         args:
         - --blob-storage-workers=1
         - --config-path=/etc/config/config.yaml
-        - --gcs-credentials-file=/etc/service-account/service-account.json
         - --github-endpoint=http://ghproxy
         - --github-endpoint=https://api.github.com
         - --github-token-path=/etc/github/oauth
@@ -39,9 +38,6 @@ spec:
           readOnly: true
         - name: slack
           mountPath: /etc/slack
-          readOnly: true
-        - name: service-account
-          mountPath: /etc/service-account
           readOnly: true
         - mountPath: /etc/kubeconfig
           name: kubeconfig
@@ -59,9 +55,6 @@ spec:
       - name: slack
         secret:
           secretName: slack-token
-      - name: service-account
-        secret:
-          secretName: prow-service-account
       - name: kubeconfig
         secret:
           defaultMode: 420
