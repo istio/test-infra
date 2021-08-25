@@ -29,7 +29,21 @@ jobs:
 
   - name: containers
     types: [postsubmit]
-    command: [entrypoint, make, containers]
+    command:
+    - make
+    - containers
+    - "|&"
+    - tee
+    - make.out
+    - "&&"
+    - ../test-infra/tools/automator/automator.sh
+    - --org=istio
+    - --repo=common-files
+    - "--title=Automator: update build-tools image@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+    - --labels=release-notes-none
+    - --modifier=update_tools_dep
+    - --token-path=/etc/github-token/oauth
+    - --cmd=bin/update_build_image.sh --image $(grep "+ VERSION" ../tools/make.out | sed -e 's/.*=//')
     resources: build
     regex: 'docker/.+|cmd/.+'
     requirements: [gcp, docker]
