@@ -18,3 +18,140 @@ presubmits:
         - prow/cluster/jobs
         - testgrid/config.yaml
         - istio
+
+postsubmits:
+  istio/test-infra:
+  - name: deploy-prow_test-infra_postsubmit
+    annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_test-infra_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    cluster: test-infra-trusted
+    decorate: true
+    max_concurrency: 1
+    path_alias: istio.io/test-infra
+    reporter_config:
+      slack:
+        channel: oncall
+        job_states_to_report:
+        - success
+        - failure
+        - aborted
+        - error
+        report_template: 'Deploying prow: {{.Status.State}}. <{{.Spec.Refs.BaseLink}}|Commit
+          {{.Spec.Refs.BaseSHA}}> <{{.Status.URL}}|View logs> <https://testgrid.k8s.io/istio_test-infra_postsubmit#deploy-prow_test-infra_postsubmit|Job
+          history on Testgrid>'
+    run_if_changed: ^prow/cluster/(?:gcsweb/|velodrome/|monitoring/|build/|private/|[^/]+\.yaml$)
+    spec:
+      serviceAccountName: prow-deployer
+      containers:
+      - command:
+        - make
+        - -C
+        - prow
+        - deploy
+        - deploy-gcsweb
+        - deploy-velodrome
+        - deploy-monitoring
+        - deploy-build
+        - deploy-private
+        image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - name: deploy-boskos_test-infra_postsubmit
+    annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_test-infra_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    cluster: test-infra-trusted
+    decorate: true
+    max_concurrency: 1
+    path_alias: istio.io/test-infra
+    run_if_changed: ^boskos/cluster/.*\.yaml$
+    spec:
+      serviceAccountName: prow-deployer
+      containers:
+      - command:
+        - make
+        - -C
+        - boskos
+        - deploy
+        image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - name: deploy-boskos-config_test-infra_postsubmit
+    annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_test-infra_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    cluster: test-infra-trusted
+    decorate: true
+    max_concurrency: 1
+    path_alias: istio.io/test-infra
+    run_if_changed: ^boskos/resources.yaml$
+    spec:
+      serviceAccountName: prow-deployer
+      containers:
+      - command:
+        - make
+        - -C
+        - boskos
+        - boskos-config
+        image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
