@@ -37,7 +37,7 @@ jobs:
     - --labels=release-notes-none
     - --modifier=update_tools_dep
     - --token-path=/etc/github-token/oauth
-    - --cmd=pushd ../tools && make containers-test |& tee make.out && popd && ./bin/update_build_image.sh --image $(grep "+ VERSION" ../tools/make.out | sed -e 's/.*=//')
+    - --cmd=pushd ../tools && make containers |& tee make.out && popd && ./bin/update_build_image.sh --image $(grep "+ VERSION" ../tools/make.out | sed -e 's/.*=//')
     resources: build
     regex: 'docker/.+|cmd/.+'
     requirements: [gcp, docker]
