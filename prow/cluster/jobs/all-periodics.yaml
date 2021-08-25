@@ -95,8 +95,8 @@ periodics:
       testing: test-pool
 
 - cron: "0 4 * * *" # starts every day at 04:00AM UTC
-  name: daily-fortio-performance-benchmark-release-1.10
-  branches: release-1.10
+  name: daily-fortio-performance-benchmark-release-1.11
+  branches: release-1.11
   decorate: true
   timeout: 24h
   decoration_config:
@@ -104,7 +104,7 @@ periodics:
   extra_refs:
     - org: istio
       repo: tools
-      base_ref: release-1.10
+      base_ref: release-1.11
       path_alias: istio.io/tools
   annotations:
     testgrid-dashboards: istio_release-pipeline
@@ -117,7 +117,7 @@ periodics:
       - <<: *istio_container_with_kind
         env:
           - name: GIT_BRANCH
-            value: release-1.10
+            value: release-1.11
           - name: LOAD_GEN_TYPE
             value: fortio
         command:
@@ -171,8 +171,8 @@ periodics:
       testing: test-pool
 
 - cron: "0 0 * * *" # starts every day at 00:00PM UTC
-  name: daily-nighthawk-performance-benchmark-release-1.10
-  branches: release-1.10
+  name: daily-nighthawk-performance-benchmark-release-1.11
+  branches: release-1.11
   decorate: true
   timeout: 24h
   decoration_config:
@@ -180,7 +180,7 @@ periodics:
   extra_refs:
     - org: istio
       repo: tools
-      base_ref: release-1.10
+      base_ref: release-1.11
       path_alias: istio.io/tools
   annotations:
     testgrid-dashboards: istio_release-pipeline
@@ -193,7 +193,7 @@ periodics:
       - <<: *istio_container_with_kind
         env:
           - name: GIT_BRANCH
-            value: release-1.10
+            value: release-1.11
           - name: LOAD_GEN_TYPE
             value: nighthawk
         command:
