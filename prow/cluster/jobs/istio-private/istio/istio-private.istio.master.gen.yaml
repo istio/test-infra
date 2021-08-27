@@ -521,8 +521,10 @@ postsubmits:
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod.json
-        - --istio.test.skipVM
         - test.integration.pilot.kube
+        env:
+        - name: INTEGRATION_TEST_FLAGS
+          value: --istio.test.skipVM
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
@@ -2566,8 +2568,10 @@ presubmits:
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod.json
-        - --istio.test.skipVM
         - test.integration.pilot.kube
+        env:
+        - name: INTEGRATION_TEST_FLAGS
+          value: --istio.test.skipVM
         image: gcr.io/istio-testing/build-tools:master-2021-08-06T18-11-12
         name: ""
         resources:
