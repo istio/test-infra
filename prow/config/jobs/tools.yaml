@@ -40,7 +40,7 @@ jobs:
     - --cmd=pushd ../tools && make containers |& tee make.out && popd && ./bin/update_build_image.sh --image $(grep "+ VERSION" ../tools/make.out | sed -e 's/.*=//')
     resources: build
     regex: 'docker/.+|cmd/.+'
-    requirements: [gcp, docker]
+    requirements: [gcp, docker, github]
 
   - name: containers-test
     types: [presubmit]
