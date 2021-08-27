@@ -162,6 +162,10 @@ jobs:
     resources: multicluster
 
   - name: integ-pilot-istiodremote-tests
+    modifiers:
+      - presubmit_optional
+      - presubmit_skipped
+      - hidden
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -169,14 +173,12 @@ jobs:
       - MULTICLUSTER
       - --topology-config
       - prow/config/topology/external-istiod.json
-      - --istio.test.skipVM
       - test.integration.pilot.kube
     requirements: [kind]
     resources: multicluster
-    modifiers:
-      - presubmit_optional
-      - presubmit_skipped
-      - hidden
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: --istio.test.skipVM
 
   - name: integ-pilot-istiodless-multicluster-tests
     modifiers:
