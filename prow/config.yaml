@@ -6,8 +6,8 @@ plank:
     istio-private: https://prow-private.istio.io/view/
   pod_pending_timeout: 15m
   pod_unscheduled_timeout: 30m
-  default_decoration_configs:
-    '*':
+  default_decoration_config_entries:
+  - config:
       timeout: 2h
       grace_period: 15s
       utility_images:
@@ -19,18 +19,15 @@ plank:
         bucket: "istio-prow"
         path_strategy: "explicit"
       gcs_credentials_secret: "service-account"
-    istio-private:
-      timeout: 2h
-      grace_period: 15s
-      utility_images:
-        clonerefs: "gcr.io/k8s-prow/clonerefs:v20210827-98f54bde95"
-        initupload: "gcr.io/k8s-prow/initupload:v20210827-98f54bde95"
-        entrypoint: "gcr.io/k8s-prow/entrypoint:v20210827-98f54bde95"
-        sidecar: "gcr.io/k8s-prow/sidecar:v20210827-98f54bde95"
+  - cluster: test-infra-trusted
+    config:
+      gcs_credentials_secret: ""
+      default_service_account_name: "prowjob-default-sa"
+  - repo: istio-private
+    config:
       gcs_configuration:
         bucket: "istio-private-build"
         path_strategy: "explicit"
-      gcs_credentials_secret: "service-account"
       ssh_key_secrets:
       - ssh-key-secret
 
