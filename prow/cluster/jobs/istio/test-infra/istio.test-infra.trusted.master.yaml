@@ -1,7 +1,7 @@
 # ProwJobs defined in this file specify `cluster: test-infra-trusted` in order to run in Prow's service cluster.
 postsubmits:
   istio/test-infra:
-  - name: post-istio-test-infra-upload-testgrid-config
+  - name: post-istio-test-infra-pr-testgrid-config # TODO(#3533): Delete this job
     cluster: test-infra-trusted
     run_if_changed: '^(prow/cluster/jobs/.*\.yaml)|(testgrid/default\.yaml)$'
     decorate: true
@@ -30,6 +30,35 @@ postsubmits:
       - name: github
         secret:
           secretName: oauth-token
+
+  - name: post-istio-test-infra-upload-testgrid-config
+    cluster: test-infra-trusted
+    run_if_changed: '^(prow/cluster/jobs/.*\.yaml)|(testgrid/default\.yaml)$'
+    decorate: true
+    branches:
+    - master
+    annotations:
+      testgrid-dashboards: istio_test-infra_postsubmit
+      testgrid-alert-email: k8s-infra-oncall@google.com
+    max_concurrency: 1
+    spec:
+      serviceAccountName: testgrid-updater
+      containers:
+      - image: gcr.io/k8s-prow/configurator
+        command:
+        - /app/testgrid/cmd/configurator/app.binary
+        args:
+        - --yaml=testgrid/config.yaml
+        - --default=testgrid/default.yaml
+        - --prow-config=prow/config.yaml
+        - --prow-job-config=prow/cluster/jobs
+        - --prowjob-url-prefix=https://github.com/istio/test-infra/tree/master/prow/cluster/jobs
+        - --update-description
+        - --output=gs://istio-testgrid/config
+        - --oneshot
+        resources:
+          requests:
+            memory: "1Gi"
 
 periodics:
 - cron: "54 * * * *"  # Every hour at 54 minutes past the hour
