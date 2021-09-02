@@ -1,23 +1,5 @@
 presubmits:
   istio/test-infra:
-  - name: pull-test-infra-check-testgrid-config-transfigure # TODO(#3533) Delete this job
-    run_if_changed: '^(prow/cluster/jobs/.*\.yaml)|(testgrid/default\.yaml)$'
-    decorate: true
-    branches:
-    - master
-    annotations:
-      testgrid-create-test-group: "false"
-    spec:
-      containers:
-      - image: gcr.io/k8s-prow/transfigure:v20210901-2242e3ec6b
-        command:
-        - /transfigure.sh
-        args:
-        - test
-        - prow/config.yaml
-        - prow/cluster/jobs
-        - testgrid/config.yaml
-        - istio
   - name: pull-test-infra-check-testgrid-config
     run_if_changed: '^(prow/cluster/jobs/.*\.yaml)|(testgrid/default\.yaml)$'
     decorate: true
