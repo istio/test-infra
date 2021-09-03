@@ -160,6 +160,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )test_istio,?($|\s.*))|((?m)^/test basic(\s+|$))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -301,3 +302,4 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )presubmit-skipped_istio,?($|\s.*))|((?m)^/test basic(\s+|$))

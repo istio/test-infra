@@ -11,6 +11,7 @@ jobs:
     command: [prow/command.sh]
     image: barimage
     regex: "foo.*"
+    trigger: "/test basic"
 
   - name: presubmit-kind
     types: [presubmit]
@@ -42,6 +43,7 @@ jobs:
     command: [prow/command.sh]
     repos: [istio/istio]
     modifier: [presubmit_skipped]
+    trigger: "/test basic"
 
 requirements: [gocache]
 

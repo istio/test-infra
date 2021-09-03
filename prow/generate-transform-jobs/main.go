@@ -77,7 +77,7 @@ func main() {
 			if file.IsDir() {
 				return nil
 			}
-			if filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml" || file.Name() == ".global.yaml" {
+			if filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml" || file.Name() == ".base.yaml" {
 				log.Println("skipping", file.Name())
 				return nil
 			}

@@ -28,6 +28,7 @@ import (
 	"github.com/ghodss/yaml"
 	"github.com/hashicorp/go-multierror"
 	"github.com/kr/pretty"
+	"github.com/ulule/deepcopier"
 	"gopkg.in/robfig/cron.v2"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
@@ -68,16 +69,19 @@ const (
 var variableSubstitutionRegex = regexp.MustCompile(variableSubstitutionFormat)
 
 type Client struct {
-	GlobalConfig GlobalConfig
+	BaseConfig *BaseConfig
 }
 
-type GlobalConfig struct {
+type BaseConfig struct {
 	AutogenHeader string `json:"autogen_header,omitempty"`
 
 	PathAliases map[string]string `json:"path_aliases,omitempty"`
 
 	GCSLogBucket                  string `json:"gcs_log_bucket,omitempty"`
 	TerminationGracePeriodSeconds int64  `json:"termination_grace_period_seconds,omitempty"`
+
+	Interval string `json:"interval,omitempty"`
+	Cron     string `json:"cron,omitempty"`
 
 	Cluster      string            `json:"cluster,omitempty"`
 	NodeSelector map[string]string `json:"node_selector,omitempty"`
@@ -125,6 +129,7 @@ type JobsConfig struct {
 	Annotations map[string]string `json:"annotations,omitempty"`
 	Labels      map[string]string `json:"labels,omitempty"`
 
+	Regex   string `json:"run_if_changed,omitempty"`
 	Trigger string `json:"trigger,omitempty"`
 
 	ResourcePresets    map[string]v1.ResourceRequirements `json:"resources,omitempty"`
@@ -138,7 +143,6 @@ type Job struct {
 	Types          []string                `json:"types,omitempty"`
 	Timeout        *prowjob.Duration       `json:"timeout,omitempty"`
 	Repos          []string                `json:"repos,omitempty"`
-	Regex          string                  `json:"regex,omitempty"`
 	MaxConcurrency int                     `json:"max_concurrency,omitempty"`
 	ReporterConfig *prowjob.ReporterConfig `json:"reporter_config,omitempty"`
 
@@ -161,6 +165,7 @@ type Job struct {
 	GerritPresubmitLabel  string            `json:"gerrit_presubmit_label,omitempty"`
 	GerritPostsubmitLabel string            `json:"gerrit_postsubmit_label,omitempty"`
 
+	Regex   string `json:"regex,omitempty"`
 	Trigger string `json:"trigger,omitempty"`
 
 	Resource     string   `json:"resources,omitempty"`
@@ -168,19 +173,24 @@ type Job struct {
 	Requirements []string `json:"requirements,omitempty"`
 }
 
-func ReadGlobalSettings(file string) GlobalConfig {
+func ReadBase(baseConfig *BaseConfig, file string) *BaseConfig {
 	yamlFile, err := ioutil.ReadFile(file)
 	if err != nil {
 		exit(err, "failed to read "+file)
 	}
-	globalSettings := GlobalConfig{
-		AutogenHeader: DefaultAutogenHeader,
+	if baseConfig == nil {
+		baseConfig = &BaseConfig{}
 	}
-	if err := yaml.Unmarshal(yamlFile, &globalSettings); err != nil {
+
+	newBaseConfig := &BaseConfig{AutogenHeader: DefaultAutogenHeader}
+	if err := deepcopier.Copy(*baseConfig).To(newBaseConfig); err != nil {
+		exit(err, "failed to deep copy base config")
+	}
+	if err := yaml.Unmarshal(yamlFile, newBaseConfig); err != nil {
 		exit(err, "failed to unmarshal "+file)
 	}
 
-	return globalSettings
+	return newBaseConfig
 }
 
 // Reads the jobs yaml
@@ -198,12 +208,12 @@ func (cli *Client) ReadJobsConfig(file string) JobsConfig {
 		jobsConfig.Branches = []string{"master"}
 	}
 
-	return resolveOverwrites(cli.GlobalConfig, jobsConfig)
+	return resolveOverwrites(cli.BaseConfig, jobsConfig)
 }
 
-func resolveOverwrites(globalConfig GlobalConfig, jobsConfig JobsConfig) JobsConfig {
-	// Resolve globalConfig -> jobsConfig overwriting
-	resources := globalConfig.ResourcePresets
+func resolveOverwrites(baseConfig *BaseConfig, jobsConfig JobsConfig) JobsConfig {
+	// Resolve baseConfig -> jobsConfig overwriting
+	resources := baseConfig.ResourcePresets
 	if resources == nil {
 		resources = map[string]v1.ResourceRequirements{}
 	}
@@ -211,7 +221,7 @@ func resolveOverwrites(globalConfig GlobalConfig, jobsConfig JobsConfig) JobsCon
 		resources[k] = v
 	}
 	jobsConfig.ResourcePresets = resources
-	requirementPresets := copyRequirementsMap(globalConfig.RequirementPresets)
+	requirementPresets := copyRequirementsMap(baseConfig.RequirementPresets)
 	if requirementPresets == nil {
 		requirementPresets = map[string]RequirementPreset{}
 	}
@@ -223,13 +233,13 @@ func resolveOverwrites(globalConfig GlobalConfig, jobsConfig JobsConfig) JobsCon
 
 	// Resolve jobsConfig -> job overwriting
 	for i, job := range jobsConfig.Jobs {
-		job.Annotations = mergeMaps(globalConfig.Annotations, jobsConfig.Annotations, job.Annotations)
+		job.Annotations = mergeMaps(baseConfig.Annotations, jobsConfig.Annotations, job.Annotations)
 
-		job.Labels = mergeMaps(globalConfig.Labels, jobsConfig.Labels, job.Labels)
+		job.Labels = mergeMaps(baseConfig.Labels, jobsConfig.Labels, job.Labels)
 
-		job.Requirements = mergeSlices(globalConfig.BaseRequirements, job.Requirements, jobsConfig.Requirements)
+		job.Requirements = mergeSlices(baseConfig.BaseRequirements, job.Requirements, jobsConfig.Requirements)
 
-		nodeSelector := globalConfig.NodeSelector
+		nodeSelector := baseConfig.NodeSelector
 		if jobsConfig.NodeSelector != nil {
 			nodeSelector = jobsConfig.NodeSelector
 		}
@@ -238,7 +248,7 @@ func resolveOverwrites(globalConfig GlobalConfig, jobsConfig JobsConfig) JobsCon
 		}
 		job.NodeSelector = nodeSelector
 
-		cluster := globalConfig.Cluster
+		cluster := baseConfig.Cluster
 		if jobsConfig.Cluster != "" {
 			cluster = jobsConfig.Cluster
 		}
@@ -247,7 +257,7 @@ func resolveOverwrites(globalConfig GlobalConfig, jobsConfig JobsConfig) JobsCon
 		}
 		job.Cluster = cluster
 
-		gcsLogBucket := globalConfig.GCSLogBucket
+		gcsLogBucket := baseConfig.GCSLogBucket
 		if jobsConfig.GCSLogBucket != "" {
 			gcsLogBucket = jobsConfig.GCSLogBucket
 		}
@@ -256,7 +266,7 @@ func resolveOverwrites(globalConfig GlobalConfig, jobsConfig JobsConfig) JobsCon
 		}
 		job.GCSLogBucket = gcsLogBucket
 
-		terminateGracePeriodSeconds := globalConfig.TerminationGracePeriodSeconds
+		terminateGracePeriodSeconds := baseConfig.TerminationGracePeriodSeconds
 		if jobsConfig.TerminationGracePeriodSeconds != 0 {
 			terminateGracePeriodSeconds = jobsConfig.TerminationGracePeriodSeconds
 		}
@@ -277,17 +287,29 @@ func resolveOverwrites(globalConfig GlobalConfig, jobsConfig JobsConfig) JobsCon
 		}
 		job.ImagePullPolicy = imagePullPolicy
 
-		interval := jobsConfig.Interval
+		interval := baseConfig.Interval
+		if jobsConfig.Interval != "" {
+			interval = jobsConfig.Interval
+		}
 		if job.Interval != "" {
 			interval = job.Interval
 		}
 		job.Interval = interval
 
-		cronStr := jobsConfig.Cron
+		cronStr := baseConfig.Cron
+		if jobsConfig.Cron != "" {
+			cronStr = jobsConfig.Cron
+		}
 		if job.Cron != "" {
 			cronStr = job.Cron
 		}
 		job.Cron = cronStr
+
+		regex := jobsConfig.Regex
+		if job.Regex != "" {
+			regex = job.Regex
+		}
+		job.Regex = regex
 
 		trigger := jobsConfig.Trigger
 		if job.Trigger != "" {
@@ -379,8 +401,8 @@ func (cli *Client) ValidateJobConfig(fileName string, jobsConfig JobsConfig) {
 }
 
 func (cli *Client) ConvertJobConfig(jobsConfig JobsConfig, branch string) config.JobConfig {
-	globalConfig := cli.GlobalConfig
-	testgridConfig := globalConfig.TestgridConfig
+	baseConfig := cli.BaseConfig
+	testgridConfig := baseConfig.TestgridConfig
 
 	var presubmits []config.Presubmit
 	var postsubmits []config.Postsubmit
@@ -411,14 +433,14 @@ func (cli *Client) ConvertJobConfig(jobsConfig JobsConfig, branch string) config
 				}
 
 				presubmit := config.Presubmit{
-					JobBase:   createJobBase(globalConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets),
+					JobBase:   createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets),
 					AlwaysRun: true,
 					Brancher:  brancher,
 				}
 				if job.GerritPresubmitLabel != "" {
 					presubmit.Labels[client.GerritReportLabel] = job.GerritPresubmitLabel
 				}
-				if pa, ok := globalConfig.PathAliases[jobsConfig.Org]; ok {
+				if pa, ok := baseConfig.PathAliases[jobsConfig.Org]; ok {
 					presubmit.UtilityConfig.PathAlias = fmt.Sprintf("%s/%s", pa, jobsConfig.Repo)
 				}
 				if job.Regex != "" {
@@ -428,8 +450,9 @@ func (cli *Client) ConvertJobConfig(jobsConfig JobsConfig, branch string) config
 					presubmit.AlwaysRun = false
 				}
 				if job.Trigger != "" {
-					presubmit.Trigger = job.Trigger
-					presubmit.RerunCommand = job.Trigger
+					defaultTrigger := config.DefaultTriggerFor(presubmit.JobBase.Name)
+					// Match the default trigger + the new trigger.
+					presubmit.Trigger = fmt.Sprintf("(%s)|((?m)^%s(\\s+|$))", defaultTrigger, job.Trigger)
 				}
 				if testgridConfig.Enabled {
 					presubmit.JobBase.Annotations = mergeMaps(presubmit.JobBase.Annotations, map[string]string{
@@ -449,13 +472,13 @@ func (cli *Client) ConvertJobConfig(jobsConfig JobsConfig, branch string) config
 				name += "_postsubmit"
 
 				postsubmit := config.Postsubmit{
-					JobBase:  createJobBase(globalConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets),
+					JobBase:  createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets),
 					Brancher: brancher,
 				}
 				if job.GerritPostsubmitLabel != "" {
 					postsubmit.Labels[client.GerritReportLabel] = job.GerritPostsubmitLabel
 				}
-				if pa, ok := globalConfig.PathAliases[jobsConfig.Org]; ok {
+				if pa, ok := baseConfig.PathAliases[jobsConfig.Org]; ok {
 					postsubmit.UtilityConfig.PathAlias = fmt.Sprintf("%s/%s", pa, jobsConfig.Repo)
 				}
 				if job.Regex != "" {
@@ -486,7 +509,7 @@ func (cli *Client) ConvertJobConfig(jobsConfig JobsConfig, branch string) config
 				// should be set as the working directory, so add itself to the repo list here.
 				job.Repos = append([]string{jobsConfig.Org + "/" + jobsConfig.Repo}, job.Repos...)
 				periodic := config.Periodic{
-					JobBase:  createJobBase(globalConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets),
+					JobBase:  createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets),
 					Interval: job.Interval,
 					Cron:     job.Cron,
 				}
@@ -525,7 +548,7 @@ func (cli *Client) CheckConfig(jobs config.JobConfig, currentConfigFile string) 
 	if err != nil {
 		return fmt.Errorf("failed to marshal result: %v", err)
 	}
-	output := []byte(cli.GlobalConfig.AutogenHeader)
+	output := []byte(cli.BaseConfig.AutogenHeader)
 	output = append(output, newConfig...)
 
 	if !bytes.Equal(current, output) {
@@ -534,7 +557,7 @@ func (cli *Client) CheckConfig(jobs config.JobConfig, currentConfigFile string) 
 	return nil
 }
 
-func (cli *Client) WriteConfig(jobs config.JobConfig, fname string) {
+func Write(jobs config.JobConfig, fname, header string) {
 	bs, err := yaml.Marshal(jobs)
 	if err != nil {
 		exit(err, "failed to marshal result")
@@ -543,7 +566,7 @@ func (cli *Client) WriteConfig(jobs config.JobConfig, fname string) {
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 		exit(err, "failed to create directory: "+dir)
 	}
-	output := []byte(cli.GlobalConfig.AutogenHeader)
+	output := []byte(header)
 	output = append(output, bs...)
 	err = ioutil.WriteFile(fname, output, 0644)
 	if err != nil {
@@ -551,7 +574,7 @@ func (cli *Client) WriteConfig(jobs config.JobConfig, fname string) {
 	}
 }
 
-func (cli *Client) PrintConfig(c interface{}) {
+func Print(c interface{}) {
 	bs, err := yaml.Marshal(c)
 	if err != nil {
 		exit(err, "failed to write result")
@@ -572,7 +595,7 @@ func validate(input string, options []string, description string) error {
 	return nil
 }
 
-func (cli *Client) DiffConfig(result config.JobConfig, existing config.JobConfig) {
+func Diff(result config.JobConfig, existing config.JobConfig) {
 	fmt.Println("Presubmit diff:")
 	diffConfigPresubmit(result, existing)
 	fmt.Println("\n\nPostsubmit diff:")
@@ -699,7 +722,7 @@ func createContainer(jobConfig JobsConfig, job Job, resources map[string]v1.Reso
 	return []v1.Container{c}
 }
 
-func createJobBase(globalConfig GlobalConfig, jobConfig JobsConfig, job Job,
+func createJobBase(baseConfig *BaseConfig, jobConfig JobsConfig, job Job,
 	name string, branch string, resources map[string]v1.ResourceRequirements) config.JobBase {
 	yes := true
 	jb := config.JobBase{
@@ -711,7 +734,7 @@ func createJobBase(globalConfig GlobalConfig, jobConfig JobsConfig, job Job,
 		},
 		UtilityConfig: config.UtilityConfig{
 			Decorate:  &yes,
-			ExtraRefs: createExtraRefs(job.Repos, branch, globalConfig.PathAliases),
+			ExtraRefs: createExtraRefs(job.Repos, branch, baseConfig.PathAliases),
 		},
 		ReporterConfig: job.ReporterConfig,
 		Labels:         job.Labels,
@@ -740,7 +763,7 @@ func createJobBase(globalConfig GlobalConfig, jobConfig JobsConfig, job Job,
 			jb.DecorationConfig = &prowjob.DecorationConfig{}
 		}
 		jb.DecorationConfig.GCSConfiguration = &prowjob.GCSConfiguration{
-			Bucket:       globalConfig.GCSLogBucket,
+			Bucket:       baseConfig.GCSLogBucket,
 			PathStrategy: "explicit",
 		}
 	}
