@@ -78,8 +78,11 @@ requirement_presets:
       preset-service-account: "true"
 ```
 
-In each sub-folder, a `.base.yaml` file can also be added which'll overwrite the
-config fields in the `.base.yaml` file under the root folder.
+In each sub-folder, a `.base.yaml` file can also be added which'll overlay the
+config fields in the `.base.yaml` file under the root folder. Please note for
+now the overlay logic is not recursive, which means only the `.base.yaml` file
+in the current folder and the root folder will be overlaid, any other
+`.base.yaml` files in folders between them will be ignored.
 
 ## Job Syntax
 

@@ -30,6 +30,14 @@ import (
 	"istio.io/test-infra/prow/config"
 )
 
+var (
+	// regex to match the test image tags.
+	tagRegex = regexp.MustCompile(`^(.+):(.+)-([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2})$`)
+
+	inputDir  = flag.String("input-dir", "../jobs", "directory of input jobs")
+	outputDir = flag.String("output-dir", "../../cluster/jobs", "directory of output jobs")
+)
+
 func exit(err error, context string) {
 	if context == "" {
 		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
@@ -39,15 +47,10 @@ func exit(err error, context string) {
 	os.Exit(1)
 }
 
-func GetFileName(repo string, org string, branch string) string {
+func getFileName(repo string, org string, branch string) string {
 	key := fmt.Sprintf("%s.%s.%s.gen.yaml", org, repo, branch)
 	return path.Join(*outputDir, org, repo, key)
 }
-
-var (
-	inputDir  = flag.String("input-dir", "../jobs", "directory of input jobs")
-	outputDir = flag.String("output-dir", "../../cluster/jobs", "directory of output jobs")
-)
 
 func main() {
 	flag.Parse()
@@ -96,10 +99,21 @@ func main() {
 				jobs.Jobs = config.FilterReleaseBranchingJobs(jobs.Jobs)
 
 				if jobs.SupportReleaseBranching {
-					tagRegex := regexp.MustCompile(`^(.+):(.+)-([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2})$`)
 					match := tagRegex.FindStringSubmatch(jobs.Image)
 					branch := "release-" + flag.Arg(1)
 					if len(match) == 4 {
+						// HACK: replacing the branch name in the image tag and
+						// adding it as a new tag.
+						// For example, if the test image in the current Prow job
+						// config is
+						// `gcr.io/istio-testing/build-tools:release-1.10-2021-08-09T16-46-08`,
+						// and the Prow job config for release-1.11 branch is
+						// supposed to be generated, the image will be added a
+						// new `release-1.11-2021-08-09T16-46-08` tag.
+						// This is only needed for creating Prow jobs for a new
+						// release branch for the first time, and the image tag
+						// will be overwritten by Automator the next time the
+						// image for the new branch is updated.
 						newImage := fmt.Sprintf("%s:%s-%s", match[1], branch, match[3])
 						if err := exec.Command("gcloud", "container", "images", "add-tag", match[0], newImage).Run(); err != nil {
 							exit(err, "unable to add image tag: "+newImage)
@@ -181,7 +195,7 @@ func main() {
 		}
 
 		for r, output := range cachedOutput {
-			fname := GetFileName(r.repo, r.org, r.branch)
+			fname := getFileName(r.repo, r.org, r.branch)
 			switch flag.Arg(0) {
 			case "write":
 				config.Write(output, fname, bc.AutogenHeader)
