@@ -17,6 +17,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -29,6 +30,14 @@ import (
 	"istio.io/test-infra/prow/config"
 )
 
+var (
+	// regex to match the test image tags.
+	tagRegex = regexp.MustCompile(`^(.+):(.+)-([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2})$`)
+
+	inputDir  = flag.String("input-dir", "../jobs", "directory of input jobs")
+	outputDir = flag.String("output-dir", "../../cluster/jobs", "directory of output jobs")
+)
+
 func exit(err error, context string) {
 	if context == "" {
 		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
@@ -38,15 +47,10 @@ func exit(err error, context string) {
 	os.Exit(1)
 }
 
-func GetFileName(repo string, org string, branch string) string {
+func getFileName(repo string, org string, branch string) string {
 	key := fmt.Sprintf("%s.%s.%s.gen.yaml", org, repo, branch)
 	return path.Join(*outputDir, org, repo, key)
 }
-
-var (
-	inputDir  = flag.String("input-dir", "../jobs", "directory of input jobs")
-	outputDir = flag.String("output-dir", "../../cluster/jobs", "directory of output jobs")
-)
 
 func main() {
 	flag.Parse()
@@ -62,50 +66,72 @@ func main() {
 		panic("too many arguments")
 	}
 
-	var settings config.GlobalConfig
-	if _, err := os.Stat(filepath.Join(*inputDir, ".global.yaml")); !os.IsNotExist(err) {
-		settings = config.ReadGlobalSettings(filepath.Join(*inputDir, ".global.yaml"))
+	var bc *config.BaseConfig
+	if _, err := os.Stat(filepath.Join(*inputDir, ".base.yaml")); !os.IsNotExist(err) {
+		bc = config.ReadBase(nil, filepath.Join(*inputDir, ".base.yaml"))
 	}
-	cli := &config.Client{GlobalConfig: settings}
 
 	if os.Args[1] == "branch" {
-		if err := filepath.Walk(*inputDir, func(src string, file os.FileInfo, err error) error {
+		if err := filepath.WalkDir(*inputDir, func(path string, d os.DirEntry, err error) error {
 			if err != nil {
 				fmt.Printf("error: %s\n", err.Error())
 			}
-
-			if file.IsDir() {
-				return nil
+			baseConfig := bc
+			if _, err := os.Stat(filepath.Join(path, ".base.yaml")); !os.IsNotExist(err) {
+				baseConfig = config.ReadBase(baseConfig, filepath.Join(path, ".base.yaml"))
 			}
-			if filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml" || file.Name() == ".global.yaml" {
-				log.Println("skipping", file.Name())
-				return nil
-			}
-			jobs := cli.ReadJobsConfig(src)
-			jobs.Jobs = config.FilterReleaseBranchingJobs(jobs.Jobs)
+			cli := config.Client{BaseConfig: baseConfig}
 
-			if jobs.SupportReleaseBranching {
-				tagRegex := regexp.MustCompile(`^(.+):(.+)-([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2})$`)
-				match := tagRegex.FindStringSubmatch(jobs.Image)
-				branch := "release-" + flag.Arg(1)
-				if len(match) == 4 {
-					newImage := fmt.Sprintf("%s:%s-%s", match[1], branch, match[3])
-					if err := exec.Command("gcloud", "container", "images", "add-tag", match[0], newImage).Run(); err != nil {
-						exit(err, "unable to add image tag: "+newImage)
-					} else {
-						jobs.Image = newImage
-					}
+			files, _ := ioutil.ReadDir(path)
+			for _, file := range files {
+				if file.IsDir() {
+					continue
 				}
-				jobs.Branches = []string{branch}
-				jobs.SupportReleaseBranching = false
 
-				name := file.Name()
-				ext := filepath.Ext(name)
-				name = name[:len(name)-len(ext)] + "-" + flag.Arg(1) + ext
+				if (filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml") ||
+					file.Name() == ".base.yaml" {
+					log.Println("skipping", file.Name())
+					continue
+				}
 
-				dst := path.Join(*inputDir, name)
-				if err := config.WriteJobConfig(jobs, dst); err != nil {
-					exit(err, "writing branched config failed")
+				src := filepath.Join(path, file.Name())
+				jobs := cli.ReadJobsConfig(src)
+				jobs.Jobs = config.FilterReleaseBranchingJobs(jobs.Jobs)
+
+				if jobs.SupportReleaseBranching {
+					match := tagRegex.FindStringSubmatch(jobs.Image)
+					branch := "release-" + flag.Arg(1)
+					if len(match) == 4 {
+						// HACK: replacing the branch name in the image tag and
+						// adding it as a new tag.
+						// For example, if the test image in the current Prow job
+						// config is
+						// `gcr.io/istio-testing/build-tools:release-1.10-2021-08-09T16-46-08`,
+						// and the Prow job config for release-1.11 branch is
+						// supposed to be generated, the image will be added a
+						// new `release-1.11-2021-08-09T16-46-08` tag.
+						// This is only needed for creating Prow jobs for a new
+						// release branch for the first time, and the image tag
+						// will be overwritten by Automator the next time the
+						// image for the new branch is updated.
+						newImage := fmt.Sprintf("%s:%s-%s", match[1], branch, match[3])
+						if err := exec.Command("gcloud", "container", "images", "add-tag", match[0], newImage).Run(); err != nil {
+							exit(err, "unable to add image tag: "+newImage)
+						} else {
+							jobs.Image = newImage
+						}
+					}
+					jobs.Branches = []string{branch}
+					jobs.SupportReleaseBranching = false
+
+					name := file.Name()
+					ext := filepath.Ext(name)
+					name = name[:len(name)-len(ext)] + "-" + flag.Arg(1) + ext
+
+					dst := filepath.Join(*inputDir, name)
+					if err := config.WriteJobConfig(jobs, dst); err != nil {
+						exit(err, "writing branched config failed")
+					}
 				}
 			}
 
@@ -123,24 +149,44 @@ func main() {
 		// job configs before we generate the final config files.
 		// In this way we can have multiple meta-config files for the same org/repo:branch
 		cachedOutput := map[ref]k8sProwConfig.JobConfig{}
-		if err := filepath.Walk(*inputDir, func(src string, file os.FileInfo, err error) error {
-			if file.IsDir() {
+		if err := filepath.WalkDir(*inputDir, func(path string, d os.DirEntry, err error) error {
+			if !d.IsDir() {
 				return nil
 			}
-			if filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml" || file.Name() == ".global.yaml" {
-				log.Println("skipping", file.Name())
-				return nil
+			if err != nil {
+				fmt.Printf("error: %s\n", err.Error())
 			}
-			jobs := cli.ReadJobsConfig(src)
-			for _, branch := range jobs.Branches {
-				cli.ValidateJobConfig(file.Name(), jobs)
-				output := cli.ConvertJobConfig(jobs, branch)
-				rf := ref{jobs.Org, jobs.Repo, branch}
-				if _, ok := cachedOutput[rf]; !ok {
-					cachedOutput[rf] = output
-				} else {
-					cachedOutput[rf] = combineJobConfigs(cachedOutput[rf], output,
-						fmt.Sprintf("%s/%s", jobs.Org, jobs.Repo))
+
+			baseConfig := bc
+			if _, err := os.Stat(filepath.Join(path, ".base.yaml")); !os.IsNotExist(err) {
+				baseConfig = config.ReadBase(baseConfig, filepath.Join(path, ".base.yaml"))
+			}
+			cli := config.Client{BaseConfig: baseConfig}
+
+			files, _ := ioutil.ReadDir(path)
+			for _, file := range files {
+				if file.IsDir() {
+					continue
+				}
+
+				if (filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml") ||
+					file.Name() == ".base.yaml" {
+					log.Println("skipping", file.Name())
+					continue
+				}
+
+				src := filepath.Join(path, file.Name())
+				jobs := cli.ReadJobsConfig(src)
+				for _, branch := range jobs.Branches {
+					cli.ValidateJobConfig(file.Name(), jobs)
+					output := cli.ConvertJobConfig(jobs, branch)
+					rf := ref{jobs.Org, jobs.Repo, branch}
+					if _, ok := cachedOutput[rf]; !ok {
+						cachedOutput[rf] = output
+					} else {
+						cachedOutput[rf] = combineJobConfigs(cachedOutput[rf], output,
+							fmt.Sprintf("%s/%s", jobs.Org, jobs.Repo))
+					}
 				}
 			}
 			return nil
@@ -149,15 +195,15 @@ func main() {
 		}
 
 		for r, output := range cachedOutput {
-			fname := GetFileName(r.repo, r.org, r.branch)
+			fname := getFileName(r.repo, r.org, r.branch)
 			switch flag.Arg(0) {
 			case "write":
-				cli.WriteConfig(output, fname)
+				config.Write(output, fname, bc.AutogenHeader)
 			case "diff":
 				existing := config.ReadProwJobConfig(fname)
-				cli.DiffConfig(output, existing)
+				config.Diff(output, existing)
 			default:
-				cli.PrintConfig(output)
+				config.Print(output)
 			}
 		}
 	}

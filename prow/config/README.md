@@ -6,11 +6,11 @@ Jobs reside in [jobs/](./jobs/). From there, [`generate.go`](./generate.go) will
 
 This generation layer simplifies the configuration and allows use to provide opinionated defaults.
 
-## Global config
+## Base config
 
-In the root folder, a `.global.yaml` file can be added to define the config fields that are shared by all the meta config files.
+In the root folder, a `.base.yaml` file can be added to define the config fields that are shared by all the meta config files.
 
-Below is an example global config file:
+Below is an example base config file:
 
 ```yaml
 # The header line that will be added to each generated config file.
@@ -77,6 +77,12 @@ requirement_presets:
     labels:
       preset-service-account: "true"
 ```
+
+In each sub-folder, a `.base.yaml` file can also be added which'll overlay the
+config fields in the `.base.yaml` file under the root folder. Please note for
+now the overlay logic is not recursive, which means only the `.base.yaml` file
+in the current folder and the root folder will be overlaid, any other
+`.base.yaml` files in folders between them will be ignored.
 
 ## Job Syntax
 
