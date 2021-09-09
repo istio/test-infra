@@ -29,10 +29,19 @@ jobs:
 
   - name: containers
     types: [postsubmit]
-    command: [entrypoint, make, containers]
+    command:
+    - ../test-infra/tools/automator/automator.sh
+    - --org=istio
+    - --repo=common-files
+    - "--title=Automator: update build-tools image@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+    - --labels=release-notes-none
+    - --modifier=update_image_version
+    - --token-path=/etc/github-token/oauth
+    - --script-path=./bin/create-buildtools-and-update.sh
     resources: build
     regex: 'docker/.+|cmd/.+'
-    requirements: [gcp, docker]
+    requirements: [gcp, docker, github]
+    repos: [istio/test-infra@master]
 
   - name: containers-test
     types: [presubmit]
