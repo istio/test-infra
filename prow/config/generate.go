@@ -190,6 +190,13 @@ func ReadBase(baseConfig *BaseConfig, file string) *BaseConfig {
 		exit(err, "failed to unmarshal "+file)
 	}
 
+	// Append the base requirements when .base.yaml is overlaid.
+	// We only need this logic for arrays since `Unmarshal` will always reset the array length
+	// to zero and then append each element to the array, versus for maps
+	// `Unmarshal` will reuse the existing map and keep existing entries if it's
+	// not nil.
+	newBaseConfig.BaseRequirements = append(newBaseConfig.BaseRequirements, baseConfig.BaseRequirements...)
+
 	return newBaseConfig
 }
 
