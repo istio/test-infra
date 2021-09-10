@@ -157,6 +157,10 @@ postsubmits:
       org: istio
       path_alias: istio.io/test-infra
       repo: test-infra
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/common-files
+      repo: common-files
     labels:
       preset-service-account: "true"
     name: containers_tools_postsubmit
@@ -172,7 +176,7 @@ postsubmits:
         - --labels=release-notes-none
         - --modifier=update_image_version
         - --token-path=/etc/github-token/oauth
-        - --script-path=./bin/create-buildtools-and-update.sh
+        - --script-path=../common-files/bin/create-buildtools-and-update.sh
         image: gcr.io/istio-testing/build-tools:master-2021-09-08T17-55-51
         name: ""
         resources:
