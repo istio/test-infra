@@ -183,9 +183,14 @@ func ReadBase(baseConfig *BaseConfig, file string) *BaseConfig {
 	}
 
 	newBaseConfig := &BaseConfig{AutogenHeader: DefaultAutogenHeader}
+	// This library isn't really doing deepcopy, such as it's only
+	// copying pointers, and it does not deep copy the maps and slices.
+	// TODO(chizhg): use a correct deepcopy library or implement its own deep
+	//               copy function.
 	if err := deepcopier.Copy(*baseConfig).To(newBaseConfig); err != nil {
 		exit(err, "failed to deep copy base config")
 	}
+	newBaseConfig.BaseRequirements = []string{}
 	if err := yaml.Unmarshal(yamlFile, newBaseConfig); err != nil {
 		exit(err, "failed to unmarshal "+file)
 	}
@@ -195,7 +200,7 @@ func ReadBase(baseConfig *BaseConfig, file string) *BaseConfig {
 	// to zero and then append each element to the array, versus for maps
 	// `Unmarshal` will reuse the existing map and keep existing entries if it's
 	// not nil.
-	newBaseConfig.BaseRequirements = append(newBaseConfig.BaseRequirements, baseConfig.BaseRequirements...)
+	newBaseConfig.BaseRequirements = append(baseConfig.BaseRequirements, newBaseConfig.BaseRequirements...)
 
 	return newBaseConfig
 }
@@ -349,11 +354,6 @@ func (cli *Client) ValidateJobConfig(fileName string, jobsConfig JobsConfig) {
 		err = multierror.Append(err, fmt.Errorf("%s: repo must be set", fileName))
 	}
 
-	requirements := make([]string, 0)
-	for name := range jobsConfig.RequirementPresets {
-		requirements = append(requirements, name)
-	}
-
 	for _, job := range jobsConfig.Jobs {
 		if job.Image == "" {
 			err = multierror.Append(err, fmt.Errorf("%s: image must be set for job %v", fileName, job.Name))
@@ -365,14 +365,6 @@ func (cli *Client) ValidateJobConfig(fileName string, jobsConfig JobsConfig) {
 		}
 		for _, mod := range job.Modifiers {
 			if e := validate(mod, []string{ModifierHidden, ModifierPresubmitOptional, ModifierPresubmitSkipped}, "status"); e != nil {
-				err = multierror.Append(err, e)
-			}
-		}
-		for _, req := range job.Requirements {
-			if e := validate(
-				req,
-				requirements,
-				"requirements"); e != nil {
 				err = multierror.Append(err, e)
 			}
 		}
@@ -807,6 +799,23 @@ func createExtraRefs(extraRepos []string, defaultBranch string, pathAliases map[
 }
 
 func applyRequirements(job *config.JobBase, requirements []string, presetMap map[string]RequirementPreset) {
+	validRequirements := make([]string, 0)
+	for name := range presetMap {
+		validRequirements = append(validRequirements, name)
+	}
+	var err error
+	for _, req := range requirements {
+		if e := validate(
+			req,
+			validRequirements,
+			"requirements"); e != nil {
+			err = multierror.Append(err, e)
+		}
+	}
+	if err != nil {
+		exit(err, "validation failed")
+	}
+
 	presets := make([]RequirementPreset, 0)
 	for _, req := range requirements {
 		presets = append(presets, presetMap[req])
