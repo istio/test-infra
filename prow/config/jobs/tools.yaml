@@ -37,11 +37,11 @@ jobs:
     - --labels=release-notes-none
     - --modifier=update_image_version
     - --token-path=/etc/github-token/oauth
-    - --script-path=./bin/create-buildtools-and-update.sh
+    - --script-path=../common-files/bin/create-buildtools-and-update.sh
     resources: build
     regex: 'docker/.+|cmd/.+'
     requirements: [gcp, docker, github]
-    repos: [istio/test-infra@master]
+    repos: [istio/test-infra@master,istio/common-files@master]
 
   - name: containers-test
     types: [presubmit]
