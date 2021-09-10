@@ -214,6 +214,25 @@ jobs:
     requirements: [kind]
     resources: multicluster
 
+  - name: integ-security-istiodremote-tests
+    modifiers:
+      - presubmit_optional
+      - presubmit_skipped
+      - hidden
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --topology
+      - MULTICLUSTER
+      - --topology-config
+      - prow/config/topology/external-istiod.json
+      - test.integration.security.kube
+    requirements: [kind]
+    resources: multicluster
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: --istio.test.skipVM
+
   - name: integ-security-istiodless-multicluster-tests
     modifiers:
       - presubmit_optional
