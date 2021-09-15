@@ -72,6 +72,22 @@ jobs:
     requirements: [kind]
     resources: multicluster
 
+  - name: integ-telemetry-istiodremote-tests
+    modifiers:
+      - presubmit_optional
+      - presubmit_skipped
+      - hidden
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --topology
+      - MULTICLUSTER
+      - --topology-config
+      - prow/config/topology/external-istiod.json
+      - test.integration.telemetry.kube
+    requirements: [kind]
+    resources: multicluster
+
   - name: integ-telemetry-istiodless-mc-k8s-tests
     modifiers:
       - presubmit_optional
