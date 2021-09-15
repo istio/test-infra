@@ -1,11 +1,11 @@
 branches:
 - release-1.11
-image: gcr.io/istio-testing/build-tools:release-1.11-2021-08-09T16-46-08
+image: gcr.io/istio-testing/build-tools:release-1.11-2021-09-10T15-56-22
 jobs:
 - command:
   - make
   - build
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-08-09T16-46-08
+  image: gcr.io/istio-testing/build-tools:release-1.11-2021-09-10T15-56-22
   name: build
   node_selector:
     testing: test-pool
@@ -14,7 +14,7 @@ jobs:
 - command:
   - make
   - lint
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-08-09T16-46-08
+  image: gcr.io/istio-testing/build-tools:release-1.11-2021-09-10T15-56-22
   name: lint
   node_selector:
     testing: test-pool
@@ -23,7 +23,7 @@ jobs:
 - command:
   - make
   - gen-check
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-08-09T16-46-08
+  image: gcr.io/istio-testing/build-tools:release-1.11-2021-09-10T15-56-22
   name: gencheck
   node_selector:
     testing: test-pool
@@ -41,7 +41,7 @@ jobs:
   - --git-exclude=^common/
   - --cmd=go get istio.io/gogo-genproto@$AUTOMATOR_SHA && go mod tidy && make clean
     gen
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-08-09T16-46-08
+  image: gcr.io/istio-testing/build-tools:release-1.11-2021-09-10T15-56-22
   name: update_gogo-genproto_dep
   node_selector:
     testing: test-pool
