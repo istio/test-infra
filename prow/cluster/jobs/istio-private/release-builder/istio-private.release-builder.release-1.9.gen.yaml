@@ -137,6 +137,11 @@ postsubmits:
         - entrypoint
         - release/build.sh
         env:
+        - name: COSIGN_KEY
+          valueFrom:
+            secretKeyRef:
+              key: key
+              name: cosign-key
         - name: GCS_BUCKET
           value: istio-private-prerelease/prerelease
         - name: PRERELEASE_DOCKER_HUB
