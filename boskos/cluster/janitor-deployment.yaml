@@ -16,6 +16,7 @@ spec:
       labels:
         app: boskos-janitor
     spec:
+      serviceAccountName: boskos-admin
       terminationGracePeriodSeconds: 300
       containers:
       - name: boskos-janitor
@@ -24,17 +25,8 @@ spec:
         - --resource-type=gcp-project,gcp-perf-test-project
         - --pool-size=20
         - --
-        - --service_account=/etc/service-account/service-account.json
         - --hours=0
         - --verbose
-        volumeMounts:
-        - mountPath: /etc/service-account
-          name: boskos-service-account
-          readOnly: true
-      volumes:
-      - name: boskos-service-account
-        secret:
-          secretName: boskos-service-account
       tolerations:
       - key: dedicated
         operator: Equal
