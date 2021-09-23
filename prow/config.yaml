@@ -369,7 +369,6 @@ tide:
     - istio/api
     - istio/common-files
     - istio/community
-    - istio/istio.io
     - istio/gogo-genproto
     - istio/test-infra
     - istio/cni
@@ -394,7 +393,6 @@ tide:
     - istio/api
     - istio/common-files
     - istio/community
-    - istio/istio.io
     - istio/gogo-genproto
     - istio/test-infra
     - istio/cni
@@ -404,6 +402,20 @@ tide:
     - istio/release-builder
     labels:
     - "cla: yes"
+    - auto-merge
+    missingLabels: *istio_tide_missing_labels
+    author: istio-testing
+    reviewApprovedRequired: false
+  - repos:
+    - istio/istio.io
+    missingLabels: &istio_tide_missing_labels
+    - do-not-merge
+    - do-not-merge/hold
+    - do-not-merge/work-in-progress
+    reviewApprovedRequired: true
+  - repos:
+    - istio/istio.io
+    labels:
     - auto-merge
     missingLabels: *istio_tide_missing_labels
     author: istio-testing
