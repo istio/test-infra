@@ -22,17 +22,8 @@ spec:
       - name: boskos-mason
         image: gcr.io/istio-testing/mason:v20200311-1.5.0-40-gfc8ffb89
         args:
-        - --service-account=/etc/service-account/service-account.json
         - --cleaner-count=25
         - --namespace=boskos
-        volumeMounts:
-        - mountPath: /etc/service-account
-          name: service-account
-          readOnly: true
-      volumes:
-      - name: service-account
-        secret:
-          secretName: boskos-service-account
       tolerations:
       - key: dedicated
         operator: Equal
