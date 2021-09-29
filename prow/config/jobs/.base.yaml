@@ -92,6 +92,12 @@ requirement_presets:
   release:
     labels:
       preset-release-pipeline: "true"
+    env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            name: "cosign-key"
+            key: "key"
   gcp:
     labels:
       preset-service-account: "true"

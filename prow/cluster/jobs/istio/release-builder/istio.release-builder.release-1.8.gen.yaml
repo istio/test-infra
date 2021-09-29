@@ -169,6 +169,12 @@ postsubmits:
       - command:
         - entrypoint
         - release/build.sh
+        env:
+        - name: COSIGN_KEY
+          valueFrom:
+            secretKeyRef:
+              key: key
+              name: cosign-key
         image: gcr.io/istio-testing/build-tools:release-1.8-2021-04-06T17-44-38
         name: ""
         resources:
@@ -219,6 +225,12 @@ postsubmits:
       - command:
         - entrypoint
         - release/publish.sh
+        env:
+        - name: COSIGN_KEY
+          valueFrom:
+            secretKeyRef:
+              key: key
+              name: cosign-key
         image: gcr.io/istio-testing/build-tools:release-1.8-2021-04-06T17-44-38
         name: ""
         resources:
