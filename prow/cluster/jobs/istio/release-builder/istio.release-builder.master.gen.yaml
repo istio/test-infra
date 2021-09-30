@@ -22,6 +22,11 @@ periodics:
       env:
       - name: BUILD_BASE_IMAGES
         value: "true"
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
       image: gcr.io/istio-testing/build-tools:master-2021-09-13T18-33-43
       name: ""
       resources:
