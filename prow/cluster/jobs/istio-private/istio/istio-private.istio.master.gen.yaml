@@ -179,10 +179,6 @@ postsubmits:
       preset-override-envoy: "true"
     name: integ-telemetry-istiodremote-tests_istio_postsubmit_priv
     path_alias: istio.io/istio
-    reporter_config:
-      slack:
-        job_states_to_report: []
-    skip_report: true
     spec:
       containers:
       - command:
@@ -2275,7 +2271,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-  - always_run: false
+  - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -2289,12 +2285,7 @@ presubmits:
       preset-override-deps: master-istio
       preset-override-envoy: "true"
     name: integ-telemetry-istiodremote-tests_istio_priv
-    optional: true
     path_alias: istio.io/istio
-    reporter_config:
-      slack:
-        job_states_to_report: []
-    skip_report: true
     spec:
       containers:
       - command:
