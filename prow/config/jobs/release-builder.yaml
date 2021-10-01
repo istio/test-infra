@@ -45,6 +45,16 @@ jobs:
     requirements: [release, docker]
     resources: build
 
+  - name: build-base-images
+    types: [periodic]
+    cron: "0 19 * * *"  # every day at 07:00 PM UTC (12:00 PM PST)
+    env:
+    - name: BUILD_BASE_IMAGES
+      value: "true"
+    command: [entrypoint, release/build.sh]
+    requirements: [release, docker]
+    resources: build
+
 resources:
   build:
     requests:
