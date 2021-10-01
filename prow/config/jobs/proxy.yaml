@@ -1,7 +1,7 @@
 org: istio
 repo: proxy
 support_release_branching: true
-image: gcr.io/istio-testing/build-tools-proxy:master-2021-09-13T18-33-43
+image: gcr.io/istio-testing/build-tools-proxy:master-2021-10-01T16-47-52
 node_selector:
   testing: build-pool
 
@@ -34,7 +34,7 @@ jobs:
   types: [presubmit]
   command: [./prow/proxy-presubmit-centos-release.sh]
   requirements: [gcp]
-  image: gcr.io/istio-testing/build-tools-centos:master-2021-09-13T18-33-43
+  image: gcr.io/istio-testing/build-tools-centos:master-2021-10-01T16-47-52
   timeout: 4h
 
 - name: check-wasm
@@ -53,7 +53,7 @@ jobs:
   types: [postsubmit]
   command: [./prow/proxy-postsubmit-centos.sh]
   requirements: [gcp]
-  image: gcr.io/istio-testing/build-tools-centos:master-2021-09-13T18-33-43
+  image: gcr.io/istio-testing/build-tools-centos:master-2021-10-01T16-47-52
   timeout: 4h
 
 - name: update-istio
@@ -70,7 +70,7 @@ jobs:
   - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
   requirements: [github]
   repos: [istio/test-infra@master]
-  image: gcr.io/istio-testing/build-tools:master-2021-09-13T18-33-43
+  image: gcr.io/istio-testing/build-tools:master-2021-10-01T16-47-52
   timeout: 4h
 
 - name: update-proxy
@@ -87,7 +87,7 @@ jobs:
   - --cmd=UPDATE_BRANCH=main scripts/update_envoy.sh
   requirements: [github]
   repos: [istio/test-infra@master]
-  image: gcr.io/istio-testing/build-tools:master-2021-09-13T18-33-43
+  image: gcr.io/istio-testing/build-tools:master-2021-10-01T16-47-52
   timeout: 4h
 
 resources:
