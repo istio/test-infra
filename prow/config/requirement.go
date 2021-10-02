@@ -25,6 +25,7 @@ type RequirementPreset struct {
 	Env          []v1.EnvVar       `json:"env"`
 	Volumes      []v1.Volume       `json:"volumes"`
 	VolumeMounts []v1.VolumeMount  `json:"volumeMounts"`
+	Args         []string          `json:"args"`
 }
 
 func copyRequirementsMap(m map[string]RequirementPreset) map[string]RequirementPreset {
@@ -49,6 +50,7 @@ func (r RequirementPreset) DeepCopy() RequirementPreset {
 	ret.Env = append(ret.Env, r.Env...)
 	ret.Volumes = append(ret.Volumes, r.Volumes...)
 	ret.VolumeMounts = append(ret.VolumeMounts, r.VolumeMounts...)
+	ret.Args = append(ret.Args, r.Args...)
 	return ret
 }
 
@@ -60,12 +62,16 @@ func resolveRequirements(annotations, labels map[string]string, spec *v1.PodSpec
 	}
 }
 
+// mergeRequirement will overlay the requirement on the existing job spec.
 func mergeRequirement(req RequirementPreset, annotations, labels map[string]string, containers []v1.Container, volumes *[]v1.Volume) {
 	for a, v := range req.Annotations {
 		annotations[a] = v
 	}
 	for l, v := range req.Labels {
 		labels[l] = v
+	}
+	for i := range containers {
+		containers[i].Args = append(containers[i].Args, req.Args...)
 	}
 	for _, e1 := range req.Env {
 		for i := range containers {

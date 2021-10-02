@@ -15,7 +15,6 @@
 package config
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -26,6 +25,7 @@ import (
 	"time"
 
 	"github.com/ghodss/yaml"
+	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/go-multierror"
 	"github.com/kr/pretty"
 	"github.com/ulule/deepcopier"
@@ -91,9 +91,10 @@ type BaseConfig struct {
 	Annotations map[string]string `json:"annotations,omitempty"`
 	Labels      map[string]string `json:"labels,omitempty"`
 
-	ResourcePresets    map[string]v1.ResourceRequirements `json:"resources,omitempty"`
-	BaseRequirements   []string                           `json:"base_requirements,omitempty"`
-	RequirementPresets map[string]RequirementPreset       `json:"requirement_presets,omitempty"`
+	ResourcePresets      map[string]v1.ResourceRequirements `json:"resources,omitempty"`
+	BaseRequirements     []string                           `json:"base_requirements,omitempty"`
+	ExcludedRequirements []string                           `json:"excluded_requirements,omitempty"`
+	RequirementPresets   map[string]RequirementPreset       `json:"requirement_presets,omitempty"`
 }
 
 type TestgridConfig struct {
@@ -115,6 +116,7 @@ type JobsConfig struct {
 	Env                     []v1.EnvVar `json:"env,omitempty"`
 	Image                   string      `json:"image,omitempty"`
 	ImagePullPolicy         string      `json:"image_pull_policy,omitempty"`
+	ImagePullSecrets        []string    `json:"image_pull_secrets,omitempty"`
 	SupportReleaseBranching bool        `json:"support_release_branching,omitempty"`
 
 	Interval string `json:"interval,omitempty"`
@@ -132,14 +134,16 @@ type JobsConfig struct {
 	Regex   string `json:"run_if_changed,omitempty"`
 	Trigger string `json:"trigger,omitempty"`
 
-	ResourcePresets    map[string]v1.ResourceRequirements `json:"resources,omitempty"`
-	Requirements       []string                           `json:"requirements,omitempty"`
-	RequirementPresets map[string]RequirementPreset       `json:"requirement_presets,omitempty"`
+	ResourcePresets      map[string]v1.ResourceRequirements `json:"resources,omitempty"`
+	Requirements         []string                           `json:"requirements,omitempty"`
+	ExcludedRequirements []string                           `json:"excluded_requirements,omitempty"`
+	RequirementPresets   map[string]RequirementPreset       `json:"requirement_presets,omitempty"`
 }
 
 type Job struct {
 	Name           string                  `json:"name,omitempty"`
 	Command        []string                `json:"command,omitempty"`
+	Args           []string                `json:"args,omitempty"`
 	Types          []string                `json:"types,omitempty"`
 	Timeout        *prowjob.Duration       `json:"timeout,omitempty"`
 	Repos          []string                `json:"repos,omitempty"`
@@ -149,6 +153,7 @@ type Job struct {
 	Env                     []v1.EnvVar `json:"env,omitempty"`
 	Image                   string      `json:"image,omitempty"`
 	ImagePullPolicy         string      `json:"image_pull_policy,omitempty"`
+	ImagePullSecrets        []string    `json:"image_pull_secrets,omitempty"`
 	DisableReleaseBranching bool        `json:"disable_release_branching,omitempty"`
 
 	Interval string `json:"interval,omitempty"`
@@ -168,9 +173,10 @@ type Job struct {
 	Regex   string `json:"regex,omitempty"`
 	Trigger string `json:"trigger,omitempty"`
 
-	Resource     string   `json:"resources,omitempty"`
-	Modifiers    []string `json:"modifiers,omitempty"`
-	Requirements []string `json:"requirements,omitempty"`
+	Resource             string   `json:"resources,omitempty"`
+	Modifiers            []string `json:"modifiers,omitempty"`
+	Requirements         []string `json:"requirements,omitempty"`
+	ExcludedRequirements []string `json:"excluded_requirements,omitempty"`
 }
 
 func ReadBase(baseConfig *BaseConfig, file string) *BaseConfig {
@@ -191,16 +197,18 @@ func ReadBase(baseConfig *BaseConfig, file string) *BaseConfig {
 		exit(err, "failed to deep copy base config")
 	}
 	newBaseConfig.BaseRequirements = []string{}
+	newBaseConfig.ExcludedRequirements = []string{}
 	if err := yaml.Unmarshal(yamlFile, newBaseConfig); err != nil {
 		exit(err, "failed to unmarshal "+file)
 	}
 
-	// Append the base requirements when .base.yaml is overlaid.
+	// Append the base and excluded requirements when .base.yaml is overlaid.
 	// We only need this logic for arrays since `Unmarshal` will always reset the array length
 	// to zero and then append each element to the array, versus for maps
 	// `Unmarshal` will reuse the existing map and keep existing entries if it's
 	// not nil.
 	newBaseConfig.BaseRequirements = append(baseConfig.BaseRequirements, newBaseConfig.BaseRequirements...)
+	newBaseConfig.ExcludedRequirements = append(baseConfig.ExcludedRequirements, newBaseConfig.ExcludedRequirements...)
 
 	return newBaseConfig
 }
@@ -244,12 +252,15 @@ func resolveOverwrites(baseConfig *BaseConfig, jobsConfig JobsConfig) JobsConfig
 	jobsConfig.RequirementPresets = requirementPresets
 
 	// Resolve jobsConfig -> job overwriting
+	// TODO(chizhg): can we just implement the overwriting with json.Unmarshal?
 	for i, job := range jobsConfig.Jobs {
 		job.Annotations = mergeMaps(baseConfig.Annotations, jobsConfig.Annotations, job.Annotations)
 
 		job.Labels = mergeMaps(baseConfig.Labels, jobsConfig.Labels, job.Labels)
 
 		job.Requirements = mergeSlices(baseConfig.BaseRequirements, job.Requirements, jobsConfig.Requirements)
+
+		job.ExcludedRequirements = mergeSlices(baseConfig.ExcludedRequirements, job.ExcludedRequirements, job.ExcludedRequirements)
 
 		nodeSelector := baseConfig.NodeSelector
 		if jobsConfig.NodeSelector != nil {
@@ -292,6 +303,12 @@ func resolveOverwrites(baseConfig *BaseConfig, jobsConfig JobsConfig) JobsConfig
 			image = job.Image
 		}
 		job.Image = image
+
+		imagePullSecrets := jobsConfig.ImagePullSecrets
+		if len(job.ImagePullSecrets) != 0 {
+			imagePullSecrets = job.ImagePullSecrets
+		}
+		job.ImagePullSecrets = imagePullSecrets
 
 		imagePullPolicy := jobsConfig.ImagePullPolicy
 		if job.ImagePullPolicy != "" {
@@ -459,7 +476,7 @@ func (cli *Client) ConvertJobConfig(jobsConfig JobsConfig, branch string) config
 					})
 				}
 				applyModifiersPresubmit(&presubmit, job.Modifiers)
-				applyRequirements(&presubmit.JobBase, job.Requirements, jobsConfig.RequirementPresets)
+				applyRequirements(&presubmit.JobBase, job.Requirements, job.ExcludedRequirements, jobsConfig.RequirementPresets)
 				presubmits = append(presubmits, presubmit)
 			}
 
@@ -493,7 +510,7 @@ func (cli *Client) ConvertJobConfig(jobsConfig JobsConfig, branch string) config
 					})
 				}
 				applyModifiersPostsubmit(&postsubmit, job.Modifiers)
-				applyRequirements(&postsubmit.JobBase, job.Requirements, jobsConfig.RequirementPresets)
+				applyRequirements(&postsubmit.JobBase, job.Requirements, job.ExcludedRequirements, jobsConfig.RequirementPresets)
 				postsubmits = append(postsubmits, postsubmit)
 			}
 
@@ -519,7 +536,7 @@ func (cli *Client) ConvertJobConfig(jobsConfig JobsConfig, branch string) config
 						TestGridNumFailures: testgridConfig.NumFailuresToAlert,
 					})
 				}
-				applyRequirements(&periodic.JobBase, job.Requirements, jobsConfig.RequirementPresets)
+				applyRequirements(&periodic.JobBase, job.Requirements, job.ExcludedRequirements, jobsConfig.RequirementPresets)
 				periodics = append(periodics, periodic)
 			}
 		}
@@ -550,8 +567,8 @@ func (cli *Client) CheckConfig(jobs config.JobConfig, currentConfigFile string) 
 	output := []byte(cli.BaseConfig.AutogenHeader)
 	output = append(output, newConfig...)
 
-	if !bytes.Equal(current, output) {
-		return fmt.Errorf("generated config is different than file %v", currentConfigFile)
+	if diff := cmp.Diff(output, current); diff != "" {
+		return fmt.Errorf("generated config is different from file %s\nWant(-), got(+):\n%s", currentConfigFile, diff)
 	}
 	return nil
 }
@@ -705,6 +722,7 @@ func createContainer(jobConfig JobsConfig, job Job, resources map[string]v1.Reso
 		Image:           job.Image,
 		SecurityContext: &v1.SecurityContext{Privileged: newTrue()},
 		Command:         job.Command,
+		Args:            job.Args,
 		Env:             envs,
 	}
 	if job.ImagePullPolicy != "" {
@@ -740,6 +758,13 @@ func createJobBase(baseConfig *BaseConfig, jobConfig JobsConfig, job Job,
 		Annotations:    job.Annotations,
 		Cluster:        job.Cluster,
 	}
+	if len(job.ImagePullSecrets) != 0 {
+		jb.Spec.ImagePullSecrets = make([]v1.LocalObjectReference, 0)
+		for _, ips := range job.ImagePullSecrets {
+			jb.Spec.ImagePullSecrets = append(jb.Spec.ImagePullSecrets, v1.LocalObjectReference{Name: ips})
+		}
+	}
+
 	if jb.Labels == nil {
 		jb.Labels = map[string]string{}
 	}
@@ -762,7 +787,7 @@ func createJobBase(baseConfig *BaseConfig, jobConfig JobsConfig, job Job,
 			jb.DecorationConfig = &prowjob.DecorationConfig{}
 		}
 		jb.DecorationConfig.GCSConfiguration = &prowjob.GCSConfiguration{
-			Bucket:       baseConfig.GCSLogBucket,
+			Bucket:       job.GCSLogBucket,
 			PathStrategy: "explicit",
 		}
 	}
@@ -798,7 +823,7 @@ func createExtraRefs(extraRepos []string, defaultBranch string, pathAliases map[
 	return refs
 }
 
-func applyRequirements(job *config.JobBase, requirements []string, presetMap map[string]RequirementPreset) {
+func applyRequirements(job *config.JobBase, requirements, blockedRequirements []string, presetMap map[string]RequirementPreset) {
 	validRequirements := make([]string, 0)
 	for name := range presetMap {
 		validRequirements = append(validRequirements, name)
@@ -812,13 +837,24 @@ func applyRequirements(job *config.JobBase, requirements []string, presetMap map
 			err = multierror.Append(err, e)
 		}
 	}
+	for _, req := range blockedRequirements {
+		if e := validate(
+			req,
+			validRequirements,
+			"blocked_requirements"); e != nil {
+			err = multierror.Append(err, e)
+		}
+	}
 	if err != nil {
 		exit(err, "validation failed")
 	}
 
+	blocked := sets.NewString(blockedRequirements...)
 	presets := make([]RequirementPreset, 0)
 	for _, req := range requirements {
-		presets = append(presets, presetMap[req])
+		if !blocked.Has(req) {
+			presets = append(presets, presetMap[req])
+		}
 	}
 	resolveRequirements(job.Annotations, job.Labels, job.Spec, presets)
 }
