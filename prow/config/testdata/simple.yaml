@@ -17,6 +17,7 @@ jobs:
     types: [presubmit]
     resources: custom
     requirements: [kind]
+    excluded_requirements: [cache]
     command: [prow/istio-lint.sh]
     env:
     - name: var
@@ -26,7 +27,7 @@ jobs:
   - name: custom-node-selector
     types: [presubmit]
     command: [prow/command.sh]
-    requirements: [gcp]
+    requirements: [gcp, commonargs]
     node_selector:
       foo: baz
 
@@ -35,7 +36,7 @@ jobs:
     command: [run/nightly.sh]
     annotations:
       whatever-annotation-name: whatever-annotation-value
-    requirements: [desc]
+    requirements: [desc, commonargs]
   
   - name: presubmit-skipped
     types: [presubmit, periodic]
