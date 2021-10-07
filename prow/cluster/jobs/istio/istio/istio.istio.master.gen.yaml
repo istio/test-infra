@@ -688,10 +688,6 @@ postsubmits:
     decorate: true
     name: integ-pilot-istiodremote-multicluster-tests_istio_postsubmit
     path_alias: istio.io/istio
-    reporter_config:
-      slack:
-        job_states_to_report: []
-    skip_report: true
     spec:
       containers:
       - command:
@@ -2374,69 +2370,6 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    name: integ-istiodremote-k8s-tests_istio
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - --topology
-        - MULTICLUSTER
-        - --topology-config
-        - prow/config/topology/external-istiod-multicluster.json
-        - test.integration.istiodremote.kube.presubmit
-        env:
-        - name: TEST_SELECT
-          value: -postsubmit,-flaky
-        image: gcr.io/istio-testing/build-tools:master-2021-10-04T20-26-54
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "8"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^master$
-    decorate: true
     name: integ-distroless-k8s-tests_istio
     path_alias: istio.io/istio
     spec:
@@ -2731,19 +2664,14 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-  - always_run: false
+  - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
     branches:
     - ^master$
     decorate: true
     name: integ-pilot-istiodremote-multicluster-tests_istio
-    optional: true
     path_alias: istio.io/istio
-    reporter_config:
-      slack:
-        job_states_to_report: []
-    skip_report: true
     spec:
       containers:
       - command:
