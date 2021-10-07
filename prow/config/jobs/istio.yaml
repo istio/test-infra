@@ -101,20 +101,6 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: --istio.test.istio.istiodlessRemotes
 
-  - name: integ-multicluster-k8s-tests
-    types: [presubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --topology
-      - MULTICLUSTER
-      - test.integration.multicluster.kube.presubmit
-    requirements: [kind]
-    resources: multicluster
-    env:
-      - name: TEST_SELECT
-        value: "-postsubmit,-flaky"
-
   - name: integ-distroless-k8s-tests
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.reachability]
     requirements: [kind]
