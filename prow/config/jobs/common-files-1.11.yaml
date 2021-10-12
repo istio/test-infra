@@ -1,11 +1,11 @@
 branches:
 - release-1.11
-image: gcr.io/istio-testing/build-tools:release-1.11-2021-09-10T15-56-22
+image: gcr.io/istio-testing/build-tools:release-1.11-2021-10-12T18-10-18
 jobs:
 - command:
   - make
   - lint
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-09-10T15-56-22
+  image: gcr.io/istio-testing/build-tools:release-1.11-2021-10-12T18-10-18
   name: lint
   node_selector:
     testing: test-pool
@@ -21,7 +21,7 @@ jobs:
   - --modifier=commonfiles
   - --token-path=/etc/github-token/oauth
   - --cmd=make update-common && make gen
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-09-10T15-56-22
+  image: gcr.io/istio-testing/build-tools:release-1.11-2021-10-12T18-10-18
   name: update-common
   node_selector:
     testing: test-pool
@@ -42,7 +42,7 @@ jobs:
   - --modifier=commonfiles
   - --token-path=/etc/github-token/oauth
   - --cmd=make update-common && make gen
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-09-10T15-56-22
+  image: gcr.io/istio-testing/build-tools:release-1.11-2021-10-12T18-10-18
   name: update-common-istio.io
   node_selector:
     testing: test-pool
@@ -67,7 +67,7 @@ jobs:
   - --
   - --post=make gen
   - --source=$AUTOMATOR_ROOT_DIR/files/common/scripts/setup_env.sh
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-09-10T15-56-22
+  image: gcr.io/istio-testing/build-tools:release-1.11-2021-10-12T18-10-18
   name: update-build-tools-image
   node_selector:
     testing: test-pool
