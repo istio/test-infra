@@ -934,10 +934,6 @@ postsubmits:
     decorate: true
     name: integ-security-istiodremote-tests_istio_postsubmit
     path_alias: istio.io/istio
-    reporter_config:
-      slack:
-        job_states_to_report: []
-    skip_report: true
     spec:
       containers:
       - command:
@@ -2790,19 +2786,14 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-  - always_run: false
+  - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
     branches:
     - ^master$
     decorate: true
     name: integ-security-istiodremote-tests_istio
-    optional: true
     path_alias: istio.io/istio
-    reporter_config:
-      slack:
-        job_states_to_report: []
-    skip_report: true
     spec:
       containers:
       - command:
