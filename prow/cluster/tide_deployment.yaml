@@ -30,8 +30,10 @@ spec:
         - --job-config-path=/etc/job-config
         - --status-path=gs://istio-prow/tide-status-checkpoint.yaml
         ports:
-          - name: http
-            containerPort: 8888
+        - name: http
+          containerPort: 8888
+        - name: metrics
+          containerPort: 9090
         volumeMounts:
         - name: config
           mountPath: /etc/config

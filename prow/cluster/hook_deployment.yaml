@@ -35,8 +35,10 @@ spec:
         - --github-endpoint=https://api.github.com
         - --github-token-path=/etc/github/oauth
         ports:
-          - name: http
-            containerPort: 8888
+        - name: http
+          containerPort: 8888
+        - name: metrics
+          containerPort: 9090
         volumeMounts:
         - name: hmac
           mountPath: /etc/webhook
