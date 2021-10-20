@@ -33,6 +33,9 @@ spec:
         - --kubernetes-blob-storage-workers=1
         - --slack-token-file=/etc/slack/token
         - --slack-workers=1
+        ports:
+        - name: metrics
+          containerPort: 9090
         volumeMounts:
         - name: oauth
           mountPath: /etc/github
