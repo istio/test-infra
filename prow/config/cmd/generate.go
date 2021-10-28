@@ -73,6 +73,9 @@ func main() {
 
 	if os.Args[1] == "branch" {
 		if err := filepath.WalkDir(*inputDir, func(path string, d os.DirEntry, err error) error {
+			if !d.IsDir() {
+				return nil
+			}
 			if err != nil {
 				fmt.Printf("error: %s\n", err.Error())
 			}
