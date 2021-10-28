@@ -5,7 +5,6 @@ jobs:
 - command:
   - make
   - build
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: build
   node_selector:
     testing: test-pool
@@ -14,7 +13,6 @@ jobs:
 - command:
   - make
   - lint
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: lint
   node_selector:
     testing: test-pool
@@ -23,7 +21,6 @@ jobs:
 - command:
   - make
   - gen-check
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: gencheck
   node_selector:
     testing: test-pool
@@ -40,7 +37,6 @@ jobs:
   - --token-path=/etc/github-token/oauth
   - --git-exclude=^common/
   - --cmd=go get istio.io/client-go@$AUTOMATOR_SHA && go mod tidy && make clean gen
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: update_client-go_dep
   node_selector:
     testing: test-pool

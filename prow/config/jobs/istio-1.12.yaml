@@ -10,7 +10,6 @@ jobs:
   - build
   - racetest
   - binaries-test
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: unit-tests
   node_selector:
     testing: test-pool
@@ -20,7 +19,6 @@ jobs:
 - command:
   - entrypoint
   - prow/release-test.sh
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: release-test
   node_selector:
     testing: test-pool
@@ -34,7 +32,6 @@ jobs:
 - command:
   - entrypoint
   - prow/release-commit.sh
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: release
   node_selector:
     testing: test-pool
@@ -49,7 +46,6 @@ jobs:
   - entrypoint
   - make
   - benchtest
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   modifiers:
   - presubmit_optional
   - presubmit_skipped
@@ -67,7 +63,6 @@ jobs:
   - make
   - benchtest
   - report-benchtest
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: benchmark-report
   node_selector:
     testing: test-pool
@@ -85,7 +80,6 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-pilot-k8s-tests
   node_selector:
     testing: test-pool
@@ -104,7 +98,6 @@ jobs:
     value: -postsubmit,-flaky
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.istio.enableCNI=true '
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-cni-k8s-tests
   node_selector:
     testing: test-pool
@@ -121,7 +114,6 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-security-k8s-tests
   node_selector:
     testing: test-pool
@@ -138,7 +130,6 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-telemetry-k8s-tests
   node_selector:
     testing: test-pool
@@ -154,7 +145,6 @@ jobs:
   - --topology
   - MULTICLUSTER
   - test.integration.telemetry.kube
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-telemetry-mc-k8s-tests
   node_selector:
     testing: test-pool
@@ -171,7 +161,6 @@ jobs:
   - --topology-config
   - prow/config/topology/external-istiod.json
   - test.integration.telemetry.kube
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-telemetry-istiodremote-tests
   node_selector:
     testing: test-pool
@@ -189,7 +178,6 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: --istio.test.istio.istiodlessRemotes
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   modifiers:
   - presubmit_optional
   - presubmit_skipped
@@ -209,7 +197,6 @@ jobs:
   env:
   - name: VARIANT
     value: distroless
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-distroless-k8s-tests
   node_selector:
     testing: test-pool
@@ -226,7 +213,6 @@ jobs:
     value: "true"
   - name: IP_FAMILY
     value: ipv6
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-ipv6-k8s-tests
   node_selector:
     testing: ipv6-pool
@@ -241,7 +227,6 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-operator-controller-tests
   node_selector:
     testing: test-pool
@@ -255,7 +240,6 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.pilot.kube
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-pilot-k8s-tests
   node_selector:
     testing: test-pool
@@ -271,7 +255,6 @@ jobs:
   - --topology
   - MULTICLUSTER
   - test.integration.pilot.kube
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-pilot-multicluster-tests
   node_selector:
     testing: test-pool
@@ -291,7 +274,6 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: --istio.test.skipVM
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-pilot-istiodremote-tests
   node_selector:
     testing: test-pool
@@ -311,7 +293,6 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: --istio.test.skipVM
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-pilot-istiodremote-multicluster-tests
   node_selector:
     testing: test-pool
@@ -329,7 +310,6 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: --istio.test.istio.istiodlessRemotes
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   modifiers:
   - presubmit_optional
   - presubmit_skipped
@@ -346,7 +326,6 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.security.kube
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-security-k8s-tests
   node_selector:
     testing: test-pool
@@ -361,7 +340,6 @@ jobs:
   - prow/integ-suite-kind.sh
   - test.integration-fuzz.security.fuzz.kube
   cron: 0 7 * * *
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-security-fuzz-k8s-tests
   node_selector:
     testing: test-pool
@@ -377,7 +355,6 @@ jobs:
   - --topology
   - MULTICLUSTER
   - test.integration.security.kube
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-security-multicluster-tests
   node_selector:
     testing: test-pool
@@ -397,7 +374,6 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: --istio.test.skipVM
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-security-istiodremote-tests
   node_selector:
     testing: test-pool
@@ -415,7 +391,6 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: --istio.test.istio.istiodlessRemotes
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   modifiers:
   - presubmit_optional
   - presubmit_skipped
@@ -432,7 +407,6 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.telemetry.kube
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-telemetry-k8s-tests
   node_selector:
     testing: test-pool
@@ -446,7 +420,6 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.helm.kube
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-helm-tests
   node_selector:
     testing: test-pool
@@ -465,7 +438,6 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-k8s-116
   node_selector:
     testing: test-pool
@@ -487,7 +459,6 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-k8s-117
   node_selector:
     testing: test-pool
@@ -509,7 +480,6 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-k8s-118
   node_selector:
     testing: test-pool
@@ -531,7 +501,6 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-k8s-119
   node_selector:
     testing: test-pool
@@ -551,7 +520,6 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-k8s-120
   node_selector:
     testing: test-pool
@@ -571,7 +539,6 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-k8s-122
   node_selector:
     testing: test-pool
@@ -591,7 +558,6 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-k8s-123
   node_selector:
     testing: test-pool
@@ -611,7 +577,6 @@ jobs:
     value: -flaky
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 --istio.test.istio.enableCNI=true '
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: integ-cni-k8s-tests
   node_selector:
     testing: test-pool
@@ -629,7 +594,6 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   modifiers:
   - presubmit_optional
   - presubmit_skipped
@@ -644,7 +608,6 @@ jobs:
 - command:
   - make
   - test.integration.analyze
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: analyze-tests
   node_selector:
     testing: test-pool
@@ -656,7 +619,6 @@ jobs:
 - command:
   - make
   - lint
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: lint
   node_selector:
     testing: test-pool
@@ -669,7 +631,6 @@ jobs:
 - command:
   - make
   - gen-check
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: gencheck
   node_selector:
     testing: test-pool
@@ -681,7 +642,6 @@ jobs:
 - command:
   - ../test-infra/tools/check_release_notes.sh
   - --token-path=/etc/github-token/oauth
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: release-notes
   node_selector:
     testing: test-pool
