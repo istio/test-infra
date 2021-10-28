@@ -5,7 +5,6 @@ jobs:
 - command:
   - make
   - lint
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: lint
   node_selector:
     testing: test-pool
@@ -14,7 +13,6 @@ jobs:
 - command:
   - make
   - test
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: test
   node_selector:
     testing: test-pool
@@ -23,7 +21,6 @@ jobs:
 - command:
   - make
   - gen-check
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: gencheck
   node_selector:
     testing: test-pool
@@ -32,7 +29,6 @@ jobs:
 - command:
   - entrypoint
   - test/publish.sh
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: dry-run
   node_selector:
     testing: test-pool
@@ -44,7 +40,6 @@ jobs:
   resources: build
 - command:
   - release/build-warning.sh
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   modifiers:
   - presubmit_optional
   name: build-warning
@@ -57,7 +52,6 @@ jobs:
   - presubmit
 - command:
   - release/publish-warning.sh
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   modifiers:
   - presubmit_optional
   name: publish-warning
@@ -71,7 +65,6 @@ jobs:
 - command:
   - entrypoint
   - release/build.sh
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: build-release
   node_selector:
     testing: test-pool
@@ -87,7 +80,6 @@ jobs:
 - command:
   - entrypoint
   - release/publish.sh
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: publish-release
   node_selector:
     testing: test-pool
@@ -106,7 +98,6 @@ jobs:
   env:
   - name: BUILD_BASE_IMAGES
     value: "true"
-  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
   name: build-base-images
   node_selector:
     testing: test-pool
