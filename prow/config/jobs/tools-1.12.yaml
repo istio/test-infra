@@ -1,0 +1,247 @@
+branches:
+- release-1.12
+image: gcr.io/istio-testing/build-tools:release-1.12-2021-10-11T19-53-53
+jobs:
+- command:
+  - make
+  - build
+  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
+  name: build
+  node_selector:
+    testing: test-pool
+  requirements:
+  - cache
+- command:
+  - make
+  - lint
+  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
+  name: lint
+  node_selector:
+    testing: test-pool
+  requirements:
+  - cache
+- command:
+  - make
+  - test
+  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
+  name: test
+  node_selector:
+    testing: test-pool
+  requirements:
+  - cache
+- command:
+  - make
+  - gen-check
+  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
+  name: gencheck
+  node_selector:
+    testing: test-pool
+  requirements:
+  - cache
+- command:
+  - entrypoint
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=common-files
+  - '--title=Automator: update build-tools image@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+  - --labels=release-notes-none
+  - --modifier=update_image_version
+  - --token-path=/etc/github-token/oauth
+  - --script-path=../common-files/bin/create-buildtools-and-update.sh
+  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
+  name: containers
+  node_selector:
+    testing: test-pool
+  regex: docker/.+|cmd/.+
+  repos:
+  - istio/test-infra@master
+  - istio/common-files@master
+  requirements:
+  - cache
+  - gcp
+  - docker
+  - github
+  resources: build
+  types:
+  - postsubmit
+- command:
+  - entrypoint
+  - make
+  - containers-test
+  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
+  name: containers-test
+  node_selector:
+    testing: test-pool
+  regex: docker/.+|cmd/.+
+  requirements:
+  - cache
+  - gcp
+  - docker
+  resources: build
+  types:
+  - presubmit
+- command:
+  - entrypoint
+  - make
+  - -C
+  - perf_dashboard
+  - deploy
+  image: gcr.io/istio-testing/build-tools:master-2021-10-11T19-53-53
+  name: deploy-perf-dashboard
+  node_selector:
+    testing: test-pool
+  regex: ^perf_dashboard/
+  requirements:
+  - cache
+  - docker
+  - gcp
+  types:
+  - postsubmit
+org: istio
+repo: tools
+requirement_presets:
+  cache:
+    annotations: {}
+    args: null
+    env: null
+    labels: {}
+    volumeMounts:
+    - mountPath: /home/prow/go/pkg
+      name: build-cache
+      subPath: gomod
+    volumes:
+    - hostPath:
+        path: /var/tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+  docker:
+    annotations: {}
+    args: null
+    env: null
+    labels: {}
+    volumeMounts:
+    - mountPath: /var/lib/docker
+      name: docker-root
+    volumes:
+    - emptyDir: {}
+      name: docker-root
+  gcp:
+    annotations: {}
+    args: null
+    env: null
+    labels:
+      preset-service-account: "true"
+    volumeMounts: null
+    volumes: null
+  github:
+    annotations: {}
+    args: null
+    env: null
+    labels: {}
+    volumeMounts:
+    - mountPath: /etc/github-token
+      name: github
+      readOnly: true
+    volumes:
+    - name: github
+      secret:
+        secretName: oauth-token
+  github-optional:
+    annotations: {}
+    args: null
+    env: null
+    labels: {}
+    volumeMounts:
+    - mountPath: /etc/github-token
+      name: github
+      readOnly: true
+    volumes:
+    - name: github
+      secret:
+        optional: true
+        secretName: oauth-token
+  gocache:
+    annotations: {}
+    args: null
+    env: null
+    labels: {}
+    volumeMounts:
+    - mountPath: /gocache
+      name: build-cache
+      subPath: gocache
+    volumes:
+    - hostPath:
+        path: /var/tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+  kind:
+    annotations: {}
+    args: null
+    env: null
+    labels: {}
+    volumeMounts:
+    - mountPath: /lib/modules
+      name: modules
+      readOnly: true
+    - mountPath: /sys/fs/cgroup
+      name: cgroup
+      readOnly: true
+    - mountPath: /var/lib/docker
+      name: docker-root
+    volumes:
+    - hostPath:
+        path: /lib/modules
+        type: Directory
+      name: modules
+    - hostPath:
+        path: /sys/fs/cgroup
+        type: Directory
+      name: cgroup
+    - emptyDir: {}
+      name: docker-root
+  release:
+    annotations: {}
+    args: null
+    env:
+    - name: COSIGN_KEY
+      valueFrom:
+        secretKeyRef:
+          key: key
+          name: cosign-key
+    labels:
+      preset-release-pipeline: "true"
+    volumeMounts: null
+    volumes: null
+resources:
+  benchmark:
+    limits:
+      memory: 24Gi
+    requests:
+      cpu: "15"
+      memory: 8Gi
+  build:
+    limits:
+      cpu: "8"
+      memory: 24Gi
+    requests:
+      cpu: "8"
+      memory: 4Gi
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: "1"
+      memory: 3Gi
+  lint:
+    limits:
+      memory: 24Gi
+    requests:
+      cpu: "3"
+      memory: 16Gi
+  multicluster:
+    limits:
+      memory: 24Gi
+    requests:
+      cpu: "8"
+      memory: 3Gi

@@ -1,0 +1,31 @@
+defaults:
+  branches:
+  - release-1.12
+  repo-allowlist:
+  - istio
+org: istio
+repo: istio
+transforms:
+- env:
+    DOCKER_HUB: gcr.io/istio-prow-build
+    GCS_BUCKET: istio-private-build/dev
+  job-allowlist:
+  - release_istio_release-1.12_postsubmit
+  job-type:
+  - postsubmit
+  labels:
+    preset-enable-gomod-netrc: "true"
+    preset-enable-ssh: "true"
+    preset-override-deps: release-1.12-istio
+- job-denylist:
+  - benchmark-report_istio_release-1.12_postsubmit
+  - release_istio_release-1.12_postsubmit
+  - release-notes_istio_release-1.12
+  job-type:
+  - presubmit
+  - postsubmit
+  labels:
+    preset-enable-gomod-netrc: "true"
+    preset-enable-ssh: "true"
+    preset-override-deps: release-1.12-istio
+    preset-override-envoy: "true"
