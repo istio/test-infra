@@ -23,13 +23,13 @@ import (
 
 func TestGenerateConfig(t *testing.T) {
 	bc := ReadBase(nil, "testdata/.base.yaml")
-	cli := &Client{BaseConfig: bc}
+	cli := &Client{BaseConfig: *bc}
 	tests := []string{"simple", "simple-matrix"}
 	for _, tt := range tests {
 		t.Run(tt, func(t *testing.T) {
 			jobs := cli.ReadJobsConfig(fmt.Sprintf("testdata/%s.yaml", tt))
 			for _, branch := range jobs.Branches {
-				output := cli.ConvertJobConfig(jobs, branch)
+				output := cli.ConvertJobConfig(&jobs, branch)
 				if os.Getenv("REFRESH_GOLDEN") == "true" {
 					Write(output, fmt.Sprintf("testdata/%s.gen.yaml", tt), bc.AutogenHeader)
 				}

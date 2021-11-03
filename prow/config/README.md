@@ -37,7 +37,7 @@ testgrid_config:
   num_failures_to_alert: "1"
 
 # A map of preset resource allocations that can be referenced in each meta config file.
-resources:
+resources_presets:
   default:
     limits:
       cpu: 3000m
@@ -47,7 +47,7 @@ resources:
       memory: 3Gi
 
 # The default dependencies for all the jobs.
-base_requirements: [cache]
+requirements: [cache]
 # A map of dependency presets that can be referenced in each meta config file.
 requirement_presets:
   kind:
@@ -175,7 +175,7 @@ jobs:
 # Defines preset resource allocations for tests
 # The map here will be intersected with the map in the global config (if there is),
 # and overwrite the value if the names are duplicated.
-resources:
+resources_presets:
   default:
     requests:
       memory: "3Gi"

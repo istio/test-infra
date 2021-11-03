@@ -21,11 +21,11 @@ require (
 	github.com/google/go-cmp v0.5.5
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/hashicorp/go-multierror v1.1.0
+	github.com/imdario/mergo v0.3.12
 	github.com/kr/pretty v0.2.0
 	github.com/prometheus/client_golang v1.11.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/pflag v1.0.5
-	github.com/ulule/deepcopier v0.0.0-20200430083143-45decc6639b6
 	golang.org/x/net v0.0.0-20210428140749-89ef3d95e781
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
@@ -37,5 +37,5 @@ require (
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
 	k8s.io/test-infra v0.0.0-20210719201052-da1e7f5b5334
 	sigs.k8s.io/boskos v0.0.0-20210521134047-36bb085667e7
-	sigs.k8s.io/yaml v1.2.0
+	sigs.k8s.io/yaml v1.3.0
 )

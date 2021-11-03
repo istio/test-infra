@@ -28,14 +28,6 @@ type RequirementPreset struct {
 	Args         []string          `json:"args"`
 }
 
-func copyRequirementsMap(m map[string]RequirementPreset) map[string]RequirementPreset {
-	ret := map[string]RequirementPreset{}
-	for k, v := range m {
-		ret[k] = v.DeepCopy()
-	}
-	return ret
-}
-
 func (r RequirementPreset) DeepCopy() RequirementPreset {
 	ret := RequirementPreset{
 		Annotations: map[string]string{},
