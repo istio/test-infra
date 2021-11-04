@@ -83,7 +83,7 @@ func main() {
 			if _, err := os.Stat(filepath.Join(path, ".base.yaml")); !os.IsNotExist(err) {
 				baseConfig = config.ReadBase(baseConfig, filepath.Join(path, ".base.yaml"))
 			}
-			cli := config.Client{BaseConfig: baseConfig}
+			cli := config.Client{BaseConfig: *baseConfig}
 
 			files, _ := ioutil.ReadDir(path)
 			for _, file := range files {
@@ -132,7 +132,7 @@ func main() {
 					name = name[:len(name)-len(ext)] + "-" + flag.Arg(1) + ext
 
 					dst := filepath.Join(*inputDir, name)
-					if err := config.WriteJobConfig(jobs, dst); err != nil {
+					if err := config.WriteJobConfig(&jobs, dst); err != nil {
 						exit(err, "writing branched config failed")
 					}
 				}
@@ -164,7 +164,7 @@ func main() {
 			if _, err := os.Stat(filepath.Join(path, ".base.yaml")); !os.IsNotExist(err) {
 				baseConfig = config.ReadBase(baseConfig, filepath.Join(path, ".base.yaml"))
 			}
-			cli := config.Client{BaseConfig: baseConfig}
+			cli := config.Client{BaseConfig: *baseConfig}
 
 			files, _ := ioutil.ReadDir(path)
 			for _, file := range files {
@@ -181,8 +181,8 @@ func main() {
 				src := filepath.Join(path, file.Name())
 				jobs := cli.ReadJobsConfig(src)
 				for _, branch := range jobs.Branches {
-					cli.ValidateJobConfig(file.Name(), jobs)
-					output := cli.ConvertJobConfig(jobs, branch)
+					cli.ValidateJobConfig(file.Name(), &jobs)
+					output := cli.ConvertJobConfig(&jobs, branch)
 					rf := ref{jobs.Org, jobs.Repo, branch}
 					if _, ok := cachedOutput[rf]; !ok {
 						cachedOutput[rf] = output

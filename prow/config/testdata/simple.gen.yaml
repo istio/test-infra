@@ -197,6 +197,9 @@ presubmits:
         securityContext:
           privileged: true
         volumeMounts:
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
         - mountPath: /lib/modules
           name: modules
           readOnly: true
@@ -205,12 +208,13 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
       nodeSelector:
         testing: test-pool
       volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
       - hostPath:
           path: /lib/modules
           type: Directory
@@ -221,10 +225,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
