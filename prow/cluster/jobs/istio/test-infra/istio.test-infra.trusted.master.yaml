@@ -94,7 +94,10 @@ periodics:
       secret:
         secretName: istio-testing-robot-ssh-key
         defaultMode: 0400
-- cron: "30 20 * * 1-5"  # Bump with label `auto-merge`. Run at 13:30 PST (20:05 UTC) Mon-Fri
+- cron: "01 22 * * 1-5"  # Bump with label `skip-review`. Run at 14:01 PST (22:01 UTC, fall) Mon-Fri
+  # Save for daylight saving:
+  # (Could consider not to switch, since running at 15:01 PST is an acceptable time)
+  # cron: "01 21 * * 1-5"  # Bump with label `skip-review`. Run at 14:01 PST (21:01 UTC, spring) Mon-Fri
   name: ci-prow-autobump-for-auto-deploy
   cluster: test-infra-trusted
   decorate: true
