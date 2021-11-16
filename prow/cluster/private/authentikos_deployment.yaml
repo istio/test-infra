@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-kind: ServiceAccount
 apiVersion: v1
+kind: ServiceAccount
 metadata:
+  name: "authentikos"
+  annotations:
+    iam.gke.io/gcp-service-account: istio-prow-test-job@istio-testing.iam.gserviceaccount.com
   labels:
     app.kubernetes.io/part-of: prow-private
-  name: authentikos
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -45,16 +47,6 @@ spec:
         args:
         - --verbose
         - --secret=authentikos-token
-        - --creds=/etc/creds/service-account.json
         - --namespace=test-pods
         - --scopes=https://www.googleapis.com/auth/devstorage.full_control
         - "--template=Authorization: Bearer {{.Token}}"
-        volumeMounts:
-        - name: creds
-          mountPath: /etc/creds
-          readOnly: true
-      volumes:
-      - name: creds
-        secret:
-          defaultMode: 0644
-          secretName: service-account

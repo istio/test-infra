@@ -72,8 +72,6 @@ periodics:
     testgrid-dashboards: istio_release-pipeline
     testgrid-alert-email: istio-oncall@googlegroups.com
     testgrid-num-failures-to-alert: '1'
-  labels:
-    preset-service-account: "true"
   spec:
     containers:
       - <<: *istio_container_with_kind
@@ -88,6 +86,7 @@ periodics:
         volumeMounts:
           - mountPath: /var/lib/docker
             name: docker-root
+    serviceAccountName: prowjob-advanced-sa
     volumes:
       - emptyDir: {}
         name: docker-root
@@ -110,8 +109,6 @@ periodics:
     testgrid-dashboards: istio_release-pipeline
     testgrid-alert-email: istio-oncall@googlegroups.com
     testgrid-num-failures-to-alert: '1'
-  labels:
-    preset-service-account: "true"
   spec:
     containers:
       - <<: *istio_container_with_kind
@@ -126,6 +123,7 @@ periodics:
         volumeMounts:
           - mountPath: /var/lib/docker
             name: docker-root
+    serviceAccountName: prowjob-advanced-sa
     volumes:
       - emptyDir: {}
         name: docker-root
@@ -148,8 +146,6 @@ periodics:
     testgrid-dashboards: istio_release-pipeline
     testgrid-alert-email: istio-oncall@googlegroups.com
     testgrid-num-failures-to-alert: '1'
-  labels:
-    preset-service-account: "true"
   spec:
     containers:
       - <<: *istio_container_with_kind
@@ -164,6 +160,7 @@ periodics:
         volumeMounts:
           - mountPath: /var/lib/docker
             name: docker-root
+    serviceAccountName: prowjob-advanced-sa
     volumes:
       - emptyDir: {}
         name: docker-root
@@ -186,8 +183,6 @@ periodics:
     testgrid-dashboards: istio_release-pipeline
     testgrid-alert-email: istio-oncall@googlegroups.com
     testgrid-num-failures-to-alert: '1'
-  labels:
-    preset-service-account: "true"
   spec:
     containers:
       - <<: *istio_container_with_kind
@@ -202,6 +197,7 @@ periodics:
         volumeMounts:
           - mountPath: /var/lib/docker
             name: docker-root
+    serviceAccountName: prowjob-advanced-sa
     volumes:
       - emptyDir: {}
         name: docker-root
@@ -222,8 +218,6 @@ periodics:
     testgrid-dashboards: istio_release-pipeline
     testgrid-alert-email: istio-oncall@googlegroups.com
     testgrid-num-failures-to-alert: '1'
-  labels:
-    preset-service-account: "true"
   spec:
     containers:
     - <<: *istio_container_with_kind
@@ -239,6 +233,7 @@ periodics:
       command:
       - entrypoint
       - upgrade_downgrade/run_upgrade_downgrade_test.sh
+    serviceAccountName: prowjob-advanced-sa
     nodeSelector:
       testing: test-pool
 
@@ -257,8 +252,6 @@ periodics:
     testgrid-dashboards: istio_release-pipeline
     testgrid-alert-email: istio-oncall@googlegroups.com
     testgrid-num-failures-to-alert: '1'
-  labels:
-    preset-service-account: "true"
   spec:
     containers:
     - <<: *istio_container_with_kind
@@ -274,6 +267,7 @@ periodics:
       command:
       - entrypoint
       - upgrade_downgrade/run_upgrade_downgrade_test.sh
+    serviceAccountName: prowjob-advanced-sa
     nodeSelector:
       testing: test-pool
 
@@ -292,8 +286,6 @@ periodics:
     testgrid-dashboards: istio_release-pipeline
     testgrid-alert-email: istio-oncall@googlegroups.com
     testgrid-num-failures-to-alert: '1'
-  labels:
-    preset-service-account: "true"
   spec:
     containers:
     - <<: *istio_container_with_kind_mounts
@@ -311,6 +303,7 @@ periodics:
       command:
       - entrypoint
       - upgrade_downgrade/run_upgrade_downgrade_test.sh
+    serviceAccountName: prowjob-advanced-sa
     nodeSelector:
       testing: test-pool
     volumes:
@@ -343,8 +336,6 @@ periodics:
     testgrid-dashboards: istio_release-pipeline
     testgrid-alert-email: istio-oncall@googlegroups.com
     testgrid-num-failures-to-alert: '1'
-  labels:
-    preset-service-account: "true"
   spec:
     containers:
     - <<: *istio_container_with_kind
@@ -360,6 +351,7 @@ periodics:
       command:
       - entrypoint
       - upgrade_downgrade/run_upgrade_downgrade_test.sh
+    serviceAccountName: prowjob-advanced-sa
     nodeSelector:
       testing: test-pool
 
@@ -378,8 +370,6 @@ periodics:
     testgrid-dashboards: istio_release-pipeline
     testgrid-alert-email: istio-oncall@googlegroups.com
     testgrid-num-failures-to-alert: '1'
-  labels:
-    preset-service-account: "true"
   spec:
     containers:
     - <<: *istio_container_with_kind
@@ -395,6 +385,7 @@ periodics:
       command:
       - entrypoint
       - upgrade_downgrade/run_upgrade_downgrade_test.sh
+    serviceAccountName: prowjob-advanced-sa
     nodeSelector:
       testing: test-pool
 
@@ -412,8 +403,6 @@ periodics:
     testgrid-dashboards: istio_release-pipeline
     testgrid-alert-email: istio-oncall@googlegroups.com
     testgrid-num-failures-to-alert: '1'
-  labels:
-    preset-service-account: "true"
   spec:
     containers:
       - <<: *istio_container_with_kind
@@ -429,6 +418,7 @@ periodics:
         command:
           - entrypoint
           - upgrade_downgrade/run_upgrade_downgrade_test.sh
+    serviceAccountName: prowjob-advanced-sa
     nodeSelector:
       testing: test-pool
 
@@ -447,8 +437,6 @@ periodics:
     testgrid-dashboards: istio_release-pipeline
     testgrid-alert-email: istio-oncall@googlegroups.com
     testgrid-num-failures-to-alert: '1'
-  labels:
-    preset-service-account: "true"
   spec:
     containers:
       - <<: *istio_container_with_kind
@@ -464,6 +452,7 @@ periodics:
         command:
           - entrypoint
           - upgrade_downgrade/run_upgrade_downgrade_test.sh
+    serviceAccountName: prowjob-advanced-sa
     nodeSelector:
       testing: test-pool
 
@@ -482,8 +471,6 @@ periodics:
     testgrid-dashboards: istio_release-pipeline
     testgrid-alert-email: istio-oncall@googlegroups.com
     testgrid-num-failures-to-alert: '1'
-  labels:
-    preset-service-account: "true"
   spec:
     containers:
     - <<: *istio_container_with_kind
@@ -499,6 +486,7 @@ periodics:
       command:
       - entrypoint
       - upgrade_downgrade/run_upgrade_downgrade_test.sh
+    serviceAccountName: prowjob-advanced-sa
     nodeSelector:
       testing: test-pool
 
@@ -516,8 +504,6 @@ periodics:
     testgrid-dashboards: istio_release-pipeline
     testgrid-alert-email: istio-oncall@googlegroups.com
     testgrid-num-failures-to-alert: '1'
-  labels:
-    preset-service-account: "true"
   spec:
     containers:
     - <<: *istio_container_with_kind
@@ -533,6 +519,7 @@ periodics:
       command:
       - entrypoint
       - upgrade_downgrade/run_upgrade_downgrade_test.sh
+    serviceAccountName: prowjob-advanced-sa
     nodeSelector:
       testing: test-pool
 
@@ -549,8 +536,6 @@ periodics:
     testgrid-dashboards: istio_release-pipeline
     testgrid-alert-email: istio-oncall@googlegroups.com
     testgrid-num-failures-to-alert: '1'
-  labels:
-    preset-service-account: "true"
   spec:
     containers:
       - <<: *istio_container_with_kind
@@ -564,6 +549,7 @@ periodics:
         command:
           - entrypoint
           - upgrade_downgrade/run_upgrade_downgrade_test.sh
+    serviceAccountName: prowjob-advanced-sa
     nodeSelector:
       testing: test-pool
 
@@ -580,8 +566,6 @@ periodics:
     testgrid-dashboards: istio_release-pipeline
     testgrid-alert-email: istio-oncall@googlegroups.com
     testgrid-num-failures-to-alert: '1'
-  labels:
-    preset-service-account: "true"
   spec:
     containers:
       - <<: *istio_container_with_kind
@@ -595,5 +579,6 @@ periodics:
         command:
           - entrypoint
           - upgrade_downgrade/run_upgrade_downgrade_test.sh
+    serviceAccountName: prowjob-advanced-sa
     nodeSelector:
       testing: test-pool
