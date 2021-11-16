@@ -175,8 +175,6 @@ postsubmits:
     - ^master$
     cluster: test-infra-trusted
     decorate: true
-    labels:
-      preset-service-account: "true"
     max_concurrency: 1
     name: push-mason_test-infra_postsubmit
     path_alias: istio.io/test-infra
@@ -207,6 +205,7 @@ postsubmits:
           name: docker-root
       nodeSelector:
         prod: prow
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -222,8 +221,6 @@ postsubmits:
     - ^master$
     cluster: test-infra-trusted
     decorate: true
-    labels:
-      preset-service-account: "true"
     max_concurrency: 1
     name: push-prowbazel_test-infra_postsubmit
     path_alias: istio.io/test-infra
@@ -256,6 +253,7 @@ postsubmits:
           name: docker-root
       nodeSelector:
         prod: prow
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -271,8 +269,6 @@ postsubmits:
     - ^master$
     cluster: test-infra-trusted
     decorate: true
-    labels:
-      preset-service-account: "true"
     max_concurrency: 1
     name: push-authentikos_test-infra_postsubmit
     path_alias: istio.io/test-infra
@@ -304,6 +300,7 @@ postsubmits:
           name: docker-root
       nodeSelector:
         prod: prow
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -319,8 +316,6 @@ postsubmits:
     - ^master$
     cluster: test-infra-trusted
     decorate: true
-    labels:
-      preset-service-account: "true"
     max_concurrency: 1
     name: push-genjobs_test-infra_postsubmit
     path_alias: istio.io/test-infra
@@ -352,6 +347,7 @@ postsubmits:
           name: docker-root
       nodeSelector:
         prod: prow
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -510,8 +506,6 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
     name: integ-test-authentikos_test-infra
     path_alias: istio.io/test-infra
     run_if_changed: ^authentikos/(test/.+|.+\.go|go\.mod)$
@@ -548,6 +542,7 @@ presubmits:
           name: docker-root
       nodeSelector:
         testing: test-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache

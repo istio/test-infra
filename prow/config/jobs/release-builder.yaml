@@ -14,8 +14,9 @@ jobs:
     command: [make, gen-check]
 
   - name: dry-run
+    service_account_name: prowjob-advanced-sa
     command: [entrypoint, test/publish.sh]
-    requirements: [gcp, docker]
+    requirements: [docker]
     resources: build
     regex: '\.go$|\.sh$'
 

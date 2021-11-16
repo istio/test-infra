@@ -16,6 +16,7 @@ jobs:
     command: [make, gen-check]
 
   - name: deploy-policybot
+    service_account_name: prowjob-advanced-sa
     regex: '^policybot/'
     types: [postsubmit]
     command:
@@ -24,7 +25,7 @@ jobs:
     - -C
     - policybot
     - deploy
-    requirements: [docker, gcp]
+    requirements: [docker]
     env:
     - name: GITHUB_WEBHOOK_SECRET
       valueFrom:

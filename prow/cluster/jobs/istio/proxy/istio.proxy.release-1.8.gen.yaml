@@ -10,8 +10,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-service-account: "true"
     name: release_proxy_release-1.8_postsubmit
     path_alias: istio.io/proxy
     spec:
@@ -38,6 +36,7 @@ postsubmits:
           name: docker-root
       nodeSelector:
         testing: build-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -54,8 +53,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-service-account: "true"
     name: release-centos_proxy_release-1.8_postsubmit
     path_alias: istio.io/proxy
     spec:
@@ -79,6 +76,7 @@ postsubmits:
           subPath: gomod
       nodeSelector:
         testing: build-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -149,8 +147,6 @@ presubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-service-account: "true"
     name: test_proxy_release-1.8
     path_alias: istio.io/proxy
     spec:
@@ -174,6 +170,7 @@ presubmits:
           subPath: gomod
       nodeSelector:
         testing: build-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -187,8 +184,6 @@ presubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-service-account: "true"
     name: test-asan_proxy_release-1.8
     path_alias: istio.io/proxy
     spec:
@@ -212,6 +207,7 @@ presubmits:
           subPath: gomod
       nodeSelector:
         testing: build-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -225,8 +221,6 @@ presubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-service-account: "true"
     name: test-tsan_proxy_release-1.8
     path_alias: istio.io/proxy
     spec:
@@ -250,6 +244,7 @@ presubmits:
           subPath: gomod
       nodeSelector:
         testing: build-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -263,8 +258,6 @@ presubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-service-account: "true"
     name: release-test_proxy_release-1.8
     path_alias: istio.io/proxy
     spec:
@@ -288,6 +281,7 @@ presubmits:
           subPath: gomod
       nodeSelector:
         testing: build-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -301,8 +295,6 @@ presubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-service-account: "true"
     name: release-centos-test_proxy_release-1.8
     optional: true
     path_alias: istio.io/proxy
@@ -327,6 +319,7 @@ presubmits:
           subPath: gomod
       nodeSelector:
         testing: build-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -340,8 +333,6 @@ presubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-service-account: "true"
     name: check-wasm_proxy_release-1.8
     path_alias: istio.io/proxy
     spec:
@@ -368,6 +359,7 @@ presubmits:
           name: docker-root
       nodeSelector:
         testing: build-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache

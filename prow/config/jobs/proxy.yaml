@@ -7,52 +7,54 @@ node_selector:
 
 jobs:
 - name: test
+  service_account_name: prowjob-advanced-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit.sh]
-  requirements: [gcp]
   timeout: 4h
 
 - name: test-asan
+  service_account_name: prowjob-advanced-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit-asan.sh]
-  requirements: [gcp]
   timeout: 4h
 
 - name: test-tsan
+  service_account_name: prowjob-advanced-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit-tsan.sh]
-  requirements: [gcp]
   timeout: 4h
 
 - name: release-test
+  service_account_name: prowjob-advanced-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit-release.sh]
-  requirements: [gcp]
   timeout: 4h
 
 - name: release-centos-test
+  service_account_name: prowjob-advanced-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit-centos-release.sh]
-  requirements: [gcp]
   image: gcr.io/istio-testing/build-tools-centos:master-2021-11-09T05-16-46
   timeout: 4h
 
 - name: check-wasm
+  service_account_name: prowjob-advanced-sa
   types: [presubmit]
   command: [entrypoint, ./prow/proxy-presubmit-wasm.sh]
-  requirements: [gcp, docker]
+  requirements: [docker]
   timeout: 4h
 
 - name: release
+  service_account_name: prowjob-advanced-sa
   types: [postsubmit]
   command: [entrypoint, ./prow/proxy-postsubmit.sh]
-  requirements: [gcp, docker]
+  requirements: [docker]
   timeout: 4h
 
 - name: release-centos
+  service_account_name: prowjob-advanced-sa
   types: [postsubmit]
   command: [./prow/proxy-postsubmit-centos.sh]
-  requirements: [gcp]
   image: gcr.io/istio-testing/build-tools-centos:master-2021-11-09T05-16-46
   timeout: 4h
 

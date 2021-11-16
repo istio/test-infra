@@ -15,16 +15,16 @@ jobs:
   - entrypoint
   - prow/release-test.sh
   name: release-test
+  service_account_name: prowjob-advanced-sa
   requirements:
-  - gcp
   - docker
   types: [presubmit]
 - command:
   - entrypoint
   - prow/release-commit.sh
   name: release
+  service_account_name: prowjob-advanced-sa
   requirements:
-  - gcp
   - docker
   types: [postsubmit]
 - command:
@@ -43,8 +43,7 @@ jobs:
   - benchtest
   - report-benchtest
   name: benchmark-report
-  requirements:
-  - gcp
+  service_account_name: prowjob-advanced-sa
   resources: benchmark
   types: [postsubmit]
 - command:

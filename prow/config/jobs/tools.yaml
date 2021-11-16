@@ -17,6 +17,7 @@ jobs:
     command: [make, gen-check]
 
   - name: benchmark_check
+    service_account_name: prowjob-advanced-sa
     disable_release_branching: true
     regex: '^perf/benchmark/'
     types: [presubmit]
@@ -25,9 +26,9 @@ jobs:
       - name: TRIALRUN
         value: "True"
     modifiers: [presubmit_optional]
-    requirements: [gcp]
 
   - name: containers
+    service_account_name: prowjob-advanced-sa
     types: [postsubmit]
     command:
     - entrypoint
@@ -41,21 +42,23 @@ jobs:
     - --script-path=../common-files/bin/create-buildtools-and-update.sh
     resources: build
     regex: 'docker/.+|cmd/.+'
-    requirements: [gcp, docker, github]
+    requirements: [docker, github]
     repos: [istio/test-infra@master,istio/common-files@master]
 
   - name: containers-test
+    service_account_name: prowjob-advanced-sa
     types: [presubmit]
     command: [entrypoint, make, containers-test]
     resources: build
     regex: 'docker/.+|cmd/.+'
-    requirements: [gcp, docker]
+    requirements: [docker]
 
   - name: deploy-perf-dashboard
+    service_account_name: prowjob-advanced-sa
     regex: '^perf_dashboard/'
     types: [postsubmit]
     command: [entrypoint, make, -C, perf_dashboard, deploy]
-    requirements: [docker, gcp]
+    requirements: [docker]
 
 resources_presets:
   build:

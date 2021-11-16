@@ -30,12 +30,12 @@ jobs:
   - entrypoint
   - test/publish.sh
   name: dry-run
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: test-pool
   regex: \.go$|\.sh$
   requirements:
   - cache
-  - gcp
   - docker
   resources: build
 - command:

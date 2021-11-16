@@ -7,14 +7,16 @@ jobs:
     command: [entrypoint, make, -e, "T=-v -count=1", build, racetest, binaries-test]
 
   - name: release-test
+    service_account_name: prowjob-advanced-sa
     types: [presubmit]
     command: [entrypoint, prow/release-test.sh]
-    requirements: [gcp, docker]
+    requirements: [docker]
 
   - name: release
+    service_account_name: prowjob-advanced-sa
     types: [postsubmit]
     command: [entrypoint, prow/release-commit.sh]
-    requirements: [gcp, docker]
+    requirements: [docker]
 
   - name: benchmark
     types: [presubmit]
@@ -23,9 +25,9 @@ jobs:
     resources: benchmark
 
   - name: benchmark-report
+    service_account_name: prowjob-advanced-sa
     types: [postsubmit]
     command: [entrypoint, make, benchtest, report-benchtest]
-    requirements: [gcp]
     resources: benchmark
 
   - name: integ-pilot-k8s-tests

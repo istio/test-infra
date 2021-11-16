@@ -51,8 +51,6 @@ postsubmits:
     branches:
     - ^release-1.10$
     decorate: true
-    labels:
-      preset-service-account: "true"
     name: release_istio_release-1.10_postsubmit
     path_alias: istio.io/istio
     spec:
@@ -81,6 +79,7 @@ postsubmits:
           name: docker-root
       nodeSelector:
         testing: test-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -95,8 +94,6 @@ postsubmits:
     branches:
     - ^release-1.10$
     decorate: true
-    labels:
-      preset-service-account: "true"
     name: benchmark-report_istio_release-1.10_postsubmit
     path_alias: istio.io/istio
     spec:
@@ -125,6 +122,7 @@ postsubmits:
           subPath: gocache
       nodeSelector:
         testing: test-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -1115,8 +1113,6 @@ presubmits:
     branches:
     - ^release-1.10$
     decorate: true
-    labels:
-      preset-service-account: "true"
     name: release-test_istio_release-1.10
     path_alias: istio.io/istio
     spec:
@@ -1145,6 +1141,7 @@ presubmits:
           name: docker-root
       nodeSelector:
         testing: test-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache

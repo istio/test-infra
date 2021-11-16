@@ -10,8 +10,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-service-account: "true"
     name: release_proxy_release-1.7_postsubmit
     path_alias: istio.io/proxy
     spec:
@@ -38,6 +36,7 @@ postsubmits:
           name: docker-root
       nodeSelector:
         testing: build-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -210,8 +209,6 @@ presubmits:
     branches:
     - ^release-1.7$
     decorate: true
-    labels:
-      preset-service-account: "true"
     name: release-test_proxy_release-1.7
     path_alias: istio.io/proxy
     spec:
@@ -235,6 +232,7 @@ presubmits:
           subPath: gomod
       nodeSelector:
         testing: build-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache

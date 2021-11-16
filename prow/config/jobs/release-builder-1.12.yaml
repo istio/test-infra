@@ -30,12 +30,12 @@ jobs:
   - entrypoint
   - test/publish.sh
   name: dry-run
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: test-pool
   regex: \.go$|\.sh$
   requirements:
   - cache
-  - gcp
   - docker
   resources: build
 - command:
@@ -137,14 +137,6 @@ requirement_presets:
     volumes:
     - emptyDir: {}
       name: docker-root
-  gcp:
-    annotations: {}
-    args: null
-    env: null
-    labels:
-      preset-service-account: "true"
-    volumeMounts: null
-    volumes: null
   github:
     annotations: {}
     args: null

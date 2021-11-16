@@ -20,11 +20,11 @@ jobs:
   - entrypoint
   - prow/release-test.sh
   name: release-test
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: test-pool
   requirements:
   - cache
-  - gcp
   - docker
   - gocache
   types:
@@ -33,11 +33,11 @@ jobs:
   - entrypoint
   - prow/release-commit.sh
   name: release
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: test-pool
   requirements:
   - cache
-  - gcp
   - docker
   - gocache
   types:
@@ -64,11 +64,11 @@ jobs:
   - benchtest
   - report-benchtest
   name: benchmark-report
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: test-pool
   requirements:
   - cache
-  - gcp
   - gocache
   resources: benchmark
   types:
@@ -682,14 +682,6 @@ requirement_presets:
     volumes:
     - emptyDir: {}
       name: docker-root
-  gcp:
-    annotations: {}
-    args: null
-    env: null
-    labels:
-      preset-service-account: "true"
-    volumeMounts: null
-    volumes: null
   github:
     annotations: {}
     args: null

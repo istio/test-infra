@@ -152,8 +152,6 @@ postsubmits:
     branches:
     - ^release-1.10$
     decorate: true
-    labels:
-      preset-service-account: "true"
     name: containers_tools_release-1.10_postsubmit
     path_alias: istio.io/tools
     run_if_changed: docker/.+|cmd/.+
@@ -182,6 +180,7 @@ postsubmits:
           name: docker-root
       nodeSelector:
         testing: test-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -196,8 +195,6 @@ postsubmits:
     branches:
     - ^release-1.10$
     decorate: true
-    labels:
-      preset-service-account: "true"
     name: deploy-perf-dashboard_tools_release-1.10_postsubmit
     path_alias: istio.io/tools
     run_if_changed: ^perf_dashboard/
@@ -228,6 +225,7 @@ postsubmits:
           name: docker-root
       nodeSelector:
         testing: test-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -383,8 +381,6 @@ presubmits:
     branches:
     - ^release-1.10$
     decorate: true
-    labels:
-      preset-service-account: "true"
     name: containers-test_tools_release-1.10
     path_alias: istio.io/tools
     run_if_changed: docker/.+|cmd/.+
@@ -413,6 +409,7 @@ presubmits:
           name: docker-root
       nodeSelector:
         testing: test-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
