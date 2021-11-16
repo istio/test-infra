@@ -17,8 +17,7 @@ jobs:
 - command:
   - ./prow/proxy-presubmit-release.sh
   name: release-test
-  requirements:
-  - gcp
+  service_account_name: prowjob-advanced-sa
   types: [presubmit]
 - command:
   - entrypoint
@@ -31,8 +30,8 @@ jobs:
   - entrypoint
   - ./prow/proxy-postsubmit.sh
   name: release
+  service_account_name: prowjob-advanced-sa
   requirements:
-  - gcp
   - docker
   timeout: 4h0m0s
   types: [postsubmit]

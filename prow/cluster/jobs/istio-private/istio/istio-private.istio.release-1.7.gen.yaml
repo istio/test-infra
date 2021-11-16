@@ -12,7 +12,6 @@ postsubmits:
       preset-enable-gomod-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.7-istio
-      preset-service-account: "true"
     name: release_istio_release-1.7_postsubmit_priv
     path_alias: istio.io/istio
     spec:
@@ -43,6 +42,7 @@ postsubmits:
           name: docker-root
       nodeSelector:
         testing: test-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -107,7 +107,6 @@ postsubmits:
       preset-enable-ssh: "true"
       preset-override-deps: release-1.7-istio
       preset-override-envoy: "true"
-      preset-service-account: "true"
     name: benchmark-report_istio_release-1.7_postsubmit_priv
     path_alias: istio.io/istio
     spec:
@@ -133,6 +132,7 @@ postsubmits:
           subPath: gomod
       nodeSelector:
         testing: test-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -954,7 +954,6 @@ presubmits:
       preset-enable-ssh: "true"
       preset-override-deps: release-1.7-istio
       preset-override-envoy: "true"
-      preset-service-account: "true"
     name: release-test_istio_release-1.7_priv
     path_alias: istio.io/istio
     spec:
@@ -980,6 +979,7 @@ presubmits:
           name: docker-root
       nodeSelector:
         testing: test-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache

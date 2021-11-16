@@ -44,12 +44,12 @@ jobs:
   - containers
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-10-12T18-10-18
   name: containers
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: test-pool
   regex: docker/.+|cmd/.+
   requirements:
   - cache
-  - gcp
   - docker
   resources: build
   types:
@@ -60,12 +60,12 @@ jobs:
   - containers-test
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-10-12T18-10-18
   name: containers-test
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: test-pool
   regex: docker/.+|cmd/.+
   requirements:
   - cache
-  - gcp
   - docker
   resources: build
   types:
@@ -78,13 +78,13 @@ jobs:
   - deploy
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-10-12T18-10-18
   name: deploy-perf-dashboard
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: test-pool
   regex: ^perf_dashboard/
   requirements:
   - cache
   - docker
-  - gcp
   types:
   - postsubmit
 org: istio
@@ -113,13 +113,6 @@ requirement_presets:
     volumes:
     - emptyDir: {}
       name: docker-root
-  gcp:
-    annotations: null
-    env: null
-    labels:
-      preset-service-account: "true"
-    volumeMounts: null
-    volumes: null
   github:
     annotations: null
     env: null

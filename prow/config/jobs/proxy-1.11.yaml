@@ -6,11 +6,11 @@ jobs:
   - ./prow/proxy-presubmit.sh
   image: gcr.io/istio-testing/build-tools-proxy:release-1.11-2021-10-12T18-10-18
   name: test
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: build-pool
   requirements:
   - cache
-  - gcp
   timeout: 4h0m0s
   types:
   - presubmit
@@ -18,11 +18,11 @@ jobs:
   - ./prow/proxy-presubmit-asan.sh
   image: gcr.io/istio-testing/build-tools-proxy:release-1.11-2021-10-12T18-10-18
   name: test-asan
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: build-pool
   requirements:
   - cache
-  - gcp
   timeout: 4h0m0s
   types:
   - presubmit
@@ -30,11 +30,11 @@ jobs:
   - ./prow/proxy-presubmit-tsan.sh
   image: gcr.io/istio-testing/build-tools-proxy:release-1.11-2021-10-12T18-10-18
   name: test-tsan
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: build-pool
   requirements:
   - cache
-  - gcp
   timeout: 4h0m0s
   types:
   - presubmit
@@ -42,11 +42,11 @@ jobs:
   - ./prow/proxy-presubmit-release.sh
   image: gcr.io/istio-testing/build-tools-proxy:release-1.11-2021-10-12T18-10-18
   name: release-test
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: build-pool
   requirements:
   - cache
-  - gcp
   timeout: 4h0m0s
   types:
   - presubmit
@@ -54,11 +54,11 @@ jobs:
   - ./prow/proxy-presubmit-centos-release.sh
   image: gcr.io/istio-testing/build-tools-centos:release-1.11-2021-10-12T18-10-18
   name: release-centos-test
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: build-pool
   requirements:
   - cache
-  - gcp
   timeout: 4h0m0s
   types:
   - presubmit
@@ -67,11 +67,11 @@ jobs:
   - ./prow/proxy-presubmit-wasm.sh
   image: gcr.io/istio-testing/build-tools-proxy:release-1.11-2021-10-12T18-10-18
   name: check-wasm
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: build-pool
   requirements:
   - cache
-  - gcp
   - docker
   timeout: 4h0m0s
   types:
@@ -81,11 +81,11 @@ jobs:
   - ./prow/proxy-postsubmit.sh
   image: gcr.io/istio-testing/build-tools-proxy:release-1.11-2021-10-12T18-10-18
   name: release
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: build-pool
   requirements:
   - cache
-  - gcp
   - docker
   timeout: 4h0m0s
   types:
@@ -94,11 +94,11 @@ jobs:
   - ./prow/proxy-postsubmit-centos.sh
   image: gcr.io/istio-testing/build-tools-centos:release-1.11-2021-10-12T18-10-18
   name: release-centos
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: build-pool
   requirements:
   - cache
-  - gcp
   timeout: 4h0m0s
   types:
   - postsubmit
@@ -171,13 +171,6 @@ requirement_presets:
     volumes:
     - emptyDir: {}
       name: docker-root
-  gcp:
-    annotations: null
-    env: null
-    labels:
-      preset-service-account: "true"
-    volumeMounts: null
-    volumes: null
   github:
     annotations: null
     env: null

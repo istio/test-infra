@@ -116,8 +116,6 @@ postsubmits:
     branches:
     - ^release-1.10$
     decorate: true
-    labels:
-      preset-service-account: "true"
     name: dry-run_release-builder_release-1.10_postsubmit
     path_alias: istio.io/release-builder
     run_if_changed: \.go$|\.sh$
@@ -145,6 +143,7 @@ postsubmits:
           name: docker-root
       nodeSelector:
         testing: test-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -370,8 +369,6 @@ presubmits:
     branches:
     - ^release-1.10$
     decorate: true
-    labels:
-      preset-service-account: "true"
     name: dry-run_release-builder_release-1.10
     path_alias: istio.io/release-builder
     run_if_changed: \.go$|\.sh$
@@ -399,6 +396,7 @@ presubmits:
           name: docker-root
       nodeSelector:
         testing: test-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache

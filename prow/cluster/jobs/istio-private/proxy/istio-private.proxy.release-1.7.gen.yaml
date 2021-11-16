@@ -12,7 +12,6 @@ postsubmits:
       timeout: 4h0m0s
     labels:
       preset-enable-netrc: "true"
-      preset-service-account: "true"
     name: release_proxy_release-1.7_postsubmit_release-1.7_priv
     path_alias: istio.io/proxy
     spec:
@@ -51,6 +50,7 @@ postsubmits:
           name: docker-root
       nodeSelector:
         testing: build-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -272,7 +272,6 @@ presubmits:
     decorate: true
     labels:
       preset-enable-netrc: "true"
-      preset-service-account: "true"
     name: release-test_proxy_release-1.7_release-1.7_priv
     path_alias: istio.io/proxy
     spec:
@@ -302,6 +301,7 @@ presubmits:
           subPath: gomod
       nodeSelector:
         testing: build-pool
+      serviceAccountName: prowjob-advanced-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache

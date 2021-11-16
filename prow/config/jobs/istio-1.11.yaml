@@ -22,11 +22,11 @@ jobs:
   - prow/release-test.sh
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-10-12T18-10-18
   name: release-test
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: test-pool
   requirements:
   - cache
-  - gcp
   - docker
   - gocache
   types:
@@ -36,11 +36,11 @@ jobs:
   - prow/release-commit.sh
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-10-12T18-10-18
   name: release
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: test-pool
   requirements:
   - cache
-  - gcp
   - docker
   - gocache
   types:
@@ -69,11 +69,11 @@ jobs:
   - report-benchtest
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-10-12T18-10-18
   name: benchmark-report
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: test-pool
   requirements:
   - cache
-  - gcp
   - gocache
   resources: benchmark
   types:
@@ -666,13 +666,6 @@ requirement_presets:
     volumes:
     - emptyDir: {}
       name: docker-root
-  gcp:
-    annotations: null
-    env: null
-    labels:
-      preset-service-account: "true"
-    volumeMounts: null
-    volumes: null
   github:
     annotations: null
     env: null

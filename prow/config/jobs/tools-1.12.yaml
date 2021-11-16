@@ -45,7 +45,7 @@ jobs:
   - --token-path=/etc/github-token/oauth
   - --script-path=../common-files/bin/create-buildtools-and-update.sh
   name: containers
-  service_account_name: prowjob-admin-sa
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: test-pool
   regex: docker/.+|cmd/.+
@@ -64,7 +64,7 @@ jobs:
   - make
   - containers-test
   name: containers-test
-  service_account_name: prowjob-admin-sa
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: test-pool
   regex: docker/.+|cmd/.+
@@ -81,7 +81,7 @@ jobs:
   - perf_dashboard
   - deploy
   name: deploy-perf-dashboard
-  service_account_name: prowjob-admin-sa
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: test-pool
   regex: ^perf_dashboard/

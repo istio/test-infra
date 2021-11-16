@@ -34,12 +34,12 @@ jobs:
   - test/publish.sh
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-10-12T18-10-18
   name: dry-run
+  service_account_name: prowjob-advanced-sa
   node_selector:
     testing: test-pool
   regex: \.go$|\.sh$
   requirements:
   - cache
-  - gcp
   - docker
   resources: build
 - command:
