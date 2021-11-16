@@ -45,37 +45,6 @@ presets:
     secret:
       secretName: rel-pipeline-docker-config
 - labels:
-    preset-release-build-test: "true"
-  env:
-  - name: DOCKER_CONFIG
-    value: /etc/rel-pipeline-docker-config
-  - name: GITHUB_TOKEN_FILE
-    value: /etc/github/rel-pipeline-github
-  - name: GOOGLE_APPLICATION_CREDENTIALS
-    value: /etc/service-account/service-account.json
-  - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
-    value: /etc/service-account/service-account.json
-  volumeMounts:
-  - name: rel-pipeline-docker-config
-    mountPath: /etc/rel-pipeline-docker-config
-    readOnly: true
-  - name: rel-pipeline-github
-    mountPath: /etc/github
-    readOnly: true
-  - name: service
-    mountPath: /etc/service-account
-    readOnly: true
-  volumes:
-  - name: service
-    secret:
-      secretName: service-account
-  - name: rel-pipeline-docker-config
-    secret:
-      secretName: rel-pipeline-docker-config
-  - name: rel-pipeline-github
-    secret:
-      secretName: rel-pipeline-github
-- labels:
     preset-enable-ssh: "true"
   env:
   - name: GIT_SSH_COMMAND
