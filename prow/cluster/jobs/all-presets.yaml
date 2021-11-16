@@ -17,8 +17,6 @@ presets:
     value: /etc/github/rel-pipeline-github
   - name: GRAFANA_TOKEN_FILE
     value: /etc/grafana/token
-  - name: GOOGLE_APPLICATION_CREDENTIALS
-    value: /etc/service-account/rel-pipeline-service-account.json
   volumeMounts:
   - name: rel-pipeline-docker-config
     mountPath: /etc/rel-pipeline-docker-config
@@ -28,13 +26,7 @@ presets:
   - name: rel-pipeline-grafana
     mountPath: /etc/grafana
     readOnly: true
-  - name: rel-pipeline-service-account
-    mountPath: /etc/service-account
-    readOnly: true
   volumes:
-  - name: rel-pipeline-service-account
-    secret:
-      secretName: rel-pipeline-service-account
   - name: rel-pipeline-github
     secret:
       secretName: rel-pipeline-github

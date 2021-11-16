@@ -66,6 +66,7 @@ jobs:
   - entrypoint
   - release/build.sh
   name: build-release
+  service_account_name: rel-pipeline-service-account
   node_selector:
     testing: test-pool
   regex: ^release/trigger-build$
@@ -81,6 +82,7 @@ jobs:
   - entrypoint
   - release/publish.sh
   name: publish-release
+  service_account_name: rel-pipeline-service-account
   node_selector:
     testing: test-pool
   regex: ^release/trigger-publish$

@@ -41,6 +41,7 @@ jobs:
   - entrypoint
   - release/build.sh
   name: build-release
+  service_account_name: rel-pipeline-service-account
   regex: ^release/trigger-build$
   requirements:
   - release
@@ -51,6 +52,7 @@ jobs:
   - entrypoint
   - release/publish.sh
   name: publish-release
+  service_account_name: rel-pipeline-service-account
   regex: ^release/trigger-publish$
   requirements:
   - release

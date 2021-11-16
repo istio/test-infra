@@ -33,6 +33,7 @@ jobs:
     modifiers: [presubmit_optional]
 
   - name: build-release
+    service_account_name: rel-pipeline-service-account
     types: [postsubmit]
     regex: '^release/trigger-build$'
     command: [entrypoint, release/build.sh]
@@ -40,6 +41,7 @@ jobs:
     resources: build
 
   - name: publish-release
+    service_account_name: rel-pipeline-service-account
     types: [postsubmit]
     regex: '^release/trigger-publish$'
     command: [entrypoint, release/publish.sh]
@@ -47,6 +49,7 @@ jobs:
     resources: build
 
   - name: build-base-images
+    service_account_name: rel-pipeline-service-account
     types: [periodic]
     cron: "0 19 * * *"  # every day at 07:00 PM UTC (12:00 PM PST)
     env:

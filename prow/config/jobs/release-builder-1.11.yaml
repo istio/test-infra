@@ -73,6 +73,7 @@ jobs:
   - release/build.sh
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
   name: build-release
+  service_account_name: rel-pipeline-service-account
   node_selector:
     testing: test-pool
   regex: ^release/trigger-build$
@@ -89,6 +90,7 @@ jobs:
   - release/publish.sh
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
   name: publish-release
+  service_account_name: rel-pipeline-service-account
   node_selector:
     testing: test-pool
   regex: ^release/trigger-publish$

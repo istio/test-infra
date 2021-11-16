@@ -66,6 +66,7 @@ jobs:
   - entrypoint
   - release/build.sh
   name: build-release
+  service_account_name: rel-pipeline-service-account
   node_selector:
     testing: test-pool
   regex: ^release/trigger-build$
@@ -81,6 +82,7 @@ jobs:
   - entrypoint
   - release/publish.sh
   name: publish-release
+  service_account_name: rel-pipeline-service-account
   node_selector:
     testing: test-pool
   regex: ^release/trigger-publish$
@@ -101,6 +103,7 @@ jobs:
   - name: VERSION
     value: "1.12"
   name: build-base-images
+  service_account_name: rel-pipeline-service-account
   node_selector:
     testing: test-pool
   requirements:
@@ -205,19 +208,6 @@ requirement_presets:
       name: cgroup
     - emptyDir: {}
       name: docker-root
-  release:
-    annotations: {}
-    args: null
-    env:
-    - name: COSIGN_KEY
-      valueFrom:
-        secretKeyRef:
-          key: key
-          name: cosign-key
-    labels:
-      preset-release-pipeline: "true"
-    volumeMounts: null
-    volumes: null
 resources_presets:
   benchmark:
     limits:
