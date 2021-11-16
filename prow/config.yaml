@@ -18,7 +18,6 @@ plank:
       gcs_configuration:
         bucket: "istio-prow"
         path_strategy: "explicit"
-      gcs_credentials_secret: "service-account"
   - cluster: default
     config:
       gcs_credentials_secret: ""
@@ -29,6 +28,8 @@ plank:
       default_service_account_name: "prowjob-default-sa"
   - repo: istio-private
     config:
+      gcs_credentials_secret: ""
+      default_service_account_name: "prowjob-private-sa"
       gcs_configuration:
         bucket: "istio-private-build"
         path_strategy: "explicit"
