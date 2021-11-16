@@ -45,6 +45,7 @@ jobs:
   - --token-path=/etc/github-token/oauth
   - --script-path=../common-files/bin/create-buildtools-and-update.sh
   name: containers
+  service_account_name: prowjob-default-sa
   node_selector:
     testing: test-pool
   regex: docker/.+|cmd/.+
@@ -53,7 +54,6 @@ jobs:
   - istio/common-files@master
   requirements:
   - cache
-  - gcp
   - docker
   - github
   resources: build
@@ -64,12 +64,12 @@ jobs:
   - make
   - containers-test
   name: containers-test
+  service_account_name: prowjob-default-sa
   node_selector:
     testing: test-pool
   regex: docker/.+|cmd/.+
   requirements:
   - cache
-  - gcp
   - docker
   resources: build
   types:
@@ -81,13 +81,13 @@ jobs:
   - perf_dashboard
   - deploy
   name: deploy-perf-dashboard
+  service_account_name: prowjob-default-sa
   node_selector:
     testing: test-pool
   regex: ^perf_dashboard/
   requirements:
   - cache
   - docker
-  - gcp
   types:
   - postsubmit
 org: istio
@@ -118,14 +118,6 @@ requirement_presets:
     volumes:
     - emptyDir: {}
       name: docker-root
-  gcp:
-    annotations: {}
-    args: null
-    env: null
-    labels:
-      preset-service-account: "true"
-    volumeMounts: null
-    volumes: null
   github:
     annotations: {}
     args: null

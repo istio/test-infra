@@ -138,10 +138,11 @@ type CommonConfig struct {
 	Requirements         []string                           `json:"requirements,omitempty"`
 	ExcludedRequirements []string                           `json:"excluded_requirements,omitempty"`
 
-	Env              []v1.EnvVar `json:"env,omitempty"`
-	Image            string      `json:"image,omitempty"`
-	ImagePullPolicy  string      `json:"image_pull_policy,omitempty"`
-	ImagePullSecrets []string    `json:"image_pull_secrets,omitempty"`
+	Env                []v1.EnvVar `json:"env,omitempty"`
+	Image              string      `json:"image,omitempty"`
+	ImagePullPolicy    string      `json:"image_pull_policy,omitempty"`
+	ImagePullSecrets   []string    `json:"image_pull_secrets,omitempty"`
+	ServiceAccountName string      `json:"service_account_name,omitempty"`
 
 	Regex   string `json:"regex,omitempty"`
 	Trigger string `json:"trigger,omitempty"`
@@ -666,6 +667,10 @@ func createJobBase(baseConfig BaseConfig, jobConfig *JobsConfig, job *Job,
 	}
 	if jb.Annotations == nil {
 		jb.Annotations = map[string]string{}
+	}
+
+	if job.ServiceAccountName != "" {
+		jb.Spec.ServiceAccountName = job.ServiceAccountName
 	}
 
 	if job.TerminationGracePeriodSeconds != 0 {

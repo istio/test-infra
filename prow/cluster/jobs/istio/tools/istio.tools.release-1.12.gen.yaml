@@ -161,8 +161,6 @@ postsubmits:
       org: istio
       path_alias: istio.io/common-files
       repo: common-files
-    labels:
-      preset-service-account: "true"
     name: containers_tools_release-1.12_postsubmit
     path_alias: istio.io/tools
     run_if_changed: docker/.+|cmd/.+
@@ -200,6 +198,7 @@ postsubmits:
           readOnly: true
       nodeSelector:
         testing: test-pool
+      serviceAccountName: prowjob-default-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -217,8 +216,6 @@ postsubmits:
     branches:
     - ^release-1.12$
     decorate: true
-    labels:
-      preset-service-account: "true"
     name: deploy-perf-dashboard_tools_release-1.12_postsubmit
     path_alias: istio.io/tools
     run_if_changed: ^perf_dashboard/
@@ -249,6 +246,7 @@ postsubmits:
           name: docker-root
       nodeSelector:
         testing: test-pool
+      serviceAccountName: prowjob-default-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -404,8 +402,6 @@ presubmits:
     branches:
     - ^release-1.12$
     decorate: true
-    labels:
-      preset-service-account: "true"
     name: containers-test_tools_release-1.12
     path_alias: istio.io/tools
     run_if_changed: docker/.+|cmd/.+
@@ -434,6 +430,7 @@ presubmits:
           name: docker-root
       nodeSelector:
         testing: test-pool
+      serviceAccountName: prowjob-default-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
