@@ -1246,7 +1246,7 @@ postsubmits:
         - kindest/node:v1.16.15
         - --kind-config
         - prow/config/trustworthy-jwt.yaml
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
@@ -1317,7 +1317,7 @@ postsubmits:
         - kindest/node:v1.17.17
         - --kind-config
         - prow/config/endpointslice.yaml
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
@@ -1388,7 +1388,7 @@ postsubmits:
         - kindest/node:v1.18.19
         - --kind-config
         - prow/config/trustworthy-jwt.yaml
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
@@ -1459,7 +1459,7 @@ postsubmits:
         - kindest/node:v1.19.11
         - --kind-config
         - prow/config/trustworthy-jwt.yaml
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
@@ -1528,7 +1528,7 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - --node-image
         - gcr.io/istio-testing/kind-node:v1.20.7
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
@@ -1597,7 +1597,7 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - --node-image
         - gcr.io/istio-testing/kind-node:v1.22.2
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
@@ -1666,7 +1666,7 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - --node-image
         - gcr.io/istio-testing/kind-node:v1.23.0-alpha.2
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
@@ -1733,7 +1733,7 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: TEST_SELECT
           value: -flaky
@@ -1802,7 +1802,7 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
@@ -3223,7 +3223,7 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
