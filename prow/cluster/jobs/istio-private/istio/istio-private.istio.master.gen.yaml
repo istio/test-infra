@@ -113,6 +113,68 @@ postsubmits:
       preset-enable-ssh: "true"
       preset-override-deps: master-istio
       preset-override-envoy: "true"
+    name: integ-telemetry-k8s-tests_istio_postsubmit_priv
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.telemetry.kube
+        image: gcr.io/istio-testing/build-tools:master-2021-11-09T05-16-46
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-gomod-netrc: "true"
+      preset-enable-ssh: "true"
+      preset-override-deps: master-istio
+      preset-override-envoy: "true"
     name: integ-telemetry-mc-k8s-tests_istio_postsubmit_priv
     path_alias: istio.io/istio
     spec:
@@ -419,6 +481,68 @@ postsubmits:
           name: docker-root
       nodeSelector:
         testing: ipv6-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-gomod-netrc: "true"
+      preset-enable-ssh: "true"
+      preset-override-deps: master-istio
+      preset-override-envoy: "true"
+    name: integ-operator-controller-tests_istio_postsubmit_priv
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.operator.kube
+        image: gcr.io/istio-testing/build-tools:master-2021-11-09T05-16-46
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -1047,68 +1171,6 @@ postsubmits:
       preset-enable-ssh: "true"
       preset-override-deps: master-istio
       preset-override-envoy: "true"
-    name: integ-telemetry-k8s-tests_istio_postsubmit_priv
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.telemetry.kube
-        image: gcr.io/istio-testing/build-tools:master-2021-11-09T05-16-46
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-gomod-netrc: "true"
-      preset-enable-ssh: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-helm-tests_istio_postsubmit_priv
     path_alias: istio.io/istio
     spec:
@@ -1184,7 +1246,7 @@ postsubmits:
         - kindest/node:v1.16.15
         - --kind-config
         - prow/config/trustworthy-jwt.yaml
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
@@ -1255,7 +1317,7 @@ postsubmits:
         - kindest/node:v1.17.17
         - --kind-config
         - prow/config/endpointslice.yaml
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
@@ -1326,7 +1388,7 @@ postsubmits:
         - kindest/node:v1.18.19
         - --kind-config
         - prow/config/trustworthy-jwt.yaml
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
@@ -1397,7 +1459,7 @@ postsubmits:
         - kindest/node:v1.19.11
         - --kind-config
         - prow/config/trustworthy-jwt.yaml
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
@@ -1466,7 +1528,7 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - --node-image
         - gcr.io/istio-testing/kind-node:v1.20.7
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
@@ -1535,7 +1597,7 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - --node-image
         - gcr.io/istio-testing/kind-node:v1.22.2
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
@@ -1604,7 +1666,7 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - --node-image
         - gcr.io/istio-testing/kind-node:v1.23.0-alpha.2
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
@@ -1671,7 +1733,7 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: TEST_SELECT
           value: -flaky
@@ -1740,7 +1802,7 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
@@ -1945,72 +2007,6 @@ presubmits:
       preset-enable-ssh: "true"
       preset-override-deps: master-istio
       preset-override-envoy: "true"
-    name: integ-pilot-k8s-tests_istio_priv
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.pilot.kube.presubmit
-        env:
-        - name: TEST_SELECT
-          value: -postsubmit,-flaky
-        image: gcr.io/istio-testing/build-tools:master-2021-11-09T05-16-46
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-gomod-netrc: "true"
-      preset-enable-ssh: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-cni-k8s-tests_istio_priv
     path_alias: istio.io/istio
     spec:
@@ -2020,76 +2016,8 @@ presubmits:
         - prow/integ-suite-kind.sh
         - test.integration.pilot.kube.presubmit
         env:
-        - name: TEST_SELECT
-          value: -postsubmit,-flaky
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.enableCNI=true '
-        image: gcr.io/istio-testing/build-tools:master-2021-11-09T05-16-46
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-gomod-netrc: "true"
-      preset-enable-ssh: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
-    name: integ-security-k8s-tests_istio_priv
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.security.kube.presubmit
-        env:
-        - name: TEST_SELECT
-          value: -postsubmit,-flaky
         image: gcr.io/istio-testing/build-tools:master-2021-11-09T05-16-46
         name: ""
         resources:
@@ -2152,10 +2080,7 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.integration.telemetry.kube.presubmit
-        env:
-        - name: TEST_SELECT
-          value: -postsubmit,-flaky
+        - test.integration.telemetry.kube
         image: gcr.io/istio-testing/build-tools:master-2021-11-09T05-16-46
         name: ""
         resources:
@@ -2557,10 +2482,70 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.integration.operator.kube.presubmit
-        env:
-        - name: TEST_SELECT
-          value: -postsubmit,-flaky
+        - test.integration.operator.kube
+        image: gcr.io/istio-testing/build-tools:master-2021-11-09T05-16-46
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-gomod-netrc: "true"
+      preset-enable-ssh: "true"
+      preset-override-deps: master-istio
+      preset-override-envoy: "true"
+    name: integ-pilot-k8s-tests_istio_priv
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.pilot.kube
         image: gcr.io/istio-testing/build-tools:master-2021-11-09T05-16-46
         name: ""
         resources:
@@ -2894,6 +2879,69 @@ presubmits:
       preset-enable-ssh: "true"
       preset-override-deps: master-istio
       preset-override-envoy: "true"
+    name: integ-security-k8s-tests_istio_priv
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.security.kube
+        image: gcr.io/istio-testing/build-tools:master-2021-11-09T05-16-46
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-gomod-netrc: "true"
+      preset-enable-ssh: "true"
+      preset-override-deps: master-istio
+      preset-override-envoy: "true"
     name: integ-security-multicluster-tests_istio_priv
     path_alias: istio.io/istio
     spec:
@@ -3175,7 +3223,7 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.integration.kube.presubmit
+        - test.integration.kube
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '

@@ -30,39 +30,17 @@ jobs:
     command: [entrypoint, make, benchtest, report-benchtest]
     resources: benchmark
 
-  - name: integ-pilot-k8s-tests
-    types: [presubmit]
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
-    requirements: [kind]
-    env:
-      - name: TEST_SELECT
-        value: "-postsubmit,-flaky"
-
   - name: integ-cni-k8s-tests
     types: [presubmit]
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
     requirements: [kind]
     env:
-      - name: TEST_SELECT
-        value: "-postsubmit,-flaky"
       - name: INTEGRATION_TEST_FLAGS
         value: " --istio.test.istio.enableCNI=true "
 
-  - name: integ-security-k8s-tests
-    types: [presubmit]
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube.presubmit]
-    requirements: [kind]
-    env:
-      - name: TEST_SELECT
-        value: "-postsubmit,-flaky"
-
   - name: integ-telemetry-k8s-tests
-    types: [presubmit]
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.telemetry.kube.presubmit]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.telemetry.kube]
     requirements: [kind]
-    env:
-      - name: TEST_SELECT
-        value: "-postsubmit,-flaky"
 
   - name: integ-telemetry-mc-k8s-tests
     command:
@@ -123,15 +101,11 @@ jobs:
         value: "ipv6"
 
   - name: integ-operator-controller-tests
-    types: [presubmit]
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.operator.kube.presubmit]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.operator.kube]
     requirements: [kind]
-    env:
-      - name: TEST_SELECT
-        value: "-postsubmit,-flaky"
+
 
   - name: integ-pilot-k8s-tests
-    types: [postsubmit]
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
     requirements: [kind]
 
@@ -193,7 +167,6 @@ jobs:
         value: --istio.test.istio.istiodlessRemotes
 
   - name: integ-security-k8s-tests
-    types: [postsubmit]
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube]
     requirements: [kind]
 
@@ -245,11 +218,6 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: --istio.test.istio.istiodlessRemotes
 
-  - name: integ-telemetry-k8s-tests
-    types: [postsubmit]
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.telemetry.kube]
-    requirements: [kind]
-
   - name: integ-helm-tests
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.helm.kube]
     requirements: [kind]
@@ -266,7 +234,7 @@ jobs:
       - kindest/node:v1.16.15
       - --kind-config
       - prow/config/trustworthy-jwt.yaml
-      - test.integration.kube.presubmit
+      - test.integration.kube
     requirements: [kind]
     timeout: 4h
     env:
@@ -282,7 +250,7 @@ jobs:
       - kindest/node:v1.17.17
       - --kind-config
       - prow/config/endpointslice.yaml
-      - test.integration.kube.presubmit
+      - test.integration.kube
     requirements: [kind]
     timeout: 4h
     env:
@@ -298,7 +266,7 @@ jobs:
       - kindest/node:v1.18.19
       - --kind-config
       - prow/config/trustworthy-jwt.yaml
-      - test.integration.kube.presubmit
+      - test.integration.kube
     requirements: [kind]
     timeout: 4h
     env:
@@ -314,7 +282,7 @@ jobs:
       - kindest/node:v1.19.11
       - --kind-config
       - prow/config/trustworthy-jwt.yaml
-      - test.integration.kube.presubmit
+      - test.integration.kube
     requirements: [kind]
     timeout: 4h
     env:
@@ -328,7 +296,7 @@ jobs:
       - prow/integ-suite-kind.sh
       - --node-image
       - gcr.io/istio-testing/kind-node:v1.20.7
-      - test.integration.kube.presubmit
+      - test.integration.kube
     requirements: [kind]
     timeout: 4h
     env:
@@ -342,7 +310,7 @@ jobs:
       - prow/integ-suite-kind.sh
       - --node-image
       - gcr.io/istio-testing/kind-node:v1.22.2
-      - test.integration.kube.presubmit
+      - test.integration.kube
     requirements: [kind]
     timeout: 4h
     env:
@@ -356,7 +324,7 @@ jobs:
       - prow/integ-suite-kind.sh
       - --node-image
       - gcr.io/istio-testing/kind-node:v1.23.0-alpha.2
-      - test.integration.kube.presubmit
+      - test.integration.kube
     requirements: [kind]
     timeout: 4h
     env:
@@ -368,7 +336,7 @@ jobs:
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
-      - test.integration.kube.presubmit
+      - test.integration.kube
     requirements: [kind]
     timeout: 4h
     env:
@@ -383,7 +351,7 @@ jobs:
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
-      - test.integration.kube.presubmit
+      - test.integration.kube
     requirements: [kind]
     timeout: 4h
     env:
