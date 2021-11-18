@@ -104,14 +104,14 @@ jobs:
         value: --istio.test.istio.istiodlessRemotes
 
   - name: integ-distroless-k8s-tests
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.reachability]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.environment]
     requirements: [kind]
     env:
       - name: VARIANT
         value: "distroless"
 
   - name: integ-ipv6-k8s-tests
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.reachability]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.environment]
     requirements: [kind]
     node_selector:
       # COS does not currently support IPv6
