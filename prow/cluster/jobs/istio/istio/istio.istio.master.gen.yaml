@@ -60,6 +60,64 @@ periodics:
       name: cgroup
     - emptyDir: {}
       name: docker-root
+- annotations:
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-dashboards: istio_istio_periodic
+    testgrid-num-failures-to-alert: "1"
+  decorate: true
+  decoration_config:
+    timeout: 4h0m0s
+  extra_refs:
+  - base_ref: master
+    org: istio
+    path_alias: istio.io/istio
+    repo: istio
+  - base_ref: master
+    org: istio
+    path_alias: istio.io/istio
+    repo: istio
+  interval: 24h
+  name: update-deps_istio_periodic
+  spec:
+    containers:
+    - command:
+      - ../test-infra/tools/automator/automator.sh
+      - --org=istio
+      - --repo=istio
+      - '--title=Automator: run bin/update_deps.sh in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+      - --labels=auto-merge
+      - --token-path=/etc/github-token/oauth
+      - --cmd=UPDATE_BRANCH=master bin/update_deps.sh
+      image: gcr.io/istio-testing/build-tools:master-2021-11-09T05-16-46
+      name: ""
+      resources:
+        limits:
+          memory: 24Gi
+        requests:
+          cpu: "5"
+          memory: 3Gi
+      securityContext:
+        privileged: true
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+    nodeSelector:
+      testing: test-pool
+    volumes:
+    - hostPath:
+        path: /var/tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+    - name: github
+      secret:
+        secretName: oauth-token
 postsubmits:
   istio/istio:
   - annotations:
