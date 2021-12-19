@@ -185,6 +185,9 @@ postsubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.telemetry.kube
+        env:
+        - name: INTEGRATION_TEST_FLAGS
+          value: --istio.test.telemetry.useRealStackdriver
         image: gcr.io/istio-testing/build-tools:master-2021-12-16T01-41-09
         name: ""
         resources:
@@ -2219,6 +2222,9 @@ presubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.telemetry.kube
+        env:
+        - name: INTEGRATION_TEST_FLAGS
+          value: --istio.test.telemetry.useRealStackdriver
         image: gcr.io/istio-testing/build-tools:master-2021-12-16T01-41-09
         name: ""
         resources:
