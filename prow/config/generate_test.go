@@ -30,10 +30,11 @@ func TestGenerateConfig(t *testing.T) {
 			jobs := cli.ReadJobsConfig(fmt.Sprintf("testdata/%s.yaml", tt))
 			for _, branch := range jobs.Branches {
 				output := cli.ConvertJobConfig(&jobs, branch)
+				testFile := fmt.Sprintf("testdata/%s.gen.yaml", tt)
 				if os.Getenv("REFRESH_GOLDEN") == "true" {
-					Write(output, fmt.Sprintf("testdata/%s.gen.yaml", tt), bc.AutogenHeader)
+					Write(output, testFile, bc.AutogenHeader)
 				}
-				if err := cli.CheckConfig(output, fmt.Sprintf("testdata/%s.gen.yaml", tt)); err != nil {
+				if err := cli.CheckConfig(output, testFile, bc.AutogenHeader); err != nil {
 					t.Fatal(err.Error())
 				}
 			}
