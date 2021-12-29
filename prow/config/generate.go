@@ -111,6 +111,7 @@ type Job struct {
 	Name    string   `json:"name,omitempty"`
 	Command []string `json:"command,omitempty"`
 	Args    []string `json:"args,omitempty"`
+	Tags    []string `json:"tags,omitempty"`
 	Types   []string `json:"types,omitempty"`
 	Repos   []string `json:"repos,omitempty"`
 
@@ -425,6 +426,7 @@ func (cli *Client) ConvertJobConfig(jobsConfig *JobsConfig, branch string) confi
 					JobBase:  createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets),
 					Interval: job.Interval,
 					Cron:     job.Cron,
+					Tags:     job.Tags,
 				}
 				if testgridConfig.Enabled {
 					periodic.JobBase.Annotations = mergeMaps(periodic.JobBase.Annotations, map[string]string{
