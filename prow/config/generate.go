@@ -453,7 +453,7 @@ func (cli *Client) ConvertJobConfig(jobsConfig *JobsConfig, branch string) confi
 	return output
 }
 
-func (cli *Client) CheckConfig(jobs config.JobConfig, currentConfigFile string) error {
+func (cli *Client) CheckConfig(jobs config.JobConfig, currentConfigFile string, header string) error {
 	current, err := ioutil.ReadFile(currentConfigFile)
 	if err != nil {
 		return fmt.Errorf("failed to read current config for %s: %v", currentConfigFile, err)
@@ -463,7 +463,10 @@ func (cli *Client) CheckConfig(jobs config.JobConfig, currentConfigFile string) 
 	if err != nil {
 		return fmt.Errorf("failed to marshal result: %v", err)
 	}
-	output := []byte(cli.BaseConfig.AutogenHeader)
+	if header == "" {
+		header = DefaultAutogenHeader
+	}
+	output := []byte(header + "\n")
 	output = append(output, newConfig...)
 
 	if diff := cmp.Diff(output, current); diff != "" {
@@ -481,7 +484,10 @@ func Write(jobs config.JobConfig, fname, header string) {
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 		exit(err, "failed to create directory: "+dir)
 	}
-	output := []byte(header)
+	if header == "" {
+		header = DefaultAutogenHeader
+	}
+	output := []byte(header + "\n")
 	output = append(output, bs...)
 	err = ioutil.WriteFile(fname, output, 0644)
 	if err != nil {
