@@ -109,6 +109,9 @@ org: istio
 # REQUIRED. Defines what repo these jobs should run for
 repo: istio
 
+# The URI for cloning git repository.
+clone_uri: https://github.com/istio/istio.git
+
 # Defines what branches to run these jobs for. Multiple can be provided
 # The branch name will be appended to the job name (e.g tests -> tests-master)
 # If this is not supplied, it defaults to master

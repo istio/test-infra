@@ -428,6 +428,13 @@ func (cli *Client) ConvertJobConfig(jobsConfig *JobsConfig, branch string) confi
 					Cron:     job.Cron,
 					Tags:     job.Tags,
 				}
+
+				for i, ref := range periodic.JobBase.ExtraRefs {
+					if ref.Org == jobsConfig.Org && ref.Repo == jobsConfig.Repo {
+						periodic.JobBase.ExtraRefs[i].CloneURI = jobsConfig.CloneURI
+					}
+				}
+
 				if testgridConfig.Enabled {
 					periodic.JobBase.Annotations = mergeMaps(periodic.JobBase.Annotations, map[string]string{
 						TestGridDashboard:   testgridJobPrefix + "_periodic",
