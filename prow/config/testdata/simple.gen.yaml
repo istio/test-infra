@@ -3,15 +3,15 @@ periodics:
 - annotations:
     description: This is an annotation for a job description
     testgrid-alert-email: istio-oncall@googlegroups.com
-    testgrid-dashboards: istio_istio_periodic
+    testgrid-dashboards: gerrit.istio_istio_periodic
     testgrid-num-failures-to-alert: "1"
     whatever-annotation-name: whatever-annotation-value
   cron: 0 2 * * *
   decorate: true
   extra_refs:
   - base_ref: master
-    org: istio
-    path_alias: istio.io/istio
+    clone_uri: https://gerrit.istio/istio
+    org: gerrit.istio
     repo: istio
   name: periodic-job_istio_periodic
   spec:
@@ -48,14 +48,14 @@ periodics:
   - 'prowDashPrefix: periodic-job'
 - annotations:
     testgrid-alert-email: istio-oncall@googlegroups.com
-    testgrid-dashboards: istio_istio_periodic
+    testgrid-dashboards: gerrit.istio_istio_periodic
     testgrid-num-failures-to-alert: "1"
   cron: 0 2 * * *
   decorate: true
   extra_refs:
   - base_ref: master
-    org: istio
-    path_alias: istio.io/istio
+    clone_uri: https://gerrit.istio/istio
+    org: gerrit.istio
     repo: istio
   - base_ref: master
     org: istio
@@ -92,16 +92,15 @@ periodics:
         type: DirectoryOrCreate
       name: build-cache
 postsubmits:
-  istio/istio:
+  gerrit.istio/istio:
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_istio_postsubmit
+      testgrid-dashboards: gerrit.istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
     - ^master$
     decorate: true
     name: test_istio_postsubmit
-    path_alias: istio.io/istio
     run_if_changed: foo.*
     spec:
       containers:
@@ -130,15 +129,14 @@ postsubmits:
           type: DirectoryOrCreate
         name: build-cache
 presubmits:
-  istio/istio:
+  gerrit.istio/istio:
   - always_run: false
     annotations:
-      testgrid-dashboards: istio_istio
+      testgrid-dashboards: gerrit.istio_istio
     branches:
     - ^master$
     decorate: true
     name: test_istio
-    path_alias: istio.io/istio
     run_if_changed: foo.*
     spec:
       containers:
@@ -169,7 +167,7 @@ presubmits:
     trigger: ((?m)^/test( | .* )test_istio,?($|\s.*))|((?m)^/test basic(\s+|$))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_istio
+      testgrid-dashboards: gerrit.istio_istio
     branches:
     - ^master$
     decorate: true
@@ -179,7 +177,6 @@ presubmits:
       path_alias: istio.io/istio
       repo: istio
     name: presubmit-kind_istio
-    path_alias: istio.io/istio
     spec:
       containers:
       - command:
@@ -229,14 +226,13 @@ presubmits:
         name: docker-root
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_istio
+      testgrid-dashboards: gerrit.istio_istio
     branches:
     - ^master$
     decorate: true
     labels:
       preset-service-account: "true"
     name: custom-node-selector_istio
-    path_alias: istio.io/istio
     spec:
       containers:
       - args:
@@ -269,7 +265,7 @@ presubmits:
         name: build-cache
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_istio
+      testgrid-dashboards: gerrit.istio_istio
     branches:
     - ^master$
     decorate: true
@@ -279,7 +275,6 @@ presubmits:
       path_alias: istio.io/istio
       repo: istio
     name: presubmit-skipped_istio
-    path_alias: istio.io/istio
     spec:
       containers:
       - command:

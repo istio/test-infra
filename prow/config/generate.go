@@ -724,8 +724,10 @@ func createExtraRefs(extraRepos []string, defaultBranch string, pathAliases map[
 		if pa, ok := pathAliases[org]; ok {
 			ref.PathAlias = fmt.Sprintf("%s/%s", pa, repo)
 		}
-		// If the org name contains '/', it's not a GitHub org, so CloneURI needs to be explicitly set.
-		if strings.Contains(org, "/") {
+		// If the org name contains '.', it's assumed to be a Gerrit org, since
+		// '.' is not allowed in GitHub org names.
+		// For Gerrit repos, the clone_uri should be always set as https://org/repo
+		if strings.Contains(org, ".") {
 			ref.CloneURI = "https://" + orgrepo
 		}
 		refs = append(refs, ref)
