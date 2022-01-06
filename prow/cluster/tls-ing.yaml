@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   labels:
@@ -15,17 +15,26 @@ spec:
     http:
       paths:
       - path: /*
+        pathType: ImplementationSpecific
         backend:
-          serviceName: deck
-          servicePort: 80
+          service:
+            name: deck
+            port:
+              number: 80
       - path: /hook
+        pathType: ImplementationSpecific
         backend:
-          serviceName: hook
-          servicePort: 8888
+          service:
+            name: hook
+            port:
+              number: 8888
   - host: prow-private.istio.io
     http:
       paths:
       - path: /*
+        pathType: ImplementationSpecific
         backend:
-          serviceName: deck-private
-          servicePort: 80
+          service:
+            name: deck-private
+            port:
+              number: 80

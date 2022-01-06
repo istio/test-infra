@@ -30,7 +30,7 @@ spec:
   domains:
   - monitoring.prow.istio.io
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
@@ -40,6 +40,8 @@ metadata:
   name: grafana
   namespace: prow-monitoring
 spec:
-  backend:
-    serviceName: grafana
-    servicePort: 80
+  defaultBackend:
+    service:
+      name: grafana
+      port:
+        number: 80
