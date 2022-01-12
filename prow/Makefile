@@ -29,8 +29,6 @@ update-config: get-cluster-credentials
 		--wet
 
 deploy: get-cluster-credentials get-api-resources
-# Apply the ProwJob CRD with --server-side=true due to its size.
-	kubectl apply --server-side=true -f ./cluster/prowjob-crd/ --prune -l app.kubernetes.io/part-of=prow $(PRUNE_WL)
 	kubectl apply -f ./cluster/ --prune -l app.kubernetes.io/part-of=prow $(PRUNE_WL)
 
 deploy-gcsweb: get-cluster-credentials get-api-resources
