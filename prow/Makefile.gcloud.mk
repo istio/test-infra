@@ -39,10 +39,5 @@ endif
 configure-docker: activate-serviceaccount
 	gcloud auth configure-docker
 
-get%api-resources:
-	$(eval PRUNE_WL=$(shell KUBECONFIG=$(KUBECONFIG) \
-	python3 "$(current_dir)/api-resources.py" --delimiter=" " --format="--prune-whitelist='%s'" \
-	))
-
 get%cluster-credentials: save-kubeconfig activate-serviceaccount
 	gcloud container clusters get-credentials "$(CLUSTER)" --project="$(PROJECT)" --zone="$(ZONE)"
