@@ -2,7 +2,6 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   labels:
-    app.kubernetes.io/part-of: prow
     app: ghproxy
   name: ghproxy
   namespace: default
@@ -19,7 +18,6 @@ metadata:
   namespace: default
   name: ghproxy
   labels:
-    app.kubernetes.io/part-of: prow
     app: ghproxy
 spec:
   replicas: 1
@@ -29,7 +27,6 @@ spec:
   template:
     metadata:
       labels:
-        app.kubernetes.io/part-of: prow
         app: ghproxy
     spec:
       containers:
@@ -56,7 +53,6 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app.kubernetes.io/part-of: prow
     app: ghproxy
   namespace: default
   name: ghproxy

@@ -2,7 +2,6 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   labels:
-    app.kubernetes.io/part-of: prow
   namespace: default
   name: "sinker"
 ---
@@ -10,7 +9,6 @@ kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
-    app.kubernetes.io/part-of: prow
   namespace: default
   name: "sinker"
 rules:
@@ -59,7 +57,6 @@ kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
-    app.kubernetes.io/part-of: prow
   namespace: test-pods
   name: "sinker"
 rules:
@@ -78,7 +75,6 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
-    app.kubernetes.io/part-of: prow
   namespace: default
   name: "sinker"
 roleRef:
@@ -93,7 +89,6 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
-    app.kubernetes.io/part-of: prow
   namespace: test-pods
   name: "sinker"
 roleRef:
