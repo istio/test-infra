@@ -28,6 +28,8 @@ update-config: get-cluster-credentials
 		--wet
 
 deploy: get-cluster-credentials
+# Apply the ProwJob CRD with --server-side=true due to its size.
+	kubectl apply --server-side=true -f ./cluster/prowjob-crd/
 	kubectl apply -f ./cluster/
 
 deploy-gcsweb: get-cluster-credentials
