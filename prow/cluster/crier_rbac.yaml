@@ -4,14 +4,12 @@ apiVersion: v1
 metadata:
   annotations:
     iam.gke.io/gcp-service-account: prow-control-plane@istio-testing.iam.gserviceaccount.com
-  labels:
   name: "crier"
   namespace: default
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  labels:
   name: crier
   namespace: default
 rules:
@@ -28,7 +26,6 @@ rules:
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  labels:
   namespace: test-pods
   name: crier
 rules:
@@ -50,7 +47,6 @@ rules:
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  labels:
   name: crier-namespaced
   namespace: default
 roleRef:
@@ -65,7 +61,6 @@ subjects:
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  labels:
   name: crier-namespaced
   namespace: test-pods
 roleRef:

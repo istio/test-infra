@@ -1,14 +1,12 @@
 kind: ServiceAccount
 apiVersion: v1
 metadata:
-  labels:
   namespace: default
   name: deck-private
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  labels:
   namespace: default
   name: deck-private
 rules:
@@ -23,7 +21,6 @@ rules:
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  labels:
   namespace: test-pods
   name: deck-private
 rules:
@@ -37,7 +34,6 @@ rules:
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  labels:
   namespace: default
   name: deck-private
 roleRef:
@@ -51,7 +47,6 @@ subjects:
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  labels:
   namespace: test-pods
   name: deck-private
 roleRef:
