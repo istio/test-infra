@@ -16,8 +16,8 @@ mason-image:
 mason-client:
 	go build -o cmd/mason_client/mason_client istio.io/test-infra/boskos/cmd/mason_client
 
-deploy: get-cluster-credentials get-api-resources
-	kubectl apply -Rf cluster --prune -l app.kubernetes.io/part-of=boskos $(PRUNE_WL)
+deploy: get-cluster-credentials
+	kubectl apply -Rf cluster
 
 boskos-config: get-cluster-credentials
 	kubectl create configmap boskos-config\

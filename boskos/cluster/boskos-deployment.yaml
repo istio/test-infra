@@ -2,14 +2,12 @@ apiVersion: v1
 kind: Namespace
 metadata:
   labels:
-    app.kubernetes.io/part-of: boskos
   name: boskos
 ---
 kind: ServiceAccount
 apiVersion: v1
 metadata:
   labels:
-    app.kubernetes.io/part-of: boskos
   annotations:
     iam.gke.io/gcp-service-account: boskos@istio-testing.iam.gserviceaccount.com
   name: boskos-admin
@@ -19,7 +17,6 @@ kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
-    app.kubernetes.io/part-of: boskos
   name: boskos-crd-admin
 rules:
 - apiGroups:
@@ -36,7 +33,6 @@ kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
-    app.kubernetes.io/part-of: boskos
   name: boskos-crd-admin-binding
 subjects:
 - kind: ServiceAccount
@@ -51,7 +47,6 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app.kubernetes.io/part-of: boskos
   name: boskos
   namespace: boskos
 spec:
