@@ -1,0 +1,35 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["main.go"],
+    importpath = "istio.io/test-infra/tools/prowtrans/cmd/prowtrans",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//tools/prowtrans/pkg/configuration:go_default_library",
+        "//tools/prowtrans/pkg/util:go_default_library",
+        "//vendor/github.com/spf13/pflag:go_default_library",
+        "//vendor/k8s.io/api/core/v1:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/util/sets:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/apis/prowjobs/v1:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/config:go_default_library",
+        "//vendor/sigs.k8s.io/yaml:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "prowtrans",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = ["main_test.go"],
+    data = glob(["testdata/**"]),
+    embed = [":go_default_library"],
+    deps = [
+        "//vendor/github.com/google/go-cmp/cmp:go_default_library",
+        "//vendor/github.com/spf13/pflag:go_default_library",
+    ],
+)

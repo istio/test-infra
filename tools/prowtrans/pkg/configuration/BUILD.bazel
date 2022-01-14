@@ -1,0 +1,13 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["configuration.go"],
+    importpath = "istio.io/test-infra/tools/prowtrans/pkg/configuration",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//tools/prowtrans/pkg/util:go_default_library",
+        "//vendor/github.com/ghodss/yaml:go_default_library",
+        "//vendor/k8s.io/test-infra/prow/apis/prowjobs/v1:go_default_library",
+    ],
+)
