@@ -1,0 +1,19 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "errors.go",
+        "os.go",
+        "strings.go",
+    ],
+    importpath = "istio.io/test-infra/tools/prowtrans/pkg/util",
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = ["strings_test.go"],
+    embed = [":go_default_library"],
+    deps = ["//vendor/github.com/google/go-cmp/cmp:go_default_library"],
+)

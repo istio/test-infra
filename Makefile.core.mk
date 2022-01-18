@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+repo_root = $(shell git rev-parse --show-toplevel)
+
 lint: lint-all
 
 lint-buildifier:
@@ -28,11 +30,11 @@ gen-check: gen check-clean-repo
 
 generate-config:
 	@rm -fr prow/cluster/jobs/istio/*/*.gen.yaml
-	@(cd prow/config/cmd; go run generate.go write)
+	@(cd tools/prowgen/cmd/prowgen; go run main.go --input-dir=$(repo_root)/prow/config/jobs --output-dir=$(repo_root)/prow/cluster/jobs write)
 	@rm -fr prow/cluster/jobs/istio-private/*/*.gen.yaml
-	@go run prow/genjobs/main.go --configs=./prow/config/istio-private_jobs
+	@go run tools/prowtrans/cmd/prowtrans/main.go --configs=./prow/config/istio-private_jobs
 
 diff-config:
-	@(cd prow/config/cmd; GOARCH=$(GOARCH) GOOS=$(GOOS) go run generate.go diff)
+	@(cd tools/prowgen/cmd/prowgen; GOARCH=$(GOARCH) GOOS=$(GOOS) go run main.go --input-dir=$(repo_root)/prow/config/jobs --output-dir=$(repo_root)/prow/cluster/jobs diff)
 
 include common/Makefile.common.mk

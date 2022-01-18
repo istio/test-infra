@@ -80,17 +80,17 @@ jobs:
     node_selector:
       prod: prow
 
-  - name: push-genjobs
+  - name: push-prowtrans
     service_account_name: prowjob-advanced-sa
     types: [postsubmit]
-    regex: '^prow/genjobs/Makefile$'
+    regex: '^tools/prowtrans/Makefile$'
     cluster: test-infra-trusted
     max_concurrency: 1
     command:
     - entrypoint
     - make
     - -C
-    - prow/genjobs
+    - tools/prowtrans
     - deploy
     requirements: [docker]
     node_selector:
