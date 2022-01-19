@@ -52,7 +52,7 @@ jobs:
     requirements: [kind]
     resources: multicluster
 
-  - name: integ-telemetry-istiodremote-tests
+  - name: integ-telemetry-remote-tests
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -119,7 +119,7 @@ jobs:
     requirements: [kind]
     resources: multicluster
 
-  - name: integ-pilot-istiodremote-tests
+  - name: integ-pilot-remote-tests
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -134,7 +134,7 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: --istio.test.skipVM
 
-  - name: integ-pilot-istiodremote-multicluster-tests
+  - name: integ-pilot-remote-multicluster-tests
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -186,7 +186,7 @@ jobs:
     requirements: [kind]
     resources: multicluster
 
-  - name: integ-security-istiodremote-tests
+  - name: integ-security-remote-tests
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -201,7 +201,7 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: --istio.test.skipVM
 
-  - name: integ-security-istiodless-multicluster-tests
+  - name: integ-security-istiodless-mc-tests
     modifiers:
       - presubmit_optional
       - presubmit_skipped
