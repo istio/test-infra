@@ -109,7 +109,7 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
     requirements: [kind]
 
-  - name: integ-pilot-multicluster-tests
+  - name: integ-pilot-mc-tests
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -134,7 +134,7 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: --istio.test.skipVM
 
-  - name: integ-pilot-remote-multicluster-tests
+  - name: integ-pilot-remote-mc-tests
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -149,7 +149,7 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: --istio.test.skipVM
 
-  - name: integ-pilot-istiodless-multicluster-tests
+  - name: integ-pilot-istiodless-mc-tests
     modifiers:
       - presubmit_optional
       - presubmit_skipped
@@ -176,7 +176,7 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration-fuzz.security.fuzz.kube]
     requirements: [kind]
 
-  - name: integ-security-multicluster-tests
+  - name: integ-security-mc-tests
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
