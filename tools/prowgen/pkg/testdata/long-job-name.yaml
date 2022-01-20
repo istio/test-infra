@@ -1,0 +1,63 @@
+org: gerrit.istio
+repo: istio
+image: fooimage
+branches:
+  - release-1.12
+cron: 0 2 * * *
+
+jobs:
+  - name: test-this-is-a-very-long-name-that-is-expected-to-fail
+    types: [presubmit, postsubmit]
+    command: [prow/command.sh]
+    image: barimage
+    regex: "foo.*"
+    trigger: "/test basic"
+
+  - name: presubmit-kind
+    types: [presubmit]
+    resources: custom
+    requirements: [kind]
+    excluded_requirements: [cache]
+    command: [prow/istio-lint.sh]
+    env:
+    - name: var
+      value: val
+    repos: [istio/istio]
+
+  - name: custom-node-selector
+    types: [presubmit]
+    command: [prow/command.sh]
+    requirements: [gcp, commonargs]
+    node_selector:
+      foo: baz
+
+  - name: periodic-job
+    types: [periodic]
+    command: [run/nightly.sh]
+    annotations:
+      whatever-annotation-name: whatever-annotation-value
+    requirements: [desc, commonargs]
+    tags: [ "prowDashPrefix: periodic-job" ]
+
+  - name: presubmit-skipped
+    types: [presubmit, periodic]
+    resources: custom
+    command: [prow/command.sh]
+    repos: [istio/istio]
+    modifier: [presubmit_skipped]
+    trigger: "/test basic"
+
+requirements: [gocache]
+
+resources_presets:
+  default:
+    requests:
+      memory: "1Gi"
+      cpu: "1000m"
+  custom:
+    requests:
+      memory: "3Gi"
+      cpu: "3000m"
+    limits:
+      memory: "5Gi"
+      cpu: "5000m"

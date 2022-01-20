@@ -24,13 +24,36 @@ import (
 func TestGenerateConfig(t *testing.T) {
 	bc := ReadBase(nil, "testdata/.base.yaml")
 	cli := &Client{BaseConfig: *bc}
-	tests := []string{"simple", "simple-matrix"}
+	tests := []struct {
+		name        string
+		expectError bool
+	}{
+		{
+			name: "simple",
+		},
+		{
+			name: "simple-matrix",
+		},
+		{
+			name:        "long-job-name",
+			expectError: true,
+		},
+	}
 	for _, tt := range tests {
-		t.Run(tt, func(t *testing.T) {
-			jobs := cli.ReadJobsConfig(fmt.Sprintf("testdata/%s.yaml", tt))
+		t.Run(tt.name, func(t *testing.T) {
+			jobs := cli.ReadJobsConfig(fmt.Sprintf("testdata/%s.yaml", tt.name))
 			for _, branch := range jobs.Branches {
-				output := cli.ConvertJobConfig(&jobs, branch)
-				testFile := fmt.Sprintf("testdata/%s.gen.yaml", tt)
+				output, err := cli.ConvertJobConfig(&jobs, branch)
+				if tt.expectError {
+					if err == nil {
+						t.Fatalf("test %v expected an error, but did not receiev one", tt.name)
+					}
+					// there should be no generated file when an error occurs
+					continue
+				} else if err != nil {
+					t.Fatalf("test %v did not expect an error, but received '%v'", tt.name, err)
+				}
+				testFile := fmt.Sprintf("testdata/%s.gen.yaml", tt.name)
 				if os.Getenv("REFRESH_GOLDEN") == "true" {
 					Write(output, testFile, bc.AutogenHeader)
 				}
