@@ -5,13 +5,13 @@ presubmits:
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^release-1.10$
+    - ^release-1.13$
     clone_uri: git@github.com:istio-private/envoy.git
     cluster: private
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: test-asan_envoy_release-1.10_pri
+    name: test-asan_envoy_release-1.13_pri
     path_alias: istio.io/envoy
     spec:
       containers:
@@ -26,7 +26,7 @@ presubmits:
           value: /home/prow/go/src/istio.io/envoy
         - name: FILTER_WORKSPACE_SET
           value: "false"
-        image: envoyproxy/envoy-build-ubuntu:e33c93e6d79804bf95ff80426d10bdcc9096c785
+        image: envoyproxy/envoy-build-ubuntu:81a93046060dbe5620d5b3aa92632090a9ee4da6
         name: ""
         resources:
           limits:
@@ -54,11 +54,11 @@ presubmits:
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^release-1.10$
+    - ^release-1.13$
     clone_uri: git@github.com:istio-private/envoy.git
     cluster: private
     decorate: true
-    name: test-tsan_envoy_release-1.10_pri
+    name: test-tsan_envoy_release-1.13_pri
     path_alias: istio.io/envoy
     spec:
       containers:
@@ -73,7 +73,7 @@ presubmits:
           value: /home/prow/go/src/istio.io/envoy
         - name: FILTER_WORKSPACE_SET
           value: "false"
-        image: envoyproxy/envoy-build-ubuntu:e33c93e6d79804bf95ff80426d10bdcc9096c785
+        image: envoyproxy/envoy-build-ubuntu:81a93046060dbe5620d5b3aa92632090a9ee4da6
         name: ""
         resources:
           limits:
@@ -101,11 +101,11 @@ presubmits:
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^release-1.10$
+    - ^release-1.13$
     clone_uri: git@github.com:istio-private/envoy.git
     cluster: private
     decorate: true
-    name: test-release_envoy_release-1.10_pri
+    name: test-release_envoy_release-1.13_pri
     path_alias: istio.io/envoy
     spec:
       containers:
@@ -118,7 +118,7 @@ presubmits:
             --flaky_test_attempts=9
         - name: ENVOY_SRCDIR
           value: /home/prow/go/src/istio.io/envoy
-        image: envoyproxy/envoy-build-ubuntu:e33c93e6d79804bf95ff80426d10bdcc9096c785
+        image: envoyproxy/envoy-build-ubuntu:81a93046060dbe5620d5b3aa92632090a9ee4da6
         name: ""
         resources:
           limits:
