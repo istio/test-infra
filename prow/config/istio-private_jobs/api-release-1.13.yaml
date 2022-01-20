@@ -1,0 +1,26 @@
+defaults:
+  branches:
+  - release-release-1.13
+  repo-allowlist:
+  - api
+org: istio
+repo: api
+transforms:
+- env:
+    GCS_BUCKET: istio-private-build/dev
+  job-allowlist:
+  - build_release-release-1.13
+  - gencheck_release-release-1.13
+  job-denylist:
+  - release-notes_release-release-1.13
+  job-type:
+  - presubmit
+  labels:
+    preset-enable-ssh: "true"
+- job-denylist:
+  - update_api_dep_release-release-1.13
+  job-type:
+  - postsubmit
+  labels:
+    preset-enable-ssh: "true"
+    preset-override-envoy: "true"

@@ -1,0 +1,28 @@
+defaults:
+  branches:
+  - release-release-1.13
+  modifier: release-release-1.13_priv
+  repo-allowlist:
+  - proxy
+org: istio
+repo: proxy
+transforms:
+- env:
+    BAZEL_BUILD_RBE_INSTANCE: ""
+    ENVOY_PREFIX: envoy
+    ENVOY_REPOSITORY: https://github.com/istio-private/envoy
+  job-type:
+  - presubmit
+  labels:
+    preset-enable-netrc: "true"
+- env:
+    BAZEL_BUILD_RBE_INSTANCE: ""
+    DOCKER_REPOSITORY: istio-prow-build/envoy
+    ENVOY_PREFIX: envoy
+    ENVOY_REPOSITORY: https://github.com/istio-private/envoy
+    GCS_ARTIFACTS_BUCKET: istio-private-artifacts
+    GCS_BUILD_BUCKET: istio-private-build
+  job-type:
+  - postsubmit
+  labels:
+    preset-enable-netrc: "true"
