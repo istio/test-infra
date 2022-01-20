@@ -65,9 +65,8 @@ const (
 
 	variableSubstitutionFormat = `\$\([_a-zA-Z0-9.-]+(\.[_a-zA-Z0-9.-]+)*\)`
 
-	// prow currently has a limit for jobs being 63 characters due to
-	// kubernetes label length restriction
-	jobCharLimit = 63
+	// Kubernetes has a label limit of 63 characters
+	maxJobNameLength = 63
 )
 
 var variableSubstitutionRegex = regexp.MustCompile(variableSubstitutionFormat)
@@ -274,9 +273,6 @@ func (cli *Client) ValidateJobConfig(fileName string, jobsConfig *JobsConfig) {
 	}
 
 	for _, job := range jobsConfig.Jobs {
-		if len(job.Name) > jobCharLimit {
-			err = multierror.Append(err, fmt.Errorf("%s: name for job exceeds %v character limit '%v'", fileName, jobCharLimit, job.Name))
-		}
 		if job.Image == "" {
 			err = multierror.Append(err, fmt.Errorf("%s: image must be set for job %v", fileName, job.Name))
 		}
@@ -321,7 +317,7 @@ func (cli *Client) ValidateJobConfig(fileName string, jobsConfig *JobsConfig) {
 	}
 }
 
-func (cli *Client) ConvertJobConfig(jobsConfig *JobsConfig, branch string) config.JobConfig {
+func (cli *Client) ConvertJobConfig(jobsConfig *JobsConfig, branch string) (config.JobConfig, error) {
 	baseConfig := cli.BaseConfig
 	testgridConfig := baseConfig.TestgridConfig
 
@@ -353,8 +349,13 @@ func (cli *Client) ConvertJobConfig(jobsConfig *JobsConfig, branch string) confi
 					name += "_" + branch
 				}
 
+				base, err := createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets)
+				if err != nil {
+					return config.JobConfig{}, err
+				}
+
 				presubmit := config.Presubmit{
-					JobBase:   createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets),
+					JobBase:   base,
 					AlwaysRun: true,
 					Brancher:  brancher,
 				}
@@ -392,8 +393,13 @@ func (cli *Client) ConvertJobConfig(jobsConfig *JobsConfig, branch string) confi
 				}
 				name += "_postsubmit"
 
+				base, err := createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets)
+				if err != nil {
+					return config.JobConfig{}, err
+				}
+
 				postsubmit := config.Postsubmit{
-					JobBase:  createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets),
+					JobBase:  base,
 					Brancher: brancher,
 				}
 				if job.GerritPostsubmitLabel != "" {
@@ -429,8 +435,13 @@ func (cli *Client) ConvertJobConfig(jobsConfig *JobsConfig, branch string) confi
 				// For periodic jobs, the repo needs to be added to the clonerefs and its root directory
 				// should be set as the working directory, so add itself to the repo list here.
 				job.Repos = append([]string{jobsConfig.Org + "/" + jobsConfig.Repo}, job.Repos...)
+
+				base, err := createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets)
+				if err != nil {
+					return config.JobConfig{}, err
+				}
 				periodic := config.Periodic{
-					JobBase:  createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets),
+					JobBase:  base,
 					Interval: job.Interval,
 					Cron:     job.Cron,
 					Tags:     job.Tags,
@@ -457,7 +468,7 @@ func (cli *Client) ConvertJobConfig(jobsConfig *JobsConfig, branch string) confi
 			output.Periodics = periodics
 		}
 	}
-	return output
+	return output, nil
 }
 
 func (cli *Client) CheckConfig(jobs config.JobConfig, currentConfigFile string, header string) error {
@@ -652,8 +663,12 @@ func createContainer(jobConfig *JobsConfig, job *Job, resources map[string]v1.Re
 }
 
 func createJobBase(baseConfig BaseConfig, jobConfig *JobsConfig, job *Job,
-	name string, branch string, resources map[string]v1.ResourceRequirements) config.JobBase {
+	name string, branch string, resources map[string]v1.ResourceRequirements) (config.JobBase, error) {
 	yes := true
+
+	if len(name) > maxJobNameLength {
+		return config.JobBase{}, fmt.Errorf("job name exceeds %v character limit '%v'", maxJobNameLength, name)
+	}
 	jb := config.JobBase{
 		Name:           name,
 		MaxConcurrency: job.MaxConcurrency,
@@ -708,7 +723,7 @@ func createJobBase(baseConfig BaseConfig, jobConfig *JobsConfig, job *Job,
 		}
 	}
 
-	return jb
+	return jb, nil
 }
 
 func createExtraRefs(extraRepos []string, defaultBranch string, pathAliases map[string]string) []prowjob.Refs {

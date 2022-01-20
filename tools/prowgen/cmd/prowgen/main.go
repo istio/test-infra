@@ -182,7 +182,10 @@ func main() {
 				jobs := cli.ReadJobsConfig(src)
 				for _, branch := range jobs.Branches {
 					cli.ValidateJobConfig(file.Name(), &jobs)
-					output := cli.ConvertJobConfig(&jobs, branch)
+					output, err := cli.ConvertJobConfig(&jobs, branch)
+					if err != nil {
+						exit(err, "job name is too long")
+					}
 					rf := ref{jobs.Org, jobs.Repo, branch}
 					if _, ok := cachedOutput[rf]; !ok {
 						cachedOutput[rf] = output
