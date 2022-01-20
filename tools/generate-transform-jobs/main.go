@@ -35,7 +35,7 @@ func exit(err error, context string) {
 	os.Exit(1)
 }
 
-var inputDir = flag.String("input-dir", "../config/istio-private_jobs", "directory of input jobs")
+var inputDir = flag.String("input-dir", "prow/config/istio-private_jobs", "directory of input jobs")
 
 // branchJobSlices updates transform jobs slices such as allow and deny jobs using a branch name
 func branchJobSlices(in []string, branch string) []string {
