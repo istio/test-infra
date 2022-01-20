@@ -12,16 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.13 as build-env
+FROM golang:1.17 as build-env
 
 WORKDIR /go/src/istio
 
 COPY . /go/src/istio
 
-RUN go build -o /go/bin/prowtrans /go/src/istio/tools/prowtrans/cmd/prowtrans
+RUN go install /go/src/istio/tools/prowgen/cmd/prowgen
+
+RUN go install github.com/mikefarah/yq/v4@v4.16.2
 
 FROM gcr.io/distroless/static:22bd467b41e5e656e31db347265fae118db166d9
 
-COPY --from=build-env /go/bin/prowtrans /
+COPY --from=build-env /go/bin/prowgen /bin
 
-ENTRYPOINT ["/prowtrans"]
+COPY --from=build-env /go/bin/yq /bin
+
+ENV PATH=/bin

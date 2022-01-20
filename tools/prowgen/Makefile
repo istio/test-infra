@@ -12,16 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.13 as build-env
+PROJECT = istio-testing
+HUB = gcr.io
+TAG = $(shell date +v%Y%m%d)-$(shell git describe --always --dirty --match '^$$')
 
-WORKDIR /go/src/istio
+.PHONY: deploy
+deploy: image push
 
-COPY . /go/src/istio
+.PHONY: image
+image:
+	docker build -t "$(HUB)/$(PROJECT)/prowgen:$(TAG)" -t "$(HUB)/$(PROJECT)/prowgen:latest" -f Dockerfile ../../
 
-RUN go build -o /go/bin/prowtrans /go/src/istio/tools/prowtrans/cmd/prowtrans
-
-FROM gcr.io/distroless/static:22bd467b41e5e656e31db347265fae118db166d9
-
-COPY --from=build-env /go/bin/prowtrans /
-
-ENTRYPOINT ["/prowtrans"]
+.PHONY: push
+push:
+	docker push "$(HUB)/$(PROJECT)/prowgen:$(TAG)"
+	docker push "$(HUB)/$(PROJECT)/prowgen:latest"

@@ -79,11 +79,27 @@ jobs:
     requirements: [docker]
     node_selector:
       prod: prow
+  
+  - name: push-prowgen
+    service_account_name: prowjob-advanced-sa
+    types: [postsubmit]
+    regex: '^tools/prowgen/.*$'
+    cluster: test-infra-trusted
+    max_concurrency: 1
+    command:
+    - entrypoint
+    - make
+    - -C
+    - tools/prowgen
+    - deploy
+    requirements: [docker]
+    node_selector:
+      prod: prow
 
   - name: push-prowtrans
     service_account_name: prowjob-advanced-sa
     types: [postsubmit]
-    regex: '^tools/prowtrans/Makefile$'
+    regex: '^tools/prowtrans/.*$'
     cluster: test-infra-trusted
     max_concurrency: 1
     command:
