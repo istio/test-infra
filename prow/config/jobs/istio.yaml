@@ -30,7 +30,7 @@ jobs:
     command: [entrypoint, make, benchtest, report-benchtest]
     resources: benchmark
 
-  - name: integ-cni-k8s-tests
+  - name: integ-cni
     types: [presubmit]
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
     requirements: [kind]
@@ -38,11 +38,11 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: " --istio.test.istio.enableCNI=true "
 
-  - name: integ-telemetry-k8s-tests
+  - name: integ-telemetry
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.telemetry.kube]
     requirements: [kind]
 
-  - name: integ-telemetry-mc-k8s-tests
+  - name: integ-telemetry-mc
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -52,7 +52,7 @@ jobs:
     requirements: [kind]
     resources: multicluster
 
-  - name: integ-telemetry-remote-tests
+  - name: integ-telemetry-istiodremote
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -64,7 +64,7 @@ jobs:
     requirements: [kind]
     resources: multicluster
 
-  - name: integ-telemetry-less-mc-k8s-tests
+  - name: integ-telemetry-istiodless-mc
     modifiers:
       - presubmit_optional
       - presubmit_skipped
@@ -81,14 +81,14 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: --istio.test.istio.istiodlessRemotes
 
-  - name: integ-distroless-k8s-tests
+  - name: integ-distroless
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.environment]
     requirements: [kind]
     env:
       - name: VARIANT
         value: "distroless"
 
-  - name: integ-ipv6-k8s-tests
+  - name: integ-ipv6
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.environment]
     requirements: [kind]
     node_selector:
@@ -100,16 +100,16 @@ jobs:
       - name: IP_FAMILY
         value: "ipv6"
 
-  - name: integ-operator-controller-tests
+  - name: integ-operator-controller
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.operator.kube]
     requirements: [kind]
 
 
-  - name: integ-pilot-k8s-tests
+  - name: integ-pilot
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
     requirements: [kind]
 
-  - name: integ-pilot-mc-tests
+  - name: integ-pilot-multicluster
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -119,7 +119,7 @@ jobs:
     requirements: [kind]
     resources: multicluster
 
-  - name: integ-pilot-remote-tests
+  - name: integ-pilot-istiodremote
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -134,7 +134,7 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: --istio.test.skipVM
 
-  - name: integ-pilot-remote-mc-tests
+  - name: integ-pilot-istiodremote-mc
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -149,7 +149,7 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: --istio.test.skipVM
 
-  - name: integ-pilot-less-mc-tests
+  - name: integ-pilot-istiodless-mc
     modifiers:
       - presubmit_optional
       - presubmit_skipped
@@ -166,17 +166,17 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: --istio.test.istio.istiodlessRemotes
 
-  - name: integ-security-k8s-tests
+  - name: integ-security
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube]
     requirements: [kind]
 
-  - name: integ-security-fuzz-k8s-tests
+  - name: integ-security-fuzz
     types: [periodic]
     cron: "0 7 * * *" # starts every day at 07:00AM UTC
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration-fuzz.security.fuzz.kube]
     requirements: [kind]
 
-  - name: integ-security-mc-tests
+  - name: integ-security-multicluster
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -186,7 +186,7 @@ jobs:
     requirements: [kind]
     resources: multicluster
 
-  - name: integ-security-remote-tests
+  - name: integ-security-istiodremote
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -201,7 +201,7 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: --istio.test.skipVM
 
-  - name: integ-security-less-mc-tests
+  - name: integ-security-istiodless-mc
     modifiers:
       - presubmit_optional
       - presubmit_skipped
@@ -218,7 +218,7 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: --istio.test.istio.istiodlessRemotes
 
-  - name: integ-helm-tests
+  - name: integ-helm
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.helm.kube]
     requirements: [kind]
 
@@ -350,7 +350,7 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: " --istio.test.retries=1 "
 
-  - name: integ-cni-k8s-tests
+  - name: integ-cni
     types: [postsubmit]
     command:
       - entrypoint
@@ -365,7 +365,7 @@ jobs:
         value: " --istio.test.retries=1 --istio.test.istio.enableCNI=true "
 
   # Test with assertions enabled.
-  - name: integ-assertion-k8s-tests
+  - name: integ-assertion
     modifiers: [presubmit_optional, presubmit_skipped] #  We run this in postsubmit always, but let developers explicitly run in presubmit
     command:
       - entrypoint

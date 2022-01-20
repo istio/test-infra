@@ -86,7 +86,7 @@ jobs:
   - name: TEST_SELECT
     value: -postsubmit,-flaky,-multicluster
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
-  name: integ-pilot-k8s-tests
+  name: integ-pilot
   node_selector:
     testing: test-pool
   requirements:
@@ -105,7 +105,7 @@ jobs:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.istio.enableCNI=true '
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
-  name: integ-cni-k8s-tests
+  name: integ-cni
   node_selector:
     testing: test-pool
   requirements:
@@ -122,7 +122,7 @@ jobs:
   - name: TEST_SELECT
     value: -postsubmit,-flaky,-multicluster
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
-  name: integ-security-k8s-tests
+  name: integ-security
   node_selector:
     testing: test-pool
   requirements:
@@ -139,7 +139,7 @@ jobs:
   - name: TEST_SELECT
     value: -postsubmit,-flaky,-multicluster
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
-  name: integ-telemetry-k8s-tests
+  name: integ-telemetry
   node_selector:
     testing: test-pool
   requirements:
@@ -158,7 +158,7 @@ jobs:
   - name: TEST_SELECT
     value: -multicluster
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
-  name: integ-telemetry-mc-k8s-tests
+  name: integ-telemetry-multicluster
   node_selector:
     testing: test-pool
   requirements:
@@ -182,7 +182,7 @@ jobs:
   - presubmit_optional
   - presubmit_skipped
   - hidden
-  name: integ-telemetry-less-mc-k8s-tests
+  name: integ-telemetry-istiodless-mc
   node_selector:
     testing: test-pool
   requirements:
@@ -200,7 +200,7 @@ jobs:
   - name: TEST_SELECT
     value: -postsubmit,-flaky,+multicluster
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
-  name: integ-mc-k8s-tests
+  name: integ-multicluster
   node_selector:
     testing: test-pool
   requirements:
@@ -222,7 +222,7 @@ jobs:
   - name: TEST_SELECT
     value: -postsubmit,-flaky,+multicluster
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
-  name: integ-remote-k8s-tests
+  name: integ-istiodremote
   node_selector:
     testing: test-pool
   requirements:
@@ -242,7 +242,7 @@ jobs:
   - name: TEST_SELECT
     value: -multicluster
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
-  name: integ-distroless-k8s-tests
+  name: integ-distroless
   node_selector:
     testing: test-pool
   requirements:
@@ -261,7 +261,7 @@ jobs:
   - name: TEST_SELECT
     value: -multicluster
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
-  name: integ-ipv6-k8s-tests
+  name: integ-ipv6
   node_selector:
     testing: ipv6-pool
   requirements:
@@ -276,7 +276,7 @@ jobs:
   - name: TEST_SELECT
     value: -postsubmit,-flaky,-multicluster
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
-  name: integ-operator-controller-tests
+  name: integ-operator-controller
   node_selector:
     testing: test-pool
   requirements:
@@ -293,7 +293,7 @@ jobs:
   - name: TEST_SELECT
     value: -multicluster
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
-  name: integ-pilot-k8s-tests
+  name: integ-pilot
   node_selector:
     testing: test-pool
   requirements:
@@ -312,7 +312,7 @@ jobs:
   - name: TEST_SELECT
     value: -multicluster
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
-  name: integ-pilot-mc-tests
+  name: integ-pilot-multicluster
   node_selector:
     testing: test-pool
   requirements:
@@ -336,7 +336,7 @@ jobs:
   - presubmit_optional
   - presubmit_skipped
   - hidden
-  name: integ-pilot-less-mc-tests
+  name: integ-pilot-istiodless-mc
   node_selector:
     testing: test-pool
   requirements:
@@ -352,7 +352,7 @@ jobs:
   - name: TEST_SELECT
     value: -multicluster
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
-  name: integ-security-k8s-tests
+  name: integ-security
   node_selector:
     testing: test-pool
   requirements:
@@ -367,7 +367,7 @@ jobs:
   - test.integration-fuzz.security.fuzz.kube
   cron: 0 7 * * *
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
-  name: integ-security-fuzz-k8s-tests
+  name: integ-security-fuzz
   node_selector:
     testing: test-pool
   requirements:
@@ -386,7 +386,7 @@ jobs:
   - name: TEST_SELECT
     value: -multicluster
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
-  name: integ-security-mc-tests
+  name: integ-security-multicluster
   node_selector:
     testing: test-pool
   requirements:
@@ -410,7 +410,7 @@ jobs:
   - presubmit_optional
   - presubmit_skipped
   - hidden
-  name: integ-security-less-mc-tests
+  name: integ-security-istiodless-mc
   node_selector:
     testing: test-pool
   requirements:
@@ -426,7 +426,7 @@ jobs:
   - name: TEST_SELECT
     value: -multicluster
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
-  name: integ-telemetry-k8s-tests
+  name: integ-telemetry
   node_selector:
     testing: test-pool
   requirements:
@@ -440,7 +440,7 @@ jobs:
   - prow/integ-suite-kind.sh
   - test.integration.helm.kube
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
-  name: integ-helm-tests
+  name: integ-helm
   node_selector:
     testing: test-pool
   requirements:
@@ -577,7 +577,7 @@ jobs:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 --istio.test.istio.enableCNI=true '
   image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
-  name: integ-cni-k8s-tests
+  name: integ-cni
   node_selector:
     testing: test-pool
   requirements:

@@ -80,7 +80,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky
-  name: integ-pilot-k8s-tests
+  name: integ-pilot
   node_selector:
     testing: test-pool
   requirements:
@@ -98,7 +98,7 @@ jobs:
     value: -postsubmit,-flaky
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.istio.enableCNI=true '
-  name: integ-cni-k8s-tests
+  name: integ-cni
   node_selector:
     testing: test-pool
   requirements:
@@ -114,7 +114,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky
-  name: integ-security-k8s-tests
+  name: integ-security
   node_selector:
     testing: test-pool
   requirements:
@@ -130,7 +130,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky
-  name: integ-telemetry-k8s-tests
+  name: integ-telemetry
   node_selector:
     testing: test-pool
   requirements:
@@ -145,7 +145,7 @@ jobs:
   - --topology
   - MULTICLUSTER
   - test.integration.telemetry.kube
-  name: integ-telemetry-mc-k8s-tests
+  name: integ-telemetry-mc
   node_selector:
     testing: test-pool
   requirements:
@@ -161,7 +161,7 @@ jobs:
   - --topology-config
   - prow/config/topology/external-istiod.json
   - test.integration.telemetry.kube
-  name: integ-telemetry-remote-tests
+  name: integ-telemetry-istiodremote
   node_selector:
     testing: test-pool
   requirements:
@@ -182,7 +182,7 @@ jobs:
   - presubmit_optional
   - presubmit_skipped
   - hidden
-  name: integ-telemetry-less-mc-k8s-tests
+  name: integ-telemetry-istiodless-mc
   node_selector:
     testing: test-pool
   requirements:
@@ -197,7 +197,7 @@ jobs:
   env:
   - name: VARIANT
     value: distroless
-  name: integ-distroless-k8s-tests
+  name: integ-distroless
   node_selector:
     testing: test-pool
   requirements:
@@ -213,7 +213,7 @@ jobs:
     value: "true"
   - name: IP_FAMILY
     value: ipv6
-  name: integ-ipv6-k8s-tests
+  name: integ-ipv6
   node_selector:
     testing: ipv6-pool
   requirements:
@@ -227,7 +227,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky
-  name: integ-operator-controller-tests
+  name: integ-operator-controller
   node_selector:
     testing: test-pool
   requirements:
@@ -240,7 +240,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.pilot.kube
-  name: integ-pilot-k8s-tests
+  name: integ-pilot
   node_selector:
     testing: test-pool
   requirements:
@@ -255,7 +255,7 @@ jobs:
   - --topology
   - MULTICLUSTER
   - test.integration.pilot.kube
-  name: integ-pilot-mc-tests
+  name: integ-pilot-multicluster
   node_selector:
     testing: test-pool
   requirements:
@@ -274,7 +274,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: --istio.test.skipVM
-  name: integ-pilot-remote-tests
+  name: integ-pilot-istiodremote
   node_selector:
     testing: test-pool
   requirements:
@@ -293,7 +293,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: --istio.test.skipVM
-  name: integ-pilot-remote-mc-tests
+  name: integ-pilot-istiodremote-mc
   node_selector:
     testing: test-pool
   requirements:
@@ -314,7 +314,7 @@ jobs:
   - presubmit_optional
   - presubmit_skipped
   - hidden
-  name: integ-pilot-less-mc-tests
+  name: integ-pilot-istiodless-mc
   node_selector:
     testing: test-pool
   requirements:
@@ -326,7 +326,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.security.kube
-  name: integ-security-k8s-tests
+  name: integ-security
   node_selector:
     testing: test-pool
   requirements:
@@ -340,7 +340,7 @@ jobs:
   - prow/integ-suite-kind.sh
   - test.integration-fuzz.security.fuzz.kube
   cron: 0 7 * * *
-  name: integ-security-fuzz-k8s-tests
+  name: integ-security-fuzz
   node_selector:
     testing: test-pool
   requirements:
@@ -355,7 +355,7 @@ jobs:
   - --topology
   - MULTICLUSTER
   - test.integration.security.kube
-  name: integ-security-mc-tests
+  name: integ-security-multicluster
   node_selector:
     testing: test-pool
   requirements:
@@ -374,7 +374,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: --istio.test.skipVM
-  name: integ-security-remote-tests
+  name: integ-security-istiodremote
   node_selector:
     testing: test-pool
   requirements:
@@ -395,7 +395,7 @@ jobs:
   - presubmit_optional
   - presubmit_skipped
   - hidden
-  name: integ-security-less-mc-tests
+  name: integ-security-istiodless-mc
   node_selector:
     testing: test-pool
   requirements:
@@ -407,7 +407,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.telemetry.kube
-  name: integ-telemetry-k8s-tests
+  name: integ-telemetry
   node_selector:
     testing: test-pool
   requirements:
@@ -420,7 +420,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.helm.kube
-  name: integ-helm-tests
+  name: integ-helm
   node_selector:
     testing: test-pool
   requirements:
@@ -577,7 +577,7 @@ jobs:
     value: -flaky
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 --istio.test.istio.enableCNI=true '
-  name: integ-cni-k8s-tests
+  name: integ-cni
   node_selector:
     testing: test-pool
   requirements:
@@ -597,7 +597,7 @@ jobs:
   modifiers:
   - presubmit_optional
   - presubmit_skipped
-  name: integ-assertion-k8s-tests
+  name: integ-assertion
   node_selector:
     testing: test-pool
   requirements:

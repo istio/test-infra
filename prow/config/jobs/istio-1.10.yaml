@@ -80,7 +80,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky,-multicluster
-  name: integ-pilot-k8s-tests
+  name: integ-pilot
   node_selector:
     testing: test-pool
   requirements:
@@ -96,7 +96,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky,-multicluster
-  name: integ-security-k8s-tests
+  name: integ-security
   node_selector:
     testing: test-pool
   requirements:
@@ -112,7 +112,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky,-multicluster
-  name: integ-telemetry-k8s-tests
+  name: integ-telemetry
   node_selector:
     testing: test-pool
   requirements:
@@ -130,7 +130,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -multicluster
-  name: integ-telemetry-mc-k8s-tests
+  name: integ-telemetry-mc
   node_selector:
     testing: test-pool
   requirements:
@@ -146,7 +146,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky,+multicluster
-  name: integ-mc-k8s-tests
+  name: integ-multicluster
   node_selector:
     testing: test-pool
   requirements:
@@ -164,7 +164,7 @@ jobs:
     value: distroless
   - name: TEST_SELECT
     value: -multicluster
-  name: integ-distroless-k8s-tests
+  name: integ-distroless
   node_selector:
     testing: test-pool
   requirements:
@@ -185,7 +185,7 @@ jobs:
   node_selector:
     # COS does not currently support IPv6
     testing: ipv6-pool
-  name: integ-ipv6-k8s-tests
+  name: integ-ipv6
   requirements:
   - cache
   - kind
@@ -197,7 +197,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky,-multicluster
-  name: integ-operator-controller-tests
+  name: integ-operator-controller
   node_selector:
     testing: test-pool
   requirements:
@@ -213,7 +213,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -multicluster
-  name: integ-pilot-k8s-tests
+  name: integ-pilot
   node_selector:
     testing: test-pool
   requirements:
@@ -231,7 +231,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -multicluster
-  name: integ-pilot-mc-tests
+  name: integ-pilot-multicluster
   node_selector:
     testing: test-pool
   requirements:
@@ -245,7 +245,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -multicluster
-  name: integ-security-k8s-tests
+  name: integ-security
   node_selector:
     testing: test-pool
   requirements:
@@ -263,7 +263,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -multicluster
-  name: integ-security-mc-tests
+  name: integ-security-multicluster
   node_selector:
     testing: test-pool
   requirements:
@@ -277,7 +277,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -multicluster
-  name: integ-telemetry-k8s-tests
+  name: integ-telemetry
   node_selector:
     testing: test-pool
   requirements:
@@ -290,7 +290,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.helm.kube
-  name: integ-helm-tests
+  name: integ-helm
   node_selector:
     testing: test-pool
   requirements:

@@ -53,7 +53,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky,-multicluster
-  name: integ-pilot-k8s-tests
+  name: integ-pilot
   requirements:
   - kind
   types: [presubmit]
@@ -64,7 +64,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky,-multicluster
-  name: integ-security-k8s-tests
+  name: integ-security
   requirements:
   - kind
   types: [presubmit]
@@ -75,7 +75,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky,-multicluster
-  name: integ-telemetry-k8s-tests
+  name: integ-telemetry
   requirements:
   - kind
   types: [presubmit]
@@ -90,7 +90,7 @@ jobs:
     value: -multicluster
   modifiers:
   - presubmit_optional
-  name: integ-telemetry-mc-k8s-tests
+  name: integ-telemetry-multicluster
   requirements:
   - kind
 - command:
@@ -102,7 +102,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky,+multicluster
-  name: integ-mc-k8s-tests
+  name: integ-multicluster
   requirements:
   - kind
   types: [presubmit]
@@ -115,7 +115,7 @@ jobs:
     value: distroless
   - name: TEST_SELECT
     value: -multicluster
-  name: integ-distroless-k8s-tests
+  name: integ-distroless
   requirements:
   - kind
 - command:
@@ -129,7 +129,7 @@ jobs:
     value: ipv6
   - name: TEST_SELECT
     value: -multicluster
-  name: integ-ipv6-k8s-tests
+  name: integ-ipv6
   requirements:
   - kind
 - command:
@@ -139,7 +139,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -postsubmit,-flaky,-multicluster
-  name: integ-operator-controller-tests
+  name: integ-operator-controller
   requirements:
   - kind
   types: [presubmit]
@@ -150,7 +150,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -multicluster
-  name: integ-pilot-k8s-tests
+  name: integ-pilot
   requirements:
   - kind
   types: [postsubmit]
@@ -163,7 +163,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -multicluster
-  name: integ-pilot-mc-tests
+  name: integ-pilot-multicluster
   requirements:
   - kind
 - command:
@@ -180,7 +180,7 @@ jobs:
   modifiers:
   - presubmit_optional
   - hidden
-  name: integ-external-mc-tests
+  name: integ-external-istiod-mc
   requirements:
   - kind
 - command:
@@ -190,7 +190,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -multicluster
-  name: integ-security-k8s-tests
+  name: integ-security
   requirements:
   - kind
   types: [postsubmit]
@@ -205,7 +205,7 @@ jobs:
     value: -multicluster
   modifiers:
   - presubmit_optional
-  name: integ-security-mc-tests
+  name: integ-security-multicluster
   requirements:
   - kind
 - command:
@@ -215,7 +215,7 @@ jobs:
   env:
   - name: TEST_SELECT
     value: -multicluster
-  name: integ-telemetry-k8s-tests
+  name: integ-telemetry
   requirements:
   - kind
   types: [postsubmit]
@@ -223,7 +223,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.helm.kube
-  name: integ-helm-tests
+  name: integ-helm
   requirements:
   - kind
 - command:
