@@ -64,6 +64,10 @@ const (
 	TypePeriodic   = "periodic"
 
 	variableSubstitutionFormat = `\$\([_a-zA-Z0-9.-]+(\.[_a-zA-Z0-9.-]+)*\)`
+
+	// prow currently has a limit for jobs being 63 characters due to
+	// kubernetes label length restriction
+	jobCharLimit = 63
 )
 
 var variableSubstitutionRegex = regexp.MustCompile(variableSubstitutionFormat)
@@ -270,6 +274,9 @@ func (cli *Client) ValidateJobConfig(fileName string, jobsConfig *JobsConfig) {
 	}
 
 	for _, job := range jobsConfig.Jobs {
+		if len(job.Name) > jobCharLimit {
+			err = multierror.Append(err, fmt.Errorf("%s: name for job exceeds %v character limit '%v'", fileName, jobCharLimit, job.Name))
+		}
 		if job.Image == "" {
 			err = multierror.Append(err, fmt.Errorf("%s: image must be set for job %v", fileName, job.Name))
 		}
