@@ -4,7 +4,6 @@ image: gcr.io/istio-testing/build-tools-proxy:release-1.13-2022-01-19T18-35-09
 jobs:
 - command:
   - ./prow/proxy-presubmit.sh
-  image: gcr.io/istio-testing/build-tools-proxy:master-2022-01-19T18-35-09
   name: test
   node_selector:
     testing: build-pool
@@ -130,7 +129,6 @@ jobs:
   - presubmit
 - command:
   - ./prow/proxy-presubmit-asan.sh
-  image: gcr.io/istio-testing/build-tools-proxy:master-2022-01-19T18-35-09
   name: test-asan
   node_selector:
     testing: build-pool
@@ -256,7 +254,6 @@ jobs:
   - presubmit
 - command:
   - ./prow/proxy-presubmit-tsan.sh
-  image: gcr.io/istio-testing/build-tools-proxy:master-2022-01-19T18-35-09
   name: test-tsan
   node_selector:
     testing: build-pool
@@ -382,7 +379,6 @@ jobs:
   - presubmit
 - command:
   - ./prow/proxy-presubmit-release.sh
-  image: gcr.io/istio-testing/build-tools-proxy:master-2022-01-19T18-35-09
   name: release-test
   node_selector:
     testing: build-pool
@@ -635,7 +631,6 @@ jobs:
 - command:
   - entrypoint
   - ./prow/proxy-presubmit-wasm.sh
-  image: gcr.io/istio-testing/build-tools-proxy:master-2022-01-19T18-35-09
   name: check-wasm
   node_selector:
     testing: build-pool
@@ -763,7 +758,6 @@ jobs:
 - command:
   - entrypoint
   - ./prow/proxy-postsubmit.sh
-  image: gcr.io/istio-testing/build-tools-proxy:master-2022-01-19T18-35-09
   name: release
   node_selector:
     testing: build-pool
