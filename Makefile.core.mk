@@ -32,7 +32,7 @@ generate-config:
 	@rm -fr prow/cluster/jobs/istio/*/*.gen.yaml
 	@(cd tools/prowgen/cmd/prowgen; go run main.go --input-dir=$(repo_root)/prow/config/jobs --output-dir=$(repo_root)/prow/cluster/jobs write)
 	@rm -fr prow/cluster/jobs/istio-private/*/*.gen.yaml
-	@go run tools/prowtrans/cmd/prowtrans/main.go --configs=./prow/config/istio-private_jobs
+	@go run tools/prowtrans/cmd/prowtrans/main.go --configs=./prow/config/istio-private_jobs --input=./prow/config/jobs
 
 diff-config:
 	@(cd tools/prowgen/cmd/prowgen; GOARCH=$(GOARCH) GOOS=$(GOOS) go run main.go --input-dir=$(repo_root)/prow/config/jobs --output-dir=$(repo_root)/prow/cluster/jobs diff)
