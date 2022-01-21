@@ -165,7 +165,7 @@ func main() {
 			if _, err := os.Stat(filepath.Join(path, ".base.yaml")); !os.IsNotExist(err) {
 				baseConfig = pkg.ReadBase(baseConfig, filepath.Join(path, ".base.yaml"))
 			}
-			cli := pkg.Client{BaseConfig: *baseConfig}
+			cli := pkg.Client{BaseConfig: *baseConfig, LongJobNamesAllowed: *longJobNamesAllowed}
 
 			files, _ := ioutil.ReadDir(path)
 			for _, file := range files {
