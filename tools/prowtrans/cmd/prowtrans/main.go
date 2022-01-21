@@ -82,6 +82,7 @@ func (o *options) parseOpts() {
 	flag.StringVar(&o.Global, "global", "", "Path to file containing global defaults configuration.")
 	flag.StringVar(&o.SSHKeySecret, "ssh-key-secret", "", "GKE cluster secrets containing the Github ssh private key.")
 	flag.StringVar(&o.Modifier, "modifier", defaultModifier, "Modifier to apply to generated file and job name(s).")
+	flag.StringVar(&o.ServiceAccount, "service-account", "", "Service Account to apply to generated files.")
 	flag.StringVarP(&o.Input, "input", "i", ".", "Input file or directory containing job(s) to convert.")
 	flag.StringVarP(&o.Output, "output", "o", ".", "Output file or directory to write generated job(s).")
 	flag.StringVarP(&o.Sort, "sort", "s", "", "Sort the job(s) by name: (e.g. (asc)ending, (desc)ending).")
@@ -267,6 +268,9 @@ func applyDefaultTransforms(dst *configuration.Transform, srcs ...*configuration
 		}
 		if dst.Modifier == "" {
 			dst.Modifier = src.Modifier
+		}
+		if dst.ServiceAccount == "" {
+			dst.ServiceAccount = src.ServiceAccount
 		}
 		if dst.Input == "" {
 			dst.Input = src.Input
@@ -755,6 +759,16 @@ func updateJobBase(o options, job *config.JobBase, orgrepo string) {
 	updateLabels(o, job)
 	updateNodeSelector(o, job)
 	updateEnvs(o, job)
+	updateServiceAccount(o, job)
+}
+
+// updateServiceAccount updates the jobs ServiceAccountName fields based on provided inputs.
+func updateServiceAccount(o options, job *config.JobBase) {
+	if o.ServiceAccount == "" || job.Spec.ServiceAccountName == "" {
+		return
+	}
+
+	job.Spec.ServiceAccountName = o.ServiceAccount
 }
 
 // updateExtraRefs updates the jobs ExtraRefs fields based on provided inputs to work with private repositories.

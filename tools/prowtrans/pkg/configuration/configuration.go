@@ -43,6 +43,7 @@ type Transform struct {
 	Channel                string                  `json:"channel,omitempty"`
 	SSHKeySecret           string                  `json:"ssh-key-secret,omitempty"`
 	Modifier               string                  `json:"modifier,omitempty"`
+	ServiceAccount         string                  `json:"service_account_name,omitempty"`
 	Input                  string                  `json:"input,omitempty"`
 	Output                 string                  `json:"output,omitempty"`
 	Sort                   string                  `json:"sort,omitempty"`
