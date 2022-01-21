@@ -5,7 +5,6 @@ jobs:
 - command:
   - make
   - lint
-  image: gcr.io/istio-testing/build-tools:master-2022-01-19T18-35-09
   name: lint
   node_selector:
     testing: test-pool
@@ -135,7 +134,6 @@ jobs:
   - --modifier=commonfiles
   - --token-path=/etc/github-token/oauth
   - --cmd=make update-common && make gen
-  image: gcr.io/istio-testing/build-tools:master-2022-01-19T18-35-09
   name: update-common
   node_selector:
     testing: test-pool
@@ -270,7 +268,6 @@ jobs:
   - --modifier=commonfiles
   - --token-path=/etc/github-token/oauth
   - --cmd=make update-common && make gen
-  image: gcr.io/istio-testing/build-tools:master-2022-01-19T18-35-09
   name: update-common-istio.io
   node_selector:
     testing: test-pool
@@ -409,7 +406,6 @@ jobs:
   - --
   - --post=make gen
   - --source=$AUTOMATOR_ROOT_DIR/files/common/scripts/setup_env.sh
-  image: gcr.io/istio-testing/build-tools:master-2022-01-19T18-35-09
   name: update-build-tools-image
   node_selector:
     testing: test-pool
