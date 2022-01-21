@@ -5,7 +5,6 @@ jobs:
 - command:
   - make
   - lint
-  image: gcr.io/istio-testing/build-tools:master-2022-01-19T18-35-09
   name: lint
   node_selector:
     testing: test-pool
@@ -135,7 +134,6 @@ jobs:
 - command:
   - make
   - gen-check
-  image: gcr.io/istio-testing/build-tools:master-2022-01-19T18-35-09
   name: gencheck
   node_selector:
     testing: test-pool
@@ -266,7 +264,6 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - doc.test.profile_default
-  image: gcr.io/istio-testing/build-tools:master-2022-01-19T18-35-09
   name: doc.test.profile_default
   node_selector:
     testing: test-pool
@@ -398,7 +395,6 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - doc.test.profile_demo
-  image: gcr.io/istio-testing/build-tools:master-2022-01-19T18-35-09
   name: doc.test.profile_demo
   node_selector:
     testing: test-pool
@@ -530,7 +526,6 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - doc.test.profile_none
-  image: gcr.io/istio-testing/build-tools:master-2022-01-19T18-35-09
   name: doc.test.profile_none
   node_selector:
     testing: test-pool
@@ -664,7 +659,6 @@ jobs:
   - --topology
   - MULTICLUSTER
   - doc.test.multicluster
-  image: gcr.io/istio-testing/build-tools:master-2022-01-19T18-35-09
   name: doc.test.multicluster
   node_selector:
     testing: test-pool
@@ -799,7 +793,6 @@ jobs:
   - --token-path=/etc/github-token/oauth
   - --cmd=make update_ref_docs
   - --dry-run
-  image: gcr.io/istio-testing/build-tools:master-2022-01-19T18-35-09
   modifiers:
   - presubmit_optional
   name: update-ref-docs-dry-run
