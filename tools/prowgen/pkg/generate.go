@@ -73,6 +73,8 @@ var variableSubstitutionRegex = regexp.MustCompile(variableSubstitutionFormat)
 
 type Client struct {
 	BaseConfig BaseConfig
+
+	LongJobNamesAllowed bool
 }
 
 type BaseConfig struct {
@@ -349,7 +351,7 @@ func (cli *Client) ConvertJobConfig(jobsConfig *JobsConfig, branch string) (conf
 					name += "_" + branch
 				}
 
-				base, err := createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets)
+				base, err := cli.createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets)
 				if err != nil {
 					return config.JobConfig{}, err
 				}
@@ -393,7 +395,7 @@ func (cli *Client) ConvertJobConfig(jobsConfig *JobsConfig, branch string) (conf
 				}
 				name += "_postsubmit"
 
-				base, err := createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets)
+				base, err := cli.createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets)
 				if err != nil {
 					return config.JobConfig{}, err
 				}
@@ -436,7 +438,7 @@ func (cli *Client) ConvertJobConfig(jobsConfig *JobsConfig, branch string) (conf
 				// should be set as the working directory, so add itself to the repo list here.
 				job.Repos = append([]string{jobsConfig.Org + "/" + jobsConfig.Repo}, job.Repos...)
 
-				base, err := createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets)
+				base, err := cli.createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets)
 				if err != nil {
 					return config.JobConfig{}, err
 				}
@@ -662,11 +664,11 @@ func createContainer(jobConfig *JobsConfig, job *Job, resources map[string]v1.Re
 	return []v1.Container{c}
 }
 
-func createJobBase(baseConfig BaseConfig, jobConfig *JobsConfig, job *Job,
+func (cli *Client) createJobBase(baseConfig BaseConfig, jobConfig *JobsConfig, job *Job,
 	name string, branch string, resources map[string]v1.ResourceRequirements) (config.JobBase, error) {
 	yes := true
 
-	if len(name) > maxJobNameLength {
+	if len(name) > maxJobNameLength && !cli.LongJobNamesAllowed {
 		return config.JobBase{}, fmt.Errorf("job name exceeds %v character limit '%v'", maxJobNameLength, name)
 	}
 	jb := config.JobBase{
