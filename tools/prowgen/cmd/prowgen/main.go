@@ -34,8 +34,9 @@ var (
 	// regex to match the test image tags.
 	tagRegex = regexp.MustCompile(`^(.+):(.+)-([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2})$`)
 
-	inputDir  = flag.String("input-dir", "./prow/config/jobs", "directory of input jobs")
-	outputDir = flag.String("output-dir", "./prow/cluster/jobs", "directory of output jobs")
+	inputDir            = flag.String("input-dir", "./prow/config/jobs", "directory of input jobs")
+	outputDir           = flag.String("output-dir", "./prow/cluster/jobs", "directory of output jobs")
+	longJobNamesAllowed = flag.Bool("allow-long-job-names", false, "allow job names that are longer than 63 characters")
 )
 
 func exit(err error, context string) {
@@ -83,7 +84,7 @@ func main() {
 			if _, err := os.Stat(filepath.Join(path, ".base.yaml")); !os.IsNotExist(err) {
 				baseConfig = pkg.ReadBase(baseConfig, filepath.Join(path, ".base.yaml"))
 			}
-			cli := pkg.Client{BaseConfig: *baseConfig}
+			cli := pkg.Client{BaseConfig: *baseConfig, LongJobNamesAllowed: *longJobNamesAllowed}
 
 			files, _ := ioutil.ReadDir(path)
 			for _, file := range files {
