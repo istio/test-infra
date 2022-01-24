@@ -8,6 +8,9 @@ periodics:
     path_alias: istio.io/test-infra
     repo: test-infra
   name: example_periodic_private
+  reporter_config:
+    slack:
+      report: false
   spec:
     containers:
     - command:
@@ -38,6 +41,9 @@ postsubmits:
     decorate: true
     name: example_postsubmit_private
     path_alias: istio.io/istio
+    reporter_config:
+      slack:
+        report: false
     spec:
       containers:
       - command:
@@ -69,6 +75,9 @@ presubmits:
     decorate: true
     name: example_presubmit_private
     path_alias: istio.io/istio
+    reporter_config:
+      slack:
+        report: false
     spec:
       containers:
       - command:
