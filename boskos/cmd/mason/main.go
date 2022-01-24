@@ -70,7 +70,7 @@ func main() {
 	}
 	gcp.SetClient(gcpClient)
 
-	kubeClient, err := kubeClientOptions.Manager(*namespace, &crds.DRLCObject{})
+	kubeClient, err := kubeClientOptions.Manager(*namespace, false, &crds.DRLCObject{})
 	if err != nil {
 		logrus.WithError(err).Fatal("unable to get kubernetes client")
 	}
