@@ -657,15 +657,16 @@ func updateGerritReportingLabels(o options, skipReport, optional bool, labels ma
 
 // updateReporterConfig updates the jobs ReporterConfig fields based on provided inputs.
 func updateReporterConfig(o options, job *config.JobBase) {
-	if o.Channel == "" {
-		return
-	}
-
 	if job.ReporterConfig == nil {
 		job.ReporterConfig = &prowjob.ReporterConfig{}
 	}
 
-	job.ReporterConfig.Slack = &prowjob.SlackReporterConfig{Channel: o.Channel}
+	if o.Channel == "" {
+		f := false
+		job.ReporterConfig.Slack = &prowjob.SlackReporterConfig{Report: &f}
+	} else {
+		job.ReporterConfig.Slack = &prowjob.SlackReporterConfig{Channel: o.Channel}
+	}
 }
 
 // updateRerunAuthConfig updates the jobs RerunAuthConfig fields based on provided inputs.
