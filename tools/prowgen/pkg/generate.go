@@ -818,9 +818,10 @@ func applyModifiersPostsubmit(postsubmit *config.Postsubmit, jobModifiers []stri
 			// Does not exist on postsubmit
 		} else if modifier == ModifierHidden {
 			postsubmit.SkipReport = true
+			f := false
 			postsubmit.ReporterConfig = &prowjob.ReporterConfig{
 				Slack: &prowjob.SlackReporterConfig{
-					JobStatesToReport: []prowjob.ProwJobState{},
+					Report: &f,
 				},
 			}
 		}
