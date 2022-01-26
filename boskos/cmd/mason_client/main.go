@@ -111,7 +111,7 @@ func saveUserdataToFile(ud *common.UserData, key, path string) error {
 	if !ok {
 		return nil
 	}
-	return ioutil.WriteFile(path, []byte(v.(string)), 0644)
+	return ioutil.WriteFile(path, []byte(v.(string)), 0o644)
 }
 
 func wait() {

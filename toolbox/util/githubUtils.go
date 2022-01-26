@@ -144,7 +144,7 @@ func CloneRepoCheckoutBranch(gclient *GithubClient, repo, baseBranch, newBranch,
 		return "", err
 	}
 	if pathPrefix != "" {
-		if err := os.MkdirAll(pathPrefix, os.FileMode(0755)); err != nil {
+		if err := os.MkdirAll(pathPrefix, os.FileMode(0o755)); err != nil {
 			return "", err
 		}
 		if err := os.Chdir(pathPrefix); err != nil {

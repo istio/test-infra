@@ -72,5 +72,5 @@ func SerializeDeps(depsFilePath string, deps *[]Dependency) error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(depsFilePath, pickled, 0600)
+	return ioutil.WriteFile(depsFilePath, pickled, 0o600)
 }

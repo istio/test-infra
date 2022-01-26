@@ -88,7 +88,7 @@ func WriteTextFile(filePath, content string) error {
 	if len(content) > 0 && content[len(content)-1] != '\n' {
 		content += "\n"
 	}
-	return ioutil.WriteFile(filePath, []byte(content), 0600)
+	return ioutil.WriteFile(filePath, []byte(content), 0o600)
 }
 
 // updateKeyValueInTomlLines updates all occurrences of key to a new value

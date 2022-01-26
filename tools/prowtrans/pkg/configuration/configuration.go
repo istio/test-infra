@@ -100,5 +100,5 @@ func WriteTransformJobConfig(jobsConfig Configuration, file string) error {
 		return err
 	}
 
-	return ioutil.WriteFile(file, bytes, 0644)
+	return ioutil.WriteFile(file, bytes, 0o644)
 }

@@ -64,7 +64,7 @@ func parseConfigTmpl(input, output, config, dir string) (string, error) {
 
 	cfgO := filepath.Join(dir, "cfg.yaml")
 
-	if err := ioutil.WriteFile(cfgO, b.Bytes(), 0644); err != nil {
+	if err := ioutil.WriteFile(cfgO, b.Bytes(), 0o644); err != nil {
 		return "", fmt.Errorf("failed writing config file %v: %v", cfgO, err)
 	}
 
@@ -165,7 +165,7 @@ func TestProwTrans(t *testing.T) {
 			}
 
 			if os.Getenv("REFRESH_GOLDEN") == "true" {
-				if err = ioutil.WriteFile(outE, actual, 0644); err != nil {
+				if err = ioutil.WriteFile(outE, actual, 0o644); err != nil {
 					t.Fatalf("failed writing expected output file %v: %v", outE, err)
 				}
 				expected = actual
