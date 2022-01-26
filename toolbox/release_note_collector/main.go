@@ -71,7 +71,7 @@ func init() {
 }
 
 func main() {
-	f, err := os.OpenFile(*outputFile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0600)
+	f, err := os.OpenFile(*outputFile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0o600)
 	if err != nil {
 		log.Printf("Failed to open and/or create output file %s", *outputFile)
 		return

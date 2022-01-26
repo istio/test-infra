@@ -262,7 +262,7 @@ func WriteJobConfig(jobsConfig *JobsConfig, file string) error {
 		return err
 	}
 
-	return ioutil.WriteFile(file, bytes, 0644)
+	return ioutil.WriteFile(file, bytes, 0o644)
 }
 
 func (cli *Client) ValidateJobConfig(fileName string, jobsConfig *JobsConfig) {
@@ -509,7 +509,7 @@ func Write(jobs config.JobConfig, fname, header string) {
 	}
 	output := []byte(header + "\n")
 	output = append(output, bs...)
-	err = ioutil.WriteFile(fname, output, 0644)
+	err = ioutil.WriteFile(fname, output, 0o644)
 	if err != nil {
 		exit(err, "failed to write result")
 	}

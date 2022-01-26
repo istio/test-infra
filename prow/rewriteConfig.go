@@ -254,7 +254,7 @@ func main() {
 	resultString := findRepo(source, repos, branchName)
 	resultBytes := []byte(resultString)
 
-	err = ioutil.WriteFile(fileName, resultBytes, 0600)
+	err = ioutil.WriteFile(fileName, resultBytes, 0o600)
 	if err != nil {
 		log.Fatalf("Error when writing file: %v", err)
 	}

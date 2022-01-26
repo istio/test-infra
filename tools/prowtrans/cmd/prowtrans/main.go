@@ -981,7 +981,7 @@ func writeOutFile(o options, p string, pre map[string][]config.Presubmit, post m
 		util.PrintErr(fmt.Sprintf("unable to create output directory %v: %v.", dir, err))
 	}
 
-	err = ioutil.WriteFile(p, outBytes, 0644)
+	err = ioutil.WriteFile(p, outBytes, 0o644)
 	if err != nil {
 		util.PrintErr(fmt.Sprintf("unable to write jobs to path %v: %v.", p, err))
 	}

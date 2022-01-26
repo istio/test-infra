@@ -104,7 +104,7 @@ func SetKubeConfig(project, zone, cluster, kubeconfig string) error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(kubeconfig, kubeconfigData, 0666)
+	return ioutil.WriteFile(kubeconfig, kubeconfigData, 0o666)
 }
 
 // ActivateServiceAccount activates a service account for gcloud
