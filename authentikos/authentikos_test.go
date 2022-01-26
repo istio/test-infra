@@ -32,12 +32,12 @@ func makeFile(data string, readable bool) (string, error) {
 	f, _ := ioutil.TempFile("", "")
 	fname := f.Name()
 
-	if err := ioutil.WriteFile(fname, []byte(data), 0644); err != nil {
+	if err := ioutil.WriteFile(fname, []byte(data), 0o644); err != nil {
 		return "", fmt.Errorf("failed to write file: %w", err)
 	}
 
 	if !readable {
-		if err := os.Chmod(fname, 0000); err != nil {
+		if err := os.Chmod(fname, 0o000); err != nil {
 			return "", fmt.Errorf("failed to make file unreadable: %w", err)
 		}
 	}

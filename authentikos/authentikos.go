@@ -64,9 +64,7 @@ const (
 	openIDScope        = "openid"                                         // Authenticate using OpenID Connect
 )
 
-var (
-	defaultScopes = []string{userinfoEmailScope, cloudPlatformScope, openIDScope} // defaultScopes is the default OAuth2 scopes.
-)
+var defaultScopes = []string{userinfoEmailScope, cloudPlatformScope, openIDScope} // defaultScopes is the default OAuth2 scopes.
 
 // Token expiration parameters.
 const (
@@ -259,7 +257,6 @@ func generateTokenData(o options, data []byte, expiration *time.Time) ([]byte, e
 	}
 
 	return b.Bytes(), nil
-
 }
 
 // createClusterConfig creates kubernetes cluster configuration.
@@ -391,7 +388,6 @@ func getSecretCreator(o options, create tokenCreator) (secretCreator, error) {
 		}
 
 		return secrets, errs
-
 	}, nil
 }
 
@@ -413,7 +409,6 @@ func reconcile(o options, create secretCreator) {
 		if len(errs) > 0 {
 			printVerbose(fmt.Sprintf("errors: %v\n", errs.Errors()), o.verbose)
 		}
-
 	}
 
 	for ; true; <-ticker.C {
