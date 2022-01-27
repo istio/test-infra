@@ -1,11 +1,11 @@
 branches:
 - release-1.11
-image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
+image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
 jobs:
 - command:
   - make
   - presubmit
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
   name: build
   node_selector:
     testing: test-pool
@@ -14,7 +14,7 @@ jobs:
 - command:
   - make
   - gen-check
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
   name: gencheck
   node_selector:
     testing: test-pool
@@ -29,7 +29,7 @@ jobs:
   - --modifier=update_api_dep
   - --token-path=/etc/github-token/oauth
   - --cmd=go get istio.io/api@$AUTOMATOR_SHA && go mod tidy && make clean gen
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
   name: update_api_dep_client_go
   node_selector:
     testing: test-pool
@@ -50,7 +50,7 @@ jobs:
   - --token-path=/etc/github-token/oauth
   - --git-exclude=^common/
   - --cmd=go get istio.io/api@$AUTOMATOR_SHA && go mod tidy && make clean gen
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
   name: update_api_dep_istio
   node_selector:
     testing: test-pool
@@ -64,7 +64,7 @@ jobs:
 - command:
   - ../test-infra/tools/check_release_notes.sh
   - --token-path=/etc/github-token/oauth
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
   modifiers:
   - presubmit_optional
   name: release-notes
