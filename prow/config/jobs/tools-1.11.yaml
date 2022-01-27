@@ -1,11 +1,11 @@
 branches:
 - release-1.11
-image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
+image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
 jobs:
 - command:
   - make
   - build
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
   name: build
   node_selector:
     testing: test-pool
@@ -14,7 +14,7 @@ jobs:
 - command:
   - make
   - lint
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
   name: lint
   node_selector:
     testing: test-pool
@@ -23,7 +23,7 @@ jobs:
 - command:
   - make
   - test
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
   name: test
   node_selector:
     testing: test-pool
@@ -32,7 +32,7 @@ jobs:
 - command:
   - make
   - gen-check
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
   name: gencheck
   node_selector:
     testing: test-pool
@@ -42,7 +42,7 @@ jobs:
   - entrypoint
   - make
   - containers
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
   name: containers
   service_account_name: prowjob-advanced-sa
   node_selector:
@@ -58,7 +58,7 @@ jobs:
   - entrypoint
   - make
   - containers-test
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
   name: containers-test
   service_account_name: prowjob-advanced-sa
   node_selector:
@@ -76,7 +76,7 @@ jobs:
   - -C
   - perf_dashboard
   - deploy
-  image: gcr.io/istio-testing/build-tools:release-1.11-2021-11-15T12-29-57
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
   name: deploy-perf-dashboard
   service_account_name: prowjob-advanced-sa
   node_selector:
