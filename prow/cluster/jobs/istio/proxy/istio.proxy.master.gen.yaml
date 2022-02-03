@@ -29,7 +29,7 @@ periodics:
       - --modifier=update_envoy_dep
       - --token-path=/etc/github-token/oauth
       - --cmd=UPDATE_BRANCH=main scripts/update_envoy.sh
-      image: gcr.io/istio-testing/build-tools:master-2022-01-30T03-45-42
+      image: gcr.io/istio-testing/build-tools:master-2022-02-03T14-33-33
       name: ""
       resources:
         limits:
@@ -75,7 +75,7 @@ postsubmits:
       - command:
         - entrypoint
         - ./prow/proxy-postsubmit.sh
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-01-30T03-45-42
+        image: gcr.io/istio-testing/build-tools-proxy:master-2022-02-03T14-33-33
         name: ""
         resources:
           limits:
@@ -117,7 +117,7 @@ postsubmits:
       containers:
       - command:
         - ./prow/proxy-postsubmit-centos.sh
-        image: gcr.io/istio-testing/build-tools-centos:master-2022-01-30T03-45-42
+        image: gcr.io/istio-testing/build-tools-centos:master-2022-02-03T14-33-33
         name: ""
         resources:
           limits:
@@ -168,7 +168,7 @@ postsubmits:
         - --token-path=/etc/github-token/oauth
         - --git-exclude=^common/
         - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
-        image: gcr.io/istio-testing/build-tools:master-2022-01-30T03-45-42
+        image: gcr.io/istio-testing/build-tools:master-2022-02-03T14-33-33
         name: ""
         resources:
           limits:
@@ -212,7 +212,7 @@ presubmits:
       containers:
       - command:
         - ./prow/proxy-presubmit.sh
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-01-30T03-45-42
+        image: gcr.io/istio-testing/build-tools-proxy:master-2022-02-03T14-33-33
         name: ""
         resources:
           limits:
@@ -249,7 +249,7 @@ presubmits:
       containers:
       - command:
         - ./prow/proxy-presubmit-asan.sh
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-01-30T03-45-42
+        image: gcr.io/istio-testing/build-tools-proxy:master-2022-02-03T14-33-33
         name: ""
         resources:
           limits:
@@ -286,7 +286,7 @@ presubmits:
       containers:
       - command:
         - ./prow/proxy-presubmit-tsan.sh
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-01-30T03-45-42
+        image: gcr.io/istio-testing/build-tools-proxy:master-2022-02-03T14-33-33
         name: ""
         resources:
           limits:
@@ -323,7 +323,7 @@ presubmits:
       containers:
       - command:
         - ./prow/proxy-presubmit-release.sh
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-01-30T03-45-42
+        image: gcr.io/istio-testing/build-tools-proxy:master-2022-02-03T14-33-33
         name: ""
         resources:
           limits:
@@ -360,7 +360,7 @@ presubmits:
       containers:
       - command:
         - ./prow/proxy-presubmit-centos-release.sh
-        image: gcr.io/istio-testing/build-tools-centos:master-2022-01-30T03-45-42
+        image: gcr.io/istio-testing/build-tools-centos:master-2022-02-03T14-33-33
         name: ""
         resources:
           limits:
@@ -398,7 +398,7 @@ presubmits:
       - command:
         - entrypoint
         - ./prow/proxy-presubmit-wasm.sh
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-01-30T03-45-42
+        image: gcr.io/istio-testing/build-tools-proxy:master-2022-02-03T14-33-33
         name: ""
         resources:
           limits:
