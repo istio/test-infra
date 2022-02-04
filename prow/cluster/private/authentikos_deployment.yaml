@@ -18,15 +18,12 @@ metadata:
   name: "authentikos"
   annotations:
     iam.gke.io/gcp-service-account: istio-prow-test-job@istio-testing.iam.gserviceaccount.com
-  labels:
-    app.kubernetes.io/part-of: prow-private
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: authentikos
   labels:
-    app.kubernetes.io/part-of: prow-private
     app: authentikos
 spec:
   replicas: 1
@@ -36,7 +33,6 @@ spec:
   template:
     metadata:
       labels:
-        app.kubernetes.io/part-of: prow-private
         app: authentikos
     spec:
       serviceAccountName: authentikos

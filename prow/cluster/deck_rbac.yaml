@@ -3,16 +3,12 @@ kind: ServiceAccount
 metadata:
   annotations:
     iam.gke.io/gcp-service-account: prow-control-plane@istio-testing.iam.gserviceaccount.com
-  labels:
-    app.kubernetes.io/part-of: prow
   namespace: default
   name: "deck"
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  labels:
-    app.kubernetes.io/part-of: prow
   namespace: default
   name: deck
 rules:
@@ -30,8 +26,6 @@ rules:
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  labels:
-    app.kubernetes.io/part-of: prow
   namespace: test-pods
   name: deck
 rules:
@@ -45,8 +39,6 @@ rules:
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  labels:
-    app.kubernetes.io/part-of: prow
   namespace: default
   name: deck
 roleRef:
@@ -60,8 +52,6 @@ subjects:
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  labels:
-    app.kubernetes.io/part-of: prow
   namespace: test-pods
   name: deck
 roleRef:
@@ -72,4 +62,3 @@ subjects:
 - kind: ServiceAccount
   name: deck
   namespace: default
-
