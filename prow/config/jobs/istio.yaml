@@ -91,9 +91,6 @@ jobs:
   - name: integ-ipv6
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.environment]
     requirements: [kind]
-    node_selector:
-      # COS does not currently support IPv6
-      testing: ipv6-pool
     env:
       - name: DOCKER_IN_DOCKER_IPV6_ENABLED
         value: "true"
