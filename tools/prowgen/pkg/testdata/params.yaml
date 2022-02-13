@@ -1,0 +1,26 @@
+org: istio
+repo: istio
+image: barimage
+branches:
+  - release-1.10
+params:
+  common-arg1: "--key1=val1"
+  common-arg2: "--key2=val2"
+
+jobs:
+  - name: test-params-job1
+    types: [presubmit, postsubmit]
+    interval: 1h
+    command:
+    - prow/command1.sh
+    args:
+    - $(params.common-arg1)
+    - --foo=bar
+    - $(params.common-arg2)
+
+  - name: test-params-job2
+    types: [postsubmit]
+    command:
+    - prow/command2.sh
+    args:
+    - $(params.common-arg1)

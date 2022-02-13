@@ -1,14 +1,30 @@
-# Istio Prow Job Configuration
+# Istio Prow Job Config Generator
 
-This package defines and generates all prow jobs that will be run in pre/postsubmit.
+`prowgen` is a tool that can be used to generate a set of Prow job configuration
+files from the templated meta config files. It can help simplify the complex
+Prow job configuration files by allowing users to provide opinionated defaults
+and shared config fields.
 
-Jobs reside in [jobs/](./jobs/). From there, [`generate.go`](./generate.go) will process the config and turn them into a valid [prow job](https://github.com/kubernetes/test-infra/blob/master/prow/jobs.md).
+## Config Reference
 
-This generation layer simplifies the configuration and allows use to provide opinionated defaults.
+`prowgen` simplifies the configuration by allowing users to define multiple layers
+of configs, with each overlays on the other. Currently it supports defining 3
+layers:
 
-## Base config
+- `BaseConfig` contains common fields that are shared by all meta config files
+  under the same folder.
+- `JobsConfig` contains fields that can be defined in a meta config file, and it
+  can contain multiple `Job`s.
+- `Job` is the last layer for defining the actual Prow jobs.
 
-In the root folder, a `.base.yaml` file can be added to define the config fields that are shared by all the meta config files.
+All the supported fields for these structs can be checked from
+[spec.go](./pkg/spec/spec.go), but below are the concrete examples on how to
+configure them in `yaml` format.
+
+### Base config
+
+In the root folder, a `.base.yaml` file can be added to define the config fields
+that are shared by all the meta config files.
 
 Below is an example base config file:
 
@@ -92,16 +108,17 @@ requirement_presets:
 ```
 
 In each sub-folder, a `.base.yaml` file can also be added which'll overlay the
-config fields in the `.base.yaml` file under the root folder. Please note for
-now the overlay logic is not recursive, which means only the `.base.yaml` file
-in the current folder and the root folder will be overlaid, any other
-`.base.yaml` files in folders between them will be ignored.
+config fields in the root `.base.yaml`. Please note for now the overlay logic is
+not recursive, which means only the `.base.yaml` file in the current folder and
+the root folder will be overlaid, any other `.base.yaml` files in folders
+between them will be ignored.
 
 ## Job Syntax
 
-Any number of yaml files can be added to configure the Prow jobs for each org/repo:branches.
+Any number of yaml files can be added to the root and subfolder(s) to configure
+the Prow jobs for each org/repo:branches.
 
-Before is an example, annotated job config
+Before is an example, annotated job config file:
 
 ```yaml
 # REQUIRED. Defines what org these jobs should run for
@@ -128,7 +145,7 @@ interval: 5h
 # interval and cron cannot be specified together.
 
 # Determines whether this configuration can be automatically cloned to create a release branch
-# version
+# version. Only used for Istio to generate meta config files for the new release branch.
 supports_release_branching: false
 
 # A matrix can contain arbitrary number of dimensions, and can be used to easily define a combination of Prow jobs.
@@ -192,7 +209,7 @@ resources_presets:
       memory: "24Gi"
       cpu: "3000m"
 # Defines preset dependencies for tests
-# The map here will be intersected with the map in the global config (if there is),
+# The map here will be intersected with the map in the base config (if there is),
 # and overwrite the value if the names are duplicated.
 requirement_presets:
   github:
@@ -206,29 +223,60 @@ requirement_presets:
         secretName: oauth-token
 ```
 
+More of the examples can be checked from [testdata](./pkg/testdata/) and [Istio
+Prow jobs](../../prow/config/jobs/).
+
 ## Generating the config
 
-You can generate the config with:
+### `make` command
+
+Istio Prow jobs config files can be generated with:
 
 ```bash
-$ make generate-config
+make generate-config
 ```
+
+### `go run` command
 
 You can also run the command directly, which provides more options:
 
 ```bash
-$ cd prow/config/cmd
-$ go run generate.go [diff|print|write|check|branch]
+cd prow/config/cmd
+go run generate.go \
+  --input-dir=/path/to/meta/config --output-dir=/path/to/generated/config \
+  [print|write|check|branch]
 ```
 
-for example, to generate jobs for 1.8 branch, run:
+- `print` will print out all generated config to stdout
+- `write` will write out generated config to the appropriate job file
+- `check` will strictly compare the generated config to the current config, and
+  fail if there are any differences. This is useful for a CI gate to ensure
+  config is up to date
+- `branch` will create new job configurations for a new release branch. Invoke
+  with a release name (e.g. "1.4"). Currently only usable for the Istio project.
+
+### `docker run` command
+
+The `prowgen` tool has been automatically published as a Docker image at
+gcr.io/istio-testing/prowgen:latest, so you can also run it with `docker run`
+command if you don't want to install the binary on your local machine:
 
 ```bash
-$ go run generate.go branch 1.8
+export INPUT="/path/to/meta/config"
+export OUTPUT="/path/to/generated/config"
+docker run --mount type=bind,source=${INPUT},target=${INPUT} --mount type=bind,source=${OUTPUT},target=${OUTPUT} \
+  gcr.io/istio-testing/prowgen:latest \
+  prowgen --input-dir=${INPUT} --output-dir=${OUTPUT} write
 ```
 
-* diff will produce a semantic diff of the current config and the newly generated config. This is useful when making changes
-* print will print out all generated config to stdout
-* write will write out generated config to the appropriate job file
-* check will strictly compare the generated config to the current config, and fail if there are any differences. This is useful for a CI gate to ensure config is up to date
-* branch will create new job configurations for a new release branch. Invoke with a release name (e.g. "1.4")
+## Pre/Post process command
+
+The --pre-process-command and --post-process-command flag may be used to execute
+a command before and after the config files are generated, in case the users
+need customized config generation logic that cannot be supported by `prowgen`.
+The binary will be run with the following environment variables set:
+
+```None
+INPUT        # Path of the meta config files folder
+OUTPUT       # Path of the generated config files folder
+```
