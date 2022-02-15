@@ -1,11 +1,11 @@
 branches:
 - release-1.11
-image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
+image: gcr.io/istio-testing/build-tools:release-1.11-2022-02-15T14-29-34
 jobs:
 - command:
   - make
   - lint
-  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-02-15T14-29-34
   name: lint
   node_selector:
     testing: test-pool
@@ -14,7 +14,7 @@ jobs:
 - command:
   - make
   - test
-  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-02-15T14-29-34
   name: test
   node_selector:
     testing: test-pool
@@ -23,7 +23,7 @@ jobs:
 - command:
   - make
   - gen-check
-  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-02-15T14-29-34
   name: gencheck
   node_selector:
     testing: test-pool
@@ -32,7 +32,7 @@ jobs:
 - command:
   - entrypoint
   - test/publish.sh
-  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-02-15T14-29-34
   name: dry-run
   service_account_name: prowjob-advanced-sa
   node_selector:
@@ -44,7 +44,7 @@ jobs:
   resources: build
 - command:
   - release/build-warning.sh
-  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-02-15T14-29-34
   modifiers:
   - presubmit_optional
   name: build-warning
@@ -57,7 +57,7 @@ jobs:
   - presubmit
 - command:
   - release/publish-warning.sh
-  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-02-15T14-29-34
   modifiers:
   - presubmit_optional
   name: publish-warning
@@ -71,7 +71,7 @@ jobs:
 - command:
   - entrypoint
   - release/build.sh
-  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-02-15T14-29-34
   name: build-release
   node_selector:
     testing: test-pool
@@ -87,7 +87,7 @@ jobs:
 - command:
   - entrypoint
   - release/publish.sh
-  image: gcr.io/istio-testing/build-tools:release-1.11-2022-01-26T20-01-20
+  image: gcr.io/istio-testing/build-tools:release-1.11-2022-02-15T14-29-34
   name: publish-release
   node_selector:
     testing: test-pool
