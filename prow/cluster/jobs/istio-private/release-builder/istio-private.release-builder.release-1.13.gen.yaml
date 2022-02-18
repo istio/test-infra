@@ -144,6 +144,8 @@ postsubmits:
               name: cosign-key
         - name: GCS_BUCKET
           value: istio-private-prerelease/prerelease
+        - name: HELM_BUCKET
+          value: istio-private-build/dev/charts
         - name: PRERELEASE_DOCKER_HUB
           value: gcr.io/istio-prow-build
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-02-11T18-19-22
@@ -317,6 +319,8 @@ presubmits:
         env:
         - name: GCS_BUCKET
           value: istio-private-prerelease/prerelease
+        - name: HELM_BUCKET
+          value: istio-private-build/dev/charts
         - name: PRERELEASE_DOCKER_HUB
           value: gcr.io/istio-prow-build
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-02-11T18-19-22
