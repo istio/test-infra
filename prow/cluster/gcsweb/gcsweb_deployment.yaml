@@ -23,14 +23,14 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
       - name: nginx-proxy
-        image: nginx:1.17
+        image: nginx:1.21-alpine
         ports:
         - containerPort: 80
         volumeMounts:
         - name: nginx
           mountPath: /etc/nginx/conf.d
       - name: gcsweb
-        image: k8s.gcr.io/gcsweb-amd64:v1.0.6
+        image: k8s.gcr.io/gcsweb:v1.1.0
         args:
         - -b=istio-prow
         - -b=istio-build
