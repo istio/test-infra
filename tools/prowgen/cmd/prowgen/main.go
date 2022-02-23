@@ -61,7 +61,7 @@ func main() {
 
 	var bc spec.BaseConfig
 	if _, err := os.Stat(filepath.Join(*inputDir, ".base.yaml")); !os.IsNotExist(err) {
-		bc = *pkg.ReadBase(nil, filepath.Join(*inputDir, ".base.yaml"))
+		bc = pkg.ReadBase(nil, filepath.Join(*inputDir, ".base.yaml"))
 	}
 
 	if os.Args[1] == "branch" {
@@ -74,7 +74,7 @@ func main() {
 			}
 			baseConfig := bc
 			if _, err := os.Stat(filepath.Join(path, ".base.yaml")); !os.IsNotExist(err) {
-				baseConfig = *pkg.ReadBase(&baseConfig, filepath.Join(path, ".base.yaml"))
+				baseConfig = pkg.ReadBase(&baseConfig, filepath.Join(path, ".base.yaml"))
 			}
 			cli := pkg.Client{BaseConfig: baseConfig, LongJobNamesAllowed: *longJobNamesAllowed}
 
@@ -142,13 +142,8 @@ func main() {
 			log.Fatalf("Walking through the meta config files failed: %v", err)
 		}
 	} else {
-		// Set INPUT and OUTPUT env vars for the pre-process and post-process
-		// commands to consume.
-		os.Setenv("INPUT", *inputDir)
-		os.Setenv("OUTPUT", *outputDir)
-
 		if *preprocessCommand != "" {
-			if err := runCommand(*preprocessCommand); err != nil {
+			if err := runProcessCommand(*preprocessCommand); err != nil {
 				log.Fatalf("Error running preprocess command %q: %v", *preprocessCommand, err)
 			}
 		}
@@ -161,7 +156,7 @@ func main() {
 		// Store the job config generated from all meta-config files in a cache map, and combine the
 		// job configs before we generate the final config files.
 		// In this way we can have multiple meta-config files for the same org/repo:branch
-		cachedOutput := map[ref]*k8sProwConfig.JobConfig{}
+		cachedOutput := map[ref]k8sProwConfig.JobConfig{}
 		if err := filepath.WalkDir(*inputDir, func(path string, d os.DirEntry, err error) error {
 			if !d.IsDir() {
 				return nil
@@ -172,7 +167,7 @@ func main() {
 
 			baseConfig := bc
 			if _, err := os.Stat(filepath.Join(path, ".base.yaml")); !os.IsNotExist(err) {
-				baseConfig = *pkg.ReadBase(&baseConfig, filepath.Join(path, ".base.yaml"))
+				baseConfig = pkg.ReadBase(&baseConfig, filepath.Join(path, ".base.yaml"))
 			}
 			cli := pkg.Client{BaseConfig: baseConfig, LongJobNamesAllowed: *longJobNamesAllowed}
 
@@ -218,7 +213,7 @@ func main() {
 					err = multierror.Append(err, e)
 				}
 				if *postprocessCommand != "" {
-					if e := runCommand(*postprocessCommand); e != nil {
+					if e := runProcessCommand(*postprocessCommand); e != nil {
 						err = multierror.Append(err, e)
 					}
 				}
@@ -237,14 +232,17 @@ func main() {
 	}
 }
 
-func runCommand(rawCommand string) error {
+func runProcessCommand(rawCommand string) error {
 	log.Printf("⚙️ %s", rawCommand)
 	cmdSplit, err := shell.Split(rawCommand)
 	if len(cmdSplit) == 0 || err != nil {
 		return fmt.Errorf("error parsing the command %q: %w", rawCommand, err)
 	}
 	cmd := exec.Command(cmdSplit[0], cmdSplit[1:]...)
-	cmd.Env = os.Environ()
+
+	// Set INPUT and OUTPUT env vars for the pre-process and post-process
+	// commands to consume.
+	cmd.Env = append(os.Environ(), "INPUT="+*inputDir, "OUTPUT="+*outputDir)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -257,7 +255,7 @@ func outputFileName(repo string, org string, branch string) string {
 	return path.Join(*outputDir, org, repo, key)
 }
 
-func combineJobConfigs(jc1, jc2 *k8sProwConfig.JobConfig, orgRepo string) *k8sProwConfig.JobConfig {
+func combineJobConfigs(jc1, jc2 k8sProwConfig.JobConfig, orgRepo string) k8sProwConfig.JobConfig {
 	presubmits := jc1.PresubmitsStatic
 	postsubmits := jc1.PostsubmitsStatic
 	periodics := jc1.Periodics
@@ -266,7 +264,7 @@ func combineJobConfigs(jc1, jc2 *k8sProwConfig.JobConfig, orgRepo string) *k8sPr
 	postsubmits[orgRepo] = append(postsubmits[orgRepo], jc2.PostsubmitsStatic[orgRepo]...)
 	periodics = append(periodics, jc2.Periodics...)
 
-	return &k8sProwConfig.JobConfig{
+	return k8sProwConfig.JobConfig{
 		PresubmitsStatic:  presubmits,
 		PostsubmitsStatic: postsubmits,
 		Periodics:         periodics,

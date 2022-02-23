@@ -32,7 +32,7 @@ const (
 
 var variableSubstitutionRegex = regexp.MustCompile(`\$\([_a-zA-Z0-9.-]+(\.[_a-zA-Z0-9.-]+)*\)`)
 
-func ApplyVariables(job *spec.Job, params map[string]string, matrix map[string][]string) []*spec.Job {
+func ApplyVariables(job spec.Job, params map[string]string, matrix map[string][]string) []spec.Job {
 	yamlBS, err := yaml.Marshal(job)
 	if err != nil {
 		log.Fatalf("Failed to marshal the given Job: %v", err)
@@ -40,16 +40,16 @@ func ApplyVariables(job *spec.Job, params map[string]string, matrix map[string][
 
 	subsExps := getVarSubstitutionExpressions(string(yamlBS))
 	if len(subsExps) == 0 {
-		return []*spec.Job{job}
+		return []spec.Job{job}
 	}
 
 	resolvedYAMLStr := applyParams(string(yamlBS), subsExps, params)
 	resolvedYAMLStrs := applyMatrix(resolvedYAMLStr, subsExps, matrix)
 
-	jobs := make([]*spec.Job, 0)
+	jobs := make([]spec.Job, 0)
 	for _, jobYaml := range resolvedYAMLStrs {
-		job := &spec.Job{}
-		if err := yaml.Unmarshal([]byte(jobYaml), job); err != nil {
+		job := spec.Job{}
+		if err := yaml.Unmarshal([]byte(jobYaml), &job); err != nil {
 			log.Fatalf("Failed to unmarshal the yaml to Job: %v", err)
 		}
 		jobs = append(jobs, job)

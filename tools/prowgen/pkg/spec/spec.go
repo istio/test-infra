@@ -34,10 +34,10 @@ type BaseConfig struct {
 	TestgridConfig TestgridConfig `json:"testgrid_config,omitempty"`
 }
 
-func (baseConfig *BaseConfig) DeepCopy() *BaseConfig {
+func (baseConfig *BaseConfig) DeepCopy() BaseConfig {
 	bc, _ := yaml.Marshal(baseConfig)
-	newBaseConfig := &BaseConfig{}
-	if err := yaml.Unmarshal(bc, newBaseConfig); err != nil {
+	newBaseConfig := BaseConfig{}
+	if err := yaml.Unmarshal(bc, &newBaseConfig); err != nil {
 		log.Fatalf("Failed to unmarshal BaseConfig: %v", err)
 	}
 	return newBaseConfig
@@ -122,10 +122,10 @@ type CommonConfig struct {
 	Modifiers []string `json:"modifiers,omitempty"`
 }
 
-func (commonConfig *CommonConfig) DeepCopy() *CommonConfig {
+func (commonConfig *CommonConfig) DeepCopy() CommonConfig {
 	cc, _ := yaml.Marshal(commonConfig)
-	newCommonConfig := &CommonConfig{}
-	if err := yaml.Unmarshal(cc, newCommonConfig); err != nil {
+	newCommonConfig := CommonConfig{}
+	if err := yaml.Unmarshal(cc, &newCommonConfig); err != nil {
 		log.Fatalf("Failed to unmarshal CommonConfig: %v", err)
 	}
 	return newCommonConfig
@@ -141,10 +141,10 @@ type RequirementPreset struct {
 	Args         []string          `json:"args,omitempty"`
 }
 
-func (r *RequirementPreset) DeepCopy() *RequirementPreset {
+func (r *RequirementPreset) DeepCopy() RequirementPreset {
 	rp, _ := yaml.Marshal(r)
-	newRequirementPreset := &RequirementPreset{}
-	if err := yaml.Unmarshal(rp, newRequirementPreset); err != nil {
+	newRequirementPreset := RequirementPreset{}
+	if err := yaml.Unmarshal(rp, &newRequirementPreset); err != nil {
 		log.Fatalf("Failed to unmarshal RequirementPreset: %v", err)
 	}
 	return newRequirementPreset

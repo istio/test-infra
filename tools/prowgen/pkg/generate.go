@@ -56,7 +56,7 @@ type Client struct {
 	LongJobNamesAllowed bool
 }
 
-func ReadBase(baseConfig *spec.BaseConfig, file string) *spec.BaseConfig {
+func ReadBase(baseConfig *spec.BaseConfig, file string) spec.BaseConfig {
 	yamlFile, err := ioutil.ReadFile(file)
 	if err != nil {
 		log.Fatalf("Failed to read %q: %v", file, err)
@@ -66,17 +66,17 @@ func ReadBase(baseConfig *spec.BaseConfig, file string) *spec.BaseConfig {
 		log.Fatalf("Failed to unmarshal %q: %v", file, err)
 	}
 	if baseConfig == nil {
-		return &newBaseConfig
+		return newBaseConfig
 	}
 
 	mergedBaseConfig := baseConfig.DeepCopy()
-	mergedBaseConfig.CommonConfig = *mergeCommonConfig(&mergedBaseConfig.CommonConfig, &newBaseConfig.CommonConfig)
+	mergedBaseConfig.CommonConfig = mergeCommonConfig(mergedBaseConfig.CommonConfig, newBaseConfig.CommonConfig)
 
 	return mergedBaseConfig
 }
 
 // Reads the jobs yaml
-func (cli *Client) ReadJobsConfig(file string) *spec.JobsConfig {
+func (cli *Client) ReadJobsConfig(file string) spec.JobsConfig {
 	yamlFile, err := ioutil.ReadFile(file)
 	if err != nil {
 		log.Fatalf("Failed to read %q: %v", file, err)
@@ -102,7 +102,7 @@ func deepCopyMap(mp map[string]string) map[string]string {
 	return newMap
 }
 
-func mergeCommonConfig(configs ...*spec.CommonConfig) *spec.CommonConfig {
+func mergeCommonConfig(configs ...spec.CommonConfig) spec.CommonConfig {
 	mergedCommonConfig := spec.CommonConfig{}
 	for i := 0; i < len(configs); i++ {
 		config := configs[i].DeepCopy()
@@ -118,19 +118,19 @@ func mergeCommonConfig(configs ...*spec.CommonConfig) *spec.CommonConfig {
 			mergedCommonConfig.NodeSelector = deepCopyMap(configs[i].NodeSelector)
 		}
 	}
-	return &mergedCommonConfig
+	return mergedCommonConfig
 }
 
-func resolveOverwrites(baseCommonConfig *spec.CommonConfig, jobsConfig spec.JobsConfig) *spec.JobsConfig {
-	jobsConfig.CommonConfig = *mergeCommonConfig(baseCommonConfig, &jobsConfig.CommonConfig)
+func resolveOverwrites(baseCommonConfig spec.CommonConfig, jobsConfig spec.JobsConfig) spec.JobsConfig {
+	jobsConfig.CommonConfig = mergeCommonConfig(baseCommonConfig, jobsConfig.CommonConfig)
 
 	for i, job := range jobsConfig.Jobs {
-		job.CommonConfig = *mergeCommonConfig(&jobsConfig.CommonConfig, &job.CommonConfig)
+		job.CommonConfig = mergeCommonConfig(jobsConfig.CommonConfig, job.CommonConfig)
 
 		jobsConfig.Jobs[i] = job
 	}
 
-	return &jobsConfig
+	return jobsConfig
 }
 
 // FilterReleaseBranchingJobs filters then returns jobs with release branching enabled.
@@ -145,7 +145,7 @@ func FilterReleaseBranchingJobs(jobs []spec.Job) []spec.Job {
 	return jobsF
 }
 
-func validateJobsConfig(fileName string, jobsConfig *spec.JobsConfig) error {
+func validateJobsConfig(fileName string, jobsConfig spec.JobsConfig) error {
 	var err error
 	if jobsConfig.Org == "" {
 		err = multierror.Append(err, fmt.Errorf("%s: org must be set", fileName))
@@ -194,9 +194,14 @@ func validateJobsConfig(fileName string, jobsConfig *spec.JobsConfig) error {
 	return err
 }
 
-func (cli *Client) ConvertJobConfig(fileName string, jobsConfig *spec.JobsConfig, branch string) (*config.JobConfig, error) {
+func (cli *Client) ConvertJobConfig(fileName string, jobsConfig spec.JobsConfig, branch string) (config.JobConfig, error) {
+	output := config.JobConfig{
+		PresubmitsStatic:  map[string][]config.Presubmit{},
+		PostsubmitsStatic: map[string][]config.Postsubmit{},
+		Periodics:         []config.Periodic{},
+	}
 	if err := validateJobsConfig(fileName, jobsConfig); err != nil {
-		return nil, err
+		return output, err
 	}
 
 	baseConfig := cli.BaseConfig
@@ -206,13 +211,8 @@ func (cli *Client) ConvertJobConfig(fileName string, jobsConfig *spec.JobsConfig
 	var postsubmits []config.Postsubmit
 	var periodics []config.Periodic
 
-	output := &config.JobConfig{
-		PresubmitsStatic:  map[string][]config.Presubmit{},
-		PostsubmitsStatic: map[string][]config.Postsubmit{},
-		Periodics:         []config.Periodic{},
-	}
 	for _, parentJob := range jobsConfig.Jobs {
-		expandedJobs := decorator.ApplyVariables(&parentJob, jobsConfig.Params, jobsConfig.Matrix)
+		expandedJobs := decorator.ApplyVariables(parentJob, jobsConfig.Params, jobsConfig.Matrix)
 		for _, job := range expandedJobs {
 			brancher := config.Brancher{
 				Branches: []string{fmt.Sprintf("^%s$", branch)},
@@ -230,9 +230,9 @@ func (cli *Client) ConvertJobConfig(fileName string, jobsConfig *spec.JobsConfig
 					name += "_" + branch
 				}
 
-				base, err := cli.createJobBase(&baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets)
+				base, err := cli.createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets)
 				if err != nil {
-					return nil, err
+					return output, err
 				}
 
 				presubmit := config.Presubmit{
@@ -261,7 +261,7 @@ func (cli *Client) ConvertJobConfig(fileName string, jobsConfig *spec.JobsConfig
 					if err := mergo.Merge(&presubmit.JobBase.Annotations, map[string]string{
 						TestGridDashboard: testgridJobPrefix,
 					}); err != nil {
-						return nil, err
+						return output, err
 					}
 				}
 				decorator.ApplyModifiersPresubmit(&presubmit, job.Modifiers)
@@ -276,9 +276,9 @@ func (cli *Client) ConvertJobConfig(fileName string, jobsConfig *spec.JobsConfig
 				}
 				name += "_postsubmit"
 
-				base, err := cli.createJobBase(&baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets)
+				base, err := cli.createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets)
 				if err != nil {
-					return nil, err
+					return output, err
 				}
 
 				postsubmit := config.Postsubmit{
@@ -302,7 +302,7 @@ func (cli *Client) ConvertJobConfig(fileName string, jobsConfig *spec.JobsConfig
 						TestGridAlertEmail:  testgridConfig.AlertEmail,
 						TestGridNumFailures: testgridConfig.NumFailuresToAlert,
 					}); err != nil {
-						return nil, err
+						return output, err
 					}
 				}
 				decorator.ApplyModifiersPostsubmit(&postsubmit, job.Modifiers)
@@ -321,9 +321,9 @@ func (cli *Client) ConvertJobConfig(fileName string, jobsConfig *spec.JobsConfig
 				// should be set as the working directory, so add itself to the repo list here.
 				job.Repos = append([]string{jobsConfig.Org + "/" + jobsConfig.Repo}, job.Repos...)
 
-				base, err := cli.createJobBase(&baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets)
+				base, err := cli.createJobBase(baseConfig, jobsConfig, job, name, branch, jobsConfig.ResourcePresets)
 				if err != nil {
-					return nil, err
+					return output, err
 				}
 				periodic := config.Periodic{
 					JobBase:  base,
@@ -337,7 +337,7 @@ func (cli *Client) ConvertJobConfig(fileName string, jobsConfig *spec.JobsConfig
 						TestGridAlertEmail:  testgridConfig.AlertEmail,
 						TestGridNumFailures: testgridConfig.NumFailuresToAlert,
 					}); err != nil {
-						return nil, err
+						return output, err
 					}
 				}
 				decorator.ApplyRequirements(&periodic.JobBase, job.Requirements, job.ExcludedRequirements, jobsConfig.RequirementPresets)
@@ -358,7 +358,7 @@ func (cli *Client) ConvertJobConfig(fileName string, jobsConfig *spec.JobsConfig
 	return output, nil
 }
 
-func createContainer(jobConfig *spec.JobsConfig, job *spec.Job, resources map[string]v1.ResourceRequirements) []v1.Container {
+func createContainer(jobConfig spec.JobsConfig, job spec.Job, resources map[string]v1.ResourceRequirements) []v1.Container {
 	envs := job.Env
 	if len(envs) == 0 {
 		envs = jobConfig.Env
@@ -384,7 +384,7 @@ func createContainer(jobConfig *spec.JobsConfig, job *spec.Job, resources map[st
 	return []v1.Container{c}
 }
 
-func (cli *Client) createJobBase(baseConfig *spec.BaseConfig, jobConfig *spec.JobsConfig, job *spec.Job,
+func (cli *Client) createJobBase(baseConfig spec.BaseConfig, jobConfig spec.JobsConfig, job spec.Job,
 	name string, branch string, resources map[string]v1.ResourceRequirements) (config.JobBase, error,
 ) {
 	if len(name) > maxJobNameLength && !cli.LongJobNamesAllowed {

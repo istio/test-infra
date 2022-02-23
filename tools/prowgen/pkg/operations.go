@@ -29,7 +29,7 @@ import (
 )
 
 // WriteJobsConfig will write the meta jobs to the given file.
-func WriteJobsConfig(jobsConfig *spec.JobsConfig, file string) error {
+func WriteJobsConfig(jobsConfig spec.JobsConfig, file string) error {
 	bytes, err := yaml.Marshal(jobsConfig)
 	if err != nil {
 		return err
@@ -39,7 +39,7 @@ func WriteJobsConfig(jobsConfig *spec.JobsConfig, file string) error {
 }
 
 // Write will write the generated Prow jobs to the given file.
-func Write(jobs *config.JobConfig, fname, header string) error {
+func Write(jobs config.JobConfig, fname, header string) error {
 	bs, err := yaml.Marshal(jobs)
 	if err != nil {
 		log.Fatalf("Failed to marshal result: %v", err)
@@ -57,7 +57,7 @@ func Write(jobs *config.JobConfig, fname, header string) error {
 }
 
 // Check will diff the generated config file and the current config file.
-func Check(jobs *config.JobConfig, currentConfigFile string, header string) error {
+func Check(jobs config.JobConfig, currentConfigFile string, header string) error {
 	current, err := ioutil.ReadFile(currentConfigFile)
 	if err != nil {
 		return fmt.Errorf("failed to read current config for %s: %v", currentConfigFile, err)
@@ -80,7 +80,7 @@ func Check(jobs *config.JobConfig, currentConfigFile string, header string) erro
 }
 
 // Print will print out the generated Prow jobs config.
-func Print(jobs *config.JobConfig) {
+func Print(jobs config.JobConfig) {
 	bs, err := yaml.Marshal(jobs)
 	if err != nil {
 		log.Fatalf("Failed to write result: %v", err)
