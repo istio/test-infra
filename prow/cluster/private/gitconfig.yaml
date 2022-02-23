@@ -1,0 +1,13 @@
+# gitconfig is used with the (opt-in) preset "preset-use-go-control-plane-private"
+# This is used when we need to fork Istio APIs, but is not regularly used
+apiVersion: v1
+data:
+  .gitconfig: |
+    [url "https://github.com/istio-private/go-control-plane"]
+      insteadOf = https://github.com/envoyproxy/go-control-plane
+    [url "https://github.com/istio-private/api"]
+      insteadOf = https://github.com/istio/api
+kind: ConfigMap
+metadata:
+  name: gitconfig
+  namespace: test-pods
