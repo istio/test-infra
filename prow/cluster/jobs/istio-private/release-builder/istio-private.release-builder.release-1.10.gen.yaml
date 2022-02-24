@@ -156,9 +156,6 @@ postsubmits:
           subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /etc/github-token
-          name: github
-          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -168,10 +165,6 @@ postsubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
 presubmits:
   istio-private/release-builder:
   - always_run: true
