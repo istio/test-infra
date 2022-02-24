@@ -1,0 +1,862 @@
+# Below contains the configmaps that configure the release-builder manifests in istio/istio and istio/release-builder.
+# This should be updated for each version
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: master
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: master
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: master
+kind: ConfigMap
+metadata:
+  name: master-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        branch: master
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: master
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: master
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: master
+kind: ConfigMap
+metadata:
+  name: master-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.10
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.10
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.10
+kind: ConfigMap
+metadata:
+  name: release-1.10-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        branch: release-1.10
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.10
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.10
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.10
+kind: ConfigMap
+metadata:
+  name: release-1.10-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.11
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.11
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.11
+kind: ConfigMap
+metadata:
+  name: release-1.11-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        branch: release-1.11
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.11
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.11
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.11
+kind: ConfigMap
+metadata:
+  name: release-1.11-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.12
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.12
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.12
+kind: ConfigMap
+metadata:
+  name: release-1.12-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        branch: release-1.12
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.12
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.12
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.12
+kind: ConfigMap
+metadata:
+  name: release-1.12-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.13
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.13
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.13
+kind: ConfigMap
+metadata:
+  name: release-1.13-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        branch: release-1.13
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.13
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.13
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.13
+kind: ConfigMap
+metadata:
+  name: release-1.13-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.14
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.14
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.14
+kind: ConfigMap
+metadata:
+  name: release-1.14-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        branch: release-1.14
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.14
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.14
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.14
+kind: ConfigMap
+metadata:
+  name: release-1.14-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.15
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.15
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.15
+kind: ConfigMap
+metadata:
+  name: release-1.15-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        branch: release-1.15
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.15
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.15
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.15
+kind: ConfigMap
+metadata:
+  name: release-1.15-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        localpath: /home/prow/go/src/istio.io/istio
+      cni:
+        git: git@github.com:istio-private/cni.git
+        auto: deps
+      operator:
+        git: git@github.com:istio-private/operator.git
+        auto: modules
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.4
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.4
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.4
+      installer:
+        git: https://github.com/istio/installer
+        branch: release-1.4
+kind: ConfigMap
+metadata:
+  name: release-1.4-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        branch: release-1.4
+      cni:
+        git: git@github.com:istio-private/cni.git
+        auto: deps
+      operator:
+        git: git@github.com:istio-private/operator.git
+        auto: modules
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.4
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.4
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.4
+      installer:
+        git: https://github.com/istio/installer
+        branch: release-1.4
+kind: ConfigMap
+metadata:
+  name: release-1.4-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        localpath: /home/prow/go/src/istio.io/istio
+      cni:
+        git: git@github.com:istio-private/cni.git
+        auto: deps
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.5
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.5
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.5
+kind: ConfigMap
+metadata:
+  name: release-1.5-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        branch: release-1.5
+      cni:
+        git: git@github.com:istio-private/cni.git
+        auto: deps
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.5
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.5
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.5
+kind: ConfigMap
+metadata:
+  name: release-1.5-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        localpath: /home/prow/go/src/istio.io/istio
+      cni:
+        git: git@github.com:istio-private/cni.git
+        auto: deps
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.6
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.6
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.6
+kind: ConfigMap
+metadata:
+  name: release-1.6-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        branch: release-1.6
+      cni:
+        git: git@github.com:istio-private/cni.git
+        auto: deps
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.6
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.6
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.6
+kind: ConfigMap
+metadata:
+  name: release-1.6-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.7
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.7
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.7
+kind: ConfigMap
+metadata:
+  name: release-1.7-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        branch: release-1.7
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.7
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.7
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.7
+kind: ConfigMap
+metadata:
+  name: release-1.7-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.8
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.8
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.8
+kind: ConfigMap
+metadata:
+  name: release-1.8-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        branch: release-1.8
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.8
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.8
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.8
+kind: ConfigMap
+metadata:
+  name: release-1.8-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.9
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.9
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.9
+kind: ConfigMap
+metadata:
+  name: release-1.9-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: git@github.com:istio-private/istio.git
+        branch: release-1.9
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+      proxy:
+        git: git@github.com:istio-private/proxy.git
+        auto: deps
+      pkg:
+        git: https://github.com/istio/pkg
+        auto: modules
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.9
+      gogo-genproto:
+        git: https://github.com/istio/gogo-genproto
+        branch: release-1.9
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.9
+kind: ConfigMap
+metadata:
+  name: release-1.9-release-deps
+  namespace: test-pods
