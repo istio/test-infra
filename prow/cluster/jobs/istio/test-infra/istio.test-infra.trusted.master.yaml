@@ -44,8 +44,6 @@ periodics:
   spec:
     containers:
     - image: gcr.io/k8s-prow/branchprotector:v20220223-a7c3ef700d
-      command:
-      - /app/prow/cmd/branchprotector/app.binary
       args:
       - --config-path=prow/config.yaml
       - --job-config-path=prow/cluster/jobs
@@ -74,8 +72,6 @@ periodics:
   spec:
     containers:
     - image: gcr.io/k8s-prow/generic-autobumper:v20220223-a7c3ef700d
-      command:
-      - /app/prow/cmd/generic-autobumper/app.binary
       args:
       - --config=prow/istio-autobump-config.yaml
       volumeMounts:
@@ -108,8 +104,6 @@ periodics:
   spec:
     containers:
     - image: gcr.io/k8s-prow/generic-autobumper:v20220223-a7c3ef700d
-      command:
-      - /app/prow/cmd/generic-autobumper/app.binary
       args:
       - --config=prow/istio-autobump-config.yaml
       - --labels-override=auto-merge # This label is used by tide for identifying trusted PR
