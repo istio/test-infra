@@ -14,9 +14,9 @@ postsubmits:
     spec:
       serviceAccountName: testgrid-updater
       containers:
-      - image: gcr.io/k8s-prow/configurator
+      - image: gcr.io/k8s-prow/configurator:v20220223-a7c3ef700d
         command:
-        - /app/testgrid/cmd/configurator/app.binary
+        - configurator
         args:
         - --yaml=testgrid/config.yaml
         - --default=testgrid/default.yaml
@@ -45,9 +45,9 @@ periodics:
     testgrid-create-test-group: "false"
   spec:
     containers:
-    - image: gcr.io/k8s-prow/branchprotector:v20220221-8b6a2593f3
+    - image: gcr.io/k8s-prow/branchprotector:v20220223-a7c3ef700d
       command:
-      - /app/prow/cmd/branchprotector/app.binary
+      - branchprotector
       args:
       - --config-path=prow/config.yaml
       - --job-config-path=prow/cluster/jobs
@@ -75,9 +75,9 @@ periodics:
     testgrid-create-test-group: "false"
   spec:
     containers:
-    - image: gcr.io/k8s-prow/generic-autobumper:v20220221-8b6a2593f3
+    - image: gcr.io/k8s-prow/generic-autobumper:v20220223-a7c3ef700d
       command:
-      - /app/prow/cmd/generic-autobumper/app.binary
+      - generic-autobumper
       args:
       - --config=prow/istio-autobump-config.yaml
       volumeMounts:
@@ -109,9 +109,9 @@ periodics:
     testgrid-create-test-group: "false"
   spec:
     containers:
-    - image: gcr.io/k8s-prow/generic-autobumper:v20220221-8b6a2593f3
+    - image: gcr.io/k8s-prow/generic-autobumper:v20220223-a7c3ef700d
       command:
-      - /app/prow/cmd/generic-autobumper/app.binary
+      - generic-autobumper
       args:
       - --config=prow/istio-autobump-config.yaml
       - --labels-override=auto-merge # This label is used by tide for identifying trusted PR
