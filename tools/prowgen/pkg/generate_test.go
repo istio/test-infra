@@ -17,8 +17,11 @@ package pkg
 import (
 	"fmt"
 	"os"
-	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
+
+	"istio.io/test-infra/tools/prowgen/pkg/spec"
 )
 
 func TestGenerateConfig(t *testing.T) {
@@ -32,7 +35,10 @@ func TestGenerateConfig(t *testing.T) {
 			name: "simple",
 		},
 		{
-			name: "simple-matrix",
+			name: "matrix",
+		},
+		{
+			name: "params",
 		},
 		{
 			name:        "long-job-name",
@@ -41,23 +47,24 @@ func TestGenerateConfig(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			jobs := cli.ReadJobsConfig(fmt.Sprintf("testdata/%s.yaml", tt.name))
+			file := fmt.Sprintf("testdata/%s.yaml", tt.name)
+			jobs := cli.ReadJobsConfig(file)
 			for _, branch := range jobs.Branches {
-				output, err := cli.ConvertJobConfig(&jobs, branch)
+				output, err := cli.ConvertJobConfig(file, jobs, branch)
 				if tt.expectError {
 					if err == nil {
-						t.Fatalf("test %v expected an error, but did not receiev one", tt.name)
+						t.Fatalf("Test %q expected an error, but did not receive one", tt.name)
 					}
 					// there should be no generated file when an error occurs
 					continue
 				} else if err != nil {
-					t.Fatalf("test %v did not expect an error, but received '%v'", tt.name, err)
+					t.Fatalf("Test %q did not expect an error, but received %v", tt.name, err)
 				}
 				testFile := fmt.Sprintf("testdata/%s.gen.yaml", tt.name)
 				if os.Getenv("REFRESH_GOLDEN") == "true" {
 					Write(output, testFile, bc.AutogenHeader)
 				}
-				if err := cli.CheckConfig(output, testFile, bc.AutogenHeader); err != nil {
+				if err := Check(output, testFile, bc.AutogenHeader); err != nil {
 					t.Fatal(err.Error())
 				}
 			}
@@ -68,17 +75,17 @@ func TestGenerateConfig(t *testing.T) {
 func TestFilterReleaseBranchingJobs(t *testing.T) {
 	testCases := []struct {
 		name         string
-		jobs         []Job
-		filteredJobs []Job
+		jobs         []spec.Job
+		filteredJobs []spec.Job
 	}{
 		{
 			name:         "filter an empty list of jobs",
-			jobs:         []Job{},
-			filteredJobs: []Job{},
+			jobs:         []spec.Job{},
+			filteredJobs: []spec.Job{},
 		},
 		{
 			name: "filter enabled release branching jobs",
-			jobs: []Job{
+			jobs: []spec.Job{
 				{
 					Name:    "job_1",
 					Command: []string{"exit", "0"},
@@ -91,7 +98,7 @@ func TestFilterReleaseBranchingJobs(t *testing.T) {
 					Types:                   []string{"postsubmit"},
 				},
 			},
-			filteredJobs: []Job{
+			filteredJobs: []spec.Job{
 				{
 					Name:    "job_1",
 					Command: []string{"exit", "0"},
@@ -107,7 +114,7 @@ func TestFilterReleaseBranchingJobs(t *testing.T) {
 		},
 		{
 			name: "filter disabled release branching jobs",
-			jobs: []Job{
+			jobs: []spec.Job{
 				{
 					Name:                    "job_1",
 					Command:                 []string{"exit", "0"},
@@ -121,7 +128,7 @@ func TestFilterReleaseBranchingJobs(t *testing.T) {
 					Types:                   []string{"postsubmit"},
 				},
 			},
-			filteredJobs: []Job{},
+			filteredJobs: []spec.Job{},
 		},
 	}
 
@@ -129,56 +136,8 @@ func TestFilterReleaseBranchingJobs(t *testing.T) {
 		expected := tc.filteredJobs
 		actual := FilterReleaseBranchingJobs(tc.jobs)
 
-		if !reflect.DeepEqual(expected, actual) {
-			t.Errorf("Filtered jobs do not	 match; actual: %v\n expected %v\n", actual, expected)
-		}
-	}
-}
-
-func TestMergeMaps(t *testing.T) {
-	testCases := []struct {
-		name     string
-		mp1      map[string]string
-		mp2      map[string]string
-		expected map[string]string
-	}{
-		{
-			name:     "combine two empty maps",
-			mp1:      nil,
-			mp2:      nil,
-			expected: map[string]string{},
-		},
-		{
-			name:     "the first map is empty",
-			mp1:      map[string]string{},
-			mp2:      map[string]string{"a": "aa", "b": "bb"},
-			expected: map[string]string{"a": "aa", "b": "bb"},
-		},
-		{
-			name:     "the second map is empty",
-			mp1:      map[string]string{"a": "aa", "b": "bb"},
-			mp2:      map[string]string{},
-			expected: map[string]string{"a": "aa", "b": "bb"},
-		},
-		{
-			name:     "two maps without duplicated keys",
-			mp1:      map[string]string{"a": "aa"},
-			mp2:      map[string]string{"b": "bb"},
-			expected: map[string]string{"a": "aa", "b": "bb"},
-		},
-		{
-			name:     "two maps with duplicated keys",
-			mp1:      map[string]string{"a": "aa", "b": "b"},
-			mp2:      map[string]string{"b": "bb"},
-			expected: map[string]string{"a": "aa", "b": "bb"},
-		},
-	}
-
-	for _, tc := range testCases {
-		actual := mergeMaps(tc.mp1, tc.mp2)
-
-		if !reflect.DeepEqual(tc.expected, actual) {
-			t.Errorf("mergeMaps does not work as intended; actual: %v\n expected %v\n", actual, tc.expected)
+		if diff := cmp.Diff(expected, actual); diff != "" {
+			t.Fatalf("Filtered jobs do not match, (-want, +got): \n%s", diff)
 		}
 	}
 }

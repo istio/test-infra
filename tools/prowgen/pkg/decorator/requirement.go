@@ -12,50 +12,68 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package pkg
+package decorator
 
 import (
+	"log"
+
+	"github.com/hashicorp/go-multierror"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/util/sets"
+	"k8s.io/test-infra/prow/config"
+
+	"istio.io/test-infra/tools/prowgen/pkg/spec"
 )
 
-// RequirementPreset can be used to re-use settings across multiple jobs.
-type RequirementPreset struct {
-	Annotations  map[string]string `json:"annotations"`
-	Labels       map[string]string `json:"labels"`
-	Env          []v1.EnvVar       `json:"env"`
-	Volumes      []v1.Volume       `json:"volumes"`
-	VolumeMounts []v1.VolumeMount  `json:"volumeMounts"`
-	Args         []string          `json:"args"`
+func ApplyRequirements(job *config.JobBase, requirements, excludedRequirements []string,
+	presetMap map[string]spec.RequirementPreset,
+) {
+	validRequirements := sets.NewString()
+	for name := range presetMap {
+		validRequirements = validRequirements.Insert(name)
+	}
+	var err error
+	for _, req := range requirements {
+		if e := validate(
+			req,
+			validRequirements,
+			"requirements"); e != nil {
+			err = multierror.Append(err, e)
+		}
+	}
+	for _, req := range excludedRequirements {
+		if e := validate(
+			req,
+			validRequirements,
+			"excluded_requirements"); e != nil {
+			err = multierror.Append(err, e)
+		}
+	}
+	if err != nil {
+		log.Fatalf("Requirements validation failed: %v", err)
+	}
+
+	blocked := sets.NewString(excludedRequirements...)
+	presets := make([]spec.RequirementPreset, 0)
+	for _, req := range requirements {
+		if !blocked.Has(req) {
+			presets = append(presets, presetMap[req])
+		}
+	}
+	resolveRequirements(job.Annotations, job.Labels, job.Spec, presets)
 }
 
-func (r RequirementPreset) DeepCopy() RequirementPreset {
-	ret := RequirementPreset{
-		Annotations: map[string]string{},
-		Labels:      map[string]string{},
-	}
-	for k, v := range r.Annotations {
-		ret.Annotations[k] = v
-	}
-	for k, v := range r.Labels {
-		ret.Labels[k] = v
-	}
-	ret.Env = append(ret.Env, r.Env...)
-	ret.Volumes = append(ret.Volumes, r.Volumes...)
-	ret.VolumeMounts = append(ret.VolumeMounts, r.VolumeMounts...)
-	ret.Args = append(ret.Args, r.Args...)
-	return ret
-}
-
-func resolveRequirements(annotations, labels map[string]string, spec *v1.PodSpec, requirements []RequirementPreset) {
+func resolveRequirements(annotations, labels map[string]string, spec *v1.PodSpec, requirements []spec.RequirementPreset) {
 	if spec != nil {
 		for _, req := range requirements {
-			mergeRequirement(req, annotations, labels, spec.Containers, &spec.Volumes)
+			mergeRequirement(annotations, labels, spec.Containers, &spec.Volumes, req)
 		}
 	}
 }
 
 // mergeRequirement will overlay the requirement on the existing job spec.
-func mergeRequirement(req RequirementPreset, annotations, labels map[string]string, containers []v1.Container, volumes *[]v1.Volume) {
+func mergeRequirement(annotations, labels map[string]string, containers []v1.Container, volumes *[]v1.Volume,
+	req spec.RequirementPreset) {
 	for a, v := range req.Annotations {
 		annotations[a] = v
 	}

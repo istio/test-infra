@@ -12,13 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.17 as build-env
+FROM golang:1.16 as build-env
 
 WORKDIR /go/src/istio
 
 COPY . /go/src/istio
 
-RUN go install /go/src/istio/tools/prowgen/cmd/prowgen
+ENV CGO_ENABLED=0
+
+WORKDIR /go/src/istio/tools/prowgen/cmd/prowgen
+
+RUN go install .
 
 RUN go install github.com/mikefarah/yq/v4@v4.16.2
 

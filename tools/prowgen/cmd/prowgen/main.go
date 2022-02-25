@@ -25,9 +25,13 @@ import (
 	"path/filepath"
 	"regexp"
 
+	"github.com/hashicorp/go-multierror"
+	shell "github.com/kballard/go-shellquote"
 	k8sProwConfig "k8s.io/test-infra/prow/config"
+	"sigs.k8s.io/yaml"
 
 	"istio.io/test-infra/tools/prowgen/pkg"
+	"istio.io/test-infra/tools/prowgen/pkg/spec"
 )
 
 var (
@@ -36,29 +40,17 @@ var (
 
 	inputDir            = flag.String("input-dir", "./prow/config/jobs", "directory of input jobs")
 	outputDir           = flag.String("output-dir", "./prow/cluster/jobs", "directory of output jobs")
+	preprocessCommand   = flag.String("pre-process-command", "", "command to run to preprocess the meta config files")
+	postprocessCommand  = flag.String("post-process-command", "", "command to run to postprocess the generated config files")
 	longJobNamesAllowed = flag.Bool("allow-long-job-names", false, "allow job names that are longer than 63 characters")
 )
-
-func exit(err error, context string) {
-	if context == "" {
-		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
-	} else {
-		_, _ = fmt.Fprintf(os.Stderr, "%v: %v\n", context, err)
-	}
-	os.Exit(1)
-}
-
-func getFileName(repo string, org string, branch string) string {
-	key := fmt.Sprintf("%s.%s.%s.gen.yaml", org, repo, branch)
-	return path.Join(*outputDir, org, repo, key)
-}
 
 func main() {
 	flag.Parse()
 
 	// TODO: deserves a better CLI...
 	if len(flag.Args()) < 1 {
-		panic("must provide one of write, diff, print, branch")
+		panic("must provide one of write, print, check, branch")
 	} else if flag.Arg(0) == "branch" {
 		if len(flag.Args()) != 2 {
 			panic("must specify branch name")
@@ -67,7 +59,7 @@ func main() {
 		panic("too many arguments")
 	}
 
-	var bc *pkg.BaseConfig
+	var bc spec.BaseConfig
 	if _, err := os.Stat(filepath.Join(*inputDir, ".base.yaml")); !os.IsNotExist(err) {
 		bc = pkg.ReadBase(nil, filepath.Join(*inputDir, ".base.yaml"))
 	}
@@ -78,13 +70,13 @@ func main() {
 				return nil
 			}
 			if err != nil {
-				fmt.Printf("error: %s\n", err.Error())
+				log.Fatal(err)
 			}
 			baseConfig := bc
 			if _, err := os.Stat(filepath.Join(path, ".base.yaml")); !os.IsNotExist(err) {
-				baseConfig = pkg.ReadBase(baseConfig, filepath.Join(path, ".base.yaml"))
+				baseConfig = pkg.ReadBase(&baseConfig, filepath.Join(path, ".base.yaml"))
 			}
-			cli := pkg.Client{BaseConfig: *baseConfig, LongJobNamesAllowed: *longJobNamesAllowed}
+			cli := pkg.Client{BaseConfig: baseConfig, LongJobNamesAllowed: *longJobNamesAllowed}
 
 			files, _ := ioutil.ReadDir(path)
 			for _, file := range files {
@@ -94,7 +86,7 @@ func main() {
 
 				if (filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml") ||
 					file.Name() == ".base.yaml" {
-					log.Println("skipping", file.Name())
+					log.Println("skipping non-yaml file: ", file.Name())
 					continue
 				}
 
@@ -120,7 +112,7 @@ func main() {
 						// image for the new branch is updated.
 						newImage := fmt.Sprintf("%s:%s-%s", match[1], branch, match[3])
 						if err := exec.Command("gcloud", "container", "images", "add-tag", match[0], newImage).Run(); err != nil {
-							exit(err, "unable to add image tag: "+newImage)
+							log.Fatalf("Unable to add image tag %q: %v", newImage, err)
 						} else {
 							jobs.Image = newImage
 						}
@@ -133,17 +125,29 @@ func main() {
 					name = name[:len(name)-len(ext)] + "-" + flag.Arg(1) + ext
 
 					dst := filepath.Join(*inputDir, name)
-					if err := pkg.WriteJobConfig(&jobs, dst); err != nil {
-						exit(err, "writing branched config failed")
+					bytes, err := yaml.Marshal(jobs)
+					if err != nil {
+						log.Fatalf("Error marshaling jobs config: %v", err)
+					}
+
+					// Writes the job yaml
+					if err := ioutil.WriteFile(dst, bytes, 0o644); err != nil {
+						log.Fatalf("Error writing branches config: %v", err)
 					}
 				}
 			}
 
 			return nil
 		}); err != nil {
-			exit(err, "walking through the meta config files failed")
+			log.Fatalf("Walking through the meta config files failed: %v", err)
 		}
 	} else {
+		if *preprocessCommand != "" {
+			if err := runProcessCommand(*preprocessCommand); err != nil {
+				log.Fatalf("Error running preprocess command %q: %v", *preprocessCommand, err)
+			}
+		}
+
 		type ref struct {
 			org    string
 			repo   string
@@ -158,14 +162,14 @@ func main() {
 				return nil
 			}
 			if err != nil {
-				fmt.Printf("error: %s\n", err.Error())
+				log.Fatal(err)
 			}
 
 			baseConfig := bc
 			if _, err := os.Stat(filepath.Join(path, ".base.yaml")); !os.IsNotExist(err) {
-				baseConfig = pkg.ReadBase(baseConfig, filepath.Join(path, ".base.yaml"))
+				baseConfig = pkg.ReadBase(&baseConfig, filepath.Join(path, ".base.yaml"))
 			}
-			cli := pkg.Client{BaseConfig: *baseConfig, LongJobNamesAllowed: *longJobNamesAllowed}
+			cli := pkg.Client{BaseConfig: baseConfig, LongJobNamesAllowed: *longJobNamesAllowed}
 
 			files, _ := ioutil.ReadDir(path)
 			for _, file := range files {
@@ -175,17 +179,16 @@ func main() {
 
 				if (filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml") ||
 					file.Name() == ".base.yaml" {
-					log.Println("skipping", file.Name())
+					log.Println("skipping non-yaml file: ", file.Name())
 					continue
 				}
 
 				src := filepath.Join(path, file.Name())
 				jobs := cli.ReadJobsConfig(src)
 				for _, branch := range jobs.Branches {
-					cli.ValidateJobConfig(file.Name(), &jobs)
-					output, err := cli.ConvertJobConfig(&jobs, branch)
+					output, err := cli.ConvertJobConfig(file.Name(), jobs, branch)
 					if err != nil {
-						exit(err, "job name is too long")
+						log.Fatal(err)
 					}
 					rf := ref{jobs.Org, jobs.Repo, branch}
 					if _, ok := cachedOutput[rf]; !ok {
@@ -198,22 +201,58 @@ func main() {
 			}
 			return nil
 		}); err != nil {
-			exit(err, "walking through the meta config files failed")
+			log.Fatalf("Walking through the meta config files failed: %v", err)
 		}
 
+		var err error
 		for r, output := range cachedOutput {
-			fname := getFileName(r.repo, r.org, r.branch)
+			fname := outputFileName(r.repo, r.org, r.branch)
 			switch flag.Arg(0) {
 			case "write":
-				pkg.Write(output, fname, bc.AutogenHeader)
-			case "diff":
-				existing := pkg.ReadProwJobConfig(fname)
-				pkg.Diff(output, existing)
-			default:
+				if e := pkg.Write(output, fname, bc.AutogenHeader); e != nil {
+					err = multierror.Append(err, e)
+				}
+				if *postprocessCommand != "" {
+					if e := runProcessCommand(*postprocessCommand); e != nil {
+						err = multierror.Append(err, e)
+					}
+				}
+			case "check":
+				if e := pkg.Check(output, fname, bc.AutogenHeader); e != nil {
+					err = multierror.Append(err, e)
+				}
+			case "print":
 				pkg.Print(output)
 			}
 		}
+
+		if err != nil {
+			log.Fatalf("Get errors for the %q operation:\n%v", flag.Arg(0), err)
+		}
 	}
+}
+
+func runProcessCommand(rawCommand string) error {
+	log.Printf("⚙️ %s", rawCommand)
+	cmdSplit, err := shell.Split(rawCommand)
+	if len(cmdSplit) == 0 || err != nil {
+		return fmt.Errorf("error parsing the command %q: %w", rawCommand, err)
+	}
+	cmd := exec.Command(cmdSplit[0], cmdSplit[1:]...)
+
+	// Set INPUT and OUTPUT env vars for the pre-process and post-process
+	// commands to consume.
+	cmd.Env = append(os.Environ(), "INPUT="+*inputDir, "OUTPUT="+*outputDir)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	return cmd.Run()
+}
+
+func outputFileName(repo string, org string, branch string) string {
+	key := fmt.Sprintf("%s.%s.%s.gen.yaml", org, repo, branch)
+	return path.Join(*outputDir, org, repo, key)
 }
 
 func combineJobConfigs(jc1, jc2 k8sProwConfig.JobConfig, orgRepo string) k8sProwConfig.JobConfig {
