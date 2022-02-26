@@ -5,6 +5,7 @@ image: gcr.io/istio-testing/build-tools:master-2022-02-11T17-43-07
 jobs:
   - name: unit-tests
     command: [entrypoint, make, -e, "T=-v -count=1", build, racetest, binaries-test]
+    resources: dedicated
 
   - name: release-test
     service_account_name: prowjob-advanced-sa
@@ -22,13 +23,13 @@ jobs:
     types: [presubmit]
     modifiers: [presubmit_optional, presubmit_skipped]
     command: [entrypoint, make, benchtest]
-    resources: benchmark
+    resources: dedicated
 
   - name: benchmark-report
     service_account_name: prowjob-advanced-sa
     types: [postsubmit]
     command: [entrypoint, make, benchtest, report-benchtest]
-    resources: benchmark
+    resources: dedicated
 
   - name: integ-cni
     types: [presubmit]
@@ -420,7 +421,7 @@ resources_presets:
     limits:
       memory: "24Gi"
   # Give 15 CPUs which will put us on a dedicated node, for consistency
-  benchmark:
+  dedicated:
     requests:
       memory: "8Gi"
       cpu: "15000m"
