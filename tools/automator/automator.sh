@@ -19,7 +19,7 @@ set -euo pipefail
 
 ROOT="$(cd -P "$(dirname -- "$0")" && pwd -P)"
 
-# shellcheck disable=SC1090
+# shellcheck disable=SC1090,SC1091
 source "$ROOT/utils.sh"
 
 cleanup() {
