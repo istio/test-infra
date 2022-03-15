@@ -35,6 +35,8 @@ import (
 
 	"istio.io/test-infra/tools/prowtrans/pkg/configuration"
 	"istio.io/test-infra/tools/prowtrans/pkg/util"
+
+	dockername "github.com/google/go-containerregistry/pkg/name"
 )
 
 const (
@@ -83,6 +85,7 @@ func (o *options) parseOpts() {
 	flag.StringVar(&o.SSHKeySecret, "ssh-key-secret", "", "GKE cluster secrets containing the Github ssh private key.")
 	flag.StringVar(&o.Modifier, "modifier", defaultModifier, "Modifier to apply to generated file and job name(s).")
 	flag.StringVar(&o.ServiceAccount, "service-account", "", "Service Account to apply to generated files.")
+	flag.StringVar(&o.Tag, "tag", "", "Override docker image tag for generated job(s).")
 	flag.StringVarP(&o.Input, "input", "i", ".", "Input file or directory containing job(s) to convert.")
 	flag.StringVarP(&o.Output, "output", "o", ".", "Output file or directory to write generated job(s).")
 	flag.StringVarP(&o.Sort, "sort", "s", "", "Sort the job(s) by name: (e.g. (asc)ending, (desc)ending).")
@@ -341,6 +344,9 @@ func applyDefaultTransforms(dst *configuration.Transform, srcs ...*configuration
 		}
 		if len(dst.HubMap) == 0 {
 			dst.HubMap = src.HubMap
+		}
+		if dst.Tag == "" {
+			dst.Tag = src.Tag
 		}
 		if !dst.DryRun {
 			dst.DryRun = src.DryRun
@@ -806,13 +812,29 @@ func updateExtraRefs(o options, job *config.UtilityConfig) {
 // updateHubs updates the docker hubs for container images
 func updateHubs(o options, job *config.JobBase) {
 	for i := range job.Spec.Containers {
+		tag, _ := dockername.NewTag(job.Spec.Containers[i].Image)
+		repostr := tag.Context().Name()
 		for in, out := range o.HubMap {
-			job.Spec.Containers[i].Image = strings.ReplaceAll(
-				job.Spec.Containers[i].Image,
+			repostr = strings.ReplaceAll(
+				repostr,
 				in,
 				out,
 			)
 		}
+		newTag, _ := dockername.NewTag(fmt.Sprintf("%s:%s", repostr, tag.TagStr()))
+		job.Spec.Containers[i].Image = newTag.Name()
+	}
+}
+
+// updateTags forces an override of the docker tags for container images
+func updateTags(o options, job *config.JobBase) {
+	if o.Tag == "" {
+		return
+	}
+	for i := range job.Spec.Containers {
+		tag, _ := dockername.NewTag(job.Spec.Containers[i].Image)
+		repostr := tag.Context().Name()
+		job.Spec.Containers[i].Image = repostr + ":" + o.Tag
 	}
 }
 
@@ -1057,6 +1079,7 @@ func generateJobs(o options) {
 				resolvePresets(o, job.Labels, &job.JobBase, append(presets, jobs.Presets...))
 				pruneJobBase(o, &job.JobBase)
 				updateHubs(o, &job.JobBase)
+				updateTags(o, &job.JobBase)
 
 				presubmit[orgrepo] = append(presubmit[orgrepo], job)
 			}
@@ -1082,6 +1105,7 @@ func generateJobs(o options) {
 				resolvePresets(o, job.Labels, &job.JobBase, append(presets, jobs.Presets...))
 				pruneJobBase(o, &job.JobBase)
 				updateHubs(o, &job.JobBase)
+				updateTags(o, &job.JobBase)
 
 				postsubmit[orgrepo] = append(postsubmit[orgrepo], job)
 			}
@@ -1115,6 +1139,7 @@ func generateJobs(o options) {
 			resolvePresets(o, job.Labels, &job.JobBase, append(presets, jobs.Presets...))
 			pruneJobBase(o, &job.JobBase)
 			updateHubs(o, &job.JobBase)
+			updateTags(o, &job.JobBase)
 
 			periodic = append(periodic, job)
 		}

@@ -68,6 +68,7 @@ type Transform struct {
 	RefOrgMap              map[string]string       `json:"ref-mapping,omitempty"`
 	OrgMap                 map[string]string       `json:"mapping,omitempty"`
 	HubMap                 map[string]string       `json:"hub,omitempty"`
+	Tag                    string                  `json:"tag,omitempty"`
 	Clean                  bool                    `json:"clean,omitempty"`
 	DryRun                 bool                    `json:"dry-run,omitempty"`
 	Refs                   bool                    `json:"refs,omitempty"`

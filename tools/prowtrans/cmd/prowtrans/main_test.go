@@ -130,6 +130,10 @@ func TestProwTrans(t *testing.T) {
 			name:    "image_rename",
 			configs: true,
 		},
+		{
+			name:    "tag_rename",
+			configs: true,
+		},
 	}
 
 	for _, test := range tests {
