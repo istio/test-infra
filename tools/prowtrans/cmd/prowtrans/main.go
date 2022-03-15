@@ -812,15 +812,15 @@ func updateExtraRefs(o options, job *config.UtilityConfig) {
 func updateHubs(o options, job *config.JobBase) {
 	for i := range job.Spec.Containers {
 		tag, _ := dockername.NewTag(job.Spec.Containers[i].Image)
-		repostr := tag.Context().Name()
+		baseref := tag.Context().Name()
 		for in, out := range o.HubMap {
-			repostr = strings.ReplaceAll(
-				repostr,
+			baseref = strings.ReplaceAll(
+				baseref,
 				in,
 				out,
 			)
 		}
-		newTag, _ := dockername.NewTag(fmt.Sprintf("%s:%s", repostr, tag.TagStr()))
+		newTag, _ := dockername.NewTag(fmt.Sprintf("%s:%s", baseref, tag.TagStr()))
 		job.Spec.Containers[i].Image = newTag.Name()
 	}
 }
@@ -832,8 +832,8 @@ func updateTags(o options, job *config.JobBase) {
 	}
 	for i := range job.Spec.Containers {
 		tag, _ := dockername.NewTag(job.Spec.Containers[i].Image)
-		repostr := tag.Context().Name()
-		job.Spec.Containers[i].Image = repostr + ":" + o.Tag
+		baseref := tag.Context().Name()
+		job.Spec.Containers[i].Image = baseref + ":" + o.Tag
 	}
 }
 
