@@ -36,4 +36,5 @@ require (
 	cloud.google.com/go/container v1.0.0 // indirect
 	cloud.google.com/go/monitoring v1.2.0 // indirect
 	cloud.google.com/go/trace v1.0.0 // indirect
+	github.com/google/go-containerregistry v0.1.1
 )
