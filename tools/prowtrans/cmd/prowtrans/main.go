@@ -98,6 +98,7 @@ func (o *options) parseOpts() {
 	flag.StringToStringVarP(&o.Env, "env", "e", map[string]string{}, "Environment variables to set for the job(s).")
 	flag.StringToStringVarP(&o.OrgMap, "mapping", "m", map[string]string{}, "Mapping between public and private Github organization(s).")
 	flag.StringToStringVar(&o.RefOrgMap, "ref-mapping", map[string]string{}, "Mapping between public and private Github organization(s) in refs.")
+	flag.StringToStringVar(&o.HubMap, "hub-mapping", map[string]string{}, "Docker image hub mapping.")
 	flag.StringToStringVarP(&o.Annotations, "annotations", "a", map[string]string{}, "Annotations to apply to the job(s)")
 	flag.StringSliceVar(&o.EnvDenylist, "env-denylist", []string{}, "Env(s) to denylist in generation process.")
 	flag.StringSliceVar(&o.VolumeDenylist, "volume-denylist", []string{}, "Volume(s) to denylist in generation process.")
@@ -337,6 +338,9 @@ func applyDefaultTransforms(dst *configuration.Transform, srcs ...*configuration
 		}
 		if len(dst.RefOrgMap) == 0 {
 			dst.RefOrgMap = src.RefOrgMap
+		}
+		if len(dst.HubMap) == 0 {
+			dst.HubMap = src.HubMap
 		}
 		if !dst.DryRun {
 			dst.DryRun = src.DryRun
@@ -799,6 +803,19 @@ func updateExtraRefs(o options, job *config.UtilityConfig) {
 	}
 }
 
+// updateHubs updates the docker hubs for container images
+func updateHubs(o options, job *config.JobBase) {
+	for i := range job.Spec.Containers {
+		for in, out := range o.HubMap {
+			job.Spec.Containers[i].Image = strings.ReplaceAll(
+				job.Spec.Containers[i].Image,
+				in,
+				out,
+			)
+		}
+	}
+}
+
 // sortJobs sorts jobs based on a provided sort order.
 func sortJobs(o options, pre map[string][]config.Presubmit, post map[string][]config.Postsubmit, per []config.Periodic) {
 	if o.Sort == "" {
@@ -1039,6 +1056,7 @@ func generateJobs(o options) {
 				updateGerritReportingLabels(o, job.SkipReport, job.Optional, job.Labels)
 				resolvePresets(o, job.Labels, &job.JobBase, append(presets, jobs.Presets...))
 				pruneJobBase(o, &job.JobBase)
+				updateHubs(o, &job.JobBase)
 
 				presubmit[orgrepo] = append(presubmit[orgrepo], job)
 			}
@@ -1063,6 +1081,7 @@ func generateJobs(o options) {
 				updateUtilityConfig(o, &job.UtilityConfig)
 				resolvePresets(o, job.Labels, &job.JobBase, append(presets, jobs.Presets...))
 				pruneJobBase(o, &job.JobBase)
+				updateHubs(o, &job.JobBase)
 
 				postsubmit[orgrepo] = append(postsubmit[orgrepo], job)
 			}
@@ -1095,6 +1114,7 @@ func generateJobs(o options) {
 			updateUtilityConfig(o, &job.UtilityConfig)
 			resolvePresets(o, job.Labels, &job.JobBase, append(presets, jobs.Presets...))
 			pruneJobBase(o, &job.JobBase)
+			updateHubs(o, &job.JobBase)
 
 			periodic = append(periodic, job)
 		}

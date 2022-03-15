@@ -67,6 +67,7 @@ type Transform struct {
 	Env                    map[string]string       `json:"env,omitempty"`
 	RefOrgMap              map[string]string       `json:"ref-mapping,omitempty"`
 	OrgMap                 map[string]string       `json:"mapping,omitempty"`
+	HubMap                 map[string]string       `json:"hub,omitempty"`
 	Clean                  bool                    `json:"clean,omitempty"`
 	DryRun                 bool                    `json:"dry-run,omitempty"`
 	Refs                   bool                    `json:"refs,omitempty"`
