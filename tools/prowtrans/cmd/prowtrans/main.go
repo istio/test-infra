@@ -26,6 +26,7 @@ import (
 	"sort"
 	"strings"
 
+	dockername "github.com/google/go-containerregistry/pkg/name"
 	flag "github.com/spf13/pflag"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
@@ -35,8 +36,6 @@ import (
 
 	"istio.io/test-infra/tools/prowtrans/pkg/configuration"
 	"istio.io/test-infra/tools/prowtrans/pkg/util"
-
-	dockername "github.com/google/go-containerregistry/pkg/name"
 )
 
 const (
