@@ -89,6 +89,16 @@ requirement_presets:
       secret:
         secretName: oauth-token
         optional: true
+  istio-pgp:
+    volumeMounts:
+    - mountPath: /etc/istio.pgp
+      name: istio-pgp
+      readOnly: true
+    volumes:
+    - name: istio-pgp
+      secret:
+        secretName: istio-pgp
+        optional: true
   release:
     labels:
       preset-release-pipeline: "true"
