@@ -43,7 +43,6 @@ func PrintErrAndExit(err error) {
 	exitErr, ok := err.(*ExitError)
 	if ok {
 		os.Exit(exitErr.Code)
-	} else {
-		os.Exit(1)
 	}
+	os.Exit(1)
 }
