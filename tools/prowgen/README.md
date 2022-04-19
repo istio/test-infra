@@ -226,7 +226,7 @@ requirement_presets:
 More of the examples can be checked from [testdata](./pkg/testdata/) and [Istio
 Prow jobs](../../prow/config/jobs/).
 
-## Generating the config
+## How to use the tool
 
 ### `make` command
 
@@ -268,6 +268,13 @@ docker run --mount type=bind,source=${INPUT},target=${INPUT} --mount type=bind,s
   gcr.io/istio-testing/prowgen:latest \
   prowgen --input-dir=${INPUT} --output-dir=${OUTPUT} write
 ```
+
+### Use it as a library
+
+Since all the core structs and functions for the `prowgen` tool are public, you
+can also import and use it as a library. For an example, check how [Knative
+configgen](https://github.com/knative/test-infra/tree/3ade460e1e68d6de4d841b7fb8903b7ce098c081/tools/configgen)
+is implemented.
 
 ## Pre/Post process command
 
