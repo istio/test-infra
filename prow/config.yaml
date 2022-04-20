@@ -11,10 +11,10 @@ plank:
       timeout: 2h
       grace_period: 15s
       utility_images:
-        clonerefs: "gcr.io/k8s-prow/clonerefs:v20220331-00ee2c7a55"
-        initupload: "gcr.io/k8s-prow/initupload:v20220331-00ee2c7a55"
-        entrypoint: "gcr.io/k8s-prow/entrypoint:v20220331-00ee2c7a55"
-        sidecar: "gcr.io/k8s-prow/sidecar:v20220331-00ee2c7a55"
+        clonerefs: "gcr.io/k8s-prow/clonerefs:v20220419-feb40d908d"
+        initupload: "gcr.io/k8s-prow/initupload:v20220419-feb40d908d"
+        entrypoint: "gcr.io/k8s-prow/entrypoint:v20220419-feb40d908d"
+        sidecar: "gcr.io/k8s-prow/sidecar:v20220419-feb40d908d"
       gcs_configuration:
         bucket: "istio-prow"
         path_strategy: "explicit"
@@ -237,6 +237,8 @@ branch-protection:
           branches: *blocked_branches
         pkg:
           branches: *blocked_branches
+        get-istioctl:
+          branches: *blocked_branches
         cri:
           branches: *blocked_branches
         client-go:
@@ -375,6 +377,7 @@ tide:
     - istio/istio
     - istio/enhancements
     - istio/envoy
+    - istio/get-istioctl
     - istio/proxy
     - istio/operator
     - istio/pkg
