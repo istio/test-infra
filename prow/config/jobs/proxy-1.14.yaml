@@ -4,7 +4,6 @@ image: gcr.io/istio-testing/build-tools-proxy:release-1.14-2022-04-18T18-19-40
 jobs:
 - command:
   - ./prow/proxy-presubmit.sh
-  image: gcr.io/istio-testing/build-tools-proxy:master-2022-04-18T18-19-40
   name: test
   node_selector:
     testing: build-pool
@@ -102,7 +101,6 @@ jobs:
   - presubmit
 - command:
   - ./prow/proxy-presubmit-asan.sh
-  image: gcr.io/istio-testing/build-tools-proxy:master-2022-04-18T18-19-40
   name: test-asan
   node_selector:
     testing: build-pool
@@ -200,7 +198,6 @@ jobs:
   - presubmit
 - command:
   - ./prow/proxy-presubmit-tsan.sh
-  image: gcr.io/istio-testing/build-tools-proxy:master-2022-04-18T18-19-40
   name: test-tsan
   node_selector:
     testing: build-pool
@@ -298,7 +295,6 @@ jobs:
   - presubmit
 - command:
   - ./prow/proxy-presubmit-release.sh
-  image: gcr.io/istio-testing/build-tools-proxy:master-2022-04-18T18-19-40
   name: release-test
   node_selector:
     testing: build-pool
@@ -495,7 +491,6 @@ jobs:
 - command:
   - entrypoint
   - ./prow/proxy-presubmit-wasm.sh
-  image: gcr.io/istio-testing/build-tools-proxy:master-2022-04-18T18-19-40
   name: check-wasm
   node_selector:
     testing: build-pool
@@ -595,7 +590,6 @@ jobs:
 - command:
   - entrypoint
   - ./prow/proxy-postsubmit.sh
-  image: gcr.io/istio-testing/build-tools-proxy:master-2022-04-18T18-19-40
   name: release
   node_selector:
     testing: build-pool
@@ -800,7 +794,6 @@ jobs:
   - --token-path=/etc/github-token/oauth
   - --git-exclude=^common/
   - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
-  image: gcr.io/istio-testing/build-tools:master-2022-04-18T18-19-40
   name: update-istio
   node_selector:
     testing: build-pool
@@ -907,7 +900,6 @@ jobs:
   - --modifier=update_envoy_dep
   - --token-path=/etc/github-token/oauth
   - --cmd=UPDATE_BRANCH=main scripts/update_envoy.sh
-  image: gcr.io/istio-testing/build-tools:master-2022-04-18T18-19-40
   interval: 24h
   name: update-proxy
   node_selector:

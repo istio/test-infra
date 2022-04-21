@@ -5,7 +5,6 @@ jobs:
 - command:
   - make
   - build
-  image: gcr.io/istio-testing/build-tools:master-2022-04-18T18-19-40
   name: build
   node_selector:
     testing: test-pool
@@ -107,7 +106,6 @@ jobs:
 - command:
   - make
   - lint
-  image: gcr.io/istio-testing/build-tools:master-2022-04-18T18-19-40
   name: lint
   node_selector:
     testing: test-pool
@@ -209,7 +207,6 @@ jobs:
 - command:
   - make
   - test
-  image: gcr.io/istio-testing/build-tools:master-2022-04-18T18-19-40
   name: test
   node_selector:
     testing: test-pool
@@ -311,7 +308,6 @@ jobs:
 - command:
   - make
   - gen-check
-  image: gcr.io/istio-testing/build-tools:master-2022-04-18T18-19-40
   name: gencheck
   node_selector:
     testing: test-pool
@@ -420,7 +416,6 @@ jobs:
   - --modifier=update_image_version
   - --token-path=/etc/github-token/oauth
   - --script-path=../common-files/bin/create-buildtools-and-update.sh
-  image: gcr.io/istio-testing/build-tools:master-2022-04-18T18-19-40
   name: containers
   node_selector:
     testing: test-pool
@@ -533,7 +528,6 @@ jobs:
   - entrypoint
   - make
   - containers-test
-  image: gcr.io/istio-testing/build-tools:master-2022-04-18T18-19-40
   name: containers-test
   node_selector:
     testing: test-pool
@@ -644,7 +638,6 @@ jobs:
   - -C
   - perf_dashboard
   - deploy
-  image: gcr.io/istio-testing/build-tools:master-2022-04-18T18-19-40
   name: deploy-perf-dashboard
   node_selector:
     testing: test-pool
