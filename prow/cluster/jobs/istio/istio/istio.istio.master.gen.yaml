@@ -1906,6 +1906,76 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_istio_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    extra_refs:
+    - base_ref: master
+      org: istio
+      path_alias: istio.io/release-builder
+      repo: release-builder
+    labels:
+      preset-release-pipeline: "true"
+    name: build-base-images_istio_postsubmit
+    path_alias: istio.io/istio
+    run_if_changed: ^docker/Dockerfile.base$
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - ../test-infra/release/build.sh
+        env:
+        - name: BUILD_BASE_IMAGES
+          value: "true"
+        - name: VERSION
+          value: master
+        - name: ALWAYS_GENERATE_BASE_IMAGE
+          value: "true"
+        - name: COSIGN_KEY
+          valueFrom:
+            secretKeyRef:
+              key: key
+              name: cosign-key
+        image: gcr.io/istio-testing/build-tools:master-2022-04-22T22-57-44
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /etc/github-token
+          name: github
+          readOnly: true
+      nodeSelector:
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - emptyDir: {}
+        name: docker-root
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
 presubmits:
   istio/istio:
   - always_run: true
