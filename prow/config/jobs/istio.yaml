@@ -397,6 +397,22 @@ jobs:
       - --token-path=/etc/github-token/oauth
     requirements: [github]
     repos: [istio/test-infra@master,istio/tools@master]
+
+  # Recreate base images if the dockerfile changes (in postsubmit)
+  - name: build-base-images
+    repos: [istio/release-builder@master]
+    types: [postsubmit]
+    regex: '^docker/Dockerfile.base$'
+    env:
+    - name: BUILD_BASE_IMAGES
+      value: "true"
+    - name: VERSION
+      value: "master"
+    - name: ALWAYS_GENERATE_BASE_IMAGE
+      value: "true"
+    command: [entrypoint, ../test-infra/release/build.sh]
+    requirements: [release, docker, github-optional]
+
 resources_presets:
   default:
     requests:
