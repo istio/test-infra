@@ -34,7 +34,7 @@ grafana-dashboards:
 prow_prometheusrule.yaml:
 	@mkdir -p prometheus_out
 	@echo "Generating prow_prometheusrule.yaml ..."
-	jsonnet -J lib/ ./prometheus/prow_prometheusrule.jsonnet | yq r -P - > prometheus_out/$@
+	jsonnet -J lib/ ./prometheus/prow_prometheusrule.jsonnet | yq -P > prometheus_out/$@
 
 apply-configmaps: get-cluster-credentials grafana-dashboards
 	@for input in $(shell ls dashboards_out); do \
