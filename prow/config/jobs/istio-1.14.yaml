@@ -1,0 +1,4725 @@
+branches:
+- release-1.14
+image: gcr.io/istio-testing/build-tools:release-1.14-2022-04-26T11-00-35
+jobs:
+- command:
+  - entrypoint
+  - make
+  - -e
+  - T=-v -count=1
+  - build
+  - racetest
+  - binaries-test
+  name: unit-tests
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  resources: dedicated
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+- command:
+  - entrypoint
+  - prow/release-test.sh
+  name: release-test
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - docker
+  resources: dedicated
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  service_account_name: prowjob-advanced-sa
+  types:
+  - presubmit
+- command:
+  - entrypoint
+  - prow/release-commit.sh
+  name: release
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - docker
+  resources: dedicated
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  service_account_name: prowjob-advanced-sa
+  types:
+  - postsubmit
+- command:
+  - entrypoint
+  - make
+  - benchtest
+  modifiers:
+  - presubmit_optional
+  - presubmit_skipped
+  name: benchmark
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  resources: dedicated
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  types:
+  - presubmit
+- command:
+  - entrypoint
+  - make
+  - benchtest
+  - report-benchtest
+  name: benchmark-report
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  resources: dedicated
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  service_account_name: prowjob-advanced-sa
+  types:
+  - postsubmit
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - test.integration.pilot.kube.presubmit
+  env:
+  - name: INTEGRATION_TEST_FLAGS
+    value: ' --istio.test.istio.enableCNI=true '
+  name: integ-cni
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  types:
+  - presubmit
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - test.integration.telemetry.kube
+  name: integ-telemetry
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --topology
+  - MULTICLUSTER
+  - test.integration.telemetry.kube
+  name: integ-telemetry-mc
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources: multicluster
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --topology
+  - MULTICLUSTER
+  - --topology-config
+  - prow/config/topology/external-istiod.json
+  - test.integration.telemetry.kube
+  name: integ-telemetry-istiodremote
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources: multicluster
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --topology
+  - MULTICLUSTER
+  - test.integration.telemetry.kube
+  env:
+  - name: INTEGRATION_TEST_FLAGS
+    value: --istio.test.istio.istiodlessRemotes
+  modifiers:
+  - presubmit_optional
+  - presubmit_skipped
+  - hidden
+  name: integ-telemetry-istiodless-mc
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources: multicluster
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - test.integration.kube.environment
+  env:
+  - name: VARIANT
+    value: distroless
+  name: integ-distroless
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - test.integration.kube.environment
+  env:
+  - name: DOCKER_IN_DOCKER_IPV6_ENABLED
+    value: "true"
+  - name: IP_FAMILY
+    value: ipv6
+  name: integ-ipv6
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - test.integration.operator.kube
+  name: integ-operator-controller
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - test.integration.pilot.kube
+  name: integ-pilot
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --topology
+  - MULTICLUSTER
+  - test.integration.pilot.kube
+  name: integ-pilot-multicluster
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources: multicluster
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --topology
+  - MULTICLUSTER
+  - --topology-config
+  - prow/config/topology/external-istiod.json
+  - test.integration.pilot.kube
+  env:
+  - name: INTEGRATION_TEST_FLAGS
+    value: --istio.test.skipVM
+  name: integ-pilot-istiodremote
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources: multicluster
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --topology
+  - MULTICLUSTER
+  - --topology-config
+  - prow/config/topology/external-istiod-multicluster.json
+  - test.integration.pilot.kube
+  env:
+  - name: INTEGRATION_TEST_FLAGS
+    value: --istio.test.skipVM
+  name: integ-pilot-istiodremote-mc
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources: multicluster
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --topology
+  - MULTICLUSTER
+  - test.integration.pilot.kube
+  env:
+  - name: INTEGRATION_TEST_FLAGS
+    value: --istio.test.istio.istiodlessRemotes
+  modifiers:
+  - presubmit_optional
+  - presubmit_skipped
+  - hidden
+  name: integ-pilot-istiodless-mc
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources: multicluster
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - test.integration.security.kube
+  name: integ-security
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - test.integration-fuzz.security.fuzz.kube
+  cron: 0 7 * * *
+  name: integ-security-fuzz
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  types:
+  - periodic
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --topology
+  - MULTICLUSTER
+  - test.integration.security.kube
+  name: integ-security-multicluster
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources: multicluster
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --topology
+  - MULTICLUSTER
+  - --topology-config
+  - prow/config/topology/external-istiod.json
+  - test.integration.security.kube
+  env:
+  - name: INTEGRATION_TEST_FLAGS
+    value: --istio.test.skipVM
+  name: integ-security-istiodremote
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources: multicluster
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --topology
+  - MULTICLUSTER
+  - test.integration.security.kube
+  env:
+  - name: INTEGRATION_TEST_FLAGS
+    value: --istio.test.istio.istiodlessRemotes
+  modifiers:
+  - presubmit_optional
+  - presubmit_skipped
+  - hidden
+  name: integ-security-istiodless-mc
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources: multicluster
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - test.integration.helm.kube
+  name: integ-helm
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --node-image
+  - kindest/node:v1.16.15
+  - --kind-config
+  - prow/config/trustworthy-jwt.yaml
+  - test.integration.kube
+  env:
+  - name: INTEGRATION_TEST_FLAGS
+    value: ' --istio.test.retries=1 '
+  name: integ-k8s-116
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  timeout: 4h0m0s
+  types:
+  - postsubmit
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --node-image
+  - kindest/node:v1.17.17
+  - --kind-config
+  - prow/config/endpointslice.yaml
+  - test.integration.kube
+  env:
+  - name: INTEGRATION_TEST_FLAGS
+    value: ' --istio.test.retries=1 '
+  name: integ-k8s-117
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  timeout: 4h0m0s
+  types:
+  - postsubmit
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --node-image
+  - kindest/node:v1.18.19
+  - --kind-config
+  - prow/config/trustworthy-jwt.yaml
+  - test.integration.kube
+  env:
+  - name: INTEGRATION_TEST_FLAGS
+    value: ' --istio.test.retries=1 '
+  name: integ-k8s-118
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  timeout: 4h0m0s
+  types:
+  - postsubmit
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --node-image
+  - kindest/node:v1.19.11
+  - --kind-config
+  - prow/config/trustworthy-jwt.yaml
+  - test.integration.kube
+  env:
+  - name: INTEGRATION_TEST_FLAGS
+    value: ' --istio.test.retries=1 '
+  name: integ-k8s-119
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  timeout: 4h0m0s
+  types:
+  - postsubmit
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --node-image
+  - gcr.io/istio-testing/kind-node:v1.20.7
+  - --kind-config
+  - prow/config/mixedlb-service.yaml
+  - test.integration.kube
+  env:
+  - name: INTEGRATION_TEST_FLAGS
+    value: ' --istio.test.retries=1 '
+  name: integ-k8s-120
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  timeout: 4h0m0s
+  types:
+  - postsubmit
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --node-image
+  - gcr.io/istio-testing/kind-node:v1.22.2
+  - --kind-config
+  - prow/config/mixedlb-service.yaml
+  - test.integration.kube
+  env:
+  - name: INTEGRATION_TEST_FLAGS
+    value: ' --istio.test.retries=1 '
+  name: integ-k8s-122
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  timeout: 4h0m0s
+  types:
+  - postsubmit
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --node-image
+  - gcr.io/istio-testing/kind-node:v1.23.1
+  - test.integration.kube
+  env:
+  - name: INTEGRATION_TEST_FLAGS
+    value: ' --istio.test.retries=1 '
+  name: integ-k8s-123
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  timeout: 4h0m0s
+  types:
+  - postsubmit
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - --node-image
+  - gcr.io/istio-testing/kind-node:v1.24.0-beta.0
+  - test.integration.kube
+  env:
+  - name: INTEGRATION_TEST_FLAGS
+    value: ' --istio.test.retries=1 '
+  modifiers:
+  - hidden
+  name: integ-k8s-124
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  timeout: 4h0m0s
+  types:
+  - postsubmit
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - test.integration.kube
+  env:
+  - name: TEST_SELECT
+    value: -flaky
+  - name: INTEGRATION_TEST_FLAGS
+    value: ' --istio.test.retries=1 --istio.test.istio.enableCNI=true '
+  name: integ-cni
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  timeout: 4h0m0s
+  types:
+  - postsubmit
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
+  - test.integration.kube
+  env:
+  - name: INTEGRATION_TEST_FLAGS
+    value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
+  modifiers:
+  - presubmit_optional
+  - presubmit_skipped
+  name: integ-assertion
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  timeout: 4h0m0s
+- command:
+  - make
+  - test.integration.analyze
+  name: analyze-tests
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  types:
+  - presubmit
+- command:
+  - make
+  - lint
+  name: lint
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  resources: lint
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  types:
+  - presubmit
+- command:
+  - make
+  - gen-check
+  name: gencheck
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  types:
+  - presubmit
+- command:
+  - ../test-infra/tools/check_release_notes.sh
+  - --token-path=/etc/github-token/oauth
+  name: release-notes
+  node_selector:
+    testing: test-pool
+  repos:
+  - istio/test-infra@master
+  - istio/tools@master
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - github
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  types:
+  - presubmit
+node_selector:
+  testing: test-pool
+org: istio
+repo: istio
+requirement_presets:
+  cache:
+    volumeMounts:
+    - mountPath: /home/prow/go/pkg
+      name: build-cache
+      subPath: gomod
+    volumes:
+    - hostPath:
+        path: /var/tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+  docker:
+    volumeMounts:
+    - mountPath: /var/lib/docker
+      name: docker-root
+    volumes:
+    - emptyDir: {}
+      name: docker-root
+  github:
+    volumeMounts:
+    - mountPath: /etc/github-token
+      name: github
+      readOnly: true
+    volumes:
+    - name: github
+      secret:
+        secretName: oauth-token
+  github-optional:
+    volumeMounts:
+    - mountPath: /etc/github-token
+      name: github
+      readOnly: true
+    volumes:
+    - name: github
+      secret:
+        optional: true
+        secretName: oauth-token
+  gocache:
+    volumeMounts:
+    - mountPath: /gocache
+      name: build-cache
+      subPath: gocache
+    volumes:
+    - hostPath:
+        path: /var/tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+  kind:
+    volumeMounts:
+    - mountPath: /lib/modules
+      name: modules
+      readOnly: true
+    - mountPath: /sys/fs/cgroup
+      name: cgroup
+      readOnly: true
+    - mountPath: /var/lib/docker
+      name: docker-root
+    volumes:
+    - hostPath:
+        path: /lib/modules
+        type: Directory
+      name: modules
+    - hostPath:
+        path: /sys/fs/cgroup
+        type: Directory
+      name: cgroup
+    - emptyDir: {}
+      name: docker-root
+  release:
+    env:
+    - name: COSIGN_KEY
+      valueFrom:
+        secretKeyRef:
+          key: key
+          name: cosign-key
+    labels:
+      preset-release-pipeline: "true"
+requirements:
+- cache
+- cache
+- gocache
+resources_presets:
+  dedicated:
+    limits:
+      memory: 24Gi
+    requests:
+      cpu: "15"
+      memory: 8Gi
+  default:
+    limits:
+      cpu: "5"
+      memory: 24Gi
+    requests:
+      cpu: "5"
+      memory: 3Gi
+  lint:
+    limits:
+      memory: 24Gi
+    requests:
+      cpu: "3"
+      memory: 16Gi
+  multicluster:
+    limits:
+      cpu: "8"
+      memory: 24Gi
+    requests:
+      cpu: "8"
+      memory: 3Gi
