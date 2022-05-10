@@ -185,12 +185,14 @@ function validateNotes() {
     {
     set +e
     while read -r line; do
-    if ! validateNote "./${line}"; then
-        errorOccurred=1
-    fi
+      if test -f "./${line}"; then # Do not validate if the file doesn't exist (was removed in the PR)
+        if ! validateNote "./${line}"; then
+          errorOccurred=1
+        fi
+      fi
+    done
     popd
 
-    done
     set -e
     if [ "${errorOccurred}" != 0 ]; then
         echo ""
