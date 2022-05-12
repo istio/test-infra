@@ -351,7 +351,7 @@ jobs:
   - name: build-base-images
     repos: [istio/release-builder@master]
     types: [postsubmit]
-    regex: '^docker/Dockerfile.base$'
+    regex: '^(docker|pkg/.*)/Dockerfile.([a-zA-Z0-9_]+_)?base(_[a-zA-Z0-9_]+)?$'
     env:
     - name: BUILD_BASE_IMAGES
       value: "true"

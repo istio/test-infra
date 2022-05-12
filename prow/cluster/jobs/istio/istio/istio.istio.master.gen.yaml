@@ -1721,7 +1721,7 @@ postsubmits:
       preset-release-pipeline: "true"
     name: build-base-images_istio_postsubmit
     path_alias: istio.io/istio
-    run_if_changed: ^docker/Dockerfile.base$
+    run_if_changed: ^(docker|pkg/.*)/Dockerfile.([a-zA-Z0-9_]+_)?base(_[a-zA-Z0-9_]+)?$
     spec:
       containers:
       - command:
