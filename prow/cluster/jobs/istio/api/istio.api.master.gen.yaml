@@ -15,7 +15,7 @@ postsubmits:
       - command:
         - make
         - presubmit
-        image: gcr.io/istio-testing/build-tools:master-2022-05-19T17-27-24
+        image: gcr.io/istio-testing/build-tools:master-2022-05-20T15-17-27
         name: ""
         resources:
           limits:
@@ -51,7 +51,7 @@ postsubmits:
       - command:
         - make
         - gen-check
-        image: gcr.io/istio-testing/build-tools:master-2022-05-19T17-27-24
+        image: gcr.io/istio-testing/build-tools:master-2022-05-20T15-17-27
         name: ""
         resources:
           limits:
@@ -99,7 +99,7 @@ postsubmits:
         - --modifier=update_api_dep
         - --token-path=/etc/github-token/oauth
         - --cmd=go get istio.io/api@$AUTOMATOR_SHA && go mod tidy && make clean gen
-        image: gcr.io/istio-testing/build-tools:master-2022-05-19T17-27-24
+        image: gcr.io/istio-testing/build-tools:master-2022-05-20T15-17-27
         name: ""
         resources:
           limits:
@@ -154,7 +154,7 @@ postsubmits:
         - --token-path=/etc/github-token/oauth
         - --git-exclude=^common/
         - --cmd=go get istio.io/api@$AUTOMATOR_SHA && go mod tidy && make clean gen
-        image: gcr.io/istio-testing/build-tools:master-2022-05-19T17-27-24
+        image: gcr.io/istio-testing/build-tools:master-2022-05-20T15-17-27
         name: ""
         resources:
           limits:
@@ -197,7 +197,7 @@ presubmits:
       - command:
         - make
         - presubmit
-        image: gcr.io/istio-testing/build-tools:master-2022-05-19T17-27-24
+        image: gcr.io/istio-testing/build-tools:master-2022-05-20T15-17-27
         name: ""
         resources:
           limits:
@@ -232,7 +232,7 @@ presubmits:
       - command:
         - make
         - gen-check
-        image: gcr.io/istio-testing/build-tools:master-2022-05-19T17-27-24
+        image: gcr.io/istio-testing/build-tools:master-2022-05-20T15-17-27
         name: ""
         resources:
           limits:
@@ -277,7 +277,7 @@ presubmits:
       - command:
         - ../test-infra/tools/check_release_notes.sh
         - --token-path=/etc/github-token/oauth
-        image: gcr.io/istio-testing/build-tools:master-2022-05-19T17-27-24
+        image: gcr.io/istio-testing/build-tools:master-2022-05-20T15-17-27
         name: ""
         resources:
           limits:
