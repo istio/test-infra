@@ -69,7 +69,8 @@ func GetCIState(combinedStatus *github.CombinedStatus, skipContext func(string) 
 // as either pending, failure, or success
 func GetReqquiredCIState(combinedStatus *github.CombinedStatus,
 	requiredChecks *github.RequiredStatusChecks,
-	skipContext func(string) bool) string {
+	skipContext func(string) bool,
+) string {
 	var failures, pending, successes int
 	for _, status := range combinedStatus.Statuses {
 		if requiredChecks != nil &&
@@ -105,7 +106,8 @@ func GetReqquiredCIState(combinedStatus *github.CombinedStatus,
 // can be merged.
 // statusCxt is the name of the status
 func IsRequiredCICheck(statusCxt string,
-	requiredChecks *github.RequiredStatusChecks) bool {
+	requiredChecks *github.RequiredStatusChecks,
+) bool {
 	if requiredChecks == nil {
 		return false
 	}

@@ -139,7 +139,8 @@ func (g *GithubClient) Remote(repo string) string {
 // CreatePullRequest within :repo from :branch to :baseBranch
 // releaseNote is a necessary part and will automatically set to "none" if caller leaves it empty.
 func (g *GithubClient) CreatePullRequest(
-	title, body, releaseNote, branch, baseBranch, repo string) (*github.PullRequest, error) {
+	title, body, releaseNote, branch, baseBranch, repo string,
+) (*github.PullRequest, error) {
 	if releaseNote == "" {
 		releaseNote = ReleaseNoteNone
 	}
@@ -168,7 +169,8 @@ func (g *GithubClient) AddAutoMergeLabelsToPR(repo string, pr *github.PullReques
 
 // AddlabelsToPR adds labels to the pull request
 func (g *GithubClient) AddlabelsToPR(
-	repo string, pr *github.PullRequest, labels ...string) error {
+	repo string, pr *github.PullRequest, labels ...string,
+) error {
 	// skip existing labels
 	existingLabels, _, err := g.client.Issues.ListLabelsByIssue(context.Background(), g.owner, repo, *pr.Number, &github.ListOptions{})
 	if err != nil {
@@ -197,7 +199,8 @@ func (g *GithubClient) AddlabelsToPR(
 
 // RemoveLabelFromPR removes "one" label from the pull request
 func (g *GithubClient) RemoveLabelFromPR(
-	repo string, pr *github.PullRequest, removeLabel string) error {
+	repo string, pr *github.PullRequest, removeLabel string,
+) error {
 	labels, _, err := g.client.Issues.ListLabelsByIssue(context.Background(), g.owner, repo, *pr.Number, &github.ListOptions{})
 	if err != nil {
 		return err
@@ -686,7 +689,8 @@ func (g *GithubClient) GetLatestRelease(repo string) (string, error) {
 // create newBranch, do edit(), push newBranch
 // and create a PR again baseBranch with prTitle and prBody
 func (g *GithubClient) CreatePRUpdateRepo(
-	newBranch, baseBranch, repo, prTitle, prBody string, edit func() error) (*github.PullRequest, error) {
+	newBranch, baseBranch, repo, prTitle, prBody string, edit func() error,
+) (*github.PullRequest, error) {
 	workDir, err := os.Getwd()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get current working dir: %s", err)
