@@ -90,7 +90,7 @@ func (o *options) parseOpts() {
 	flag.StringVarP(&o.Sort, "sort", "s", "", "Sort the job(s) by name: (e.g. (asc)ending, (desc)ending).")
 	flag.StringSliceVar(&o.Branches, "branches", []string{}, "Branch(es) to generate job(s) for.")
 	flag.StringSliceVar(&o.BranchesOut, "branches-out", []string{}, "Override output branch(es) for generated presubmit and postsubmit job(s).")
-	flag.StringVar(&o.RefBranchOut, "ref-branch-out", "", "Override ref branch for generated periodici job(s).")
+	flag.StringVar(&o.RefBranchOut, "ref-branch-out", "", "Override ref branch for generated periodic job(s).")
 	flag.StringSliceVar(&o.Configs, "configs", []string{}, "Path to files or directories containing yaml job transforms.")
 	flag.StringSliceVarP(&o.Presets, "presets", "p", []string{}, "Path to file(s) containing additional presets.")
 	flag.StringSliceVar(&o.RerunOrgs, "rerun-orgs", []string{}, "GitHub organizations to authorize job rerun for.")
@@ -888,7 +888,7 @@ func sortJobs(o options, pre map[string][]config.Presubmit, post map[string][]co
 }
 
 // getOutPath derives the output path from the specified input directory and current path.
-func getOutPath(o options, p string, in string) string {
+func getOutPath(o options, p string, in string, branches, branchesOut []string) string {
 	segments := strings.FieldsFunc(strings.TrimPrefix(p, in), func(c rune) bool { return c == '/' })
 
 	var (
@@ -906,6 +906,9 @@ func getOutPath(o options, p string, in string) string {
 		file = segments[len(segments)-1]
 		if newOrg, ok := o.OrgMap[org]; ok {
 			filename := util.RenameFile(`^`+util.NormalizeOrg(org, filenameSeparator)+`\b`, file, util.NormalizeOrg(newOrg, filenameSeparator))
+			if len(branchesOut) > 0 {
+				filename = strings.ReplaceAll(filename, branches[0], branchesOut[0])
+			}
 			return filepath.Join(o.Output, util.GetTopLevelOrg(newOrg), repo, filename)
 		}
 	case len(segments) == 2:
@@ -1048,7 +1051,7 @@ func generateJobs(o options) {
 			return nil
 		}
 
-		outPath := getOutPath(o, absPath, o.Input)
+		outPath := getOutPath(o, absPath, o.Input, o.Branches, o.BranchesOut)
 		if outPath == "" {
 			return nil
 		}
