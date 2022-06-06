@@ -42,7 +42,7 @@ deploy-velodrome: get-cluster-credentials
 deploy-monitoring: get-cluster-credentials
 	kubectl apply -f ./cluster/monitoring/prometheus-operator-crds/
 	$(MAKE) -C cluster/monitoring/mixins clean apply
-	kubectl apply -f ./cluster/monitoring/ -n prow-monitoring
+	kubectl apply -f ./cluster/monitoring/
 
 get-build-cluster-credentials: PROJECT=$(PROJECT_BUILD)
 get-build-cluster-credentials: CLUSTER=$(CLUSTER_BUILD)
