@@ -48,6 +48,10 @@ postsubmits:
           subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: build-pool
       serviceAccountName: prowjob-private-sa
@@ -58,6 +62,13 @@ postsubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -102,6 +113,10 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: build-pool
       serviceAccountName: prowjob-private-sa
@@ -110,6 +125,13 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
 presubmits:
   istio-private/proxy:
   - always_run: true
@@ -151,6 +173,10 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: build-pool
       serviceAccountName: prowjob-private-sa
@@ -159,6 +185,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -198,6 +231,10 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: build-pool
       serviceAccountName: prowjob-private-sa
@@ -206,6 +243,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -245,6 +289,10 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: build-pool
       serviceAccountName: prowjob-private-sa
@@ -253,6 +301,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -292,6 +347,10 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: build-pool
       serviceAccountName: prowjob-private-sa
@@ -300,6 +359,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -339,6 +405,10 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: build-pool
       serviceAccountName: prowjob-private-sa
@@ -347,6 +417,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -389,6 +466,10 @@ presubmits:
           subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: build-pool
       serviceAccountName: prowjob-private-sa
@@ -399,3 +480,10 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret

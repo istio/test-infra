@@ -9,7 +9,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
     name: release_istio_release-1.12_postsubmit_pri
@@ -50,6 +50,10 @@ postsubmits:
           subPath: gocache
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       serviceAccountName: prowjob-private-sa
@@ -60,6 +64,13 @@ postsubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -68,7 +79,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -114,6 +125,10 @@ postsubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -121,6 +136,13 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -129,7 +151,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -181,6 +203,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -198,6 +224,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -206,7 +239,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -260,6 +293,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -277,6 +314,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -285,7 +329,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -343,6 +387,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -360,6 +408,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -368,7 +423,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -420,6 +475,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -437,6 +496,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -445,7 +511,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -499,6 +565,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -516,6 +586,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -524,7 +601,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -574,6 +651,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -591,6 +672,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -599,7 +687,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -651,6 +739,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -668,6 +760,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -676,7 +775,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -732,6 +831,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -749,6 +852,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -757,7 +867,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -813,6 +923,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -830,6 +944,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -838,7 +959,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -896,6 +1017,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -913,6 +1038,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -921,7 +1053,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -971,6 +1103,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -988,6 +1124,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -996,7 +1139,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -1048,6 +1191,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1065,6 +1212,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1073,7 +1227,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -1129,6 +1283,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1146,6 +1304,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1154,7 +1319,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -1212,6 +1377,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1229,6 +1398,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1237,7 +1413,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -1287,6 +1463,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1304,6 +1484,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1312,7 +1499,7 @@ postsubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -1362,6 +1549,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1379,6 +1570,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1389,7 +1587,7 @@ postsubmits:
     decoration_config:
       timeout: 4h0m0s
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -1445,6 +1643,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1462,6 +1664,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1472,7 +1681,7 @@ postsubmits:
     decoration_config:
       timeout: 4h0m0s
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -1528,6 +1737,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1545,6 +1758,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1555,7 +1775,7 @@ postsubmits:
     decoration_config:
       timeout: 4h0m0s
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -1611,6 +1831,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1628,6 +1852,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1638,7 +1869,7 @@ postsubmits:
     decoration_config:
       timeout: 4h0m0s
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -1694,6 +1925,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1711,6 +1946,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1721,7 +1963,7 @@ postsubmits:
     decoration_config:
       timeout: 4h0m0s
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -1775,6 +2017,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1792,6 +2038,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1802,7 +2055,7 @@ postsubmits:
     decoration_config:
       timeout: 4h0m0s
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -1856,6 +2109,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1873,6 +2130,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1883,7 +2147,7 @@ postsubmits:
     decoration_config:
       timeout: 4h0m0s
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -1937,6 +2201,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1954,6 +2222,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1964,7 +2239,7 @@ postsubmits:
     decoration_config:
       timeout: 4h0m0s
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -2018,6 +2293,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2035,6 +2314,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -2045,7 +2331,7 @@ postsubmits:
     decoration_config:
       timeout: 4h0m0s
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -2097,6 +2383,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2114,6 +2404,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
 presubmits:
   istio-private/istio:
   - always_run: true
@@ -2125,7 +2422,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -2171,6 +2468,10 @@ presubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2178,6 +2479,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -2187,7 +2495,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -2230,6 +2538,10 @@ presubmits:
           subPath: gocache
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       serviceAccountName: prowjob-private-sa
@@ -2240,6 +2552,13 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
@@ -2249,7 +2568,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -2292,6 +2611,10 @@ presubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2299,6 +2622,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -2308,7 +2638,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -2360,6 +2690,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2377,6 +2711,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -2386,7 +2727,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -2440,6 +2781,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2457,6 +2802,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -2466,7 +2818,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -2518,6 +2870,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2535,6 +2891,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -2544,7 +2907,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -2596,6 +2959,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2613,6 +2980,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -2622,7 +2996,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -2674,6 +3048,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2691,6 +3069,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -2700,7 +3085,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -2754,6 +3139,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2771,6 +3160,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
@@ -2780,7 +3176,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -2838,6 +3234,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2855,6 +3255,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -2864,7 +3271,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -2916,6 +3323,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2933,6 +3344,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -2942,7 +3360,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -2996,6 +3414,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3013,6 +3435,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3022,7 +3451,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -3074,6 +3503,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3091,6 +3524,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3100,7 +3540,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -3152,6 +3592,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3169,6 +3613,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3178,7 +3629,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -3234,6 +3685,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3251,6 +3706,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3260,7 +3722,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -3316,6 +3778,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3333,6 +3799,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
@@ -3342,7 +3815,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -3400,6 +3873,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3417,6 +3894,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3426,7 +3910,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -3478,6 +3962,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3495,6 +3983,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3504,7 +3999,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -3560,6 +4055,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3577,6 +4076,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
@@ -3586,7 +4092,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -3644,6 +4150,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3661,6 +4171,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3670,7 +4187,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -3720,6 +4237,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3737,6 +4258,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
@@ -3748,7 +4276,7 @@ presubmits:
     decoration_config:
       timeout: 4h0m0s
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -3801,6 +4329,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3818,6 +4350,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3827,7 +4366,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -3868,6 +4407,10 @@ presubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3875,6 +4418,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3884,7 +4434,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -3925,6 +4475,10 @@ presubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3932,6 +4486,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3941,7 +4502,7 @@ presubmits:
     cluster: private
     decorate: true
     labels:
-      preset-enable-gomod-netrc: "true"
+      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.12-istio
       preset-override-envoy: "true"
@@ -3982,6 +4543,10 @@ presubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3989,3 +4554,10 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
