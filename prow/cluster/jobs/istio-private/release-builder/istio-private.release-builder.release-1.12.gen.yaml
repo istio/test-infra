@@ -148,6 +148,11 @@ postsubmits:
           value: istio-private-build/dev/charts
         - name: PRERELEASE_DOCKER_HUB
           value: gcr.io/istio-prow-build
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.12-release-deps
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:

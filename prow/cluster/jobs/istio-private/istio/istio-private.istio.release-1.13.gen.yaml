@@ -26,6 +26,11 @@ postsubmits:
           value: istio-private-build/dev
         - name: HELM_BUCKET
           value: istio-private-build/dev/charts
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -79,6 +84,12 @@ postsubmits:
         - build
         - racetest
         - binaries-test
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -123,6 +134,12 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.telemetry.kube
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -187,6 +204,12 @@ postsubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.telemetry.kube
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -253,6 +276,12 @@ postsubmits:
         - --topology-config
         - prow/config/topology/external-istiod.json
         - test.integration.telemetry.kube
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -324,6 +353,11 @@ postsubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -389,6 +423,11 @@ postsubmits:
         env:
         - name: VARIANT
           value: distroless
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -456,6 +495,11 @@ postsubmits:
           value: "true"
         - name: IP_FAMILY
           value: ipv6
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -518,6 +562,12 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.operator.kube
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -580,6 +630,12 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.pilot.kube
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -644,6 +700,12 @@ postsubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.pilot.kube
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -713,6 +775,11 @@ postsubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -782,6 +849,11 @@ postsubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -853,6 +925,11 @@ postsubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -915,6 +992,12 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.security.kube
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -979,6 +1062,12 @@ postsubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.security.kube
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1048,6 +1137,11 @@ postsubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1119,6 +1213,11 @@ postsubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1181,6 +1280,12 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.helm.kube
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1252,6 +1357,11 @@ postsubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1323,6 +1433,11 @@ postsubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1394,6 +1509,11 @@ postsubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1465,6 +1585,11 @@ postsubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1536,6 +1661,11 @@ postsubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1607,6 +1737,11 @@ postsubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1676,6 +1811,11 @@ postsubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1749,6 +1889,11 @@ postsubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1818,6 +1963,11 @@ postsubmits:
           value: -flaky
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 --istio.test.istio.enableCNI=true '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1885,6 +2035,11 @@ postsubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1954,6 +2109,12 @@ presubmits:
         - build
         - racetest
         - binaries-test
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1998,6 +2159,12 @@ presubmits:
       - command:
         - entrypoint
         - prow/release-test.sh
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2049,6 +2216,12 @@ presubmits:
         - entrypoint
         - make
         - benchtest
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2097,6 +2270,11 @@ presubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.enableCNI=true '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2160,6 +2338,12 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.telemetry.kube
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2225,6 +2409,12 @@ presubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.telemetry.kube
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2292,6 +2482,12 @@ presubmits:
         - --topology-config
         - prow/config/topology/external-istiod.json
         - test.integration.telemetry.kube
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2364,6 +2560,11 @@ presubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2430,6 +2631,11 @@ presubmits:
         env:
         - name: VARIANT
           value: distroless
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2498,6 +2704,11 @@ presubmits:
           value: "true"
         - name: IP_FAMILY
           value: ipv6
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2561,6 +2772,12 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.operator.kube
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2624,6 +2841,12 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.pilot.kube
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2689,6 +2912,12 @@ presubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.pilot.kube
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2759,6 +2988,11 @@ presubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2829,6 +3063,11 @@ presubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2901,6 +3140,11 @@ presubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2964,6 +3208,12 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.security.kube
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -3029,6 +3279,12 @@ presubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.security.kube
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -3099,6 +3355,11 @@ presubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -3171,6 +3432,11 @@ presubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -3234,6 +3500,12 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.helm.kube
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -3303,6 +3575,11 @@ presubmits:
         env:
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -3365,6 +3642,12 @@ presubmits:
       - command:
         - make
         - test.integration.analyze
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -3409,6 +3692,12 @@ presubmits:
       - command:
         - make
         - lint
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -3453,6 +3742,12 @@ presubmits:
       - command:
         - make
         - gen-check
+        env:
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-istio-deps
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
