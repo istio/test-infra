@@ -137,7 +137,9 @@ func (o *options) parseConfiguration() []options {
 
 	if o.Global != "" {
 		if d, err := ioutil.ReadFile(o.Global); err == nil {
-			_ = yaml.Unmarshal(d, &global)
+			if err := yaml.UnmarshalStrict(d, &global); err != nil {
+				util.PrintErr(err.Error())
+			}
 		}
 	}
 
@@ -153,7 +155,9 @@ func (o *options) parseConfiguration() []options {
 
 			var local configuration.Configuration
 			if d, err := ioutil.ReadFile(filepath.Join(filepath.Dir(path), defaultsFilename)); err == nil {
-				_ = yaml.Unmarshal(d, &local)
+				if err := yaml.UnmarshalStrict(d, &local); err != nil {
+					util.PrintErr(err.Error())
+				}
 			}
 
 			f, err := ioutil.ReadFile(path)
@@ -162,7 +166,8 @@ func (o *options) parseConfiguration() []options {
 			}
 
 			var c configuration.Configuration
-			if err := yaml.Unmarshal(f, &c); err != nil {
+			if err := yaml.UnmarshalStrict(f, &c); err != nil {
+				util.PrintErr(err.Error())
 				return nil
 			}
 
@@ -240,9 +245,11 @@ func (o *options) validateOpts() error {
 		for i, c := range o.Presets {
 			if o.Presets[i], err = filepath.Abs(c); err != nil {
 				return &util.ExitError{Message: fmt.Sprintf("-p, --preset option invalid: %v.", o.Presets[i]), Code: 1}
-			} else if !util.Exists(o.Presets[i]) {
+			}
+			if !util.Exists(o.Presets[i]) {
 				return &util.ExitError{Message: fmt.Sprintf("-p, --preset option path does not exist: %v.", o.Presets[i]), Code: 1}
-			} else if util.IsFile(o.Presets[i]) && !util.HasExtension(o.Presets[i], yamlExt) {
+			}
+			if util.IsFile(o.Presets[i]) && !util.HasExtension(o.Presets[i], yamlExt) {
 				return &util.ExitError{Message: fmt.Sprintf("-p, --preset option path is not a yaml file: %v.", o.Presets[i]), Code: 1}
 			}
 		}
@@ -454,6 +461,7 @@ func combinePresets(paths []string) []config.Preset {
 	for _, p := range paths {
 		c, err := config.ReadJobConfig(p)
 		if err != nil {
+			util.PrintErr(err.Error())
 			continue
 		}
 		presets = append(presets, c.Presets...)
