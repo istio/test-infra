@@ -160,6 +160,13 @@ postsubmits:
             configMapKeyRef:
               key: dependencies
               name: master-release-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
+        - name: AUTH_HEADER
+          valueFrom:
+            secretKeyRef:
+              key: token
+              name: authentikos-token
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:

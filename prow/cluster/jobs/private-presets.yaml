@@ -104,3 +104,15 @@ presets:
       configMapKeyRef:
         name: release-1.15-istio-deps
         key: dependencies
+
+# Use private Envoy URL, with auth header
+- labels:
+    preset-override-envoy: "true"
+  env:
+  - name: ISTIO_ENVOY_BASE_URL
+    value: https://storage.googleapis.com/istio-private-build/proxy
+  - name: AUTH_HEADER
+    valueFrom:
+      secretKeyRef:
+        name: authentikos-token
+        key: token
