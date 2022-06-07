@@ -26,6 +26,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.14-2022-06-09T02-18-17
         name: ""
         resources:
@@ -41,6 +43,9 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -48,6 +53,13 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -73,6 +85,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.14-2022-06-09T02-18-17
         name: ""
         resources:
@@ -88,6 +102,9 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -95,6 +112,13 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -133,6 +157,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.14-2022-06-09T02-18-17
         name: ""
         resources:
@@ -151,6 +177,9 @@ postsubmits:
         - mountPath: /etc/github-token
           name: github
           readOnly: true
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -161,6 +190,13 @@ postsubmits:
       - name: github
         secret:
           secretName: oauth-token
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -200,6 +236,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.14-2022-06-09T02-18-17
         name: ""
         resources:
@@ -218,6 +256,9 @@ postsubmits:
         - mountPath: /etc/github-token
           name: github
           readOnly: true
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -228,3 +269,10 @@ postsubmits:
       - name: github
         secret:
           secretName: oauth-token
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret

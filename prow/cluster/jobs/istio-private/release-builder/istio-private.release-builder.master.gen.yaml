@@ -200,6 +200,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -232,6 +234,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -260,6 +265,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
 presubmits:
   istio-private/release-builder:
   - always_run: true

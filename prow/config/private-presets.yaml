@@ -133,3 +133,22 @@ presets:
       - key: secret
         path: .netrc
         mode: 0600
+
+# Enable SSH authentication
+- labels:
+    preset-enable-ssh: "true"
+  env:
+  - name: GIT_SSH_COMMAND
+    value: "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+  volumeMounts:
+  - mountPath: /root/.ssh
+    name: ssh
+    readOnly: true
+  volumes:
+  - name: ssh
+    secret:
+      secretName: ssh-key-secret
+      items:
+      - key: secret
+        path: id_rsa
+        mode: 0600

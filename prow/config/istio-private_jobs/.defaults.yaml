@@ -12,6 +12,8 @@ defaults:
   volume-denylist: [build-cache-pvc]
   allow-long-job-names: true
   service_account_name: "prowjob-private-sa"
+  # Various jobs require overriding settings. These are done through presets which are expanded in the
+  # job generation
   presets:
-  - prow/cluster/jobs/private-presets.yaml
+  - prow/config/private-presets.yaml
   resolve: true

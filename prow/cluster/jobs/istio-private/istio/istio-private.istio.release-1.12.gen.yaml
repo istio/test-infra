@@ -31,6 +31,8 @@ postsubmits:
             configMapKeyRef:
               key: dependencies
               name: release-1.12-istio-deps
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -54,6 +56,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       serviceAccountName: prowjob-private-sa
@@ -71,6 +76,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -108,6 +120,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -129,6 +143,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -143,6 +160,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -178,6 +202,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -207,6 +233,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -231,6 +260,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -268,6 +304,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -297,6 +335,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -321,6 +362,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -362,6 +410,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -391,6 +441,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -415,6 +468,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -450,6 +510,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -479,6 +541,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -503,6 +568,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -540,6 +612,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -569,6 +643,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -593,6 +670,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -626,6 +710,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -655,6 +741,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -679,6 +768,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -714,6 +810,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -743,6 +841,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -767,6 +868,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -806,6 +914,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -835,6 +945,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -859,6 +972,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -898,6 +1018,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -927,6 +1049,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -951,6 +1076,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -992,6 +1124,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -1021,6 +1155,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1045,6 +1182,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1078,6 +1222,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -1107,6 +1253,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1131,6 +1280,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1166,6 +1322,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -1195,6 +1353,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1219,6 +1380,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1258,6 +1426,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -1287,6 +1457,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1311,6 +1484,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1352,6 +1532,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -1381,6 +1563,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1405,6 +1590,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1438,6 +1630,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -1467,6 +1661,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1491,6 +1688,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1524,6 +1728,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -1553,6 +1759,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1577,6 +1786,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1618,6 +1834,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -1647,6 +1865,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1671,6 +1892,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1712,6 +1940,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -1741,6 +1971,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1765,6 +1998,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1806,6 +2046,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -1835,6 +2077,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1859,6 +2104,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1900,6 +2152,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -1929,6 +2183,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -1953,6 +2210,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1992,6 +2256,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -2021,6 +2287,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2045,6 +2314,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -2084,6 +2360,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -2113,6 +2391,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2137,6 +2418,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -2176,6 +2464,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -2205,6 +2495,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2229,6 +2522,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -2268,6 +2568,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -2297,6 +2599,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2321,6 +2626,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -2358,6 +2670,8 @@ postsubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -2387,6 +2701,9 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2411,6 +2728,13 @@ postsubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
 presubmits:
   istio-private/istio:
   - always_run: true
@@ -2451,6 +2775,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -2472,6 +2798,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2486,6 +2815,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -2519,6 +2855,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -2542,6 +2880,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       serviceAccountName: prowjob-private-sa
@@ -2559,6 +2900,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
@@ -2594,6 +2942,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -2615,6 +2965,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2629,6 +2982,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -2665,6 +3025,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -2694,6 +3056,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2718,6 +3083,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -2756,6 +3128,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -2785,6 +3159,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2809,6 +3186,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -2845,6 +3229,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -2874,6 +3260,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2898,6 +3287,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -2934,6 +3330,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -2963,6 +3361,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -2987,6 +3388,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3023,6 +3431,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -3052,6 +3462,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3076,6 +3489,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3114,6 +3534,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -3143,6 +3565,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3167,6 +3592,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
@@ -3209,6 +3641,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -3238,6 +3672,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3262,6 +3699,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3298,6 +3742,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -3327,6 +3773,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3351,6 +3800,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3389,6 +3845,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -3418,6 +3876,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3442,6 +3903,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3478,6 +3946,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -3507,6 +3977,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3531,6 +4004,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3567,6 +4047,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -3596,6 +4078,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3620,6 +4105,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3660,6 +4152,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -3689,6 +4183,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3713,6 +4210,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3753,6 +4257,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -3782,6 +4288,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3806,6 +4315,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
@@ -3848,6 +4364,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -3877,6 +4395,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3901,6 +4422,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3937,6 +4465,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -3966,6 +4496,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -3990,6 +4523,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -4030,6 +4570,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -4059,6 +4601,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -4083,6 +4628,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
@@ -4125,6 +4677,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -4154,6 +4708,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -4178,6 +4735,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -4212,6 +4776,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -4241,6 +4807,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -4265,6 +4834,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
@@ -4304,6 +4880,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -4333,6 +4911,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -4357,6 +4938,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -4390,6 +4978,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -4411,6 +5001,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -4425,6 +5018,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -4458,6 +5058,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -4479,6 +5081,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -4493,6 +5098,13 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -4526,6 +5138,8 @@ presubmits:
             secretKeyRef:
               key: token
               name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.12-2022-05-23T15-37-29
         name: ""
         resources:
@@ -4547,6 +5161,9 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -4561,3 +5178,10 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
