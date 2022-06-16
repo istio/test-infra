@@ -38,6 +38,7 @@ periodics:
         name: build-cache
         subPath: gocache
     nodeSelector:
+      kubernetes.io/arch: amd64
       testing: test-pool
     volumes:
     - hostPath:
@@ -85,6 +86,7 @@ periodics:
         name: build-cache
         subPath: gocache
     nodeSelector:
+      kubernetes.io/arch: amd64
       testing: test-pool
     volumes:
     - hostPath:
@@ -122,6 +124,7 @@ postsubmits:
           name: build-cache
           subPath: gocache
       nodeSelector:
+        kubernetes.io/arch: amd64
         testing: test-pool
       volumes:
       - hostPath:
@@ -158,6 +161,7 @@ presubmits:
           name: build-cache
           subPath: gocache
       nodeSelector:
+        kubernetes.io/arch: amd64
         testing: test-pool
       volumes:
       - hostPath:
@@ -208,6 +212,7 @@ presubmits:
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
+        kubernetes.io/arch: amd64
         testing: test-pool
       volumes:
       - hostPath:
@@ -258,6 +263,7 @@ presubmits:
           subPath: gocache
       nodeSelector:
         foo: baz
+        kubernetes.io/arch: amd64
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -298,6 +304,7 @@ presubmits:
           name: build-cache
           subPath: gocache
       nodeSelector:
+        kubernetes.io/arch: amd64
         testing: test-pool
       volumes:
       - hostPath:
@@ -332,6 +339,7 @@ presubmits:
           name: build-cache
           subPath: gocache
       nodeSelector:
+        kubernetes.io/arch: arm64
         testing: test-pool
       volumes:
       - hostPath:
@@ -365,6 +373,7 @@ presubmits:
           name: build-cache
           subPath: gocache
       nodeSelector:
+        kubernetes.io/arch: arm64
         testing: test-pool
       volumes:
       - hostPath:
@@ -399,6 +408,7 @@ presubmits:
           name: build-cache
           subPath: gocache
       nodeSelector:
+        kubernetes.io/arch: amd64
         testing: test-pool
       volumes:
       - hostPath:
@@ -433,6 +443,7 @@ presubmits:
           name: build-cache
           subPath: gocache
       nodeSelector:
+        kubernetes.io/arch: arm64
         testing: test-pool
       volumes:
       - hostPath:

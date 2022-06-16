@@ -36,12 +36,12 @@ func applyArch(arch string, job spec.Job) spec.Job {
 	// For backwards compatibility, amd64 is not suffixed
 	if arch != "amd64" {
 		job.Name += "-" + arch
-		if job.NodeSelector == nil {
-			job.NodeSelector = map[string]string{}
-		}
-		// TODO apply everywhere
-		job.NodeSelector["kubernetes.io/arch"] = arch
 	}
+
+	if job.NodeSelector == nil {
+		job.NodeSelector = map[string]string{}
+	}
+	job.NodeSelector["kubernetes.io/arch"] = arch
 	return job
 }
 
