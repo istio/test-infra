@@ -7,24 +7,36 @@ node_selector:
 
 jobs:
 - name: test
+  architectures: [amd64, arm64]
   service_account_name: prowjob-advanced-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit.sh]
   timeout: 4h
 
 - name: test-asan
+  architectures: [amd64, arm64]
   service_account_name: prowjob-advanced-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit-asan.sh]
   timeout: 4h
 
 - name: test-tsan
+  architectures: [amd64, arm64]
   service_account_name: prowjob-advanced-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit-tsan.sh]
   timeout: 4h
 
 - name: release-test
+  service_account_name: prowjob-advanced-sa
+  types: [presubmit]
+  command: [./prow/proxy-presubmit-release.sh]
+  timeout: 4h
+- name: release-test
+  architectures: [arm64]
+  env:
+  - name: ARCH_SUFFIX
+    value: $(params.arch)
   service_account_name: prowjob-advanced-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit-release.sh]
@@ -45,6 +57,16 @@ jobs:
   timeout: 4h
 
 - name: release
+  service_account_name: prowjob-advanced-sa
+  types: [postsubmit]
+  command: [entrypoint, ./prow/proxy-postsubmit.sh]
+  requirements: [docker]
+  timeout: 4h
+- name: release
+  architectures: [arm64]
+  env:
+  - name: ARCH_SUFFIX
+    value: $(params.arch)
   service_account_name: prowjob-advanced-sa
   types: [postsubmit]
   command: [entrypoint, ./prow/proxy-postsubmit.sh]
