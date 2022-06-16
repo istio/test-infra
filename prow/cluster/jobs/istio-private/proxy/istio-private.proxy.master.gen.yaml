@@ -82,6 +82,8 @@ postsubmits:
         env:
         - name: ARCH_SUFFIX
           value: arm64
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: DOCKER_REPOSITORY
           value: istio-prow-build/envoy
@@ -93,7 +95,7 @@ postsubmits:
           value: istio-private-artifacts
         - name: GCS_BUILD_BUCKET
           value: istio-private-build
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-06-13T19-37-37
+        image: gcr.io/istio-testing/build-tools-proxy:master-7cb17d17e2e98087622580837b2cd61400011c84
         name: ""
         resources:
           limits:
@@ -110,10 +112,6 @@ postsubmits:
           subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: build-pool
@@ -125,13 +123,6 @@ postsubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -231,7 +222,7 @@ presubmits:
           name: build-cache
           subPath: gomod
       nodeSelector:
-        kubernetes.io/arch: arm64
+        kubernetes.io/arch: amd64
         testing: build-pool
       serviceAccountName: prowjob-private-sa
       volumes:
@@ -239,13 +230,6 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -265,12 +249,14 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit.sh
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
           value: https://github.com/istio-private/envoy
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-06-13T19-37-37
+        image: gcr.io/istio-testing/build-tools-proxy:master-7cb17d17e2e98087622580837b2cd61400011c84
         name: ""
         resources:
           limits:
@@ -285,10 +271,6 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: build-pool
@@ -340,7 +322,7 @@ presubmits:
           name: build-cache
           subPath: gomod
       nodeSelector:
-        kubernetes.io/arch: arm64
+        kubernetes.io/arch: amd64
         testing: build-pool
       serviceAccountName: prowjob-private-sa
       volumes:
@@ -348,13 +330,6 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -374,12 +349,14 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-asan.sh
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
           value: https://github.com/istio-private/envoy
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-06-13T19-37-37
+        image: gcr.io/istio-testing/build-tools-proxy:master-7cb17d17e2e98087622580837b2cd61400011c84
         name: ""
         resources:
           limits:
@@ -394,10 +371,6 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: build-pool
@@ -449,7 +422,7 @@ presubmits:
           name: build-cache
           subPath: gomod
       nodeSelector:
-        kubernetes.io/arch: arm64
+        kubernetes.io/arch: amd64
         testing: build-pool
       serviceAccountName: prowjob-private-sa
       volumes:
@@ -457,13 +430,6 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -483,12 +449,14 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-tsan.sh
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
           value: https://github.com/istio-private/envoy
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-06-13T19-37-37
+        image: gcr.io/istio-testing/build-tools-proxy:master-7cb17d17e2e98087622580837b2cd61400011c84
         name: ""
         resources:
           limits:
@@ -503,10 +471,6 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: build-pool
@@ -587,12 +551,14 @@ presubmits:
         env:
         - name: ARCH_SUFFIX
           value: arm64
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
           value: https://github.com/istio-private/envoy
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-06-13T19-37-37
+        image: gcr.io/istio-testing/build-tools-proxy:master-7cb17d17e2e98087622580837b2cd61400011c84
         name: ""
         resources:
           limits:
@@ -607,10 +573,6 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: build-pool
@@ -620,13 +582,6 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"

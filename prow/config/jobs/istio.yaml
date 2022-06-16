@@ -4,6 +4,7 @@ support_release_branching: true
 image: gcr.io/istio-testing/build-tools:master-7cb17d17e2e98087622580837b2cd61400011c84
 jobs:
   - name: unit-tests
+    architectures: [amd64, arm64]
     command: [entrypoint, make, -e, "T=-v -count=1", build, racetest, binaries-test]
     resources: dedicated
 
@@ -13,6 +14,9 @@ jobs:
     command: [entrypoint, prow/release-test.sh]
     requirements: [docker]
     resources: dedicated
+    env:
+    - name: DOCKER_ARCHITECTURES
+      value: "linux/amd64,linux/arm64"
 
   - name: release
     service_account_name: prowjob-advanced-sa
@@ -20,6 +24,9 @@ jobs:
     command: [entrypoint, prow/release-commit.sh]
     requirements: [docker]
     resources: dedicated
+    env:
+    - name: DOCKER_ARCHITECTURES
+      value: "linux/amd64,linux/arm64"
 
   - name: benchmark
     types: [presubmit]
@@ -32,6 +39,11 @@ jobs:
     types: [postsubmit]
     command: [entrypoint, make, benchtest, report-benchtest]
     resources: dedicated
+
+  - name: integ-basic
+    architectures: [arm64]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.environment]
+    requirements: [kind]
 
   - name: integ-cni
     types: [presubmit]

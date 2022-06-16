@@ -116,6 +116,7 @@ postsubmits:
       testgrid-num-failures-to-alert: "1"
     branches:
     - ^master$
+    cluster: istio-prow-build-arm64
     decorate: true
     decoration_config:
       timeout: 4h0m0s
@@ -129,7 +130,9 @@ postsubmits:
         env:
         - name: ARCH_SUFFIX
           value: arm64
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-06-13T19-37-37
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools-proxy:master-7cb17d17e2e98087622580837b2cd61400011c84
         name: ""
         resources:
           limits:
@@ -294,7 +297,7 @@ presubmits:
           name: build-cache
           subPath: gomod
       nodeSelector:
-        kubernetes.io/arch: arm64
+        kubernetes.io/arch: amd64
         testing: build-pool
       serviceAccountName: prowjob-advanced-sa
       volumes:
@@ -307,6 +310,7 @@ presubmits:
       testgrid-dashboards: istio_proxy
     branches:
     - ^master$
+    cluster: istio-prow-build-arm64
     decorate: true
     decoration_config:
       timeout: 4h0m0s
@@ -316,7 +320,10 @@ presubmits:
       containers:
       - command:
         - ./prow/proxy-presubmit.sh
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-06-13T19-37-37
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools-proxy:master-7cb17d17e2e98087622580837b2cd61400011c84
         name: ""
         resources:
           limits:
@@ -373,7 +380,7 @@ presubmits:
           name: build-cache
           subPath: gomod
       nodeSelector:
-        kubernetes.io/arch: arm64
+        kubernetes.io/arch: amd64
         testing: build-pool
       serviceAccountName: prowjob-advanced-sa
       volumes:
@@ -386,6 +393,7 @@ presubmits:
       testgrid-dashboards: istio_proxy
     branches:
     - ^master$
+    cluster: istio-prow-build-arm64
     decorate: true
     decoration_config:
       timeout: 4h0m0s
@@ -395,7 +403,10 @@ presubmits:
       containers:
       - command:
         - ./prow/proxy-presubmit-asan.sh
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-06-13T19-37-37
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools-proxy:master-7cb17d17e2e98087622580837b2cd61400011c84
         name: ""
         resources:
           limits:
@@ -452,7 +463,7 @@ presubmits:
           name: build-cache
           subPath: gomod
       nodeSelector:
-        kubernetes.io/arch: arm64
+        kubernetes.io/arch: amd64
         testing: build-pool
       serviceAccountName: prowjob-advanced-sa
       volumes:
@@ -465,6 +476,7 @@ presubmits:
       testgrid-dashboards: istio_proxy
     branches:
     - ^master$
+    cluster: istio-prow-build-arm64
     decorate: true
     decoration_config:
       timeout: 4h0m0s
@@ -474,7 +486,10 @@ presubmits:
       containers:
       - command:
         - ./prow/proxy-presubmit-tsan.sh
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-06-13T19-37-37
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools-proxy:master-7cb17d17e2e98087622580837b2cd61400011c84
         name: ""
         resources:
           limits:
@@ -544,6 +559,7 @@ presubmits:
       testgrid-dashboards: istio_proxy
     branches:
     - ^master$
+    cluster: istio-prow-build-arm64
     decorate: true
     decoration_config:
       timeout: 4h0m0s
@@ -556,7 +572,9 @@ presubmits:
         env:
         - name: ARCH_SUFFIX
           value: arm64
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-06-13T19-37-37
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools-proxy:master-7cb17d17e2e98087622580837b2cd61400011c84
         name: ""
         resources:
           limits:
