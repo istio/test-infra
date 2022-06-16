@@ -19,6 +19,8 @@ postsubmits:
         - make
         - presubmit
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-private-build/proxy
         - name: AUTH_HEADER
@@ -78,6 +80,8 @@ postsubmits:
         - make
         - gen-check
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-private-build/proxy
         - name: AUTH_HEADER

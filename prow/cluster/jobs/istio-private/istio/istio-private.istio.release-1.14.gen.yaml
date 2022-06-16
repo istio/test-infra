@@ -20,6 +20,8 @@ postsubmits:
         - entrypoint
         - prow/release-commit.sh
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DOCKER_HUB
           value: gcr.io/istio-prow-build
         - name: GCS_BUCKET
@@ -108,6 +110,8 @@ postsubmits:
         - racetest
         - binaries-test
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -188,6 +192,8 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - test.integration.telemetry.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -289,6 +295,8 @@ postsubmits:
         - MULTICLUSTER
         - test.integration.telemetry.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -392,6 +400,8 @@ postsubmits:
         - prow/config/topology/external-istiod.json
         - test.integration.telemetry.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -497,6 +507,8 @@ postsubmits:
         - MULTICLUSTER
         - test.integration.telemetry.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
         - name: DEPENDENCIES
@@ -598,6 +610,8 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - test.integration.kube.environment
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: VARIANT
           value: distroless
         - name: DEPENDENCIES
@@ -699,6 +713,8 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - test.integration.kube.environment
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DOCKER_IN_DOCKER_IPV6_ENABLED
           value: "true"
         - name: IP_FAMILY
@@ -802,6 +818,8 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - test.integration.operator.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -901,6 +919,8 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - test.integration.pilot.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -1002,6 +1022,8 @@ postsubmits:
         - MULTICLUSTER
         - test.integration.pilot.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -1105,6 +1127,8 @@ postsubmits:
         - prow/config/topology/external-istiod.json
         - test.integration.pilot.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         - name: DEPENDENCIES
@@ -1210,6 +1234,8 @@ postsubmits:
         - prow/config/topology/external-istiod-multicluster.json
         - test.integration.pilot.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         - name: DEPENDENCIES
@@ -1317,6 +1343,8 @@ postsubmits:
         - MULTICLUSTER
         - test.integration.pilot.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
         - name: DEPENDENCIES
@@ -1418,6 +1446,8 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - test.integration.security.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -1519,6 +1549,8 @@ postsubmits:
         - MULTICLUSTER
         - test.integration.security.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -1622,6 +1654,8 @@ postsubmits:
         - prow/config/topology/external-istiod.json
         - test.integration.security.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         - name: DEPENDENCIES
@@ -1729,6 +1763,8 @@ postsubmits:
         - MULTICLUSTER
         - test.integration.security.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
         - name: DEPENDENCIES
@@ -1830,6 +1866,8 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - test.integration.helm.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -1935,6 +1973,8 @@ postsubmits:
         - prow/config/trustworthy-jwt.yaml
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         - name: DEPENDENCIES
@@ -2042,6 +2082,8 @@ postsubmits:
         - prow/config/endpointslice.yaml
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         - name: DEPENDENCIES
@@ -2149,6 +2191,8 @@ postsubmits:
         - prow/config/trustworthy-jwt.yaml
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         - name: DEPENDENCIES
@@ -2256,6 +2300,8 @@ postsubmits:
         - prow/config/trustworthy-jwt.yaml
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         - name: DEPENDENCIES
@@ -2363,6 +2409,8 @@ postsubmits:
         - prow/config/mixedlb-service.yaml
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         - name: DEPENDENCIES
@@ -2470,6 +2518,8 @@ postsubmits:
         - prow/config/mixedlb-service.yaml
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         - name: DEPENDENCIES
@@ -2575,6 +2625,8 @@ postsubmits:
         - gcr.io/istio-testing/kind-node:v1.23.1
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         - name: DEPENDENCIES
@@ -2684,6 +2736,8 @@ postsubmits:
         - gcr.io/istio-testing/kind-node:v1.24.0-beta.0
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         - name: DEPENDENCIES
@@ -2787,10 +2841,12 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - test.integration.kube
         env:
-        - name: TEST_SELECT
-          value: -flaky
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 --istio.test.istio.enableCNI=true '
+        - name: TEST_SELECT
+          value: -flaky
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -2892,6 +2948,8 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
         - name: DEPENDENCIES
@@ -3000,6 +3058,8 @@ presubmits:
         - racetest
         - binaries-test
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3080,6 +3140,8 @@ presubmits:
         - entrypoint
         - prow/release-test.sh
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3167,6 +3229,8 @@ presubmits:
         - make
         - benchtest
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3248,6 +3312,8 @@ presubmits:
         - prow/integ-suite-kind.sh
         - test.integration.pilot.kube.presubmit
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.enableCNI=true '
         - name: DEPENDENCIES
@@ -3350,6 +3416,8 @@ presubmits:
         - prow/integ-suite-kind.sh
         - test.integration.telemetry.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3452,6 +3520,8 @@ presubmits:
         - MULTICLUSTER
         - test.integration.telemetry.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3556,6 +3626,8 @@ presubmits:
         - prow/config/topology/external-istiod.json
         - test.integration.telemetry.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3662,6 +3734,8 @@ presubmits:
         - MULTICLUSTER
         - test.integration.telemetry.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
         - name: DEPENDENCIES
@@ -3764,6 +3838,8 @@ presubmits:
         - prow/integ-suite-kind.sh
         - test.integration.kube.environment
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: VARIANT
           value: distroless
         - name: DEPENDENCIES
@@ -3866,6 +3942,8 @@ presubmits:
         - prow/integ-suite-kind.sh
         - test.integration.kube.environment
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DOCKER_IN_DOCKER_IPV6_ENABLED
           value: "true"
         - name: IP_FAMILY
@@ -3970,6 +4048,8 @@ presubmits:
         - prow/integ-suite-kind.sh
         - test.integration.operator.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -4070,6 +4150,8 @@ presubmits:
         - prow/integ-suite-kind.sh
         - test.integration.pilot.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -4172,6 +4254,8 @@ presubmits:
         - MULTICLUSTER
         - test.integration.pilot.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -4276,6 +4360,8 @@ presubmits:
         - prow/config/topology/external-istiod.json
         - test.integration.pilot.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         - name: DEPENDENCIES
@@ -4382,6 +4468,8 @@ presubmits:
         - prow/config/topology/external-istiod-multicluster.json
         - test.integration.pilot.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         - name: DEPENDENCIES
@@ -4490,6 +4578,8 @@ presubmits:
         - MULTICLUSTER
         - test.integration.pilot.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
         - name: DEPENDENCIES
@@ -4592,6 +4682,8 @@ presubmits:
         - prow/integ-suite-kind.sh
         - test.integration.security.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -4694,6 +4786,8 @@ presubmits:
         - MULTICLUSTER
         - test.integration.security.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -4798,6 +4892,8 @@ presubmits:
         - prow/config/topology/external-istiod.json
         - test.integration.security.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         - name: DEPENDENCIES
@@ -4906,6 +5002,8 @@ presubmits:
         - MULTICLUSTER
         - test.integration.security.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
         - name: DEPENDENCIES
@@ -5008,6 +5106,8 @@ presubmits:
         - prow/integ-suite-kind.sh
         - test.integration.helm.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -5111,6 +5211,8 @@ presubmits:
         - prow/integ-suite-kind.sh
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
         - name: DEPENDENCIES
@@ -5212,6 +5314,8 @@ presubmits:
         - make
         - test.integration.analyze
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -5293,6 +5397,8 @@ presubmits:
         - make
         - lint
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -5373,6 +5479,8 @@ presubmits:
         - make
         - gen-check
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:

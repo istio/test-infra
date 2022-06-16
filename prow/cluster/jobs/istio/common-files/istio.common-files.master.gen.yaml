@@ -15,6 +15,9 @@ postsubmits:
       - command:
         - make
         - lint
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -63,6 +66,9 @@ postsubmits:
         - --modifier=commonfiles
         - --token-path=/etc/github-token/oauth
         - --cmd=make update-common && make gen
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -117,6 +123,9 @@ postsubmits:
         - --modifier=commonfiles
         - --token-path=/etc/github-token/oauth
         - --cmd=make update-common && make gen
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -171,6 +180,9 @@ postsubmits:
         - --modifier=commonfiles
         - --token-path=/etc/github-token/oauth
         - --cmd=make update-common && make gen
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -229,6 +241,9 @@ postsubmits:
         - --
         - --post=make gen
         - --source=$AUTOMATOR_ROOT_DIR/files/common/scripts/setup_env.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -272,6 +287,9 @@ presubmits:
       - command:
         - make
         - lint
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:

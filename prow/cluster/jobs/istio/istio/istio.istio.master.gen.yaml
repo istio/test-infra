@@ -18,6 +18,9 @@ periodics:
       - entrypoint
       - prow/integ-suite-kind.sh
       - test.integration-fuzz.security.fuzz.kube
+      env:
+      - name: BUILD_WITH_CONTAINER
+        value: "0"
       image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
       name: ""
       resources:
@@ -82,6 +85,9 @@ postsubmits:
         - build
         - racetest
         - binaries-test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -120,6 +126,9 @@ postsubmits:
       - command:
         - entrypoint
         - prow/release-commit.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -165,6 +174,9 @@ postsubmits:
         - make
         - benchtest
         - report-benchtest
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -205,6 +217,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.telemetry.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -265,6 +280,9 @@ postsubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.telemetry.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -328,6 +346,8 @@ postsubmits:
         - prow/config/topology/external-istiod.json
         - test.integration.telemetry.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -389,6 +409,8 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - test.integration.kube.environment
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: VARIANT
           value: distroless
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -450,6 +472,8 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - test.integration.kube.environment
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DOCKER_IN_DOCKER_IPV6_ENABLED
           value: "true"
         - name: IP_FAMILY
@@ -512,6 +536,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.operator.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -570,6 +597,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.pilot.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -630,6 +660,9 @@ postsubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.pilot.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -693,6 +726,8 @@ postsubmits:
         - prow/config/topology/external-istiod.json
         - test.integration.pilot.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -758,6 +793,8 @@ postsubmits:
         - prow/config/topology/external-istiod-multicluster.json
         - test.integration.pilot.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -818,6 +855,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.security.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -878,6 +918,9 @@ postsubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.security.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -941,6 +984,8 @@ postsubmits:
         - prow/config/topology/external-istiod.json
         - test.integration.security.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -1001,6 +1046,9 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.helm.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -1066,6 +1114,8 @@ postsubmits:
         - prow/config/trustworthy-jwt.yaml
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -1133,6 +1183,8 @@ postsubmits:
         - prow/config/endpointslice.yaml
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -1200,6 +1252,8 @@ postsubmits:
         - prow/config/trustworthy-jwt.yaml
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -1267,6 +1321,8 @@ postsubmits:
         - prow/config/trustworthy-jwt.yaml
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -1334,6 +1390,8 @@ postsubmits:
         - prow/config/mixedlb-service.yaml
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -1401,6 +1459,8 @@ postsubmits:
         - prow/config/mixedlb-service.yaml
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -1468,6 +1528,8 @@ postsubmits:
         - prow/config/mixedlb-service.yaml
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -1533,6 +1595,8 @@ postsubmits:
         - gcr.io/istio-testing/kind-node:v1.23.1
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -1596,10 +1660,12 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - test.integration.kube
         env:
-        - name: TEST_SELECT
-          value: -flaky
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 --istio.test.istio.enableCNI=true '
+        - name: TEST_SELECT
+          value: -flaky
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -1661,6 +1727,8 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -1727,12 +1795,14 @@ postsubmits:
         - entrypoint
         - ../release-builder/release/build.sh
         env:
-        - name: BUILD_BASE_IMAGES
-          value: "true"
-        - name: VERSION
-          value: master
         - name: ALWAYS_GENERATE_BASE_IMAGE
           value: "true"
+        - name: BUILD_BASE_IMAGES
+          value: "true"
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: VERSION
+          value: master
         - name: COSIGN_KEY
           valueFrom:
             secretKeyRef:
@@ -1825,6 +1895,9 @@ presubmits:
         - build
         - racetest
         - binaries-test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -1862,6 +1935,9 @@ presubmits:
       - command:
         - entrypoint
         - prow/release-test.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -1906,6 +1982,9 @@ presubmits:
         - entrypoint
         - make
         - benchtest
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -1945,6 +2024,8 @@ presubmits:
         - prow/integ-suite-kind.sh
         - test.integration.pilot.kube.presubmit
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.enableCNI=true '
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -2004,6 +2085,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.telemetry.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -2063,6 +2147,9 @@ presubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.telemetry.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -2125,6 +2212,8 @@ presubmits:
         - prow/config/topology/external-istiod.json
         - test.integration.telemetry.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -2185,6 +2274,8 @@ presubmits:
         - prow/integ-suite-kind.sh
         - test.integration.kube.environment
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: VARIANT
           value: distroless
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -2245,6 +2336,8 @@ presubmits:
         - prow/integ-suite-kind.sh
         - test.integration.kube.environment
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: DOCKER_IN_DOCKER_IPV6_ENABLED
           value: "true"
         - name: IP_FAMILY
@@ -2306,6 +2399,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.operator.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -2363,6 +2459,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.pilot.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -2422,6 +2521,9 @@ presubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.pilot.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -2484,6 +2586,8 @@ presubmits:
         - prow/config/topology/external-istiod.json
         - test.integration.pilot.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -2548,6 +2652,8 @@ presubmits:
         - prow/config/topology/external-istiod-multicluster.json
         - test.integration.pilot.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -2607,6 +2713,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.security.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -2666,6 +2775,9 @@ presubmits:
         - --topology
         - MULTICLUSTER
         - test.integration.security.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -2728,6 +2840,8 @@ presubmits:
         - prow/config/topology/external-istiod.json
         - test.integration.security.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -2787,6 +2901,9 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - test.integration.helm.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -2848,6 +2965,8 @@ presubmits:
         - prow/integ-suite-kind.sh
         - test.integration.kube
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
@@ -2906,6 +3025,9 @@ presubmits:
       - command:
         - make
         - test.integration.analyze
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -2944,6 +3066,9 @@ presubmits:
       - command:
         - make
         - lint
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -2981,6 +3106,9 @@ presubmits:
       - command:
         - make
         - gen-check
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -3028,6 +3156,9 @@ presubmits:
       - command:
         - ../test-infra/tools/check_release_notes.sh
         - --token-path=/etc/github-token/oauth
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:

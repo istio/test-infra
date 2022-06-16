@@ -15,6 +15,9 @@ postsubmits:
       - command:
         - make
         - build
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:release-1.11-2022-03-04T02-39-31
         name: ""
         resources:
@@ -51,6 +54,9 @@ postsubmits:
       - command:
         - make
         - lint
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:release-1.11-2022-03-04T02-39-31
         name: ""
         resources:
@@ -87,6 +93,9 @@ postsubmits:
       - command:
         - make
         - test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:release-1.11-2022-03-04T02-39-31
         name: ""
         resources:
@@ -123,6 +132,9 @@ postsubmits:
       - command:
         - make
         - gen-check
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:release-1.11-2022-03-04T02-39-31
         name: ""
         resources:
@@ -172,6 +184,9 @@ postsubmits:
         - --token-path=/etc/github-token/oauth
         - --git-exclude=^common/
         - --cmd=go get istio.io/pkg@$AUTOMATOR_SHA && go mod tidy && make clean gen
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:release-1.11-2022-03-04T02-39-31
         name: ""
         resources:
@@ -215,6 +230,9 @@ presubmits:
       - command:
         - make
         - build
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:release-1.11-2022-03-04T02-39-31
         name: ""
         resources:
@@ -250,6 +268,9 @@ presubmits:
       - command:
         - make
         - lint
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:release-1.11-2022-03-04T02-39-31
         name: ""
         resources:
@@ -285,6 +306,9 @@ presubmits:
       - command:
         - make
         - test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:release-1.11-2022-03-04T02-39-31
         name: ""
         resources:
@@ -320,6 +344,9 @@ presubmits:
       - command:
         - make
         - gen-check
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:release-1.11-2022-03-04T02-39-31
         name: ""
         resources:

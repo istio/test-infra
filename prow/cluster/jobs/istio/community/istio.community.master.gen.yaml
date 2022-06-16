@@ -14,6 +14,9 @@ postsubmits:
       containers:
       - command:
         - prow/community-lint.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -50,6 +53,9 @@ postsubmits:
       - command:
         - make
         - test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -86,6 +92,9 @@ postsubmits:
       - command:
         - sh
         - prow/sync-org.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -128,6 +137,9 @@ presubmits:
       containers:
       - command:
         - prow/community-lint.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -163,6 +175,9 @@ presubmits:
       - command:
         - make
         - test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:

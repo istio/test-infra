@@ -15,6 +15,9 @@ postsubmits:
       - command:
         - make
         - build
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -51,6 +54,9 @@ postsubmits:
       - command:
         - make
         - lint
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -87,6 +93,9 @@ postsubmits:
       - command:
         - make
         - test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -123,6 +132,9 @@ postsubmits:
       - command:
         - make
         - gen-check
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -164,30 +176,12 @@ postsubmits:
         - policybot
         - deploy
         env:
-        - name: GITHUB_WEBHOOK_SECRET
-          valueFrom:
-            secretKeyRef:
-              key: githubWebhookSecret
-              name: policybot
-        - name: GITHUB_TOKEN
-          valueFrom:
-            secretKeyRef:
-              key: githubToken
-              name: policybot
-        - name: ZENHUB_TOKEN
-          valueFrom:
-            secretKeyRef:
-              key: zenhubToken
-              name: policybot
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: GCP_CREDS
           valueFrom:
             secretKeyRef:
               key: gcpCreds
-              name: policybot
-        - name: SENDGRID_APIKEY
-          valueFrom:
-            secretKeyRef:
-              key: sendgridApikey
               name: policybot
         - name: GITHUB_OAUTH_CLIENT_ID
           valueFrom:
@@ -198,6 +192,26 @@ postsubmits:
           valueFrom:
             secretKeyRef:
               key: githubOauthClientSecret
+              name: policybot
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: githubToken
+              name: policybot
+        - name: GITHUB_WEBHOOK_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: githubWebhookSecret
+              name: policybot
+        - name: SENDGRID_APIKEY
+          valueFrom:
+            secretKeyRef:
+              key: sendgridApikey
+              name: policybot
+        - name: ZENHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: zenhubToken
               name: policybot
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
@@ -241,6 +255,9 @@ presubmits:
       - command:
         - make
         - build
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -276,6 +293,9 @@ presubmits:
       - command:
         - make
         - lint
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -311,6 +331,9 @@ presubmits:
       - command:
         - make
         - test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -346,6 +369,9 @@ presubmits:
       - command:
         - make
         - gen-check
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:

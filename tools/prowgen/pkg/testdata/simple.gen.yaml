@@ -22,6 +22,9 @@ periodics:
       - that are reusable
       command:
       - run/nightly.sh
+      env:
+      - name: key
+        value: value
       image: fooimage
       name: ""
       resources:
@@ -66,6 +69,9 @@ periodics:
     containers:
     - command:
       - prow/command.sh
+      env:
+      - name: key
+        value: value
       image: fooimage
       name: ""
       resources:
@@ -106,6 +112,9 @@ postsubmits:
       containers:
       - command:
         - prow/command.sh
+        env:
+        - name: key
+          value: value
         image: barimage
         name: ""
         resources:
@@ -142,6 +151,9 @@ presubmits:
       containers:
       - command:
         - prow/command.sh
+        env:
+        - name: key
+          value: value
         image: barimage
         name: ""
         resources:
@@ -182,6 +194,13 @@ presubmits:
       - command:
         - prow/istio-lint.sh
         env:
+        - name: complex
+          valueFrom:
+            secretKeyRef:
+              key: test
+              name: name
+        - name: key
+          value: value
         - name: var
           value: val
         image: fooimage
@@ -241,6 +260,9 @@ presubmits:
         - that are reusable
         command:
         - prow/command.sh
+        env:
+        - name: key
+          value: value
         image: fooimage
         name: ""
         resources:
@@ -279,6 +301,9 @@ presubmits:
       containers:
       - command:
         - prow/command.sh
+        env:
+        - name: key
+          value: value
         image: fooimage
         name: ""
         resources:
