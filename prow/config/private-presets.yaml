@@ -1,0 +1,154 @@
+presets:
+# Dependency overrides, one per branch
+- labels:
+    preset-override-deps: "master-istio"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: master-istio-deps
+        key: dependencies
+- labels:
+    preset-override-deps: "master-release"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: master-release-deps
+        key: dependencies
+- labels:
+    preset-override-deps: "master-istio"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: master-istio-deps
+        key: dependencies
+- labels:
+    preset-override-deps: "release-1.11-release"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: release-1.11-release-deps
+        key: dependencies
+- labels:
+    preset-override-deps: "release-1.11-istio"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: release-1.11-istio-deps
+        key: dependencies
+- labels:
+    preset-override-deps: "release-1.12-release"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: release-1.12-release-deps
+        key: dependencies
+- labels:
+    preset-override-deps: "release-1.12-istio"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: release-1.12-istio-deps
+        key: dependencies
+- labels:
+    preset-override-deps: "release-1.13-release"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: release-1.13-release-deps
+        key: dependencies
+- labels:
+    preset-override-deps: "release-1.13-istio"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: release-1.13-istio-deps
+        key: dependencies
+- labels:
+    preset-override-deps: "release-1.14-release"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: release-1.14-release-deps
+        key: dependencies
+- labels:
+    preset-override-deps: "release-1.14-istio"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: release-1.14-istio-deps
+        key: dependencies
+- labels:
+    preset-override-deps: "release-1.15-release"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: release-1.15-release-deps
+        key: dependencies
+- labels:
+    preset-override-deps: "release-1.15-istio"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: release-1.15-istio-deps
+        key: dependencies
+
+# Use private Envoy URL, with auth header
+- labels:
+    preset-override-envoy: "true"
+  env:
+  - name: ISTIO_ENVOY_BASE_URL
+    value: https://storage.googleapis.com/istio-private-build/proxy
+  - name: AUTH_HEADER
+    valueFrom:
+      secretKeyRef:
+        name: authentikos-token
+        key: token
+
+# netrc allows authenticating requests through things like curl, etc
+- labels:
+    preset-enable-netrc: "true"
+  volumeMounts:
+  - mountPath: /home/.netrc
+    subPath: .netrc
+    name: netrc
+    readOnly: true
+  volumes:
+  - name: netrc
+    secret:
+      secretName: netrc-secret
+      items:
+      - key: secret
+        path: .netrc
+        mode: 0600
+
+# Enable SSH authentication
+- labels:
+    preset-enable-ssh: "true"
+  env:
+  - name: GIT_SSH_COMMAND
+    value: "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+  volumeMounts:
+  - mountPath: /root/.ssh
+    name: ssh
+    readOnly: true
+  volumes:
+  - name: ssh
+    secret:
+      secretName: ssh-key-secret
+      items:
+      - key: secret
+        path: id_rsa
+        mode: 0600

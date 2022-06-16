@@ -32,6 +32,10 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -39,6 +43,13 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -70,6 +81,10 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -77,6 +92,13 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -108,6 +130,10 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -115,6 +141,13 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -148,6 +181,20 @@ postsubmits:
           value: istio-private-build/dev/charts
         - name: PRERELEASE_DOCKER_HUB
           value: gcr.io/istio-prow-build
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.13-release-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
+        - name: AUTH_HEADER
+          valueFrom:
+            secretKeyRef:
+              key: token
+              name: authentikos-token
+        - name: GIT_SSH_COMMAND
+          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -165,6 +212,13 @@ postsubmits:
           subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
+        - mountPath: /root/.ssh
+          name: ssh
+          readOnly: true
       nodeSelector:
         testing: test-pool
       volumes:
@@ -174,6 +228,20 @@ postsubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
+      - name: ssh
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: id_rsa
+          secretName: ssh-key-secret
 presubmits:
   istio-private/release-builder:
   - always_run: true
@@ -208,6 +276,10 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -215,6 +287,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -247,6 +326,10 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -254,6 +337,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -286,6 +376,10 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         testing: test-pool
       volumes:
@@ -293,6 +387,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"

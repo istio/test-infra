@@ -158,8 +158,6 @@ postsubmits:
     branches:
     - ^release-1.11$
     decorate: true
-    labels:
-      preset-release-pipeline: "true"
     name: build-release_release-builder_release-1.11_postsubmit
     path_alias: istio.io/release-builder
     run_if_changed: ^release/trigger-build$
@@ -174,6 +172,14 @@ postsubmits:
             secretKeyRef:
               key: key
               name: cosign-key
+        - name: DOCKER_CONFIG
+          value: /etc/rel-pipeline-docker-config
+        - name: GITHUB_TOKEN_FILE
+          value: /etc/github/rel-pipeline-github
+        - name: GRAFANA_TOKEN_FILE
+          value: /etc/grafana/token
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/rel-pipeline-service-account.json
         image: gcr.io/istio-testing/build-tools:release-1.11-2022-03-04T02-39-31
         name: ""
         resources:
@@ -189,6 +195,17 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /etc/rel-pipeline-docker-config
+          name: rel-pipeline-docker-config
+        - mountPath: /etc/github
+          name: rel-pipeline-github
+          readOnly: true
+        - mountPath: /etc/grafana
+          name: rel-pipeline-grafana
+          readOnly: true
+        - mountPath: /etc/service-account
+          name: rel-pipeline-service-account
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -198,6 +215,18 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: rel-pipeline-service-account
+        secret:
+          secretName: rel-pipeline-service-account
+      - name: rel-pipeline-github
+        secret:
+          secretName: rel-pipeline-github
+      - name: rel-pipeline-grafana
+        secret:
+          secretName: grafana-token
+      - name: rel-pipeline-docker-config
+        secret:
+          secretName: rel-pipeline-docker-config
       - emptyDir: {}
         name: docker-root
   - annotations:
@@ -207,8 +236,6 @@ postsubmits:
     branches:
     - ^release-1.11$
     decorate: true
-    labels:
-      preset-release-pipeline: "true"
     name: publish-release_release-builder_release-1.11_postsubmit
     path_alias: istio.io/release-builder
     run_if_changed: ^release/trigger-publish$
@@ -223,6 +250,14 @@ postsubmits:
             secretKeyRef:
               key: key
               name: cosign-key
+        - name: DOCKER_CONFIG
+          value: /etc/rel-pipeline-docker-config
+        - name: GITHUB_TOKEN_FILE
+          value: /etc/github/rel-pipeline-github
+        - name: GRAFANA_TOKEN_FILE
+          value: /etc/grafana/token
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/service-account/rel-pipeline-service-account.json
         image: gcr.io/istio-testing/build-tools:release-1.11-2022-03-04T02-39-31
         name: ""
         resources:
@@ -238,6 +273,17 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /etc/rel-pipeline-docker-config
+          name: rel-pipeline-docker-config
+        - mountPath: /etc/github
+          name: rel-pipeline-github
+          readOnly: true
+        - mountPath: /etc/grafana
+          name: rel-pipeline-grafana
+          readOnly: true
+        - mountPath: /etc/service-account
+          name: rel-pipeline-service-account
+          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -247,6 +293,18 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: rel-pipeline-service-account
+        secret:
+          secretName: rel-pipeline-service-account
+      - name: rel-pipeline-github
+        secret:
+          secretName: rel-pipeline-github
+      - name: rel-pipeline-grafana
+        secret:
+          secretName: grafana-token
+      - name: rel-pipeline-docker-config
+        secret:
+          secretName: rel-pipeline-docker-config
       - emptyDir: {}
         name: docker-root
 presubmits:
