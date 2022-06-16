@@ -76,6 +76,8 @@ type Job struct {
 	Tags    []string `json:"tags,omitempty"`
 	Types   []string `json:"types,omitempty"`
 	Repos   []string `json:"repos,omitempty"`
+	// Architectures defines architectures to build as. Defaults to amd64.
+	Architectures []string `json:"architectures,omitempty"`
 
 	GerritPresubmitLabel  string `json:"gerrit_presubmit_label,omitempty"`
 	GerritPostsubmitLabel string `json:"gerrit_postsubmit_label,omitempty"`

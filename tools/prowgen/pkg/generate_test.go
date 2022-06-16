@@ -26,7 +26,7 @@ import (
 
 func TestGenerateConfig(t *testing.T) {
 	bc := ReadBase(nil, "testdata/.base.yaml")
-	cli := &Client{BaseConfig: *bc}
+	cli := &Client{BaseConfig: bc}
 	tests := []struct {
 		name        string
 		expectError bool

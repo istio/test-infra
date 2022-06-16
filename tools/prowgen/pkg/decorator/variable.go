@@ -32,27 +32,48 @@ const (
 
 var variableSubstitutionRegex = regexp.MustCompile(`\$\([_a-zA-Z0-9.-]+(\.[_a-zA-Z0-9.-]+)*\)`)
 
-func ApplyVariables(job spec.Job, params map[string]string, matrix map[string][]string) []spec.Job {
+func applyArch(arch string, job spec.Job) spec.Job {
+	// For backwards compatibility, amd64 is not suffixed
+	if arch != "amd64" {
+		job.Name += "-" + arch
+		if job.NodeSelector == nil {
+			job.NodeSelector = map[string]string{}
+		}
+		// TODO apply everywhere
+		job.NodeSelector["kubernetes.io/arch"] = arch
+	}
+	return job
+}
+
+func ApplyVariables(job spec.Job, architectures []string, params map[string]string, matrix map[string][]string) []spec.Job {
 	yamlBS, err := yaml.Marshal(job)
 	if err != nil {
 		log.Fatalf("Failed to marshal the given Job: %v", err)
 	}
 
-	subsExps := getVarSubstitutionExpressions(string(yamlBS))
-	if len(subsExps) == 0 {
-		return []spec.Job{job}
-	}
-
-	resolvedYAMLStr := applyParams(string(yamlBS), subsExps, params)
-	resolvedYAMLStrs := applyMatrix(resolvedYAMLStr, subsExps, matrix)
-
 	jobs := make([]spec.Job, 0)
-	for _, jobYaml := range resolvedYAMLStrs {
-		job := spec.Job{}
-		if err := yaml.Unmarshal([]byte(jobYaml), &job); err != nil {
-			log.Fatalf("Failed to unmarshal the yaml to Job: %v", err)
+
+	for _, arch := range architectures {
+		subsExps := getVarSubstitutionExpressions(string(yamlBS))
+		if len(subsExps) == 0 {
+			jobs = append(jobs, applyArch(arch, job))
+			continue
 		}
-		jobs = append(jobs, job)
+		if params == nil {
+			params = map[string]string{}
+		}
+		params["arch"] = arch
+
+		resolvedYAMLStr := applyParams(string(yamlBS), subsExps, params)
+		resolvedYAMLStrs := applyMatrix(resolvedYAMLStr, subsExps, matrix)
+
+		for _, jobYaml := range resolvedYAMLStrs {
+			job := spec.Job{}
+			if err := yaml.Unmarshal([]byte(jobYaml), &job); err != nil {
+				log.Fatalf("Failed to unmarshal the yaml to Job: %v", err)
+			}
+			jobs = append(jobs, applyArch(arch, job))
+		}
 	}
 	return jobs
 }
