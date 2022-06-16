@@ -29,6 +29,9 @@ periodics:
       - --modifier=update_envoy_dep
       - --token-path=/etc/github-token/oauth
       - --cmd=UPDATE_BRANCH=release/v1.21 scripts/update_envoy.sh
+      env:
+      - name: BUILD_WITH_CONTAINER
+        value: "0"
       image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
       name: ""
       resources:
@@ -75,6 +78,9 @@ postsubmits:
       - command:
         - entrypoint
         - ./prow/proxy-postsubmit.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools-proxy:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -117,6 +123,9 @@ postsubmits:
       containers:
       - command:
         - ./prow/proxy-postsubmit-centos.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools-centos:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -168,6 +177,9 @@ postsubmits:
         - --token-path=/etc/github-token/oauth
         - --git-exclude=^common/
         - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -212,6 +224,9 @@ presubmits:
       containers:
       - command:
         - ./prow/proxy-presubmit.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools-proxy:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -249,6 +264,9 @@ presubmits:
       containers:
       - command:
         - ./prow/proxy-presubmit-asan.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools-proxy:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -286,6 +304,9 @@ presubmits:
       containers:
       - command:
         - ./prow/proxy-presubmit-tsan.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools-proxy:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -323,6 +344,9 @@ presubmits:
       containers:
       - command:
         - ./prow/proxy-presubmit-release.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools-proxy:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -360,6 +384,9 @@ presubmits:
       containers:
       - command:
         - ./prow/proxy-presubmit-centos-release.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools-centos:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -398,6 +425,9 @@ presubmits:
       - command:
         - entrypoint
         - ./prow/proxy-presubmit-wasm.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools-proxy:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:

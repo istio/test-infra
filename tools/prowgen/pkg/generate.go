@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"sort"
 	"strings"
 	"time"
 
@@ -359,13 +360,7 @@ func (cli *Client) ConvertJobConfig(fileName string, jobsConfig spec.JobsConfig,
 }
 
 func createContainer(jobConfig spec.JobsConfig, job spec.Job, resources map[string]v1.ResourceRequirements) []v1.Container {
-	envs := job.Env
-	if len(envs) == 0 {
-		envs = jobConfig.Env
-	} else {
-		// TODO: overwrite the env with the same name
-		envs = append(envs, jobConfig.Env...)
-	}
+	envs := joinEnv(jobConfig.Env, job.Env)
 
 	yes := true
 	c := v1.Container{
@@ -382,6 +377,33 @@ func createContainer(jobConfig spec.JobsConfig, job spec.Job, resources map[stri
 	decorator.ApplyResource(&c, job.Resources, resources)
 
 	return []v1.Container{c}
+}
+
+// joinEnv joins a set of environment variables, in order of lowest to highest priority
+func joinEnv(envs ...[]v1.EnvVar) []v1.EnvVar {
+	envMap := map[string]interface{}{}
+	for _, es := range envs {
+		for _, e := range es {
+			if e.ValueFrom != nil {
+				envMap[e.Name] = e.ValueFrom
+			} else {
+				envMap[e.Name] = e.Value
+			}
+		}
+	}
+	res := []v1.EnvVar{}
+	for k, v := range envMap {
+		switch tv := v.(type) {
+		case string:
+			res = append(res, v1.EnvVar{Name: k, Value: tv})
+		case *v1.EnvVarSource:
+			res = append(res, v1.EnvVar{Name: k, ValueFrom: tv})
+		}
+	}
+	sort.Slice(res, func(i, j int) bool {
+		return res[i].Name < res[j].Name
+	})
+	return res
 }
 
 func (cli *Client) createJobBase(baseConfig spec.BaseConfig, jobConfig spec.JobsConfig, job spec.Job,

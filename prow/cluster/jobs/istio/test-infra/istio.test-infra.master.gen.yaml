@@ -29,6 +29,9 @@ periodics:
       - --image=gcr.io/k8s-prow/.*
       - --tag=v[0-9]{8}-[a-f0-9]{10}
       - --var=image
+      env:
+      - name: BUILD_WITH_CONTAINER
+        value: "0"
       image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
       name: ""
       resources:
@@ -73,6 +76,9 @@ postsubmits:
       - command:
         - make
         - lint
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -109,6 +115,9 @@ postsubmits:
       - command:
         - make
         - test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -145,6 +154,9 @@ postsubmits:
       - command:
         - make
         - gen-check
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -186,6 +198,9 @@ postsubmits:
         - -C
         - boskos
         - mason-image
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -234,6 +249,9 @@ postsubmits:
         - docker/prowbazel
         - image
         - push-safe
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -281,6 +299,9 @@ postsubmits:
         - -C
         - authentikos
         - deploy
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -328,6 +349,9 @@ postsubmits:
         - -C
         - tools/prowgen
         - deploy
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -375,6 +399,9 @@ postsubmits:
         - -C
         - tools/prowtrans
         - deploy
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -417,6 +444,9 @@ presubmits:
       - command:
         - make
         - lint
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -452,6 +482,9 @@ presubmits:
       - command:
         - make
         - test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -487,6 +520,9 @@ presubmits:
       - command:
         - make
         - gen-check
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -525,6 +561,9 @@ presubmits:
         - -C
         - authentikos
         - unit-test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:

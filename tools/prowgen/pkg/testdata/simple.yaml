@@ -22,6 +22,12 @@ jobs:
     env:
     - name: var
       value: val
+    - name: complex
+      valueFrom:
+        secretKeyRef:
+          key: test
+          name: name
+
     repos: [istio/istio]
 
   - name: custom-node-selector

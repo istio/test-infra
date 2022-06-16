@@ -20,6 +20,8 @@ postsubmits:
         - entrypoint
         - ./prow/proxy-postsubmit.sh
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: DOCKER_REPOSITORY
           value: istio-prow-build/envoy
@@ -87,6 +89,8 @@ postsubmits:
       - command:
         - ./prow/proxy-postsubmit-centos.sh
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: DOCKER_REPOSITORY
           value: istio-prow-build/envoy
@@ -153,6 +157,8 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit.sh
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
@@ -211,6 +217,8 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-asan.sh
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
@@ -269,6 +277,8 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-tsan.sh
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
@@ -327,6 +337,8 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-release.sh
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
@@ -385,6 +397,8 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-centos-release.sh
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
@@ -444,6 +458,8 @@ presubmits:
         - entrypoint
         - ./prow/proxy-presubmit-wasm.sh
         env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: ENVOY_PREFIX
           value: envoy
