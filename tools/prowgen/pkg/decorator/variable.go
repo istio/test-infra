@@ -55,7 +55,7 @@ func ApplyVariables(job spec.Job, architectures []string, params map[string]stri
 
 	for _, arch := range architectures {
 		subsExps := getVarSubstitutionExpressions(string(yamlBS))
-		if len(subsExps) == 0 {
+		if len(subsExps) == 0 && len(architectures) == 1 {
 			jobs = append(jobs, applyArch(arch, job))
 			continue
 		}
