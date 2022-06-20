@@ -50,8 +50,19 @@ jobs:
     resources: custom
     command: [prow/command.sh]
     repos: [istio/istio]
-    modifier: [presubmit_skipped]
     trigger: "/test basic"
+
+  - name: multi-arch
+    types: [presubmit]
+    architectures: [amd64, arm64]
+    command: [prow/command.sh]
+    image: test
+
+  - name: multi-arch-param
+    types: [presubmit]
+    architectures: [amd64, arm64]
+    command: [prow/command.sh, $(params.arch)]
+    image: test
 
 requirements: [gocache]
 

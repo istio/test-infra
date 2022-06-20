@@ -41,6 +41,7 @@ periodics:
         name: build-cache
         subPath: gocache
     nodeSelector:
+      kubernetes.io/arch: amd64
       testing: test-pool
     volumes:
     - hostPath:
@@ -91,6 +92,7 @@ periodics:
         name: build-cache
         subPath: gocache
     nodeSelector:
+      kubernetes.io/arch: amd64
       testing: test-pool
     volumes:
     - hostPath:
@@ -131,6 +133,7 @@ postsubmits:
           name: build-cache
           subPath: gocache
       nodeSelector:
+        kubernetes.io/arch: amd64
         testing: test-pool
       volumes:
       - hostPath:
@@ -170,6 +173,7 @@ presubmits:
           name: build-cache
           subPath: gocache
       nodeSelector:
+        kubernetes.io/arch: amd64
         testing: test-pool
       volumes:
       - hostPath:
@@ -227,6 +231,7 @@ presubmits:
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
+        kubernetes.io/arch: amd64
         testing: test-pool
       volumes:
       - hostPath:
@@ -280,6 +285,7 @@ presubmits:
           subPath: gocache
       nodeSelector:
         foo: baz
+        kubernetes.io/arch: amd64
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -323,6 +329,7 @@ presubmits:
           name: build-cache
           subPath: gocache
       nodeSelector:
+        kubernetes.io/arch: amd64
         testing: test-pool
       volumes:
       - hostPath:
@@ -330,3 +337,141 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
     trigger: ((?m)^/test( | .* )presubmit-skipped_istio,?($|\s.*))|((?m)^/test basic(\s+|$))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: gerrit.istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    name: multi-arch_istio
+    spec:
+      containers:
+      - command:
+        - prow/command.sh
+        image: test
+        name: ""
+        resources:
+          requests:
+            cpu: "1"
+            memory: 1Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - always_run: true
+    annotations:
+      testgrid-dashboards: gerrit.istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    name: multi-arch-arm64_istio
+    spec:
+      containers:
+      - command:
+        - prow/command.sh
+        image: test
+        name: ""
+        resources:
+          requests:
+            cpu: "1"
+            memory: 1Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - always_run: true
+    annotations:
+      testgrid-dashboards: gerrit.istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    name: multi-arch-param_istio
+    spec:
+      containers:
+      - command:
+        - prow/command.sh
+        - amd64
+        image: test
+        name: ""
+        resources:
+          requests:
+            cpu: "1"
+            memory: 1Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - always_run: true
+    annotations:
+      testgrid-dashboards: gerrit.istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    name: multi-arch-param-arm64_istio
+    spec:
+      containers:
+      - command:
+        - prow/command.sh
+        - arm64
+        image: test
+        name: ""
+        resources:
+          requests:
+            cpu: "1"
+            memory: 1Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
