@@ -95,6 +95,13 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
     requirements: [kind]
 
+  - name: integ-pilot-cpp
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
+    requirements: [kind]
+    env:
+      - name: GRPC_ECHO_IMAGE
+        value: "yashykt/istio:echo"
+
   - name: integ-pilot-multicluster
     command:
       - entrypoint
