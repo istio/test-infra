@@ -24,8 +24,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 	container "google.golang.org/api/container/v1beta1"
-
-	"istio.io/test-infra/toolbox/util"
 )
 
 const (
@@ -63,7 +61,7 @@ func findVersionMatch(version string, supportedVersion []string) string {
 }
 
 func checkCluster(kubeconfig string) error {
-	_, err := util.Shell("kubectl --kubeconfig=%s get ns", kubeconfig)
+	_, err := Shell("kubectl --kubeconfig=%s get ns", kubeconfig)
 	return err
 }
 
