@@ -17,10 +17,8 @@ package config
 import (
 	"flag"
 	"fmt"
-	"io/fs"
 	"os"
 	"path"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -356,41 +354,52 @@ func TestTrustedJobs(t *testing.T) {
 }
 
 func TestPresets(t *testing.T) {
-	root := path.Join(*jobConfigPath, "istio")
-	filepath.Walk(root, func(path string, info fs.FileInfo, err error) error {
-		if err != nil {
-			return err
+	known := sets.NewString()
+	for _, p := range c.Presets {
+		if len(p.Labels) != 1 {
+			t.Fatalf("Istio presets are expected to have a single label")
 		}
-		if !info.IsDir() {
-			t.Log(path)
+		for k := range p.Labels {
+			known.Insert(k)
+			if !strings.HasPrefix(k, "preset-") {
+				t.Fatalf("preset must start with 'preset-': %v", k)
+			}
 		}
-		return nil
-	})
-	//
-	//// Presubmits may not use trusted clusters.
-	//for _, pre := range c.AllStaticPresubmits(nil) {
-	//	if pre.Cluster == trusted {
-	//		t.Errorf("%s: presubmits cannot use trusted clusters", pre.Name)
-	//	}
-	//}
-	//
-	//// Trusted postsubmits must be defined in trustedPath
-	//for _, post := range c.AllStaticPostsubmits(nil) {
-	//	if post.Cluster != trusted {
-	//		continue
-	//	}
-	//	if !strings.HasPrefix(post.SourcePath, trustedPath) {
-	//		t.Errorf("%s defined in %s may not run in trusted cluster", post.Name, post.SourcePath)
-	//	}
-	//}
-	//
-	//// Trusted periodics must be defined in trustedPath
-	//for _, per := range c.AllPeriodics() {
-	//	if per.Cluster != trusted {
-	//		continue
-	//	}
-	//	if !strings.HasPrefix(per.SourcePath, trustedPath) {
-	//		t.Errorf("%s defined in %s may not run in trusted cluster", per.Name, per.SourcePath)
-	//	}
-	//}
+	}
+	unused := sets.NewString(known.UnsortedList()...)
+	for _, pre := range c.AllStaticPresubmits(nil) {
+		for k := range pre.Labels {
+			if strings.HasPrefix(k, "preset-") {
+				unused.Delete(k)
+				if !known.Has(k) {
+					t.Fatalf("%v: unknown preset %v", pre.Name, k)
+				}
+			}
+		}
+	}
+	for _, post := range c.AllStaticPostsubmits(nil) {
+		for k := range post.Labels {
+			if strings.HasPrefix(k, "preset-") {
+				unused.Delete(k)
+				if !known.Has(k) {
+					t.Fatalf("%v: unknown preset %v", post.Name, k)
+				}
+			}
+		}
+	}
+
+	for _, per := range c.AllPeriodics() {
+		for k := range per.Labels {
+			if strings.HasPrefix(k, "preset-") {
+				unused.Delete(k)
+				if !known.Has(k) {
+					t.Fatalf("%v: unknown preset %v", per.Name, k)
+				}
+			}
+		}
+	}
+
+	if len(unused) > 0 {
+		t.Fatalf("unused presets %v should be removed", unused.List())
+	}
 }
