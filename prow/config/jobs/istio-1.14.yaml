@@ -3898,6 +3898,132 @@ jobs:
 - command:
   - entrypoint
   - prow/integ-suite-kind.sh
+  - --node-image
+  - gcr.io/istio-testing/kind-node:v1.25.0-alpha.1
+  - test.integration.kube
+  env:
+  - name: INTEGRATION_TEST_FLAGS
+    value: ' --istio.test.retries=1 '
+  modifiers:
+  - hidden
+  name: integ-k8s-125
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      labels:
+        preset-release-pipeline: "true"
+  requirements:
+  - cache
+  - cache
+  - gocache
+  - kind
+  resources_presets:
+    dedicated:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "15"
+        memory: 8Gi
+    default:
+      limits:
+        cpu: "5"
+        memory: 24Gi
+      requests:
+        cpu: "5"
+        memory: 3Gi
+    lint:
+      limits:
+        memory: 24Gi
+      requests:
+        cpu: "3"
+        memory: 16Gi
+    multicluster:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 3Gi
+  timeout: 4h0m0s
+  types:
+  - postsubmit
+- command:
+  - entrypoint
+  - prow/integ-suite-kind.sh
   - test.integration.kube
   env:
   - name: TEST_SELECT
