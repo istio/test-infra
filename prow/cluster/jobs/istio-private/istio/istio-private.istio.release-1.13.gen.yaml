@@ -28,13 +28,6 @@ postsubmits:
           value: istio-private-build/dev
         - name: HELM_BUCKET
           value: istio-private-build/dev/charts
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -54,13 +47,6 @@ postsubmits:
           subPath: gocache
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -72,20 +58,6 @@ postsubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -113,20 +85,6 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -144,13 +102,6 @@ postsubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -159,20 +110,6 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -196,20 +133,6 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -235,13 +158,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -260,20 +176,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -299,20 +201,6 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -338,13 +226,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -363,20 +244,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -404,20 +271,6 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -443,13 +296,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -468,20 +314,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -513,20 +345,6 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -552,13 +370,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -577,20 +388,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -616,20 +413,6 @@ postsubmits:
           value: "0"
         - name: VARIANT
           value: distroless
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -655,13 +438,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -680,20 +456,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -721,20 +483,6 @@ postsubmits:
           value: "true"
         - name: IP_FAMILY
           value: ipv6
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -760,13 +508,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -785,20 +526,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -822,20 +549,6 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -861,13 +574,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -886,20 +592,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -923,20 +615,6 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -962,13 +640,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -987,20 +658,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1026,20 +683,6 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1065,13 +708,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1090,20 +726,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1133,20 +755,6 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1172,13 +780,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1197,20 +798,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1240,20 +827,6 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1279,13 +852,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1304,20 +870,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1349,20 +901,6 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1388,13 +926,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1413,20 +944,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1450,20 +967,6 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1489,13 +992,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1514,20 +1010,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1553,20 +1035,6 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1592,13 +1060,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1617,20 +1078,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1660,20 +1107,6 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1699,13 +1132,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1724,20 +1150,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1769,20 +1181,6 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1808,13 +1206,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1833,20 +1224,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1870,20 +1247,6 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -1909,13 +1272,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1934,20 +1290,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1979,20 +1321,6 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2018,13 +1346,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2043,20 +1364,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -2088,20 +1395,6 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2127,13 +1420,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2152,20 +1438,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -2197,20 +1469,6 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2236,13 +1494,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2261,20 +1512,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -2306,20 +1543,6 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2345,13 +1568,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2370,20 +1586,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -2415,20 +1617,6 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2454,13 +1642,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2479,20 +1660,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -2524,20 +1691,6 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2563,13 +1716,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2588,20 +1734,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -2631,20 +1763,6 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2670,13 +1788,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2695,20 +1806,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -2742,20 +1839,6 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2781,13 +1864,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2806,20 +1882,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -2849,20 +1911,6 @@ postsubmits:
           value: ' --istio.test.retries=1 --istio.test.istio.enableCNI=true '
         - name: TEST_SELECT
           value: -flaky
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2888,13 +1936,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2913,20 +1954,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -2954,20 +1981,6 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -2993,13 +2006,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3018,20 +2024,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
 presubmits:
   istio-private/istio:
   - always_run: true
@@ -3062,20 +2054,6 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -3093,13 +2071,6 @@ presubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3108,20 +2079,6 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3145,20 +2102,6 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -3178,13 +2121,6 @@ presubmits:
           subPath: gocache
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3196,20 +2132,6 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
@@ -3235,20 +2157,6 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -3266,13 +2174,6 @@ presubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3281,20 +2182,6 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3321,20 +2208,6 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.enableCNI=true '
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -3360,13 +2233,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3385,20 +2251,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3423,20 +2275,6 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -3462,13 +2300,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3487,20 +2318,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3527,20 +2344,6 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -3566,13 +2369,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3591,20 +2387,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3633,20 +2415,6 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -3672,13 +2440,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3697,20 +2458,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
@@ -3743,20 +2490,6 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -3782,13 +2515,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3807,20 +2533,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3847,20 +2559,6 @@ presubmits:
           value: "0"
         - name: VARIANT
           value: distroless
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -3886,13 +2584,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3911,20 +2602,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3953,20 +2630,6 @@ presubmits:
           value: "true"
         - name: IP_FAMILY
           value: ipv6
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -3992,13 +2655,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -4017,20 +2673,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -4055,20 +2697,6 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -4094,13 +2722,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -4119,20 +2740,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -4157,20 +2764,6 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -4196,13 +2789,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -4221,20 +2807,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -4261,20 +2833,6 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -4300,13 +2858,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -4325,20 +2876,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -4369,20 +2906,6 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -4408,13 +2931,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -4433,20 +2949,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -4477,20 +2979,6 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -4516,13 +3004,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -4541,20 +3022,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
@@ -4587,20 +3054,6 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -4626,13 +3079,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -4651,20 +3097,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -4689,20 +3121,6 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -4728,13 +3146,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -4753,20 +3164,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -4793,20 +3190,6 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -4832,13 +3215,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -4857,20 +3233,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -4901,20 +3263,6 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -4940,13 +3288,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -4965,20 +3306,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
@@ -5011,20 +3338,6 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.istiodlessRemotes
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -5050,13 +3363,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -5075,20 +3381,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -5113,20 +3405,6 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -5152,13 +3430,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -5177,20 +3448,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
@@ -5220,20 +3477,6 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -5259,13 +3502,6 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -5284,20 +3520,6 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -5321,20 +3543,6 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -5352,13 +3560,6 @@ presubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -5367,20 +3568,6 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -5404,20 +3591,6 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -5435,13 +3608,6 @@ presubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -5450,20 +3616,6 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -5487,20 +3639,6 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: release-1.13-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.13-2022-05-12T19-56-46
         name: ""
         resources:
@@ -5518,13 +3656,6 @@ presubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -5533,17 +3664,3 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret

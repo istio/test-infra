@@ -21,15 +21,6 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.11-2022-03-04T02-39-31
         name: ""
         resources:
@@ -45,9 +36,6 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -56,13 +44,6 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -83,15 +64,6 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:release-1.11-2022-03-04T02-39-31
         name: ""
         resources:
@@ -107,9 +79,6 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -118,10 +87,3 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
