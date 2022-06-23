@@ -17,8 +17,10 @@ package config
 import (
 	"flag"
 	"fmt"
+	"io/fs"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -351,4 +353,44 @@ func TestTrustedJobs(t *testing.T) {
 			t.Errorf("%s defined in %s may not run in trusted cluster", per.Name, per.SourcePath)
 		}
 	}
+}
+
+func TestPresets(t *testing.T) {
+	root := path.Join(*jobConfigPath, "istio")
+	filepath.Walk(root, func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			t.Log(path)
+		}
+		return nil
+	})
+	//
+	//// Presubmits may not use trusted clusters.
+	//for _, pre := range c.AllStaticPresubmits(nil) {
+	//	if pre.Cluster == trusted {
+	//		t.Errorf("%s: presubmits cannot use trusted clusters", pre.Name)
+	//	}
+	//}
+	//
+	//// Trusted postsubmits must be defined in trustedPath
+	//for _, post := range c.AllStaticPostsubmits(nil) {
+	//	if post.Cluster != trusted {
+	//		continue
+	//	}
+	//	if !strings.HasPrefix(post.SourcePath, trustedPath) {
+	//		t.Errorf("%s defined in %s may not run in trusted cluster", post.Name, post.SourcePath)
+	//	}
+	//}
+	//
+	//// Trusted periodics must be defined in trustedPath
+	//for _, per := range c.AllPeriodics() {
+	//	if per.Cluster != trusted {
+	//		continue
+	//	}
+	//	if !strings.HasPrefix(per.SourcePath, trustedPath) {
+	//		t.Errorf("%s defined in %s may not run in trusted cluster", per.Name, per.SourcePath)
+	//	}
+	//}
 }
