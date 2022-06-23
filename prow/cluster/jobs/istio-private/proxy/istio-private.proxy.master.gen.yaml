@@ -33,7 +33,7 @@ postsubmits:
           value: istio-private-artifacts
         - name: GCS_BUILD_BUCKET
           value: istio-private-build
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-06-13T19-37-37
+        image: gcr.io/istio-testing/build-tools-proxy:master-8811c381c3cf639afbd4b50f36bfbf2131659ca4
         name: ""
         resources:
           limits:
@@ -50,10 +50,6 @@ postsubmits:
           subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -65,13 +61,6 @@ postsubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -103,7 +92,7 @@ postsubmits:
           value: istio-private-artifacts
         - name: GCS_BUILD_BUCKET
           value: istio-private-build
-        image: gcr.io/istio-testing/build-tools-centos:master-2022-06-13T19-37-37
+        image: gcr.io/istio-testing/build-tools-centos:master-8811c381c3cf639afbd4b50f36bfbf2131659ca4
         name: ""
         resources:
           limits:
@@ -118,10 +107,6 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -131,13 +116,6 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
 presubmits:
   istio-private/proxy:
   - always_run: true
@@ -166,7 +144,7 @@ presubmits:
           value: envoy
         - name: ENVOY_REPOSITORY
           value: https://github.com/istio-private/envoy
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-06-13T19-37-37
+        image: gcr.io/istio-testing/build-tools-proxy:master-8811c381c3cf639afbd4b50f36bfbf2131659ca4
         name: ""
         resources:
           limits:
@@ -181,10 +159,6 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -194,13 +168,6 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -227,7 +194,7 @@ presubmits:
           value: envoy
         - name: ENVOY_REPOSITORY
           value: https://github.com/istio-private/envoy
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-06-13T19-37-37
+        image: gcr.io/istio-testing/build-tools-proxy:master-8811c381c3cf639afbd4b50f36bfbf2131659ca4
         name: ""
         resources:
           limits:
@@ -242,10 +209,6 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -255,13 +218,6 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -288,7 +244,7 @@ presubmits:
           value: envoy
         - name: ENVOY_REPOSITORY
           value: https://github.com/istio-private/envoy
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-06-13T19-37-37
+        image: gcr.io/istio-testing/build-tools-proxy:master-8811c381c3cf639afbd4b50f36bfbf2131659ca4
         name: ""
         resources:
           limits:
@@ -303,10 +259,6 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -316,13 +268,6 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -349,7 +294,7 @@ presubmits:
           value: envoy
         - name: ENVOY_REPOSITORY
           value: https://github.com/istio-private/envoy
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-06-13T19-37-37
+        image: gcr.io/istio-testing/build-tools-proxy:master-8811c381c3cf639afbd4b50f36bfbf2131659ca4
         name: ""
         resources:
           limits:
@@ -364,10 +309,6 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -377,13 +318,6 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -410,7 +344,7 @@ presubmits:
           value: envoy
         - name: ENVOY_REPOSITORY
           value: https://github.com/istio-private/envoy
-        image: gcr.io/istio-testing/build-tools-centos:master-2022-06-13T19-37-37
+        image: gcr.io/istio-testing/build-tools-centos:master-8811c381c3cf639afbd4b50f36bfbf2131659ca4
         name: ""
         resources:
           limits:
@@ -425,10 +359,6 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -438,13 +368,6 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -472,7 +395,7 @@ presubmits:
           value: envoy
         - name: ENVOY_REPOSITORY
           value: https://github.com/istio-private/envoy
-        image: gcr.io/istio-testing/build-tools-proxy:master-2022-06-13T19-37-37
+        image: gcr.io/istio-testing/build-tools-proxy:master-8811c381c3cf639afbd4b50f36bfbf2131659ca4
         name: ""
         resources:
           limits:
@@ -489,10 +412,6 @@ presubmits:
           subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -504,10 +423,3 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret

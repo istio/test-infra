@@ -23,8 +23,6 @@ import (
 	"github.com/ghodss/yaml"
 	container "google.golang.org/api/container/v1beta1"
 	clientapi "k8s.io/client-go/tools/clientcmd/api/v1"
-
-	"istio.io/test-infra/toolbox/util"
 )
 
 // SetKubeConfig saves kube config from a given cluster to the given location
@@ -34,7 +32,7 @@ func SetKubeConfig(project, zone, cluster, kubeconfig string) error {
 		return err
 	}
 
-	clusterJSON, err := util.ShellSilent(
+	clusterJSON, err := ShellSilent(
 		"gcloud container clusters describe %s --project=%s --zone=%s --format=json",
 		cluster, project, zone)
 	if err != nil {
@@ -48,7 +46,7 @@ func SetKubeConfig(project, zone, cluster, kubeconfig string) error {
 
 	if clusterObj.MasterAuth == nil ||
 		(len(clusterObj.MasterAuth.ClientCertificate) == 0 && len(clusterObj.MasterAuth.ClientKey) == 0) {
-		_, err := util.ShellSilent(
+		_, err := ShellSilent(
 			"gcloud container clusters get-credentials %s --project=%s --zone=%s",
 			cluster, project, zone)
 		return err
@@ -109,7 +107,7 @@ func SetKubeConfig(project, zone, cluster, kubeconfig string) error {
 
 // ActivateServiceAccount activates a service account for gcloud
 func ActivateServiceAccount(serviceAccount string) error {
-	_, err := util.ShellSilent(
+	_, err := ShellSilent(
 		"gcloud auth activate-service-account --key-file=%s",
 		serviceAccount)
 	return err

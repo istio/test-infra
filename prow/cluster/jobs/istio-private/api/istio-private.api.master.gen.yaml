@@ -21,16 +21,7 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
-        image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
+        image: gcr.io/istio-testing/build-tools:master-8811c381c3cf639afbd4b50f36bfbf2131659ca4
         name: ""
         resources:
           limits:
@@ -45,9 +36,6 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -56,13 +44,6 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -83,16 +64,7 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
-        image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
+        image: gcr.io/istio-testing/build-tools:master-8811c381c3cf639afbd4b50f36bfbf2131659ca4
         name: ""
         resources:
           limits:
@@ -107,9 +79,6 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -118,13 +87,6 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
 presubmits:
   istio-private/api:
   - always_run: true
@@ -149,9 +111,7 @@ presubmits:
           value: "0"
         - name: GCS_BUCKET
           value: istio-private-build/dev
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
-        image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
+        image: gcr.io/istio-testing/build-tools:master-8811c381c3cf639afbd4b50f36bfbf2131659ca4
         name: ""
         resources:
           limits:
@@ -166,9 +126,6 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -177,13 +134,6 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -206,9 +156,7 @@ presubmits:
           value: "0"
         - name: GCS_BUCKET
           value: istio-private-build/dev
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
-        image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
+        image: gcr.io/istio-testing/build-tools:master-8811c381c3cf639afbd4b50f36bfbf2131659ca4
         name: ""
         resources:
           limits:
@@ -223,9 +171,6 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -234,10 +179,3 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
