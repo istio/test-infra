@@ -605,6 +605,75 @@ postsubmits:
       preset-enable-ssh: "true"
       preset-override-deps: master-istio
       preset-override-envoy: "true"
+    name: integ-pilot-cpp_istio_postsubmit_pri
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.pilot.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GRPC_ECHO_IMAGE
+          value: grpctesting/istio_echo_cpp
+        image: gcr.io/istio-testing/build-tools:master-8811c381c3cf639afbd4b50f36bfbf2131659ca4
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-netrc: "true"
+      preset-enable-ssh: "true"
+      preset-override-deps: master-istio
+      preset-override-envoy: "true"
     name: integ-pilot-multicluster_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:

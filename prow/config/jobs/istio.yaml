@@ -95,6 +95,15 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
     requirements: [kind]
 
+  - name: integ-pilot-cpp
+    types: [postsubmit]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
+    requirements: [kind]
+    env:
+      # TODO(yashykt): Move the code for this image to the istio repository.
+      - name: GRPC_ECHO_IMAGE
+        value: "grpctesting/istio_echo_cpp"
+
   - name: integ-pilot-multicluster
     command:
       - entrypoint
