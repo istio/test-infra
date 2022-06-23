@@ -352,3 +352,54 @@ func TestTrustedJobs(t *testing.T) {
 		}
 	}
 }
+
+func TestPresets(t *testing.T) {
+	known := sets.NewString()
+	for _, p := range c.Presets {
+		if len(p.Labels) != 1 {
+			t.Fatalf("Istio presets are expected to have a single label")
+		}
+		for k := range p.Labels {
+			known.Insert(k)
+			if !strings.HasPrefix(k, "preset-") {
+				t.Fatalf("preset must start with 'preset-': %v", k)
+			}
+		}
+	}
+	unused := sets.NewString(known.UnsortedList()...)
+	for _, pre := range c.AllStaticPresubmits(nil) {
+		for k := range pre.Labels {
+			if strings.HasPrefix(k, "preset-") {
+				unused.Delete(k)
+				if !known.Has(k) {
+					t.Fatalf("%v: unknown preset %v", pre.Name, k)
+				}
+			}
+		}
+	}
+	for _, post := range c.AllStaticPostsubmits(nil) {
+		for k := range post.Labels {
+			if strings.HasPrefix(k, "preset-") {
+				unused.Delete(k)
+				if !known.Has(k) {
+					t.Fatalf("%v: unknown preset %v", post.Name, k)
+				}
+			}
+		}
+	}
+
+	for _, per := range c.AllPeriodics() {
+		for k := range per.Labels {
+			if strings.HasPrefix(k, "preset-") {
+				unused.Delete(k)
+				if !known.Has(k) {
+					t.Fatalf("%v: unknown preset %v", per.Name, k)
+				}
+			}
+		}
+	}
+
+	if len(unused) > 0 {
+		t.Fatalf("unused presets %v should be removed", unused.List())
+	}
+}

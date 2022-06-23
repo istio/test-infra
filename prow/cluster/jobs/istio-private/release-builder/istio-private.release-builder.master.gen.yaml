@@ -35,10 +35,6 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -47,13 +43,6 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -88,10 +77,6 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -100,13 +85,6 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -141,10 +119,6 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -153,13 +127,6 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -202,20 +169,6 @@ postsubmits:
           value: istio-private-build/dev/charts
         - name: PRERELEASE_DOCKER_HUB
           value: gcr.io/istio-prow-build
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: master-release-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: https://storage.googleapis.com/istio-private-build/proxy
-        - name: AUTH_HEADER
-          valueFrom:
-            secretKeyRef:
-              key: token
-              name: authentikos-token
-        - name: GIT_SSH_COMMAND
-          value: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         image: gcr.io/istio-testing/build-tools:master-2022-06-13T19-37-37
         name: ""
         resources:
@@ -244,13 +197,6 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-        - mountPath: /root/.ssh
-          name: ssh
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -273,20 +219,6 @@ postsubmits:
           secretName: rel-pipeline-docker-config
       - emptyDir: {}
         name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-      - name: ssh
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: id_rsa
-          secretName: ssh-key-secret
 presubmits:
   istio-private/release-builder:
   - always_run: true
@@ -324,10 +256,6 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -336,13 +264,6 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -378,10 +299,6 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -390,13 +307,6 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -432,10 +342,6 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -444,13 +350,6 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
