@@ -16,9 +16,6 @@ repo_root = $(shell git rev-parse --show-toplevel)
 
 lint: lint-all
 
-lint-buildifier:
-	@bazel run //:buildifier -- -showlog -mode=check $(git ls-files| grep -e BUILD -e WORKSPACE | grep -v vendor)
-
 fmt: format-go tidy-go
 
 test:
