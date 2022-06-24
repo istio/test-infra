@@ -24,11 +24,11 @@ source "$ROOT/../utils.sh"
 
 # Defaults
 image='gcr.io/istio-testing/build-tools.*'
-tag='$AUTOMATOR_SRC_BRANCH-[0-9a-f]{40}'
+tag='$AUTOMATOR_SRC_BRANCH-\([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2}\|[0-9a-f]{40}\)'
 paths='$AUTOMATOR_REPO_DIR/prow/cluster/jobs/**/*.yaml,$AUTOMATOR_REPO_DIR/prow/config/jobs/**/*.yaml'
 key="image"
 var="IMAGE_VERSION"
-source='$AUTOMATOR_ROOT_DIR/files/Makefile'
+source='$AUTOMATOR_ROOT_DIR/files/common/scripts/setup_env.sh'
 
 get_opts() {
   if opt="$(getopt -o '' -l pre:,post:,image:,tag:,paths:,key:,var:,source: -n "$(basename "$0")" -- "$@")"; then
@@ -95,7 +95,7 @@ resolve() {
 work() {
   # Update build-tools and build-tools-centos images
   # shellcheck disable=SC2086
-  sed -Ei "s|($key:\s+$image:)$tag|\1$resolved_tag|g" $resolved_paths
+  sed -Ei "s,($key:\s+$image:)$tag,\1$resolved_tag,g" $resolved_paths
 }
 
 main() {
