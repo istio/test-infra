@@ -20,6 +20,7 @@ fmt: format-go tidy-go
 
 test:
 	@go test -race ./...
+	@(cd tools/prowgen; go test -race ./...)
 
 gen: generate-config fmt mirror-licenses
 

@@ -348,6 +348,9 @@ presubmits:
       containers:
       - command:
         - prow/command.sh
+        env:
+        - name: key
+          value: value
         image: test
         name: ""
         resources:
@@ -376,12 +379,16 @@ presubmits:
       testgrid-dashboards: gerrit.istio_istio
     branches:
     - ^master$
+    cluster: arm64-cluster
     decorate: true
     name: multi-arch-arm64_istio
     spec:
       containers:
       - command:
         - prow/command.sh
+        env:
+        - name: key
+          value: value
         image: test
         name: ""
         resources:
@@ -417,6 +424,9 @@ presubmits:
       - command:
         - prow/command.sh
         - amd64
+        env:
+        - name: key
+          value: value
         image: test
         name: ""
         resources:
@@ -445,6 +455,7 @@ presubmits:
       testgrid-dashboards: gerrit.istio_istio
     branches:
     - ^master$
+    cluster: arm64-cluster
     decorate: true
     name: multi-arch-param-arm64_istio
     spec:
@@ -452,6 +463,9 @@ presubmits:
       - command:
         - prow/command.sh
         - arm64
+        env:
+        - name: key
+          value: value
         image: test
         name: ""
         resources:
