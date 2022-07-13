@@ -224,7 +224,8 @@ func (cli *Client) ConvertJobConfig(fileName string, jobsConfig spec.JobsConfig,
 		if len(parentJob.Architectures) == 0 {
 			parentJob.Architectures = []string{ArchAMD64}
 		}
-		expandedJobs := decorator.ApplyVariables(parentJob, parentJob.Architectures, jobsConfig.Params, jobsConfig.Matrix)
+
+		expandedJobs := decorator.ApplyVariables(parentJob, parentJob.Architectures, jobsConfig.Params, jobsConfig.Matrix, cli.BaseConfig.ClusterOverrides)
 		for _, job := range expandedJobs {
 			brancher := config.Brancher{
 				Branches: []string{fmt.Sprintf("^%s$", branch)},

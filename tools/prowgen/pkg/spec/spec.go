@@ -31,6 +31,8 @@ type BaseConfig struct {
 
 	PathAliases map[string]string `json:"path_aliases,omitempty"`
 
+	ClusterOverrides map[string]string `json:"cluster_overrides,omitempty"`
+
 	TestgridConfig TestgridConfig `json:"testgrid_config,omitempty"`
 }
 

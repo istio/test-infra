@@ -32,7 +32,7 @@ const (
 
 var variableSubstitutionRegex = regexp.MustCompile(`\$\([_a-zA-Z0-9.-]+(\.[_a-zA-Z0-9.-]+)*\)`)
 
-func applyArch(arch string, job spec.Job) spec.Job {
+func applyArch(arch string, job spec.Job, clusterOverrides map[string]string) spec.Job {
 	// For backwards compatibility, amd64 is not suffixed
 	if arch != "amd64" {
 		job.Name += "-" + arch
@@ -42,10 +42,19 @@ func applyArch(arch string, job spec.Job) spec.Job {
 		job.NodeSelector = map[string]string{}
 	}
 	job.NodeSelector["kubernetes.io/arch"] = arch
+	if c, f := clusterOverrides[arch]; f {
+		job.Cluster = c
+	}
 	return job
 }
 
-func ApplyVariables(job spec.Job, architectures []string, params map[string]string, matrix map[string][]string) []spec.Job {
+func ApplyVariables(
+	job spec.Job,
+	architectures []string,
+	params map[string]string,
+	matrix map[string][]string,
+	overrides map[string]string,
+) []spec.Job {
 	yamlBS, err := yaml.Marshal(job)
 	if err != nil {
 		log.Fatalf("Failed to marshal the given Job: %v", err)
@@ -56,7 +65,7 @@ func ApplyVariables(job spec.Job, architectures []string, params map[string]stri
 	for _, arch := range architectures {
 		subsExps := getVarSubstitutionExpressions(string(yamlBS))
 		if len(subsExps) == 0 && len(architectures) == 1 {
-			jobs = append(jobs, applyArch(arch, job))
+			jobs = append(jobs, applyArch(arch, job, overrides))
 			continue
 		}
 		if params == nil {
@@ -72,7 +81,7 @@ func ApplyVariables(job spec.Job, architectures []string, params map[string]stri
 			if err := yaml.Unmarshal([]byte(jobYaml), &job); err != nil {
 				log.Fatalf("Failed to unmarshal the yaml to Job: %v", err)
 			}
-			jobs = append(jobs, applyArch(arch, job))
+			jobs = append(jobs, applyArch(arch, job, overrides))
 		}
 	}
 	return jobs
