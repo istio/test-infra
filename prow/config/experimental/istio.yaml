@@ -1,0 +1,14 @@
+org: istio
+repo: istio
+support_release_branching: false
+
+defaults:
+  branches: [master]
+  branches-out: [experimental-dual-stack]
+  repo-allowlist: [istio]
+
+transforms:
+
+- job-type:
+  - postsubmit
+  job-denylist: [release_istio,build-base-images_istio]
