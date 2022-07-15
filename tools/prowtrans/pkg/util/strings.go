@@ -58,6 +58,12 @@ func NormalizeOrg(s, sep string) string {
 	return s
 }
 
+// NormalizeConfigName keeps only alphanumeric characters, '-', '_' or '.' in
+// prow config name.
+func NormalizeConfigName(s string) string {
+	return regexp.MustCompile(`[._-]([^\w]|[_])|([^\w\-_.])`).ReplaceAllString(s, "")
+}
+
 // SortedKeys returns a sorted list of keys for a given map.
 func SortedKeys(m map[string]string) []string {
 	keys := make([]string, 0, len(m))
