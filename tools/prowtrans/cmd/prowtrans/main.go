@@ -907,7 +907,7 @@ func getOutPath(o options, p string, in string, branches, branchesOut []string) 
 		if newOrg, ok := o.OrgMap[org]; ok {
 			filename := util.RenameFile(`^`+util.NormalizeOrg(org, filenameSeparator)+`\b`, file, util.NormalizeOrg(newOrg, filenameSeparator))
 			if len(branchesOut) > 0 {
-				filename = strings.ReplaceAll(filename, branches[0], branchesOut[0])
+				filename = util.NormalizeConfigName(strings.ReplaceAll(filename, branches[0], branchesOut[0]))
 			}
 			return filepath.Join(o.Output, util.GetTopLevelOrg(newOrg), repo, filename)
 		}
