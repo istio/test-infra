@@ -90,26 +90,6 @@ jobs:
   resources: build
   types:
   - postsubmit
-- command:
-  - entrypoint
-  - release/build.sh
-  cron: 0 19 * * *
-  env:
-  - name: BUILD_BASE_IMAGES
-    value: "true"
-  - name: VERSION
-    value: "1.12"
-  name: build-base-images
-  node_selector:
-    testing: test-pool
-  requirements:
-  - cache
-  - release
-  - docker
-  - github-optional
-  resources: build
-  types:
-  - periodic
 org: istio
 repo: release-builder
 requirement_presets:
