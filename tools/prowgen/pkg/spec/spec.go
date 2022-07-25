@@ -143,6 +143,7 @@ type RequirementPreset struct {
 	Volumes      []v1.Volume       `json:"volumes,omitempty"`
 	VolumeMounts []v1.VolumeMount  `json:"volumeMounts,omitempty"`
 	Args         []string          `json:"args,omitempty"`
+	Spec         *v1.PodSpec       `json:"spec,omitempty"`
 }
 
 func (r *RequirementPreset) DeepCopy() RequirementPreset {
