@@ -12,7 +12,7 @@ replace (
 require (
 	github.com/google/go-cmp v0.5.6
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/imdario/mergo v0.3.13
+	github.com/imdario/mergo v0.3.12
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	gopkg.in/robfig/cron.v2 v2.0.0-20150107220207-be2e0b0deed5
 	k8s.io/api v0.22.2
