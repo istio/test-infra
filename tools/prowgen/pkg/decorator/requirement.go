@@ -72,7 +72,7 @@ func resolveRequirements(annotations, labels map[string]string, spec *v1.PodSpec
 	}
 }
 
-// mergeRequirement will overlay the requirement on the existing job spec. Use mergo for all keys except container
+// mergeRequirement will overlay the requirement on the existing job spec. Use mergo for all keys except containers and metadata
 func mergeRequirement(annotations, labels map[string]string, spec *v1.PodSpec, containers []v1.Container, volumes *[]v1.Volume,
 	req spec.RequirementPreset) {
 	for a, v := range req.Annotations {
@@ -125,8 +125,8 @@ func mergeRequirement(annotations, labels map[string]string, spec *v1.PodSpec, c
 		}
 	}
 
-	if req.Spec != nil {
-		if err := mergo.Merge(spec, req.Spec); err != nil {
+	if req.PodSpec != nil {
+		if err := mergo.Merge(spec, req.PodSpec); err != nil {
 			log.Fatalf("Unable to merge PodSpec: %v", err)
 		}
 	}
