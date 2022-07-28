@@ -83,7 +83,7 @@ create-istio-deps-configmap: get-private-cluster-credentials
 	@bash ./create-deps-cm.sh \
 	--local \
 	--branch="$(branch)" \
-	-namespace=test-pods \
+	--namespace=test-pods \
 	--key=dependencies \
 	$(if $(filter %,$(dry_run)),--dry-run,) \
 	"$(branch)-istio-deps"
