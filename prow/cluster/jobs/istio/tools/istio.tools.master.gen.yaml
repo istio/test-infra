@@ -583,3 +583,50 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+  - always_run: false
+    annotations:
+      testgrid-dashboards: istio_tools
+    branches:
+    - ^master$
+    cluster: istio-prow-build-arm64
+    decorate: true
+    name: containers-test-arm64_tools
+    path_alias: istio.io/tools
+    run_if_changed: docker/.+|cmd/.+
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - containers-test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:master-arm64-boostrap
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "8"
+            memory: 4Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: test-pool
+      serviceAccountName: prowjob-advanced-sa
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - emptyDir: {}
+        name: docker-root
