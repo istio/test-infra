@@ -27,6 +27,7 @@ jobs:
         value: "True"
     modifiers: [presubmit_optional]
 
+  # amd64 build
   - name: containers
     service_account_name: prowjob-advanced-sa
     types: [postsubmit]
@@ -44,6 +45,29 @@ jobs:
     regex: 'docker/.+|cmd/.+'
     requirements: [docker, github]
     repos: [istio/test-infra@master,istio/common-files@master]
+    env:
+    # For amd64, publish the manifest for arm64+amd64
+    - name: MANIFEST_ARCH
+      value: "arm64 amd64"
+  # arm64 build
+  - name: containers
+    service_account_name: prowjob-advanced-sa
+    architectures: [arm64]
+    types: [postsubmit]
+    command:
+    - entrypoint
+    - make
+    - containers
+    env:
+    # For arm64, we do not generate the manifest; the amd job will handle it
+    - name: MANIFEST_ARCH
+      value: ""
+    resources: build
+    regex: 'docker/.+|cmd/.+'
+    requirements: [docker, github]
+    # TODO: remove this
+    # The first run needs a bootstrap image since we need this job to produce the multi-arch image
+    image: gcr.io/istio-testing/build-tools:master-arm64-boostrap
 
   - name: containers-test
     service_account_name: prowjob-advanced-sa

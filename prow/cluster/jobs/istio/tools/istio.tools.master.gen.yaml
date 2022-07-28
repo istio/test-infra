@@ -195,6 +195,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: MANIFEST_ARCH
+          value: arm64 amd64
         image: gcr.io/istio-testing/build-tools:master-6154f6f0de07b3b1d5fccb7b3c2bcc6ff59bafee
         name: ""
         resources:
@@ -217,6 +219,61 @@ postsubmits:
           readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
+        testing: test-pool
+      serviceAccountName: prowjob-advanced-sa
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - emptyDir: {}
+        name: docker-root
+      - name: github
+        secret:
+          secretName: oauth-token
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_tools_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    cluster: istio-prow-build-arm64
+    decorate: true
+    name: containers-arm64_tools_postsubmit
+    path_alias: istio.io/tools
+    run_if_changed: docker/.+|cmd/.+
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - containers
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: MANIFEST_ARCH
+        image: gcr.io/istio-testing/build-tools:master-arm64-boostrap
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "8"
+            memory: 4Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /etc/github-token
+          name: github
+          readOnly: true
+      nodeSelector:
+        kubernetes.io/arch: arm64
         testing: test-pool
       serviceAccountName: prowjob-advanced-sa
       volumes:
