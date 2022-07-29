@@ -35,6 +35,8 @@ jobs:
   env:
   - name: ARCH_SUFFIX
     value: $(params.arch)
+  - name: BUILD_ENVOY_BINARY_ONLY
+    value: "1"
   service_account_name: prowjob-advanced-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit-release.sh]
