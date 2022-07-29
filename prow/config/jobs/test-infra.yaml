@@ -33,21 +33,6 @@ jobs:
 #    command: [entrypoint, make, -C, authentikos, integ-test]
 #    requirements: [kind]
 
-  - name: push-mason
-    service_account_name: prowjob-advanced-sa
-    types: [postsubmit]
-    regex: '^boskos/cmd/mason/.+'
-    cluster: test-infra-trusted
-    max_concurrency: 1
-    command:
-    - make
-    - -C
-    - boskos
-    - mason-image
-    requirements: [docker]
-    node_selector:
-        prod: prow
-
   - name: push-prowbazel
     service_account_name: prowjob-advanced-sa
     types: [postsubmit]
