@@ -72,6 +72,73 @@ postsubmits:
       timeout: 4h0m0s
     labels:
       preset-enable-netrc: "true"
+    name: release-arm64_proxy_postsubmit_master_priv
+    path_alias: istio.io/proxy
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - ./prow/proxy-postsubmit.sh
+        env:
+        - name: ARCH_SUFFIX
+          value: arm64
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: DOCKER_REPOSITORY
+          value: istio-prow-build/envoy
+        - name: ENVOY_PREFIX
+          value: envoy
+        - name: ENVOY_REPOSITORY
+          value: https://github.com/istio-private/envoy
+        - name: GCS_ARTIFACTS_BUCKET
+          value: istio-private-artifacts
+        - name: GCS_BUILD_BUCKET
+          value: istio-private-build
+        image: gcr.io/istio-testing/build-tools-proxy:master-88a79b0889d7cefe8cefd4cd3cf051c626efb2d7
+        name: ""
+        resources:
+          limits:
+            cpu: "64"
+            memory: 240G
+          requests:
+            cpu: "30"
+            memory: 100G
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: build-pool
+      serviceAccountName: prowjob-private-sa
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/proxy.git
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    labels:
+      preset-enable-netrc: "true"
     name: release-centos_proxy_postsubmit_master_priv
     path_alias: istio.io/proxy
     spec:
@@ -180,6 +247,61 @@ presubmits:
       timeout: 4h0m0s
     labels:
       preset-enable-netrc: "true"
+    name: test-arm64_proxy_master_priv
+    path_alias: istio.io/proxy
+    spec:
+      containers:
+      - command:
+        - ./prow/proxy-presubmit.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: ENVOY_PREFIX
+          value: envoy
+        - name: ENVOY_REPOSITORY
+          value: https://github.com/istio-private/envoy
+        image: gcr.io/istio-testing/build-tools-proxy:master-88a79b0889d7cefe8cefd4cd3cf051c626efb2d7
+        name: ""
+        resources:
+          limits:
+            cpu: "64"
+            memory: 240G
+          requests:
+            cpu: "30"
+            memory: 100G
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: build-pool
+      serviceAccountName: prowjob-private-sa
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/proxy.git
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    labels:
+      preset-enable-netrc: "true"
     name: test-asan_proxy_master_priv
     path_alias: istio.io/proxy
     spec:
@@ -213,6 +335,61 @@ presubmits:
         kubernetes.io/arch: amd64
         testing: build-pool
       serviceAccountName: prowjob-private-sa
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/proxy.git
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    labels:
+      preset-enable-netrc: "true"
+    name: test-asan-arm64_proxy_master_priv
+    path_alias: istio.io/proxy
+    spec:
+      containers:
+      - command:
+        - ./prow/proxy-presubmit-asan.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: ENVOY_PREFIX
+          value: envoy
+        - name: ENVOY_REPOSITORY
+          value: https://github.com/istio-private/envoy
+        image: gcr.io/istio-testing/build-tools-proxy:master-88a79b0889d7cefe8cefd4cd3cf051c626efb2d7
+        name: ""
+        resources:
+          limits:
+            cpu: "64"
+            memory: 240G
+          requests:
+            cpu: "30"
+            memory: 100G
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: build-pool
+      serviceAccountName: prowjob-private-sa
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -280,6 +457,61 @@ presubmits:
       timeout: 4h0m0s
     labels:
       preset-enable-netrc: "true"
+    name: test-tsan-arm64_proxy_master_priv
+    path_alias: istio.io/proxy
+    spec:
+      containers:
+      - command:
+        - ./prow/proxy-presubmit-tsan.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: ENVOY_PREFIX
+          value: envoy
+        - name: ENVOY_REPOSITORY
+          value: https://github.com/istio-private/envoy
+        image: gcr.io/istio-testing/build-tools-proxy:master-88a79b0889d7cefe8cefd4cd3cf051c626efb2d7
+        name: ""
+        resources:
+          limits:
+            cpu: "64"
+            memory: 240G
+          requests:
+            cpu: "30"
+            memory: 100G
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: build-pool
+      serviceAccountName: prowjob-private-sa
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/proxy.git
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    labels:
+      preset-enable-netrc: "true"
     name: release-test_proxy_master_priv
     path_alias: istio.io/proxy
     spec:
@@ -313,6 +545,63 @@ presubmits:
         kubernetes.io/arch: amd64
         testing: build-pool
       serviceAccountName: prowjob-private-sa
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/proxy.git
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    labels:
+      preset-enable-netrc: "true"
+    name: release-test-arm64_proxy_master_priv
+    path_alias: istio.io/proxy
+    spec:
+      containers:
+      - command:
+        - ./prow/proxy-presubmit-release.sh
+        env:
+        - name: ARCH_SUFFIX
+          value: arm64
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: ENVOY_PREFIX
+          value: envoy
+        - name: ENVOY_REPOSITORY
+          value: https://github.com/istio-private/envoy
+        image: gcr.io/istio-testing/build-tools-proxy:master-88a79b0889d7cefe8cefd4cd3cf051c626efb2d7
+        name: ""
+        resources:
+          limits:
+            cpu: "64"
+            memory: 240G
+          requests:
+            cpu: "30"
+            memory: 100G
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: build-pool
+      serviceAccountName: prowjob-private-sa
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
