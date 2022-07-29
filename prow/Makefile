@@ -72,6 +72,7 @@ query-arm: get-arm-cluster-credentials
 get-private-cluster-credentials: PROJECT=$(PROJECT_PRIVATE)
 get-private-cluster-credentials: CLUSTER=$(CLUSTER_PRIVATE)
 get-private-cluster-credentials: ZONE=$(ZONE_PRIVATE)
+
 deploy-private: get-private-cluster-credentials
 	kubectl apply -f ./cluster/private/
 
