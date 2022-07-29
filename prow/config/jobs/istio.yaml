@@ -6,6 +6,10 @@ jobs:
   - name: unit-tests
     command: [entrypoint, make, -e, "T=-v -count=1", build, racetest, binaries-test]
     resources: dedicated
+  - name: unit-tests
+    modifiers: [presubmit_skipped]
+    architectures: [arm64]
+    command: [entrypoint, make, -e, "T=-v -count=1", build, racetest, binaries-test]
 
   - name: release-test
     service_account_name: prowjob-advanced-sa
@@ -13,6 +17,17 @@ jobs:
     command: [entrypoint, prow/release-test.sh]
     requirements: [docker]
     resources: dedicated
+  # Temporary job to ensure multi-arch publishing works before promoting to required
+  - name: release-test-multiarch
+    modifiers: [presubmit_skipped]
+    service_account_name: prowjob-advanced-sa
+    types: [presubmit]
+    command: [entrypoint, prow/release-test.sh]
+    requirements: [docker]
+    resources: dedicated
+    env:
+    - name: DOCKER_ARCHITECTURES
+      value: "linux/amd64,linux/arm64"
 
   - name: release
     service_account_name: prowjob-advanced-sa
@@ -86,10 +101,15 @@ jobs:
       - name: IP_FAMILY
         value: "ipv6"
 
+  - name: integ-basic
+    modifiers: [presubmit_skipped]
+    architectures: [arm64]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.environment]
+    requirements: [kind]
+
   - name: integ-operator-controller
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.operator.kube]
     requirements: [kind]
-
 
   - name: integ-pilot
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
