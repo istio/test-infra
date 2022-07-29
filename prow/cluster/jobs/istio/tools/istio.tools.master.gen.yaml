@@ -276,6 +276,11 @@ postsubmits:
         kubernetes.io/arch: arm64
         testing: test-pool
       serviceAccountName: prowjob-advanced-sa
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -623,6 +628,11 @@ presubmits:
         kubernetes.io/arch: arm64
         testing: test-pool
       serviceAccountName: prowjob-advanced-sa
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
