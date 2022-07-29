@@ -269,9 +269,6 @@ postsubmits:
           subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /etc/github-token
-          name: github
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
@@ -283,9 +280,6 @@ postsubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
-      - name: github
-        secret:
-          secretName: oauth-token
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_tools_postsubmit
