@@ -349,10 +349,10 @@ func createOrUpdateSecret(o options, client v1.SecretsGetter, ns string, secretD
 	}
 
 	printVerbose(fmt.Sprintf("md5sum of token created is: %x", md5.Sum(data)), o.verbose)
-	if secret, err := client.Secrets(ns).Create(req); err == nil {
+	if secret, err := client.Secrets(ns).Create(context.Background(), req, metav1.CreateOptions{}); err == nil {
 		printVerbose(fmt.Sprintf("creating secret: %v in namespace: %v\n", o.secret, ns), o.verbose)
 		return secret, nil
-	} else if secret, err := client.Secrets(ns).Update(req); err == nil {
+	} else if secret, err := client.Secrets(ns).Update(context.Background(), req, metav1.UpdateOptions{}); err == nil {
 		printVerbose(fmt.Sprintf("updating secret: %v in namespace: %v\n", o.secret, ns), o.verbose)
 		return secret, nil
 	} else {
