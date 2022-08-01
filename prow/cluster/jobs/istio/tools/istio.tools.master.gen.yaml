@@ -18,7 +18,7 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:master-f166b4a2166fb6e8de949a15eb2775e89ffc3e53
+        image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
         name: ""
         resources:
           limits:
@@ -58,7 +58,7 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:master-f166b4a2166fb6e8de949a15eb2775e89ffc3e53
+        image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
         name: ""
         resources:
           limits:
@@ -98,7 +98,7 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:master-f166b4a2166fb6e8de949a15eb2775e89ffc3e53
+        image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
         name: ""
         resources:
           limits:
@@ -138,7 +138,7 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:master-f166b4a2166fb6e8de949a15eb2775e89ffc3e53
+        image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
         name: ""
         resources:
           limits:
@@ -195,7 +195,9 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:master-f166b4a2166fb6e8de949a15eb2775e89ffc3e53
+        - name: MANIFEST_ARCH
+          value: arm64 amd64
+        image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
         name: ""
         resources:
           limits:
@@ -235,6 +237,60 @@ postsubmits:
       testgrid-num-failures-to-alert: "1"
     branches:
     - ^master$
+    cluster: prow-arm
+    decorate: true
+    name: containers-arm64_tools_postsubmit
+    path_alias: istio.io/tools
+    run_if_changed: docker/.+|cmd/.+
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - containers
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: MANIFEST_ARCH
+        image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "8"
+            memory: 4Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: test-pool
+      serviceAccountName: prowjob-advanced-sa
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_tools_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
     decorate: true
     name: deploy-perf-dashboard_tools_postsubmit
     path_alias: istio.io/tools
@@ -250,7 +306,7 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:master-f166b4a2166fb6e8de949a15eb2775e89ffc3e53
+        image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
         name: ""
         resources:
           limits:
@@ -296,7 +352,7 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:master-f166b4a2166fb6e8de949a15eb2775e89ffc3e53
+        image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
         name: ""
         resources:
           limits:
@@ -335,7 +391,7 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:master-f166b4a2166fb6e8de949a15eb2775e89ffc3e53
+        image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
         name: ""
         resources:
           limits:
@@ -374,7 +430,7 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:master-f166b4a2166fb6e8de949a15eb2775e89ffc3e53
+        image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
         name: ""
         resources:
           limits:
@@ -413,7 +469,7 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:master-f166b4a2166fb6e8de949a15eb2775e89ffc3e53
+        image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
         name: ""
         resources:
           limits:
@@ -456,7 +512,7 @@ presubmits:
           value: "0"
         - name: TRIALRUN
           value: "True"
-        image: gcr.io/istio-testing/build-tools:master-f166b4a2166fb6e8de949a15eb2775e89ffc3e53
+        image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
         name: ""
         resources:
           limits:
@@ -498,7 +554,7 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:master-f166b4a2166fb6e8de949a15eb2775e89ffc3e53
+        image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
         name: ""
         resources:
           limits:
@@ -519,6 +575,58 @@ presubmits:
         kubernetes.io/arch: amd64
         testing: test-pool
       serviceAccountName: prowjob-advanced-sa
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - emptyDir: {}
+        name: docker-root
+  - always_run: false
+    annotations:
+      testgrid-dashboards: istio_tools
+    branches:
+    - ^master$
+    cluster: prow-arm
+    decorate: true
+    name: containers-test-arm64_tools
+    path_alias: istio.io/tools
+    run_if_changed: docker/.+|cmd/.+
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - containers-test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "8"
+            memory: 4Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: test-pool
+      serviceAccountName: prowjob-advanced-sa
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache

@@ -1,7 +1,7 @@
 org: istio
 repo: proxy
 support_release_branching: true
-image: gcr.io/istio-testing/build-tools-proxy:master-f166b4a2166fb6e8de949a15eb2775e89ffc3e53
+image: gcr.io/istio-testing/build-tools-proxy:master-700d1817d60f98e7d70ee9ec673b275486702ebc
 node_selector:
   testing: build-pool
 
@@ -29,12 +29,28 @@ jobs:
   types: [presubmit]
   command: [./prow/proxy-presubmit-release.sh]
   timeout: 4h
+- name: release-test
+  architectures: [arm64]
+  modifiers: [presubmit_optional]
+  env:
+  - name: ARCH_SUFFIX
+    value: $(params.arch)
+  - name: BUILD_ENVOY_BINARY_ONLY
+    value: "1"
+  service_account_name: prowjob-advanced-sa
+  types: [presubmit]
+  command: [./prow/proxy-presubmit-release.sh]
+  timeout: 4h
+  # TODO: get build-pool for arm
+  resources: arm
+  node_selector:
+    testing: test-pool
 
 - name: release-centos-test
   service_account_name: prowjob-advanced-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit-centos-release.sh]
-  image: gcr.io/istio-testing/build-tools-centos:master-f166b4a2166fb6e8de949a15eb2775e89ffc3e53
+  image: gcr.io/istio-testing/build-tools-centos:master-700d1817d60f98e7d70ee9ec673b275486702ebc
   timeout: 4h
 
 - name: check-wasm
@@ -50,12 +66,28 @@ jobs:
   command: [entrypoint, ./prow/proxy-postsubmit.sh]
   requirements: [docker]
   timeout: 4h
+- name: release
+  architectures: [arm64]
+  env:
+  - name: ARCH_SUFFIX
+    value: $(params.arch)
+  - name: BUILD_ENVOY_BINARY_ONLY
+    value: "1"
+  service_account_name: prowjob-advanced-sa
+  types: [postsubmit]
+  command: [entrypoint, ./prow/proxy-postsubmit.sh]
+  requirements: [docker]
+  timeout: 4h
+  # TODO: get build-pool for arm
+  resources: arm
+  node_selector:
+    testing: test-pool
 
 - name: release-centos
   service_account_name: prowjob-advanced-sa
   types: [postsubmit]
   command: [./prow/proxy-postsubmit-centos.sh]
-  image: gcr.io/istio-testing/build-tools-centos:master-f166b4a2166fb6e8de949a15eb2775e89ffc3e53
+  image: gcr.io/istio-testing/build-tools-centos:master-700d1817d60f98e7d70ee9ec673b275486702ebc
   timeout: 4h
 
 - name: update-istio
@@ -72,7 +104,7 @@ jobs:
   - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
   requirements: [github]
   repos: [istio/test-infra@master]
-  image: gcr.io/istio-testing/build-tools:master-f166b4a2166fb6e8de949a15eb2775e89ffc3e53
+  image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
   timeout: 4h
 
 - name: update-proxy
@@ -89,7 +121,7 @@ jobs:
   - --cmd=UPDATE_BRANCH=main scripts/update_envoy.sh
   requirements: [github]
   repos: [istio/test-infra@master]
-  image: gcr.io/istio-testing/build-tools:master-f166b4a2166fb6e8de949a15eb2775e89ffc3e53
+  image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
   timeout: 4h
 
 resources_presets:
@@ -100,3 +132,8 @@ resources_presets:
     limits:
       memory: "240G"
       cpu: "64"
+  # Currently our ARM nodes are tiny while we try to get more capacity
+  arm:
+    requests:
+      memory: "16G"
+      cpu: "4"

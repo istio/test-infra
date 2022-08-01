@@ -409,6 +409,11 @@ presubmits:
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -486,6 +491,11 @@ presubmits:
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache

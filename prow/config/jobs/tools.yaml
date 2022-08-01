@@ -1,7 +1,7 @@
 org: istio
 repo: tools
 support_release_branching: true
-image: gcr.io/istio-testing/build-tools:master-f166b4a2166fb6e8de949a15eb2775e89ffc3e53
+image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
 
 jobs:
   - name: build
@@ -27,6 +27,7 @@ jobs:
         value: "True"
     modifiers: [presubmit_optional]
 
+  # amd64 build
   - name: containers
     service_account_name: prowjob-advanced-sa
     types: [postsubmit]
@@ -44,8 +45,36 @@ jobs:
     regex: 'docker/.+|cmd/.+'
     requirements: [docker, github]
     repos: [istio/test-infra@master,istio/common-files@master]
+    env:
+    # For amd64, publish the manifest for arm64+amd64
+    - name: MANIFEST_ARCH
+      value: "arm64 amd64"
+  # arm64 build
+  - name: containers
+    service_account_name: prowjob-advanced-sa
+    architectures: [arm64]
+    types: [postsubmit]
+    command:
+    - entrypoint
+    - make
+    - containers
+    env:
+    # For arm64, we do not generate the manifest; the amd job will handle it
+    - name: MANIFEST_ARCH
+      value: ""
+    resources: build
+    regex: 'docker/.+|cmd/.+'
+    requirements: [docker]
 
   - name: containers-test
+    service_account_name: prowjob-advanced-sa
+    types: [presubmit]
+    command: [entrypoint, make, containers-test]
+    resources: build
+    regex: 'docker/.+|cmd/.+'
+    requirements: [docker]
+  - name: containers-test
+    architectures: [arm64]
     service_account_name: prowjob-advanced-sa
     types: [presubmit]
     command: [entrypoint, make, containers-test]

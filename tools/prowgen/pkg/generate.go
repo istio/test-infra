@@ -442,6 +442,16 @@ func (cli *Client) createJobBase(baseConfig spec.BaseConfig, jobConfig spec.Jobs
 		Annotations:    job.Annotations,
 		Cluster:        job.Cluster,
 	}
+	if arch, f := job.NodeSelector[v1.LabelArchStable]; f && arch != ArchAMD64 {
+		// Support https://cloud.google.com/kubernetes-engine/docs/how-to/prepare-arm-workloads-for-deployment#multi-arch-schedule-any-arch
+		// Not all clusters may need this, but it doesn't hurt to add it.
+		jb.Spec.Tolerations = append(jb.Spec.Tolerations, v1.Toleration{
+			Key:      v1.LabelArchStable,
+			Operator: v1.TolerationOpEqual,
+			Value:    arch,
+			Effect:   v1.TaintEffectNoSchedule,
+		})
+	}
 	if len(job.ImagePullSecrets) != 0 {
 		jb.Spec.ImagePullSecrets = make([]v1.LocalObjectReference, 0)
 		for _, ips := range job.ImagePullSecrets {
