@@ -18,6 +18,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/imdario/mergo"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/test-infra/prow/config"
@@ -66,13 +67,13 @@ func ApplyRequirements(job *config.JobBase, requirements, excludedRequirements [
 func resolveRequirements(annotations, labels map[string]string, spec *v1.PodSpec, requirements []spec.RequirementPreset) {
 	if spec != nil {
 		for _, req := range requirements {
-			mergeRequirement(annotations, labels, spec.Containers, &spec.Volumes, req)
+			mergeRequirement(annotations, labels, spec, spec.Containers, &spec.Volumes, req)
 		}
 	}
 }
 
-// mergeRequirement will overlay the requirement on the existing job spec.
-func mergeRequirement(annotations, labels map[string]string, containers []v1.Container, volumes *[]v1.Volume,
+// mergeRequirement will overlay the requirement on the existing job spec. Use mergo for all keys except containers and metadata
+func mergeRequirement(annotations, labels map[string]string, spec *v1.PodSpec, containers []v1.Container, volumes *[]v1.Volume,
 	req spec.RequirementPreset) {
 	for a, v := range req.Annotations {
 		annotations[a] = v
@@ -121,6 +122,12 @@ func mergeRequirement(annotations, labels map[string]string, containers []v1.Con
 			if !exists {
 				containers[i].VolumeMounts = append(containers[i].VolumeMounts, vm1)
 			}
+		}
+	}
+
+	if req.PodSpec != nil {
+		if err := mergo.Merge(spec, req.PodSpec); err != nil {
+			log.Fatalf("Unable to merge PodSpec: %v", err)
 		}
 	}
 }
