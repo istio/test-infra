@@ -1,0 +1,669 @@
+branches:
+- release-1.15
+env:
+- name: BUILD_WITH_CONTAINER
+  value: "0"
+- name: BUILD_WITH_CONTAINER
+  value: "0"
+image: gcr.io/istio-testing/build-tools:release-1.15-700d1817d60f98e7d70ee9ec673b275486702ebc
+jobs:
+- command:
+  - make
+  - build
+  env:
+  - name: BUILD_WITH_CONTAINER
+    value: "0"
+  - name: BUILD_WITH_CONTAINER
+    value: "0"
+  image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
+  name: build
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      - name: DOCKER_CONFIG
+        value: /etc/rel-pipeline-docker-config
+      - name: GITHUB_TOKEN_FILE
+        value: /etc/github/rel-pipeline-github
+      - name: GRAFANA_TOKEN_FILE
+        value: /etc/grafana/token
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/service-account/rel-pipeline-service-account.json
+      volumeMounts:
+      - mountPath: /etc/rel-pipeline-docker-config
+        name: rel-pipeline-docker-config
+      - mountPath: /etc/github
+        name: rel-pipeline-github
+        readOnly: true
+      - mountPath: /etc/grafana
+        name: rel-pipeline-grafana
+        readOnly: true
+      - mountPath: /etc/service-account
+        name: rel-pipeline-service-account
+        readOnly: true
+      volumes:
+      - name: rel-pipeline-service-account
+        secret:
+          secretName: rel-pipeline-service-account
+      - name: rel-pipeline-github
+        secret:
+          secretName: rel-pipeline-github
+      - name: rel-pipeline-grafana
+        secret:
+          secretName: grafana-token
+      - name: rel-pipeline-docker-config
+        secret:
+          secretName: rel-pipeline-docker-config
+  requirements:
+  - cache
+  - cache
+  resources_presets:
+    default:
+      limits:
+        cpu: "3"
+        memory: 24Gi
+      requests:
+        cpu: "1"
+        memory: 3Gi
+- command:
+  - make
+  - lint
+  env:
+  - name: BUILD_WITH_CONTAINER
+    value: "0"
+  - name: BUILD_WITH_CONTAINER
+    value: "0"
+  image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
+  name: lint
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      - name: DOCKER_CONFIG
+        value: /etc/rel-pipeline-docker-config
+      - name: GITHUB_TOKEN_FILE
+        value: /etc/github/rel-pipeline-github
+      - name: GRAFANA_TOKEN_FILE
+        value: /etc/grafana/token
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/service-account/rel-pipeline-service-account.json
+      volumeMounts:
+      - mountPath: /etc/rel-pipeline-docker-config
+        name: rel-pipeline-docker-config
+      - mountPath: /etc/github
+        name: rel-pipeline-github
+        readOnly: true
+      - mountPath: /etc/grafana
+        name: rel-pipeline-grafana
+        readOnly: true
+      - mountPath: /etc/service-account
+        name: rel-pipeline-service-account
+        readOnly: true
+      volumes:
+      - name: rel-pipeline-service-account
+        secret:
+          secretName: rel-pipeline-service-account
+      - name: rel-pipeline-github
+        secret:
+          secretName: rel-pipeline-github
+      - name: rel-pipeline-grafana
+        secret:
+          secretName: grafana-token
+      - name: rel-pipeline-docker-config
+        secret:
+          secretName: rel-pipeline-docker-config
+  requirements:
+  - cache
+  - cache
+  resources_presets:
+    default:
+      limits:
+        cpu: "3"
+        memory: 24Gi
+      requests:
+        cpu: "1"
+        memory: 3Gi
+- command:
+  - make
+  - gen-check
+  env:
+  - name: BUILD_WITH_CONTAINER
+    value: "0"
+  - name: BUILD_WITH_CONTAINER
+    value: "0"
+  image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
+  name: gencheck
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      - name: DOCKER_CONFIG
+        value: /etc/rel-pipeline-docker-config
+      - name: GITHUB_TOKEN_FILE
+        value: /etc/github/rel-pipeline-github
+      - name: GRAFANA_TOKEN_FILE
+        value: /etc/grafana/token
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/service-account/rel-pipeline-service-account.json
+      volumeMounts:
+      - mountPath: /etc/rel-pipeline-docker-config
+        name: rel-pipeline-docker-config
+      - mountPath: /etc/github
+        name: rel-pipeline-github
+        readOnly: true
+      - mountPath: /etc/grafana
+        name: rel-pipeline-grafana
+        readOnly: true
+      - mountPath: /etc/service-account
+        name: rel-pipeline-service-account
+        readOnly: true
+      volumes:
+      - name: rel-pipeline-service-account
+        secret:
+          secretName: rel-pipeline-service-account
+      - name: rel-pipeline-github
+        secret:
+          secretName: rel-pipeline-github
+      - name: rel-pipeline-grafana
+        secret:
+          secretName: grafana-token
+      - name: rel-pipeline-docker-config
+        secret:
+          secretName: rel-pipeline-docker-config
+  requirements:
+  - cache
+  - cache
+  resources_presets:
+    default:
+      limits:
+        cpu: "3"
+        memory: 24Gi
+      requests:
+        cpu: "1"
+        memory: 3Gi
+- command:
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=istio
+  - '--title=Automator: update istio/client-go@$AUTOMATOR_SRC_BRANCH dependency in
+    $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+  - --labels=auto-merge,release-notes-none
+  - --modifier=update_client-go_dep
+  - --token-path=/etc/github-token/oauth
+  - --git-exclude=^common/
+  - --cmd=go get istio.io/client-go@$AUTOMATOR_SHA && go mod tidy && make clean gen
+  env:
+  - name: BUILD_WITH_CONTAINER
+    value: "0"
+  - name: BUILD_WITH_CONTAINER
+    value: "0"
+  image: gcr.io/istio-testing/build-tools:master-700d1817d60f98e7d70ee9ec673b275486702ebc
+  name: update_client-go_dep
+  node_selector:
+    testing: test-pool
+  repos:
+  - istio/test-infra@master
+  requirement_presets:
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-optional:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          optional: true
+          secretName: oauth-token
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /sys/fs/cgroup
+        name: cgroup
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        valueFrom:
+          secretKeyRef:
+            key: key
+            name: cosign-key
+      - name: DOCKER_CONFIG
+        value: /etc/rel-pipeline-docker-config
+      - name: GITHUB_TOKEN_FILE
+        value: /etc/github/rel-pipeline-github
+      - name: GRAFANA_TOKEN_FILE
+        value: /etc/grafana/token
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/service-account/rel-pipeline-service-account.json
+      volumeMounts:
+      - mountPath: /etc/rel-pipeline-docker-config
+        name: rel-pipeline-docker-config
+      - mountPath: /etc/github
+        name: rel-pipeline-github
+        readOnly: true
+      - mountPath: /etc/grafana
+        name: rel-pipeline-grafana
+        readOnly: true
+      - mountPath: /etc/service-account
+        name: rel-pipeline-service-account
+        readOnly: true
+      volumes:
+      - name: rel-pipeline-service-account
+        secret:
+          secretName: rel-pipeline-service-account
+      - name: rel-pipeline-github
+        secret:
+          secretName: rel-pipeline-github
+      - name: rel-pipeline-grafana
+        secret:
+          secretName: grafana-token
+      - name: rel-pipeline-docker-config
+        secret:
+          secretName: rel-pipeline-docker-config
+  requirements:
+  - cache
+  - cache
+  - github
+  resources_presets:
+    default:
+      limits:
+        cpu: "3"
+        memory: 24Gi
+      requests:
+        cpu: "1"
+        memory: 3Gi
+  types:
+  - postsubmit
+node_selector:
+  testing: test-pool
+org: istio
+repo: client-go
+requirement_presets:
+  cache:
+    volumeMounts:
+    - mountPath: /home/prow/go/pkg
+      name: build-cache
+      subPath: gomod
+    volumes:
+    - hostPath:
+        path: /var/tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+  docker:
+    volumeMounts:
+    - mountPath: /var/lib/docker
+      name: docker-root
+    volumes:
+    - emptyDir: {}
+      name: docker-root
+  github:
+    volumeMounts:
+    - mountPath: /etc/github-token
+      name: github
+      readOnly: true
+    volumes:
+    - name: github
+      secret:
+        secretName: oauth-token
+  github-optional:
+    volumeMounts:
+    - mountPath: /etc/github-token
+      name: github
+      readOnly: true
+    volumes:
+    - name: github
+      secret:
+        optional: true
+        secretName: oauth-token
+  gocache:
+    volumeMounts:
+    - mountPath: /gocache
+      name: build-cache
+      subPath: gocache
+    volumes:
+    - hostPath:
+        path: /var/tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+  kind:
+    volumeMounts:
+    - mountPath: /lib/modules
+      name: modules
+      readOnly: true
+    - mountPath: /sys/fs/cgroup
+      name: cgroup
+      readOnly: true
+    - mountPath: /var/lib/docker
+      name: docker-root
+    volumes:
+    - hostPath:
+        path: /lib/modules
+        type: Directory
+      name: modules
+    - hostPath:
+        path: /sys/fs/cgroup
+        type: Directory
+      name: cgroup
+    - emptyDir: {}
+      name: docker-root
+  release:
+    env:
+    - name: COSIGN_KEY
+      valueFrom:
+        secretKeyRef:
+          key: key
+          name: cosign-key
+    - name: DOCKER_CONFIG
+      value: /etc/rel-pipeline-docker-config
+    - name: GITHUB_TOKEN_FILE
+      value: /etc/github/rel-pipeline-github
+    - name: GRAFANA_TOKEN_FILE
+      value: /etc/grafana/token
+    - name: GOOGLE_APPLICATION_CREDENTIALS
+      value: /etc/service-account/rel-pipeline-service-account.json
+    volumeMounts:
+    - mountPath: /etc/rel-pipeline-docker-config
+      name: rel-pipeline-docker-config
+    - mountPath: /etc/github
+      name: rel-pipeline-github
+      readOnly: true
+    - mountPath: /etc/grafana
+      name: rel-pipeline-grafana
+      readOnly: true
+    - mountPath: /etc/service-account
+      name: rel-pipeline-service-account
+      readOnly: true
+    volumes:
+    - name: rel-pipeline-service-account
+      secret:
+        secretName: rel-pipeline-service-account
+    - name: rel-pipeline-github
+      secret:
+        secretName: rel-pipeline-github
+    - name: rel-pipeline-grafana
+      secret:
+        secretName: grafana-token
+    - name: rel-pipeline-docker-config
+      secret:
+        secretName: rel-pipeline-docker-config
+requirements:
+- cache
+- cache
+resources_presets:
+  default:
+    limits:
+      cpu: "3"
+      memory: 24Gi
+    requests:
+      cpu: "1"
+      memory: 3Gi
