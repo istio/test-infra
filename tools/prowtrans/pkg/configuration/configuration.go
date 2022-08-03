@@ -18,7 +18,7 @@ package configuration
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/ghodss/yaml"
 	prowjob "k8s.io/test-infra/prow/apis/prowjobs/v1"
@@ -82,7 +82,7 @@ type Transform struct {
 
 // ReadTransformJobsConfig reads the private jobs yaml
 func ReadTransformJobsConfig(file string) Configuration {
-	yamlFile, err := ioutil.ReadFile(file)
+	yamlFile, err := os.ReadFile(file)
 	if err != nil {
 		util.PrintErrAndExit(fmt.Errorf("failed to read %s", file))
 	}
@@ -102,5 +102,5 @@ func WriteTransformJobConfig(jobsConfig Configuration, file string) error {
 		return err
 	}
 
-	return ioutil.WriteFile(file, bytes, 0o644)
+	return os.WriteFile(file, bytes, 0o644)
 }
