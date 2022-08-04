@@ -42,7 +42,7 @@ func ApplyModifiersPresubmit(presubmit *config.Presubmit, jobModifiers []string)
 		case ModifierPresubmitSkipped:
 			presubmit.AlwaysRun = false
 		default:
-			log.Fatalf("Modifier %q is not unsupported", modifier)
+			log.Fatalf("Modifier %q is not unsupported for %v", modifier, presubmit.Name)
 		}
 	}
 }
@@ -61,7 +61,7 @@ func ApplyModifiersPostsubmit(postsubmit *config.Postsubmit, jobModifiers []stri
 				},
 			}
 		default:
-			log.Fatalf("Modifier %q is not unsupported", modifier)
+			log.Fatalf("Modifier %q is not unsupported for %v", modifier, postsubmit.Name)
 		}
 	}
 }

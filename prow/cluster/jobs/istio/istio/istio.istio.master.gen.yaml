@@ -141,11 +141,10 @@ postsubmits:
         name: ""
         resources:
           limits:
-            cpu: "5"
             memory: 24Gi
           requests:
-            cpu: "5"
-            memory: 3Gi
+            cpu: "15"
+            memory: 8Gi
         securityContext:
           privileged: true
         volumeMounts:
@@ -2210,7 +2209,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-  - always_run: false
+  - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
     branches:
@@ -2236,11 +2235,10 @@ presubmits:
         name: ""
         resources:
           limits:
-            cpu: "5"
             memory: 24Gi
           requests:
-            cpu: "5"
-            memory: 3Gi
+            cpu: "15"
+            memory: 8Gi
         securityContext:
           privileged: true
         volumeMounts:
@@ -2279,54 +2277,6 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:master-d630410610242ef7bc250b49d66e0de8af856f10
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "15"
-            memory: 8Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      serviceAccountName: prowjob-advanced-sa
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - emptyDir: {}
-        name: docker-root
-  - always_run: false
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^master$
-    decorate: true
-    name: release-test-multiarch_istio
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/release-test.sh
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: DOCKER_ARCHITECTURES
-          value: linux/amd64,linux/arm64
         image: gcr.io/istio-testing/build-tools:master-d630410610242ef7bc250b49d66e0de8af856f10
         name: ""
         resources:
@@ -2782,7 +2732,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-  - always_run: false
+  - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
     branches:
