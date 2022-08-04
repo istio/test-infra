@@ -16,8 +16,8 @@ package main
 
 import (
 	"flag"
-	"io/ioutil"
 	"log"
+	"os"
 	"regexp"
 	"strings"
 )
@@ -246,7 +246,7 @@ func main() {
 
 	repos := strings.Split(repoNames, ",")
 
-	source, err := ioutil.ReadFile(fileName)
+	source, err := os.ReadFile(fileName)
 	if err != nil {
 		log.Fatalf("Unable to read input file: %v", err)
 	}
@@ -254,7 +254,7 @@ func main() {
 	resultString := findRepo(source, repos, branchName)
 	resultBytes := []byte(resultString)
 
-	err = ioutil.WriteFile(fileName, resultBytes, 0o600)
+	err = os.WriteFile(fileName, resultBytes, 0o600)
 	if err != nil {
 		log.Fatalf("Error when writing file: %v", err)
 	}

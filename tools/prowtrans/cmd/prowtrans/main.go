@@ -19,7 +19,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -136,7 +135,7 @@ func (o *options) parseConfiguration() []options {
 	var global configuration.Configuration
 
 	if o.Global != "" {
-		if d, err := ioutil.ReadFile(o.Global); err == nil {
+		if d, err := os.ReadFile(o.Global); err == nil {
 			if err := yaml.UnmarshalStrict(d, &global); err != nil {
 				util.PrintErr(err.Error())
 			}
@@ -154,13 +153,13 @@ func (o *options) parseConfiguration() []options {
 			}
 
 			var local configuration.Configuration
-			if d, err := ioutil.ReadFile(filepath.Join(filepath.Dir(path), defaultsFilename)); err == nil {
+			if d, err := os.ReadFile(filepath.Join(filepath.Dir(path), defaultsFilename)); err == nil {
 				if err := yaml.UnmarshalStrict(d, &local); err != nil {
 					util.PrintErr(err.Error())
 				}
 			}
 
-			f, err := ioutil.ReadFile(path)
+			f, err := os.ReadFile(path)
 			if err != nil {
 				return nil
 			}
@@ -1030,7 +1029,7 @@ func writeOutFile(o options, p string, pre map[string][]config.Presubmit, post m
 		util.PrintErr(fmt.Sprintf("unable to create output directory %v: %v.", dir, err))
 	}
 
-	err = ioutil.WriteFile(p, outBytes, 0o644)
+	err = os.WriteFile(p, outBytes, 0o644)
 	if err != nil {
 		util.PrintErr(fmt.Sprintf("unable to write jobs to path %v: %v.", p, err))
 	}

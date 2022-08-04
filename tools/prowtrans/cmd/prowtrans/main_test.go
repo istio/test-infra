@@ -19,7 +19,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -42,7 +41,7 @@ func resolvePath(t *testing.T, filename string) string {
 func parseConfigTmpl(input, output, config, dir string) (string, error) {
 	var b bytes.Buffer
 
-	cfg, err := ioutil.ReadFile(config)
+	cfg, err := os.ReadFile(config)
 	if err != nil {
 		return "", fmt.Errorf("failed reading config file %v: %v", config, err)
 	}
@@ -64,7 +63,7 @@ func parseConfigTmpl(input, output, config, dir string) (string, error) {
 
 	cfgO := filepath.Join(dir, "cfg.yaml")
 
-	if err := ioutil.WriteFile(cfgO, b.Bytes(), 0o644); err != nil {
+	if err := os.WriteFile(cfgO, b.Bytes(), 0o644); err != nil {
 		return "", fmt.Errorf("failed writing config file %v: %v", cfgO, err)
 	}
 
@@ -141,12 +140,12 @@ func TestProwTrans(t *testing.T) {
 			in := resolvePath(t, "_in.yaml")
 			outE := resolvePath(t, "_out.yaml")
 
-			expected, err := ioutil.ReadFile(outE)
+			expected, err := os.ReadFile(outE)
 			if err != nil {
 				t.Fatalf("failed reading expected output file %v: %v", outE, err)
 			}
 
-			tmpDir, err := ioutil.TempDir("", "")
+			tmpDir, err := os.MkdirTemp("", "")
 			if err != nil {
 				t.Fatalf("failed creating temp file: %v", err)
 			}
@@ -167,13 +166,13 @@ func TestProwTrans(t *testing.T) {
 			}
 			Main()
 
-			actual, err := ioutil.ReadFile(outA)
+			actual, err := os.ReadFile(outA)
 			if err != nil {
 				t.Fatalf("failed reading actual output file %v: %v", outA, err)
 			}
 
 			if os.Getenv("REFRESH_GOLDEN") == "true" {
-				if err = ioutil.WriteFile(outE, actual, 0o644); err != nil {
+				if err = os.WriteFile(outE, actual, 0o644); err != nil {
 					t.Fatalf("failed writing expected output file %v: %v", outE, err)
 				}
 				expected = actual
