@@ -4,12 +4,9 @@ support_release_branching: true
 image: gcr.io/istio-testing/build-tools:master-d630410610242ef7bc250b49d66e0de8af856f10
 jobs:
   - name: unit-tests
+    architectures: [amd64, arm64]
     command: [entrypoint, make, -e, "T=-v -count=1", build, racetest, binaries-test]
     resources: dedicated
-  - name: unit-tests
-    modifiers: [presubmit_skipped]
-    architectures: [arm64]
-    command: [entrypoint, make, -e, "T=-v -count=1", build, racetest, binaries-test]
 
   - name: release-test
     service_account_name: prowjob-advanced-sa
@@ -17,17 +14,6 @@ jobs:
     command: [entrypoint, prow/release-test.sh]
     requirements: [docker]
     resources: dedicated
-  # Temporary job to ensure multi-arch publishing works before promoting to required
-  - name: release-test-multiarch
-    modifiers: [presubmit_skipped]
-    service_account_name: prowjob-advanced-sa
-    types: [presubmit]
-    command: [entrypoint, prow/release-test.sh]
-    requirements: [docker]
-    resources: dedicated
-    env:
-    - name: DOCKER_ARCHITECTURES
-      value: "linux/amd64,linux/arm64"
 
   - name: release
     service_account_name: prowjob-advanced-sa
@@ -102,7 +88,6 @@ jobs:
         value: "ipv6"
 
   - name: integ-basic
-    modifiers: [presubmit_skipped]
     architectures: [arm64]
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.environment]
     requirements: [kind]
