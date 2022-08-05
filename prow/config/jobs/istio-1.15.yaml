@@ -180,8 +180,6 @@ jobs:
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.15-eaecd8e21b6ca1b09e720b1ace44f919930a3fd1
-  modifiers:
-  - presubmit_skipped
   name: unit-tests
   node_selector:
     testing: test-pool
@@ -334,166 +332,6 @@ jobs:
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.15-eaecd8e21b6ca1b09e720b1ace44f919930a3fd1
   name: release-test
-  node_selector:
-    testing: test-pool
-  requirement_presets:
-    cache:
-      volumeMounts:
-      - mountPath: /home/prow/go/pkg
-        name: build-cache
-        subPath: gomod
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    docker:
-      volumeMounts:
-      - mountPath: /var/lib/docker
-        name: docker-root
-      volumes:
-      - emptyDir: {}
-        name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
-    gocache:
-      volumeMounts:
-      - mountPath: /gocache
-        name: build-cache
-        subPath: gocache
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    kind:
-      volumeMounts:
-      - mountPath: /lib/modules
-        name: modules
-        readOnly: true
-      - mountPath: /sys/fs/cgroup
-        name: cgroup
-        readOnly: true
-      - mountPath: /var/lib/docker
-        name: docker-root
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        valueFrom:
-          secretKeyRef:
-            key: key
-            name: cosign-key
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
-  requirements:
-  - cache
-  - cache
-  - gocache
-  - docker
-  resources: dedicated
-  resources_presets:
-    dedicated:
-      limits:
-        memory: 24Gi
-      requests:
-        cpu: "15"
-        memory: 8Gi
-    default:
-      limits:
-        cpu: "5"
-        memory: 24Gi
-      requests:
-        cpu: "5"
-        memory: 3Gi
-    lint:
-      limits:
-        memory: 24Gi
-      requests:
-        cpu: "3"
-        memory: 16Gi
-    multicluster:
-      limits:
-        cpu: "8"
-        memory: 24Gi
-      requests:
-        cpu: "8"
-        memory: 3Gi
-  service_account_name: prowjob-advanced-sa
-  types:
-  - presubmit
-- command:
-  - entrypoint
-  - prow/release-test.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  - name: DOCKER_ARCHITECTURES
-    value: linux/amd64,linux/arm64
-  image: gcr.io/istio-testing/build-tools:release-1.15-eaecd8e21b6ca1b09e720b1ace44f919930a3fd1
-  modifiers:
-  - presubmit_skipped
-  name: release-test-multiarch
   node_selector:
     testing: test-pool
   requirement_presets:
@@ -2061,8 +1899,6 @@ jobs:
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.15-eaecd8e21b6ca1b09e720b1ace44f919930a3fd1
-  modifiers:
-  - presubmit_skipped
   name: integ-basic
   node_selector:
     testing: test-pool
