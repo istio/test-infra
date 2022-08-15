@@ -101,6 +101,7 @@ presubmits:
       preset-enable-ssh: "true"
     name: build_api_pri
     path_alias: istio.io/api
+    rerun_command: /test build
     spec:
       containers:
       - command:
@@ -134,6 +135,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )build,?($|\s.*))|((?m)^/test( | .* )build_api,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -146,6 +148,7 @@ presubmits:
       preset-enable-ssh: "true"
     name: gencheck_api_pri
     path_alias: istio.io/api
+    rerun_command: /test gencheck
     spec:
       containers:
       - command:
@@ -179,3 +182,4 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_api,?($|\s.*))

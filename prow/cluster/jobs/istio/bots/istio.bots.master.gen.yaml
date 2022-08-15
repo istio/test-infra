@@ -255,6 +255,7 @@ presubmits:
     decorate: true
     name: build_bots
     path_alias: istio.io/bots
+    rerun_command: /test build
     spec:
       containers:
       - command:
@@ -286,6 +287,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )build,?($|\s.*))|((?m)^/test( | .* )build_bots,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_bots
@@ -294,6 +296,7 @@ presubmits:
     decorate: true
     name: lint_bots
     path_alias: istio.io/bots
+    rerun_command: /test lint
     spec:
       containers:
       - command:
@@ -325,6 +328,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_bots,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_bots
@@ -333,6 +337,7 @@ presubmits:
     decorate: true
     name: test_bots
     path_alias: istio.io/bots
+    rerun_command: /test test
     spec:
       containers:
       - command:
@@ -364,6 +369,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_bots,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_bots
@@ -372,6 +378,7 @@ presubmits:
     decorate: true
     name: gencheck_bots
     path_alias: istio.io/bots
+    rerun_command: /test gencheck
     spec:
       containers:
       - command:
@@ -403,3 +410,4 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_bots,?($|\s.*))

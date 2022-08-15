@@ -288,6 +288,7 @@ presubmits:
     decorate: true
     name: build_tools_release-1.14
     path_alias: istio.io/tools
+    rerun_command: /test build
     spec:
       containers:
       - command:
@@ -319,6 +320,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )build,?($|\s.*))|((?m)^/test( | .* )build_tools_release-1.14,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.14_tools
@@ -327,6 +329,7 @@ presubmits:
     decorate: true
     name: lint_tools_release-1.14
     path_alias: istio.io/tools
+    rerun_command: /test lint
     spec:
       containers:
       - command:
@@ -358,6 +361,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_tools_release-1.14,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.14_tools
@@ -366,6 +370,7 @@ presubmits:
     decorate: true
     name: test_tools_release-1.14
     path_alias: istio.io/tools
+    rerun_command: /test test
     spec:
       containers:
       - command:
@@ -397,6 +402,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_tools_release-1.14,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.14_tools
@@ -405,6 +411,7 @@ presubmits:
     decorate: true
     name: gencheck_tools_release-1.14
     path_alias: istio.io/tools
+    rerun_command: /test gencheck
     spec:
       containers:
       - command:
@@ -436,6 +443,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_tools_release-1.14,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.14_tools
@@ -444,6 +452,7 @@ presubmits:
     decorate: true
     name: containers-test_tools_release-1.14
     path_alias: istio.io/tools
+    rerun_command: /test containers-test
     run_if_changed: docker/.+|cmd/.+
     spec:
       containers:
@@ -482,3 +491,4 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )containers-test,?($|\s.*))|((?m)^/test( | .* )containers-test_tools_release-1.14,?($|\s.*))

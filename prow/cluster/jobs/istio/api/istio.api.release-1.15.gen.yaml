@@ -149,6 +149,7 @@ presubmits:
     decorate: true
     name: build_api_release-1.15
     path_alias: istio.io/api
+    rerun_command: /test build
     spec:
       containers:
       - command:
@@ -180,6 +181,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )build,?($|\s.*))|((?m)^/test( | .* )build_api_release-1.15,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.15_api
@@ -188,6 +190,7 @@ presubmits:
     decorate: true
     name: gencheck_api_release-1.15
     path_alias: istio.io/api
+    rerun_command: /test gencheck
     spec:
       containers:
       - command:
@@ -219,6 +222,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_api_release-1.15,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.15_api
@@ -237,6 +241,7 @@ presubmits:
     name: release-notes_api_release-1.15
     optional: true
     path_alias: istio.io/api
+    rerun_command: /test release-notes
     spec:
       containers:
       - command:
@@ -274,3 +279,4 @@ presubmits:
       - name: github
         secret:
           secretName: oauth-token
+    trigger: ((?m)^/test( | .* )release-notes,?($|\s.*))|((?m)^/test( | .* )release-notes_api_release-1.15,?($|\s.*))

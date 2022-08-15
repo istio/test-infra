@@ -398,6 +398,7 @@ presubmits:
     decorate: true
     name: lint_test-infra
     path_alias: istio.io/test-infra
+    rerun_command: /test lint
     spec:
       containers:
       - command:
@@ -429,6 +430,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_test-infra,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_test-infra
@@ -437,6 +439,7 @@ presubmits:
     decorate: true
     name: test_test-infra
     path_alias: istio.io/test-infra
+    rerun_command: /test test
     spec:
       containers:
       - command:
@@ -468,6 +471,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_test-infra,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_test-infra
@@ -476,6 +480,7 @@ presubmits:
     decorate: true
     name: gencheck_test-infra
     path_alias: istio.io/test-infra
+    rerun_command: /test gencheck
     spec:
       containers:
       - command:
@@ -507,3 +512,4 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_test-infra,?($|\s.*))

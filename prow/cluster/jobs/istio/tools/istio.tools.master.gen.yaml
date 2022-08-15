@@ -344,6 +344,7 @@ presubmits:
     decorate: true
     name: build_tools
     path_alias: istio.io/tools
+    rerun_command: /test build
     spec:
       containers:
       - command:
@@ -375,6 +376,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )build,?($|\s.*))|((?m)^/test( | .* )build_tools,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_tools
@@ -383,6 +385,7 @@ presubmits:
     decorate: true
     name: lint_tools
     path_alias: istio.io/tools
+    rerun_command: /test lint
     spec:
       containers:
       - command:
@@ -414,6 +417,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_tools,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_tools
@@ -422,6 +426,7 @@ presubmits:
     decorate: true
     name: test_tools
     path_alias: istio.io/tools
+    rerun_command: /test test
     spec:
       containers:
       - command:
@@ -453,6 +458,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_tools,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_tools
@@ -461,6 +467,7 @@ presubmits:
     decorate: true
     name: gencheck_tools
     path_alias: istio.io/tools
+    rerun_command: /test gencheck
     spec:
       containers:
       - command:
@@ -492,6 +499,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_tools,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-dashboards: istio_tools
@@ -501,6 +509,7 @@ presubmits:
     name: benchmark_check_tools
     optional: true
     path_alias: istio.io/tools
+    rerun_command: /test benchmark_check
     run_if_changed: ^perf/benchmark/
     spec:
       containers:
@@ -536,6 +545,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )benchmark_check,?($|\s.*))|((?m)^/test( | .* )benchmark_check_tools,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-dashboards: istio_tools
@@ -544,6 +554,7 @@ presubmits:
     decorate: true
     name: containers-test_tools
     path_alias: istio.io/tools
+    rerun_command: /test containers-test
     run_if_changed: docker/.+|cmd/.+
     spec:
       containers:
@@ -582,6 +593,7 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )containers-test,?($|\s.*))|((?m)^/test( | .* )containers-test_tools,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-dashboards: istio_tools
@@ -591,6 +603,7 @@ presubmits:
     decorate: true
     name: containers-test-arm64_tools
     path_alias: istio.io/tools
+    rerun_command: /test containers-test-arm64
     run_if_changed: docker/.+|cmd/.+
     spec:
       containers:
@@ -634,3 +647,5 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )containers-test-arm64,?($|\s.*))|((?m)^/test( | .*
+      )containers-test-arm64_tools,?($|\s.*))

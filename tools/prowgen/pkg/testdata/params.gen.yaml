@@ -95,6 +95,7 @@ presubmits:
     decorate: true
     name: test-params-job1_istio_release-1.10
     path_alias: istio.io/istio
+    rerun_command: /test test-params-job1
     spec:
       containers:
       - args:
@@ -129,3 +130,4 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )test-params-job1,?($|\s.*))|((?m)^/test( | .* )test-params-job1_istio_release-1.10,?($|\s.*))
