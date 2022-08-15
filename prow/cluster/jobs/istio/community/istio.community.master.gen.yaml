@@ -138,6 +138,7 @@ presubmits:
     decorate: true
     name: lint_community
     path_alias: istio.io/community
+    rerun_command: /test lint
     spec:
       containers:
       - command:
@@ -168,6 +169,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_community,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_community
@@ -176,6 +178,7 @@ presubmits:
     decorate: true
     name: test_community
     path_alias: istio.io/community
+    rerun_command: /test test
     spec:
       containers:
       - command:
@@ -207,3 +210,4 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_community,?($|\s.*))

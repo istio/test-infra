@@ -229,6 +229,7 @@ presubmits:
     decorate: true
     name: lint_common-files_release-1.11
     path_alias: istio.io/common-files
+    rerun_command: /test lint
     spec:
       containers:
       - command:
@@ -260,3 +261,4 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_common-files_release-1.11,?($|\s.*))

@@ -203,6 +203,7 @@ presubmits:
       preset-enable-netrc: "true"
     name: lint_release-builder_release-1.13_pri
     path_alias: istio.io/release-builder
+    rerun_command: /test lint
     spec:
       containers:
       - command:
@@ -234,6 +235,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_release-builder_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -246,6 +248,7 @@ presubmits:
       preset-enable-netrc: "true"
     name: test_release-builder_release-1.13_pri
     path_alias: istio.io/release-builder
+    rerun_command: /test test
     spec:
       containers:
       - command:
@@ -277,6 +280,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_release-builder_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -289,6 +293,7 @@ presubmits:
       preset-enable-netrc: "true"
     name: gencheck_release-builder_release-1.13_pri
     path_alias: istio.io/release-builder
+    rerun_command: /test gencheck
     spec:
       containers:
       - command:
@@ -320,6 +325,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_release-builder_release-1.13,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
@@ -331,6 +337,7 @@ presubmits:
     name: build-warning_release-builder_release-1.13_pri
     optional: true
     path_alias: istio.io/release-builder
+    rerun_command: /test build-warning
     run_if_changed: ^release/trigger-build$
     spec:
       containers:
@@ -368,3 +375,4 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )build-warning,?($|\s.*))|((?m)^/test( | .* )build-warning_release-builder_release-1.13,?($|\s.*))

@@ -265,11 +265,18 @@ func (cli *Client) ConvertJobConfig(fileName string, jobsConfig spec.JobsConfig,
 					}
 					presubmit.AlwaysRun = false
 				}
-				if job.Trigger != "" {
-					defaultTrigger := config.DefaultTriggerFor(presubmit.JobBase.Name)
-					// Match the default trigger + the new trigger.
-					presubmit.Trigger = fmt.Sprintf("(%s)|((?m)^%s(\\s+|$))", defaultTrigger, job.Trigger)
+				triggers := []string{
+					// Allow "/test job"
+					"(" + config.DefaultTriggerFor(job.Name) + ")",
+					// Allow "/test job_repo_branch"
+					"(" + config.DefaultTriggerFor(name) + ")",
 				}
+				if job.Trigger != "" {
+					// Allow custom trigger
+					triggers = append(triggers, fmt.Sprintf(`((?m)^%s(\s+|$))`, job.Trigger))
+				}
+				presubmit.Trigger = strings.Join(triggers, `|`)
+				presubmit.RerunCommand = fmt.Sprintf("/test %s", job.Name)
 				if testgridConfig.Enabled {
 					if err := mergo.Merge(&presubmit.JobBase.Annotations, map[string]string{
 						TestGridDashboard: testgridJobPrefix,

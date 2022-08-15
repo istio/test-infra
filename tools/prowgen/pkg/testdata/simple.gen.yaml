@@ -181,7 +181,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )test_istio,?($|\s.*))|((?m)^/test basic(\s+|$))
+    trigger: (?m)^/test( | .* )test,?($|\s.*)|(?m)^/test( | .* )test_istio,?($|\s.*)|((?m)^/test basic(\s+|$))
   - always_run: true
     annotations:
       testgrid-dashboards: gerrit.istio_istio
@@ -249,6 +249,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: (?m)^/test( | .* )presubmit-kind,?($|\s.*)|(?m)^/test( | .* )presubmit-kind_istio,?($|\s.*)
   - always_run: true
     annotations:
       testgrid-dashboards: gerrit.istio_istio
@@ -293,6 +294,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: (?m)^/test( | .* )custom-node-selector,?($|\s.*)|(?m)^/test( | .* )custom-node-selector_istio,?($|\s.*)
   - always_run: true
     annotations:
       testgrid-dashboards: gerrit.istio_istio
@@ -338,7 +340,8 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )presubmit-skipped_istio,?($|\s.*))|((?m)^/test basic(\s+|$))
+    trigger: (?m)^/test( | .* )presubmit-skipped,?($|\s.*)|(?m)^/test( | .* )presubmit-skipped_istio,?($|\s.*)|((?m)^/test
+      basic(\s+|$))
   - always_run: true
     annotations:
       testgrid-dashboards: gerrit.istio_istio
@@ -376,6 +379,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: (?m)^/test( | .* )multi-arch,?($|\s.*)|(?m)^/test( | .* )multi-arch_istio,?($|\s.*)
   - always_run: true
     annotations:
       testgrid-dashboards: gerrit.istio_istio
@@ -419,6 +423,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: (?m)^/test( | .* )multi-arch-arm64,?($|\s.*)|(?m)^/test( | .* )multi-arch-arm64_istio,?($|\s.*)
   - always_run: true
     annotations:
       testgrid-dashboards: gerrit.istio_istio
@@ -457,6 +462,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: (?m)^/test( | .* )multi-arch-param,?($|\s.*)|(?m)^/test( | .* )multi-arch-param_istio,?($|\s.*)
   - always_run: true
     annotations:
       testgrid-dashboards: gerrit.istio_istio
@@ -501,3 +507,4 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: (?m)^/test( | .* )multi-arch-param-arm64,?($|\s.*)|(?m)^/test( | .* )multi-arch-param-arm64_istio,?($|\s.*)

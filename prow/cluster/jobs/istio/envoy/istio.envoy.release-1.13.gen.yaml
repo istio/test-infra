@@ -11,6 +11,7 @@ presubmits:
       timeout: 4h0m0s
     name: test-asan_envoy_release-1.13
     path_alias: istio.io/envoy
+    rerun_command: /test test-asan
     spec:
       containers:
       - command:
@@ -51,6 +52,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )test-asan,?($|\s.*))|((?m)^/test( | .* )test-asan_envoy_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_envoy
@@ -59,6 +61,7 @@ presubmits:
     decorate: true
     name: test-tsan_envoy_release-1.13
     path_alias: istio.io/envoy
+    rerun_command: /test test-tsan
     spec:
       containers:
       - command:
@@ -99,6 +102,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )test-tsan,?($|\s.*))|((?m)^/test( | .* )test-tsan_envoy_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_envoy
@@ -107,6 +111,7 @@ presubmits:
     decorate: true
     name: test-release_envoy_release-1.13
     path_alias: istio.io/envoy
+    rerun_command: /test test-release
     spec:
       containers:
       - command:
@@ -145,3 +150,4 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )test-release,?($|\s.*))|((?m)^/test( | .* )test-release_envoy_release-1.13,?($|\s.*))

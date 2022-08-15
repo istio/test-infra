@@ -1994,6 +1994,7 @@ presubmits:
     decorate: true
     name: unit-tests_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test unit-tests
     spec:
       containers:
       - command:
@@ -2032,6 +2033,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )unit-tests,?($|\s.*))|((?m)^/test( | .* )unit-tests_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -2040,6 +2042,7 @@ presubmits:
     decorate: true
     name: release-test_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test release-test
     spec:
       containers:
       - command:
@@ -2078,6 +2081,7 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )release-test,?($|\s.*))|((?m)^/test( | .* )release-test_istio_release-1.13,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -2087,6 +2091,7 @@ presubmits:
     name: benchmark_istio_release-1.13
     optional: true
     path_alias: istio.io/istio
+    rerun_command: /test benchmark
     spec:
       containers:
       - command:
@@ -2121,6 +2126,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )benchmark,?($|\s.*))|((?m)^/test( | .* )benchmark_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -2129,6 +2135,7 @@ presubmits:
     decorate: true
     name: integ-cni_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test integ-cni
     spec:
       containers:
       - command:
@@ -2183,6 +2190,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-cni,?($|\s.*))|((?m)^/test( | .* )integ-cni_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -2191,6 +2199,7 @@ presubmits:
     decorate: true
     name: integ-telemetry_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test integ-telemetry
     spec:
       containers:
       - command:
@@ -2243,6 +2252,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-telemetry,?($|\s.*))|((?m)^/test( | .* )integ-telemetry_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -2251,6 +2261,7 @@ presubmits:
     decorate: true
     name: integ-telemetry-mc_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test integ-telemetry-mc
     spec:
       containers:
       - command:
@@ -2305,6 +2316,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-telemetry-mc,?($|\s.*))|((?m)^/test( | .* )integ-telemetry-mc_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -2313,6 +2325,7 @@ presubmits:
     decorate: true
     name: integ-telemetry-istiodremote_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test integ-telemetry-istiodremote
     spec:
       containers:
       - command:
@@ -2369,6 +2382,8 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-telemetry-istiodremote,?($|\s.*))|((?m)^/test(
+      | .* )integ-telemetry-istiodremote_istio_release-1.13,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -2380,6 +2395,7 @@ presubmits:
     path_alias: istio.io/istio
     reporter_config:
       slack: {}
+    rerun_command: /test integ-telemetry-istiodless-mc
     skip_report: true
     spec:
       containers:
@@ -2437,6 +2453,8 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-telemetry-istiodless-mc,?($|\s.*))|((?m)^/test(
+      | .* )integ-telemetry-istiodless-mc_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -2445,6 +2463,7 @@ presubmits:
     decorate: true
     name: integ-distroless_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test integ-distroless
     spec:
       containers:
       - command:
@@ -2499,6 +2518,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-distroless,?($|\s.*))|((?m)^/test( | .* )integ-distroless_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -2507,6 +2527,7 @@ presubmits:
     decorate: true
     name: integ-ipv6_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test integ-ipv6
     spec:
       containers:
       - command:
@@ -2563,6 +2584,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-ipv6,?($|\s.*))|((?m)^/test( | .* )integ-ipv6_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -2571,6 +2593,7 @@ presubmits:
     decorate: true
     name: integ-operator-controller_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test integ-operator-controller
     spec:
       containers:
       - command:
@@ -2623,6 +2646,8 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-operator-controller,?($|\s.*))|((?m)^/test(
+      | .* )integ-operator-controller_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -2631,6 +2656,7 @@ presubmits:
     decorate: true
     name: integ-pilot_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test integ-pilot
     spec:
       containers:
       - command:
@@ -2683,6 +2709,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-pilot,?($|\s.*))|((?m)^/test( | .* )integ-pilot_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -2691,6 +2718,7 @@ presubmits:
     decorate: true
     name: integ-pilot-multicluster_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test integ-pilot-multicluster
     spec:
       containers:
       - command:
@@ -2745,6 +2773,8 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-pilot-multicluster,?($|\s.*))|((?m)^/test( |
+      .* )integ-pilot-multicluster_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -2753,6 +2783,7 @@ presubmits:
     decorate: true
     name: integ-pilot-istiodremote_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test integ-pilot-istiodremote
     spec:
       containers:
       - command:
@@ -2811,6 +2842,8 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-pilot-istiodremote,?($|\s.*))|((?m)^/test( |
+      .* )integ-pilot-istiodremote_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -2819,6 +2852,7 @@ presubmits:
     decorate: true
     name: integ-pilot-istiodremote-mc_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test integ-pilot-istiodremote-mc
     spec:
       containers:
       - command:
@@ -2877,6 +2911,8 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-pilot-istiodremote-mc,?($|\s.*))|((?m)^/test(
+      | .* )integ-pilot-istiodremote-mc_istio_release-1.13,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -2888,6 +2924,7 @@ presubmits:
     path_alias: istio.io/istio
     reporter_config:
       slack: {}
+    rerun_command: /test integ-pilot-istiodless-mc
     skip_report: true
     spec:
       containers:
@@ -2945,6 +2982,8 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-pilot-istiodless-mc,?($|\s.*))|((?m)^/test(
+      | .* )integ-pilot-istiodless-mc_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -2953,6 +2992,7 @@ presubmits:
     decorate: true
     name: integ-security_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test integ-security
     spec:
       containers:
       - command:
@@ -3005,6 +3045,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-security,?($|\s.*))|((?m)^/test( | .* )integ-security_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -3013,6 +3054,7 @@ presubmits:
     decorate: true
     name: integ-security-multicluster_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test integ-security-multicluster
     spec:
       containers:
       - command:
@@ -3067,6 +3109,8 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-security-multicluster,?($|\s.*))|((?m)^/test(
+      | .* )integ-security-multicluster_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -3075,6 +3119,7 @@ presubmits:
     decorate: true
     name: integ-security-istiodremote_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test integ-security-istiodremote
     spec:
       containers:
       - command:
@@ -3133,6 +3178,8 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-security-istiodremote,?($|\s.*))|((?m)^/test(
+      | .* )integ-security-istiodremote_istio_release-1.13,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -3144,6 +3191,7 @@ presubmits:
     path_alias: istio.io/istio
     reporter_config:
       slack: {}
+    rerun_command: /test integ-security-istiodless-mc
     skip_report: true
     spec:
       containers:
@@ -3201,6 +3249,8 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-security-istiodless-mc,?($|\s.*))|((?m)^/test(
+      | .* )integ-security-istiodless-mc_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -3209,6 +3259,7 @@ presubmits:
     decorate: true
     name: integ-helm_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test integ-helm
     spec:
       containers:
       - command:
@@ -3261,6 +3312,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-helm,?($|\s.*))|((?m)^/test( | .* )integ-helm_istio_release-1.13,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -3272,6 +3324,7 @@ presubmits:
     name: integ-assertion_istio_release-1.13
     optional: true
     path_alias: istio.io/istio
+    rerun_command: /test integ-assertion
     spec:
       containers:
       - command:
@@ -3326,6 +3379,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )integ-assertion,?($|\s.*))|((?m)^/test( | .* )integ-assertion_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -3334,6 +3388,7 @@ presubmits:
     decorate: true
     name: analyze-tests_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test analyze-tests
     spec:
       containers:
       - command:
@@ -3367,6 +3422,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )analyze-tests,?($|\s.*))|((?m)^/test( | .* )analyze-tests_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -3375,6 +3431,7 @@ presubmits:
     decorate: true
     name: lint_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test lint
     spec:
       containers:
       - command:
@@ -3408,6 +3465,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -3416,6 +3474,7 @@ presubmits:
     decorate: true
     name: gencheck_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test gencheck
     spec:
       containers:
       - command:
@@ -3449,6 +3508,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_istio_release-1.13,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.13_istio
@@ -3466,6 +3526,7 @@ presubmits:
       repo: tools
     name: release-notes_istio_release-1.13
     path_alias: istio.io/istio
+    rerun_command: /test release-notes
     spec:
       containers:
       - command:
@@ -3505,3 +3566,4 @@ presubmits:
       - name: github
         secret:
           secretName: oauth-token
+    trigger: ((?m)^/test( | .* )release-notes,?($|\s.*))|((?m)^/test( | .* )release-notes_istio_release-1.13,?($|\s.*))

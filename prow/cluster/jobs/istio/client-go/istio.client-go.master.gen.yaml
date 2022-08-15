@@ -191,6 +191,7 @@ presubmits:
     decorate: true
     name: build_client-go
     path_alias: istio.io/client-go
+    rerun_command: /test build
     spec:
       containers:
       - command:
@@ -222,6 +223,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )build,?($|\s.*))|((?m)^/test( | .* )build_client-go,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_client-go
@@ -230,6 +232,7 @@ presubmits:
     decorate: true
     name: lint_client-go
     path_alias: istio.io/client-go
+    rerun_command: /test lint
     spec:
       containers:
       - command:
@@ -261,6 +264,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_client-go,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_client-go
@@ -269,6 +273,7 @@ presubmits:
     decorate: true
     name: gencheck_client-go
     path_alias: istio.io/client-go
+    rerun_command: /test gencheck
     spec:
       containers:
       - command:
@@ -300,3 +305,4 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_client-go,?($|\s.*))

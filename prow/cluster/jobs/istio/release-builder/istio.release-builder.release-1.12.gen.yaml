@@ -281,6 +281,7 @@ presubmits:
     decorate: true
     name: lint_release-builder_release-1.12
     path_alias: istio.io/release-builder
+    rerun_command: /test lint
     spec:
       containers:
       - command:
@@ -312,6 +313,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_release-builder_release-1.12,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.12_release-builder
@@ -320,6 +322,7 @@ presubmits:
     decorate: true
     name: test_release-builder_release-1.12
     path_alias: istio.io/release-builder
+    rerun_command: /test test
     spec:
       containers:
       - command:
@@ -351,6 +354,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_release-builder_release-1.12,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.12_release-builder
@@ -359,6 +363,7 @@ presubmits:
     decorate: true
     name: gencheck_release-builder_release-1.12
     path_alias: istio.io/release-builder
+    rerun_command: /test gencheck
     spec:
       containers:
       - command:
@@ -390,6 +395,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_release-builder_release-1.12,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.12_release-builder
@@ -398,6 +404,7 @@ presubmits:
     decorate: true
     name: dry-run_release-builder_release-1.12
     path_alias: istio.io/release-builder
+    rerun_command: /test dry-run
     run_if_changed: \.go$|\.sh$
     spec:
       containers:
@@ -435,6 +442,7 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )dry-run,?($|\s.*))|((?m)^/test( | .* )dry-run_release-builder_release-1.12,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.12_release-builder
@@ -444,6 +452,7 @@ presubmits:
     name: build-warning_release-builder_release-1.12
     optional: true
     path_alias: istio.io/release-builder
+    rerun_command: /test build-warning
     run_if_changed: ^release/trigger-build$
     spec:
       containers:
@@ -475,6 +484,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )build-warning,?($|\s.*))|((?m)^/test( | .* )build-warning_release-builder_release-1.12,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.12_release-builder
@@ -484,6 +494,7 @@ presubmits:
     name: publish-warning_release-builder_release-1.12
     optional: true
     path_alias: istio.io/release-builder
+    rerun_command: /test publish-warning
     run_if_changed: ^release/trigger-publish$
     spec:
       containers:
@@ -515,3 +526,4 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )publish-warning,?($|\s.*))|((?m)^/test( | .* )publish-warning_release-builder_release-1.12,?($|\s.*))

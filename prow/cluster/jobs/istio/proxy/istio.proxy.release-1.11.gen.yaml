@@ -162,6 +162,7 @@ presubmits:
       timeout: 4h0m0s
     name: test_proxy_release-1.11
     path_alias: istio.io/proxy
+    rerun_command: /test test
     spec:
       containers:
       - command:
@@ -193,6 +194,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_proxy_release-1.11,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.11_proxy
@@ -203,6 +205,7 @@ presubmits:
       timeout: 4h0m0s
     name: test-asan_proxy_release-1.11
     path_alias: istio.io/proxy
+    rerun_command: /test test-asan
     spec:
       containers:
       - command:
@@ -234,6 +237,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )test-asan,?($|\s.*))|((?m)^/test( | .* )test-asan_proxy_release-1.11,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.11_proxy
@@ -244,6 +248,7 @@ presubmits:
       timeout: 4h0m0s
     name: test-tsan_proxy_release-1.11
     path_alias: istio.io/proxy
+    rerun_command: /test test-tsan
     spec:
       containers:
       - command:
@@ -275,6 +280,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )test-tsan,?($|\s.*))|((?m)^/test( | .* )test-tsan_proxy_release-1.11,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.11_proxy
@@ -285,6 +291,7 @@ presubmits:
       timeout: 4h0m0s
     name: release-test_proxy_release-1.11
     path_alias: istio.io/proxy
+    rerun_command: /test release-test
     spec:
       containers:
       - command:
@@ -316,6 +323,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )release-test,?($|\s.*))|((?m)^/test( | .* )release-test_proxy_release-1.11,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.11_proxy
@@ -326,6 +334,7 @@ presubmits:
       timeout: 4h0m0s
     name: release-centos-test_proxy_release-1.11
     path_alias: istio.io/proxy
+    rerun_command: /test release-centos-test
     spec:
       containers:
       - command:
@@ -357,6 +366,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )release-centos-test,?($|\s.*))|((?m)^/test( | .* )release-centos-test_proxy_release-1.11,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.11_proxy
@@ -367,6 +377,7 @@ presubmits:
       timeout: 4h0m0s
     name: check-wasm_proxy_release-1.11
     path_alias: istio.io/proxy
+    rerun_command: /test check-wasm
     spec:
       containers:
       - command:
@@ -403,3 +414,4 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )check-wasm,?($|\s.*))|((?m)^/test( | .* )check-wasm_proxy_release-1.11,?($|\s.*))

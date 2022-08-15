@@ -19,6 +19,7 @@ presubmits:
     name: validate-features_enhancements_release-1.14
     optional: true
     path_alias: istio.io/enhancements
+    rerun_command: /test validate-features
     spec:
       containers:
       - command:
@@ -51,3 +52,4 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )validate-features,?($|\s.*))|((?m)^/test( | .* )validate-features_enhancements_release-1.14,?($|\s.*))

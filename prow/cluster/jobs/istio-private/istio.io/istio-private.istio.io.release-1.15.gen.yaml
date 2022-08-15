@@ -331,6 +331,7 @@ presubmits:
     decorate: true
     name: lint_istio.io_release-1.15_pri
     path_alias: istio.io/istio.io
+    rerun_command: /test lint
     spec:
       containers:
       - command:
@@ -362,6 +363,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_istio.io_release-1.15,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -372,6 +374,7 @@ presubmits:
     decorate: true
     name: gencheck_istio.io_release-1.15_pri
     path_alias: istio.io/istio.io
+    rerun_command: /test gencheck
     spec:
       containers:
       - command:
@@ -403,6 +406,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_istio.io_release-1.15,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -413,6 +417,7 @@ presubmits:
     decorate: true
     name: doc.test.profile_default_istio.io_release-1.15_pri
     path_alias: istio.io/istio.io
+    rerun_command: /test doc.test.profile_default
     spec:
       containers:
       - command:
@@ -463,6 +468,8 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )doc.test.profile_default,?($|\s.*))|((?m)^/test( |
+      .* )doc.test.profile_default_istio.io_release-1.15,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -473,6 +480,7 @@ presubmits:
     decorate: true
     name: doc.test.profile_demo_istio.io_release-1.15_pri
     path_alias: istio.io/istio.io
+    rerun_command: /test doc.test.profile_demo
     spec:
       containers:
       - command:
@@ -523,6 +531,8 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )doc.test.profile_demo,?($|\s.*))|((?m)^/test( | .*
+      )doc.test.profile_demo_istio.io_release-1.15,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -533,6 +543,7 @@ presubmits:
     decorate: true
     name: doc.test.profile_none_istio.io_release-1.15_pri
     path_alias: istio.io/istio.io
+    rerun_command: /test doc.test.profile_none
     spec:
       containers:
       - command:
@@ -583,6 +594,8 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )doc.test.profile_none,?($|\s.*))|((?m)^/test( | .*
+      )doc.test.profile_none_istio.io_release-1.15,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -593,6 +606,7 @@ presubmits:
     decorate: true
     name: doc.test.multicluster_istio.io_release-1.15_pri
     path_alias: istio.io/istio.io
+    rerun_command: /test doc.test.multicluster
     spec:
       containers:
       - command:
@@ -645,3 +659,5 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+    trigger: ((?m)^/test( | .* )doc.test.multicluster,?($|\s.*))|((?m)^/test( | .*
+      )doc.test.multicluster_istio.io_release-1.15,?($|\s.*))
