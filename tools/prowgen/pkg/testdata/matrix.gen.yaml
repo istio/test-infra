@@ -635,6 +635,7 @@ presubmits:
     decorate: true
     name: test-kind-arg1-val1_istio
     path_alias: istio.io/istio
+    rerun_command: /test test-kind-arg1-val1
     spec:
       containers:
       - command:
@@ -686,7 +687,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    trigger: (?m)^/test( | .* )test-kind-arg1-val1,?($|\s.*)|(?m)^/test( | .* )test-kind-arg1-val1_istio,?($|\s.*)
+    trigger: ((?m)^/test( | .* )test-kind-arg1-val1,?($|\s.*))|((?m)^/test( | .* )test-kind-arg1-val1_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -697,6 +698,7 @@ presubmits:
       preset-service-account: "true"
     name: test-gcp-arg1-val1_istio
     path_alias: istio.io/istio
+    rerun_command: /test test-gcp-arg1-val1
     spec:
       containers:
       - command:
@@ -730,7 +732,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: (?m)^/test( | .* )test-gcp-arg1-val1,?($|\s.*)|(?m)^/test( | .* )test-gcp-arg1-val1_istio,?($|\s.*)
+    trigger: ((?m)^/test( | .* )test-gcp-arg1-val1,?($|\s.*))|((?m)^/test( | .* )test-gcp-arg1-val1_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -739,6 +741,7 @@ presubmits:
     decorate: true
     name: test-kind-arg1-val2_istio
     path_alias: istio.io/istio
+    rerun_command: /test test-kind-arg1-val2
     spec:
       containers:
       - command:
@@ -790,7 +793,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    trigger: (?m)^/test( | .* )test-kind-arg1-val2,?($|\s.*)|(?m)^/test( | .* )test-kind-arg1-val2_istio,?($|\s.*)
+    trigger: ((?m)^/test( | .* )test-kind-arg1-val2,?($|\s.*))|((?m)^/test( | .* )test-kind-arg1-val2_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -801,6 +804,7 @@ presubmits:
       preset-service-account: "true"
     name: test-gcp-arg1-val2_istio
     path_alias: istio.io/istio
+    rerun_command: /test test-gcp-arg1-val2
     spec:
       containers:
       - command:
@@ -834,7 +838,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: (?m)^/test( | .* )test-gcp-arg1-val2,?($|\s.*)|(?m)^/test( | .* )test-gcp-arg1-val2_istio,?($|\s.*)
+    trigger: ((?m)^/test( | .* )test-gcp-arg1-val2,?($|\s.*))|((?m)^/test( | .* )test-gcp-arg1-val2_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -843,6 +847,7 @@ presubmits:
     decorate: true
     name: test-kind-arg2-val1_istio
     path_alias: istio.io/istio
+    rerun_command: /test test-kind-arg2-val1
     spec:
       containers:
       - command:
@@ -894,7 +899,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    trigger: (?m)^/test( | .* )test-kind-arg2-val1,?($|\s.*)|(?m)^/test( | .* )test-kind-arg2-val1_istio,?($|\s.*)
+    trigger: ((?m)^/test( | .* )test-kind-arg2-val1,?($|\s.*))|((?m)^/test( | .* )test-kind-arg2-val1_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -905,6 +910,7 @@ presubmits:
       preset-service-account: "true"
     name: test-gcp-arg2-val1_istio
     path_alias: istio.io/istio
+    rerun_command: /test test-gcp-arg2-val1
     spec:
       containers:
       - command:
@@ -938,7 +944,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: (?m)^/test( | .* )test-gcp-arg2-val1,?($|\s.*)|(?m)^/test( | .* )test-gcp-arg2-val1_istio,?($|\s.*)
+    trigger: ((?m)^/test( | .* )test-gcp-arg2-val1,?($|\s.*))|((?m)^/test( | .* )test-gcp-arg2-val1_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -947,6 +953,7 @@ presubmits:
     decorate: true
     name: test-kind-arg2-val2_istio
     path_alias: istio.io/istio
+    rerun_command: /test test-kind-arg2-val2
     spec:
       containers:
       - command:
@@ -998,7 +1005,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    trigger: (?m)^/test( | .* )test-kind-arg2-val2,?($|\s.*)|(?m)^/test( | .* )test-kind-arg2-val2_istio,?($|\s.*)
+    trigger: ((?m)^/test( | .* )test-kind-arg2-val2,?($|\s.*))|((?m)^/test( | .* )test-kind-arg2-val2_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -1009,6 +1016,7 @@ presubmits:
       preset-service-account: "true"
     name: test-gcp-arg2-val2_istio
     path_alias: istio.io/istio
+    rerun_command: /test test-gcp-arg2-val2
     spec:
       containers:
       - command:
@@ -1042,7 +1050,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: (?m)^/test( | .* )test-gcp-arg2-val2,?($|\s.*)|(?m)^/test( | .* )test-gcp-arg2-val2_istio,?($|\s.*)
+    trigger: ((?m)^/test( | .* )test-gcp-arg2-val2,?($|\s.*))|((?m)^/test( | .* )test-gcp-arg2-val2_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -1051,6 +1059,7 @@ presubmits:
     decorate: true
     name: test-kind-arg3-val1_istio
     path_alias: istio.io/istio
+    rerun_command: /test test-kind-arg3-val1
     spec:
       containers:
       - command:
@@ -1102,7 +1111,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    trigger: (?m)^/test( | .* )test-kind-arg3-val1,?($|\s.*)|(?m)^/test( | .* )test-kind-arg3-val1_istio,?($|\s.*)
+    trigger: ((?m)^/test( | .* )test-kind-arg3-val1,?($|\s.*))|((?m)^/test( | .* )test-kind-arg3-val1_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -1113,6 +1122,7 @@ presubmits:
       preset-service-account: "true"
     name: test-gcp-arg3-val1_istio
     path_alias: istio.io/istio
+    rerun_command: /test test-gcp-arg3-val1
     spec:
       containers:
       - command:
@@ -1146,7 +1156,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: (?m)^/test( | .* )test-gcp-arg3-val1,?($|\s.*)|(?m)^/test( | .* )test-gcp-arg3-val1_istio,?($|\s.*)
+    trigger: ((?m)^/test( | .* )test-gcp-arg3-val1,?($|\s.*))|((?m)^/test( | .* )test-gcp-arg3-val1_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -1155,6 +1165,7 @@ presubmits:
     decorate: true
     name: test-kind-arg3-val2_istio
     path_alias: istio.io/istio
+    rerun_command: /test test-kind-arg3-val2
     spec:
       containers:
       - command:
@@ -1206,7 +1217,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    trigger: (?m)^/test( | .* )test-kind-arg3-val2,?($|\s.*)|(?m)^/test( | .* )test-kind-arg3-val2_istio,?($|\s.*)
+    trigger: ((?m)^/test( | .* )test-kind-arg3-val2,?($|\s.*))|((?m)^/test( | .* )test-kind-arg3-val2_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -1217,6 +1228,7 @@ presubmits:
       preset-service-account: "true"
     name: test-gcp-arg3-val2_istio
     path_alias: istio.io/istio
+    rerun_command: /test test-gcp-arg3-val2
     spec:
       containers:
       - command:
@@ -1250,4 +1262,4 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: (?m)^/test( | .* )test-gcp-arg3-val2,?($|\s.*)|(?m)^/test( | .* )test-gcp-arg3-val2_istio,?($|\s.*)
+    trigger: ((?m)^/test( | .* )test-gcp-arg3-val2,?($|\s.*))|((?m)^/test( | .* )test-gcp-arg3-val2_istio,?($|\s.*))
