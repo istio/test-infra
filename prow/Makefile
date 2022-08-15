@@ -40,9 +40,6 @@ deploy: get-cluster-credentials
 deploy-gcsweb: get-cluster-credentials
 	kubectl apply -f ./cluster/gcsweb/ -n gcs
 
-deploy-velodrome: get-cluster-credentials
-	kubectl apply -f ./cluster/velodrome/ -n velodrome
-
 # TODO(clarketm): enable pruning
 deploy-monitoring: get-cluster-credentials
 	kubectl apply -f ./cluster/monitoring/prometheus-operator-crds/
@@ -100,4 +97,4 @@ create-release-deps-configmap: get-private-cluster-credentials
 
 create-deps-configmaps: create-istio-deps-configmap create-release-deps-configmap
 
-.PHONY: gen-private-jobs deploy deploy-gcsweb deploy-velodrome deploy-build deploy-private update-config update-config-dry-run create-istio-deps-configmap create-release-deps-configmap create-deps-configmaps
+.PHONY: gen-private-jobs deploy deploy-gcsweb deploy-build deploy-private update-config update-config-dry-run create-istio-deps-configmap create-release-deps-configmap create-deps-configmaps
