@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.16 as build-env
+FROM golang:1.19 as build-env
 
 WORKDIR /go/src/istio
 
