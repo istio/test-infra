@@ -1,0 +1,16 @@
+org: istio
+repo: proxy
+support_release_branching: false
+
+defaults:
+  branches: [master]
+  branches-out: [^experimental-.*]
+  repo-allowlist: [proxy]
+
+transforms:
+
+- job-type:
+  - presubmit
+- job-type:
+  - postsubmit
+  job-denylist: [update-istio]
