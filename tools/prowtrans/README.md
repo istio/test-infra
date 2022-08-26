@@ -42,6 +42,14 @@ Run using Docker:
 docker run gcr.io/istio-testing/prowtrans:latest <options>
 ```
 
+```shell
+export INPUT="/prow/config/jobs"
+export CONFIGS="/prow/config/istio-private_jobs"
+docker run --mount type=bind,source="$(pwd)/prow",target="/prow" \
+    gcr.io/istio-testing/prowtrans:latest \
+    --configs=${CONFIGS} --input=${INPUT}
+```
+
 The following is a list of supported options for `prowtrans`. The only **required** option is `-m, --mapping`, which is the translation mapping between public/private Github organizations.
 
 ```console
