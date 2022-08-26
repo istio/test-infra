@@ -18,7 +18,7 @@ WORKDIR /go/src/istio
 
 COPY . /go/src/istio
 
-RUN go build -o /go/bin/prowtrans /go/src/istio/tools/prowtrans/cmd/prowtrans
+RUN CGO_ENABLED=0 go build -o /go/bin/prowtrans /go/src/istio/tools/prowtrans/cmd/prowtrans
 
 FROM gcr.io/distroless/static:22bd467b41e5e656e31db347265fae118db166d9
 

@@ -14,7 +14,7 @@
 
 PROJECT = istio-testing
 HUB = gcr.io
-VERSION ?= 0.0.8
+VERSION ?= 0.0.9
 
 .PHONY: deploy
 deploy: configure-docker image push
