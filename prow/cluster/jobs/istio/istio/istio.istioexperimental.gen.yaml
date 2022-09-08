@@ -596,6 +596,76 @@ presubmits:
       testgrid-dashboards: istio_istio
     branches:
     - ^experimental-.*
+    decorate: true
+    name: integ-ds_istio_exp_ds
+    path_alias: istio.io/istio
+    reporter_config:
+      slack: {}
+    rerun_command: /test integ-ds
+    skip_report: true
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.kube.environment
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: DOCKER_IN_DOCKER_IPV6_ENABLED
+          value: "true"
+        - name: IP_FAMILY
+          value: dual
+        image: gcr.io/istio-testing/build-tools:master-31f6ab09d9f2cdbdc8ac1e6226991494f94392fa
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )integ-ds,?($|\s.*))|((?m)^/test( | .* )integ-ds_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^experimental-.*
     cluster: prow-arm
     decorate: true
     name: integ-basic-arm64_istio_exp_ds
