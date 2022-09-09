@@ -54,10 +54,9 @@ func ApplyModifiersPostsubmit(postsubmit *config.Postsubmit, jobModifiers []stri
 			// No effect on postsubmit
 		case ModifierHidden:
 			postsubmit.SkipReport = true
-			f := false
 			postsubmit.ReporterConfig = &prowjob.ReporterConfig{
 				Slack: &prowjob.SlackReporterConfig{
-					Report: &f,
+					JobStatesToReport: []prowjob.ProwJobState{},
 				},
 			}
 		default:
