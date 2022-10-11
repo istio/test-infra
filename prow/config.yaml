@@ -153,6 +153,10 @@ branch-protection:
           branches: &blocked_branches
             master:
               protect: true
+            experimental-dual-stack:
+              protect: true
+            experimental-ambient:
+              protect: true
             release-0.1: &blocking_merge
               required_status_checks:
                 contexts:
@@ -322,19 +326,6 @@ branch-protection:
               <<: *release114
             release-1.15:
               <<: *release115
-            experimental-dual-stack:
-              protect: true
-              restrictions:
-                teams:
-                - zhlsunshine
-                - jacob-delgado
-            experimental-ambient:
-              protect: true
-              restrictions:
-                teams:
-                - stevenctl
-                - howardjohn
-                - dhawton
         proxy:
           branches:
             <<: *blocked_branches
