@@ -179,7 +179,7 @@ postsubmits:
       repo: common-files
     name: containers_tools_postsubmit
     path_alias: istio.io/tools
-    run_if_changed: docker/.+|cmd/.+
+    run_if_changed: docker/.+|cmd/.+|pkg/.+
     spec:
       containers:
       - command:
@@ -241,7 +241,7 @@ postsubmits:
     decorate: true
     name: containers-arm64_tools_postsubmit
     path_alias: istio.io/tools
-    run_if_changed: docker/.+|cmd/.+
+    run_if_changed: docker/.+|cmd/.+|pkg/.+
     spec:
       containers:
       - command:
@@ -604,7 +604,7 @@ presubmits:
     name: containers-test-arm64_tools
     path_alias: istio.io/tools
     rerun_command: /test containers-test-arm64
-    run_if_changed: docker/.+|cmd/.+
+    run_if_changed: docker/.+|cmd/.+|pkg/.+
     spec:
       containers:
       - command:

@@ -42,7 +42,7 @@ jobs:
     - --token-path=/etc/github-token/oauth
     - --script-path=../common-files/bin/create-buildtools-and-update.sh
     resources: build
-    regex: 'docker/.+|cmd/.+'
+    regex: 'docker/.+|cmd/.+|pkg/.+'
     requirements: [docker, github]
     repos: [istio/test-infra@master,istio/common-files@master]
     env:
@@ -63,7 +63,7 @@ jobs:
     - name: MANIFEST_ARCH
       value: ""
     resources: build
-    regex: 'docker/.+|cmd/.+'
+    regex: 'docker/.+|cmd/.+|pkg/.+'
     requirements: [docker]
 
   - name: containers-test
@@ -79,7 +79,7 @@ jobs:
     types: [presubmit]
     command: [entrypoint, make, containers-test]
     resources: build
-    regex: 'docker/.+|cmd/.+'
+    regex: 'docker/.+|cmd/.+|pkg/.+'
     requirements: [docker]
 
   - name: deploy-perf-dashboard
