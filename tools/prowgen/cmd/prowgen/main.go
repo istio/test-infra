@@ -36,7 +36,7 @@ import (
 
 var (
 	// regex to match the test image tags.
-	tagRegex = regexp.MustCompile(`^(.+):(.+)-([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2})$`)
+	tagRegex = regexp.MustCompile(`^(.+):(.+)-([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2}|[0-9a-f]{40})$`)
 
 	inputDir            = flag.String("input-dir", "./prow/config/jobs", "directory of input jobs")
 	outputDir           = flag.String("output-dir", "./prow/cluster/jobs", "directory of output jobs")
