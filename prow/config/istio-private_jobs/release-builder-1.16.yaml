@@ -1,0 +1,47 @@
+defaults:
+  branches:
+  - release-1.16
+  repo-allowlist:
+  - release-builder
+org: istio
+repo: release-builder
+transforms:
+- job-allowlist:
+  - lint_release-builder_release-1.16
+  - lint_release-builder_release-1.16_postsubmit
+  - test_release-builder_release-1.16
+  - test_release-builder_release-1.16_postsubmit
+  - gencheck_release-builder_release-1.16
+  - gencheck_release-builder_release-1.16_postsubmit
+  job-type:
+  - presubmit
+  - postsubmit
+  labels:
+    preset-enable-netrc: "true"
+  repo-allowlist:
+  - release-builder
+- env:
+    GCS_BUCKET: istio-private-prerelease/prerelease
+    HELM_BUCKET: istio-private-build/dev/charts
+    PRERELEASE_DOCKER_HUB: gcr.io/istio-prow-build
+  job-allowlist:
+  - build-warning_release-builder_release-1.16
+  job-type:
+  - presubmit
+  repo-allowlist:
+  - release-builder
+- env:
+    GCS_BUCKET: istio-private-prerelease/prerelease
+    HELM_BUCKET: istio-private-build/dev/charts
+    PRERELEASE_DOCKER_HUB: gcr.io/istio-prow-build
+  job-allowlist:
+  - build-release_release-builder_release-1.16_postsubmit
+  job-type:
+  - postsubmit
+  labels:
+    preset-enable-netrc: "true"
+    preset-enable-ssh: "true"
+    preset-override-deps: release-1.16-release
+    preset-override-envoy: "true"
+  repo-allowlist:
+  - release-builder
