@@ -12,8 +12,6 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools-proxy:release-1.16-6363b97c6bc60b7a3a8d52c5e08322d8394149e2
   name: test
   node_selector:
@@ -148,8 +146,6 @@ jobs:
 - command:
   - ./prow/proxy-presubmit-asan.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools-proxy:release-1.16-6363b97c6bc60b7a3a8d52c5e08322d8394149e2
@@ -288,8 +284,6 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools-proxy:release-1.16-6363b97c6bc60b7a3a8d52c5e08322d8394149e2
   name: test-tsan
   node_selector:
@@ -424,8 +418,6 @@ jobs:
 - command:
   - ./prow/proxy-presubmit-release.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools-proxy:release-1.16-6363b97c6bc60b7a3a8d52c5e08322d8394149e2
@@ -564,8 +556,6 @@ jobs:
   command:
   - ./prow/proxy-presubmit-release.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   - name: ARCH_SUFFIX
@@ -709,8 +699,6 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools-centos:release-1.16-6363b97c6bc60b7a3a8d52c5e08322d8394149e2
   name: release-centos-test
   node_selector:
@@ -846,8 +834,6 @@ jobs:
   - entrypoint
   - ./prow/proxy-presubmit-wasm.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools-proxy:release-1.16-6363b97c6bc60b7a3a8d52c5e08322d8394149e2
@@ -986,8 +972,6 @@ jobs:
   - entrypoint
   - ./prow/proxy-postsubmit.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools-proxy:release-1.16-6363b97c6bc60b7a3a8d52c5e08322d8394149e2
@@ -1130,8 +1114,6 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: ARCH_SUFFIX
     value: $(params.arch)
   - name: BUILD_ENVOY_BINARY_ONLY
@@ -1272,8 +1254,6 @@ jobs:
 - command:
   - ./prow/proxy-postsubmit-centos.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools-centos:release-1.16-6363b97c6bc60b7a3a8d52c5e08322d8394149e2
@@ -1420,8 +1400,6 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.16-6363b97c6bc60b7a3a8d52c5e08322d8394149e2
   name: update-istio
   node_selector:
@@ -1565,8 +1543,6 @@ jobs:
   - --token-path=/etc/github-token/oauth
   - --cmd=UPDATE_BRANCH=main scripts/update_envoy.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.16-6363b97c6bc60b7a3a8d52c5e08322d8394149e2

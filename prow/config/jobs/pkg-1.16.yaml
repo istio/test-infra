@@ -13,8 +13,6 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.16-6363b97c6bc60b7a3a8d52c5e08322d8394149e2
   name: build
   node_selector:
@@ -142,8 +140,6 @@ jobs:
   - make
   - lint
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.16-6363b97c6bc60b7a3a8d52c5e08322d8394149e2
@@ -275,8 +271,6 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.16-6363b97c6bc60b7a3a8d52c5e08322d8394149e2
   name: test
   node_selector:
@@ -404,8 +398,6 @@ jobs:
   - make
   - gen-check
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.16-6363b97c6bc60b7a3a8d52c5e08322d8394149e2
@@ -542,8 +534,6 @@ jobs:
   - --git-exclude=^common/
   - --cmd=go get istio.io/pkg@$AUTOMATOR_SHA && go mod tidy && make clean gen
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.16-6363b97c6bc60b7a3a8d52c5e08322d8394149e2
