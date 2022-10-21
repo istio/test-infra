@@ -6,3 +6,9 @@ jobs:
   - name: test
     command: [make, presubmit]
     requirements: [cratescache]
+
+  - name: release
+    service_account_name: prowjob-advanced-sa
+    types: [postsubmit]
+    command: [make, release]
+    requirements: [cratescache]
