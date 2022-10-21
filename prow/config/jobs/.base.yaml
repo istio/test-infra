@@ -77,6 +77,16 @@ requirement_presets:
         path: /var/tmp/prow/cache
         type: DirectoryOrCreate
       name: build-cache
+  cratescache:
+    volumeMounts:
+    - mountPath: /home/.cargo/registry
+      name: build-cache
+      subPath: crates
+    volumes:
+    - hostPath:
+        path: /var/tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
   github:
     volumeMounts:
     - mountPath: /etc/github-token
