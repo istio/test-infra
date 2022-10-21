@@ -245,6 +245,11 @@ branch-protection:
               restrictions:
                 teams:
                   - release-managers-1.15
+            release-1.16: &release116
+              protect: true
+              restrictions:
+                teams:
+                  - release-managers-1.16
         operator:
           branches: *blocked_branches
         istio.io:
@@ -326,6 +331,8 @@ branch-protection:
               <<: *release114
             release-1.15:
               <<: *release115
+            release-1.16:
+              <<: *release116
         proxy:
           branches:
             <<: *blocked_branches
