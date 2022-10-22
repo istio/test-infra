@@ -91,7 +91,8 @@ periodics:
       - --labels=auto-merge,release-notes-none
       - --modifier=update_go_control_planey_dep
       - --token-path=/etc/github-token/oauth
-      - --cmd=UPDATE_BRANCH=main bin/update_go-control-plane.sh
+      - --cmd=go get github.com/envoyproxy/envoy/go-control-plane@main && go mod tidy
+        && make clean gen
       env:
       - name: BUILD_WITH_CONTAINER
         value: "0"
