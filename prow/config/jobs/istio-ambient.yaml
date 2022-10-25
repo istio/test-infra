@@ -1,0 +1,21 @@
+org: istio
+repo: istio
+image: gcr.io/istio-testing/build-tools:master-5acc674b22171cccc9b650f4e9c4eb417fa345b7
+branches:
+  - experimental-ambient
+jobs:
+  - name: integ-ambient
+    types: [presubmit, postsubmit]
+    modifiers: [ presubmit_optional ]
+    requirements: [ kind ]
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: --istio.test.ambient
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - kindest/node:v1.24.0
+      - --kind-config
+      - prow/config/ambient-sc.yaml
+      - test.integration.ambient.kube
