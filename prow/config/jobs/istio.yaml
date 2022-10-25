@@ -404,16 +404,16 @@ jobs:
     command: [entrypoint, ../release-builder/release/build.sh]
     requirements: [release, docker, github-optional]
 
-  - name: update-go-control-plane
+  - name: update-deps
     types: [periodic]
     cron: "0 2 * * 0" # run each Sunday at 02:00AM UTC
     command:
     - ../test-infra/tools/automator/automator.sh
     - --org=istio
     - --repo=proxy
-    - "--title=Automator: update go-control-plane@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+    - "--title=Automator: update go dependencies@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
     - --labels=auto-merge,release-notes-none
-    - --modifier=update_go_control_planey_dep
+    - --modifier=update_deps
     - --token-path=/etc/github-token/oauth
     - --cmd=go get github.com/envoyproxy/envoy/go-control-plane@main && go mod tidy && make clean gen
     requirements: [github]

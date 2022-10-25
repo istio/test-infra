@@ -80,16 +80,16 @@ periodics:
     org: istio
     path_alias: istio.io/stio
     repo: stio
-  name: update-go-control-plane_istio_periodic
+  name: update-deps_istio_periodic
   spec:
     containers:
     - command:
       - ../test-infra/tools/automator/automator.sh
       - --org=istio
       - --repo=proxy
-      - '--title=Automator: update go-control-plane@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+      - '--title=Automator: update go dependencies@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
       - --labels=auto-merge,release-notes-none
-      - --modifier=update_go_control_planey_dep
+      - --modifier=update_deps
       - --token-path=/etc/github-token/oauth
       - --cmd=go get github.com/envoyproxy/envoy/go-control-plane@main && go mod tidy
         && make clean gen
