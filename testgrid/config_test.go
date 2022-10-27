@@ -23,30 +23,28 @@ import (
 	"strings"
 	"testing"
 
-	"k8s.io/apimachinery/pkg/util/sets"
-
 	"github.com/GoogleCloudPlatform/testgrid/config"
 	config_pb "github.com/GoogleCloudPlatform/testgrid/pb/config"
+	"k8s.io/apimachinery/pkg/util/sets"
 	prow_config "k8s.io/test-infra/prow/config"
 	"k8s.io/test-infra/prow/flagutil"
+	configflagutil "k8s.io/test-infra/prow/flagutil/config"
 	"k8s.io/test-infra/testgrid/pkg/configurator/configurator"
 	"k8s.io/test-infra/testgrid/pkg/configurator/options"
-
-	configflagutil "k8s.io/test-infra/prow/flagutil/config"
 )
+
+var dashboardPrefixes = []string{
+	"istio",
+}
 
 var (
-	dashboardPrefixes = []string{
-		"istio",
-	}
+	defaultInputs options.MultiString = []string{"."}
+	prowPath                          = flag.String("prow-config", "../prow/config.yaml", "Path to prow config")
+	jobPath                           = flag.String("job-config", "../prow/cluster/jobs", "Path to prow job config")
+	defaultYAML                       = flag.String("default", "./default.yaml", "Default yaml for testgrid")
+	inputs        options.MultiString
+	protoPath     = flag.String("config", "", "Path to TestGrid config proto")
 )
-
-var defaultInputs options.MultiString = []string{"."}
-var prowPath = flag.String("prow-config", "../prow/config.yaml", "Path to prow config")
-var jobPath = flag.String("job-config", "../prow/cluster/jobs", "Path to prow job config")
-var defaultYAML = flag.String("default", "./default.yaml", "Default yaml for testgrid")
-var inputs options.MultiString
-var protoPath = flag.String("config", "", "Path to TestGrid config proto")
 
 // Shared testgrid config, loaded at TestMain.
 var cfg *config_pb.Configuration
@@ -113,7 +111,6 @@ func TestConfig(t *testing.T) {
 
 	for _, db := range cfg.Dashboards {
 		dashboardNames.Insert(db.Name)
-
 	}
 	for _, dbg := range cfg.DashboardGroups {
 		dashboardGroupNames.Insert(dbg.Name)
