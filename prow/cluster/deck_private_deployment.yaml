@@ -28,7 +28,6 @@ spec:
         - --hook-url=http://hook:8888/plugin-help
         - --job-config-path=/etc/job-config
         - --redirect-http-to=prow-private.istio.io
-        - --kubeconfig=/etc/kubeconfig/istio-config
         - --gcs-credentials-file=/etc/service-account/service-account.json
         - --spyglass
         - --hidden-only
@@ -39,6 +38,10 @@ spec:
         - --github-endpoint=https://api.github.com
         - --github-oauth-config-file=/etc/githuboauth/secret
         - --cookie-secret=/etc/cookie/secret
+        env:
+        # Use KUBECONFIG envvar rather than --kubeconfig flag in order to provide multiple configs to merge.
+        - name: KUBECONFIG
+          value: "/etc/kubeconfig/istio-config"
         volumeMounts:
         - name: oauth-config
           mountPath: /etc/githuboauth
