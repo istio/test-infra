@@ -28,7 +28,7 @@ spec:
         env:
         # Use KUBECONFIG envvar rather than --kubeconfig flag in order to provide multiple configs to merge.
         - name: KUBECONFIG
-          value: "/etc/kubeconfig/istio-config"
+          value: "/etc/kubeconfig/istio-config:/etc/kubeconfig-build-test-infra-trusted/kubeconfig"
         ports:
         - name: metrics
           containerPort: 9090
@@ -42,6 +42,9 @@ spec:
         - mountPath: /etc/kubeconfig
           name: kubeconfig
           readOnly: true
+        - mountPath: /etc/kubeconfig-build-test-infra-trusted
+          name: kubeconfig-build-test-infra-trusted
+          readOnly: true
       volumes:
       - name: config
         configMap:
@@ -53,6 +56,10 @@ spec:
         secret:
           defaultMode: 420
           secretName: kubeconfig
+      - name: kubeconfig-build-test-infra-trusted
+        secret:
+          defaultMode: 420
+          secretName: kubeconfig-build-test-infra-trusted
 ---
 apiVersion: v1
 kind: ServiceAccount
