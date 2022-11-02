@@ -23,7 +23,10 @@ spec:
         - --config-path=/etc/config/config.yaml
         - --dry-run=false
         - --job-config-path=/etc/job-config
-        - --kubeconfig=/etc/kubeconfig/istio-config
+        env:
+        # Use KUBECONFIG envvar rather than --kubeconfig flag in order to provide multiple configs to merge.
+        - name: KUBECONFIG
+          value: "/etc/kubeconfig/istio-config"
         ports:
         - name: metrics
           containerPort: 9090
