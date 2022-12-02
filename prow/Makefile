@@ -97,4 +97,17 @@ create-release-deps-configmap: get-private-cluster-credentials
 
 create-deps-configmaps: create-istio-deps-configmap create-release-deps-configmap
 
+# Run fix-gencred-refresher will generate kubeconfig for "trusted" build cluster
+# and store it in GSM, you will need "container.admin" and "secretManager.admin"
+# permission on k8s-prow GCP project to perform this action.
+# This target is for solving the bootstrapping problem of gencred refresher,
+# where it runs in "trusted" build cluster, as a prow job to rotate the
+# kubeconfig for "trusted" build cluster along with other build clusters. So
+# when the refresher job failed for more than 2 days, prow will stop working
+# with "trusted" build cluster and thus not able to schedule gencred refrsher
+# prow jobs any more. And this is when the admin of this repo need to run this
+# target manually.
+fix-gencred-refresher:
+	./run-k8s-binary.sh ./gencred --config=./cluster/gencred-config/gencred-config.yaml --gke-filter=projects/istio-testing/locations/us-west1-a/clusters/prow
+
 .PHONY: gen-private-jobs deploy deploy-gcsweb deploy-build deploy-private update-config update-config-dry-run create-istio-deps-configmap create-release-deps-configmap create-deps-configmaps
