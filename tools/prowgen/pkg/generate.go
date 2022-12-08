@@ -351,6 +351,11 @@ func (cli *Client) ConvertJobConfig(fileName string, jobsConfig spec.JobsConfig,
 					Cron:     job.Cron,
 					Tags:     job.Tags,
 				}
+				for _, requirement := range job.Requirements {
+					if cronstr := jobsConfig.RequirementPresets[requirement].Cron; cronstr != "" {
+						periodic.Cron = cronstr
+					}
+				}
 				if testgridConfig.Enabled {
 					if err := mergo.Merge(&periodic.JobBase.Annotations, map[string]string{
 						TestGridDashboard:   testgridJobPrefix + "_periodic",
