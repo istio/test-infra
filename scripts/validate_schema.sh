@@ -60,6 +60,7 @@ get_opts() {
     done
 }
 
+# shellcheck disable=SC2317
 validate_opts() {
     if [ -z "${DOCUMENT_PATH:-}" ]; then
         print_error_and_exit "DOCUMENT_PATH is a required option. It must be the path to the document to validate."
@@ -97,7 +98,6 @@ main() {
     validate_opts
 
     validate_schema
-    return 1
 }
 
 main "$@"

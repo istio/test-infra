@@ -35,6 +35,7 @@ print_error_and_exit() {
 RELEASE_NOTES_NONE_LABEL="release-notes-none"
 
 cleanup() {
+    # shellcheck disable=SC2317
     rm -rf "${tmp_token:-}"
 }
 
@@ -96,6 +97,7 @@ get_opts() {
 
 #This script relies on the REPO_OWNER, REPO_NAME, and PULL_NUMBER environment
 #variables as defined in https://github.com/kubernetes/test-infra/blob/master/prow/jobs.md#job-environment-variables.
+# shellcheck disable=SC2317
 validate_opts() {
     if [[ "${JOB_TYPE:-}" == "batch" ]]; then
         echo "Release notes checker not applicable for batch jobs. Skipping"
@@ -251,7 +253,6 @@ main() {
     validateNotes
     checkForFiles
     checkForLabel
-    return 1
 }
 
 main "$@"
