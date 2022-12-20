@@ -21,6 +21,7 @@ source "$ROOT/lib.sh"
 
 timout="5m"
 
+# shellcheck disable=SC2317
 get_tokeninfo() {
   local token
 

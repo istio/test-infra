@@ -22,6 +22,7 @@ ROOT="$(cd -P "$(dirname -- "$0")" && pwd -P)"
 # shellcheck disable=SC1090,SC1091
 source "$ROOT/utils.sh"
 
+# shellcheck disable=SC2317
 cleanup() {
   rm -rf "${tmp_dir:-}" "${tmp_token:-}" "${tmp_script:-}" "${tmp_git:-}"
 }
