@@ -432,6 +432,8 @@ jobs:
     - --cmd="go get github.com/envoyproxy/go-control-plane@main && go mod tidy && make clean gen"
     requirements: [github]
     repos: [istio/istio@master]
+    image: gcr.io/istio-testing/build-tools:master-fb08d14506ed189896898a140205ef1bfc7008cb
+    timeout: 4h
 
   - name: update-deps-proxy
     types: [periodic]
@@ -447,6 +449,8 @@ jobs:
     - --cmd="go get github.com/envoyproxy/go-control-plane@main && go mod tidy && make clean gen"
     requirements: [github]
     repos: [istio/proxy@master]
+    image: gcr.io/istio-testing/build-tools:master-fb08d14506ed189896898a140205ef1bfc7008cb
+    timeout: 4h
 
 resources_presets:
   default:
