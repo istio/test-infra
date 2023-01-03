@@ -80,12 +80,13 @@ periodics:
     org: istio
     path_alias: istio.io/test-infra
     repo: test-infra
-  name: update-deps-istio_istio_periodic
+  name: update-deps_istio_periodic
   spec:
     containers:
     - command:
       - ../test-infra/tools/automator/automator.sh
       - --org=istio
+<<<<<<< HEAD
       - --repo=istio
       - '--title=Automator: update go dependencies@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
       - --labels=auto-merge,release-notes-none
@@ -150,6 +151,9 @@ periodics:
       - ../test-infra/tools/automator/automator.sh
       - --org=istio
       - --repo=proxy
+=======
+      - --repo=istio,proxy
+>>>>>>> code review comments
       - '--title=Automator: update go dependencies@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
       - --labels=auto-merge,release-notes-none
       - --modifier=update_deps
