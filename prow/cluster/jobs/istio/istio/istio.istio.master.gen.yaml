@@ -78,78 +78,15 @@ periodics:
     repo: istio
   - base_ref: master
     org: istio
-    path_alias: istio.io/istio
-    repo: istio
-  name: update-deps-istio_istio_periodic
+    path_alias: istio.io/test-infra
+    repo: test-infra
+  name: update-deps_istio_periodic
   spec:
     containers:
     - command:
       - ../test-infra/tools/automator/automator.sh
       - --org=istio
-      - --repo=istio
-      - '--title=Automator: update go dependencies@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
-      - --labels=auto-merge,release-notes-none
-      - --modifier=update_deps
-      - --token-path=/etc/github-token/oauth
-      - --cmd=go get github.com/envoyproxy/go-control-plane@main && go mod tidy &&
-        make clean gen
-      env:
-      - name: BUILD_WITH_CONTAINER
-        value: "0"
-      image: gcr.io/istio-testing/build-tools:master-439edf4c19012f6af5a02b9cf24c491135db464f
-      name: ""
-      resources:
-        limits:
-          cpu: "5"
-          memory: 24Gi
-        requests:
-          cpu: "5"
-          memory: 3Gi
-      securityContext:
-        privileged: true
-      volumeMounts:
-      - mountPath: /home/prow/go/pkg
-        name: build-cache
-        subPath: gomod
-      - mountPath: /gocache
-        name: build-cache
-        subPath: gocache
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-    nodeSelector:
-      kubernetes.io/arch: amd64
-      testing: test-pool
-    volumes:
-    - hostPath:
-        path: /var/tmp/prow/cache
-        type: DirectoryOrCreate
-      name: build-cache
-    - name: github
-      secret:
-        secretName: oauth-token
-- annotations:
-    testgrid-alert-email: istio-oncall@googlegroups.com
-    testgrid-dashboards: istio_istio_periodic
-    testgrid-num-failures-to-alert: "1"
-  cron: 0 2 * * 0
-  decorate: true
-  extra_refs:
-  - base_ref: master
-    org: istio
-    path_alias: istio.io/istio
-    repo: istio
-  - base_ref: master
-    org: istio
-    path_alias: istio.io/proxy
-    repo: proxy
-  name: update-deps-proxy_istio_periodic
-  spec:
-    containers:
-    - command:
-      - ../test-infra/tools/automator/automator.sh
-      - --org=istio
-      - --repo=proxy
+      - --repo=istio,proxy
       - '--title=Automator: update go dependencies@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
       - --labels=auto-merge,release-notes-none
       - --modifier=update_deps
