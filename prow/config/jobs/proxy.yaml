@@ -106,6 +106,24 @@ jobs:
   image: gcr.io/istio-testing/build-tools:master-fe925225ae6b796f54a13b0250b9474bf0dfb255
   timeout: 4h
 
+- name: update-istio-experimental-ambient
+  types: [postsubmit]
+  command:
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=istio
+  - --branch=experimental-ambient
+  - "--title=Automator: update proxy@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+  - --labels=auto-merge,release-notes-none
+  - --modifier=update_proxy_dep
+  - --token-path=/etc/github-token/oauth
+  - --git-exclude=^common/
+  - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
+  requirements: [github]
+  repos: [istio/test-infra@master]
+  image: gcr.io/istio-testing/build-tools:master-fe925225ae6b796f54a13b0250b9474bf0dfb255
+  timeout: 4h
+
 - name: update-proxy
   types: [periodic]
   interval: 24h
