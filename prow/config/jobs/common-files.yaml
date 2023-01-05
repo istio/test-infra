@@ -71,3 +71,20 @@ jobs:
     - --source=$AUTOMATOR_ROOT_DIR/files/common/scripts/setup_env.sh
     requirements: [github]
     repos: [istio/test-infra@master]
+
+  - name: update-common-istio-ambient
+    types: [postsubmit]
+    command:
+    - ../test-infra/tools/automator/automator.sh
+    - --org=istio
+    - --repo=istio
+    - --branch=experimental-ambient
+    - "--title=Automator: update common-files@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+    - --labels=auto-merge,release-notes-none
+    - --strict
+    - --modifier=commonfiles
+    - --token-path=/etc/github-token/oauth
+    - --cmd=make update-common && make gen
+    requirements: [github]
+    repos: [istio/test-infra@master]
+    disable_release_branching: true
