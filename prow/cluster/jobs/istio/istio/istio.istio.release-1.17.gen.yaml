@@ -2059,19 +2059,15 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-126_istio_release-1.17_postsubmit
+    name: integ-k8s-125_istio_release-1.17_postsubmit
     path_alias: istio.io/istio
-    reporter_config:
-      slack:
-        report: false
-    skip_report: true
     spec:
       containers:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - gcr.io/istio-testing/kind-node:v1.26.0
+        - gcr.io/istio-testing/kind-node:v1.25.4
         - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
