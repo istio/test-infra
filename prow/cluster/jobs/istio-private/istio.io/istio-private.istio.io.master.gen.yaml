@@ -604,6 +604,73 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.io.git
     cluster: private
     decorate: true
+    name: doc.test.profile_default_gateway_istio.io_pri
+    optional: true
+    path_alias: istio.io/istio.io
+    reporter_config:
+      slack: {}
+    rerun_command: /test doc.test.profile_default_gateway
+    skip_report: true
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - doc.test.profile_default_gateway
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:master-4054415f72c76fb65f422860bf5995ca22eeda9d
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )doc.test.profile_default_gateway,?($|\s.*))|((?m)^/test(
+      | .* )doc.test.profile_default_gateway_istio.io,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.io.git
+    cluster: private
+    decorate: true
     name: doc.test.multicluster_istio.io_pri
     path_alias: istio.io/istio.io
     rerun_command: /test doc.test.multicluster
