@@ -27,6 +27,7 @@ jobs:
     requirements: [kind]
     types: [presubmit]
     modifiers: [presubmit_optional, hidden]
+    resources: gateway
 
   - name: doc.test.multicluster
     command:
@@ -96,3 +97,11 @@ resources_presets:
     limits:
       memory: "24Gi"
       cpu: "5000m"
+  #test gateway-api tests with more memory
+  gateway:
+    requests:
+      memory: "8Gi"
+      cpu: "5000m"
+    limits:
+      memory: "24Gi"
+      cpu: "8000m"
