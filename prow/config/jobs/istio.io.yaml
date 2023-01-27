@@ -13,7 +13,7 @@ jobs:
   - name: doc.test.profile_default
     command: [entrypoint, prow/integ-suite-kind.sh, doc.test.profile_default]
     requirements: [kind]
-    resources: 4Gi
+    resources: 6Gi
 
   - name: doc.test.profile_demo
     command: [entrypoint, prow/integ-suite-kind.sh, doc.test.profile_demo]
@@ -28,7 +28,7 @@ jobs:
     requirements: [kind]
     types: [presubmit]
     modifiers: [presubmit_optional, hidden]
-    resources: 4Gi
+    resources: 6Gi
 
   - name: doc.test.multicluster
     command:
@@ -99,9 +99,9 @@ resources_presets:
       memory: "24Gi"
       cpu: "5000m"
   # some gateway-api tests require more memory
-  4Gi:
+  6Gi:
     requests:
-      memory: "4Gi"
+      memory: "6Gi"
       cpu: "5000m"
     limits:
       memory: "24Gi"
