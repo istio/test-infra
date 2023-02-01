@@ -14,17 +14,17 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, doc.test.profile_default]
     requirements: [kind]
     resources: 6Gi
-    regex: ^(go.mod$|tests\/|pkg\/test\/|content\/en\/boilerplates\/snips\/|content\/en\/docs\/.*(test\.sh|\/snips\.sh$))
+    regex: ^(go.mod$|tests/|pkg/test/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
 
   - name: doc.test.profile_demo
     command: [entrypoint, prow/integ-suite-kind.sh, doc.test.profile_demo]
     requirements: [kind]
-    regex: ^(go.mod$|tests\/|pkg\/test\/|content\/en\/boilerplates\/snips\/|content\/en\/docs\/.*(test\.sh|\/snips\.sh$))
+    regex: ^(go.mod$|tests/|pkg/test/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
 
   - name: doc.test.profile_none
     command: [entrypoint, prow/integ-suite-kind.sh, doc.test.profile_none]
     requirements: [kind]
-    regex: ^(go.mod$|tests\/|pkg\/test\/|content\/en\/boilerplates\/snips\/|content\/en\/docs\/.*(test\.sh|\/snips\.sh$))
+    regex: ^(go.mod$|tests/|pkg/test/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
 
   - name: doc.test.multicluster
     command:
@@ -34,7 +34,7 @@ jobs:
     - MULTICLUSTER
     - doc.test.multicluster
     requirements: [kind]
-    regex: ^(go.mod$|tests\/|pkg\/test\/|content\/en\/boilerplates\/snips\/|content\/en\/docs\/.*(test\.sh|\/snips\.sh$))
+    regex: ^(go.mod$|tests/|pkg/test/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
 
   - name: update-ref-docs-dry-run
     types: [presubmit]
