@@ -3,12 +3,12 @@ branches:
 env:
 - name: BUILD_WITH_CONTAINER
   value: "0"
-image: gcr.io/istio-testing/build-tools:release-1.17-6006dfd83c2c372a980a9ecc0b549ce603d15b0c
+image: gcr.io/istio-testing/build-tools:release-1.17-50d21bb0c099e7667bcc6e9aaf12b85f748c5f3b
 jobs:
 - command:
   - make
   - lint
-  image: gcr.io/istio-testing/build-tools:release-1.17-6006dfd83c2c372a980a9ecc0b549ce603d15b0c
+  image: gcr.io/istio-testing/build-tools:release-1.17-50d21bb0c099e7667bcc6e9aaf12b85f748c5f3b
   name: lint
   node_selector:
     testing: test-pool
@@ -151,7 +151,7 @@ jobs:
   - --modifier=commonfiles
   - --token-path=/etc/github-token/oauth
   - --cmd=make update-common && make gen
-  image: gcr.io/istio-testing/build-tools:release-1.17-6006dfd83c2c372a980a9ecc0b549ce603d15b0c
+  image: gcr.io/istio-testing/build-tools:release-1.17-50d21bb0c099e7667bcc6e9aaf12b85f748c5f3b
   name: update-common
   node_selector:
     testing: test-pool
@@ -299,7 +299,7 @@ jobs:
   - --modifier=commonfiles
   - --token-path=/etc/github-token/oauth
   - --cmd=make update-common && make gen
-  image: gcr.io/istio-testing/build-tools:release-1.17-6006dfd83c2c372a980a9ecc0b549ce603d15b0c
+  image: gcr.io/istio-testing/build-tools:release-1.17-50d21bb0c099e7667bcc6e9aaf12b85f748c5f3b
   name: update-common-istio.io
   node_selector:
     testing: test-pool
@@ -451,7 +451,7 @@ jobs:
   - --
   - --post=make gen
   - --source=$AUTOMATOR_ROOT_DIR/files/common/scripts/setup_env.sh
-  image: gcr.io/istio-testing/build-tools:release-1.17-6006dfd83c2c372a980a9ecc0b549ce603d15b0c
+  image: gcr.io/istio-testing/build-tools:release-1.17-50d21bb0c099e7667bcc6e9aaf12b85f748c5f3b
   name: update-build-tools-image
   node_selector:
     testing: test-pool
