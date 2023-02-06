@@ -90,6 +90,7 @@ postsubmits:
     decorate: true
     name: doc.test.profile_default_istio.io_release-1.17_postsubmit
     path_alias: istio.io/istio.io
+    run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
       containers:
       - command:
@@ -149,6 +150,7 @@ postsubmits:
     decorate: true
     name: doc.test.profile_demo_istio.io_release-1.17_postsubmit
     path_alias: istio.io/istio.io
+    run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
       containers:
       - command:
@@ -208,6 +210,7 @@ postsubmits:
     decorate: true
     name: doc.test.profile_none_istio.io_release-1.17_postsubmit
     path_alias: istio.io/istio.io
+    run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
       containers:
       - command:
@@ -267,6 +270,7 @@ postsubmits:
     decorate: true
     name: doc.test.multicluster_istio.io_release-1.17_postsubmit
     path_alias: istio.io/istio.io
+    run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
       containers:
       - command:
@@ -403,7 +407,7 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
     trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_istio.io_release-1.17,?($|\s.*))
-  - always_run: true
+  - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.17_istio.io
     branches:
@@ -412,6 +416,7 @@ presubmits:
     name: doc.test.profile_default_istio.io_release-1.17
     path_alias: istio.io/istio.io
     rerun_command: /test doc.test.profile_default
+    run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
       containers:
       - command:
@@ -464,7 +469,7 @@ presubmits:
         name: docker-root
     trigger: ((?m)^/test( | .* )doc.test.profile_default,?($|\s.*))|((?m)^/test( |
       .* )doc.test.profile_default_istio.io_release-1.17,?($|\s.*))
-  - always_run: true
+  - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.17_istio.io
     branches:
@@ -473,6 +478,7 @@ presubmits:
     name: doc.test.profile_demo_istio.io_release-1.17
     path_alias: istio.io/istio.io
     rerun_command: /test doc.test.profile_demo
+    run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
       containers:
       - command:
@@ -525,7 +531,7 @@ presubmits:
         name: docker-root
     trigger: ((?m)^/test( | .* )doc.test.profile_demo,?($|\s.*))|((?m)^/test( | .*
       )doc.test.profile_demo_istio.io_release-1.17,?($|\s.*))
-  - always_run: true
+  - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.17_istio.io
     branches:
@@ -534,6 +540,7 @@ presubmits:
     name: doc.test.profile_none_istio.io_release-1.17
     path_alias: istio.io/istio.io
     rerun_command: /test doc.test.profile_none
+    run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
       containers:
       - command:
@@ -586,7 +593,7 @@ presubmits:
         name: docker-root
     trigger: ((?m)^/test( | .* )doc.test.profile_none,?($|\s.*))|((?m)^/test( | .*
       )doc.test.profile_none_istio.io_release-1.17,?($|\s.*))
-  - always_run: true
+  - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.17_istio.io
     branches:
@@ -595,6 +602,7 @@ presubmits:
     name: doc.test.multicluster_istio.io_release-1.17
     path_alias: istio.io/istio.io
     rerun_command: /test doc.test.multicluster
+    run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
       containers:
       - command:
