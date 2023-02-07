@@ -12,4 +12,3 @@ different branches.
 In order to create a new branch, copy the master.yaml file to the branch name of
 your choice, and update the jobs branch spec in this file to point to your new
 branch.
-
