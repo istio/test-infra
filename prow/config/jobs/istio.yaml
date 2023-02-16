@@ -193,6 +193,22 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: --istio.test.skipVM
 
+  - name: integ-ambient
+    requirements: [kind]
+    env:
+    - name: INTEGRATION_TEST_FLAGS
+      value: --istio.test.ambient
+    # Until fully passing
+    modifiers:
+    - presubmit_skipped
+    - hidden
+    command:
+    - entrypoint
+    - prow/integ-suite-kind.sh
+    - --kind-config
+    - prow/config/ambient-sc.yaml
+    - test.integration.ambient.kube
+
   - name: integ-helm
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.helm.kube]
     requirements: [kind]
