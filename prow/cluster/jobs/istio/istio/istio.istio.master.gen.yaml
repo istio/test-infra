@@ -1371,6 +1371,10 @@ postsubmits:
     decorate: true
     name: integ-ambient_istio_postsubmit
     path_alias: istio.io/istio
+    reporter_config:
+      slack:
+        report: false
+    skip_report: true
     spec:
       containers:
       - command:
@@ -3400,7 +3404,7 @@ presubmits:
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-security-istiodremote,?($|\s.*))|((?m)^/test(
       | .* )integ-security-istiodremote_istio,?($|\s.*))
-  - always_run: true
+  - always_run: false
     annotations:
       testgrid-dashboards: istio_istio
     branches:
@@ -3408,7 +3412,10 @@ presubmits:
     decorate: true
     name: integ-ambient_istio
     path_alias: istio.io/istio
+    reporter_config:
+      slack: {}
     rerun_command: /test integ-ambient
+    skip_report: true
     spec:
       containers:
       - command:

@@ -1300,6 +1300,10 @@ postsubmits:
       preset-override-envoy: "true"
     name: integ-ambient_istio_postsubmit_pri
     path_alias: istio.io/istio
+    reporter_config:
+      slack:
+        report: false
+    skip_report: true
     spec:
       containers:
       - command:
@@ -3410,7 +3414,7 @@ presubmits:
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-security-istiodremote,?($|\s.*))|((?m)^/test(
       | .* )integ-security-istiodremote_istio,?($|\s.*))
-  - always_run: true
+  - always_run: false
     annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -3425,7 +3429,10 @@ presubmits:
       preset-override-envoy: "true"
     name: integ-ambient_istio_pri
     path_alias: istio.io/istio
+    reporter_config:
+      slack: {}
     rerun_command: /test integ-ambient
+    skip_report: true
     spec:
       containers:
       - command:
