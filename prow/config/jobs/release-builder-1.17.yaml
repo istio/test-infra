@@ -3,12 +3,12 @@ branches:
 env:
 - name: BUILD_WITH_CONTAINER
   value: "0"
-image: gcr.io/istio-testing/build-tools:release-1.17-80e68190f919295aee6bf9cb97722f38264fd311
+image: gcr.io/istio-testing/build-tools:release-1.17-ba45cb16de923dc582b493b17eaa0557d5547a61
 jobs:
 - command:
   - make
   - lint
-  image: gcr.io/istio-testing/build-tools:release-1.17-80e68190f919295aee6bf9cb97722f38264fd311
+  image: gcr.io/istio-testing/build-tools:release-1.17-ba45cb16de923dc582b493b17eaa0557d5547a61
   name: lint
   node_selector:
     testing: test-pool
@@ -151,7 +151,7 @@ jobs:
 - command:
   - make
   - test
-  image: gcr.io/istio-testing/build-tools:release-1.17-80e68190f919295aee6bf9cb97722f38264fd311
+  image: gcr.io/istio-testing/build-tools:release-1.17-ba45cb16de923dc582b493b17eaa0557d5547a61
   name: test
   node_selector:
     testing: test-pool
@@ -294,7 +294,7 @@ jobs:
 - command:
   - make
   - gen-check
-  image: gcr.io/istio-testing/build-tools:release-1.17-80e68190f919295aee6bf9cb97722f38264fd311
+  image: gcr.io/istio-testing/build-tools:release-1.17-ba45cb16de923dc582b493b17eaa0557d5547a61
   name: gencheck
   node_selector:
     testing: test-pool
@@ -437,7 +437,7 @@ jobs:
 - command:
   - entrypoint
   - test/publish.sh
-  image: gcr.io/istio-testing/build-tools:release-1.17-80e68190f919295aee6bf9cb97722f38264fd311
+  image: gcr.io/istio-testing/build-tools:release-1.17-ba45cb16de923dc582b493b17eaa0557d5547a61
   name: dry-run
   node_selector:
     testing: test-pool
@@ -583,7 +583,7 @@ jobs:
   service_account_name: prowjob-advanced-sa
 - command:
   - release/build-warning.sh
-  image: gcr.io/istio-testing/build-tools:release-1.17-80e68190f919295aee6bf9cb97722f38264fd311
+  image: gcr.io/istio-testing/build-tools:release-1.17-ba45cb16de923dc582b493b17eaa0557d5547a61
   modifiers:
   - presubmit_optional
   name: build-warning
@@ -730,7 +730,7 @@ jobs:
   - presubmit
 - command:
   - release/publish-warning.sh
-  image: gcr.io/istio-testing/build-tools:release-1.17-80e68190f919295aee6bf9cb97722f38264fd311
+  image: gcr.io/istio-testing/build-tools:release-1.17-ba45cb16de923dc582b493b17eaa0557d5547a61
   modifiers:
   - presubmit_optional
   name: publish-warning
@@ -878,7 +878,7 @@ jobs:
 - command:
   - entrypoint
   - release/build.sh
-  image: gcr.io/istio-testing/build-tools:release-1.17-80e68190f919295aee6bf9cb97722f38264fd311
+  image: gcr.io/istio-testing/build-tools:release-1.17-ba45cb16de923dc582b493b17eaa0557d5547a61
   name: build-release
   node_selector:
     testing: test-pool
@@ -1027,7 +1027,7 @@ jobs:
 - command:
   - entrypoint
   - release/publish.sh
-  image: gcr.io/istio-testing/build-tools:release-1.17-80e68190f919295aee6bf9cb97722f38264fd311
+  image: gcr.io/istio-testing/build-tools:release-1.17-ba45cb16de923dc582b493b17eaa0557d5547a61
   name: publish-release
   node_selector:
     testing: test-pool
@@ -1182,7 +1182,7 @@ jobs:
     value: "true"
   - name: VERSION
     value: "1.17"
-  image: gcr.io/istio-testing/build-tools:release-1.17-80e68190f919295aee6bf9cb97722f38264fd311
+  image: gcr.io/istio-testing/build-tools:release-1.17-ba45cb16de923dc582b493b17eaa0557d5547a61
   name: build-base-images
   node_selector:
     testing: test-pool
