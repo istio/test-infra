@@ -123,6 +123,21 @@ jobs:
   image: gcr.io/istio-testing/build-tools:master-90202090a85fc6a345d57d99cb93b10c8bffa4f1
   timeout: 4h
 
+- name: update-go-control-plane
+  types: [periodic]
+  cron: "0 2 * * 0" # run each Sunday at 02:00AM UTC
+  command:
+  - ../test-infra/tools/automator/automator.sh
+  - --org=istio
+  - --repo=proxy
+  - "--title=Automator: update go-control-plane in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+  - --labels=auto-merge,release-notes-none
+  - --modifier=update_deps
+  - --token-path=/etc/github-token/oauth
+  - --cmd=go get github.com/envoyproxy/go-control-plane@main && go mod tidy
+  requirements: [github]
+  repos: [istio/test-infra@master]
+
 resources_presets:
   default:
     requests:
