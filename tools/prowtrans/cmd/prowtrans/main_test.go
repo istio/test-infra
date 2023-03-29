@@ -118,10 +118,6 @@ func TestProwTrans(t *testing.T) {
 			args: []string{"--mapping=istio=istio-private", "--env-denylist=bad-env"},
 		},
 		{
-			name:    "cluster overrides",
-			configs: true,
-		},
-		{
 			name: "volume denylist",
 			args: []string{"--mapping=istio=istio-private", "--volume-denylist=bad-volume"},
 		},

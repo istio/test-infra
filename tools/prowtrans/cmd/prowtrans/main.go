@@ -78,7 +78,6 @@ type options struct {
 func (o *options) parseOpts() {
 	flag.StringVar(&o.Bucket, "bucket", "", "GCS bucket name to upload logs and build artifacts to.")
 	flag.StringVar(&o.Cluster, "cluster", "", "GCP cluster to run the job(s) in.")
-	flag.StringToStringVar(&o.ClusterOverrides, "cluster_overrides", map[string]string{}, "GCP cluster override (replacements - oldCluster: newCluster mapping).")
 	flag.StringVar(&o.Channel, "channel", "", "Slack channel to report job status notifications to.")
 	flag.StringVar(&o.Global, "global", "", "Path to file containing global defaults configuration.")
 	flag.StringVar(&o.SSHKeySecret, "ssh-key-secret", "", "GKE cluster secrets containing the Github ssh private key.")
@@ -768,10 +767,6 @@ func updateJobBase(o options, job *config.JobBase, orgrepo string) {
 
 	if o.Cluster != "" && o.Cluster != defaultCluster {
 		job.Cluster = o.Cluster
-	}
-
-	if o.ClusterOverrides[job.Cluster] != "" {
-		job.Cluster = o.ClusterOverrides[job.Cluster]
 	}
 
 	updateJobName(o, job)
