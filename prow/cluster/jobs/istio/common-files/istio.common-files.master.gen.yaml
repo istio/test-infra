@@ -59,7 +59,7 @@ postsubmits:
       containers:
       - command:
         - ../test-infra/tools/automator/automator.sh
-        - --org=istio
+        - --org=$ORG
         - --repo=test-infra,bots,community,ztunnel
         - '--title=Automator: update common-files@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
         - --labels=auto-merge,release-notes-none
@@ -70,6 +70,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: ORG
+          value: istio
         image: gcr.io/istio-testing/build-tools:master-42499d67179f80bbbeb71bc0f793d1b483cf8937
         name: ""
         resources:
@@ -117,7 +119,7 @@ postsubmits:
       containers:
       - command:
         - ../test-infra/tools/automator/automator.sh
-        - --org=istio
+        - --org=$ORG
         - --repo=istio,api,tools,release-builder,pkg,client-go,proxy
         - '--title=Automator: update common-files@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
         - --labels=auto-merge,release-notes-none
@@ -128,6 +130,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: ORG
+          value: istio
         image: gcr.io/istio-testing/build-tools:master-42499d67179f80bbbeb71bc0f793d1b483cf8937
         name: ""
         resources:
@@ -175,7 +179,7 @@ postsubmits:
       containers:
       - command:
         - ../test-infra/tools/automator/automator.sh
-        - --org=istio
+        - --org=$ORG
         - --repo=istio.io
         - '--title=Automator: update common-files@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
         - --labels=auto-merge,release-notes-none
@@ -186,6 +190,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: ORG
+          value: istio
         image: gcr.io/istio-testing/build-tools:master-42499d67179f80bbbeb71bc0f793d1b483cf8937
         name: ""
         resources:
@@ -233,7 +239,7 @@ postsubmits:
       containers:
       - command:
         - ../test-infra/tools/automator/automator.sh
-        - --org=istio
+        - --org=$ORG
         - --repo=test-infra
         - '--title=Automator: update build-tools:$AUTOMATOR_SRC_BRANCH'
         - --branch=master
@@ -248,6 +254,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: ORG
+          value: istio
         image: gcr.io/istio-testing/build-tools:master-42499d67179f80bbbeb71bc0f793d1b483cf8937
         name: ""
         resources:

@@ -185,7 +185,7 @@ postsubmits:
       - command:
         - entrypoint
         - ../test-infra/tools/automator/automator.sh
-        - --org=istio
+        - --org=$ORG
         - --repo=common-files
         - '--title=Automator: update build-tools image@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
         - --labels=release-notes-none
@@ -197,6 +197,8 @@ postsubmits:
           value: "0"
         - name: MANIFEST_ARCH
           value: arm64 amd64
+        - name: ORG
+          value: istio
         image: gcr.io/istio-testing/build-tools:master-42499d67179f80bbbeb71bc0f793d1b483cf8937
         name: ""
         resources:
