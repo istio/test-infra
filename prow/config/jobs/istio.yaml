@@ -302,6 +302,21 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: " --istio.test.retries=1 "
 
+  - name: integ-k8s-127
+    types: [postsubmit]
+    modifiers: [hidden]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - jacodelg/node:v1.27.0-rc.0
+      - test.integration.kube
+    requirements: [kind]
+    timeout: 4h
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: " --istio.test.retries=1 "
+
   - name: integ-cni
     types: [postsubmit]
     command:
