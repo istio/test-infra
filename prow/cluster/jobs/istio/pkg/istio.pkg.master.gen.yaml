@@ -179,7 +179,7 @@ postsubmits:
       containers:
       - command:
         - ../test-infra/tools/automator/automator.sh
-        - --org=$ORG
+        - --org=istio
         - --repo=istio
         - '--title=Automator: update istio/pkg@$AUTOMATOR_SRC_BRANCH dependency in
           $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
@@ -191,8 +191,6 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: ORG
-          value: istio
         image: gcr.io/istio-testing/build-tools:master-42499d67179f80bbbeb71bc0f793d1b483cf8937
         name: ""
         resources:

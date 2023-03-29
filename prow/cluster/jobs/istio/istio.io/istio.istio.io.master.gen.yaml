@@ -20,7 +20,7 @@ periodics:
     containers:
     - command:
       - ../test-infra/tools/automator/automator.sh
-      - --org=$ORG
+      - --org=istio
       - --repo=istio.io
       - '--title=Automator: update istio.io@$AUTOMATOR_SRC_BRANCH reference docs'
       - --labels=auto-merge,release-notes-none
@@ -30,8 +30,6 @@ periodics:
       env:
       - name: BUILD_WITH_CONTAINER
         value: "0"
-      - name: ORG
-        value: istio
       image: gcr.io/istio-testing/build-tools:master-42499d67179f80bbbeb71bc0f793d1b483cf8937
       name: ""
       resources:
@@ -81,7 +79,7 @@ periodics:
     containers:
     - command:
       - ../test-infra/tools/automator/automator.sh
-      - --org=$ORG
+      - --org=istio
       - --repo=istio.io
       - '--title=Automator: update istio@$AUTOMATOR_SRC_BRANCH test reference'
       - --labels=release-notes-none
@@ -90,8 +88,6 @@ periodics:
       env:
       - name: BUILD_WITH_CONTAINER
         value: "0"
-      - name: ORG
-        value: istio
       image: gcr.io/istio-testing/build-tools:master-42499d67179f80bbbeb71bc0f793d1b483cf8937
       name: ""
       resources:
@@ -920,7 +916,7 @@ presubmits:
       containers:
       - command:
         - ../test-infra/tools/automator/automator.sh
-        - --org=$ORG
+        - --org=istio
         - --repo=istio.io
         - --token-path=/etc/github-token/oauth
         - --cmd=make update_ref_docs
@@ -928,8 +924,6 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: ORG
-          value: istio
         image: gcr.io/istio-testing/build-tools:master-42499d67179f80bbbeb71bc0f793d1b483cf8937
         name: ""
         resources:
