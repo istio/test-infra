@@ -22,7 +22,7 @@ periodics:
     containers:
     - command:
       - ../test-infra/tools/automator/automator.sh
-      - --org=$ORG
+      - --org=istio
       - --repo=proxy
       - '--title=Automator: update envoy@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
       - --labels=auto-merge
@@ -32,8 +32,6 @@ periodics:
       env:
       - name: BUILD_WITH_CONTAINER
         value: "0"
-      - name: ORG
-        value: istio
       image: gcr.io/istio-testing/build-tools:master-42499d67179f80bbbeb71bc0f793d1b483cf8937
       name: ""
       resources:
@@ -83,7 +81,7 @@ periodics:
     containers:
     - command:
       - ../test-infra/tools/automator/automator.sh
-      - --org=$ORG
+      - --org=istio
       - --repo=proxy
       - '--title=Automator: update go-control-plane in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
       - --labels=auto-merge,release-notes-none
@@ -93,8 +91,6 @@ periodics:
       env:
       - name: BUILD_WITH_CONTAINER
         value: "0"
-      - name: ORG
-        value: istio
       image: gcr.io/istio-testing/build-tools-proxy:master-42499d67179f80bbbeb71bc0f793d1b483cf8937
       name: ""
       resources:
@@ -289,7 +285,7 @@ postsubmits:
       containers:
       - command:
         - ../test-infra/tools/automator/automator.sh
-        - --org=$ORG
+        - --org=istio
         - --repo=istio
         - '--title=Automator: update proxy@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
         - --labels=auto-merge,release-notes-none
@@ -300,8 +296,6 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: ORG
-          value: istio
         image: gcr.io/istio-testing/build-tools:master-42499d67179f80bbbeb71bc0f793d1b483cf8937
         name: ""
         resources:

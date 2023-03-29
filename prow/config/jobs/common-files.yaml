@@ -11,7 +11,7 @@ jobs:
     types: [postsubmit]
     command:
     - ../test-infra/tools/automator/automator.sh
-    - "--org=$ORG"
+    - --org=istio
     - --repo=test-infra,bots,community,ztunnel
     - "--title=Automator: update common-files@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
     - --labels=auto-merge,release-notes-none
@@ -21,16 +21,13 @@ jobs:
     - --cmd=make update-common && make gen
     requirements: [github]
     repos: [istio/test-infra@master]
-    env:
-    - name: ORG
-      value: istio
     disable_release_branching: true
 
   - name: update-common
     types: [postsubmit]
     command:
     - ../test-infra/tools/automator/automator.sh
-    - "--org=$ORG"
+    - --org=istio
     - --repo=istio,api,tools,release-builder,pkg,client-go,proxy
     - "--title=Automator: update common-files@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
     - --labels=auto-merge,release-notes-none
@@ -40,15 +37,12 @@ jobs:
     - --cmd=make update-common && make gen
     requirements: [github]
     repos: [istio/test-infra@master]
-    env:
-    - name: ORG
-      value: istio
 
   - name: update-common-istio.io
     types: [postsubmit]
     command:
     - ../test-infra/tools/automator/automator.sh
-    - "--org=$ORG"
+    - --org=istio
     - --repo=istio.io
     - "--title=Automator: update common-files@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
     - --labels=auto-merge,release-notes-none
@@ -58,15 +52,12 @@ jobs:
     - --cmd=make update-common && make gen
     requirements: [github]
     repos: [istio/test-infra@master]
-    env:
-    - name: ORG
-      value: istio
 
   - name: update-build-tools-image
     types: [postsubmit]
     command:
     - ../test-infra/tools/automator/automator.sh
-    - "--org=$ORG"
+    - --org=istio
     - --repo=test-infra
     - "--title=Automator: update build-tools:$AUTOMATOR_SRC_BRANCH"
     - --branch=master
@@ -80,6 +71,3 @@ jobs:
     - --source=$AUTOMATOR_ROOT_DIR/files/common/scripts/setup_env.sh
     requirements: [github]
     repos: [istio/test-infra@master]
-    env:
-    - name: ORG
-      value: istio
