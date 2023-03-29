@@ -40,6 +40,7 @@ type Transform struct {
 	Annotations            map[string]string       `json:"annotations,omitempty"`
 	Bucket                 string                  `json:"bucket,omitempty"`
 	Cluster                string                  `json:"cluster,omitempty"`
+	ClusterOverrides       map[string]string       `json:"cluster_overrides,omitempty"`
 	Channel                string                  `json:"channel,omitempty"`
 	SSHKeySecret           string                  `json:"ssh-key-secret,omitempty"`
 	Modifier               string                  `json:"modifier,omitempty"`

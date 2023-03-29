@@ -1,0 +1,22 @@
+postsubmits:
+  istio/istio:
+  - name: job_changed
+    cluster: cluster_changeme
+    spec:
+      containers:
+      - command:
+        - "true"
+        image: gcr.io/istio-testing/build-tools:master-2019-11-14T12-01-13
+  - name: job_with_cluster
+    cluster: cluster_unchanged
+    spec:
+      containers:
+      - command:
+        - "true"
+        image: gcr.io/istio-testing/build-tools:master-2019-11-14T12-01-13
+  - name: job_without_cluster
+    spec:
+      containers:
+      - command:
+        - "true"
+        image: gcr.io/istio-testing/build-tools:master-2019-11-14T12-01-13

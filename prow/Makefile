@@ -10,14 +10,17 @@ PROJECT ?= istio-testing
 PROJECT_ARM ?= istio-prow-build
 PROJECT_BUILD ?= istio-prow-build
 PROJECT_PRIVATE ?= istio-prow-build
+PROJECT_ARM_PRIVATE ?= istio-prow-build
 CLUSTER ?= prow
 CLUSTER_ARM ?= prow-arm
 CLUSTER_BUILD ?= prow
 CLUSTER_PRIVATE ?= prow-private
+CLUSTER_ARM_PRIVATE ?= prow-arm-private
 ZONE    ?= us-west1-a
 ZONE_ARM ?= us-central1-f
 ZONE_BUILD ?= us-west1-a
 ZONE_PRIVATE ?= us-west1-a
+ZONE_ARM_PRIVATE ?= us-central1-f
 
 update-config-dry-run: get-cluster-credentials
 	./recreate_prow_configmaps.py \
@@ -74,6 +77,16 @@ deploy-private: get-private-cluster-credentials
 	kubectl apply -f ./cluster/private/
 
 query-private: get-private-cluster-credentials
+	kubectl cluster-info
+
+get-arm-private-cluster-credentials: PROJECT=$(PROJECT_ARM_PRIVATE)
+get-arm-private-cluster-credentials: CLUSTER=$(CLUSTER_ARM_PRIVATE)
+get-arm-private-cluster-credentials: ZONE=$(ZONE_ARM_PRIVATE)
+
+deploy-arm-private: get-arm-private-cluster-credentials
+	kubectl apply -f ./cluster/private-arm/
+
+query-arm-private: get-arm-private-cluster-credentials
 	kubectl cluster-info
 
 create-istio-deps-configmap: branch ?= master
