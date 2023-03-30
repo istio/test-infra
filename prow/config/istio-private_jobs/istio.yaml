@@ -28,4 +28,16 @@ transforms:
     preset-override-envoy: "true"
     preset-override-deps: master-istio
   job-type: [presubmit, postsubmit]
+  job-denylist: [benchmark-report_istio_postsubmit, release_istio_postsubmit, release-notes_istio, build-base-images_istio, ".*arm64.*"]
+
+  # istio/istio master test jobs(s) - presubmit(s) and postsubmit(s)
+- labels:
+    preset-enable-ssh: "true"
+    preset-enable-netrc: "true"
+    preset-override-envoy: "true"
+    preset-override-deps: master-istio
+  job-type: [presubmit, postsubmit]
+  job-allowlist: [".*arm64.*"]
   job-denylist: [benchmark-report_istio_postsubmit, release_istio_postsubmit, release-notes_istio, build-base-images_istio]
+  cluster: "prow-arm-private"
+
