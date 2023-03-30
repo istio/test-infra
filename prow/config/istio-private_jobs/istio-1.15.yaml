@@ -23,6 +23,7 @@ transforms:
   - release_istio_release-1.15_postsubmit
   - release-notes_istio_release-1.15
   - build-base-images_istio_release-1.15
+  - ".*arm64.*"
   job-type:
   - presubmit
   - postsubmit
@@ -31,3 +32,19 @@ transforms:
     preset-enable-ssh: "true"
     preset-override-deps: release-1.15-istio
     preset-override-envoy: "true"
+- job-denylist:
+    - benchmark-report_istio_release-1.15_postsubmit
+    - release_istio_release-1.15_postsubmit
+    - release-notes_istio_release-1.15
+    - build-base-images_istio_release-1.15
+  job-allowlist:
+    - ".*arm64.*"
+  job-type:
+    - presubmit
+    - postsubmit
+  labels:
+    preset-enable-netrc: "true"
+    preset-enable-ssh: "true"
+    preset-override-deps: release-1.15-istio
+    preset-override-envoy: "true"
+  cluster: "prow-arm-private"
