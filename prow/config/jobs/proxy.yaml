@@ -28,7 +28,7 @@ jobs:
   service_account_name: prowjob-advanced-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit-release.sh]
-  timeout: 4h
+  timeout: 6h
 - name: release-test
   architectures: [arm64]
   env:
@@ -39,7 +39,7 @@ jobs:
   service_account_name: prowjob-advanced-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit-release.sh]
-  timeout: 4h
+  timeout: 6h
   # TODO: get build-pool for arm
   resources: arm
   node_selector:
@@ -50,7 +50,7 @@ jobs:
   types: [presubmit]
   command: [./prow/proxy-presubmit-centos-release.sh]
   image: gcr.io/istio-testing/build-tools-centos:master-42499d67179f80bbbeb71bc0f793d1b483cf8937
-  timeout: 4h
+  timeout: 6h
 
 - name: check-wasm
   service_account_name: prowjob-advanced-sa
@@ -87,7 +87,7 @@ jobs:
   types: [postsubmit]
   command: [./prow/proxy-postsubmit-centos.sh]
   image: gcr.io/istio-testing/build-tools-centos:master-42499d67179f80bbbeb71bc0f793d1b483cf8937
-  timeout: 4h
+  timeout: 6h
 
 - name: update-istio
   types: [postsubmit]
