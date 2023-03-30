@@ -122,63 +122,6 @@ postsubmits:
       preset-enable-ssh: "true"
       preset-override-deps: release-1.16-istio
       preset-override-envoy: "true"
-    name: unit-tests-arm64_istio_release-1.16_postsubmit_pri
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - make
-        - -e
-        - T=-v -count=1
-        - build
-        - racetest
-        - binaries-test
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:release-1.16-197486ebbabeeb1cb4624986c6f6e8ea8f5f0840
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "15"
-            memory: 8Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-      nodeSelector:
-        kubernetes.io/arch: arm64
-        testing: test-pool
-      tolerations:
-      - effect: NoSchedule
-        key: kubernetes.io/arch
-        operator: Equal
-        value: arm64
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^release-1.16$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-enable-ssh: "true"
-      preset-override-deps: release-1.16-istio
-      preset-override-envoy: "true"
     name: integ-telemetry_istio_release-1.16_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -572,78 +515,6 @@ postsubmits:
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^release-1.16$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-enable-ssh: "true"
-      preset-override-deps: release-1.16-istio
-      preset-override-envoy: "true"
-    name: integ-basic-arm64_istio_release-1.16_postsubmit_pri
-    path_alias: istio.io/istio
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.kube.environment
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:release-1.16-197486ebbabeeb1cb4624986c6f6e8ea8f5f0840
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: arm64
-        testing: test-pool
-      tolerations:
-      - effect: NoSchedule
-        key: kubernetes.io/arch
-        operator: Equal
-        value: arm64
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -2172,6 +2043,135 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.16$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: prow-arm-private
+    decorate: true
+    labels:
+      preset-enable-netrc: "true"
+      preset-enable-ssh: "true"
+      preset-override-deps: release-1.16-istio
+      preset-override-envoy: "true"
+    name: unit-tests-arm64_istio_release-1.16_postsubmit_pri
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - -e
+        - T=-v -count=1
+        - build
+        - racetest
+        - binaries-test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:release-1.16-197486ebbabeeb1cb4624986c6f6e8ea8f5f0840
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "15"
+            memory: 8Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: test-pool
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.16$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: prow-arm-private
+    decorate: true
+    labels:
+      preset-enable-netrc: "true"
+      preset-enable-ssh: "true"
+      preset-override-deps: release-1.16-istio
+      preset-override-envoy: "true"
+    name: integ-basic-arm64_istio_release-1.16_postsubmit_pri
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.kube.environment
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:release-1.16-197486ebbabeeb1cb4624986c6f6e8ea8f5f0840
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: test-pool
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
 presubmits:
   istio-private/istio:
   - always_run: true
@@ -2229,66 +2229,6 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
     trigger: ((?m)^/test( | .* )unit-tests,?($|\s.*))|((?m)^/test( | .* )unit-tests_istio_release-1.16,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^release-1.16$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-enable-ssh: "true"
-      preset-override-deps: release-1.16-istio
-      preset-override-envoy: "true"
-    name: unit-tests-arm64_istio_release-1.16_pri
-    path_alias: istio.io/istio
-    rerun_command: /test unit-tests-arm64
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - make
-        - -e
-        - T=-v -count=1
-        - build
-        - racetest
-        - binaries-test
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:release-1.16-197486ebbabeeb1cb4624986c6f6e8ea8f5f0840
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "15"
-            memory: 8Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-      nodeSelector:
-        kubernetes.io/arch: arm64
-        testing: test-pool
-      tolerations:
-      - effect: NoSchedule
-        key: kubernetes.io/arch
-        operator: Equal
-        value: arm64
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )unit-tests-arm64,?($|\s.*))|((?m)^/test( | .* )unit-tests-arm64_istio_release-1.16,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -2907,81 +2847,6 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-ds,?($|\s.*))|((?m)^/test( | .* )integ-ds_istio_release-1.16,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^release-1.16$
-    clone_uri: git@github.com:istio-private/istio.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-enable-ssh: "true"
-      preset-override-deps: release-1.16-istio
-      preset-override-envoy: "true"
-    name: integ-basic-arm64_istio_release-1.16_pri
-    path_alias: istio.io/istio
-    rerun_command: /test integ-basic-arm64
-    spec:
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.kube.environment
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:release-1.16-197486ebbabeeb1cb4624986c6f6e8ea8f5f0840
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: arm64
-        testing: test-pool
-      tolerations:
-      - effect: NoSchedule
-        key: kubernetes.io/arch
-        operator: Equal
-        value: arm64
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-    trigger: ((?m)^/test( | .* )integ-basic-arm64,?($|\s.*))|((?m)^/test( | .* )integ-basic-arm64_istio_release-1.16,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -3867,3 +3732,138 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
     trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_istio_release-1.16,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.16$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: prow-arm-private
+    decorate: true
+    labels:
+      preset-enable-netrc: "true"
+      preset-enable-ssh: "true"
+      preset-override-deps: release-1.16-istio
+      preset-override-envoy: "true"
+    name: unit-tests-arm64_istio_release-1.16_pri
+    path_alias: istio.io/istio
+    rerun_command: /test unit-tests-arm64
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - -e
+        - T=-v -count=1
+        - build
+        - racetest
+        - binaries-test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:release-1.16-197486ebbabeeb1cb4624986c6f6e8ea8f5f0840
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "15"
+            memory: 8Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: test-pool
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )unit-tests-arm64,?($|\s.*))|((?m)^/test( | .* )unit-tests-arm64_istio_release-1.16,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.16$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: prow-arm-private
+    decorate: true
+    labels:
+      preset-enable-netrc: "true"
+      preset-enable-ssh: "true"
+      preset-override-deps: release-1.16-istio
+      preset-override-envoy: "true"
+    name: integ-basic-arm64_istio_release-1.16_pri
+    path_alias: istio.io/istio
+    rerun_command: /test integ-basic-arm64
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.kube.environment
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:release-1.16-197486ebbabeeb1cb4624986c6f6e8ea8f5f0840
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: test-pool
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )integ-basic-arm64,?($|\s.*))|((?m)^/test( | .* )integ-basic-arm64_istio_release-1.16,?($|\s.*))
