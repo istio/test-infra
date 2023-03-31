@@ -404,64 +404,6 @@ presubmits:
       timeout: 6h0m0s
     labels:
       preset-enable-netrc: "true"
-    name: release-test-arm64_proxy_master_priv
-    path_alias: istio.io/proxy
-    rerun_command: /test release-test-arm64
-    spec:
-      containers:
-      - command:
-        - ./prow/proxy-presubmit-release.sh
-        env:
-        - name: ARCH_SUFFIX
-          value: arm64
-        - name: BUILD_ENVOY_BINARY_ONLY
-          value: "1"
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: BAZEL_BUILD_RBE_INSTANCE
-        - name: ENVOY_PREFIX
-          value: envoy
-        - name: ENVOY_REPOSITORY
-          value: https://github.com/istio-private/envoy
-        image: gcr.io/istio-testing/build-tools-proxy:master-42499d67179f80bbbeb71bc0f793d1b483cf8937
-        name: ""
-        resources:
-          requests:
-            cpu: "4"
-            memory: 16G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: arm64
-        testing: test-pool
-      serviceAccountName: prowjob-private-sa
-      tolerations:
-      - effect: NoSchedule
-        key: kubernetes.io/arch
-        operator: Equal
-        value: arm64
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )release-test-arm64,?($|\s.*))|((?m)^/test( | .* )release-test-arm64_proxy,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/proxy.git
-    cluster: private
-    decorate: true
-    decoration_config:
-      timeout: 6h0m0s
-    labels:
-      preset-enable-netrc: "true"
     name: release-centos-test_proxy_master_priv
     path_alias: istio.io/proxy
     rerun_command: /test release-centos-test
