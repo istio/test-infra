@@ -395,6 +395,21 @@ jobs:
     requirements: [github]
     repos: [istio/test-infra@master]
 
+  - name: update-ztunnel
+    types: [periodic]
+    interval: 24h
+    command:
+    - ../test-infra/tools/automator/automator.sh
+    - --org=istio
+    - --repo=istio
+    - "--title=Automator: update ztunnel@$AUTOMATOR_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+    - --labels=auto-merge
+    - --modifier=update_ztunnel_dep
+    - --token-path=/etc/github-token/oauth
+    - --cmd=go get istio.io/ztunnel@$AUTOMATOR_BRANCH && go mod tidy && make gen
+    requirements: [github]
+    repos: [istio/test-infra@master]
+
 resources_presets:
   default:
     requests:
