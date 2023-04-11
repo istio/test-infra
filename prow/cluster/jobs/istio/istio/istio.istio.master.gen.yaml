@@ -128,6 +128,68 @@ periodics:
     - name: github
       secret:
         secretName: oauth-token
+- annotations:
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-dashboards: istio_istio_periodic
+    testgrid-num-failures-to-alert: "1"
+  decorate: true
+  extra_refs:
+  - base_ref: master
+    org: istio
+    path_alias: istio.io/istio
+    repo: istio
+  - base_ref: master
+    org: istio
+    path_alias: istio.io/test-infra
+    repo: test-infra
+  interval: 24h
+  name: update-ztunnel_istio_periodic
+  spec:
+    containers:
+    - command:
+      - ../test-infra/tools/automator/automator.sh
+      - --org=istio
+      - --repo=istio
+      - '--title=Automator: update ztunnel@$AUTOMATOR_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+      - --labels=auto-merge
+      - --modifier=update_ztunnel_dep
+      - --token-path=/etc/github-token/oauth
+      - --cmd=go get istio.io/ztunnel@$AUTOMATOR_BRANCH && go mod tidy && make gen
+      env:
+      - name: BUILD_WITH_CONTAINER
+        value: "0"
+      image: gcr.io/istio-testing/build-tools:master-04cfef4d3b89cbc1a32f2983460724ac4f450154
+      name: ""
+      resources:
+        limits:
+          cpu: "5"
+          memory: 24Gi
+        requests:
+          cpu: "5"
+          memory: 3Gi
+      securityContext:
+        privileged: true
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+    nodeSelector:
+      kubernetes.io/arch: amd64
+      testing: test-pool
+    volumes:
+    - hostPath:
+        path: /var/tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+    - name: github
+      secret:
+        secretName: oauth-token
 postsubmits:
   istio/istio:
   - annotations:
