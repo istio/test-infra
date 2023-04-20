@@ -34,7 +34,7 @@ jobs:
     command:
     - entrypoint
     - ../test-infra/tools/automator/automator.sh
-    - --org=istio
+    - --org=$AUTOMATOR_ORG
     - --repo=common-files
     - "--title=Automator: update build-tools image@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
     - --labels=release-notes-none
@@ -49,6 +49,8 @@ jobs:
     # For amd64, publish the manifest for arm64+amd64
     - name: MANIFEST_ARCH
       value: "arm64 amd64"
+    - name: AUTOMATOR_ORG
+      value: istio
   # arm64 build
   - name: containers
     service_account_name: prowjob-advanced-sa

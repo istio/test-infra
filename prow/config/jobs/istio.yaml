@@ -372,7 +372,7 @@ jobs:
     cron: "0 2 * * 0" # run each Sunday at 02:00AM UTC
     command:
     - ../test-infra/tools/automator/automator.sh
-    - --org=istio
+    - --org=$AUTOMATOR_ORG
     - --repo=istio
     - "--title=Automator: update go-control-plane in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
     - --labels=auto-merge,release-notes-none
@@ -382,13 +382,16 @@ jobs:
     disable_release_branching: true
     requirements: [github]
     repos: [istio/test-infra@master]
+    env:
+    - name: AUTOMATOR_ORG
+      value: istio
 
   - name: update-ztunnel
     types: [periodic]
     interval: 24h
     command:
     - ../test-infra/tools/automator/automator.sh
-    - --org=istio
+    - --org=$AUTOMATOR_ORG
     - --repo=istio
     - "--title=Automator: update ztunnel@$AUTOMATOR_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
     - --labels=auto-merge,release-notes-none
@@ -397,6 +400,9 @@ jobs:
     - --cmd=./bin/update_ztunnel.sh
     requirements: [github]
     repos: [istio/test-infra@master]
+    env:
+    - name: AUTOMATOR_ORG
+      value: istio
 
 resources_presets:
   default:

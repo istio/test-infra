@@ -95,7 +95,7 @@ jobs:
     cron: "05 15-23 * * 1-5"  # Run at 7:05-15:05 PST (15:05 UTC) Mon-Fri
     command:
     - ./tools/automator/automator.sh
-    - --org=istio
+    - --org=$AUTOMATOR_ORG
     - --repo=test-infra
     - "--title=Automator: bump k8s-prow images"
     - --modifier=bump-k8s-prow-images
@@ -109,3 +109,6 @@ jobs:
     - --tag=v[0-9]{8}-[a-f0-9]{10}
     - --var=image
     requirements: [github]
+    env:
+    - name: AUTOMATOR_ORG
+      value: istio

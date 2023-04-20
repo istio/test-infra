@@ -185,7 +185,7 @@ postsubmits:
       - command:
         - entrypoint
         - ../test-infra/tools/automator/automator.sh
-        - --org=istio
+        - --org=$AUTOMATOR_ORG
         - --repo=common-files
         - '--title=Automator: update build-tools image@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
         - --labels=release-notes-none
@@ -193,6 +193,8 @@ postsubmits:
         - --token-path=/etc/github-token/oauth
         - --script-path=../common-files/bin/create-buildtools-and-update.sh
         env:
+        - name: AUTOMATOR_ORG
+          value: istio
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: MANIFEST_ARCH
