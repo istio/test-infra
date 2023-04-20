@@ -308,7 +308,12 @@ work() { (
 
   # Some jobs expect GOPATH setup, so simulate this
   mkdir -p src/istio.io/"$repo"
-  git clone --single-branch --branch "$branch" "https://$user:$token@github.com/$org/$repo.git" src/istio.io/"$repo"
+
+  if ! $dry_run; then
+    git clone --single-branch --branch "$branch" "https://$user:$token@github.com/$org/$repo.git" src/istio.io/"$repo"
+  else
+    git clone --single-branch --branch "$branch" "https://github.com/$org/$repo.git" src/istio.io/"$repo"
+  fi
 
   gopath=${PWD}
   pushd src/istio.io/"$repo"
