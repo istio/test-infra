@@ -3,8 +3,6 @@ branches:
 env:
 - name: BUILD_WITH_CONTAINER
   value: "0"
-- name: BUILD_WITH_CONTAINER
-  value: "0"
 image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
 jobs:
 - command:
@@ -13,9 +11,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:master-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
+  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: test
   node_selector:
     testing: test-pool
@@ -158,9 +154,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:master-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
+  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: release
   node_selector:
     testing: test-pool
