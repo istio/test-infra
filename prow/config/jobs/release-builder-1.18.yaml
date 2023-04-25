@@ -8,10 +8,6 @@ jobs:
 - command:
   - make
   - lint
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: lint
   node_selector:
     testing: test-pool
@@ -154,10 +150,6 @@ jobs:
 - command:
   - make
   - test
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: test
   node_selector:
     testing: test-pool
@@ -300,10 +292,6 @@ jobs:
 - command:
   - make
   - gen-check
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: gencheck
   node_selector:
     testing: test-pool
@@ -446,10 +434,6 @@ jobs:
 - command:
   - entrypoint
   - test/publish.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: dry-run
   node_selector:
     testing: test-pool
@@ -595,10 +579,6 @@ jobs:
   service_account_name: prowjob-advanced-sa
 - command:
   - release/build-warning.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   modifiers:
   - presubmit_optional
   name: build-warning
@@ -745,10 +725,6 @@ jobs:
   - presubmit
 - command:
   - release/publish-warning.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   modifiers:
   - presubmit_optional
   name: publish-warning
@@ -896,10 +872,6 @@ jobs:
 - command:
   - entrypoint
   - release/build.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: build-release
   node_selector:
     testing: test-pool
@@ -1048,10 +1020,6 @@ jobs:
 - command:
   - entrypoint
   - release/publish.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: publish-release
   node_selector:
     testing: test-pool
@@ -1202,13 +1170,10 @@ jobs:
   - release/build.sh
   cron: 0 19 * * *
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_BASE_IMAGES
     value: "true"
   - name: VERSION
-    value: master
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
+    value: release-1.18
   name: build-base-images
   node_selector:
     testing: test-pool

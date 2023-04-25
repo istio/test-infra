@@ -16,10 +16,6 @@ jobs:
   - build
   - racetest
   - binaries-test
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: unit-tests
   node_selector:
     testing: test-pool
@@ -176,10 +172,6 @@ jobs:
 - command:
   - entrypoint
   - prow/release-test.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: release-test
   node_selector:
     testing: test-pool
@@ -340,10 +332,6 @@ jobs:
 - command:
   - entrypoint
   - prow/release-commit.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: release
   node_selector:
     testing: test-pool
@@ -505,10 +493,6 @@ jobs:
   - entrypoint
   - make
   - benchtest
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   modifiers:
   - presubmit_optional
   - presubmit_skipped
@@ -672,10 +656,6 @@ jobs:
   - make
   - benchtest
   - report-benchtest
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: benchmark-report
   node_selector:
     testing: test-pool
@@ -837,11 +817,8 @@ jobs:
   - prow/integ-suite-kind.sh
   - test.integration.pilot.kube.presubmit
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.istio.enableCNI=true '
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-cni
   node_selector:
     testing: test-pool
@@ -1001,10 +978,6 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.telemetry.kube
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-telemetry
   node_selector:
     testing: test-pool
@@ -1164,10 +1137,6 @@ jobs:
   - --topology
   - MULTICLUSTER
   - test.integration.telemetry.kube
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-telemetry-mc
   node_selector:
     testing: test-pool
@@ -1331,11 +1300,8 @@ jobs:
   - prow/config/topology/external-istiod.json
   - test.integration.telemetry.kube
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: INTEGRATION_TEST_FLAGS
     value: --istio.test.skipVM
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-telemetry-istiodremote
   node_selector:
     testing: test-pool
@@ -1495,11 +1461,8 @@ jobs:
   - prow/integ-suite-kind.sh
   - test.integration.kube.environment
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: VARIANT
     value: distroless
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-distroless
   node_selector:
     testing: test-pool
@@ -1658,13 +1621,10 @@ jobs:
   - prow/integ-suite-kind.sh
   - test.integration.kube.environment
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: DOCKER_IN_DOCKER_IPV6_ENABLED
     value: "true"
   - name: IP_FAMILY
     value: ipv6
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-ipv6
   node_selector:
     testing: test-pool
@@ -1823,13 +1783,10 @@ jobs:
   - prow/integ-suite-kind.sh
   - test.integration.kube.environment
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: DOCKER_IN_DOCKER_IPV6_ENABLED
     value: "true"
   - name: IP_FAMILY
     value: dual
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-ds
   node_selector:
     testing: test-pool
@@ -1989,10 +1946,6 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.kube.environment
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-basic
   node_selector:
     testing: test-pool
@@ -2150,10 +2103,6 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.operator.kube
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-operator-controller
   node_selector:
     testing: test-pool
@@ -2311,10 +2260,6 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.pilot.kube
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-pilot
   node_selector:
     testing: test-pool
@@ -2473,11 +2418,8 @@ jobs:
   - prow/integ-suite-kind.sh
   - test.integration.pilot.kube
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: GRPC_ECHO_IMAGE
     value: grpctesting/istio_echo_cpp
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-pilot-cpp
   node_selector:
     testing: test-pool
@@ -2639,10 +2581,6 @@ jobs:
   - --topology
   - MULTICLUSTER
   - test.integration.pilot.kube
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-pilot-multicluster
   node_selector:
     testing: test-pool
@@ -2806,11 +2744,8 @@ jobs:
   - prow/config/topology/external-istiod.json
   - test.integration.pilot.kube
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: INTEGRATION_TEST_FLAGS
     value: --istio.test.skipVM
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-pilot-istiodremote
   node_selector:
     testing: test-pool
@@ -2974,11 +2909,8 @@ jobs:
   - prow/config/topology/external-istiod-multicluster.json
   - test.integration.pilot.kube
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: INTEGRATION_TEST_FLAGS
     value: --istio.test.skipVM
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-pilot-istiodremote-mc
   node_selector:
     testing: test-pool
@@ -3137,10 +3069,6 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.security.kube
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-security
   node_selector:
     testing: test-pool
@@ -3299,10 +3227,6 @@ jobs:
   - prow/integ-suite-kind.sh
   - test.integration-fuzz.security.fuzz.kube
   cron: 0 7 * * *
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-security-fuzz
   node_selector:
     testing: test-pool
@@ -3464,10 +3388,6 @@ jobs:
   - --topology
   - MULTICLUSTER
   - test.integration.security.kube
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-security-multicluster
   node_selector:
     testing: test-pool
@@ -3631,11 +3551,8 @@ jobs:
   - prow/config/topology/external-istiod.json
   - test.integration.security.kube
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: INTEGRATION_TEST_FLAGS
     value: --istio.test.skipVM
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-security-istiodremote
   node_selector:
     testing: test-pool
@@ -3797,11 +3714,8 @@ jobs:
   - prow/config/ambient-sc.yaml
   - test.integration.ambient.kube
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: INTEGRATION_TEST_FLAGS
     value: --istio.test.ambient
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-ambient
   node_selector:
     testing: test-pool
@@ -3959,10 +3873,6 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.helm.kube
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-helm
   node_selector:
     testing: test-pool
@@ -4125,11 +4035,8 @@ jobs:
   - prow/config/mixedlb-service.yaml
   - test.integration.kube
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-k8s-120
   node_selector:
     testing: test-pool
@@ -4295,11 +4202,8 @@ jobs:
   - prow/config/mixedlb-service.yaml
   - test.integration.kube
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-k8s-121
   node_selector:
     testing: test-pool
@@ -4465,11 +4369,8 @@ jobs:
   - prow/config/mixedlb-service.yaml
   - test.integration.kube
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-k8s-122
   node_selector:
     testing: test-pool
@@ -4633,11 +4534,8 @@ jobs:
   - gcr.io/istio-testing/kind-node:v1.23.1
   - test.integration.kube
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-k8s-123
   node_selector:
     testing: test-pool
@@ -4801,11 +4699,8 @@ jobs:
   - gcr.io/istio-testing/kind-node:v1.24.3
   - test.integration.kube
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-k8s-124
   node_selector:
     testing: test-pool
@@ -4969,11 +4864,8 @@ jobs:
   - gcr.io/istio-testing/kind-node:v1.25.4
   - test.integration.kube
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-k8s-125
   node_selector:
     testing: test-pool
@@ -5137,11 +5029,8 @@ jobs:
   - gcr.io/istio-testing/kind-node:v1.26.3
   - test.integration.kube
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-k8s-126
   node_selector:
     testing: test-pool
@@ -5303,13 +5192,10 @@ jobs:
   - prow/integ-suite-kind.sh
   - test.integration.kube
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: TEST_SELECT
     value: -flaky
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 --istio.test.istio.enableCNI=true '
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: integ-cni
   node_selector:
     testing: test-pool
@@ -5471,11 +5357,8 @@ jobs:
   - prow/integ-suite-kind.sh
   - test.integration.kube
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   modifiers:
   - presubmit_optional
   - presubmit_skipped
@@ -5636,10 +5519,6 @@ jobs:
 - command:
   - make
   - test.integration.analyze
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: analyze-tests
   node_selector:
     testing: test-pool
@@ -5797,10 +5676,6 @@ jobs:
 - command:
   - make
   - lint
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: lint
   node_selector:
     testing: test-pool
@@ -5959,10 +5834,6 @@ jobs:
 - command:
   - make
   - gen-check
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: gencheck
   node_selector:
     testing: test-pool
@@ -6120,16 +5991,12 @@ jobs:
 - command:
   - ../test-infra/tools/check_release_notes.sh
   - --token-path=/etc/github-token/oauth
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: release-notes
   node_selector:
     testing: test-pool
   repos:
   - istio/test-infra@master
-  - istio/tools@master
+  - istio/tools@release-1.18
   requirement_presets:
     cache:
       volumeMounts:
@@ -6286,21 +6153,18 @@ jobs:
   - entrypoint
   - ../release-builder/release/build.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_BASE_IMAGES
     value: "true"
   - name: VERSION
-    value: master
+    value: release-1.18
   - name: ALWAYS_GENERATE_BASE_IMAGE
     value: "true"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: build-base-images
   node_selector:
     testing: test-pool
   regex: ^(docker|pkg/.*)/Dockerfile.([a-zA-Z0-9_]+_)?base(_[a-zA-Z0-9_]+)?$
   repos:
-  - istio/release-builder@master
+  - istio/release-builder@release-1.18
   requirement_presets:
     cache:
       volumeMounts:
@@ -6466,10 +6330,6 @@ jobs:
   - --cmd=go get github.com/envoyproxy/go-control-plane@main && go mod tidy && make
     gen
   cron: 0 2 * * 0
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: update-go-control-plane
   node_selector:
     testing: test-pool
@@ -6636,10 +6496,6 @@ jobs:
   - --modifier=update_ztunnel_dep
   - --token-path=/etc/github-token/oauth
   - --cmd=./bin/update_ztunnel.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   interval: 24h
   name: update-ztunnel
   node_selector:
