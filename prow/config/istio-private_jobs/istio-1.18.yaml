@@ -1,0 +1,49 @@
+defaults:
+  branches:
+  - release-1.18
+  repo-allowlist:
+  - istio
+org: istio
+repo: istio
+transforms:
+- env:
+    DOCKER_HUB: gcr.io/istio-prow-build
+    GCS_BUCKET: istio-private-build/dev
+    HELM_BUCKET: istio-private-build/dev/charts
+  job-allowlist:
+  - release_istio_release-1.18_postsubmit
+  job-type:
+  - postsubmit
+  labels:
+    preset-enable-netrc: "true"
+    preset-enable-ssh: "true"
+    preset-override-deps: release-1.18-istio
+- job-denylist:
+  - benchmark-report_istio_release-1.18_postsubmit
+  - release_istio_release-1.18_postsubmit
+  - release-notes_istio_release-1.18
+  - build-base-images_istio_release-1.18
+  - .*arm64.*_release-1.18
+  job-type:
+  - presubmit
+  - postsubmit
+  labels:
+    preset-enable-netrc: "true"
+    preset-enable-ssh: "true"
+    preset-override-deps: release-1.18-istio
+    preset-override-envoy: "true"
+- cluster: prow-arm-private
+  job-allowlist:
+  - .*arm64.*_release-1.18
+  job-denylist:
+  - benchmark-report_istio_release-1.18_postsubmit
+  - release_istio_release-1.18_postsubmit
+  - release-notes_istio_release-1.18
+  - build-base-images_istio_release-1.18
+  job-type:
+  - presubmit
+  - postsubmit
+  labels:
+    preset-enable-netrc: "true"
+    preset-enable-ssh: "true"
+    preset-override-envoy: "true"
