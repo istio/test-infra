@@ -5996,7 +5996,7 @@ jobs:
     testing: test-pool
   repos:
   - istio/test-infra@master
-  - istio/tools@master
+  - istio/tools@release-1.18
   requirement_presets:
     cache:
       volumeMounts:
@@ -6156,7 +6156,7 @@ jobs:
   - name: BUILD_BASE_IMAGES
     value: "true"
   - name: VERSION
-    value: master
+    value: release-1.18
   - name: ALWAYS_GENERATE_BASE_IMAGE
     value: "true"
   name: build-base-images
@@ -6164,7 +6164,7 @@ jobs:
     testing: test-pool
   regex: ^(docker|pkg/.*)/Dockerfile.([a-zA-Z0-9_]+_)?base(_[a-zA-Z0-9_]+)?$
   repos:
-  - istio/release-builder@master
+  - istio/release-builder@release-1.18
   requirement_presets:
     cache:
       volumeMounts:
