@@ -8,10 +8,6 @@ jobs:
 - command:
   - make
   - presubmit
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: build
   node_selector:
     testing: test-pool
@@ -147,10 +143,6 @@ jobs:
 - command:
   - make
   - gen-check
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: gencheck
   node_selector:
     testing: test-pool
@@ -292,10 +284,6 @@ jobs:
   - --modifier=update_api_dep
   - --token-path=/etc/github-token/oauth
   - --cmd=go get istio.io/api@$AUTOMATOR_SHA && go mod tidy && make clean gen
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: update_api_dep_client_go
   node_selector:
     testing: test-pool
@@ -436,10 +424,6 @@ jobs:
 - command:
   - ../test-infra/tools/check_release_notes.sh
   - --token-path=/etc/github-token/oauth
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   modifiers:
   - presubmit_optional
   name: release-notes

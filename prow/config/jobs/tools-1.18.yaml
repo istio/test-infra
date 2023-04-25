@@ -8,10 +8,6 @@ jobs:
 - command:
   - make
   - build
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: build
   node_selector:
     testing: test-pool
@@ -154,10 +150,6 @@ jobs:
 - command:
   - make
   - lint
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: lint
   node_selector:
     testing: test-pool
@@ -300,10 +292,6 @@ jobs:
 - command:
   - make
   - test
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: test
   node_selector:
     testing: test-pool
@@ -446,10 +434,6 @@ jobs:
 - command:
   - make
   - gen-check
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: gencheck
   node_selector:
     testing: test-pool
@@ -600,11 +584,8 @@ jobs:
   - --token-path=/etc/github-token/oauth
   - --script-path=../common-files/bin/create-buildtools-and-update.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: MANIFEST_ARCH
     value: arm64 amd64
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: containers
   node_selector:
     testing: test-pool
@@ -761,10 +742,7 @@ jobs:
   - make
   - containers
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: MANIFEST_ARCH
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: containers
   node_selector:
     testing: test-pool
@@ -914,10 +892,6 @@ jobs:
   - entrypoint
   - make
   - containers-test
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: containers-test
   node_selector:
     testing: test-pool
@@ -1069,10 +1043,6 @@ jobs:
   - entrypoint
   - make
   - containers-test
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: containers-test
   node_selector:
     testing: test-pool
@@ -1224,10 +1194,6 @@ jobs:
   - -C
   - perf_dashboard
   - deploy
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: deploy-perf-dashboard
   node_selector:
     testing: test-pool

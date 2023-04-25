@@ -7,10 +7,6 @@ image: gcr.io/istio-testing/build-tools-proxy:release-1.18-9bab62ff1c9c252ed3189
 jobs:
 - command:
   - ./prow/proxy-presubmit.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:master-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: test
   node_selector:
     testing: build-pool
@@ -153,10 +149,6 @@ jobs:
   - presubmit
 - command:
   - ./prow/proxy-presubmit-asan.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:master-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: test-asan
   node_selector:
     testing: build-pool
@@ -299,10 +291,6 @@ jobs:
   - presubmit
 - command:
   - ./prow/proxy-presubmit-tsan.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:master-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: test-tsan
   node_selector:
     testing: build-pool
@@ -446,9 +434,6 @@ jobs:
 - command:
   - ./prow/proxy-presubmit-release.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:master-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: release-test
   node_selector:
     testing: build-pool
@@ -594,13 +579,10 @@ jobs:
   command:
   - ./prow/proxy-presubmit-release.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: ARCH_SUFFIX
     value: $(params.arch)
   - name: BUILD_ENVOY_BINARY_ONLY
     value: "1"
-  image: gcr.io/istio-testing/build-tools-proxy:master-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: release-test
   node_selector:
     testing: test-pool
@@ -744,10 +726,7 @@ jobs:
   - presubmit
 - command:
   - ./prow/proxy-presubmit-centos-release.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-centos:master-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
+  image: gcr.io/istio-testing/build-tools-centos:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: release-centos-test
   node_selector:
     testing: build-pool
@@ -891,10 +870,6 @@ jobs:
 - command:
   - entrypoint
   - ./prow/proxy-presubmit-wasm.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:master-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: check-wasm
   node_selector:
     testing: build-pool
@@ -1039,10 +1014,6 @@ jobs:
 - command:
   - entrypoint
   - ./prow/proxy-postsubmit.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:master-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: release
   node_selector:
     testing: build-pool
@@ -1190,13 +1161,10 @@ jobs:
   - entrypoint
   - ./prow/proxy-postsubmit.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: ARCH_SUFFIX
     value: $(params.arch)
   - name: BUILD_ENVOY_BINARY_ONLY
     value: "1"
-  image: gcr.io/istio-testing/build-tools-proxy:master-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: release
   node_selector:
     testing: test-pool
@@ -1341,10 +1309,7 @@ jobs:
   - postsubmit
 - command:
   - ./prow/proxy-postsubmit-centos.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-centos:master-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
+  image: gcr.io/istio-testing/build-tools-centos:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: release-centos
   node_selector:
     testing: build-pool
@@ -1495,9 +1460,6 @@ jobs:
   - --token-path=/etc/github-token/oauth
   - --git-exclude=^common/
   - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: update-istio
   node_selector:
@@ -1650,9 +1612,6 @@ jobs:
   - --modifier=update_envoy_dep
   - --token-path=/etc/github-token/oauth
   - --cmd=UPDATE_BRANCH=main scripts/update_envoy.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   interval: 24h
   name: update-proxy
@@ -1807,9 +1766,6 @@ jobs:
   - --token-path=/etc/github-token/oauth
   - --cmd=go get github.com/envoyproxy/go-control-plane@main && go mod tidy
   cron: 0 2 * * 0
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
   name: update-go-control-plane
   node_selector:
