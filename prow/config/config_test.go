@@ -154,7 +154,7 @@ func TestConfig(t *testing.T) {
 			org:                "istio",
 			repo:               "test-infra",
 			branch:             "master",
-			expectedContexts:   []string{"cla/google"},
+			expectedContexts:   []string{"EasyCLA"},
 			unexpectedContexts: []string{"merges-blocked-need-admin"},
 		},
 		{
