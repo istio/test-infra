@@ -3,7 +3,7 @@ branches:
 env:
 - name: BUILD_WITH_CONTAINER
   value: "0"
-image: gcr.io/istio-testing/build-tools-proxy:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
+image: gcr.io/istio-testing/build-tools-proxy:release-1.18-807663ab9e27f9d2bab5a7a78bcbecbd0e7ba17d
 jobs:
 - command:
   - ./prow/proxy-presubmit.sh
@@ -726,7 +726,7 @@ jobs:
   - presubmit
 - command:
   - ./prow/proxy-presubmit-centos-release.sh
-  image: gcr.io/istio-testing/build-tools-centos:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
+  image: gcr.io/istio-testing/build-tools-centos:release-1.18-807663ab9e27f9d2bab5a7a78bcbecbd0e7ba17d
   name: release-centos-test
   node_selector:
     testing: build-pool
@@ -1309,7 +1309,7 @@ jobs:
   - postsubmit
 - command:
   - ./prow/proxy-postsubmit-centos.sh
-  image: gcr.io/istio-testing/build-tools-centos:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
+  image: gcr.io/istio-testing/build-tools-centos:release-1.18-807663ab9e27f9d2bab5a7a78bcbecbd0e7ba17d
   name: release-centos
   node_selector:
     testing: build-pool
@@ -1460,7 +1460,7 @@ jobs:
   - --token-path=/etc/github-token/oauth
   - --git-exclude=^common/
   - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
+  image: gcr.io/istio-testing/build-tools:release-1.18-807663ab9e27f9d2bab5a7a78bcbecbd0e7ba17d
   name: update-istio
   node_selector:
     testing: build-pool
@@ -1612,7 +1612,7 @@ jobs:
   - --modifier=update_envoy_dep
   - --token-path=/etc/github-token/oauth
   - --cmd=UPDATE_BRANCH=release/v1.26 scripts/update_envoy.sh
-  image: gcr.io/istio-testing/build-tools:release-1.18-9bab62ff1c9c252ed3189a6cb4eb0bec674ad3a1
+  image: gcr.io/istio-testing/build-tools:release-1.18-807663ab9e27f9d2bab5a7a78bcbecbd0e7ba17d
   interval: 24h
   name: update-proxy
   node_selector:
