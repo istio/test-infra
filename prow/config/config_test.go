@@ -72,7 +72,7 @@ func TestConfig(t *testing.T) {
 			repo:   "istio",
 			branch: "master",
 			expectedContexts: []string{
-				"cla/google",
+				"EasyCLA",
 			},
 		},
 		{
