@@ -1240,6 +1240,77 @@ postsubmits:
       preset-enable-ssh: "true"
       preset-override-deps: master-istio
       preset-override-envoy: "true"
+    name: integ-ambient-ebpf_istio_postsubmit_pri
+    path_alias: istio.io/istio
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --kind-config
+        - prow/config/ambient-sc.yaml
+        - test.integration.ambient.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: INTEGRATION_TEST_FLAGS
+          value: --istio.test.ambient --istio.test.ambientEbpf
+        image: gcr.io/istio-testing/build-tools:master-c4f9ac7a69307e31470edf45463bf9ef95ef4af1
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-netrc: "true"
+      preset-enable-ssh: "true"
+      preset-override-deps: master-istio
+      preset-override-envoy: "true"
     name: integ-helm_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -3345,6 +3416,80 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-ambient,?($|\s.*))|((?m)^/test( | .* )integ-ambient_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-netrc: "true"
+      preset-enable-ssh: "true"
+      preset-override-deps: master-istio
+      preset-override-envoy: "true"
+    name: integ-ambient-ebpf_istio_pri
+    path_alias: istio.io/istio
+    rerun_command: /test integ-ambient-ebpf
+    spec:
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --kind-config
+        - prow/config/ambient-sc.yaml
+        - test.integration.ambient.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: INTEGRATION_TEST_FLAGS
+          value: --istio.test.ambient --istio.test.ambientEbpf
+        image: gcr.io/istio-testing/build-tools:master-c4f9ac7a69307e31470edf45463bf9ef95ef4af1
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )integ-ambient-ebpf,?($|\s.*))|((?m)^/test( | .* )integ-ambient-ebpf_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
