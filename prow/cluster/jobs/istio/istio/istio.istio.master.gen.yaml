@@ -3861,6 +3861,7 @@ presubmits:
     spec:
       containers:
       - command:
+        - entrypoint
         - make
         - bookinfo.build
         env:
@@ -3884,6 +3885,8 @@ presubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3892,4 +3895,6 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - emptyDir: {}
+        name: docker-root
     trigger: ((?m)^/test( | .* )bookinfo-build,?($|\s.*))|((?m)^/test( | .* )bookinfo-build_istio,?($|\s.*))

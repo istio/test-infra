@@ -364,8 +364,9 @@ jobs:
 
   - name: bookinfo-build
     types: [presubmit]
-    command: [make, bookinfo.build]
+    command: [entrypoint, make, bookinfo.build]
     regex: '^samples/bookinfo/src/'
+    requirements: [docker]
 
   - name: update-go-control-plane
     types: [periodic]
