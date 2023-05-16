@@ -10,14 +10,14 @@ jobs:
 
   - name: release-test
     types: [presubmit]
-    command: [entrypoint, prow/release-test.sh]
+    command: [entrypoint, make, release.test]
     requirements: [docker]
     resources: dedicated
 
   - name: release
     service_account_name: prowjob-advanced-sa
     types: [postsubmit]
-    command: [entrypoint, prow/release-commit.sh]
+    command: [entrypoint, make, release.commit]
     requirements: [docker]
     resources: dedicated
 

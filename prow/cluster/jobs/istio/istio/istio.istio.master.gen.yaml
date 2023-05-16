@@ -305,7 +305,8 @@ postsubmits:
       containers:
       - command:
         - entrypoint
-        - prow/release-commit.sh
+        - make
+        - release.commit
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -2317,7 +2318,8 @@ presubmits:
       containers:
       - command:
         - entrypoint
-        - prow/release-test.sh
+        - make
+        - release.test
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
