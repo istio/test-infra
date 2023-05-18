@@ -139,7 +139,7 @@ postsubmits:
       containers:
       - command:
         - ../test-infra/tools/automator/automator.sh
-        - --org=istio
+        - --org=$AUTOMATOR_ORG
         - --repo=istio
         - '--title=Automator: update istio/client-go@$AUTOMATOR_SRC_BRANCH dependency
           in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
@@ -150,6 +150,8 @@ postsubmits:
         - --cmd=go get istio.io/client-go@$AUTOMATOR_SHA && go mod tidy && make clean
           gen
         env:
+        - name: AUTOMATOR_ORG
+          value: istio
         - name: BUILD_WITH_CONTAINER
           value: "0"
         image: gcr.io/istio-testing/build-tools:master-d1c937bacd5fd54df479b065f2e56f3d643f68cb

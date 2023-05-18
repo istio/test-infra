@@ -20,7 +20,7 @@ jobs:
     types: [postsubmit]
     command:
     - ../test-infra/tools/automator/automator.sh
-    - --org=istio
+    - --org=$AUTOMATOR_ORG
     - --repo=istio
     - "--title=Automator: update istio/pkg@$AUTOMATOR_SRC_BRANCH dependency in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
     - --labels=auto-merge,release-notes-none
@@ -30,3 +30,6 @@ jobs:
     - --cmd=go get istio.io/pkg@$AUTOMATOR_SHA && go mod tidy && make clean gen
     requirements: [github]
     repos: [istio/test-infra@master]
+    env:
+    - name: AUTOMATOR_ORG
+      value: istio

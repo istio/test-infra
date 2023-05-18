@@ -16,7 +16,7 @@ periodics:
     containers:
     - command:
       - ./tools/automator/automator.sh
-      - --org=istio
+      - --org=$AUTOMATOR_ORG
       - --repo=test-infra
       - '--title=Automator: bump k8s-prow images'
       - --modifier=bump-k8s-prow-images
@@ -30,6 +30,8 @@ periodics:
       - --tag=v[0-9]{8}-[a-f0-9]{10}
       - --var=image
       env:
+      - name: AUTOMATOR_ORG
+        value: istio
       - name: BUILD_WITH_CONTAINER
         value: "0"
       image: gcr.io/istio-testing/build-tools:master-d1c937bacd5fd54df479b065f2e56f3d643f68cb
