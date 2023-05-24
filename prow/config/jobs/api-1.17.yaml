@@ -3,12 +3,12 @@ branches:
 env:
 - name: BUILD_WITH_CONTAINER
   value: "0"
-image: gcr.io/istio-testing/build-tools:release-1.17-b938206b41ccff82ce27b738eefae2e03c6075dc
+image: gcr.io/istio-testing/build-tools:release-1.17-9032e66ef91b6cccd5883fb89bb43af791050ba4
 jobs:
 - command:
   - make
   - presubmit
-  image: gcr.io/istio-testing/build-tools:release-1.17-b938206b41ccff82ce27b738eefae2e03c6075dc
+  image: gcr.io/istio-testing/build-tools:release-1.17-9032e66ef91b6cccd5883fb89bb43af791050ba4
   name: build
   node_selector:
     testing: test-pool
@@ -144,7 +144,7 @@ jobs:
 - command:
   - make
   - gen-check
-  image: gcr.io/istio-testing/build-tools:release-1.17-b938206b41ccff82ce27b738eefae2e03c6075dc
+  image: gcr.io/istio-testing/build-tools:release-1.17-9032e66ef91b6cccd5883fb89bb43af791050ba4
   name: gencheck
   node_selector:
     testing: test-pool
@@ -286,7 +286,7 @@ jobs:
   - --modifier=update_api_dep
   - --token-path=/etc/github-token/oauth
   - --cmd=go get istio.io/api@$AUTOMATOR_SHA && go mod tidy && make clean gen
-  image: gcr.io/istio-testing/build-tools:release-1.17-b938206b41ccff82ce27b738eefae2e03c6075dc
+  image: gcr.io/istio-testing/build-tools:release-1.17-9032e66ef91b6cccd5883fb89bb43af791050ba4
   name: update_api_dep_client_go
   node_selector:
     testing: test-pool
@@ -427,7 +427,7 @@ jobs:
 - command:
   - ../test-infra/tools/check_release_notes.sh
   - --token-path=/etc/github-token/oauth
-  image: gcr.io/istio-testing/build-tools:release-1.17-b938206b41ccff82ce27b738eefae2e03c6075dc
+  image: gcr.io/istio-testing/build-tools:release-1.17-9032e66ef91b6cccd5883fb89bb43af791050ba4
   modifiers:
   - presubmit_optional
   name: release-notes
