@@ -17,9 +17,8 @@ resource "google_container_cluster" "prow" {
 
   cluster_ipv4_cidr = "10.44.0.0/14"
 
-  enable_shielded_nodes = false
-  enable_legacy_abac    = true
-  location              = "us-west1-a"
+  enable_legacy_abac = true
+  location           = "us-west1-a"
 
   logging_config {
     enable_components = ["SYSTEM_COMPONENTS", "WORKLOADS"]
@@ -49,7 +48,7 @@ resource "google_container_cluster" "prow" {
 
   networking_mode = "ROUTES"
 
-  node_version = "1.24.12-gke.500"
+  node_version = "1.24.12-gke.1000"
 
   private_cluster_config {
     enable_private_endpoint = false
@@ -69,6 +68,12 @@ resource "google_container_cluster" "prow" {
 
   workload_identity_config {
     workload_pool = "istio-testing.svc.id.goog"
+  }
+
+  # Cluster is so old this doesn't exist in our cluster API.
+  # Probably we can explicit set this to false to make things normal, for now ignore it.
+  lifecycle {
+    ignore_changes = [enable_shielded_nodes, timeouts]
   }
 }
 
@@ -122,5 +127,5 @@ resource "google_container_node_pool" "prow_pool" {
     max_unavailable = 0
   }
 
-  version = "1.24.12-gke.500"
+  version = "1.24.12-gke.1000"
 }
