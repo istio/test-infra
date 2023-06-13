@@ -21,13 +21,16 @@ Istio infrastructure spans a variety of platforms, but is primarily hosted on GC
 
 ### `istio-testing` GCP Project
 
-This project hosts:
+`istio-testing` is a bit of a kitchen sync for various Istio testing efforts.
+
+Most importantly, this project hosts:
 * Prow control plane cluster
 * gcr.io/istio-testing, used for hosting all our development builds (and testing tools)
 
 ### `istio-prow-build` GCP Project
 
-This project contains our prow *build* clusters.
+This project contains our prow *build* clusters primary. This includes our public and private build infrastructure.
+Additionally, private artifacts are stored in this project.
 
 ## Using terraform
 
