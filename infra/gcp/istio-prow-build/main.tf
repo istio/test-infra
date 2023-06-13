@@ -1,8 +1,4 @@
-
 locals {
-  project_id = "istio-prow-build"
-}
-
-data "google_organization" "org" {
-  domain = "google.com"
+  project_id     = "istio-prow-build"
+  project_number = "560427374064"
 }
