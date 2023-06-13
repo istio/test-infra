@@ -45,6 +45,9 @@ terraform apply # Actually apply changes
 
 Due to our current mixed state, generally its best to run `terraform plan` _before_ making any changes to detect any drift that may have occurred.
 
+To apply changes, first submit a PR with the `terraform plan` output attached.
+Once it is approved and merge, `terraform apply` can be run.
+
 ### Structure
 
 Each project has its own folder, grouped by provider type.
