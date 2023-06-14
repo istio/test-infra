@@ -34,6 +34,10 @@ Most importantly, this project hosts:
 This project contains our prow *build* clusters primary. This includes our public and private build infrastructure.
 Additionally, private artifacts are stored in this project.
 
+### `istio-prerelease-testing` GCP Project
+
+This hosts `gcr.io/istio-prerelease-testing` and nothing else.
+
 ## Using terraform
 
 Currently, terraform configuration is applied by humans.
