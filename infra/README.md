@@ -14,6 +14,8 @@ Istio infrastructure spans a variety of platforms, but is primarily hosted on GC
 
 `istio-io` hosts:
 * GCS bucket for terraform state (`istio-terraform`)
+* GCS buckets for istio releases
+* DNS configuration for istio.io
 
 ### `istio-release` GCP Project
 
