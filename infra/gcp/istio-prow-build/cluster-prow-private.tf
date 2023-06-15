@@ -1,5 +1,6 @@
-# Prow cluster is the core build cluster. Most jobs end up running here
-resource "google_container_cluster" "prow" {
+# Prow private cluster is the private mirror of the "prow" cluster.
+# Access to this is restricted to only private infrastructure.
+resource "google_container_cluster" "prow_private" {
   addons_config {
     horizontal_pod_autoscaling {
       disabled = false
@@ -26,22 +27,14 @@ resource "google_container_cluster" "prow" {
   enable_shielded_nodes     = false
 
   ip_allocation_policy {
-    cluster_ipv4_cidr_block  = "10.44.0.0/14"
-    services_ipv4_cidr_block = "10.0.0.0/20"
+    cluster_ipv4_cidr_block  = "10.4.0.0/14"
+    services_ipv4_cidr_block = "10.2.0.0/20"
   }
 
   location = "us-west1-a"
 
   logging_config {
     enable_components = ["SYSTEM_COMPONENTS", "WORKLOADS"]
-  }
-
-  maintenance_policy {
-    recurring_window {
-      end_time   = "2021-01-12T08:00:00Z"
-      recurrence = "FREQ=WEEKLY;BYDAY=SA,SU"
-      start_time = "2021-01-11T08:00:00Z"
-    }
   }
 
   master_auth {
@@ -54,7 +47,7 @@ resource "google_container_cluster" "prow" {
     enable_components = ["SYSTEM_COMPONENTS"]
   }
 
-  name    = "prow"
+  name    = "prow-private"
   network = "projects/istio-prow-build/global/networks/default"
 
   network_policy {
@@ -65,6 +58,14 @@ resource "google_container_cluster" "prow" {
 
   node_version = "1.24.12-gke.500"
 
+  private_cluster_config {
+    enable_private_endpoint = false
+
+    master_global_access_config {
+      enabled = false
+    }
+  }
+
   project = "istio-prow-build"
 
   release_channel {
@@ -72,7 +73,7 @@ resource "google_container_cluster" "prow" {
   }
 
   resource_labels = {
-    role  = "prow"
+    role  = "prow-private"
     owner = "oss-istio"
   }
 
@@ -83,16 +84,14 @@ resource "google_container_cluster" "prow" {
   }
 }
 
-# Prow 'build' node pool is used for large jobs, mostly istio/proxy.
-# Consists of 64 core machines.
-# Note: despite the naming "build" vs "test", a lot of build jobs use the test pool.
-resource "google_container_node_pool" "prow_build" {
+# Mirrors 'prow_build'
+resource "google_container_node_pool" "prow_private_build" {
   autoscaling {
     max_node_count = 10
     min_node_count = 0
   }
 
-  cluster            = "prow"
+  cluster            = "prow-private"
   initial_node_count = 2
   location           = "us-west1-a"
 
@@ -102,11 +101,11 @@ resource "google_container_node_pool" "prow_build" {
   }
 
   max_pods_per_node = 110
-  name              = "istio-build-pool-containerd-n2"
+  name              = "istio-build-pool-containerd"
 
   network_config {
-    pod_ipv4_cidr_block = "10.44.0.0/14"
-    pod_range           = "gke-prow-pods-477396f0"
+    pod_ipv4_cidr_block = "10.4.0.0/14"
+    pod_range           = "gke-prow-private-pods-07555fa6"
   }
 
   node_config {
@@ -118,11 +117,11 @@ resource "google_container_node_pool" "prow_build" {
       testing = "build-pool"
     }
 
-    machine_type = "n1-standard-64"
+    machine_type = "n1-highmem-64"
 
     metadata = {
-      disable-legacy-endpoints = "true"
       testing                  = "build-pool"
+      disable-legacy-endpoints = "true"
     }
 
     oauth_scopes    = ["https://www.googleapis.com/auth/devstorage.read_only", "https://www.googleapis.com/auth/logging.write", "https://www.googleapis.com/auth/monitoring", "https://www.googleapis.com/auth/service.management.readonly", "https://www.googleapis.com/auth/servicecontrol", "https://www.googleapis.com/auth/trace.append"]
@@ -137,6 +136,7 @@ resource "google_container_node_pool" "prow_build" {
     }
   }
 
+  node_count     = 2
   node_locations = ["us-west1-a"]
   project        = "istio-prow-build"
 
@@ -148,18 +148,15 @@ resource "google_container_node_pool" "prow_build" {
   version = "1.24.12-gke.500"
 }
 
-
-# Prow 'test' node pool is used for most jobs
-# Consists of e2-16 nodes.
-# Note: despite the naming "build" vs "test", a lot of build jobs use the test pool.
-resource "google_container_node_pool" "prow_test" {
+# Mirrors 'prow_test'
+resource "google_container_node_pool" "prow_private_test" {
   autoscaling {
-    max_node_count = 60
-    min_node_count = 2
+    max_node_count = 15
+    min_node_count = 0
   }
 
-  cluster            = "prow"
-  initial_node_count = 2
+  cluster            = "prow-private"
+  initial_node_count = 0
   location           = "us-west1-a"
 
   management {
@@ -168,11 +165,11 @@ resource "google_container_node_pool" "prow_test" {
   }
 
   max_pods_per_node = 110
-  name              = "istio-test-pool-e2"
+  name              = "istio-test-pool"
 
   network_config {
-    pod_ipv4_cidr_block = "10.44.0.0/14"
-    pod_range           = "gke-prow-pods-477396f0"
+    pod_ipv4_cidr_block = "10.4.0.0/14"
+    pod_range           = "gke-prow-private-pods-07555fa6"
   }
 
   node_config {
@@ -202,6 +199,7 @@ resource "google_container_node_pool" "prow_test" {
     }
   }
 
+  node_count     = 0
   node_locations = ["us-west1-a"]
   project        = "istio-prow-build"
 
