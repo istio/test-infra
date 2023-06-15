@@ -133,7 +133,7 @@ postsubmits:
       org: istio
       path_alias: istio.io/test-infra
       repo: test-infra
-    name: update_client-go_dep_client-go_release-1.16_postsubmit
+    name: update-client-go-dep_client-go_release-1.16_postsubmit
     path_alias: istio.io/client-go
     spec:
       containers:
@@ -144,7 +144,7 @@ postsubmits:
         - '--title=Automator: update istio/client-go@$AUTOMATOR_SRC_BRANCH dependency
           in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
         - --labels=auto-merge,release-notes-none
-        - --modifier=update_client-go_dep
+        - --modifier=update-client-go-dep
         - --token-path=/etc/github-token/oauth
         - --git-exclude=^common/
         - --cmd=go get istio.io/client-go@$AUTOMATOR_SHA && go mod tidy && make clean

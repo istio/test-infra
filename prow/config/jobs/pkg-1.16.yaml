@@ -529,7 +529,7 @@ jobs:
   - --repo=istio
   - '--title=Automator: update istio/pkg@$AUTOMATOR_SRC_BRANCH dependency in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
   - --labels=auto-merge,release-notes-none
-  - --modifier=update_pkg_dep
+  - --modifier=update-pkg-dep
   - --token-path=/etc/github-token/oauth
   - --git-exclude=^common/
   - --cmd=go get istio.io/pkg@$AUTOMATOR_SHA && go mod tidy && make clean gen
@@ -537,7 +537,7 @@ jobs:
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.16-0b7dd749b128a1dcf3f1a1a0c930cbe686446eb4
-  name: update_pkg_dep
+  name: update-pkg-dep
   node_selector:
     testing: test-pool
   repos:

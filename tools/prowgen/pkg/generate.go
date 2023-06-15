@@ -159,6 +159,13 @@ func validateJobsConfig(fileName string, jobsConfig spec.JobsConfig) error {
 	}
 
 	for _, job := range jobsConfig.Jobs {
+		if jobsConfig.Org == "istio" || jobsConfig.Org == "istio-private" {
+			// Some other orgs may have other naming conventions, but for Istio we use _ as divider between job
+			// name, repo, and type. So exclude it from the name.
+			if strings.Contains(job.Name, "_") {
+				err = multierror.Append(err, fmt.Errorf("%s: job may not contain '_' %v", fileName, job.Name))
+			}
+		}
 		if job.Image == "" {
 			err = multierror.Append(err, fmt.Errorf("%s: image must be set for job %v", fileName, job.Name))
 		}

@@ -508,10 +508,10 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    name: benchmark_check_tools
+    name: benchmark-check_tools
     optional: true
     path_alias: istio.io/tools
-    rerun_command: /test benchmark_check
+    rerun_command: /test benchmark-check
     run_if_changed: ^perf/benchmark/
     spec:
       containers:
@@ -547,7 +547,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )benchmark_check,?($|\s.*))|((?m)^/test( | .* )benchmark_check_tools,?($|\s.*))
+    trigger: ((?m)^/test( | .* )benchmark-check,?($|\s.*))|((?m)^/test( | .* )benchmark-check_tools,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-dashboards: istio_tools
