@@ -13,6 +13,7 @@ periodics:
     repo: release-builder
   name: build-base-images_release-builder_release-1.18_periodic
   spec:
+    automountServiceAccountToken: false
     containers:
     - command:
       - entrypoint
@@ -106,6 +107,7 @@ postsubmits:
     name: lint_release-builder_release-1.18_postsubmit
     path_alias: istio.io/release-builder
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -146,6 +148,7 @@ postsubmits:
     name: test_release-builder_release-1.18_postsubmit
     path_alias: istio.io/release-builder
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -186,6 +189,7 @@ postsubmits:
     name: gencheck_release-builder_release-1.18_postsubmit
     path_alias: istio.io/release-builder
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -227,6 +231,7 @@ postsubmits:
     path_alias: istio.io/release-builder
     run_if_changed: \.go$|\.sh$
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -273,6 +278,7 @@ postsubmits:
     path_alias: istio.io/release-builder
     run_if_changed: ^release/trigger-build$
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -354,6 +360,7 @@ postsubmits:
     path_alias: istio.io/release-builder
     run_if_changed: ^release/trigger-publish$
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -436,6 +443,7 @@ presubmits:
     path_alias: istio.io/release-builder
     rerun_command: /test lint
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -477,6 +485,7 @@ presubmits:
     path_alias: istio.io/release-builder
     rerun_command: /test test
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -518,6 +527,7 @@ presubmits:
     path_alias: istio.io/release-builder
     rerun_command: /test gencheck
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -560,6 +570,7 @@ presubmits:
     rerun_command: /test dry-run
     run_if_changed: \.go$|\.sh$
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -608,6 +619,7 @@ presubmits:
     rerun_command: /test build-warning
     run_if_changed: ^release/trigger-build$
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - release/build-warning.sh
@@ -650,6 +662,7 @@ presubmits:
     rerun_command: /test publish-warning
     run_if_changed: ^release/trigger-publish$
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - release/publish-warning.sh

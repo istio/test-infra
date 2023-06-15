@@ -15,6 +15,7 @@ periodics:
     repo: istio
   name: periodic-job_istio_periodic
   spec:
+    automountServiceAccountToken: false
     containers:
     - args:
       - common
@@ -68,6 +69,7 @@ periodics:
     repo: istio
   name: presubmit-skipped_istio_periodic
   spec:
+    automountServiceAccountToken: false
     containers:
     - command:
       - prow/command.sh
@@ -112,6 +114,7 @@ postsubmits:
     name: test_istio_postsubmit
     run_if_changed: foo.*
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - prow/command.sh
@@ -153,6 +156,7 @@ presubmits:
     rerun_command: /test test
     run_if_changed: foo.*
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - prow/command.sh
@@ -198,6 +202,7 @@ presubmits:
     name: presubmit-kind_istio
     rerun_command: /test presubmit-kind
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - prow/istio-lint.sh
@@ -264,6 +269,7 @@ presubmits:
     name: custom-node-selector_istio
     rerun_command: /test custom-node-selector
     spec:
+      automountServiceAccountToken: false
       containers:
       - args:
         - common
@@ -314,6 +320,7 @@ presubmits:
     name: presubmit-skipped_istio
     rerun_command: /test presubmit-skipped
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - prow/command.sh
@@ -357,6 +364,7 @@ presubmits:
     name: multi-arch_istio
     rerun_command: /test multi-arch
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - prow/command.sh
@@ -397,6 +405,7 @@ presubmits:
     name: multi-arch-arm64_istio
     rerun_command: /test multi-arch-arm64
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - prow/command.sh
@@ -441,6 +450,7 @@ presubmits:
     name: multi-arch-param_istio
     rerun_command: /test multi-arch-param
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - prow/command.sh
@@ -482,6 +492,7 @@ presubmits:
     name: multi-arch-param-arm64_istio
     rerun_command: /test multi-arch-param-arm64
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - prow/command.sh

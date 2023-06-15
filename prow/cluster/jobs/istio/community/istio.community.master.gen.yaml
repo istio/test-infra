@@ -11,6 +11,7 @@ postsubmits:
     name: lint_community_postsubmit
     path_alias: istio.io/community
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - prow/community-lint.sh
@@ -50,6 +51,7 @@ postsubmits:
     name: test_community_postsubmit
     path_alias: istio.io/community
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -92,6 +94,7 @@ postsubmits:
     name: sync-org_community_postsubmit
     path_alias: istio.io/community
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - sh
@@ -140,6 +143,7 @@ presubmits:
     path_alias: istio.io/community
     rerun_command: /test lint
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - prow/community-lint.sh
@@ -180,6 +184,7 @@ presubmits:
     path_alias: istio.io/community
     rerun_command: /test test
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make

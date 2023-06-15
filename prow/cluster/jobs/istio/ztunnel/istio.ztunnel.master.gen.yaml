@@ -11,6 +11,7 @@ postsubmits:
     name: test_ztunnel_postsubmit
     path_alias: istio.io/ztunnel
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -54,6 +55,7 @@ postsubmits:
     name: release_ztunnel_postsubmit
     path_alias: istio.io/ztunnel
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -99,6 +101,7 @@ postsubmits:
     name: release-arm64_ztunnel_postsubmit
     path_alias: istio.io/ztunnel
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -150,6 +153,7 @@ presubmits:
     path_alias: istio.io/ztunnel
     rerun_command: /test test
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make

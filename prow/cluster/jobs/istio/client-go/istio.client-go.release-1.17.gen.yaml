@@ -11,6 +11,7 @@ postsubmits:
     name: build_client-go_release-1.17_postsubmit
     path_alias: istio.io/client-go
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -51,6 +52,7 @@ postsubmits:
     name: lint_client-go_release-1.17_postsubmit
     path_alias: istio.io/client-go
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -91,6 +93,7 @@ postsubmits:
     name: gencheck_client-go_release-1.17_postsubmit
     path_alias: istio.io/client-go
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -136,6 +139,7 @@ postsubmits:
     name: update-client-go-dep_client-go_release-1.17_postsubmit
     path_alias: istio.io/client-go
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ../test-infra/tools/automator/automator.sh
@@ -193,6 +197,7 @@ presubmits:
     path_alias: istio.io/client-go
     rerun_command: /test build
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -234,6 +239,7 @@ presubmits:
     path_alias: istio.io/client-go
     rerun_command: /test lint
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -275,6 +281,7 @@ presubmits:
     path_alias: istio.io/client-go
     rerun_command: /test gencheck
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make

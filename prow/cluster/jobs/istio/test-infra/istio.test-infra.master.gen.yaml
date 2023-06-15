@@ -13,6 +13,7 @@ periodics:
     repo: test-infra
   name: bump-k8s-prow-images_test-infra_periodic
   spec:
+    automountServiceAccountToken: false
     containers:
     - command:
       - ./tools/automator/automator.sh
@@ -75,6 +76,7 @@ postsubmits:
     name: lint_test-infra_postsubmit
     path_alias: istio.io/test-infra
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -115,6 +117,7 @@ postsubmits:
     name: test_test-infra_postsubmit
     path_alias: istio.io/test-infra
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -155,6 +158,7 @@ postsubmits:
     name: gencheck_test-infra_postsubmit
     path_alias: istio.io/test-infra
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -198,6 +202,7 @@ postsubmits:
     path_alias: istio.io/test-infra
     run_if_changed: ^docker/prowbazel/Makefile$
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -250,6 +255,7 @@ postsubmits:
     path_alias: istio.io/test-infra
     run_if_changed: ^authentikos/Makefile$
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -301,6 +307,7 @@ postsubmits:
     path_alias: istio.io/test-infra
     run_if_changed: ^tools/prowgen/.*$
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -352,6 +359,7 @@ postsubmits:
     path_alias: istio.io/test-infra
     run_if_changed: ^tools/prowtrans/.*$
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -402,6 +410,7 @@ presubmits:
     path_alias: istio.io/test-infra
     rerun_command: /test lint
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -443,6 +452,7 @@ presubmits:
     path_alias: istio.io/test-infra
     rerun_command: /test test
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -484,6 +494,7 @@ presubmits:
     path_alias: istio.io/test-infra
     rerun_command: /test gencheck
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make

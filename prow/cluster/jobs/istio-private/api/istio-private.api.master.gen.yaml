@@ -14,6 +14,7 @@ postsubmits:
     name: build_api_postsubmit_pri
     path_alias: istio.io/api
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -57,6 +58,7 @@ postsubmits:
     name: gencheck_api_postsubmit_pri
     path_alias: istio.io/api
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -103,6 +105,7 @@ presubmits:
     path_alias: istio.io/api
     rerun_command: /test build
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -150,6 +153,7 @@ presubmits:
     path_alias: istio.io/api
     rerun_command: /test gencheck
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
