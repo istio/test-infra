@@ -88,7 +88,7 @@ postsubmits:
     branches:
     - ^release-1.16$
     decorate: true
-    name: doc.test.profile_default_istio.io_release-1.16_postsubmit
+    name: doc.test.profile-default_istio.io_release-1.16_postsubmit
     path_alias: istio.io/istio.io
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
@@ -96,7 +96,7 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - doc.test.profile_default
+        - doc.test.profile-default
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -148,7 +148,7 @@ postsubmits:
     branches:
     - ^release-1.16$
     decorate: true
-    name: doc.test.profile_demo_istio.io_release-1.16_postsubmit
+    name: doc.test.profile-demo_istio.io_release-1.16_postsubmit
     path_alias: istio.io/istio.io
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
@@ -156,7 +156,7 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - doc.test.profile_demo
+        - doc.test.profile-demo
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -208,7 +208,7 @@ postsubmits:
     branches:
     - ^release-1.16$
     decorate: true
-    name: doc.test.profile_none_istio.io_release-1.16_postsubmit
+    name: doc.test.profile-none_istio.io_release-1.16_postsubmit
     path_alias: istio.io/istio.io
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
@@ -216,7 +216,7 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - doc.test.profile_none
+        - doc.test.profile-none
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -413,16 +413,16 @@ presubmits:
     branches:
     - ^release-1.16$
     decorate: true
-    name: doc.test.profile_default_istio.io_release-1.16
+    name: doc.test.profile-default_istio.io_release-1.16
     path_alias: istio.io/istio.io
-    rerun_command: /test doc.test.profile_default
+    rerun_command: /test doc.test.profile-default
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
       containers:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - doc.test.profile_default
+        - doc.test.profile-default
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -467,24 +467,24 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )doc.test.profile_default,?($|\s.*))|((?m)^/test( |
-      .* )doc.test.profile_default_istio.io_release-1.16,?($|\s.*))
+    trigger: ((?m)^/test( | .* )doc.test.profile-default,?($|\s.*))|((?m)^/test( |
+      .* )doc.test.profile-default_istio.io_release-1.16,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.16_istio.io
     branches:
     - ^release-1.16$
     decorate: true
-    name: doc.test.profile_demo_istio.io_release-1.16
+    name: doc.test.profile-demo_istio.io_release-1.16
     path_alias: istio.io/istio.io
-    rerun_command: /test doc.test.profile_demo
+    rerun_command: /test doc.test.profile-demo
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
       containers:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - doc.test.profile_demo
+        - doc.test.profile-demo
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -529,24 +529,24 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )doc.test.profile_demo,?($|\s.*))|((?m)^/test( | .*
-      )doc.test.profile_demo_istio.io_release-1.16,?($|\s.*))
+    trigger: ((?m)^/test( | .* )doc.test.profile-demo,?($|\s.*))|((?m)^/test( | .*
+      )doc.test.profile-demo_istio.io_release-1.16,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.16_istio.io
     branches:
     - ^release-1.16$
     decorate: true
-    name: doc.test.profile_none_istio.io_release-1.16
+    name: doc.test.profile-none_istio.io_release-1.16
     path_alias: istio.io/istio.io
-    rerun_command: /test doc.test.profile_none
+    rerun_command: /test doc.test.profile-none
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
       containers:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - doc.test.profile_none
+        - doc.test.profile-none
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -591,8 +591,8 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )doc.test.profile_none,?($|\s.*))|((?m)^/test( | .*
-      )doc.test.profile_none_istio.io_release-1.16,?($|\s.*))
+    trigger: ((?m)^/test( | .* )doc.test.profile-none,?($|\s.*))|((?m)^/test( | .*
+      )doc.test.profile-none_istio.io_release-1.16,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.16_istio.io
