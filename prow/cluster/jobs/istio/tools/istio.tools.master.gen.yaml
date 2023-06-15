@@ -519,53 +519,6 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    name: benchmark-check_tools
-    optional: true
-    path_alias: istio.io/tools
-    rerun_command: /test benchmark-check
-    run_if_changed: ^perf/benchmark/
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - ./perf/benchmark/run_benchmark_job.sh
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: TRIALRUN
-          value: "True"
-        image: gcr.io/istio-testing/build-tools:master-bbe2e62790ecce2acacb4aff74ec44318c09c276
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      serviceAccountName: prowjob-advanced-sa
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )benchmark-check,?($|\s.*))|((?m)^/test( | .* )benchmark-check_tools,?($|\s.*))
-  - always_run: false
-    annotations:
-      testgrid-dashboards: istio_tools
-    branches:
-    - ^master$
-    decorate: true
     name: containers-test_tools
     path_alias: istio.io/tools
     rerun_command: /test containers-test
