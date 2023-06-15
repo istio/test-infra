@@ -16,17 +16,6 @@ jobs:
   - name: gencheck
     command: [make, gen-check]
 
-  - name: benchmark-check
-    service_account_name: prowjob-advanced-sa
-    disable_release_branching: true
-    regex: '^perf/benchmark/'
-    types: [presubmit]
-    command: [entrypoint, ./perf/benchmark/run_benchmark_job.sh]
-    env:
-      - name: TRIALRUN
-        value: "True"
-    modifiers: [presubmit_optional]
-
   # amd64 build
   - name: containers
     service_account_name: prowjob-advanced-sa
