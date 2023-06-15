@@ -70,3 +70,40 @@ gcp
 aws
 └── project-0
 ```
+
+## GCS Buckets
+
+Below catalogs all of the GCS buckets in one
+
+| Bucket                                         | Project                  | Importance | Notes                                                                                          |
+|------------------------------------------------|--------------------------|------------|------------------------------------------------------------------------------------------------|
+| artifacts.istio-release.appspot.com            | istio-release            | Critical   | gcr.io/istio-release                                                                           |
+| istio-release                                  | istio-io                 | Critical   | Production GCS artifacts of our releases                                                       |
+| artifacts.istio-testing.appspot.com            | istio-testing            | Important  | gcr.io/istio-testing                                                                           |
+| istio-build                                    | istio-testing            | Important  | Holds release artifacts for proxy, ztunnel, etc                                                |
+| istio-prow                                     | istio-testing            | Important  | Stores all our test artifacts and results                                                      |
+| istio-testgrid                                 | istio-testing            | Important  | Used by testgrid                                                                               |
+| artifacts.istio-prerelease-testing.appspot.com | istio-prerelease-testing | Important  | gcr.io/istio-prerelease-testing                                                                |
+| artifacts.istio-prow-build.appspot.com         | istio-prow-build         | Important  | gcr.io/istio-prow-build                                                                        |
+| istio-private-build                            | istio-prow-build         | Important  | Private builds for proxy. Mirrors "istio-artifacts"                                            |
+| istio-private-prerelease                       | istio-prow-build         | Important  | Private release-builder, mirrors istio-prerelease                                              |
+| istio-prerelease                               | istio-io                 | Important  | Release builder publishes artifacts here before they are official released                     |
+| istio-release-pipeline-data                    | istio-release            | Legacy     |                                                                                                |
+| e2e-testing-log                                | istio-testing            | Legacy     |                                                                                                |
+| istio-circleci                                 | istio-testing            | Legacy     |                                                                                                |
+| istio-code-coverage                            | istio-testing            | Legacy     |                                                                                                |
+| istio-flakes                                   | istio-testing            | Legacy     |                                                                                                |
+| istio-gists                                    | istio-testing            | Legacy     |                                                                                                |
+| istio-logs                                     | istio-testing            | Legacy     |                                                                                                |
+| istio-presubmit-release-pipeline-data          | istio-testing            | Legacy     |                                                                                                |
+| istio-stats                                    | istio-testing            | Legacy     | This was a oneoff upload                                                                       |
+| istio-testing_cloudbuild                       | istio-testing            | Legacy     |                                                                                                |
+| istio-tools                                    | istio-testing            | Legacy     |                                                                                                |
+| fortio-data                                    | istio-io                 | Legacy     | Old fortio data                                                                                |
+| artifacts.istio-io.appspot.com                 | istio-io                 | Legacy     | gcr.io/istio-io; only used for old artifacts                                                   |
+| istio-io_cloudbuild                            | istio-io                 | Legacy     |                                                                                                |
+| istio-artifacts                                | istio-testing            | Legacy?    | I believe formerly we used this for part of proxy release, now istio-build is used exclusively |
+| istio-build-deps                               | istio-testing            | Legacy?    |                                                                                                |
+| us.artifacts.istio-testing.appspot.com         | istio-testing            | Legacy?    | I am not sure what this is. Its part of GCR somehow                                            |
+| istio-snippets                                 | istio-testing            | Legacy?    | Looks like it may have been used for istio.io tests, but likely not anymore                    |
+| istio-private-artifacts                        | istio-prow-build         | Legacy?    | Private builds for proxy. Mirrors "istio-artifacts"                                            |
