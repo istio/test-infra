@@ -8,6 +8,10 @@ presubmits:
     annotations:
       testgrid-create-test-group: "false"
     spec:
+      automountServiceAccountToken: false
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
       containers:
       - image: gcr.io/k8s-prow/configurator:v20230613-9df263832f
         command:
@@ -24,6 +28,7 @@ presubmits:
         resources:
           requests:
             memory: "1Gi"
+            cpu: 1
 
 postsubmits:
   istio/test-infra:
@@ -52,6 +57,7 @@ postsubmits:
     run_if_changed: ^prow/cluster/(?:gcsweb/|monitoring/|build/|private/|[^/]+\.yaml$)
     spec:
       serviceAccountName: prow-deployer
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -83,3 +89,28 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+
+periodics:
+- interval: 5m
+  name: monitoring-verify-gcsweb
+  decorate: true
+  annotations:
+    testgrid-dashboards: istio_infrastructure
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
+  spec:
+    containers:
+      - image: alpine:3.10.1
+        command:
+          - wget
+        args:
+          - --spider
+          - https://gcsweb.istio.io/gcs/istio-release/
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 100m
+    automountServiceAccountToken: false
+    nodeSelector:
+      kubernetes.io/arch: amd64
+      testing: test-pool
