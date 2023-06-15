@@ -17,6 +17,7 @@ periodics:
     repo: test-infra
   name: update-ref-docs_istio.io_periodic
   spec:
+    automountServiceAccountToken: false
     containers:
     - command:
       - ../test-infra/tools/automator/automator.sh
@@ -78,6 +79,7 @@ periodics:
     repo: test-infra
   name: update-istio-ref_istio.io_periodic
   spec:
+    automountServiceAccountToken: false
     containers:
     - command:
       - ../test-infra/tools/automator/automator.sh
@@ -133,6 +135,7 @@ postsubmits:
     name: lint_istio.io_postsubmit
     path_alias: istio.io/istio.io
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -173,6 +176,7 @@ postsubmits:
     name: gencheck_istio.io_postsubmit
     path_alias: istio.io/istio.io
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -214,6 +218,7 @@ postsubmits:
     path_alias: istio.io/istio.io
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -274,6 +279,7 @@ postsubmits:
     path_alias: istio.io/istio.io
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -334,6 +340,7 @@ postsubmits:
     path_alias: istio.io/istio.io
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -394,6 +401,7 @@ postsubmits:
     path_alias: istio.io/istio.io
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -454,6 +462,7 @@ postsubmits:
     path_alias: istio.io/istio.io
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -517,6 +526,7 @@ presubmits:
     path_alias: istio.io/istio.io
     rerun_command: /test lint
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -558,6 +568,7 @@ presubmits:
     path_alias: istio.io/istio.io
     rerun_command: /test gencheck
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -600,6 +611,7 @@ presubmits:
     rerun_command: /test doc.test.profile-default
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -662,6 +674,7 @@ presubmits:
     rerun_command: /test doc.test.profile-demo
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -724,6 +737,7 @@ presubmits:
     rerun_command: /test doc.test.profile-none
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -786,6 +800,7 @@ presubmits:
     rerun_command: /test doc.test.profile-minimal
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -848,6 +863,7 @@ presubmits:
     rerun_command: /test doc.test.multicluster
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -917,6 +933,7 @@ presubmits:
     path_alias: istio.io/istio.io
     rerun_command: /test update-ref-docs-dry-run
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ../test-infra/tools/automator/automator.sh

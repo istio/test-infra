@@ -445,12 +445,18 @@ func (cli *Client) createJobBase(baseConfig spec.BaseConfig, jobConfig spec.Jobs
 	}
 
 	yes := true
+	no := false
 	jb := config.JobBase{
 		Name:           name,
 		MaxConcurrency: job.MaxConcurrency,
 		Spec: &v1.PodSpec{
 			Containers:   createContainer(jobConfig, job, resources),
 			NodeSelector: job.NodeSelector,
+			// Disable mounting the service account token. None of our jobs should ever be connecting to the API server.
+			// We do use service accounts, but only for GKE workload identity which doesn't require this.
+			// Aside from security concerns, this also triggers https://github.com/kubernetes/kubernetes/issues/99884 which
+			// ends up with `kubectl` being confused about which namespace it should be.
+			AutomountServiceAccountToken: &no,
 		},
 		UtilityConfig: config.UtilityConfig{
 			Decorate:  &yes,

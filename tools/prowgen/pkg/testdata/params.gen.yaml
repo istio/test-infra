@@ -11,6 +11,7 @@ postsubmits:
     name: test-params-job1_istio_release-1.10_postsubmit
     path_alias: istio.io/istio
     spec:
+      automountServiceAccountToken: false
       containers:
       - args:
         - --key1=val1
@@ -54,6 +55,7 @@ postsubmits:
     name: test-params-job2_istio_release-1.10_postsubmit
     path_alias: istio.io/istio
     spec:
+      automountServiceAccountToken: false
       containers:
       - args:
         - --key1=val1
@@ -97,6 +99,7 @@ presubmits:
     path_alias: istio.io/istio
     rerun_command: /test test-params-job1
     spec:
+      automountServiceAccountToken: false
       containers:
       - args:
         - --key1=val1

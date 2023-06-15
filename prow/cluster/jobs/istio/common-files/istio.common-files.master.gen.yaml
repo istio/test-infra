@@ -11,6 +11,7 @@ postsubmits:
     name: lint_common-files_postsubmit
     path_alias: istio.io/common-files
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -56,6 +57,7 @@ postsubmits:
     name: update-common-mainonly_common-files_postsubmit
     path_alias: istio.io/common-files
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ../test-infra/tools/automator/automator.sh
@@ -116,6 +118,7 @@ postsubmits:
     name: update-common_common-files_postsubmit
     path_alias: istio.io/common-files
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ../test-infra/tools/automator/automator.sh
@@ -176,6 +179,7 @@ postsubmits:
     name: update-common-istio.io_common-files_postsubmit
     path_alias: istio.io/common-files
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ../test-infra/tools/automator/automator.sh
@@ -236,6 +240,7 @@ postsubmits:
     name: update-build-tools-image_common-files_postsubmit
     path_alias: istio.io/common-files
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ../test-infra/tools/automator/automator.sh
@@ -297,6 +302,7 @@ presubmits:
     path_alias: istio.io/common-files
     rerun_command: /test lint
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make

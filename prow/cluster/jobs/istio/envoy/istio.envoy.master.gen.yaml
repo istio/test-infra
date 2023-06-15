@@ -13,6 +13,7 @@ presubmits:
     path_alias: istio.io/envoy
     rerun_command: /test test-asan
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ./ci/do_ci.sh
@@ -63,6 +64,7 @@ presubmits:
     path_alias: istio.io/envoy
     rerun_command: /test test-tsan
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ./ci/do_ci.sh
@@ -113,6 +115,7 @@ presubmits:
     path_alias: istio.io/envoy
     rerun_command: /test test-release
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ./ci/do_ci.sh

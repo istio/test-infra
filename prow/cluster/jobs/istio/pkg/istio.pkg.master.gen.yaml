@@ -11,6 +11,7 @@ postsubmits:
     name: build_pkg_postsubmit
     path_alias: istio.io/pkg
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -51,6 +52,7 @@ postsubmits:
     name: lint_pkg_postsubmit
     path_alias: istio.io/pkg
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -91,6 +93,7 @@ postsubmits:
     name: test_pkg_postsubmit
     path_alias: istio.io/pkg
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -131,6 +134,7 @@ postsubmits:
     name: gencheck_pkg_postsubmit
     path_alias: istio.io/pkg
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -173,6 +177,7 @@ presubmits:
     path_alias: istio.io/pkg
     rerun_command: /test build
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -214,6 +219,7 @@ presubmits:
     path_alias: istio.io/pkg
     rerun_command: /test lint
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -255,6 +261,7 @@ presubmits:
     path_alias: istio.io/pkg
     rerun_command: /test test
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -296,6 +303,7 @@ presubmits:
     path_alias: istio.io/pkg
     rerun_command: /test gencheck
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make

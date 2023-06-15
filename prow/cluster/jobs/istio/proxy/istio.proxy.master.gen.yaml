@@ -19,6 +19,7 @@ periodics:
   interval: 24h
   name: update-proxy_proxy_periodic
   spec:
+    automountServiceAccountToken: false
     containers:
     - command:
       - ../test-infra/tools/automator/automator.sh
@@ -80,6 +81,7 @@ periodics:
     repo: test-infra
   name: update-go-control-plane_proxy_periodic
   spec:
+    automountServiceAccountToken: false
     containers:
     - command:
       - ../test-infra/tools/automator/automator.sh
@@ -138,6 +140,7 @@ postsubmits:
     name: release_proxy_postsubmit
     path_alias: istio.io/proxy
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -186,6 +189,7 @@ postsubmits:
     name: release-arm64_proxy_postsubmit
     path_alias: istio.io/proxy
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -239,6 +243,7 @@ postsubmits:
     name: release-centos_proxy_postsubmit
     path_alias: istio.io/proxy
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ./prow/proxy-postsubmit-centos.sh
@@ -286,6 +291,7 @@ postsubmits:
     name: update-istio_proxy_postsubmit
     path_alias: istio.io/proxy
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ../test-infra/tools/automator/automator.sh
@@ -345,6 +351,7 @@ presubmits:
     path_alias: istio.io/proxy
     rerun_command: /test test
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ./prow/proxy-presubmit.sh
@@ -388,6 +395,7 @@ presubmits:
     path_alias: istio.io/proxy
     rerun_command: /test test-asan
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ./prow/proxy-presubmit-asan.sh
@@ -431,6 +439,7 @@ presubmits:
     path_alias: istio.io/proxy
     rerun_command: /test test-tsan
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ./prow/proxy-presubmit-tsan.sh
@@ -474,6 +483,7 @@ presubmits:
     path_alias: istio.io/proxy
     rerun_command: /test release-test
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ./prow/proxy-presubmit-release.sh
@@ -518,6 +528,7 @@ presubmits:
     path_alias: istio.io/proxy
     rerun_command: /test release-test-arm64
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ./prow/proxy-presubmit-release.sh
@@ -567,6 +578,7 @@ presubmits:
     path_alias: istio.io/proxy
     rerun_command: /test release-centos-test
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ./prow/proxy-presubmit-centos-release.sh
@@ -610,6 +622,7 @@ presubmits:
     path_alias: istio.io/proxy
     rerun_command: /test check-wasm
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint

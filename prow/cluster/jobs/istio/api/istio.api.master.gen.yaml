@@ -11,6 +11,7 @@ postsubmits:
     name: build_api_postsubmit
     path_alias: istio.io/api
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -51,6 +52,7 @@ postsubmits:
     name: gencheck_api_postsubmit
     path_alias: istio.io/api
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -96,6 +98,7 @@ postsubmits:
     name: update-api-dep-client-go_api_postsubmit
     path_alias: istio.io/api
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ../test-infra/tools/automator/automator.sh
@@ -153,6 +156,7 @@ presubmits:
     path_alias: istio.io/api
     rerun_command: /test build
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -194,6 +198,7 @@ presubmits:
     path_alias: istio.io/api
     rerun_command: /test gencheck
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -245,6 +250,7 @@ presubmits:
     path_alias: istio.io/api
     rerun_command: /test release-notes
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - ../test-infra/tools/check_release_notes.sh

@@ -11,6 +11,7 @@ postsubmits:
     name: build_tools_postsubmit
     path_alias: istio.io/tools
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -51,6 +52,7 @@ postsubmits:
     name: lint_tools_postsubmit
     path_alias: istio.io/tools
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -91,6 +93,7 @@ postsubmits:
     name: test_tools_postsubmit
     path_alias: istio.io/tools
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -131,6 +134,7 @@ postsubmits:
     name: gencheck_tools_postsubmit
     path_alias: istio.io/tools
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -181,6 +185,7 @@ postsubmits:
     path_alias: istio.io/tools
     run_if_changed: docker/.+|cmd/.+|pkg/.+
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -245,6 +250,7 @@ postsubmits:
     path_alias: istio.io/tools
     run_if_changed: docker/.+|cmd/.+|pkg/.+
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -298,6 +304,7 @@ postsubmits:
     path_alias: istio.io/tools
     run_if_changed: ^perf_dashboard/
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -348,6 +355,7 @@ presubmits:
     path_alias: istio.io/tools
     rerun_command: /test build
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -389,6 +397,7 @@ presubmits:
     path_alias: istio.io/tools
     rerun_command: /test lint
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -430,6 +439,7 @@ presubmits:
     path_alias: istio.io/tools
     rerun_command: /test test
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -471,6 +481,7 @@ presubmits:
     path_alias: istio.io/tools
     rerun_command: /test gencheck
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - make
@@ -514,6 +525,7 @@ presubmits:
     rerun_command: /test benchmark-check
     run_if_changed: ^perf/benchmark/
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -559,6 +571,7 @@ presubmits:
     rerun_command: /test containers-test
     run_if_changed: docker/.+|cmd/.+
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
@@ -608,6 +621,7 @@ presubmits:
     rerun_command: /test containers-test-arm64
     run_if_changed: docker/.+|cmd/.+|pkg/.+
     spec:
+      automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
