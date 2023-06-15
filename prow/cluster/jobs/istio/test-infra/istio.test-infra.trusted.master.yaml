@@ -12,6 +12,7 @@ postsubmits:
       testgrid-alert-email: k8s-infra-oncall@google.com
     max_concurrency: 1
     spec:
+      automountServiceAccountToken: false
       serviceAccountName: testgrid-updater
       containers:
       - image: gcr.io/k8s-prow/configurator:v20230613-9df263832f
@@ -37,6 +38,7 @@ postsubmits:
     branches:
     - ^master$
     spec:
+      automountServiceAccountToken: false
       serviceAccountName: gencred-refresher
       containers:
       - name: gencred
@@ -63,6 +65,7 @@ periodics:
   annotations:
     testgrid-create-test-group: "false"
   spec:
+    automountServiceAccountToken: false
     containers:
     - image: gcr.io/k8s-prow/branchprotector:v20230613-9df263832f
       command:
@@ -93,6 +96,7 @@ periodics:
   annotations:
     testgrid-create-test-group: "false"
   spec:
+    automountServiceAccountToken: false
     containers:
     - image: gcr.io/k8s-prow/generic-autobumper:v20230613-9df263832f
       command:
@@ -127,6 +131,7 @@ periodics:
   annotations:
     testgrid-create-test-group: "false"
   spec:
+    automountServiceAccountToken: false
     containers:
     - image: gcr.io/k8s-prow/generic-autobumper:v20230613-9df263832f
       command:
@@ -158,6 +163,7 @@ periodics:
     base_ref: master
   decorate: true
   spec:
+    automountServiceAccountToken: false
     serviceAccountName: gencred-refresher
     containers:
     - name: gencred
