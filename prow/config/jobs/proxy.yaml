@@ -1,7 +1,7 @@
 org: istio
 repo: proxy
 support_release_branching: true
-image: gcr.io/istio-testing/build-tools-proxy:master-6ca22a4265c8306755fc53a5be49ceaeeae92003
+image: gcr.io/istio-testing/build-tools-proxy:master-e015d93a2d1107fce1065d3fad4e4f29508a15d4
 node_selector:
   testing: build-pool
 
@@ -67,7 +67,7 @@ jobs:
   service_account_name: prowjob-advanced-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit-centos-release.sh]
-  image: gcr.io/istio-testing/build-tools-centos:master-6ca22a4265c8306755fc53a5be49ceaeeae92003
+  image: gcr.io/istio-testing/build-tools-centos:master-e015d93a2d1107fce1065d3fad4e4f29508a15d4
   timeout: 6h
 
 - name: check-wasm
@@ -104,7 +104,7 @@ jobs:
   service_account_name: prowjob-advanced-sa
   types: [postsubmit]
   command: [./prow/proxy-postsubmit-centos.sh]
-  image: gcr.io/istio-testing/build-tools-centos:master-6ca22a4265c8306755fc53a5be49ceaeeae92003
+  image: gcr.io/istio-testing/build-tools-centos:master-e015d93a2d1107fce1065d3fad4e4f29508a15d4
   timeout: 6h
 
 - name: update-istio
@@ -121,7 +121,7 @@ jobs:
   - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
   requirements: [github]
   repos: [istio/test-infra@master]
-  image: gcr.io/istio-testing/build-tools:master-6ca22a4265c8306755fc53a5be49ceaeeae92003
+  image: gcr.io/istio-testing/build-tools:master-e015d93a2d1107fce1065d3fad4e4f29508a15d4
   env:
     - name: AUTOMATOR_ORG
       value: istio
@@ -141,7 +141,7 @@ jobs:
   - --cmd=UPDATE_BRANCH=main scripts/update_envoy.sh
   requirements: [github]
   repos: [istio/test-infra@master]
-  image: gcr.io/istio-testing/build-tools:master-6ca22a4265c8306755fc53a5be49ceaeeae92003
+  image: gcr.io/istio-testing/build-tools:master-e015d93a2d1107fce1065d3fad4e4f29508a15d4
   env:
     - name: AUTOMATOR_ORG
       value: istio
@@ -162,7 +162,7 @@ jobs:
   disable_release_branching: true
   requirements: [github]
   repos: [istio/test-infra@master]
-  image: gcr.io/istio-testing/build-tools:master-6ca22a4265c8306755fc53a5be49ceaeeae92003
+  image: gcr.io/istio-testing/build-tools:master-e015d93a2d1107fce1065d3fad4e4f29508a15d4
   env:
     - name: AUTOMATOR_ORG
       value: istio
