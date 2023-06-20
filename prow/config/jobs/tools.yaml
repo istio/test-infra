@@ -73,12 +73,6 @@ jobs:
     regex: 'docker/.+|cmd/.+|pkg/.+'
     requirements: [docker]
 
-  - name: deploy-perf-dashboard
-    service_account_name: prowjob-advanced-sa
-    regex: '^perf_dashboard/'
-    types: [postsubmit]
-    command: [entrypoint, make, -C, perf_dashboard, deploy]
-    requirements: [docker]
 
 resources_presets:
   build:
