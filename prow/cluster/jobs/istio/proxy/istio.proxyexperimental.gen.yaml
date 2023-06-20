@@ -281,7 +281,7 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
     trigger: ((?m)^/test( | .* )test-tsan,?($|\s.*))|((?m)^/test( | .* )test-tsan_proxy,?($|\s.*))
-  - always_run: true
+  - always_run: false
     annotations:
       testgrid-dashboards: istio_proxy
     branches:
@@ -292,7 +292,10 @@ presubmits:
       timeout: 6h0m0s
     name: test-arm-arm64_proxy_exp
     path_alias: istio.io/proxy
+    reporter_config:
+      slack: {}
     rerun_command: /test test-arm-arm64
+    skip_report: true
     spec:
       automountServiceAccountToken: false
       containers:
