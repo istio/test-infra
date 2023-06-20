@@ -5,14 +5,6 @@ resource "google_storage_bucket" "artifacts_istio_testing_appspot_com" {
   project       = "istio-testing"
   storage_class = "STANDARD"
 }
-resource "google_storage_bucket" "dataflow_staging_us_central1_450874614208" {
-  force_destroy            = false
-  location                 = "US-CENTRAL1"
-  name                     = "dataflow-staging-us-central1-450874614208"
-  project                  = "istio-testing"
-  public_access_prevention = "inherited"
-  storage_class            = "STANDARD"
-}
 resource "google_storage_bucket" "e2e_testing_log" {
   force_destroy = false
   location      = "US"
@@ -82,15 +74,6 @@ resource "google_storage_bucket" "istio_logs" {
   project       = "istio-testing"
   storage_class = "MULTI_REGIONAL"
 }
-resource "google_storage_bucket" "istio_presubmit_prerelease" {
-  force_destroy               = false
-  location                    = "US"
-  name                        = "istio-presubmit-prerelease"
-  project                     = "istio-testing"
-  public_access_prevention    = "inherited"
-  storage_class               = "MULTI_REGIONAL"
-  uniform_bucket_level_access = true
-}
 resource "google_storage_bucket" "istio_presubmit_release_pipeline_data" {
   force_destroy               = false
   location                    = "US"
@@ -124,13 +107,6 @@ resource "google_storage_bucket" "istio_testgrid" {
   storage_class               = "STANDARD"
   uniform_bucket_level_access = true
 }
-resource "google_storage_bucket" "istio_testing_appspot_com" {
-  force_destroy = false
-  location      = "US"
-  name          = "istio-testing.appspot.com"
-  project       = "istio-testing"
-  storage_class = "STANDARD"
-}
 resource "google_storage_bucket" "istio_testing_cloudbuild" {
   force_destroy = false
   location      = "US"
@@ -145,54 +121,12 @@ resource "google_storage_bucket" "istio_tools" {
   project       = "istio-testing"
   storage_class = "MULTI_REGIONAL"
 }
-resource "google_storage_bucket" "staging_istio_testing_appspot_com" {
-  force_destroy = false
-
-  lifecycle_rule {
-    action {
-      type = "Delete"
-    }
-
-    condition {
-      age        = 15
-      with_state = "ANY"
-    }
-  }
-
-  location      = "US"
-  name          = "staging.istio-testing.appspot.com"
-  project       = "istio-testing"
-  storage_class = "STANDARD"
-}
 resource "google_storage_bucket" "us_artifacts_istio_testing_appspot_com" {
   force_destroy = false
   location      = "US"
   name          = "us.artifacts.istio-testing.appspot.com"
   project       = "istio-testing"
   storage_class = "STANDARD"
-}
-resource "google_storage_bucket" "vm_config_istio_testing_appspot_com" {
-  force_destroy = false
-  location      = "US"
-  name          = "vm-config.istio-testing.appspot.com"
-  project       = "istio-testing"
-  storage_class = "STANDARD"
-}
-resource "google_storage_bucket" "vm_containers_istio_testing_appspot_com" {
-  force_destroy = false
-  location      = "US"
-  name          = "vm-containers.istio-testing.appspot.com"
-  project       = "istio-testing"
-  storage_class = "STANDARD"
-}
-resource "google_storage_bucket" "istio_policybot" {
-  force_destroy               = false
-  location                    = "US-WEST1"
-  name                        = "istio-policybot"
-  project                     = "istio-testing"
-  public_access_prevention    = "inherited"
-  storage_class               = "STANDARD"
-  uniform_bucket_level_access = true
 }
 resource "google_storage_bucket" "istio_snippets" {
   force_destroy            = false
