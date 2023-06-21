@@ -144,6 +144,7 @@ type RequirementPreset struct {
 	VolumeMounts []v1.VolumeMount  `json:"volumeMounts,omitempty"`
 	Args         []string          `json:"args,omitempty"`
 	Cron         string            `json:"cron,omitempty"`
+	Secrets      []Secret          `json:"secrets,omitempty"`
 	PodSpec      *v1.PodSpec       `json:"podSpec,omitempty"` // Use this field to add extra PodSpec fields except containers and metadata
 }
 
@@ -154,4 +155,10 @@ func (r *RequirementPreset) DeepCopy() RequirementPreset {
 		log.Fatalf("Failed to unmarshal RequirementPreset: %v", err)
 	}
 	return newRequirementPreset
+}
+
+type Secret struct {
+	Name    string `json:"secret,omitempty"`
+	Project string `json:"project,omitempty"`
+	Env     string `json:"env,omitempty"`
 }

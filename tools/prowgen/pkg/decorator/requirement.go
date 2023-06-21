@@ -15,6 +15,7 @@
 package decorator
 
 import (
+	"encoding/json"
 	"log"
 
 	"github.com/hashicorp/go-multierror"
@@ -62,6 +63,29 @@ func ApplyRequirements(job *config.JobBase, requirements, excludedRequirements [
 		}
 	}
 	resolveRequirements(job.Annotations, job.Labels, job.Spec, presets)
+	applySecrets(job, presets)
+}
+
+func applySecrets(job *config.JobBase, presets []spec.RequirementPreset) {
+	secrets := []spec.Secret{}
+	for _, req := range presets {
+		secrets = append(secrets, req.Secrets...)
+	}
+	if len(secrets) == 0 {
+		return
+	}
+	marshal, err := json.Marshal(secrets)
+	if err != nil {
+		log.Fatalf("failed to marshal secrets: %v", err)
+	}
+	if len(job.Spec.Containers) != 1 {
+		// We could support more but it may expand permissions, just keep it safe for now
+		log.Fatalf("secrets only works with 1 container")
+	}
+	job.Spec.Containers[0].Env = append(job.Spec.Containers[0].Env, v1.EnvVar{
+		Name:  "GCP_SECRETS",
+		Value: string(marshal),
+	})
 }
 
 func resolveRequirements(annotations, labels map[string]string, spec *v1.PodSpec, requirements []spec.RequirementPreset) {

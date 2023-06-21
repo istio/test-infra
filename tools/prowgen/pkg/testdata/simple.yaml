@@ -64,6 +64,12 @@ jobs:
     command: [prow/command.sh, $(params.arch)]
     image: test
 
+  - name: secret
+    types: [presubmit]
+    requirements: [secrets]
+    command: [prow/command.sh]
+    image: test
+
 requirements: [gocache]
 
 resources_presets:

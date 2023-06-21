@@ -220,6 +220,32 @@ func TestJobs(t *testing.T) {
 		}
 		return nil
 	})
+
+	RunTest("secret access", func(j Job) error {
+		secrets := false
+		hasEntrypoint := false
+		for _, c := range j.Base.Spec.Containers {
+			if len(c.Command) > 0 && c.Command[0] == "entrypoint" {
+				hasEntrypoint = true
+			}
+			for _, e := range c.Env {
+				if e.Name == "GCP_SECRETS" {
+					secrets = true
+				}
+			}
+		}
+		if !secrets {
+			return nil
+		}
+
+		if j.Type == Presubmit {
+			return fmt.Errorf("jobs with secrets must cannot be presubmits")
+		}
+		if !hasEntrypoint {
+			return fmt.Errorf("jobs with secrets must use entrypoint")
+		}
+		return nil
+	})
 }
 
 func BuildRunTest(t *testing.T) func(name string, f func(j Job) error) {
