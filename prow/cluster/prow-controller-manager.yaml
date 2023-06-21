@@ -28,7 +28,7 @@ spec:
         env:
         # Use KUBECONFIG envvar rather than --kubeconfig flag in order to provide multiple configs to merge.
         - name: KUBECONFIG
-          value: "/etc/kubeconfig/istio-config:/etc/kubeconfig-build-test-infra-trusted/kubeconfig:/etc/kubeconfig-prow-arm-private/kubeconfig"
+          value: "/etc/kubeconfig/kubeconfig"
         ports:
         - name: metrics
           containerPort: 9090
@@ -42,12 +42,6 @@ spec:
         - mountPath: /etc/kubeconfig
           name: kubeconfig
           readOnly: true
-        - name: kubeconfig-prow-arm-private
-          mountPath: /etc/kubeconfig-prow-arm-private
-          readOnly: true
-        - mountPath: /etc/kubeconfig-build-test-infra-trusted
-          name: kubeconfig-build-test-infra-trusted
-          readOnly: true
       volumes:
       - name: config
         configMap:
@@ -56,17 +50,9 @@ spec:
         configMap:
           name: job-config
       - name: kubeconfig
-        secret:
+        configMap:
           defaultMode: 420
-          secretName: kubeconfig
-      - name: kubeconfig-prow-arm-private
-        secret:
-          defaultMode: 420
-          secretName: kubeconfig-prow-arm-private
-      - name: kubeconfig-build-test-infra-trusted
-        secret:
-          defaultMode: 420
-          secretName: kubeconfig-build-test-infra-trusted
+          name: kubeconfig
 ---
 apiVersion: v1
 kind: ServiceAccount
