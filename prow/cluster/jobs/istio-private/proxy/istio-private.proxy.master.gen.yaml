@@ -510,7 +510,7 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )check-wasm,?($|\s.*))|((?m)^/test( | .* )check-wasm_proxy,?($|\s.*))
-  - always_run: false
+  - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -524,10 +524,7 @@ presubmits:
       preset-enable-netrc: "true"
     name: test-arm-arm64_proxy_master_priv
     path_alias: istio.io/proxy
-    reporter_config:
-      slack: {}
     rerun_command: /test test-arm-arm64
-    skip_report: true
     spec:
       automountServiceAccountToken: false
       containers:
