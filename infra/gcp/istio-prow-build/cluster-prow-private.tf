@@ -56,7 +56,7 @@ resource "google_container_cluster" "prow_private" {
 
   networking_mode = "VPC_NATIVE"
 
-  node_version = "1.24.12-gke.500"
+  node_version = "1.24.12-gke.1000"
 
   private_cluster_config {
     enable_private_endpoint = false
@@ -145,7 +145,7 @@ resource "google_container_node_pool" "prow_private_build" {
     max_unavailable = 0
   }
 
-  version = "1.24.12-gke.500"
+  version = "1.24.12-gke.1000"
 }
 
 # Mirrors 'prow_test'
@@ -208,5 +208,5 @@ resource "google_container_node_pool" "prow_private_test" {
     max_unavailable = 0
   }
 
-  version = "1.24.12-gke.500"
+  version = "1.24.12-gke.1000"
 }
