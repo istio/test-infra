@@ -24,3 +24,28 @@ resource "google_service_account" "prow_internal_storage" {
   display_name = "Prow Internal Storage"
   project      = "istio-prow-build"
 }
+
+# ProwJob SA used for release jobs. This is the most privileged service account, and should be used only on trusted code
+# with extreme caution.
+# Do not use this for other purposes! Create a new, more scoped, account.
+# This is granted secret access in secrets.tf
+module "prowjob_release_account" {
+  source            = "../modules/workload-identity-service-account"
+  project_id        = local.project_id
+  name              = "prowjob-release"
+  description       = "Service account used for prow release jobs. Highly privileged."
+  cluster_namespace = local.pod_namespace
+}
+
+# ProwJob SA used for jobs requiring RBE access.
+module "prowjob_rbe_account" {
+  source            = "../modules/workload-identity-service-account"
+  project_id        = local.project_id
+  name              = "prowjob-rbe"
+  description       = "Service account used for prow jobs requireing RBE access (istio/proxy)."
+  cluster_namespace = local.pod_namespace
+  project_roles = [
+    { role = "roles/remotebuildexecution.actionCacheWriter", project = "istio-testing" },
+    { role = "roles/remotebuildexecution.artifactCreator", project = "istio-testing" },
+  ]
+}
