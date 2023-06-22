@@ -21,7 +21,7 @@ limitations under the License.
 
 locals {
   description                 = var.description != "" ? var.description : var.name
-  display_name                 = var.display_name != "" ? var.display_name : var.name
+  display_name                = var.display_name != "" ? var.display_name : var.name
   cluster_project_id          = var.cluster_project_id != "" ? var.cluster_project_id : var.project_id
   cluster_serviceaccount_name = var.cluster_serviceaccount_name != "" ? var.cluster_serviceaccount_name : var.name
 }
@@ -30,15 +30,12 @@ resource "google_service_account" "serviceaccount" {
   project      = var.project_id
   account_id   = var.name
   display_name = local.display_name
-  description = local.description
+  description  = local.description
 }
 data "google_iam_policy" "workload_identity" {
   binding {
-    members = concat(["serviceAccount:${local.cluster_project_id}.svc.id.goog[${var.cluster_namespace}/${local.cluster_serviceaccount_name}]"],
-      var.additional_workload_identity_principals
-    )
-
-    role = "roles/iam.workloadIdentityUser"
+    members = ["serviceAccount:${local.cluster_project_id}.svc.id.goog[${var.cluster_namespace}/${local.cluster_serviceaccount_name}]"]
+    role    = "roles/iam.workloadIdentityUser"
   }
 }
 // authoritative binding, replaces any existing IAM policy on the service account

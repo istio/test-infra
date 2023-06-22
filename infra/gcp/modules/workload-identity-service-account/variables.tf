@@ -55,12 +55,9 @@ variable "cluster_namespace" {
 
 variable "project_roles" {
   description = "A list of roles to bind to the serviceaccount in its project, eg: [ \"roles/bigquery.user\" ]"
-  type        = list(string)
-  default     = []
-}
-
-variable "additional_workload_identity_principals" {
-  description = "A list of extra principals to grant WorkloadIdentityUser on the service account"
-  type        = list(string)
-  default     = []
+  type = list(object({
+    role = string
+    condition = string
+  }))
+  default = []
 }

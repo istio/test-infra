@@ -24,3 +24,17 @@ resource "google_service_account" "prow_internal_storage" {
   display_name = "Prow Internal Storage"
   project      = "istio-prow-build"
 }
+
+module "workload_identity_service_accounts" {
+  source            = "../modules/workload-identity-service-account"
+  project_id        = local.project_id
+  name              = "prowjob-release"
+  description       = "Service account used for prow release jobs. Highly privileged."
+  cluster_namespace = local.pod_namespace
+  project_roles = [
+    {
+      role      = "roles/secretmanager.secretAccessor"
+      # TODO: create real secrets and reference these, this is just a starter to get things tested
+      condition = "resource.name.startsWith('projects/${local.project_number}/secrets/test-secret')"
+  }]
+}
