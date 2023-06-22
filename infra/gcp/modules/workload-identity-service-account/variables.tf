@@ -54,10 +54,10 @@ variable "cluster_namespace" {
 }
 
 variable "project_roles" {
-  description = "A list of roles to bind to the serviceaccount in its project, eg: [ \"roles/bigquery.user\" ]"
+  description = "A list of roles to bind to the serviceaccount in its project"
   type = list(object({
     role = string
-    condition = string
+    project = optional(string)
   }))
   default = []
 }

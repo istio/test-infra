@@ -45,8 +45,8 @@ resource "google_service_account_iam_policy" "serviceaccount_iam" {
 }
 // optional: roles to grant the serviceaccount on the project
 resource "google_project_iam_member" "project_roles" {
-  for_each = toset(var.project_roles)
-  project  = var.project_id
-  role     = each.value
+  for_each = {for k, v in var.project_roles : k => v}
+  project  = coalesce(each.value.project, var.project_id)
+  role     = each.value.role
   member   = "serviceAccount:${google_service_account.serviceaccount.email}"
 }
