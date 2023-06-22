@@ -4,6 +4,8 @@ resource "google_service_account" "external_secrets_private" {
   display_name = "external-secrets-private"
   project      = "istio-prow-build"
 }
+# WARNING: the description here is false. I have no clue what this is used for TBH
+# The default prowjob SA is istio-prow-test-job-default@istio-testing.iam.gserviceaccount.com
 resource "google_service_account" "istio_prow_jobs" {
   account_id   = "istio-prow-jobs"
   description  = "The default service account that will be used for Prow job workloads."
