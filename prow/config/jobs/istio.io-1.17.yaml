@@ -3,12 +3,12 @@ branches:
 env:
 - name: BUILD_WITH_CONTAINER
   value: "0"
-image: gcr.io/istio-testing/build-tools:release-1.17-9032e66ef91b6cccd5883fb89bb43af791050ba4
+image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
 jobs:
 - command:
   - make
   - lint
-  image: gcr.io/istio-testing/build-tools:release-1.17-9032e66ef91b6cccd5883fb89bb43af791050ba4
+  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
   name: lint
   node_selector:
     testing: test-pool
@@ -151,7 +151,7 @@ jobs:
 - command:
   - make
   - gen-check
-  image: gcr.io/istio-testing/build-tools:release-1.17-9032e66ef91b6cccd5883fb89bb43af791050ba4
+  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
   name: gencheck
   node_selector:
     testing: test-pool
@@ -295,7 +295,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - doc.test.profile-default
-  image: gcr.io/istio-testing/build-tools:release-1.17-9032e66ef91b6cccd5883fb89bb43af791050ba4
+  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
   name: doc.test.profile-default
   node_selector:
     testing: test-pool
@@ -441,7 +441,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - doc.test.profile-demo
-  image: gcr.io/istio-testing/build-tools:release-1.17-9032e66ef91b6cccd5883fb89bb43af791050ba4
+  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
   name: doc.test.profile-demo
   node_selector:
     testing: test-pool
@@ -587,7 +587,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - doc.test.profile-none
-  image: gcr.io/istio-testing/build-tools:release-1.17-9032e66ef91b6cccd5883fb89bb43af791050ba4
+  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
   name: doc.test.profile-none
   node_selector:
     testing: test-pool
@@ -735,7 +735,7 @@ jobs:
   - --topology
   - MULTICLUSTER
   - doc.test.multicluster
-  image: gcr.io/istio-testing/build-tools:release-1.17-9032e66ef91b6cccd5883fb89bb43af791050ba4
+  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
   name: doc.test.multicluster
   node_selector:
     testing: test-pool
@@ -884,7 +884,7 @@ jobs:
   - --token-path=/etc/github-token/oauth
   - --cmd=make update_ref_docs
   - --dry-run
-  image: gcr.io/istio-testing/build-tools:release-1.17-9032e66ef91b6cccd5883fb89bb43af791050ba4
+  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
   modifiers:
   - presubmit_optional
   name: update-ref-docs-dry-run
