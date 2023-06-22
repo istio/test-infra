@@ -530,3 +530,45 @@ presubmits:
         name: build-cache
     trigger: ((?m)^/test( | .* )multi-arch-param-arm64,?($|\s.*))|((?m)^/test( | .*
       )multi-arch-param-arm64_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: gerrit.istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    name: secret_istio
+    rerun_command: /test secret
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - prow/command.sh
+        env:
+        - name: key
+          value: value
+        - name: GCP_SECRETS
+          value: '[{"secret":"test-name","project":"test-proj","env":"TEST_SECRET"}]'
+        image: test
+        name: ""
+        resources:
+          requests:
+            cpu: "1"
+            memory: 1Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )secret,?($|\s.*))|((?m)^/test( | .* )secret_istio,?($|\s.*))
