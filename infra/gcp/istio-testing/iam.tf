@@ -63,6 +63,7 @@ resource "google_service_account" "istio_prow_test_job" {
   project      = "istio-testing"
 }
 # Used for WI in test-infra trusted jobs
+# This is now obsolete (6/21/23) but will be kept around during migration.
 resource "google_service_account" "gencred_refresher" {
   account_id   = "gencred-refresher"
   description  = "The service account used by Prow jobs for rotating build cluster kubeconfig"

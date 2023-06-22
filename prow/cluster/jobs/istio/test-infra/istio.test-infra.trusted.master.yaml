@@ -31,26 +31,6 @@ postsubmits:
           requests:
             memory: "1Gi"
 
-  - name: post-istio-test-infra-gencred-refresh-kubeconfig
-    cluster: test-infra-trusted
-    run_if_changed: '^prow/cluster/gencred-config/'
-    decorate: true
-    branches:
-    - ^master$
-    spec:
-      automountServiceAccountToken: false
-      serviceAccountName: gencred-refresher
-      containers:
-      - name: gencred
-        image: gcr.io/k8s-prow/gencred:v20230621-2a6a094857
-        command:
-        - gencred
-        args:
-        - --config=./prow/cluster/gencred-config/gencred-config.yaml
-    annotations:
-      testgrid-dashboards: istio_test-infra_postsubmit
-      testgrid-alert-email: k8s-infra-oncall@google.com
-
 periodics:
 - cron: "54 * * * *"  # Every hour at 54 minutes past the hour
   name: ci-test-infra-branchprotector
@@ -154,23 +134,3 @@ periodics:
       secret:
         secretName: istio-testing-robot-ssh-key
         defaultMode: 0400
-- cron: "17 */7 * * *"  # Every 7 hours at 17 minutes past the hour
-  name: ci-istio-test-infra-gencred-refresh-kubeconfig
-  cluster: test-infra-trusted
-  extra_refs:
-  - org: istio
-    repo: test-infra
-    base_ref: master
-  decorate: true
-  spec:
-    automountServiceAccountToken: false
-    serviceAccountName: gencred-refresher
-    containers:
-    - name: gencred
-      image: gcr.io/k8s-prow/gencred:v20230621-2a6a094857
-      command:
-      - gencred
-      args:
-      - --config=./prow/cluster/gencred-config/gencred-config.yaml
-  annotations:
-    testgrid-create-test-group: "false"

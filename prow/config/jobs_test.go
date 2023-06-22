@@ -422,7 +422,6 @@ var AllServiceAccounts = sets.NewString(
 	"",
 	"prow-deployer",
 	"testgrid-updater",
-	"gencred-refresher",
 	"prowjob-private-sa",
 	"prowjob-advanced-sa",
 	"prowjob-default-sa",
