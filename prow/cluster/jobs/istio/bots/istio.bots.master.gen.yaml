@@ -187,41 +187,6 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: GCP_CREDS
-          valueFrom:
-            secretKeyRef:
-              key: gcpCreds
-              name: policybot
-        - name: GITHUB_OAUTH_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              key: githubOauthClientId
-              name: policybot
-        - name: GITHUB_OAUTH_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              key: githubOauthClientSecret
-              name: policybot
-        - name: GITHUB_TOKEN
-          valueFrom:
-            secretKeyRef:
-              key: githubToken
-              name: policybot
-        - name: GITHUB_WEBHOOK_SECRET
-          valueFrom:
-            secretKeyRef:
-              key: githubWebhookSecret
-              name: policybot
-        - name: SENDGRID_APIKEY
-          valueFrom:
-            secretKeyRef:
-              key: sendgridApikey
-              name: policybot
-        - name: ZENHUB_TOKEN
-          valueFrom:
-            secretKeyRef:
-              key: zenhubToken
-              name: policybot
         image: gcr.io/istio-testing/build-tools:master-6ca22a4265c8306755fc53a5be49ceaeeae92003
         name: ""
         resources:
