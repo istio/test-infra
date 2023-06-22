@@ -34,7 +34,9 @@ resource "google_service_account" "serviceaccount" {
 }
 data "google_iam_policy" "workload_identity" {
   binding {
-    members = ["serviceAccount:${local.cluster_project_id}.svc.id.goog[${var.cluster_namespace}/${local.cluster_serviceaccount_name}]"]
+    members = [
+      "serviceAccount:${local.cluster_project_id}.svc.id.goog[${var.cluster_namespace}/${local.cluster_serviceaccount_name}]"
+    ]
     role    = "roles/iam.workloadIdentityUser"
   }
 }
@@ -49,4 +51,11 @@ resource "google_project_iam_member" "project_roles" {
   project  = coalesce(each.value.project, var.project_id)
   role     = each.value.role
   member   = "serviceAccount:${google_service_account.serviceaccount.email}"
+}
+// If this is going to be used for prowjobs, then we need to give it access to gs://istio-prow to write logs.
+resource "google_storage_bucket_iam_member" "member" {
+  count  = var.prowjob ? 1 : 0
+  bucket = "istio-prow"
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.serviceaccount.email}"
 }
