@@ -41,8 +41,8 @@ module "prowjob_release_account" {
 module "prowjob_rbe_account" {
   source            = "../modules/workload-identity-service-account"
   project_id        = local.project_id
-  name              = "prowjob-release"
-  description       = "Service account used for prow release jobs. Highly privileged."
+  name              = "prowjob-rbe"
+  description       = "Service account used for prow jobs requireing RBE access (istio/proxy)."
   cluster_namespace = local.pod_namespace
   project_roles = [
     { role = "roles/remotebuildexecution.actionCacheWriter", project = "istio-testing" },
