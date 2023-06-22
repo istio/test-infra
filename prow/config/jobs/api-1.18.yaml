@@ -92,10 +92,7 @@ jobs:
     release:
       env:
       - name: COSIGN_KEY
-        valueFrom:
-          secretKeyRef:
-            key: key
-            name: cosign-key
+        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
       - name: DOCKER_CONFIG
         value: /etc/rel-pipeline-docker-config
       - name: GITHUB_TOKEN_FILE
@@ -227,10 +224,7 @@ jobs:
     release:
       env:
       - name: COSIGN_KEY
-        valueFrom:
-          secretKeyRef:
-            key: key
-            name: cosign-key
+        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
       - name: DOCKER_CONFIG
         value: /etc/rel-pipeline-docker-config
       - name: GITHUB_TOKEN_FILE
@@ -370,10 +364,7 @@ jobs:
     release:
       env:
       - name: COSIGN_KEY
-        valueFrom:
-          secretKeyRef:
-            key: key
-            name: cosign-key
+        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
       - name: DOCKER_CONFIG
         value: /etc/rel-pipeline-docker-config
       - name: GITHUB_TOKEN_FILE
@@ -513,10 +504,7 @@ jobs:
     release:
       env:
       - name: COSIGN_KEY
-        valueFrom:
-          secretKeyRef:
-            key: key
-            name: cosign-key
+        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
       - name: DOCKER_CONFIG
         value: /etc/rel-pipeline-docker-config
       - name: GITHUB_TOKEN_FILE
@@ -649,10 +637,7 @@ requirement_presets:
   release:
     env:
     - name: COSIGN_KEY
-      valueFrom:
-        secretKeyRef:
-          key: key
-          name: cosign-key
+      value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
     - name: DOCKER_CONFIG
       value: /etc/rel-pipeline-docker-config
     - name: GITHUB_TOKEN_FILE
