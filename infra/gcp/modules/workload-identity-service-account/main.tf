@@ -37,7 +37,7 @@ data "google_iam_policy" "workload_identity" {
     members = [
       "serviceAccount:${local.cluster_project_id}.svc.id.goog[${var.cluster_namespace}/${local.cluster_serviceaccount_name}]"
     ]
-    role    = "roles/iam.workloadIdentityUser"
+    role = "roles/iam.workloadIdentityUser"
   }
 }
 // authoritative binding, replaces any existing IAM policy on the service account
@@ -47,26 +47,33 @@ resource "google_service_account_iam_policy" "serviceaccount_iam" {
 }
 // optional: roles to grant the serviceaccount on the project
 resource "google_project_iam_member" "project_roles" {
-  for_each = {for k, v in var.project_roles : k => v}
+  for_each = { for k, v in var.project_roles : k => v }
   project  = coalesce(each.value.project, var.project_id)
   role     = each.value.role
   member   = "serviceAccount:${google_service_account.serviceaccount.email}"
 }
 // optional: GCS ACLs to grant the serviceaccount on the project
 resource "google_storage_bucket_access_control" "acls" {
-  for_each = {for k, v in var.gcs_acls : k => v}
-  bucket = each.value.bucket
-  role   = each.value.role
-  entity = "user-${google_service_account.serviceaccount.email}"
+  for_each = { for k, v in var.gcs_acls : k => v }
+  bucket   = each.value.bucket
+  role     = each.value.role
+  entity   = "user-${google_service_account.serviceaccount.email}"
+}
+// optional: GCS IAM grants access to the serviceaccount on the project
+resource "google_storage_bucket_iam_member" "gcs_member" {
+  for_each = { for k, v in var.gcs_acls : k => v }
+  bucket   = each.value.bucket
+  role     = each.value.role
+  member   = "serviceAccount:${google_service_account.serviceaccount.email}"
 }
 
 // optional: secrets to grant access to the serviceaccount on the project
 resource "google_secret_manager_secret_iam_member" "member" {
-  for_each = {for k, v in var.secrets : k => v}
-  project  = coalesce(each.value.project, var.project_id)
+  for_each  = { for k, v in var.secrets : k => v }
+  project   = coalesce(each.value.project, var.project_id)
   secret_id = each.value.name
-  role = "roles/secretmanager.secretAccessor"
-  member   = "serviceAccount:${google_service_account.serviceaccount.email}"
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.serviceaccount.email}"
 }
 // If this is going to be used for prowjobs, then we need to give it access to gs://istio-prow to write logs.
 resource "google_storage_bucket_iam_member" "member" {

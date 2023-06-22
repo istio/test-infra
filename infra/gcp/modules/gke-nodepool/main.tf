@@ -17,9 +17,9 @@ limitations under the License.
 resource "google_container_node_pool" "node_pool" {
   name = var.name
 
-  project     = var.project_name
-  location    = var.location
-  cluster     = var.cluster_name
+  project  = var.project_name
+  location = var.location
+  cluster  = var.cluster_name
 
   // Auto repair, and auto upgrade nodes to match the master version
   management {
@@ -42,6 +42,7 @@ resource "google_container_node_pool" "node_pool" {
     disk_type    = var.disk_type
     labels       = var.labels
     taint        = var.taints
+    spot         = var.spot
 
     service_account = var.service_account
     oauth_scopes    = ["https://www.googleapis.com/auth/cloud-platform"]
@@ -55,13 +56,16 @@ resource "google_container_node_pool" "node_pool" {
     }
   }
 
+
   // If we need to destroy the node pool, create the new one before destroying
   // the old one
   lifecycle {
     create_before_destroy = true
-    # https://www.terraform.io/docs/providers/google/r/container_cluster.html#taint
     ignore_changes = [
+      # https://www.terraform.io/docs/providers/google/r/container_cluster.html#taint
       node_config[0].taint,
+      # Terraform does not yet support this mode, so we have to just set it manually and ignore changes
+      node_config[0].linux_node_config,
     ]
   }
 }

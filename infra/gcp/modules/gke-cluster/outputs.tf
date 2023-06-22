@@ -13,6 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+output "cluster" {
+  description = "The cluster"
+  value       = google_container_cluster.cluster
+}
 
 output "cluster_node_sa" {
   description = "The service_account created for the cluster's nodes"

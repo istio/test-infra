@@ -68,7 +68,7 @@ resource "google_container_cluster" "cluster" {
 
   // Enable GKE Network Policy
   network_policy {
-    enabled  = false
+    enabled = false
   }
 
   // Configure cluster addons
