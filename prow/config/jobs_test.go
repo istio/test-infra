@@ -239,7 +239,7 @@ func TestJobs(t *testing.T) {
 		}
 
 		if j.Type == Presubmit {
-			return fmt.Errorf("jobs with secrets must cannot be presubmits")
+			return fmt.Errorf("jobs with secrets cannot be presubmits")
 		}
 		if !hasEntrypoint {
 			return fmt.Errorf("jobs with secrets must use entrypoint")

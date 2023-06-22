@@ -80,7 +80,7 @@ func applySecrets(job *config.JobBase, presets []spec.RequirementPreset) {
 	}
 	if len(job.Spec.Containers) != 1 {
 		// We could support more but it may expand permissions, just keep it safe for now
-		log.Fatalf("secrets only works with 1 container")
+		log.Fatalf("secrets only work with 1 container")
 	}
 	job.Spec.Containers[0].Env = append(job.Spec.Containers[0].Env, v1.EnvVar{
 		Name:  "GCP_SECRETS",
