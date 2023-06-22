@@ -28,7 +28,6 @@ spec:
         - --hook-url=http://hook:8888/plugin-help
         - --job-config-path=/etc/job-config
         - --redirect-http-to=prow-private.istio.io
-        - --gcs-credentials-file=/etc/service-account/service-account.json
         - --spyglass
         - --hidden-only
         - --rerun-creates-job
@@ -139,6 +138,3 @@ spec:
         configMap:
           defaultMode: 420
           name: kubeconfig
-      - name: service-account
-        secret:
-          secretName: prow-internal-storage-service-account
