@@ -132,10 +132,8 @@ func TestJobs(t *testing.T) {
 		}
 		// legacy
 		if strings.Contains(j.Name, "_proxy") ||
-			strings.HasPrefix(j.Name, "containers-test") ||
 			strings.HasPrefix(j.Name, "dry-run_release-builder") ||
-			strings.HasPrefix(j.Name, "release-test") ||
-			j.Name == "benchmark-check_tools" {
+			strings.HasPrefix(j.Name, "release-test") {
 			return nil
 		}
 		// Private volumes are handled in another test

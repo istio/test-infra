@@ -58,7 +58,6 @@ jobs:
     requirements: [docker]
 
   - name: containers-test
-    service_account_name: prowjob-advanced-sa
     types: [presubmit]
     command: [entrypoint, make, containers-test]
     resources: build
@@ -66,7 +65,6 @@ jobs:
     requirements: [docker]
   - name: containers-test
     architectures: [arm64]
-    service_account_name: prowjob-advanced-sa
     types: [presubmit]
     command: [entrypoint, make, containers-test]
     resources: build
