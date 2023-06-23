@@ -417,16 +417,13 @@ jobs:
   - postsubmit
 - command:
   - entrypoint
-  - ../test-infra/tools/check_release_notes.sh
+  - gen-release-notes --checkLabel
   image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
   modifiers:
   - presubmit_optional
   name: release-notes
   node_selector:
     testing: test-pool
-  repos:
-  - istio/test-infra@master
-  - istio/tools@master
   requirement_presets:
     cache:
       volumeMounts:

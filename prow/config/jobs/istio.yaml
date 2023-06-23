@@ -358,9 +358,8 @@ jobs:
     types: [presubmit]
     command:
       - entrypoint
-      - ../test-infra/tools/check_release_notes.sh
+      - gen-release-notes --checkLabel
     requirements: [github-readonly]
-    repos: [istio/test-infra@master,istio/tools@master]
 
   # Recreate base images if the dockerfile changes (in postsubmit)
   - name: build-base-images

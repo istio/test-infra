@@ -414,15 +414,12 @@ jobs:
   - postsubmit
 - command:
   - entrypoint
-  - ../test-infra/tools/check_release_notes.sh
+  - gen-release-notes --checkLabel
   modifiers:
   - presubmit_optional
   name: release-notes
   node_selector:
     testing: test-pool
-  repos:
-  - istio/test-infra@master
-  - istio/tools@release-1.18
   requirement_presets:
     cache:
       volumeMounts:
