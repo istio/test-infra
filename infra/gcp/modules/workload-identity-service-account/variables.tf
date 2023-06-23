@@ -55,9 +55,14 @@ variable "cluster_namespace" {
 
 variable "project_roles" {
   description = "A list of roles to bind to the serviceaccount in its project"
-  type = list(object({
-    role = string
+  type        = list(object({
+    role    = string
     project = optional(string)
   }))
   default = []
+}
+
+variable "prowjob" {
+  description = "Set to true if this service account will be used for prowjobs"
+  type        = bool
 }

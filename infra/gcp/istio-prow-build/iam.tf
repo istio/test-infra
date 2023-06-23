@@ -35,6 +35,7 @@ module "prowjob_release_account" {
   name              = "prowjob-release"
   description       = "Service account used for prow release jobs. Highly privileged."
   cluster_namespace = local.pod_namespace
+  prowjob           = true
 }
 
 # ProwJob SA used for jobs requiring RBE access.
@@ -48,4 +49,5 @@ module "prowjob_rbe_account" {
     { role = "roles/remotebuildexecution.actionCacheWriter", project = "istio-testing" },
     { role = "roles/remotebuildexecution.artifactCreator", project = "istio-testing" },
   ]
+  prowjob = true
 }
