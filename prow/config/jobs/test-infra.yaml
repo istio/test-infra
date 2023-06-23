@@ -12,36 +12,6 @@ jobs:
   - name: gencheck
     command: [make, gen-check]
 
-# disable as it requires GOOGLE_AUTHENTICATION_CREDENTIALs which is no longer supported
-#  - name: integ-test-authentikos
-#    service_account_name: prowjob-advanced-sa
-#    types: [presubmit]
-#    # trigger on changes in `authentikos/` directory to the following:
-#    # - `test/`  : integration test library, scripts, and object configuration files.
-#    #              If there are changes to the tests themselves, run the modified tests.
-#    # - `.go`    : Golang source files. When the source code changes, test the validity of the change.
-#    # - `go.mod` : Golang module dependencies. When the dependencies change, test the compatibility of the change.
-#    regex: '^authentikos/(test/.+|.+\.go|go\.mod)$'
-#    command: [entrypoint, make, -C, authentikos, integ-test]
-#    requirements: [kind]
-
-  - name: push-prowbazel
-    service_account_name: prowjob-advanced-sa
-    types: [postsubmit]
-    regex: '^docker/prowbazel/Makefile$'
-    cluster: test-infra-trusted
-    max_concurrency: 1
-    command:
-    - entrypoint
-    - make
-    - -C
-    - docker/prowbazel
-    - image
-    - push-safe
-    requirements: [docker]
-    node_selector:
-        prod: prow
-
   - name: push-authentikos
     service_account_name: prowjob-advanced-sa
     types: [postsubmit]
@@ -55,6 +25,7 @@ jobs:
     - authentikos
     - deploy
     requirements: [docker]
+    excluded_requirements: [cache]
     node_selector:
       prod: prow
   
@@ -71,6 +42,7 @@ jobs:
     - tools/prowgen
     - deploy
     requirements: [docker]
+    excluded_requirements: [cache]
     node_selector:
       prod: prow
 
@@ -87,6 +59,7 @@ jobs:
     - tools/prowtrans
     - deploy
     requirements: [docker]
+    excluded_requirements: [cache]
     node_selector:
       prod: prow
 

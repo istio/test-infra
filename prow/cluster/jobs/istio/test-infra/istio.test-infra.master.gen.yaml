@@ -198,59 +198,6 @@ postsubmits:
     cluster: test-infra-trusted
     decorate: true
     max_concurrency: 1
-    name: push-prowbazel_test-infra_postsubmit
-    path_alias: istio.io/test-infra
-    run_if_changed: ^docker/prowbazel/Makefile$
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - make
-        - -C
-        - docker/prowbazel
-        - image
-        - push-safe
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:master-03285f22d0d1f21a8fa63b76aeac574e09c0c5d1
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        prod: prow
-      serviceAccountName: prowjob-advanced-sa
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - emptyDir: {}
-        name: docker-root
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_test-infra_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    cluster: test-infra-trusted
-    decorate: true
-    max_concurrency: 1
     name: push-authentikos_test-infra_postsubmit
     path_alias: istio.io/test-infra
     run_if_changed: ^authentikos/Makefile$
@@ -278,9 +225,6 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -288,10 +232,6 @@ postsubmits:
         prod: prow
       serviceAccountName: prowjob-advanced-sa
       volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
       - emptyDir: {}
         name: docker-root
   - annotations:
@@ -330,9 +270,6 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -340,10 +277,6 @@ postsubmits:
         prod: prow
       serviceAccountName: prowjob-advanced-sa
       volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
       - emptyDir: {}
         name: docker-root
   - annotations:
@@ -382,9 +315,6 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -392,10 +322,6 @@ postsubmits:
         prod: prow
       serviceAccountName: prowjob-advanced-sa
       volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
       - emptyDir: {}
         name: docker-root
 presubmits:
