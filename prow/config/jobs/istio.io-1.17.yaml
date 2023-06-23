@@ -881,7 +881,6 @@ jobs:
   - ../test-infra/tools/automator/automator.sh
   - --org=istio
   - --repo=istio.io
-  - --token-path=/etc/github-token/oauth
   - --cmd=make update_ref_docs
   - --dry-run
   image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
@@ -1012,8 +1011,6 @@ jobs:
           secretName: rel-pipeline-docker-config
   requirements:
   - cache
-  - cache
-  - github
   resources_presets:
     default:
       limits:

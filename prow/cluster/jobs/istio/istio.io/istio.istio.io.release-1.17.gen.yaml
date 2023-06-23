@@ -691,7 +691,6 @@ presubmits:
         - ../test-infra/tools/automator/automator.sh
         - --org=istio
         - --repo=istio.io
-        - --token-path=/etc/github-token/oauth
         - --cmd=make update_ref_docs
         - --dry-run
         env:
@@ -712,9 +711,6 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /etc/github-token
-          name: github
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -723,8 +719,5 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: github
-        secret:
-          secretName: oauth-token
     trigger: ((?m)^/test( | .* )update-ref-docs-dry-run,?($|\s.*))|((?m)^/test( |
       .* )update-ref-docs-dry-run_istio.io_release-1.17,?($|\s.*))
