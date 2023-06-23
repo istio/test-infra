@@ -40,7 +40,7 @@ func TestJobs(t *testing.T) {
 			}
 		case "istio":
 			if !PublicClusters.Has(j.Base.Cluster) {
-				return fmt.Errorf("periodic run on unexpected cluster: %v", j.Base.Cluster)
+				return fmt.Errorf("primary org must use a public cluster, got: %v", j.Base.Cluster)
 			}
 		default:
 			if j.Type != Periodic {
@@ -67,8 +67,8 @@ func TestJobs(t *testing.T) {
 		if j.Base.Cluster != "test-infra-trusted" {
 			return nil
 		}
-		if j.Type == Presubmit {
-			return fmt.Errorf("trusted jobs cannot run in presubmit")
+		if j.Volumes().Has(BuildCache) {
+			return fmt.Errorf("trusted jobs cannot use caches")
 		}
 		return nil
 	})

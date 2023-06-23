@@ -80,15 +80,6 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
 
 periodics:
 - interval: 5m
