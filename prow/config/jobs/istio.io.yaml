@@ -47,10 +47,8 @@ jobs:
     - ../test-infra/tools/automator/automator.sh
     - --org=$AUTOMATOR_ORG
     - --repo=istio.io
-    - --token-path=/etc/github-token/oauth
     - --cmd=make update_ref_docs
     - --dry-run
-    requirements: [github]
     modifiers: [presubmit_optional]
     repos: [istio/test-infra@master]
     env:

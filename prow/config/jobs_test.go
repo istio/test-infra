@@ -86,7 +86,7 @@ func TestJobs(t *testing.T) {
 			return nil
 		}
 		// legacy
-		if strings.HasPrefix(j.Name, "release-notes") || strings.HasPrefix(j.Name, "update-ref-docs-dry-run") {
+		if strings.HasPrefix(j.Name, "release-notes") {
 			return nil
 		}
 		// Private volumes are handled in another test
