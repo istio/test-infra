@@ -135,8 +135,7 @@ func TestJobs(t *testing.T) {
 				return fmt.Errorf("RBE account can only run in proxy repo: %v", j.Repo())
 			}
 		case HighPrivilege:
-			legacyJob := strings.HasPrefix(j.Name, "dry-run_release-builder")
-			if !legacyJob && j.Type == Presubmit {
+			if j.Type == Presubmit {
 				return fmt.Errorf("privileged service accounts cannot run as presubmit")
 			}
 		default:
