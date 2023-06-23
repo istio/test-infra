@@ -143,3 +143,10 @@ requirement_presets:
     - name: rel-pipeline-docker-config
       secret:
         secretName: rel-pipeline-docker-config
+  github-readonly:
+    podSpec:
+      serviceAccountName: prowjob-github-read
+    secrets:
+      - secret: github-read_github_read
+        project: istio-prow-build
+        env: GH_TOKEN
