@@ -43,11 +43,21 @@ module "prowjob_rbe_account" {
   source            = "../modules/workload-identity-service-account"
   project_id        = local.project_id
   name              = "prowjob-rbe"
-  description       = "Service account used for prow jobs requireing RBE access (istio/proxy)."
+  description       = "Service account used for prow jobs requiring RBE access (istio/proxy)."
   cluster_namespace = local.pod_namespace
   project_roles = [
     { role = "roles/remotebuildexecution.actionCacheWriter", project = "istio-testing" },
     { role = "roles/remotebuildexecution.artifactCreator", project = "istio-testing" },
   ]
   prowjob = true
+}
+
+# ProwJob SA used for jobs requiring GitHub API readonly access.
+module "prowjob_github_read_account" {
+  source            = "../modules/workload-identity-service-account"
+  project_id        = local.project_id
+  name              = "prowjob-github-read"
+  description       = "Service account used for prow jobs requiring GitHub read access."
+  cluster_namespace = local.pod_namespace
+  prowjob           = true
 }
