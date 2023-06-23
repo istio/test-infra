@@ -26,10 +26,7 @@ periodics:
       - name: VERSION
         value: master
       - name: COSIGN_KEY
-        valueFrom:
-          secretKeyRef:
-            key: key
-            name: cosign-key
+        value: gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1
       - name: DOCKER_CONFIG
         value: /etc/rel-pipeline-docker-config
       - name: GITHUB_TOKEN_FILE
@@ -287,10 +284,7 @@ postsubmits:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: COSIGN_KEY
-          valueFrom:
-            secretKeyRef:
-              key: key
-              name: cosign-key
+          value: gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1
         - name: DOCKER_CONFIG
           value: /etc/rel-pipeline-docker-config
         - name: GITHUB_TOKEN_FILE
@@ -369,10 +363,7 @@ postsubmits:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: COSIGN_KEY
-          valueFrom:
-            secretKeyRef:
-              key: key
-              name: cosign-key
+          value: gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1
         - name: DOCKER_CONFIG
           value: /etc/rel-pipeline-docker-config
         - name: GITHUB_TOKEN_FILE
