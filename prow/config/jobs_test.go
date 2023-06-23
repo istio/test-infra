@@ -105,10 +105,10 @@ func TestJobs(t *testing.T) {
 		return nil
 	})
 	RunTest("release volumes only used in release jobs", func(j Job) error {
-		releaseJob := j.Repo == "istio/release-builder" && j.Type == Postsubmit
+		releaseJob := j.RepoOrg == "istio/release-builder" && j.Type == Postsubmit
 		// TODO: these shouldn't need grafana or docker, and they actually don't - the private cluster has empty secrets
-		privateReleaseJob := j.Repo == "istio-private/release-builder" && j.Type == Postsubmit
-		baseImageBuilder := ((j.Repo == "istio/istio" && j.Type == Postsubmit) || j.Type == Periodic) && j.BaseName() == "build-base-images"
+		privateReleaseJob := j.RepoOrg == "istio-private/release-builder" && j.Type == Postsubmit
+		baseImageBuilder := ((j.RepoOrg == "istio/istio" && j.Type == Postsubmit) || j.Type == Periodic) && j.BaseName() == "build-base-images"
 		if releaseJob || privateReleaseJob || baseImageBuilder {
 			return nil
 		}
@@ -119,26 +119,30 @@ func TestJobs(t *testing.T) {
 		return nil
 	})
 
-	// check to make sure we did not miss any volumes. This may just mean we need to update the test.
-	RunTest("known service accounts only", func(j Job) error {
-		if !AllServiceAccounts.Has(j.ServiceAccount()) {
+	RunTest("service accounts", func(j Job) error {
+		s, f := ServiceAccounts[j.ServiceAccount()]
+		if !f {
 			return fmt.Errorf("unknown service account: %q", j.ServiceAccount())
 		}
-		return nil
-	})
-	RunTest("presubmit jobs do not use privileged service accounts", func(j Job) error {
-		if j.Type != Presubmit {
+		switch s {
+		case LowPrivilege:
+			// Anyone can use low privilege accounts
 			return nil
+		case MediumPrivilege:
+			// Only proxy is allowed to run these jobs, which use RBE.
+			allowedJobs := j.Repo() == "proxy"
+			if !allowedJobs {
+				return fmt.Errorf("RBE account can only run in proxy repo: %v", j.Repo())
+			}
+		case HighPrivilege:
+			legacyJob := strings.HasPrefix(j.Name, "dry-run_release-builder")
+			if !legacyJob && j.Type == Presubmit {
+				return fmt.Errorf("privileged service accounts cannot run as presubmit")
+			}
+		default:
+			return fmt.Errorf("unknown sensitivity: %v", s)
 		}
-		// legacy
-		if strings.Contains(j.Name, "_proxy") ||
-			strings.HasPrefix(j.Name, "dry-run_release-builder") {
-			return nil
-		}
-		// Private volumes are handled in another test
-		if !LowPrivServiceAccounts.Has(j.ServiceAccount()) {
-			return fmt.Errorf("presubmit job using privileged service account: %q", j.ServiceAccount())
-		}
+
 		return nil
 	})
 	RunTest("private service account only used in private jobs", func(j Job) error {
@@ -270,20 +274,20 @@ func LoadJobs(t *testing.T) []Job {
 	for repo, repoJobs := range jc.PresubmitsStatic {
 		for _, job := range repoJobs {
 			jobs = append(jobs, Job{
-				Name: job.Name,
-				Repo: repo,
-				Type: Presubmit,
-				Base: job.JobBase,
+				Name:    job.Name,
+				RepoOrg: repo,
+				Type:    Presubmit,
+				Base:    job.JobBase,
 			})
 		}
 	}
 	for repo, repoJobs := range jc.PostsubmitsStatic {
 		for _, job := range repoJobs {
 			jobs = append(jobs, Job{
-				Name: job.Name,
-				Repo: repo,
-				Type: Postsubmit,
-				Base: job.JobBase,
+				Name:    job.Name,
+				RepoOrg: repo,
+				Type:    Postsubmit,
+				Base:    job.JobBase,
 			})
 		}
 	}
@@ -351,15 +355,20 @@ const (
 )
 
 type Job struct {
-	Name string
-	Repo string
-	Type JobType
-	Base config.JobBase
+	Name    string
+	RepoOrg string
+	Type    JobType
+	Base    config.JobBase
 }
 
 func (j Job) Org() string {
-	org, _, _ := strings.Cut(j.Repo, "/")
+	org, _, _ := strings.Cut(j.RepoOrg, "/")
 	return org
+}
+
+func (j Job) Repo() string {
+	_, repo, _ := strings.Cut(j.RepoOrg, "/")
+	return repo
 }
 
 func (j Job) BaseName() string {
@@ -415,19 +424,23 @@ func (j Job) ServiceAccount() string {
 	return j.Base.Spec.ServiceAccountName
 }
 
-var AllServiceAccounts = sets.NewString(
-	"",
-	"prow-deployer",
-	"testgrid-updater",
-	"prowjob-private-sa",
-	"prowjob-advanced-sa",
-	"prowjob-default-sa",
+type Sensitivity int
+
+const (
+	LowPrivilege Sensitivity = iota
+	MediumPrivilege
+	HighPrivilege
 )
 
-var LowPrivServiceAccounts = sets.NewString(
-	"", // Default is prowjob-default-sa
-	"prowjob-default-sa",
-)
+var ServiceAccounts = map[string]Sensitivity{
+	"":                    LowPrivilege, // Default is prowjob-default-sa
+	"prowjob-rbe":         MediumPrivilege,
+	"prowjob-default-sa":  LowPrivilege,
+	"prow-deployer":       HighPrivilege,
+	"testgrid-updater":    HighPrivilege,
+	"prowjob-private-sa":  LowPrivilege,
+	"prowjob-advanced-sa": HighPrivilege,
+}
 
 var PrivateServiceAccounts = sets.NewString(
 	"prowjob-private-sa",
