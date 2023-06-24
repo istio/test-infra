@@ -234,15 +234,6 @@ presubmits:
     branches:
     - ^release-1.16$
     decorate: true
-    extra_refs:
-    - base_ref: master
-      org: istio
-      path_alias: istio.io/test-infra
-      repo: test-infra
-    - base_ref: master
-      org: istio
-      path_alias: istio.io/tools
-      repo: tools
     name: release-notes_api_release-1.16
     optional: true
     path_alias: istio.io/api
@@ -252,7 +243,7 @@ presubmits:
       containers:
       - command:
         - entrypoint
-        - ../test-infra/tools/check_release_notes.sh
+        - gen-release-notes --checkLabel
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"

@@ -398,7 +398,7 @@ jobs:
   - postsubmit
 - command:
   - entrypoint
-  - ../test-infra/tools/check_release_notes.sh
+  - gen-release-notes --checkLabel
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -408,9 +408,6 @@ jobs:
   name: release-notes
   node_selector:
     testing: test-pool
-  repos:
-  - istio/test-infra@master
-  - istio/tools@master
   requirement_presets:
     cache:
       volumeMounts:

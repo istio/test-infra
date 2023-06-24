@@ -5878,13 +5878,10 @@ jobs:
   - presubmit
 - command:
   - entrypoint
-  - ../test-infra/tools/check_release_notes.sh
+  - gen-release-notes --checkLabel
   name: release-notes
   node_selector:
     testing: test-pool
-  repos:
-  - istio/test-infra@master
-  - istio/tools@release-1.18
   requirement_presets:
     cache:
       volumeMounts:
