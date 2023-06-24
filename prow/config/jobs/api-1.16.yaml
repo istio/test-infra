@@ -397,8 +397,8 @@ jobs:
   types:
   - postsubmit
 - command:
+  - entrypoint
   - ../test-infra/tools/check_release_notes.sh
-  - --token-path=/etc/github-token/oauth
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -519,7 +519,7 @@ jobs:
   requirements:
   - cache
   - cache
-  - github
+  - github-readonly
   resources_presets:
     default:
       limits:

@@ -15,6 +15,7 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -85,10 +86,6 @@ func TestJobs(t *testing.T) {
 		if j.Type != Presubmit {
 			return nil
 		}
-		// legacy
-		if strings.HasPrefix(j.Name, "release-notes") {
-			return nil
-		}
 		// Private volumes are handled in another test
 		priv := j.Volumes().Difference(LowPrivilegeVolumes).Difference(PrivateVolumes)
 		if len(priv) == 0 {
@@ -129,11 +126,19 @@ func TestJobs(t *testing.T) {
 			// Anyone can use low privilege accounts
 			return nil
 		case MediumPrivilege:
-			// Only proxy is allowed to run these jobs, which use RBE.
-			allowedJobs := j.Repo() == "proxy"
-			if !allowedJobs {
-				return fmt.Errorf("RBE account can only run in proxy repo: %v", j.Repo())
+			// Postsubmit job can use
+			if j.Type != Presubmit {
+				return nil
 			}
+			// Only proxy is allowed to run these jobs, which use RBE.
+			if j.ServiceAccount() == "prowjob-rbe" && j.Repo() == "proxy" {
+				return nil
+			}
+			if j.ServiceAccount() == "prowjob-github-read" && strings.HasPrefix(j.Name, "release-notes") {
+				// Only release notes job is allowed
+				return nil
+			}
+			return fmt.Errorf("privileged service account %v cannot run as presubmit", j.ServiceAccount())
 		case HighPrivilege:
 			if j.Type == Presubmit {
 				return fmt.Errorf("privileged service accounts cannot run as presubmit")
@@ -222,7 +227,7 @@ func TestJobs(t *testing.T) {
 	})
 
 	RunTest("secret access", func(j Job) error {
-		secrets := false
+		secrets := sets.NewString()
 		hasEntrypoint := false
 		for _, c := range j.Base.Spec.Containers {
 			if len(c.Command) > 0 && c.Command[0] == "entrypoint" {
@@ -230,19 +235,27 @@ func TestJobs(t *testing.T) {
 			}
 			for _, e := range c.Env {
 				if e.Name == "GCP_SECRETS" {
-					secrets = true
+					gcpSecrets := []Secret{}
+					if err := json.Unmarshal([]byte(e.Value), &gcpSecrets); err != nil {
+						return err
+					}
+					for _, s := range gcpSecrets {
+						secrets.Insert(s.Project + "/" + s.Name)
+					}
 				}
 			}
 		}
-		if !secrets {
+		if secrets.Len() == 0 {
 			return nil
 		}
 
-		if j.Type == Presubmit {
-			return fmt.Errorf("jobs with secrets cannot be presubmits")
-		}
 		if !hasEntrypoint {
 			return fmt.Errorf("jobs with secrets must use entrypoint")
+		}
+		allowedSecret := strings.HasPrefix(j.Name, "release-notes") &&
+			sets.NewString("istio-prow-build/github-read_github_read").IsSuperset(secrets)
+		if !allowedSecret && j.Type == Presubmit {
+			return fmt.Errorf("jobs with secrets %v cannot be presubmits", secrets.UnsortedList())
 		}
 		return nil
 	})
@@ -434,6 +447,7 @@ const (
 var ServiceAccounts = map[string]Sensitivity{
 	"":                    LowPrivilege, // Default is prowjob-default-sa
 	"prowjob-rbe":         MediumPrivilege,
+	"prowjob-github-read": MediumPrivilege,
 	"prowjob-default-sa":  LowPrivilege,
 	"prow-deployer":       HighPrivilege,
 	"testgrid-updater":    HighPrivilege,
@@ -444,3 +458,9 @@ var ServiceAccounts = map[string]Sensitivity{
 var PrivateServiceAccounts = sets.NewString(
 	"prowjob-private-sa",
 )
+
+type Secret struct {
+	Name    string `json:"secret,omitempty"`
+	Project string `json:"project,omitempty"`
+	Env     string `json:"env,omitempty"`
+}

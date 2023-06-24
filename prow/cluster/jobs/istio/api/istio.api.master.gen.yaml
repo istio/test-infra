@@ -253,11 +253,13 @@ presubmits:
       automountServiceAccountToken: false
       containers:
       - command:
+        - entrypoint
         - ../test-infra/tools/check_release_notes.sh
-        - --token-path=/etc/github-token/oauth
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GCP_SECRETS
+          value: '[{"secret":"github-read_github_read","project":"istio-prow-build","env":"GH_TOKEN"}]'
         image: gcr.io/istio-testing/build-tools:master-03285f22d0d1f21a8fa63b76aeac574e09c0c5d1
         name: ""
         resources:
@@ -273,18 +275,13 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /etc/github-token
-          name: github
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
+      serviceAccountName: prowjob-github-read
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: github
-        secret:
-          secretName: oauth-token
     trigger: ((?m)^/test( | .* )release-notes,?($|\s.*))|((?m)^/test( | .* )release-notes_api,?($|\s.*))

@@ -13,7 +13,7 @@ locals {
   # github_read_secret contains secrets for prowjob-github-read
   github_readonly_secret = [
     # Fine grained PAT in the Istio org, "github/release-notes/public-read-only". Has public access only.
-    "github-read_github_read"
+    "github-read_github_read" # Expires on 6/23/2024. TODO: find the best way to ensure this is noted.
   ]
 
   all_secrets = concat(
@@ -63,4 +63,5 @@ resource "google_secret_manager_secret_iam_policy" "github_readonly_access" {
   project     = local.project_id
   secret_id   = each.key
   policy_data = data.google_iam_policy.github_readonly_access.policy_data
+  depends_on  = [google_secret_manager_secret.secrets]
 }
