@@ -358,7 +358,9 @@ jobs:
     types: [presubmit]
     command:
       - entrypoint
-      - gen-release-notes --checkLabel
+      - gen-release-notes
+      - --checkLabel
+      - --validateOnly
     requirements: [github-readonly]
 
   # Recreate base images if the dockerfile changes (in postsubmit)
