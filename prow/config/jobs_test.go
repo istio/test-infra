@@ -115,6 +115,21 @@ func TestJobs(t *testing.T) {
 		}
 		return nil
 	})
+	RunTest("org volumes only used in org jobs", func(j Job) error {
+		orgJob := (j.RepoOrg == "istio/community" && j.Type == Postsubmit) ||
+			(j.Name == "ci-test-infra-branchprotector" && j.Type == Periodic) ||
+			// TODO: move these to use `github-istio-testing-push`
+			(j.Name == "ci-prow-autobump" && j.Type == Periodic) ||
+			(j.Name == "ci-prow-autobump-for-auto-deploy" && j.Type == Periodic)
+		if orgJob {
+			return nil
+		}
+		usesOrgVolume := j.Volumes().Has(GithubTesting)
+		if usesOrgVolume {
+			return fmt.Errorf("only organization jobs can use organization volumes, found %v", j.Volumes())
+		}
+		return nil
+	})
 
 	RunTest("service accounts", func(j Job) error {
 		s, f := ServiceAccounts[j.ServiceAccount()]
