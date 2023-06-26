@@ -125,7 +125,11 @@ resource "google_container_node_pool" "prow_build" {
       testing                  = "build-pool"
     }
 
-    oauth_scopes    = ["https://www.googleapis.com/auth/devstorage.read_only", "https://www.googleapis.com/auth/logging.write", "https://www.googleapis.com/auth/monitoring", "https://www.googleapis.com/auth/service.management.readonly", "https://www.googleapis.com/auth/servicecontrol", "https://www.googleapis.com/auth/trace.append"]
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/devstorage.read_only", "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring", "https://www.googleapis.com/auth/service.management.readonly",
+      "https://www.googleapis.com/auth/servicecontrol", "https://www.googleapis.com/auth/trace.append"
+    ]
     service_account = "default"
 
     shielded_instance_config {
@@ -152,63 +156,25 @@ resource "google_container_node_pool" "prow_build" {
 # Prow 'test' node pool is used for most jobs
 # Consists of e2-16 nodes.
 # Note: despite the naming "build" vs "test", a lot of build jobs use the test pool.
-resource "google_container_node_pool" "prow_test" {
-  autoscaling {
-    max_node_count = 60
-    min_node_count = 2
+module "prow_test" {
+  source = "../modules/gke-nodepool"
+
+  name         = "istio-test-pool-e2"
+  cluster_name = "prow"
+  location     = "us-west1-a"
+
+  machine_type  = "e2-standard-16"
+  initial_count = 2
+  max_count     = 60
+  min_count     = 2
+
+  disk_size_gb = 256
+  disk_type    = "pd-ssd"
+
+  project_name    = local.project_id
+  service_account = "istio-prow-jobs@istio-prow-build.iam.gserviceaccount.com"
+
+  labels = {
+    "testing" = "test-pool"
   }
-
-  cluster            = "prow"
-  initial_node_count = 2
-  location           = "us-west1-a"
-
-  management {
-    auto_repair  = true
-    auto_upgrade = true
-  }
-
-  max_pods_per_node = 110
-  name              = "istio-test-pool-e2"
-
-  network_config {
-    pod_ipv4_cidr_block = "10.44.0.0/14"
-    pod_range           = "gke-prow-pods-477396f0"
-  }
-
-  node_config {
-    disk_size_gb = 256
-    disk_type    = "pd-ssd"
-    image_type   = "COS_CONTAINERD"
-
-    labels = {
-      testing = "test-pool"
-    }
-
-    machine_type = "e2-standard-16"
-
-    metadata = {
-      disable-legacy-endpoints = "true"
-    }
-
-    oauth_scopes    = ["https://www.googleapis.com/auth/cloud-platform"]
-    service_account = "istio-prow-jobs@istio-prow-build.iam.gserviceaccount.com"
-
-    shielded_instance_config {
-      enable_integrity_monitoring = true
-    }
-
-    workload_metadata_config {
-      mode = "GKE_METADATA"
-    }
-  }
-
-  node_locations = ["us-west1-a"]
-  project        = "istio-prow-build"
-
-  upgrade_settings {
-    max_surge       = 1
-    max_unavailable = 0
-  }
-
-  version = "1.24.12-gke.1000"
 }

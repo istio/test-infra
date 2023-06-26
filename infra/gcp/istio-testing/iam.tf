@@ -34,12 +34,6 @@ resource "google_service_account" "istio_policy_bot" {
   display_name = "Istio Policy Bot"
   project      = "istio-testing"
 }
-# Unknown usage but it is in use. TODO: find what it is.
-resource "google_service_account" "istio_health_metrics" {
-  account_id   = "istio-health-metrics"
-  display_name = "istio-health-metrics"
-  project      = "istio-testing"
-}
 
 ## Prow Job Service Accounts ##
 # Used with WI as the "prowjob-default-sa" service account. This is the default for jobs
@@ -60,14 +54,6 @@ resource "google_service_account" "istio_prow_test_job_private" {
 resource "google_service_account" "istio_prow_test_job" {
   account_id   = "istio-prow-test-job"
   display_name = "Istio Prow Test Job Service Account"
-  project      = "istio-testing"
-}
-# Used for WI in test-infra trusted jobs
-# This is now obsolete (6/21/23) but will be kept around during migration.
-resource "google_service_account" "gencred_refresher" {
-  account_id   = "gencred-refresher"
-  description  = "The service account used by Prow jobs for rotating build cluster kubeconfig"
-  display_name = "gencred-refresher"
   project      = "istio-testing"
 }
 # Used for WI in test-infra trusted jobs
@@ -93,10 +79,29 @@ resource "google_service_account" "kubernetes_external_secrets_sa" {
   display_name = "kubernetes-external-secrets-sa"
   project      = "istio-testing"
 }
+
 # Used for WI for prow control plane deployment
 resource "google_service_account" "prow_control_plane" {
   account_id   = "prow-control-plane"
   description  = "Used by prow components"
   display_name = "prow-control-plane"
   project      = "istio-testing"
+}
+data "google_iam_policy" "prow_control_plane" {
+  binding {
+    role = "roles/iam.workloadIdentityUser"
+
+    members = [
+      "serviceAccount:istio-testing.svc.id.goog[default/crier]",
+      "serviceAccount:istio-testing.svc.id.goog[default/deck]",
+      "serviceAccount:istio-testing.svc.id.goog[default/deck-private]",
+      "serviceAccount:istio-testing.svc.id.goog[default/hook]",
+      "serviceAccount:istio-testing.svc.id.goog[default/prow-controller-manager]",
+      "serviceAccount:istio-testing.svc.id.goog[default/tide]",
+    ]
+  }
+}
+resource "google_service_account_iam_policy" "prow_control_plane" {
+  service_account_id = google_service_account.prow_control_plane.name
+  policy_data        = data.google_iam_policy.prow_control_plane.policy_data
 }
