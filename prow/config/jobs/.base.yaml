@@ -115,40 +115,31 @@ requirement_presets:
       - secret: github_istio-testing_pusher
         project: istio-prow-build
         env: GH_TOKEN
+  # build-base has access to push to dockerhub and to push as istio-testing github. Only for use with base image building
+  build-base:
+    podSpec:
+      serviceAccountName: prowjob-release
+    secrets:
+      - secret: release_docker_istio
+        project: istio-prow-build
+        env: DOCKER_CONFIG_DATA
+      - secret: github_istio-testing_pusher # Note: This is NOT "release_github_istio-release", which is why this is separate from 'releae'
+        project: istio-prow-build
+        env: GH_TOKEN
+  # release is used for release jobs. This is the most privileged type of job.
   release:
+    podSpec:
+      serviceAccountName: prowjob-release
     env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-    volumeMounts:
-      - name: rel-pipeline-docker-config
-        mountPath: /etc/rel-pipeline-docker-config
-      - name: rel-pipeline-github
-        mountPath: /etc/github
-        readOnly: true
-      - name: rel-pipeline-grafana
-        mountPath: /etc/grafana
-        readOnly: true
-      - name: rel-pipeline-service-account
-        mountPath: /etc/service-account
-        readOnly: true
-    volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+    - name: COSIGN_KEY
+      value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
+    secrets:
+      - secret: release_docker_istio
+        project: istio-prow-build
+        env: DOCKER_CONFIG_DATA
+      - secret: release_github_istio-release
+        project: istio-prow-build
+        env: GH_TOKEN
+      - secret: release_grafana_istio
+        project: istio-prow-build
+        env: GRAFANA_TOKEN

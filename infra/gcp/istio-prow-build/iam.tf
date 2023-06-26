@@ -39,6 +39,10 @@ module "prowjob_release_account" {
     { name = "release_docker_istio" },
     { name = "release_github_istio-release" },
     { name = "release_grafana_istio" },
+    # This may look a bit weird, but for building base images we need dockerhub + istio-testing account, not istio-release account.
+    # So we give this prow job access.
+    # We could scope this down a bit with 2 accounts, but all of these are super high privilege anyways so it is simpler to keep them together.
+    { name = "github_istio-testing_pusher" },
   ]
   gcs_acls = [
     { bucket = "istio-prerelease", role = "OWNER" },
@@ -46,7 +50,6 @@ module "prowjob_release_account" {
     { bucket = "artifacts.istio-release.appspot.com", role = "OWNER" },
     { bucket = "artifacts.istio-prerelease-testing.appspot.com", role = "OWNER" },
   ]
-  prowjob = true
   prowjob = true
 }
 
