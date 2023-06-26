@@ -57,7 +57,7 @@ resource "google_storage_bucket_access_control" "acls" {
   for_each = {for k, v in var.gcs_acls : k => v}
   bucket = each.value.bucket
   role   = each.value.role
-  entity = "serviceAccount:${google_service_account.serviceaccount.email}"
+  entity = "user-${google_service_account.serviceaccount.email}"
 }
 
 // optional: secrets to grant access to the serviceaccount on the project
