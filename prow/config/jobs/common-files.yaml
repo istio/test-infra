@@ -10,6 +10,7 @@ jobs:
   - name: update-common-mainonly
     types: [postsubmit]
     command:
+    - entrypoint
     - ../test-infra/tools/automator/automator.sh
     - --org=$AUTOMATOR_ORG
     - --repo=test-infra,bots,community
@@ -17,9 +18,9 @@ jobs:
     - --labels=auto-merge,release-notes-none
     - --strict
     - --modifier=commonfiles
-    - --token-path=/etc/github-token/oauth
+    - --token-env
     - --cmd=make update-common && make gen
-    requirements: [github]
+    requirements: [github-istio-testing-push]
     repos: [istio/test-infra@master]
     env:
     - name: AUTOMATOR_ORG
@@ -29,6 +30,7 @@ jobs:
   - name: update-common
     types: [postsubmit]
     command:
+    - entrypoint
     - ../test-infra/tools/automator/automator.sh
     - --org=$AUTOMATOR_ORG
     - --repo=istio,api,tools,release-builder,client-go,proxy,ztunnel
@@ -36,9 +38,9 @@ jobs:
     - --labels=auto-merge,release-notes-none
     - --strict
     - --modifier=commonfiles
-    - --token-path=/etc/github-token/oauth
+    - --token-env
     - --cmd=make update-common && make gen
-    requirements: [github]
+    requirements: [github-istio-testing-push]
     repos: [istio/test-infra@master]
     env:
     - name: AUTOMATOR_ORG
@@ -47,6 +49,7 @@ jobs:
   - name: update-common-istio.io
     types: [postsubmit]
     command:
+    - entrypoint
     - ../test-infra/tools/automator/automator.sh
     - --org=$AUTOMATOR_ORG
     - --repo=istio.io
@@ -54,9 +57,9 @@ jobs:
     - --labels=auto-merge,release-notes-none
     - --strict
     - --modifier=commonfiles
-    - --token-path=/etc/github-token/oauth
+    - --token-env
     - --cmd=make update-common && make gen
-    requirements: [github]
+    requirements: [github-istio-testing-push]
     repos: [istio/test-infra@master]
     env:
     - name: AUTOMATOR_ORG
@@ -65,20 +68,21 @@ jobs:
   - name: update-build-tools-image
     types: [postsubmit]
     command:
+    - entrypoint
     - ../test-infra/tools/automator/automator.sh
     - --org=$AUTOMATOR_ORG
     - --repo=test-infra
     - "--title=Automator: update build-tools:$AUTOMATOR_SRC_BRANCH"
     - --branch=master
     - --modifier=buildtools
-    - --token-path=/etc/github-token/oauth
+    - --token-env
     - --script-path=../test-infra/tools/automator/scripts/update-images.sh
     - --labels=release-notes-none
     - --verbose
     - --
     - --post=make gen
     - --source=$AUTOMATOR_ROOT_DIR/files/common/scripts/setup_env.sh
-    requirements: [github]
+    requirements: [github-istio-testing-push]
     repos: [istio/test-infra@master]
     env:
     - name: AUTOMATOR_ORG

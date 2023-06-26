@@ -28,7 +28,7 @@ periodics:
       - name: COSIGN_KEY
         value: gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1
       - name: GCP_SECRETS
-        value: '[{"secret":"release_docker_istio","project":"istio-prow-build","env":"DOCKER_CONFIG_DATA"},{"secret":"release_github_istio-release","project":"istio-prow-build","env":"GITHUB_TOKEN"},{"secret":"release_grafana_istio","project":"istio-prow-build","env":"GRAFANA_TOKEN"}]'
+        value: '[{"secret":"release_docker_istio","project":"istio-prow-build","env":"DOCKER_CONFIG_DATA"},{"secret":"release_github_istio-release","project":"istio-prow-build","env":"GITHUB_TOKEN"},{"secret":"release_grafana_istio","project":"istio-prow-build","env":"GRAFANA_TOKEN"},{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"}]'
       image: gcr.io/istio-testing/build-tools:master-7c2cba5679671f40312e6324d270a0d70ad097d0
       name: ""
       resources:
@@ -46,12 +46,10 @@ periodics:
         subPath: gomod
       - mountPath: /var/lib/docker
         name: docker-root
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
     nodeSelector:
       kubernetes.io/arch: amd64
       testing: test-pool
+    serviceAccountName: prowjob-github-istio-testing-push
     volumes:
     - hostPath:
         path: /var/tmp/prow/cache
@@ -59,10 +57,6 @@ periodics:
       name: build-cache
     - emptyDir: {}
       name: docker-root
-    - name: github
-      secret:
-        optional: true
-        secretName: oauth-token
 postsubmits:
   istio/release-builder:
   - annotations:

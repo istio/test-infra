@@ -87,8 +87,10 @@ requirement_presets:
         path: /var/tmp/prow/cache
         type: DirectoryOrCreate
       name: build-cache
-  # legacy: Access to istio-testing GitHub
-  github:
+  # Access to istio-testing GitHub, with `admin:org`.
+  # Highly privileged, should only be used from istio/community.
+  # TODO: move to GCP Secrets
+  github-organization:
     volumeMounts:
     - mountPath: /etc/github-token
       name: github
@@ -97,17 +99,6 @@ requirement_presets:
     - name: github
       secret:
         secretName: oauth-token
-  # legacy: Access to istio-testing GitHub
-  github-optional:
-    volumeMounts:
-    - mountPath: /etc/github-token
-      name: github
-      readOnly: true
-    volumes:
-    - name: github
-      secret:
-        secretName: oauth-token
-        optional: true
   # Access to anonymous readonly GitHub.
   github-readonly:
     podSpec:

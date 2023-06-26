@@ -16,12 +16,13 @@ periodics:
     automountServiceAccountToken: false
     containers:
     - command:
+      - entrypoint
       - ./tools/automator/automator.sh
       - --org=$AUTOMATOR_ORG
       - --repo=test-infra
       - '--title=Automator: bump k8s-prow images'
       - --modifier=bump-k8s-prow-images
-      - --token-path=/etc/github-token/oauth
+      - --token-env
       - --script-path=../test-infra/tools/automator/scripts/update-images.sh
       - --verbose
       - --
@@ -35,6 +36,8 @@ periodics:
         value: istio
       - name: BUILD_WITH_CONTAINER
         value: "0"
+      - name: GCP_SECRETS
+        value: '[{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"}]'
       image: gcr.io/istio-testing/build-tools:master-7c2cba5679671f40312e6324d270a0d70ad097d0
       name: ""
       resources:
@@ -50,20 +53,15 @@ periodics:
       - mountPath: /home/prow/go/pkg
         name: build-cache
         subPath: gomod
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
     nodeSelector:
       kubernetes.io/arch: amd64
       testing: test-pool
+    serviceAccountName: prowjob-github-istio-testing-push
     volumes:
     - hostPath:
         path: /var/tmp/prow/cache
         type: DirectoryOrCreate
       name: build-cache
-    - name: github
-      secret:
-        secretName: oauth-token
 postsubmits:
   istio/test-infra:
   - annotations:

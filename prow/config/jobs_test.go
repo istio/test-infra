@@ -445,14 +445,15 @@ const (
 )
 
 var ServiceAccounts = map[string]Sensitivity{
-	"":                    LowPrivilege, // Default is prowjob-default-sa
-	"prowjob-rbe":         MediumPrivilege,
-	"prowjob-github-read": MediumPrivilege,
-	"prowjob-default-sa":  LowPrivilege,
-	"prow-deployer":       HighPrivilege,
-	"testgrid-updater":    HighPrivilege,
-	"prowjob-private-sa":  LowPrivilege,
-	"prowjob-advanced-sa": HighPrivilege,
+	"":                                  LowPrivilege, // Default is prowjob-default-sa
+	"prowjob-default-sa":                LowPrivilege,
+	"prowjob-private-sa":                LowPrivilege,
+	"prowjob-rbe":                       MediumPrivilege,
+	"prowjob-github-read":               MediumPrivilege,
+	"prow-deployer":                     HighPrivilege,
+	"testgrid-updater":                  HighPrivilege,
+	"prowjob-advanced-sa":               HighPrivilege,
+	"prowjob-github-istio-testing-push": HighPrivilege,
 }
 
 var PrivateServiceAccounts = sets.NewString(

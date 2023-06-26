@@ -107,13 +107,14 @@ jobs:
 - name: update-istio
   types: [postsubmit]
   command:
+  - entrypoint
   - ../test-infra/tools/automator/automator.sh
   - --org=$AUTOMATOR_ORG
   - --repo=istio
   - "--title=Automator: update proxy@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
   - --labels=auto-merge,release-notes-none
   - --modifier=update_proxy_dep
-  - --token-path=/etc/github-token/oauth
+  - --token-env
   - --git-exclude=^common/
   - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
   requirements: [github-istio-testing-push]
@@ -128,13 +129,14 @@ jobs:
   types: [periodic]
   interval: 24h
   command:
+  - entrypoint
   - ../test-infra/tools/automator/automator.sh
   - --org=$AUTOMATOR_ORG
   - --repo=proxy
   - "--title=Automator: update envoy@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
   - --labels=auto-merge
   - --modifier=update_envoy_dep
-  - --token-path=/etc/github-token/oauth
+  - --token-env
   - --cmd=UPDATE_BRANCH=main scripts/update_envoy.sh
   requirements: [github-istio-testing-push]
   repos: [istio/test-infra@master]
@@ -148,13 +150,14 @@ jobs:
   types: [periodic]
   cron: "0 2 * * 0" # run each Sunday at 02:00AM UTC
   command:
+  - entrypoint
   - ../test-infra/tools/automator/automator.sh
   - --org=$AUTOMATOR_ORG
   - --repo=proxy
   - "--title=Automator: update go-control-plane in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
   - --labels=auto-merge,release-notes-none
   - --modifier=update_deps
-  - --token-path=/etc/github-token/oauth
+  - --token-env
   - --cmd=go get github.com/envoyproxy/go-control-plane@main && go mod tidy
   disable_release_branching: true
   requirements: [github-istio-testing-push]

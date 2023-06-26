@@ -28,7 +28,7 @@ cleanup() {
 }
 
 get_opts() {
-  if opt="$(getopt -o '' -l branch:,org:,repo:,title:,match-title:,body:,labels:,user:,email:,modifier:,script-path:,cmd:,token-path:,token:,merge-repository:,merge-branch:,git-exclude:,strict,dry-run,verbose -n "$(basename "$0")" -- "$@")"; then
+  if opt="$(getopt -o '' -l branch:,org:,repo:,title:,match-title:,body:,labels:,user:,email:,modifier:,script-path:,cmd:,token-path:,token:,token-env,merge-repository:,merge-branch:,git-exclude:,strict,dry-run,verbose -n "$(basename "$0")" -- "$@")"; then
     eval set -- "$opt"
   else
     print_error_and_exit "unable to parse options"
@@ -93,6 +93,13 @@ get_opts() {
       ;;
     --token)
       token="$2"
+      tmp_token="$(mktemp -t token-XXXXXXXXXX)"
+      echo "$token" >"$tmp_token"
+      token_path="$tmp_token"
+      shift 2
+      ;;
+    --token-env)
+      token="$GH_TOKEN"
       tmp_token="$(mktemp -t token-XXXXXXXXXX)"
       echo "$token" >"$tmp_token"
       token_path="$tmp_token"
