@@ -60,6 +60,7 @@ postsubmits:
       automountServiceAccountToken: false
       containers:
       - command:
+        - entrypoint
         - ../test-infra/tools/automator/automator.sh
         - --org=istio
         - --repo=istio,api,tools,release-builder,pkg,client-go,proxy
@@ -67,11 +68,13 @@ postsubmits:
         - --labels=auto-merge,release-notes-none
         - --strict
         - --modifier=commonfiles
-        - --token-path=/etc/github-token/oauth
+        - --token-env
         - --cmd=make update-common && make gen
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GCP_SECRETS
+          value: '[{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"}]'
         image: gcr.io/istio-testing/build-tools:release-1.16-370cc29a6684396492862c9bc6bc00c202835e0b
         name: ""
         resources:
@@ -87,20 +90,15 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /etc/github-token
-          name: github
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
+      serviceAccountName: prowjob-github-istio-testing-push
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: github
-        secret:
-          secretName: oauth-token
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_release-1.16_common-files_postsubmit
@@ -119,6 +117,7 @@ postsubmits:
       automountServiceAccountToken: false
       containers:
       - command:
+        - entrypoint
         - ../test-infra/tools/automator/automator.sh
         - --org=istio
         - --repo=istio.io
@@ -126,11 +125,13 @@ postsubmits:
         - --labels=auto-merge,release-notes-none
         - --strict
         - --modifier=commonfiles
-        - --token-path=/etc/github-token/oauth
+        - --token-env
         - --cmd=make update-common && make gen
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GCP_SECRETS
+          value: '[{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"}]'
         image: gcr.io/istio-testing/build-tools:release-1.16-370cc29a6684396492862c9bc6bc00c202835e0b
         name: ""
         resources:
@@ -146,20 +147,15 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /etc/github-token
-          name: github
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
+      serviceAccountName: prowjob-github-istio-testing-push
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: github
-        secret:
-          secretName: oauth-token
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_release-1.16_common-files_postsubmit
@@ -178,13 +174,14 @@ postsubmits:
       automountServiceAccountToken: false
       containers:
       - command:
+        - entrypoint
         - ../test-infra/tools/automator/automator.sh
         - --org=istio
         - --repo=test-infra
         - '--title=Automator: update build-tools:$AUTOMATOR_SRC_BRANCH'
         - --branch=master
         - --modifier=buildtools
-        - --token-path=/etc/github-token/oauth
+        - --token-env
         - --script-path=../test-infra/tools/automator/scripts/update-images.sh
         - --labels=release-notes-none
         - --verbose
@@ -194,6 +191,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GCP_SECRETS
+          value: '[{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"}]'
         image: gcr.io/istio-testing/build-tools:release-1.16-370cc29a6684396492862c9bc6bc00c202835e0b
         name: ""
         resources:
@@ -209,20 +208,15 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /etc/github-token
-          name: github
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
+      serviceAccountName: prowjob-github-istio-testing-push
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: github
-        secret:
-          secretName: oauth-token
 presubmits:
   istio/common-files:
   - always_run: true
