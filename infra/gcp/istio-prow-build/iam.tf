@@ -35,7 +35,7 @@ module "prowjob_release_account" {
   name              = "prowjob-release"
   description       = "Service account used for prow release jobs. Highly privileged."
   cluster_namespace = local.pod_namespace
-  secrets = [
+  secrets           = [
     { name = "release_docker_istio" },
     { name = "release_github_istio-release" },
     { name = "release_grafana_istio" },
@@ -57,7 +57,7 @@ module "prowjob_rbe_account" {
   name              = "prowjob-rbe"
   description       = "Service account used for prow jobs requiring RBE access (istio/proxy)."
   cluster_namespace = local.pod_namespace
-  project_roles = [
+  project_roles     = [
     { role = "roles/remotebuildexecution.actionCacheWriter", project = "istio-testing" },
     { role = "roles/remotebuildexecution.artifactCreator", project = "istio-testing" },
   ]
@@ -72,8 +72,21 @@ module "prowjob_github_read_account" {
   name              = "prowjob-github-read"
   description       = "Service account used for prow jobs requiring GitHub read access."
   cluster_namespace = local.pod_namespace
-  secrets = [
+  secrets           = [
     { name = "github-read_github_read" },
   ]
   prowjob = true
+}
+
+# Service account that has permissions for GitHub from istio-testing account. Has permissions to push PRs
+module "prowjob_github_istio_testing_pusher_account" {
+  source            = "../modules/workload-identity-service-account"
+  project_id        = local.project_id
+  name              = "prowjob-github-istio-testing-pusher"
+  description       = "Service account that has permissions for GitHub from istio-testing account. Has permissions to push PRs."
+  cluster_namespace = local.pod_namespace
+  secrets           = [
+    { name = "github_istio-testing_pusher" },
+  ]
+  prowjob           = true
 }
