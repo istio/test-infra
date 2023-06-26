@@ -52,6 +52,14 @@ resource "google_project_iam_member" "project_roles" {
   role     = each.value.role
   member   = "serviceAccount:${google_service_account.serviceaccount.email}"
 }
+// optional: GCS ACLs to grant the serviceaccount on the project
+resource "google_storage_bucket_access_control" "acls" {
+  for_each = {for k, v in var.gcs_acls : k => v}
+  bucket = each.value.bucket
+  role   = each.value.role
+  entity = "serviceAccount:${google_service_account.serviceaccount.email}"
+}
+
 // If this is going to be used for prowjobs, then we need to give it access to gs://istio-prow to write logs.
 resource "google_storage_bucket_iam_member" "member" {
   count  = var.prowjob ? 1 : 0

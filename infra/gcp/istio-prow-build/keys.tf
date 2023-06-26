@@ -15,3 +15,18 @@ resource "google_kms_crypto_key" "istio_cosign_key" {
     protection_level = "SOFTWARE"
   }
 }
+
+# Only release job can use the keyring
+data "google_iam_policy" "admin" {
+  binding {
+    role = "roles/cloudkms.signerVerifier"
+
+    members = [
+      "serviceAccount:${module.prowjob_release_account.email}",
+    ]
+  }
+}
+resource "google_kms_key_ring_iam_policy" "key_ring" {
+  key_ring_id = google_kms_key_ring.istio_cosign_keyring.id
+  policy_data = data.google_iam_policy.admin.policy_data
+}

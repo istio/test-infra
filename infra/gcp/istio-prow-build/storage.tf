@@ -95,7 +95,6 @@ data "google_iam_policy" "istio_private_build" {
   binding {
     members = [
       "serviceAccount:istio-prow-test-job-private@istio-testing.iam.gserviceaccount.com",
-      "serviceAccount:prow-bot@istio-testing.iam.gserviceaccount.com",
       "serviceAccount:prow-control-plane@istio-testing.iam.gserviceaccount.com",
     ]
     role = "roles/storage.objectAdmin"

@@ -29,13 +29,20 @@ resource "google_service_account" "prow_internal_storage" {
 # with extreme caution.
 # Do not use this for other purposes! Create a new, more scoped, account.
 # This is granted secret access in secrets.tf
+# This is granted KMS access in keys.tf
 module "prowjob_release_account" {
   source            = "../modules/workload-identity-service-account"
   project_id        = local.project_id
   name              = "prowjob-release"
   description       = "Service account used for prow release jobs. Highly privileged."
   cluster_namespace = local.pod_namespace
-  prowjob           = true
+  gcs_acls = [
+    { bucket = "istio-prerelease", role = "OWNER" },
+    { bucket = "istio-release", role = "OWNER" },
+    { bucket = "artifacts.istio-release.appspot.com", role = "OWNER" },
+    { bucket = "artifacts.istio-prerelease-testing.appspot.com", role = "OWNER" },
+  ]
+  prowjob = true
 }
 
 # ProwJob SA used for jobs requiring RBE access.
@@ -53,6 +60,7 @@ module "prowjob_rbe_account" {
 }
 
 # ProwJob SA used for jobs requiring GitHub API readonly access.
+# This is granted secret access in secrets.tf
 module "prowjob_github_read_account" {
   source            = "../modules/workload-identity-service-account"
   project_id        = local.project_id
