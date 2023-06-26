@@ -195,13 +195,15 @@ postsubmits:
         - '--title=Automator: update build-tools image@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
         - --labels=release-notes-none
         - --modifier=update_image_version
-        - --token-path=/etc/github-token/oauth
+        - --token-env
         - --script-path=../common-files/bin/create-buildtools-and-update.sh
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: MANIFEST_ARCH
           value: arm64 amd64
+        - name: GCP_SECRETS
+          value: '[{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"}]'
         image: gcr.io/istio-testing/build-tools:release-1.16-370cc29a6684396492862c9bc6bc00c202835e0b
         name: ""
         resources:
@@ -219,9 +221,6 @@ postsubmits:
           subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /etc/github-token
-          name: github
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -233,9 +232,6 @@ postsubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
-      - name: github
-        secret:
-          secretName: oauth-token
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_release-1.16_tools_postsubmit

@@ -139,6 +139,7 @@ jobs:
         cpu: "1"
         memory: 3Gi
 - command:
+  - entrypoint
   - ../test-infra/tools/automator/automator.sh
   - --org=istio
   - --repo=istio,api,tools,release-builder,pkg,client-go,proxy
@@ -146,7 +147,7 @@ jobs:
   - --labels=auto-merge,release-notes-none
   - --strict
   - --modifier=commonfiles
-  - --token-path=/etc/github-token/oauth
+  - --token-env
   - --cmd=make update-common && make gen
   image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
   name: update-common
@@ -272,7 +273,7 @@ jobs:
   requirements:
   - cache
   - cache
-  - github
+  - github-istio-testing-push
   resources_presets:
     default:
       limits:
@@ -284,6 +285,7 @@ jobs:
   types:
   - postsubmit
 - command:
+  - entrypoint
   - ../test-infra/tools/automator/automator.sh
   - --org=istio
   - --repo=istio.io
@@ -291,7 +293,7 @@ jobs:
   - --labels=auto-merge,release-notes-none
   - --strict
   - --modifier=commonfiles
-  - --token-path=/etc/github-token/oauth
+  - --token-env
   - --cmd=make update-common && make gen
   image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
   name: update-common-istio.io
@@ -417,7 +419,7 @@ jobs:
   requirements:
   - cache
   - cache
-  - github
+  - github-istio-testing-push
   resources_presets:
     default:
       limits:
@@ -429,13 +431,14 @@ jobs:
   types:
   - postsubmit
 - command:
+  - entrypoint
   - ../test-infra/tools/automator/automator.sh
   - --org=istio
   - --repo=test-infra
   - '--title=Automator: update build-tools:$AUTOMATOR_SRC_BRANCH'
   - --branch=master
   - --modifier=buildtools
-  - --token-path=/etc/github-token/oauth
+  - --token-env
   - --script-path=../test-infra/tools/automator/scripts/update-images.sh
   - --labels=release-notes-none
   - --verbose
@@ -566,7 +569,7 @@ jobs:
   requirements:
   - cache
   - cache
-  - github
+  - github-istio-testing-push
   resources_presets:
     default:
       limits:

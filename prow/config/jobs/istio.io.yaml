@@ -44,6 +44,7 @@ jobs:
   - name: update-ref-docs-dry-run
     types: [presubmit]
     command:
+    - entrypoint
     - ../test-infra/tools/automator/automator.sh
     - --org=$AUTOMATOR_ORG
     - --repo=istio.io
@@ -60,15 +61,16 @@ jobs:
     types: [periodic]
     cron: "0 2 * * *"  # every day at 02:00AM UTC
     command:
+    - entrypoint
     - ../test-infra/tools/automator/automator.sh
     - --org=$AUTOMATOR_ORG
     - --repo=istio.io
     - "--title=Automator: update istio.io@$AUTOMATOR_SRC_BRANCH reference docs"
     - --labels=auto-merge,release-notes-none
     - --modifier=refdocs
-    - --token-path=/etc/github-token/oauth
+    - --token-env
     - --cmd=make update_ref_docs
-    requirements: [github]
+    requirements: [github-istio-testing-push]
     repos: [istio/test-infra@master]
     env:
     - name: AUTOMATOR_ORG
@@ -79,14 +81,15 @@ jobs:
     types: [periodic]
     cron: "0 2 * * 0"  # every Sunday at 02:00AM UTC
     command:
+    - entrypoint
     - ../test-infra/tools/automator/automator.sh
     - --org=$AUTOMATOR_ORG
     - --repo=istio.io
     - "--title=Automator: update istio@$AUTOMATOR_SRC_BRANCH test reference"
     - --labels=release-notes-none
-    - --token-path=/etc/github-token/oauth
+    - --token-env
     - --cmd=make update_test_reference
-    requirements: [github]
+    requirements: [github-istio-testing-push]
     repos: [istio/test-infra@master]
     env:
     - name: AUTOMATOR_ORG

@@ -115,6 +115,21 @@ func TestJobs(t *testing.T) {
 		}
 		return nil
 	})
+	RunTest("org volumes only used in org jobs", func(j Job) error {
+		orgJob := (j.RepoOrg == "istio/community" && j.Type == Postsubmit) ||
+			(j.Name == "ci-test-infra-branchprotector" && j.Type == Periodic) ||
+			// TODO: move these to use `github-istio-testing-push`
+			(j.Name == "ci-prow-autobump" && j.Type == Periodic) ||
+			(j.Name == "ci-prow-autobump-for-auto-deploy" && j.Type == Periodic)
+		if orgJob {
+			return nil
+		}
+		usesOrgVolume := j.Volumes().Has(GithubTesting)
+		if usesOrgVolume {
+			return fmt.Errorf("only organization jobs can use organization volumes, found %v", j.Volumes())
+		}
+		return nil
+	})
 
 	RunTest("service accounts", func(j Job) error {
 		s, f := ServiceAccounts[j.ServiceAccount()]
@@ -445,14 +460,15 @@ const (
 )
 
 var ServiceAccounts = map[string]Sensitivity{
-	"":                    LowPrivilege, // Default is prowjob-default-sa
-	"prowjob-rbe":         MediumPrivilege,
-	"prowjob-github-read": MediumPrivilege,
-	"prowjob-default-sa":  LowPrivilege,
-	"prow-deployer":       HighPrivilege,
-	"testgrid-updater":    HighPrivilege,
-	"prowjob-private-sa":  LowPrivilege,
-	"prowjob-advanced-sa": HighPrivilege,
+	"":                                  LowPrivilege, // Default is prowjob-default-sa
+	"prowjob-default-sa":                LowPrivilege,
+	"prowjob-private-sa":                LowPrivilege,
+	"prowjob-rbe":                       MediumPrivilege,
+	"prowjob-github-read":               MediumPrivilege,
+	"prow-deployer":                     HighPrivilege,
+	"testgrid-updater":                  HighPrivilege,
+	"prowjob-advanced-sa":               HighPrivilege,
+	"prowjob-github-istio-testing-push": HighPrivilege,
 }
 
 var PrivateServiceAccounts = sets.NewString(

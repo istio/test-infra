@@ -111,6 +111,7 @@ postsubmits:
       automountServiceAccountToken: false
       containers:
       - command:
+        - entrypoint
         - ../test-infra/tools/automator/automator.sh
         - --org=istio
         - --repo=client-go
@@ -118,11 +119,13 @@ postsubmits:
           $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
         - --labels=auto-merge,release-notes-none
         - --modifier=update_api_dep
-        - --token-path=/etc/github-token/oauth
+        - --token-env
         - --cmd=go get istio.io/api@$AUTOMATOR_SHA && go mod tidy && make clean gen
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GCP_SECRETS
+          value: '[{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"}]'
         image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
         name: ""
         resources:
@@ -138,17 +141,12 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /etc/github-token
-          name: github
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
+      serviceAccountName: prowjob-private-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: github
-        secret:
-          secretName: oauth-token

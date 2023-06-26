@@ -1358,13 +1358,14 @@ jobs:
   types:
   - postsubmit
 - command:
+  - entrypoint
   - ../test-infra/tools/automator/automator.sh
   - --org=istio
   - --repo=istio
   - '--title=Automator: update proxy@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
   - --labels=auto-merge,release-notes-none
   - --modifier=update_proxy_dep
-  - --token-path=/etc/github-token/oauth
+  - --token-env
   - --git-exclude=^common/
   - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
   env:
@@ -1484,7 +1485,7 @@ jobs:
   requirements:
   - cache
   - cache
-  - github
+  - github-istio-testing-push
   resources_presets:
     arm:
       requests:
@@ -1501,13 +1502,14 @@ jobs:
   types:
   - postsubmit
 - command:
+  - entrypoint
   - ../test-infra/tools/automator/automator.sh
   - --org=istio
   - --repo=proxy
   - '--title=Automator: update envoy@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
   - --labels=auto-merge
   - --modifier=update_envoy_dep
-  - --token-path=/etc/github-token/oauth
+  - --token-env
   - --cmd=UPDATE_BRANCH=release/v1.24 scripts/update_envoy.sh
   env:
   - name: BUILD_WITH_CONTAINER
@@ -1627,7 +1629,7 @@ jobs:
   requirements:
   - cache
   - cache
-  - github
+  - github-istio-testing-push
   resources_presets:
     arm:
       requests:

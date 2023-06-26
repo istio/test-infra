@@ -1428,13 +1428,14 @@ jobs:
   types:
   - postsubmit
 - command:
+  - entrypoint
   - ../test-infra/tools/automator/automator.sh
   - --org=istio
   - --repo=istio
   - '--title=Automator: update proxy@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
   - --labels=auto-merge,release-notes-none
   - --modifier=update_proxy_dep
-  - --token-path=/etc/github-token/oauth
+  - --token-env
   - --git-exclude=^common/
   - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
   image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
@@ -1561,7 +1562,7 @@ jobs:
   requirements:
   - cache
   - cache
-  - github
+  - github-istio-testing-push
   resources_presets:
     arm:
       requests:
@@ -1578,13 +1579,14 @@ jobs:
   types:
   - postsubmit
 - command:
+  - entrypoint
   - ../test-infra/tools/automator/automator.sh
   - --org=istio
   - --repo=proxy
   - '--title=Automator: update envoy@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
   - --labels=auto-merge
   - --modifier=update_envoy_dep
-  - --token-path=/etc/github-token/oauth
+  - --token-env
   - --cmd=UPDATE_BRANCH=release/v1.25 scripts/update_envoy.sh
   image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
   interval: 24h
@@ -1711,7 +1713,7 @@ jobs:
   requirements:
   - cache
   - cache
-  - github
+  - github-istio-testing-push
   resources_presets:
     arm:
       requests:

@@ -2198,6 +2198,8 @@ postsubmits:
           value: /etc/grafana/token
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /etc/service-account/rel-pipeline-service-account.json
+        - name: GCP_SECRETS
+          value: '[{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"}]'
         image: gcr.io/istio-testing/build-tools:release-1.16-370cc29a6684396492862c9bc6bc00c202835e0b
         name: ""
         resources:
@@ -2229,12 +2231,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
-        - mountPath: /etc/github-token
-          name: github
-          readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
+      serviceAccountName: prowjob-github-istio-testing-push
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -2254,10 +2254,6 @@ postsubmits:
           secretName: rel-pipeline-docker-config
       - emptyDir: {}
         name: docker-root
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
 presubmits:
   istio/istio:
   - always_run: true

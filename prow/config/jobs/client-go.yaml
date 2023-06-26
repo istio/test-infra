@@ -16,16 +16,17 @@ jobs:
   - name: update-client-go-dep
     types: [postsubmit]
     command:
+    - entrypoint
     - ../test-infra/tools/automator/automator.sh
     - --org=$AUTOMATOR_ORG
     - --repo=istio
     - "--title=Automator: update istio/client-go@$AUTOMATOR_SRC_BRANCH dependency in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
     - --labels=auto-merge,release-notes-none
     - --modifier=update-client-go-dep
-    - --token-path=/etc/github-token/oauth
+    - --token-env
     - --git-exclude=^common/
     - --cmd=go get istio.io/client-go@$AUTOMATOR_SHA && go mod tidy && make clean gen
-    requirements: [github]
+    requirements: [github-istio-testing-push]
     repos: [istio/test-infra@master]
     env:
     - name: AUTOMATOR_ORG

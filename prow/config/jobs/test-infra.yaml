@@ -67,12 +67,13 @@ jobs:
     types: [periodic]
     cron: "05 15-23 * * 1-5"  # Run at 7:05-15:05 PST (15:05 UTC) Mon-Fri
     command:
+    - entrypoint
     - ./tools/automator/automator.sh
     - --org=$AUTOMATOR_ORG
     - --repo=test-infra
     - "--title=Automator: bump k8s-prow images"
     - --modifier=bump-k8s-prow-images
-    - --token-path=/etc/github-token/oauth
+    - --token-env
     - --script-path=../test-infra/tools/automator/scripts/update-images.sh
     - --verbose
     - --
@@ -81,7 +82,7 @@ jobs:
     - --image=gcr.io/k8s-prow/.*
     - --tag=v[0-9]{8}-[a-f0-9]{10}
     - --var=image
-    requirements: [github]
+    requirements: [github-istio-testing-push]
     env:
     - name: AUTOMATOR_ORG
       value: istio
