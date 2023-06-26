@@ -8,6 +8,11 @@ jobs:
     command: [make, presubmit]
     requirements: [cratescache]
 
+  - name: bench
+    command: [./scripts/benchtest.sh]
+    modifiers: [presubmit_optional]
+    requirements: [cratescache]
+
   - name: release
     architectures: [amd64, arm64]
     service_account_name: prowjob-advanced-sa
