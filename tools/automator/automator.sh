@@ -103,7 +103,7 @@ get_opts() {
       tmp_token="$(mktemp -t token-XXXXXXXXXX)"
       echo "$token" >"$tmp_token"
       token_path="$tmp_token"
-      shift 2
+      shift
       ;;
     --merge-repository)
       merge_repository="$2"
