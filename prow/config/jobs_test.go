@@ -469,6 +469,7 @@ var ServiceAccounts = map[string]Sensitivity{
 	"testgrid-updater":                  HighPrivilege,
 	"prowjob-advanced-sa":               HighPrivilege,
 	"prowjob-github-istio-testing-push": HighPrivilege,
+	"prowjob-release":                   HighPrivilege,
 }
 
 var PrivateServiceAccounts = sets.NewString(
