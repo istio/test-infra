@@ -118,7 +118,7 @@ func TestJobs(t *testing.T) {
 	RunTest("org volumes only used in org jobs", func(j Job) error {
 		orgJob := (j.RepoOrg == "istio/community" && j.Type == Postsubmit) ||
 			(j.Name == "ci-test-infra-branchprotector" && j.Type == Periodic) ||
-			// TODO: move these to use `github-istio-testing-push`
+			// TODO: move these to use `github-istio-testing`
 			(j.Name == "ci-prow-autobump" && j.Type == Periodic) ||
 			(j.Name == "ci-prow-autobump-for-auto-deploy" && j.Type == Periodic)
 		if orgJob {
@@ -460,16 +460,16 @@ const (
 )
 
 var ServiceAccounts = map[string]Sensitivity{
-	"":                                  LowPrivilege, // Default is prowjob-default-sa
-	"prowjob-default-sa":                LowPrivilege,
-	"prowjob-private-sa":                LowPrivilege,
-	"prowjob-rbe":                       MediumPrivilege,
-	"prowjob-github-read":               MediumPrivilege,
-	"prow-deployer":                     HighPrivilege,
-	"testgrid-updater":                  HighPrivilege,
-	"prowjob-advanced-sa":               HighPrivilege,
-	"prowjob-github-istio-testing-push": HighPrivilege,
-	"prowjob-release":                   HighPrivilege,
+	"":                             LowPrivilege, // Default is prowjob-default-sa
+	"prowjob-default-sa":           LowPrivilege,
+	"prowjob-private-sa":           LowPrivilege,
+	"prowjob-rbe":                  MediumPrivilege,
+	"prowjob-github-read":          MediumPrivilege,
+	"prow-deployer":                HighPrivilege,
+	"testgrid-updater":             HighPrivilege,
+	"prowjob-advanced-sa":          HighPrivilege,
+	"prowjob-github-istio-testing": HighPrivilege,
+	"prowjob-release":              HighPrivilege,
 }
 
 var PrivateServiceAccounts = sets.NewString(
