@@ -16,3 +16,14 @@ module "prowjob_private_account" {
   prowjob = true
   prowjob-bucket = "istio-prow-private"
 }
+
+resource "google_project_iam_member" "prow_control_wi" {
+  project        = local.project_id
+  role    = "roles/iam.workloadIdentityUser"
+  member  = "serviceAccount:prow-control-plane@istio-testing.iam.gserviceaccount.com"
+}
+resource "google_project_iam_member" "prow_control_gke" {
+  project        = local.project_id
+  role    = "roles/container.developer"
+  member  = "serviceAccount:prow-control-plane@istio-testing.iam.gserviceaccount.com"
+}
