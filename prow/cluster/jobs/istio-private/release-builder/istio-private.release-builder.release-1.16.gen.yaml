@@ -10,135 +10,6 @@ postsubmits:
     decorate: true
     labels:
       preset-enable-netrc: "true"
-    name: lint_release-builder_release-1.16_postsubmit_pri
-    path_alias: istio.io/release-builder
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - make
-        - lint
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:release-1.16-370cc29a6684396492862c9bc6bc00c202835e0b
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^release-1.16$
-    clone_uri: git@github.com:istio-private/release-builder.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-netrc: "true"
-    name: test_release-builder_release-1.16_postsubmit_pri
-    path_alias: istio.io/release-builder
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - make
-        - test
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:release-1.16-370cc29a6684396492862c9bc6bc00c202835e0b
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^release-1.16$
-    clone_uri: git@github.com:istio-private/release-builder.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-netrc: "true"
-    name: gencheck_release-builder_release-1.16_postsubmit_pri
-    path_alias: istio.io/release-builder
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - make
-        - gen-check
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:release-1.16-370cc29a6684396492862c9bc6bc00c202835e0b
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^release-1.16$
-    clone_uri: git@github.com:istio-private/release-builder.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-netrc: "true"
       preset-enable-ssh: "true"
       preset-override-deps: release-1.16-release
       preset-override-envoy: "true"
@@ -221,8 +92,234 @@ postsubmits:
           secretName: rel-pipeline-docker-config
       - emptyDir: {}
         name: docker-root
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.16$
+    clone_uri: git@github.com:istio-private/release-builder.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-netrc: "true"
+    name: gencheck_release-builder_release-1.16_postsubmit_pri
+    path_alias: istio.io/release-builder
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - gen-check
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:release-1.16-370cc29a6684396492862c9bc6bc00c202835e0b
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.16$
+    clone_uri: git@github.com:istio-private/release-builder.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-netrc: "true"
+    name: lint_release-builder_release-1.16_postsubmit_pri
+    path_alias: istio.io/release-builder
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - lint
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:release-1.16-370cc29a6684396492862c9bc6bc00c202835e0b
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.16$
+    clone_uri: git@github.com:istio-private/release-builder.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-netrc: "true"
+    name: test_release-builder_release-1.16_postsubmit_pri
+    path_alias: istio.io/release-builder
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:release-1.16-370cc29a6684396492862c9bc6bc00c202835e0b
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
 presubmits:
   istio-private/release-builder:
+  - always_run: false
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.16$
+    clone_uri: git@github.com:istio-private/release-builder.git
+    cluster: private
+    decorate: true
+    name: build-warning_release-builder_release-1.16_pri
+    optional: true
+    path_alias: istio.io/release-builder
+    rerun_command: /test build-warning
+    run_if_changed: ^release/trigger-build$
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - release/build-warning.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GCS_BUCKET
+          value: istio-private-prerelease/prerelease
+        - name: HELM_BUCKET
+          value: istio-private-build/dev/charts
+        - name: PRERELEASE_DOCKER_HUB
+          value: gcr.io/istio-prow-build
+        image: gcr.io/istio-testing/build-tools:release-1.16-370cc29a6684396492862c9bc6bc00c202835e0b
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )build-warning,?($|\s.*))|((?m)^/test( | .* )build-warning_release-builder_release-1.16,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.16$
+    clone_uri: git@github.com:istio-private/release-builder.git
+    cluster: private
+    decorate: true
+    labels:
+      preset-enable-netrc: "true"
+    name: gencheck_release-builder_release-1.16_pri
+    path_alias: istio.io/release-builder
+    rerun_command: /test gencheck
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - gen-check
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:release-1.16-370cc29a6684396492862c9bc6bc00c202835e0b
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_release-builder_release-1.16,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -315,100 +412,3 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
     trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_release-builder_release-1.16,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^release-1.16$
-    clone_uri: git@github.com:istio-private/release-builder.git
-    cluster: private
-    decorate: true
-    labels:
-      preset-enable-netrc: "true"
-    name: gencheck_release-builder_release-1.16_pri
-    path_alias: istio.io/release-builder
-    rerun_command: /test gencheck
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - make
-        - gen-check
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:release-1.16-370cc29a6684396492862c9bc6bc00c202835e0b
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_release-builder_release-1.16,?($|\s.*))
-  - always_run: false
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^release-1.16$
-    clone_uri: git@github.com:istio-private/release-builder.git
-    cluster: private
-    decorate: true
-    name: build-warning_release-builder_release-1.16_pri
-    optional: true
-    path_alias: istio.io/release-builder
-    rerun_command: /test build-warning
-    run_if_changed: ^release/trigger-build$
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - release/build-warning.sh
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GCS_BUCKET
-          value: istio-private-prerelease/prerelease
-        - name: HELM_BUCKET
-          value: istio-private-build/dev/charts
-        - name: PRERELEASE_DOCKER_HUB
-          value: gcr.io/istio-prow-build
-        image: gcr.io/istio-testing/build-tools:release-1.16-370cc29a6684396492862c9bc6bc00c202835e0b
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )build-warning,?($|\s.*))|((?m)^/test( | .* )build-warning_release-builder_release-1.16,?($|\s.*))

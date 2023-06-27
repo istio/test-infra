@@ -7,20 +7,15 @@ presubmits:
     branches:
     - ^experimental-.*
     decorate: true
-    name: unit-tests_istio_exp
+    name: analyze-tests_istio_exp
     path_alias: istio.io/istio
-    rerun_command: /test unit-tests
+    rerun_command: /test analyze-tests
     spec:
       automountServiceAccountToken: false
       containers:
       - command:
-        - entrypoint
         - make
-        - -e
-        - T=-v -count=1
-        - build
-        - racetest
-        - binaries-test
+        - test.integration.analyze
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -28,10 +23,11 @@ presubmits:
         name: ""
         resources:
           limits:
+            cpu: "5"
             memory: 24Gi
           requests:
-            cpu: "15"
-            memory: 8Gi
+            cpu: "5"
+            memory: 3Gi
         securityContext:
           privileged: true
         volumeMounts:
@@ -49,110 +45,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )unit-tests,?($|\s.*))|((?m)^/test( | .* )unit-tests_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^experimental-.*
-    cluster: prow-arm
-    decorate: true
-    name: unit-tests-arm64_istio_exp
-    path_alias: istio.io/istio
-    rerun_command: /test unit-tests-arm64
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - make
-        - -e
-        - T=-v -count=1
-        - build
-        - racetest
-        - binaries-test
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "15"
-            memory: 8Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-      nodeSelector:
-        kubernetes.io/arch: arm64
-        testing: test-pool
-      tolerations:
-      - effect: NoSchedule
-        key: kubernetes.io/arch
-        operator: Equal
-        value: arm64
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )unit-tests-arm64,?($|\s.*))|((?m)^/test( | .* )unit-tests-arm64_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^experimental-.*
-    decorate: true
-    name: release-test_istio_exp
-    path_alias: istio.io/istio
-    rerun_command: /test release-test
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/release-test.sh
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "15"
-            memory: 8Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - emptyDir: {}
-        name: docker-root
-    trigger: ((?m)^/test( | .* )release-test,?($|\s.*))|((?m)^/test( | .* )release-test_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )analyze-tests,?($|\s.*))|((?m)^/test( | .* )analyze-tests_istio,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-dashboards: istio_istio
@@ -199,27 +92,125 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
     trigger: ((?m)^/test( | .* )benchmark,?($|\s.*))|((?m)^/test( | .* )benchmark_istio,?($|\s.*))
+  - always_run: false
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^experimental-.*
+    decorate: true
+    name: bookinfo-build_istio_exp
+    path_alias: istio.io/istio
+    rerun_command: /test bookinfo-build
+    run_if_changed: ^samples/bookinfo/src/
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - bookinfo.build
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )bookinfo-build,?($|\s.*))|((?m)^/test( | .* )bookinfo-build_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
     branches:
     - ^experimental-.*
     decorate: true
-    name: integ-cni_istio_exp
+    name: gencheck_istio_exp
     path_alias: istio.io/istio
-    rerun_command: /test integ-cni
+    rerun_command: /test gencheck
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - gen-check
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^experimental-.*
+    decorate: true
+    name: integ-ambient_istio_exp
+    path_alias: istio.io/istio
+    rerun_command: /test integ-ambient
     spec:
       automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.integration.pilot.kube.presubmit
+        - --kind-config
+        - prow/config/ambient-sc.yaml
+        - test.integration.ambient.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
-          value: ' --istio.test.istio.enableCNI=true '
+          value: --istio.test.ambient
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -264,229 +255,31 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-cni,?($|\s.*))|((?m)^/test( | .* )integ-cni_istio,?($|\s.*))
-  - always_run: true
+    trigger: ((?m)^/test( | .* )integ-ambient,?($|\s.*))|((?m)^/test( | .* )integ-ambient_istio,?($|\s.*))
+  - always_run: false
     annotations:
       testgrid-dashboards: istio_istio
     branches:
     - ^experimental-.*
     decorate: true
-    name: integ-telemetry_istio_exp
+    decoration_config:
+      timeout: 4h0m0s
+    name: integ-assertion_istio_exp
+    optional: true
     path_alias: istio.io/istio
-    rerun_command: /test integ-telemetry
+    rerun_command: /test integ-assertion
     spec:
       automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.integration.telemetry.kube
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-    trigger: ((?m)^/test( | .* )integ-telemetry,?($|\s.*))|((?m)^/test( | .* )integ-telemetry_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^experimental-.*
-    decorate: true
-    name: integ-telemetry-mc_istio_exp
-    path_alias: istio.io/istio
-    rerun_command: /test integ-telemetry-mc
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - --topology
-        - MULTICLUSTER
-        - test.integration.telemetry.kube
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "8"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-    trigger: ((?m)^/test( | .* )integ-telemetry-mc,?($|\s.*))|((?m)^/test( | .* )integ-telemetry-mc_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^experimental-.*
-    decorate: true
-    name: integ-telemetry-istiodremote_istio_exp
-    path_alias: istio.io/istio
-    rerun_command: /test integ-telemetry-istiodremote
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - --topology
-        - MULTICLUSTER
-        - --topology-config
-        - prow/config/topology/external-istiod.json
-        - test.integration.telemetry.kube
+        - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
-          value: --istio.test.skipVM
-        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "8"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-    trigger: ((?m)^/test( | .* )integ-telemetry-istiodremote,?($|\s.*))|((?m)^/test(
-      | .* )integ-telemetry-istiodremote_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^experimental-.*
-    decorate: true
-    name: integ-distroless_istio_exp
-    path_alias: istio.io/istio
-    rerun_command: /test integ-distroless
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.kube.environment
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: VARIANT
-          value: distroless
+          value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -531,143 +324,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-distroless,?($|\s.*))|((?m)^/test( | .* )integ-distroless_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^experimental-.*
-    decorate: true
-    name: integ-ipv6_istio_exp
-    path_alias: istio.io/istio
-    rerun_command: /test integ-ipv6
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.kube.environment
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: DOCKER_IN_DOCKER_IPV6_ENABLED
-          value: "true"
-        - name: IP_FAMILY
-          value: ipv6
-        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-    trigger: ((?m)^/test( | .* )integ-ipv6,?($|\s.*))|((?m)^/test( | .* )integ-ipv6_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^experimental-.*
-    decorate: true
-    name: integ-ds_istio_exp
-    path_alias: istio.io/istio
-    rerun_command: /test integ-ds
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.kube.environment
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: DOCKER_IN_DOCKER_IPV6_ENABLED
-          value: "true"
-        - name: IP_FAMILY
-          value: dual
-        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-    trigger: ((?m)^/test( | .* )integ-ds,?($|\s.*))|((?m)^/test( | .* )integ-ds_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-assertion,?($|\s.*))|((?m)^/test( | .* )integ-assertion_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -744,6 +401,338 @@ presubmits:
     branches:
     - ^experimental-.*
     decorate: true
+    name: integ-cni_istio_exp
+    path_alias: istio.io/istio
+    rerun_command: /test integ-cni
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.pilot.kube.presubmit
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.istio.enableCNI=true '
+        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )integ-cni,?($|\s.*))|((?m)^/test( | .* )integ-cni_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^experimental-.*
+    decorate: true
+    name: integ-distroless_istio_exp
+    path_alias: istio.io/istio
+    rerun_command: /test integ-distroless
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.kube.environment
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: VARIANT
+          value: distroless
+        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )integ-distroless,?($|\s.*))|((?m)^/test( | .* )integ-distroless_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^experimental-.*
+    decorate: true
+    name: integ-ds_istio_exp
+    path_alias: istio.io/istio
+    rerun_command: /test integ-ds
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.kube.environment
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: DOCKER_IN_DOCKER_IPV6_ENABLED
+          value: "true"
+        - name: IP_FAMILY
+          value: dual
+        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )integ-ds,?($|\s.*))|((?m)^/test( | .* )integ-ds_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^experimental-.*
+    decorate: true
+    name: integ-helm_istio_exp
+    path_alias: istio.io/istio
+    rerun_command: /test integ-helm
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.helm.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )integ-helm,?($|\s.*))|((?m)^/test( | .* )integ-helm_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^experimental-.*
+    decorate: true
+    name: integ-ipv6_istio_exp
+    path_alias: istio.io/istio
+    rerun_command: /test integ-ipv6
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.kube.environment
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: DOCKER_IN_DOCKER_IPV6_ENABLED
+          value: "true"
+        - name: IP_FAMILY
+          value: ipv6
+        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )integ-ipv6,?($|\s.*))|((?m)^/test( | .* )integ-ipv6_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^experimental-.*
+    decorate: true
     name: integ-operator-controller_istio_exp
     path_alias: istio.io/istio
     rerun_command: /test integ-operator-controller
@@ -803,208 +792,6 @@ presubmits:
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-operator-controller,?($|\s.*))|((?m)^/test(
       | .* )integ-operator-controller_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^experimental-.*
-    decorate: true
-    name: integ-pilot_istio_exp
-    path_alias: istio.io/istio
-    rerun_command: /test integ-pilot
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.pilot.kube
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-    trigger: ((?m)^/test( | .* )integ-pilot,?($|\s.*))|((?m)^/test( | .* )integ-pilot_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^experimental-.*
-    decorate: true
-    name: integ-pilot-multicluster_istio_exp
-    path_alias: istio.io/istio
-    rerun_command: /test integ-pilot-multicluster
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - --topology
-        - MULTICLUSTER
-        - test.integration.pilot.kube
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "8"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-    trigger: ((?m)^/test( | .* )integ-pilot-multicluster,?($|\s.*))|((?m)^/test( |
-      .* )integ-pilot-multicluster_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^experimental-.*
-    decorate: true
-    name: integ-pilot-istiodremote_istio_exp
-    path_alias: istio.io/istio
-    rerun_command: /test integ-pilot-istiodremote
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - --topology
-        - MULTICLUSTER
-        - --topology-config
-        - prow/config/topology/external-istiod.json
-        - test.integration.pilot.kube
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: INTEGRATION_TEST_FLAGS
-          value: --istio.test.skipVM
-        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "8"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-    trigger: ((?m)^/test( | .* )integ-pilot-istiodremote,?($|\s.*))|((?m)^/test( |
-      .* )integ-pilot-istiodremote_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -1082,73 +869,9 @@ presubmits:
     branches:
     - ^experimental-.*
     decorate: true
-    name: integ-security_istio_exp
+    name: integ-pilot-istiodremote_istio_exp
     path_alias: istio.io/istio
-    rerun_command: /test integ-security
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.security.kube
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-    trigger: ((?m)^/test( | .* )integ-security,?($|\s.*))|((?m)^/test( | .* )integ-security_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^experimental-.*
-    decorate: true
-    name: integ-security-multicluster_istio_exp
-    path_alias: istio.io/istio
-    rerun_command: /test integ-security-multicluster
+    rerun_command: /test integ-pilot-istiodremote
     spec:
       automountServiceAccountToken: false
       containers:
@@ -1157,7 +880,78 @@ presubmits:
         - prow/integ-suite-kind.sh
         - --topology
         - MULTICLUSTER
-        - test.integration.security.kube
+        - --topology-config
+        - prow/config/topology/external-istiod.json
+        - test.integration.pilot.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: INTEGRATION_TEST_FLAGS
+          value: --istio.test.skipVM
+        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "8"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )integ-pilot-istiodremote,?($|\s.*))|((?m)^/test( |
+      .* )integ-pilot-istiodremote_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^experimental-.*
+    decorate: true
+    name: integ-pilot-multicluster_istio_exp
+    path_alias: istio.io/istio
+    rerun_command: /test integ-pilot-multicluster
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --topology
+        - MULTICLUSTER
+        - test.integration.pilot.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -1205,8 +999,72 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-security-multicluster,?($|\s.*))|((?m)^/test(
-      | .* )integ-security-multicluster_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-pilot-multicluster,?($|\s.*))|((?m)^/test( |
+      .* )integ-pilot-multicluster_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^experimental-.*
+    decorate: true
+    name: integ-pilot_istio_exp
+    path_alias: istio.io/istio
+    rerun_command: /test integ-pilot
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.pilot.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )integ-pilot,?($|\s.*))|((?m)^/test( | .* )integ-pilot_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -1284,31 +1142,29 @@ presubmits:
     branches:
     - ^experimental-.*
     decorate: true
-    name: integ-ambient_istio_exp
+    name: integ-security-multicluster_istio_exp
     path_alias: istio.io/istio
-    rerun_command: /test integ-ambient
+    rerun_command: /test integ-security-multicluster
     spec:
       automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --kind-config
-        - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - --topology
+        - MULTICLUSTER
+        - test.integration.security.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: INTEGRATION_TEST_FLAGS
-          value: --istio.test.ambient
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
           limits:
-            cpu: "5"
+            cpu: "8"
             memory: 24Gi
           requests:
-            cpu: "5"
+            cpu: "8"
             memory: 3Gi
         securityContext:
           privileged: true
@@ -1345,23 +1201,24 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-ambient,?($|\s.*))|((?m)^/test( | .* )integ-ambient_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-security-multicluster,?($|\s.*))|((?m)^/test(
+      | .* )integ-security-multicluster_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
     branches:
     - ^experimental-.*
     decorate: true
-    name: integ-helm_istio_exp
+    name: integ-security_istio_exp
     path_alias: istio.io/istio
-    rerun_command: /test integ-helm
+    rerun_command: /test integ-security
     spec:
       automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.integration.helm.kube
+        - test.integration.security.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -1409,91 +1266,160 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-helm,?($|\s.*))|((?m)^/test( | .* )integ-helm_istio,?($|\s.*))
-  - always_run: false
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^experimental-.*
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    name: integ-assertion_istio_exp
-    optional: true
-    path_alias: istio.io/istio
-    rerun_command: /test integ-assertion
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.kube
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: INTEGRATION_TEST_FLAGS
-          value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
-        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-    trigger: ((?m)^/test( | .* )integ-assertion,?($|\s.*))|((?m)^/test( | .* )integ-assertion_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-security,?($|\s.*))|((?m)^/test( | .* )integ-security_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
     branches:
     - ^experimental-.*
     decorate: true
-    name: analyze-tests_istio_exp
+    name: integ-telemetry-istiodremote_istio_exp
     path_alias: istio.io/istio
-    rerun_command: /test analyze-tests
+    rerun_command: /test integ-telemetry-istiodremote
     spec:
       automountServiceAccountToken: false
       containers:
       - command:
-        - make
-        - test.integration.analyze
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --topology
+        - MULTICLUSTER
+        - --topology-config
+        - prow/config/topology/external-istiod.json
+        - test.integration.telemetry.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: INTEGRATION_TEST_FLAGS
+          value: --istio.test.skipVM
+        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "8"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )integ-telemetry-istiodremote,?($|\s.*))|((?m)^/test(
+      | .* )integ-telemetry-istiodremote_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^experimental-.*
+    decorate: true
+    name: integ-telemetry-mc_istio_exp
+    path_alias: istio.io/istio
+    rerun_command: /test integ-telemetry-mc
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --topology
+        - MULTICLUSTER
+        - test.integration.telemetry.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "8"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )integ-telemetry-mc,?($|\s.*))|((?m)^/test( | .* )integ-telemetry-mc_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^experimental-.*
+    decorate: true
+    name: integ-telemetry_istio_exp
+    path_alias: istio.io/istio
+    rerun_command: /test integ-telemetry
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.telemetry.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -1515,6 +1441,14 @@ presubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1523,7 +1457,17 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )analyze-tests,?($|\s.*))|((?m)^/test( | .* )analyze-tests_istio,?($|\s.*))
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )integ-telemetry,?($|\s.*))|((?m)^/test( | .* )integ-telemetry_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -1574,62 +1518,15 @@ presubmits:
     branches:
     - ^experimental-.*
     decorate: true
-    name: gencheck_istio_exp
+    name: release-test_istio_exp
     path_alias: istio.io/istio
-    rerun_command: /test gencheck
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - make
-        - gen-check
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_istio,?($|\s.*))
-  - always_run: false
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^experimental-.*
-    decorate: true
-    name: bookinfo-build_istio_exp
-    path_alias: istio.io/istio
-    rerun_command: /test bookinfo-build
-    run_if_changed: ^samples/bookinfo/src/
+    rerun_command: /test release-test
     spec:
       automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
-        - make
-        - bookinfo.build
+        - prow/release-test.sh
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -1637,11 +1534,10 @@ presubmits:
         name: ""
         resources:
           limits:
-            cpu: "5"
             memory: 24Gi
           requests:
-            cpu: "5"
-            memory: 3Gi
+            cpu: "15"
+            memory: 8Gi
         securityContext:
           privileged: true
         volumeMounts:
@@ -1663,4 +1559,108 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )bookinfo-build,?($|\s.*))|((?m)^/test( | .* )bookinfo-build_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )release-test,?($|\s.*))|((?m)^/test( | .* )release-test_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^experimental-.*
+    cluster: prow-arm
+    decorate: true
+    name: unit-tests-arm64_istio_exp
+    path_alias: istio.io/istio
+    rerun_command: /test unit-tests-arm64
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - -e
+        - T=-v -count=1
+        - build
+        - racetest
+        - binaries-test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "15"
+            memory: 8Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: test-pool
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )unit-tests-arm64,?($|\s.*))|((?m)^/test( | .* )unit-tests-arm64_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^experimental-.*
+    decorate: true
+    name: unit-tests_istio_exp
+    path_alias: istio.io/istio
+    rerun_command: /test unit-tests
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - -e
+        - T=-v -count=1
+        - build
+        - racetest
+        - binaries-test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "15"
+            memory: 8Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )unit-tests,?($|\s.*))|((?m)^/test( | .* )unit-tests_istio,?($|\s.*))
