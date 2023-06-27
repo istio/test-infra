@@ -4,7 +4,7 @@ This folder providers Istio test/job definitions.
 Istio uses [Prow](https://docs.prow.k8s.io/docs/) for all tests.
 
 However, we use an Istio-specific higher level configuration for jobs to help abstract away some of the details of writing jobs.
-This low level details of this can be found in the [`prowgen` README](../../../tools/prowgen/README.md), but this is a bit
+The low level details can be found in the [`prowgen` README](../../../tools/prowgen/README.md), but this is a bit
 dense - `prowgen` is used by other projects, so its scope is beyond what most Istio job authors need to understand.
 
 ## Adding a job
