@@ -2228,8 +2228,10 @@ postsubmits:
           value: "0"
         - name: VERSION
           value: master
+        - name: DOCKER_CONFIG
+          value: /var/run/ci/docker
         - name: GCP_SECRETS
-          value: '[{"secret":"release_docker_istio","project":"istio-prow-build","env":"DOCKER_CONFIG_DATA"},{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"}]'
+          value: '[{"secret":"release_docker_istio","project":"istio-prow-build","file":"/var/run/ci/docker/config.json"},{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"}]'
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:

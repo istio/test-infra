@@ -35,8 +35,10 @@ jobs:
     types: [postsubmit]
     regex: '^release/trigger-build$'
     command: [entrypoint, release/build.sh]
-    requirements: [release, docker]
+    requirements: [docker]
     resources: build
+    # For build, we just need SA (giving GCS/GCR access)
+    service_account_name: prowjob-release
 
   - name: publish-release
     types: [postsubmit]

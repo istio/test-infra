@@ -117,31 +117,39 @@ requirement_presets:
         env: GH_TOKEN
   # build-base has access to push to dockerhub and to push as istio-testing github. Only for use with base image building
   build-base:
+    env:
+    - name: DOCKER_CONFIG
+      value: /var/run/ci/docker
     podSpec:
       serviceAccountName: prowjob-release
     secrets:
       - secret: release_docker_istio
         project: istio-prow-build
-        env: DOCKER_CONFIG_DATA
+        file: /var/run/ci/docker/config.json
       - secret: github_istio-testing_pusher # Note: This is NOT "release_github_istio-release", which is why this is separate from 'releae'
         project: istio-prow-build
         env: GH_TOKEN
   # release is used for release jobs. This is the most privileged type of job.
   release:
+    # For publish, we also need Grafana token, DockerHub token, and GitHub login
     podSpec:
       serviceAccountName: prowjob-release
     env:
-    - name: COSIGN_KEY
-      value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-    - name: DOCKER_CONFIG
-      value: /var/run/ci/docker
+      - name: COSIGN_KEY
+        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
+      - name: DOCKER_CONFIG
+        value: /var/run/ci/docker
+      - name: GRAFANA_TOKEN_FILE
+        value: /var/run/ci/grafana/token
+      - name: GITHUB_TOKEN_FILE
+        value: /var/run/ci/github/token
     secrets:
       - secret: release_docker_istio
         project: istio-prow-build
         file: /var/run/ci/docker/config.json
       - secret: release_github_istio-release
         project: istio-prow-build
-        env: GH_TOKEN
+        file: /var/run/ci/github/token
       - secret: release_grafana_istio
         project: istio-prow-build
-        env: GRAFANA_TOKEN
+        file: /var/run/ci/grafana/token
