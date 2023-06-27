@@ -65,7 +65,7 @@ Jobs run as Kubernetes `Pods`, running in GKE clusters.
 
 Most jobs run with the [`build-tools`](https://github.com/istio/tools/blob/master/docker/build-tools/Dockerfile) image, which
 has all the tools Istio uses installed.
-An optional [`entrypoint`](https://github.com/istio/tools/blob/master/docker/build-tools/docker-entrypoint.sh) command is available in this container, which sets up docker.
+An optional [`entrypoint`](https://github.com/istio/tools/blob/master/docker/build-tools/prow-entrypoint.sh) command is available in this container, which sets up docker.
 
 Prow augments our pod with a variety of helper containers, that do things like upload logs and artifacts.
 Any files in `$ARTIFACTS` will be persistently uploaded when the job completes.
