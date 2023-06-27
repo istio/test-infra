@@ -133,10 +133,12 @@ requirement_presets:
     env:
     - name: COSIGN_KEY
       value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
+    - name: DOCKER_CONFIG
+      value: /var/run/ci/docker
     secrets:
       - secret: release_docker_istio
         project: istio-prow-build
-        env: DOCKER_CONFIG_DATA
+        file: /var/run/ci/docker/config.json
       - secret: release_github_istio-release
         project: istio-prow-build
         env: GH_TOKEN

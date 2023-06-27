@@ -497,4 +497,5 @@ type Secret struct {
 	Name    string `json:"secret,omitempty"`
 	Project string `json:"project,omitempty"`
 	Env     string `json:"env,omitempty"`
+	File    string `json:"file,omitempty"`
 }
