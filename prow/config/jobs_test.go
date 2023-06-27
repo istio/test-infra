@@ -251,6 +251,9 @@ func TestJobs(t *testing.T) {
 			for _, e := range c.Env {
 				if e.Name == "GCP_SECRETS" {
 					gcpSecrets := []Secret{}
+					if e.Value == "" {
+						continue
+					}
 					if err := json.Unmarshal([]byte(e.Value), &gcpSecrets); err != nil {
 						return err
 					}
@@ -274,8 +277,7 @@ func TestJobs(t *testing.T) {
 		}
 
 		secretSA := SecretServiceAccounts.Has(j.ServiceAccount())
-		legacy := j.Org() == "istio-private" // TODO: remove once private service accounts are setup properly.
-		if !secretSA && !legacy {
+		if !secretSA {
 			return fmt.Errorf("service account %v does not have Secrets access", j.ServiceAccount())
 		}
 		return nil
