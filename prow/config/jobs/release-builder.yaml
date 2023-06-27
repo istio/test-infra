@@ -49,11 +49,9 @@ jobs:
     types: [periodic]
     cron: "0 19 * * *"  # every day at 07:00 PM UTC (12:00 PM PST)
     env:
-    - name: BUILD_BASE_IMAGES
-      value: "true"
     - name: VERSION
       value: "master"
-    command: [entrypoint, release/build.sh]
+    command: [entrypoint, release/build-base-images.sh]
     requirements: [build-base, docker]
     resources: build
 
