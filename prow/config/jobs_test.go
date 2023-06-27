@@ -118,7 +118,7 @@ func TestJobs(t *testing.T) {
 	RunTest("org volumes only used in org jobs", func(j Job) error {
 		orgJob := (j.RepoOrg == "istio/community" && j.Type == Postsubmit) ||
 			(j.Name == "ci-test-infra-branchprotector" && j.Type == Periodic) ||
-			// TODO: move these to use `github-istio-testing-push`
+			// TODO: move these to use `github-istio-testing`
 			(j.Name == "ci-prow-autobump" && j.Type == Periodic) ||
 			(j.Name == "ci-prow-autobump-for-auto-deploy" && j.Type == Periodic)
 		if orgJob {

@@ -398,7 +398,7 @@ jobs:
     - --token-env
     - --cmd=go get github.com/envoyproxy/go-control-plane@main && go mod tidy && make gen
     disable_release_branching: true
-    requirements: [github-istio-testing-push]
+    requirements: [github-istio-testing]
     repos: [istio/test-infra@master]
     env:
     - name: AUTOMATOR_ORG
@@ -417,7 +417,7 @@ jobs:
     - --modifier=update_ztunnel_dep
     - --token-env
     - --cmd=./bin/update_ztunnel.sh
-    requirements: [github-istio-testing-push]
+    requirements: [github-istio-testing]
     repos: [istio/test-infra@master]
     env:
     - name: AUTOMATOR_ORG

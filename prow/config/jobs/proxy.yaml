@@ -117,7 +117,7 @@ jobs:
   - --token-env
   - --git-exclude=^common/
   - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
-  requirements: [github-istio-testing-push]
+  requirements: [github-istio-testing]
   repos: [istio/test-infra@master]
   image: gcr.io/istio-testing/build-tools:master-7c2cba5679671f40312e6324d270a0d70ad097d0
   env:
@@ -138,7 +138,7 @@ jobs:
   - --modifier=update_envoy_dep
   - --token-env
   - --cmd=UPDATE_BRANCH=main scripts/update_envoy.sh
-  requirements: [github-istio-testing-push]
+  requirements: [github-istio-testing]
   repos: [istio/test-infra@master]
   image: gcr.io/istio-testing/build-tools:master-7c2cba5679671f40312e6324d270a0d70ad097d0
   env:
@@ -160,7 +160,7 @@ jobs:
   - --token-env
   - --cmd=go get github.com/envoyproxy/go-control-plane@main && go mod tidy
   disable_release_branching: true
-  requirements: [github-istio-testing-push]
+  requirements: [github-istio-testing]
   repos: [istio/test-infra@master]
   image: gcr.io/istio-testing/build-tools:master-7c2cba5679671f40312e6324d270a0d70ad097d0
   env:
