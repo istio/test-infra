@@ -93,3 +93,18 @@ module "prowjob_github_istio_testing_account" {
   ]
   prowjob = true
 }
+
+module "prowjob_build_tools_account" {
+  source            = "../modules/workload-identity-service-account"
+  project_id        = local.project_id
+  name              = "prowjob-build-tools"
+  description       = "Service account that has permissions to push to gcr.io/istio-testing and to push PRs as istio-testing account."
+  cluster_namespace = local.pod_namespace
+  secrets = [
+    { name = "github_istio-testing_pusher" },
+  ]
+  gcs_acls = [
+    { bucket = "artifacts.istio-testing.appspot.com", role = "OWNER" },
+  ]
+  prowjob = true
+}
