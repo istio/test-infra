@@ -93,3 +93,9 @@ variable "prowjob" {
   description = "Set to true if this service account will be used for prowjobs"
   type        = bool
 }
+
+variable "prowjob-bucket" {
+  description = "If 'prowjob' is true, which bucket to grant access to"
+  type        = string
+  default = "istio-prow"
+}

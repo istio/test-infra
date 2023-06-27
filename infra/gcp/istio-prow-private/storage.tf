@@ -20,3 +20,14 @@ resource "google_storage_bucket" "istio_prerelease_private" {
     prevent_destroy = true
   }
 }
+# Mirrors the gs://istio-prow bucket, which stores Prow logs
+resource "google_storage_bucket" "istio_prow_private" {
+  name          = "istio-prow-private"
+  location      = "US"
+  storage_class = "STANDARD"
+
+  uniform_bucket_level_access = true
+  lifecycle {
+    prevent_destroy = true
+  }
+}

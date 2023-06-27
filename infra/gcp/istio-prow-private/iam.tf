@@ -14,4 +14,5 @@ module "prowjob_private_account" {
     { bucket = google_storage_bucket.istio_prerelease_private.name, role = "roles/storage.objectAdmin" },
   ]
   prowjob = true
+  prowjob-bucket = "istio-prow-private"
 }
