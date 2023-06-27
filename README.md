@@ -13,8 +13,8 @@ This repository contains tools and configuration files for the testing and autom
 * For information about our cloud infrastructure, see [infra/README.md](infra/README.md).
 
 * For information about tools we use...
-  * [`automator`](tools/automator/README.md) helps automate dependency and other updates.
-  * [`prowgen`](tools/prowgen/README.md) translates high level job definitions to ProwJob configurations.
-  * [`prowtrans`](tools/prowtrans/README.md) translates ProwJob configurations to other ProwJob configurations. For example, to run the same jobs in the private infrastructure.
-  * [`authentikos`](authentikos/README.md) writes access token to Kubernetes Secrets. This is not currently used by Istio, but is by other communities.
-  * A variety of other tools live outside of this repo. Checkout [istio/tools](https://github.com/istio/tools) for more.
+    * [`automator`](tools/automator/README.md) helps automate dependency and other updates.
+    * [`prowgen`](tools/prowgen/README.md) translates high level job definitions to ProwJob configurations.
+    * [`prowtrans`](tools/prowtrans/README.md) translates ProwJob configurations to other ProwJob configurations. For example, to run the same jobs in the private infrastructure.
+    * [`authentikos`](authentikos/README.md) writes access token to Kubernetes Secrets. This is not currently used by Istio, but is by other communities.
+    * A variety of other tools live outside of this repo. Checkout [istio/tools](https://github.com/istio/tools) for more.
