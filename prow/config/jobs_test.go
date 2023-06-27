@@ -272,6 +272,12 @@ func TestJobs(t *testing.T) {
 		if !allowedSecret && j.Type == Presubmit {
 			return fmt.Errorf("jobs with secrets %v cannot be presubmits", secrets.UnsortedList())
 		}
+
+		secretSA := SecretServiceAccounts.Has(j.ServiceAccount())
+		legacy := j.Org() == "istio-private" // TODO: remove once private service accounts are setup properly.
+		if !secretSA && !legacy {
+			return fmt.Errorf("service account %v does not have Secrets access", j.ServiceAccount())
+		}
 		return nil
 	})
 }
@@ -470,10 +476,19 @@ var ServiceAccounts = map[string]Sensitivity{
 	"prowjob-advanced-sa":          HighPrivilege,
 	"prowjob-github-istio-testing": HighPrivilege,
 	"prowjob-release":              HighPrivilege,
+	"prowjob-build-tools":          HighPrivilege,
 }
 
 var PrivateServiceAccounts = sets.NewString(
 	"prowjob-private-sa",
+)
+
+// SA with Secret access
+var SecretServiceAccounts = sets.NewString(
+	"prowjob-github-istio-testing",
+	"prowjob-github-read",
+	"prowjob-release",
+	"prowjob-build-tools",
 )
 
 type Secret struct {
