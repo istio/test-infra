@@ -64,6 +64,57 @@ presubmits:
     clone_uri: git@github.com:istio-private/envoy.git
     cluster: private
     decorate: true
+    name: test-release_envoy_pri
+    path_alias: istio.io/envoy
+    rerun_command: /test test-release
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - ./ci/do_ci.sh
+        - bazel.release
+        env:
+        - name: BAZEL_BUILD_EXTRA_OPTIONS
+          value: --local_ram_resources=131072 --local_cpu_resources=42 --test_env=ENVOY_IP_TEST_VERSIONS=v4only
+            --flaky_test_attempts=9
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: ENVOY_SRCDIR
+          value: /home/prow/go/src/istio.io/envoy
+        image: index.docker.io/envoyproxy/envoy-build-ubuntu:e33c93e6d79804bf95ff80426d10bdcc9096c785
+        name: ""
+        resources:
+          limits:
+            cpu: "64"
+            ephemeral-storage: 1790G
+            memory: 240G
+          requests:
+            cpu: "48"
+            ephemeral-storage: 1500G
+            memory: 180G
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: build-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )test-release,?($|\s.*))|((?m)^/test( | .* )test-release_envoy,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/envoy.git
+    cluster: private
+    decorate: true
     name: test-tsan_envoy_pri
     path_alias: istio.io/envoy
     rerun_command: /test test-tsan
@@ -109,54 +160,3 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
     trigger: ((?m)^/test( | .* )test-tsan,?($|\s.*))|((?m)^/test( | .* )test-tsan_envoy,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/envoy.git
-    cluster: private
-    decorate: true
-    name: test-release_envoy_pri
-    path_alias: istio.io/envoy
-    rerun_command: /test test-release
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - ./ci/do_ci.sh
-        - bazel.release
-        env:
-        - name: BAZEL_BUILD_EXTRA_OPTIONS
-          value: --local_ram_resources=131072 --local_cpu_resources=42 --test_env=ENVOY_IP_TEST_VERSIONS=v4only
-            --flaky_test_attempts=9
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: ENVOY_SRCDIR
-          value: /home/prow/go/src/istio.io/envoy
-        image: index.docker.io/envoyproxy/envoy-build-ubuntu:e33c93e6d79804bf95ff80426d10bdcc9096c785
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            ephemeral-storage: 1790G
-            memory: 240G
-          requests:
-            cpu: "48"
-            ephemeral-storage: 1500G
-            memory: 180G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: build-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )test-release,?($|\s.*))|((?m)^/test( | .* )test-release_envoy,?($|\s.*))

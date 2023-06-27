@@ -6,13 +6,13 @@ postsubmits:
     branches:
     - ^release-1.17$
     clone_uri: git@github.com:istio-private/proxy.git
-    cluster: private
+    cluster: prow-arm-private
     decorate: true
     decoration_config:
       timeout: 6h0m0s
     labels:
       preset-enable-netrc: "true"
-    name: release_proxy_release-1.17_postsubmit_release-1.17_priv
+    name: release-arm64_proxy_release-1.17_postsubmit_release-1.17_priv
     path_alias: istio.io/proxy
     spec:
       automountServiceAccountToken: false
@@ -21,6 +21,10 @@ postsubmits:
         - entrypoint
         - ./prow/proxy-postsubmit.sh
         env:
+        - name: ARCH_SUFFIX
+          value: arm64
+        - name: BUILD_ENVOY_BINARY_ONLY
+          value: "1"
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -35,12 +39,9 @@ postsubmits:
         image: gcr.io/istio-testing/build-tools-proxy:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
         name: ""
         resources:
-          limits:
-            cpu: "64"
-            memory: 240G
           requests:
-            cpu: "30"
-            memory: 100G
+            cpu: "4"
+            memory: 16G
         securityContext:
           privileged: true
         volumeMounts:
@@ -50,9 +51,14 @@ postsubmits:
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: build-pool
+        kubernetes.io/arch: arm64
+        testing: test-pool
       serviceAccountName: prowjob-private-sa
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -119,13 +125,13 @@ postsubmits:
     branches:
     - ^release-1.17$
     clone_uri: git@github.com:istio-private/proxy.git
-    cluster: prow-arm-private
+    cluster: private
     decorate: true
     decoration_config:
       timeout: 6h0m0s
     labels:
       preset-enable-netrc: "true"
-    name: release-arm64_proxy_release-1.17_postsubmit_release-1.17_priv
+    name: release_proxy_release-1.17_postsubmit_release-1.17_priv
     path_alias: istio.io/proxy
     spec:
       automountServiceAccountToken: false
@@ -133,6 +139,179 @@ postsubmits:
       - command:
         - entrypoint
         - ./prow/proxy-postsubmit.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: DOCKER_REPOSITORY
+          value: istio-prow-build/envoy
+        - name: ENVOY_PREFIX
+          value: envoy
+        - name: ENVOY_REPOSITORY
+          value: https://github.com/istio-private/envoy
+        - name: GCS_BUILD_BUCKET
+          value: istio-private-build
+        image: gcr.io/istio-testing/build-tools-proxy:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+        name: ""
+        resources:
+          limits:
+            cpu: "64"
+            memory: 240G
+          requests:
+            cpu: "30"
+            memory: 100G
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: build-pool
+      serviceAccountName: prowjob-private-sa
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - emptyDir: {}
+        name: docker-root
+presubmits:
+  istio-private/proxy:
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.17$
+    clone_uri: git@github.com:istio-private/proxy.git
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    labels:
+      preset-enable-netrc: "true"
+    name: check-wasm_proxy_release-1.17_release-1.17_priv
+    path_alias: istio.io/proxy
+    rerun_command: /test check-wasm
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - ./prow/proxy-presubmit-wasm.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: ENVOY_PREFIX
+          value: envoy
+        - name: ENVOY_REPOSITORY
+          value: https://github.com/istio-private/envoy
+        image: gcr.io/istio-testing/build-tools-proxy:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+        name: ""
+        resources:
+          limits:
+            cpu: "64"
+            memory: 240G
+          requests:
+            cpu: "30"
+            memory: 100G
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: build-pool
+      serviceAccountName: prowjob-private-sa
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )check-wasm,?($|\s.*))|((?m)^/test( | .* )check-wasm_proxy_release-1.17,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.17$
+    clone_uri: git@github.com:istio-private/proxy.git
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 6h0m0s
+    labels:
+      preset-enable-netrc: "true"
+    name: release-centos-test_proxy_release-1.17_release-1.17_priv
+    path_alias: istio.io/proxy
+    rerun_command: /test release-centos-test
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - ./prow/proxy-presubmit-centos-release.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: ENVOY_PREFIX
+          value: envoy
+        - name: ENVOY_REPOSITORY
+          value: https://github.com/istio-private/envoy
+        image: gcr.io/istio-testing/build-tools-centos:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+        name: ""
+        resources:
+          limits:
+            cpu: "64"
+            memory: 240G
+          requests:
+            cpu: "30"
+            memory: 100G
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: build-pool
+      serviceAccountName: prowjob-private-sa
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )release-centos-test,?($|\s.*))|((?m)^/test( | .* )release-centos-test_proxy_release-1.17,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.17$
+    clone_uri: git@github.com:istio-private/proxy.git
+    cluster: prow-arm-private
+    decorate: true
+    decoration_config:
+      timeout: 6h0m0s
+    labels:
+      preset-enable-netrc: "true"
+    name: release-test-arm64_proxy_release-1.17_release-1.17_priv
+    path_alias: istio.io/proxy
+    rerun_command: /test release-test-arm64
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - ./prow/proxy-presubmit-release.sh
         env:
         - name: ARCH_SUFFIX
           value: arm64
@@ -161,8 +340,6 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /var/lib/docker
-          name: docker-root
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
@@ -177,10 +354,7 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - emptyDir: {}
-        name: docker-root
-presubmits:
-  istio-private/proxy:
+    trigger: ((?m)^/test( | .* )release-test-arm64,?($|\s.*))|((?m)^/test( | .* )release-test-arm64_proxy_release-1.17,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -190,17 +364,17 @@ presubmits:
     cluster: private
     decorate: true
     decoration_config:
-      timeout: 4h0m0s
+      timeout: 6h0m0s
     labels:
       preset-enable-netrc: "true"
-    name: test_proxy_release-1.17_release-1.17_priv
+    name: release-test_proxy_release-1.17_release-1.17_priv
     path_alias: istio.io/proxy
-    rerun_command: /test test
+    rerun_command: /test release-test
     spec:
       automountServiceAccountToken: false
       containers:
       - command:
-        - ./prow/proxy-presubmit.sh
+        - ./prow/proxy-presubmit-release.sh
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -233,7 +407,7 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_proxy_release-1.17,?($|\s.*))
+    trigger: ((?m)^/test( | .* )release-test,?($|\s.*))|((?m)^/test( | .* )release-test_proxy_release-1.17,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
@@ -349,124 +523,17 @@ presubmits:
     cluster: private
     decorate: true
     decoration_config:
-      timeout: 6h0m0s
-    labels:
-      preset-enable-netrc: "true"
-    name: release-test_proxy_release-1.17_release-1.17_priv
-    path_alias: istio.io/proxy
-    rerun_command: /test release-test
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - ./prow/proxy-presubmit-release.sh
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: BAZEL_BUILD_RBE_INSTANCE
-        - name: ENVOY_PREFIX
-          value: envoy
-        - name: ENVOY_REPOSITORY
-          value: https://github.com/istio-private/envoy
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: build-pool
-      serviceAccountName: prowjob-private-sa
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )release-test,?($|\s.*))|((?m)^/test( | .* )release-test_proxy_release-1.17,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^release-1.17$
-    clone_uri: git@github.com:istio-private/proxy.git
-    cluster: private
-    decorate: true
-    decoration_config:
-      timeout: 6h0m0s
-    labels:
-      preset-enable-netrc: "true"
-    name: release-centos-test_proxy_release-1.17_release-1.17_priv
-    path_alias: istio.io/proxy
-    rerun_command: /test release-centos-test
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - ./prow/proxy-presubmit-centos-release.sh
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: BAZEL_BUILD_RBE_INSTANCE
-        - name: ENVOY_PREFIX
-          value: envoy
-        - name: ENVOY_REPOSITORY
-          value: https://github.com/istio-private/envoy
-        image: gcr.io/istio-testing/build-tools-centos:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: build-pool
-      serviceAccountName: prowjob-private-sa
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )release-centos-test,?($|\s.*))|((?m)^/test( | .* )release-centos-test_proxy_release-1.17,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^release-1.17$
-    clone_uri: git@github.com:istio-private/proxy.git
-    cluster: private
-    decorate: true
-    decoration_config:
       timeout: 4h0m0s
     labels:
       preset-enable-netrc: "true"
-    name: check-wasm_proxy_release-1.17_release-1.17_priv
+    name: test_proxy_release-1.17_release-1.17_priv
     path_alias: istio.io/proxy
-    rerun_command: /test check-wasm
+    rerun_command: /test test
     spec:
       automountServiceAccountToken: false
       containers:
       - command:
-        - entrypoint
-        - ./prow/proxy-presubmit-wasm.sh
+        - ./prow/proxy-presubmit.sh
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -490,8 +557,6 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /var/lib/docker
-          name: docker-root
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -501,69 +566,4 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - emptyDir: {}
-        name: docker-root
-    trigger: ((?m)^/test( | .* )check-wasm,?($|\s.*))|((?m)^/test( | .* )check-wasm_proxy_release-1.17,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^release-1.17$
-    clone_uri: git@github.com:istio-private/proxy.git
-    cluster: prow-arm-private
-    decorate: true
-    decoration_config:
-      timeout: 6h0m0s
-    labels:
-      preset-enable-netrc: "true"
-    name: release-test-arm64_proxy_release-1.17_release-1.17_priv
-    path_alias: istio.io/proxy
-    rerun_command: /test release-test-arm64
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - ./prow/proxy-presubmit-release.sh
-        env:
-        - name: ARCH_SUFFIX
-          value: arm64
-        - name: BUILD_ENVOY_BINARY_ONLY
-          value: "1"
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: BAZEL_BUILD_RBE_INSTANCE
-        - name: DOCKER_REPOSITORY
-          value: istio-prow-build/envoy
-        - name: ENVOY_PREFIX
-          value: envoy
-        - name: ENVOY_REPOSITORY
-          value: https://github.com/istio-private/envoy
-        - name: GCS_BUILD_BUCKET
-          value: istio-private-build
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
-        name: ""
-        resources:
-          requests:
-            cpu: "4"
-            memory: 16G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: arm64
-        testing: test-pool
-      serviceAccountName: prowjob-private-sa
-      tolerations:
-      - effect: NoSchedule
-        key: kubernetes.io/arch
-        operator: Equal
-        value: arm64
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )release-test-arm64,?($|\s.*))|((?m)^/test( | .* )release-test-arm64_proxy_release-1.17,?($|\s.*))
+    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_proxy_release-1.17,?($|\s.*))

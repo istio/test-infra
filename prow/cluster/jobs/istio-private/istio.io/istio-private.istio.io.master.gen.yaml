@@ -8,14 +8,18 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.io.git
     cluster: private
     decorate: true
-    name: lint_istio.io_postsubmit_pri
+    name: doc.test.multicluster_istio.io_postsubmit_pri
     path_alias: istio.io/istio.io
+    run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
       automountServiceAccountToken: false
       containers:
       - command:
-        - make
-        - lint
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --topology
+        - MULTICLUSTER
+        - doc.test.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -34,6 +38,14 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -42,47 +54,16 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.io.git
-    cluster: private
-    decorate: true
-    name: gencheck_istio.io_postsubmit_pri
-    path_alias: istio.io/istio.io
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - make
-        - gen-check
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
       - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -212,67 +193,6 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.io.git
     cluster: private
     decorate: true
-    name: doc.test.profile-none_istio.io_postsubmit_pri
-    path_alias: istio.io/istio.io
-    run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - doc.test.profile-none
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.io.git
-    cluster: private
-    decorate: true
     name: doc.test.profile-minimal_istio.io_postsubmit_pri
     path_alias: istio.io/istio.io
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
@@ -334,8 +254,155 @@ postsubmits:
     clone_uri: git@github.com:istio-private/istio.io.git
     cluster: private
     decorate: true
-    name: doc.test.multicluster_istio.io_postsubmit_pri
+    name: doc.test.profile-none_istio.io_postsubmit_pri
     path_alias: istio.io/istio.io
+    run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - doc.test.profile-none
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+        name: cgroup
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.io.git
+    cluster: private
+    decorate: true
+    name: gencheck_istio.io_postsubmit_pri
+    path_alias: istio.io/istio.io
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - gen-check
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.io.git
+    cluster: private
+    decorate: true
+    name: lint_istio.io_postsubmit_pri
+    path_alias: istio.io/istio.io
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - lint
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+presubmits:
+  istio-private/istio.io:
+  - always_run: false
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.io.git
+    cluster: private
+    decorate: true
+    name: doc.test.multicluster_istio.io_pri
+    path_alias: istio.io/istio.io
+    rerun_command: /test doc.test.multicluster
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
       automountServiceAccountToken: false
@@ -390,96 +457,8 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-presubmits:
-  istio-private/istio.io:
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.io.git
-    cluster: private
-    decorate: true
-    name: lint_istio.io_pri
-    path_alias: istio.io/istio.io
-    rerun_command: /test lint
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - make
-        - lint
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_istio.io,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.io.git
-    cluster: private
-    decorate: true
-    name: gencheck_istio.io_pri
-    path_alias: istio.io/istio.io
-    rerun_command: /test gencheck
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - make
-        - gen-check
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_istio.io,?($|\s.*))
+    trigger: ((?m)^/test( | .* )doc.test.multicluster,?($|\s.*))|((?m)^/test( | .*
+      )doc.test.multicluster_istio.io,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
@@ -618,71 +597,6 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.io.git
     cluster: private
     decorate: true
-    name: doc.test.profile-none_istio.io_pri
-    path_alias: istio.io/istio.io
-    rerun_command: /test doc.test.profile-none
-    run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - doc.test.profile-none
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
-        name: ""
-        resources:
-          limits:
-            cpu: "8"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
-      - emptyDir: {}
-        name: docker-root
-    trigger: ((?m)^/test( | .* )doc.test.profile-none,?($|\s.*))|((?m)^/test( | .*
-      )doc.test.profile-none_istio.io,?($|\s.*))
-  - always_run: false
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    clone_uri: git@github.com:istio-private/istio.io.git
-    cluster: private
-    decorate: true
     name: doc.test.profile-minimal_istio.io_pri
     path_alias: istio.io/istio.io
     rerun_command: /test doc.test.profile-minimal
@@ -748,9 +662,9 @@ presubmits:
     clone_uri: git@github.com:istio-private/istio.io.git
     cluster: private
     decorate: true
-    name: doc.test.multicluster_istio.io_pri
+    name: doc.test.profile-none_istio.io_pri
     path_alias: istio.io/istio.io
-    rerun_command: /test doc.test.multicluster
+    rerun_command: /test doc.test.profile-none
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
     spec:
       automountServiceAccountToken: false
@@ -758,9 +672,7 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --topology
-        - MULTICLUSTER
-        - doc.test.multicluster
+        - doc.test.profile-none
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -805,5 +717,93 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )doc.test.multicluster,?($|\s.*))|((?m)^/test( | .*
-      )doc.test.multicluster_istio.io,?($|\s.*))
+    trigger: ((?m)^/test( | .* )doc.test.profile-none,?($|\s.*))|((?m)^/test( | .*
+      )doc.test.profile-none_istio.io,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.io.git
+    cluster: private
+    decorate: true
+    name: gencheck_istio.io_pri
+    path_alias: istio.io/istio.io
+    rerun_command: /test gencheck
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - gen-check
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_istio.io,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    clone_uri: git@github.com:istio-private/istio.io.git
+    cluster: private
+    decorate: true
+    name: lint_istio.io_pri
+    path_alias: istio.io/istio.io
+    rerun_command: /test lint
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - lint
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_istio.io,?($|\s.*))
