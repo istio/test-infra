@@ -2156,28 +2156,18 @@ postsubmits:
       containers:
       - command:
         - entrypoint
-        - ../release-builder/release/build.sh
+        - ../release-builder/release/build-base-images.sh
         env:
         - name: ALWAYS_GENERATE_BASE_IMAGE
-          value: "true"
-        - name: BUILD_BASE_IMAGES
           value: "true"
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: VERSION
           value: release-1.18
-        - name: COSIGN_KEY
-          value: gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1
         - name: DOCKER_CONFIG
-          value: /etc/rel-pipeline-docker-config
-        - name: GITHUB_TOKEN_FILE
-          value: /etc/github/rel-pipeline-github
-        - name: GRAFANA_TOKEN_FILE
-          value: /etc/grafana/token
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /etc/service-account/rel-pipeline-service-account.json
+          value: /var/run/ci/docker
         - name: GCP_SECRETS
-          value: '[{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"}]'
+          value: '[{"secret":"release_docker_istio","project":"istio-prow-build","file":"/var/run/ci/docker/config.json"},{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"}]'
         image: gcr.io/istio-testing/build-tools:release-1.18-fca3cc9d04eba433bb39c0a48492f3477a2d5a03
         name: ""
         resources:
@@ -2196,40 +2186,17 @@ postsubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
-        - mountPath: /etc/rel-pipeline-docker-config
-          name: rel-pipeline-docker-config
-        - mountPath: /etc/github
-          name: rel-pipeline-github
-          readOnly: true
-        - mountPath: /etc/grafana
-          name: rel-pipeline-grafana
-          readOnly: true
-        - mountPath: /etc/service-account
-          name: rel-pipeline-service-account
-          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
-      serviceAccountName: prowjob-github-istio-testing
+      serviceAccountName: prowjob-release
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
       - emptyDir: {}
         name: docker-root
 presubmits:
