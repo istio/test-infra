@@ -3,7 +3,7 @@ branches:
 env:
 - name: BUILD_WITH_CONTAINER
   value: "0"
-image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
 jobs:
 - architectures:
   - amd64
@@ -16,7 +16,7 @@ jobs:
   - build
   - racetest
   - binaries-test
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: unit-tests
   node_selector:
     testing: test-pool
@@ -170,7 +170,7 @@ jobs:
 - command:
   - entrypoint
   - prow/release-test.sh
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: release-test
   node_selector:
     testing: test-pool
@@ -327,7 +327,7 @@ jobs:
 - command:
   - entrypoint
   - prow/release-commit.sh
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: release
   node_selector:
     testing: test-pool
@@ -486,7 +486,7 @@ jobs:
   - entrypoint
   - make
   - benchtest
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   modifiers:
   - presubmit_optional
   - presubmit_skipped
@@ -647,7 +647,7 @@ jobs:
   - make
   - benchtest
   - report-benchtest
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: benchmark-report
   node_selector:
     testing: test-pool
@@ -808,7 +808,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.istio.enableCNI=true '
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-cni
   node_selector:
     testing: test-pool
@@ -965,7 +965,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.telemetry.kube
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-telemetry
   node_selector:
     testing: test-pool
@@ -1122,7 +1122,7 @@ jobs:
   - --topology
   - MULTICLUSTER
   - test.integration.telemetry.kube
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-telemetry-mc
   node_selector:
     testing: test-pool
@@ -1285,7 +1285,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: --istio.test.skipVM
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-telemetry-istiodremote
   node_selector:
     testing: test-pool
@@ -1444,7 +1444,7 @@ jobs:
   env:
   - name: VARIANT
     value: distroless
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-distroless
   node_selector:
     testing: test-pool
@@ -1604,7 +1604,7 @@ jobs:
     value: "true"
   - name: IP_FAMILY
     value: ipv6
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-ipv6
   node_selector:
     testing: test-pool
@@ -1764,7 +1764,7 @@ jobs:
     value: "true"
   - name: IP_FAMILY
     value: dual
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-ds
   node_selector:
     testing: test-pool
@@ -1921,7 +1921,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.kube.environment
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-basic
   node_selector:
     testing: test-pool
@@ -2076,7 +2076,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.operator.kube
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-operator-controller
   node_selector:
     testing: test-pool
@@ -2231,7 +2231,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.pilot.kube
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-pilot
   node_selector:
     testing: test-pool
@@ -2389,7 +2389,7 @@ jobs:
   env:
   - name: GRPC_ECHO_IMAGE
     value: grpctesting/istio_echo_cpp
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-pilot-cpp
   node_selector:
     testing: test-pool
@@ -2548,7 +2548,7 @@ jobs:
   - --topology
   - MULTICLUSTER
   - test.integration.pilot.kube
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-pilot-multicluster
   node_selector:
     testing: test-pool
@@ -2711,7 +2711,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: --istio.test.skipVM
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-pilot-istiodremote
   node_selector:
     testing: test-pool
@@ -2874,7 +2874,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: --istio.test.skipVM
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-pilot-istiodremote-mc
   node_selector:
     testing: test-pool
@@ -3030,7 +3030,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.security.kube
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-security
   node_selector:
     testing: test-pool
@@ -3186,7 +3186,7 @@ jobs:
   - prow/integ-suite-kind.sh
   - test.integration-fuzz.security.fuzz.kube
   cron: 0 7 * * *
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-security-fuzz
   node_selector:
     testing: test-pool
@@ -3345,7 +3345,7 @@ jobs:
   - --topology
   - MULTICLUSTER
   - test.integration.security.kube
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-security-multicluster
   node_selector:
     testing: test-pool
@@ -3508,7 +3508,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: --istio.test.skipVM
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-security-istiodremote
   node_selector:
     testing: test-pool
@@ -3664,7 +3664,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - test.integration.helm.kube
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-helm
   node_selector:
     testing: test-pool
@@ -3826,7 +3826,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-k8s-116
   node_selector:
     testing: test-pool
@@ -3991,7 +3991,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-k8s-117
   node_selector:
     testing: test-pool
@@ -4156,7 +4156,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-k8s-118
   node_selector:
     testing: test-pool
@@ -4321,7 +4321,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-k8s-119
   node_selector:
     testing: test-pool
@@ -4486,7 +4486,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-k8s-120
   node_selector:
     testing: test-pool
@@ -4651,7 +4651,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-k8s-121
   node_selector:
     testing: test-pool
@@ -4816,7 +4816,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-k8s-122
   node_selector:
     testing: test-pool
@@ -4979,7 +4979,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-k8s-123
   node_selector:
     testing: test-pool
@@ -5142,7 +5142,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-k8s-124
   node_selector:
     testing: test-pool
@@ -5305,7 +5305,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 '
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-k8s-125
   node_selector:
     testing: test-pool
@@ -5468,7 +5468,7 @@ jobs:
     value: -flaky
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.retries=1 --istio.test.istio.enableCNI=true '
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: integ-cni
   node_selector:
     testing: test-pool
@@ -5629,7 +5629,7 @@ jobs:
   env:
   - name: INTEGRATION_TEST_FLAGS
     value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   modifiers:
   - presubmit_optional
   - presubmit_skipped
@@ -5787,7 +5787,7 @@ jobs:
 - command:
   - make
   - test.integration.analyze
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: analyze-tests
   node_selector:
     testing: test-pool
@@ -5942,7 +5942,7 @@ jobs:
 - command:
   - make
   - lint
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: lint
   node_selector:
     testing: test-pool
@@ -6098,7 +6098,7 @@ jobs:
 - command:
   - make
   - gen-check
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: gencheck
   node_selector:
     testing: test-pool
@@ -6255,7 +6255,7 @@ jobs:
   - gen-release-notes
   - --checkLabel
   - --validateOnly
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: release-notes
   node_selector:
     testing: test-pool
@@ -6418,7 +6418,7 @@ jobs:
     value: release-1.17
   - name: ALWAYS_GENERATE_BASE_IMAGE
     value: "true"
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   name: build-base-images
   node_selector:
     testing: test-pool
