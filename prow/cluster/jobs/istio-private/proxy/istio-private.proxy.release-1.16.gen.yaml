@@ -5,7 +5,7 @@ postsubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^release-1.16$
-    cluster: prow-arm-private
+    cluster: private
     decorate: true
     decoration_config:
       timeout: 6h0m0s
@@ -289,7 +289,7 @@ presubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^release-1.16$
-    cluster: prow-arm-private
+    cluster: private
     decorate: true
     decoration_config:
       timeout: 6h0m0s
@@ -315,9 +315,6 @@ presubmits:
           value: envoy
         - name: ENVOY_REPOSITORY
           value: https://github.com/istio-private/envoy
-        - name: GCS_BUILD_BUCKET
-          value: istio-build-private
-        - name: PUSH_RELEASE_FLAGS
         image: gcr.io/istio-testing/build-tools-proxy:release-1.16-04bff0a4819cdfd500eb7817ed686f10c30b4456
         name: ""
         resources:

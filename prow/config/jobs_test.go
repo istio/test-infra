@@ -26,7 +26,7 @@ import (
 )
 
 var (
-	PrivateClusters = sets.NewString("private", "prow-arm-private")
+	PrivateClusters = sets.NewString("private")
 	PublicClusters  = sets.NewString("default", "prow-arm", "test-infra-trusted")
 )
 
