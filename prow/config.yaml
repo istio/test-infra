@@ -35,8 +35,9 @@ plank:
       gcs_configuration:
         bucket: "istio-prow-private"
         path_strategy: "explicit"
-      ssh_key_secrets:
-      - ssh-key-secret
+      oauth_token_secret:
+      - name: github-oauth
+        key: token
   - cluster: prow-arm
     config:
       default_service_account_name: "prowjob-default-sa" # Use workload identity

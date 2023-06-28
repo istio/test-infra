@@ -1,14 +1,6 @@
 presets:
 # Dependency overrides, one per branch
 - labels:
-    preset-override-deps: "master-istio"
-  env:
-  - name: DEPENDENCIES
-    valueFrom:
-      configMapKeyRef:
-        name: master-istio-deps
-        key: dependencies
-- labels:
     preset-override-deps: "master-release"
   env:
   - name: DEPENDENCIES
@@ -55,6 +47,22 @@ presets:
     valueFrom:
       configMapKeyRef:
         name: release-1.17-istio-deps
+        key: dependencies
+- labels:
+    preset-override-deps: "release-1.18-release"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: release-1.18-release-deps
+        key: dependencies
+- labels:
+    preset-override-deps: "release-1.18-istio"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: release-1.18-istio-deps
         key: dependencies
 
 # Use private Envoy URL, with auth header
