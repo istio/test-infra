@@ -18,8 +18,8 @@ transforms:
 
 # istio/release-builder master build warning jobs(s) - presubmit(s)
 - env:
-    PRERELEASE_DOCKER_HUB: gcr.io/istio-prow-build
-    GCS_BUCKET: istio-private-prerelease/prerelease
+    PRERELEASE_DOCKER_HUB: us-docker.pkg.dev/istio-prow-private/istio-prow-private
+    GCS_BUCKET: istio-prerelease-private/prerelease
     HELM_BUCKET: istio-private-build/dev/charts
   job-type: [presubmit]
   job-allowlist: [build-warning_release-builder]
@@ -28,9 +28,9 @@ transforms:
 
   # istio/release-builder master build jobs(s) - postsubmit(s)
 - env:
-    PRERELEASE_DOCKER_HUB: gcr.io/istio-prow-build
+    PRERELEASE_DOCKER_HUB: us-docker.pkg.dev/istio-prow-private/istio-prow-private
     HELM_BUCKET: istio-private-build/dev/charts
-    GCS_BUCKET: istio-private-prerelease/prerelease
+    GCS_BUCKET: istio-prerelease-private/prerelease
     GCP_SECRETS: null # Don't use their secrets. We only need to push to GCS and GCR which do not need secrets
   labels:
     preset-enable-ssh: "true"
