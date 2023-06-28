@@ -56,6 +56,11 @@ module "prow_node_build" {
     "testing" = "build-pool"
   }
 }
+
+# Manual action is needed until terraform supports cgroup config
+# linuxConfig:
+#   cgroupMode: 'CGROUP_MODE_V1'
+# gcloud beta container node-pools update arm --cluster=prow --project istio-prow-private --system-config-from-file=config.yaml --zone us-central1-f
 module "prow_node_arm" {
   source = "../modules/gke-nodepool"
   name   = "arm"
