@@ -5,7 +5,7 @@ locals {
   all_secrets = [
     # Access token for "istio" dockerhub account
     "release_docker_istio",
-    # Fine grained PAT in the Istio org, "github/istio-release/release". Has "Write" access to code.
+    # Fine grained PAT in the Istio org, "github/istio-release/release". Has write access to "Contents" and "Workflows".
     "release_github_istio-release",
     # Access token for Grafana for the "Istio" org. Named "release-pipeline-token" in Grafana, with role "Editor".
     "release_grafana_istio",
