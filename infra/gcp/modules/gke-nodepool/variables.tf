@@ -89,3 +89,9 @@ variable "service_account" {
   description = "The email address of the GCP Service Account to be associated with nodes in this node_pool"
   type        = string
 }
+
+variable "spot" {
+  description = "If true, spot instances should be used"
+  type        = bool
+  default     = false
+}
