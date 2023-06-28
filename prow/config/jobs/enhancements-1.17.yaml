@@ -3,13 +3,13 @@ branches:
 env:
 - name: BUILD_WITH_CONTAINER
   value: "0"
-image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
 jobs:
 - command:
   - ../test-infra/scripts/validate_schema.sh
   - --document-path=./features.yaml
   - --schema-path=./features_schema.json
-  image: gcr.io/istio-testing/build-tools:release-1.17-fd4e8747931dd1d3fa57f5a562e99420f079152b
+  image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
   modifiers:
   - presubmit_optional
   name: validate-features

@@ -55,7 +55,7 @@ variable "cluster_namespace" {
 
 variable "project_roles" {
   description = "A list of roles to bind to the serviceaccount in its project"
-  type        = list(object({
+  type = list(object({
     role    = string
     project = optional(string)
   }))
@@ -64,7 +64,7 @@ variable "project_roles" {
 
 variable "secrets" {
   description = "A list of secrets to give access to the serviceaccount in its project"
-  type        = list(object({
+  type = list(object({
     name    = string
     project = optional(string)
   }))
@@ -73,9 +73,18 @@ variable "secrets" {
 
 variable "gcs_acls" {
   description = "A list of buckets to add ACLs for. Note: prefer using IAM for GCS; this is for legacy bucket configurations"
-  type        = list(object({
+  type = list(object({
     bucket = string
-    role = string
+    role   = string
+  }))
+  default = []
+}
+
+variable "gcs_iam" {
+  description = "A list of buckets to add IAM bindings for. Use gcs_acls for the legacy ACL config"
+  type = list(object({
+    bucket = string
+    role   = string
   }))
   default = []
 }
@@ -83,4 +92,10 @@ variable "gcs_acls" {
 variable "prowjob" {
   description = "Set to true if this service account will be used for prowjobs"
   type        = bool
+}
+
+variable "prowjob_bucket" {
+  description = "If 'prowjob' is true, which bucket to grant access to"
+  type        = string
+  default     = "istio-prow"
 }
