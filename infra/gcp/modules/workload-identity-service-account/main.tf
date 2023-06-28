@@ -61,7 +61,7 @@ resource "google_storage_bucket_access_control" "acls" {
 }
 // optional: GCS IAM grants access to the serviceaccount on the project
 resource "google_storage_bucket_iam_member" "gcs_member" {
-  for_each = { for k, v in var.gcs_acls : k => v }
+  for_each = { for k, v in var.gcs_iam : k => v }
   bucket   = each.value.bucket
   role     = each.value.role
   member   = "serviceAccount:${google_service_account.serviceaccount.email}"
