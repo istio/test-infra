@@ -5,7 +5,6 @@ postsubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/release-builder.git
     cluster: private
     decorate: true
     labels:
@@ -27,11 +26,11 @@ postsubmits:
           value: "0"
         - name: GCP_SECRETS
         - name: GCS_BUCKET
-          value: istio-private-prerelease/prerelease
+          value: istio-prerelease-private/prerelease
         - name: HELM_BUCKET
-          value: istio-private-build/dev/charts
+          value: istio-prerelease-private/charts
         - name: PRERELEASE_DOCKER_HUB
-          value: gcr.io/istio-prow-build
+          value: us-docker.pkg.dev/istio-prow-private/istio-prow-private
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -52,7 +51,7 @@ postsubmits:
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
-      serviceAccountName: prowjob-private-sa
+      serviceAccountName: prowjob-private
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -64,7 +63,6 @@ postsubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/release-builder.git
     cluster: private
     decorate: true
     labels:
@@ -107,7 +105,6 @@ postsubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/release-builder.git
     cluster: private
     decorate: true
     labels:
@@ -150,7 +147,6 @@ postsubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/release-builder.git
     cluster: private
     decorate: true
     labels:
@@ -196,7 +192,6 @@ presubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/release-builder.git
     cluster: private
     decorate: true
     name: build-warning_release-builder_pri
@@ -213,11 +208,11 @@ presubmits:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GCS_BUCKET
-          value: istio-private-prerelease/prerelease
+          value: istio-prerelease-private/prerelease
         - name: HELM_BUCKET
-          value: istio-private-build/dev/charts
+          value: istio-prerelease-private/charts
         - name: PRERELEASE_DOCKER_HUB
-          value: gcr.io/istio-prow-build
+          value: us-docker.pkg.dev/istio-prow-private/istio-prow-private
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -247,7 +242,6 @@ presubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/release-builder.git
     cluster: private
     decorate: true
     labels:
@@ -293,7 +287,6 @@ presubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/release-builder.git
     cluster: private
     decorate: true
     labels:
@@ -339,7 +332,6 @@ presubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/release-builder.git
     cluster: private
     decorate: true
     labels:

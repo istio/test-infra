@@ -26,7 +26,7 @@ import (
 )
 
 var (
-	PrivateClusters = sets.NewString("private", "prow-arm-private")
+	PrivateClusters = sets.NewString("private")
 	PublicClusters  = sets.NewString("default", "prow-arm", "test-infra-trusted")
 )
 
@@ -470,7 +470,7 @@ const (
 var ServiceAccounts = map[string]Sensitivity{
 	"":                             LowPrivilege, // Default is prowjob-default-sa
 	"prowjob-default-sa":           LowPrivilege,
-	"prowjob-private-sa":           LowPrivilege,
+	"prowjob-private":              LowPrivilege,
 	"prowjob-rbe":                  MediumPrivilege,
 	"prowjob-github-read":          MediumPrivilege,
 	"prow-deployer":                HighPrivilege,
@@ -482,7 +482,7 @@ var ServiceAccounts = map[string]Sensitivity{
 }
 
 var PrivateServiceAccounts = sets.NewString(
-	"prowjob-private-sa",
+	"prowjob-private",
 )
 
 // SA with Secret access

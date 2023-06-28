@@ -43,7 +43,7 @@ resource "google_service_account" "istio_prow_test_job_default" {
   display_name = "istio-prow-test-job-default"
   project      = "istio-testing"
 }
-# Used with WI as the "prowjob-private-sa" service account. This is the default for jobs in the private clusters
+# Used with WI as the "prowjob-private" service account. This is the default for jobs in the private clusters
 resource "google_service_account" "istio_prow_test_job_private" {
   account_id   = "istio-prow-test-job-private"
   description  = "Default service account used by Istio private Prow jobs."

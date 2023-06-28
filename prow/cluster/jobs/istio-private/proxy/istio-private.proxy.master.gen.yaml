@@ -5,8 +5,7 @@ postsubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/proxy.git
-    cluster: prow-arm-private
+    cluster: private
     decorate: true
     decoration_config:
       timeout: 6h0m0s
@@ -28,14 +27,12 @@ postsubmits:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
-        - name: DOCKER_REPOSITORY
-          value: istio-prow-build/envoy
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
           value: https://github.com/istio-private/envoy
         - name: GCS_BUILD_BUCKET
-          value: istio-private-build
+          value: istio-build-private
         image: gcr.io/istio-testing/build-tools-proxy:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -53,7 +50,7 @@ postsubmits:
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
-      serviceAccountName: prowjob-private-sa
+      serviceAccountName: prowjob-private
       tolerations:
       - effect: NoSchedule
         key: kubernetes.io/arch
@@ -70,7 +67,6 @@ postsubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/proxy.git
     cluster: private
     decorate: true
     decoration_config:
@@ -88,14 +84,12 @@ postsubmits:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
-        - name: DOCKER_REPOSITORY
-          value: istio-prow-build/envoy
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
           value: https://github.com/istio-private/envoy
         - name: GCS_BUILD_BUCKET
-          value: istio-private-build
+          value: istio-build-private
         image: gcr.io/istio-testing/build-tools-centos:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -114,7 +108,7 @@ postsubmits:
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
-      serviceAccountName: prowjob-private-sa
+      serviceAccountName: prowjob-private
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -124,7 +118,6 @@ postsubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/proxy.git
     cluster: private
     decorate: true
     decoration_config:
@@ -143,14 +136,12 @@ postsubmits:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
-        - name: DOCKER_REPOSITORY
-          value: istio-prow-build/envoy
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
           value: https://github.com/istio-private/envoy
         - name: GCS_BUILD_BUCKET
-          value: istio-private-build
+          value: istio-build-private
         image: gcr.io/istio-testing/build-tools-proxy:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -171,7 +162,7 @@ postsubmits:
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
-      serviceAccountName: prowjob-private-sa
+      serviceAccountName: prowjob-private
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -186,7 +177,6 @@ presubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/proxy.git
     cluster: private
     decorate: true
     decoration_config:
@@ -230,7 +220,7 @@ presubmits:
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
-      serviceAccountName: prowjob-private-sa
+      serviceAccountName: prowjob-private
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -244,7 +234,6 @@ presubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/proxy.git
     cluster: private
     decorate: true
     decoration_config:
@@ -285,7 +274,7 @@ presubmits:
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
-      serviceAccountName: prowjob-private-sa
+      serviceAccountName: prowjob-private
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -297,8 +286,7 @@ presubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/proxy.git
-    cluster: prow-arm-private
+    cluster: private
     decorate: true
     decoration_config:
       timeout: 6h0m0s
@@ -320,14 +308,10 @@ presubmits:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
-        - name: DOCKER_REPOSITORY
-          value: istio-prow-build/envoy
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
           value: https://github.com/istio-private/envoy
-        - name: GCS_BUILD_BUCKET
-          value: istio-private-build
         image: gcr.io/istio-testing/build-tools-proxy:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -343,7 +327,7 @@ presubmits:
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
-      serviceAccountName: prowjob-private-sa
+      serviceAccountName: prowjob-private
       tolerations:
       - effect: NoSchedule
         key: kubernetes.io/arch
@@ -360,7 +344,6 @@ presubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/proxy.git
     cluster: private
     decorate: true
     decoration_config:
@@ -401,7 +384,7 @@ presubmits:
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
-      serviceAccountName: prowjob-private-sa
+      serviceAccountName: prowjob-private
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -413,8 +396,7 @@ presubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/proxy.git
-    cluster: prow-arm-private
+    cluster: private
     decorate: true
     decoration_config:
       timeout: 6h0m0s
@@ -434,14 +416,10 @@ presubmits:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: BAZEL_BUILD_RBE_INSTANCE
-        - name: DOCKER_REPOSITORY
-          value: istio-prow-build/envoy
         - name: ENVOY_PREFIX
           value: envoy
         - name: ENVOY_REPOSITORY
           value: https://github.com/istio-private/envoy
-        - name: GCS_BUILD_BUCKET
-          value: istio-private-build
         image: gcr.io/istio-testing/build-tools-proxy:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -457,7 +435,7 @@ presubmits:
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
-      serviceAccountName: prowjob-private-sa
+      serviceAccountName: prowjob-private
       tolerations:
       - effect: NoSchedule
         key: kubernetes.io/arch
@@ -474,7 +452,6 @@ presubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/proxy.git
     cluster: private
     decorate: true
     decoration_config:
@@ -515,7 +492,7 @@ presubmits:
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
-      serviceAccountName: prowjob-private-sa
+      serviceAccountName: prowjob-private
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -527,7 +504,6 @@ presubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/proxy.git
     cluster: private
     decorate: true
     decoration_config:
@@ -568,7 +544,7 @@ presubmits:
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
-      serviceAccountName: prowjob-private-sa
+      serviceAccountName: prowjob-private
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -580,7 +556,6 @@ presubmits:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
-    clone_uri: git@github.com:istio-private/proxy.git
     cluster: private
     decorate: true
     decoration_config:
@@ -621,7 +596,7 @@ presubmits:
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
-      serviceAccountName: prowjob-private-sa
+      serviceAccountName: prowjob-private
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
