@@ -15,7 +15,7 @@ resource "google_artifact_registry_repository" "main" {
 
 data "google_iam_policy" "artifact_registry" {
   binding {
-    role    = "roles/artifactregistry.createOnPushWriter"
+    role = "roles/artifactregistry.createOnPushWriter"
     members = [
       "serviceAccount:${module.prowjob_private_account.email}",
     ]

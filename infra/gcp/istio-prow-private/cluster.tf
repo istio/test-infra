@@ -1,9 +1,10 @@
 module "prow_cluster" {
-  source           = "../modules/gke-cluster"
-  cluster_name     = "prow"
-  project_name     = local.project_id
+  source       = "../modules/gke-cluster"
+  cluster_name = "prow"
+  project_name = local.project_id
   # ARM node pools are (currently) only available here, so ensure we use this region.
   cluster_location = "us-central1-f"
+  release_channel  = "REGULAR"
 }
 module "prow_node_test" {
   source = "../modules/gke-nodepool"

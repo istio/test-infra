@@ -78,7 +78,7 @@ resource "google_secret_manager_secret_iam_member" "member" {
 // If this is going to be used for prowjobs, then we need to give it access to gs://istio-prow to write logs.
 resource "google_storage_bucket_iam_member" "member" {
   count  = var.prowjob ? 1 : 0
-  bucket = var.bucket
+  bucket = var.prowjob_bucket
   role   = "roles/storage.objectAdmin"
   member = "serviceAccount:${google_service_account.serviceaccount.email}"
 }

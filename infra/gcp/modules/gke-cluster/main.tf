@@ -80,7 +80,7 @@ resource "google_container_cluster" "cluster" {
       disabled = false
     }
     network_policy_config {
-      disabled = false
+      disabled = true
     }
   }
 

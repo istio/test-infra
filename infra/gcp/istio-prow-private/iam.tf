@@ -13,17 +13,17 @@ module "prowjob_private_account" {
     { bucket = google_storage_bucket.istio_build_private.name, role = "roles/storage.objectAdmin" },
     { bucket = google_storage_bucket.istio_prerelease_private.name, role = "roles/storage.objectAdmin" },
   ]
-  prowjob = true
-  prowjob-bucket = "istio-prow-private"
+  prowjob        = true
+  prowjob_bucket = "istio-prow-private"
 }
 
 resource "google_project_iam_member" "prow_control_wi" {
-  project        = local.project_id
+  project = local.project_id
   role    = "roles/iam.workloadIdentityUser"
   member  = "serviceAccount:prow-control-plane@istio-testing.iam.gserviceaccount.com"
 }
 resource "google_project_iam_member" "prow_control_gke" {
-  project        = local.project_id
+  project = local.project_id
   role    = "roles/container.developer"
   member  = "serviceAccount:prow-control-plane@istio-testing.iam.gserviceaccount.com"
 }

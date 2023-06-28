@@ -94,8 +94,8 @@ variable "prowjob" {
   type        = bool
 }
 
-variable "prowjob-bucket" {
+variable "prowjob_bucket" {
   description = "If 'prowjob' is true, which bucket to grant access to"
   type        = string
-  default = "istio-prow"
+  default     = "istio-prow"
 }
