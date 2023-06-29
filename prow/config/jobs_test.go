@@ -93,6 +93,16 @@ func TestJobs(t *testing.T) {
 		}
 		return fmt.Errorf("presubmit job using privileged volume: %v", priv.UnsortedList())
 	})
+	RunTest("untrusted clusters do not use privileged volumes", func(j Job) error {
+		if j.Base.Cluster == "test-infra-trusted" {
+			return nil
+		}
+		priv := j.Volumes().Difference(LowPrivilegeVolumes).Difference(PrivateVolumes)
+		if len(priv) == 0 {
+			return nil
+		}
+		return fmt.Errorf("privileged volume must run in trusted cluster: %v", priv.UnsortedList())
+	})
 	RunTest("private volumes only used in private jobs", func(j Job) error {
 		private := j.Org() == "istio-private"
 		usesPrivate := j.Volumes().Intersection(PrivateVolumes).Len() > 0
@@ -339,6 +349,7 @@ type Volumes = string
 
 var AllVolumes = sets.NewString(
 	GithubTestingOrgAdmin,
+	GithubTestingPusher,
 	GithubTestingSSH,
 	BuildCache,
 	Netrc,
@@ -357,6 +368,7 @@ var PrivateVolumes = sets.NewString(Netrc, SSHKey)
 
 const (
 	GithubTestingOrgAdmin Volumes = "github-testing"
+	GithubTestingPusher   Volumes = "github-testing-pusher"
 	GithubTestingSSH      Volumes = "github-testing-ssh"
 
 	BuildCache Volumes = "buildcache"
@@ -395,6 +407,8 @@ func (j Job) Volumes() sets.String {
 		if v.Secret != nil {
 			switch v.Secret.SecretName {
 			case "oauth-token":
+				r.Insert(GithubTestingOrgAdmin)
+			case "github-istio-testing-pusher":
 				r.Insert(GithubTestingOrgAdmin)
 			case "istio-testing-robot-ssh-key":
 				r.Insert(GithubTestingSSH)
