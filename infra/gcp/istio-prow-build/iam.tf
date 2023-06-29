@@ -123,5 +123,9 @@ module "prowjob_testing_write_account" {
     { role = "roles/remotebuildexecution.actionCacheWriter", project = "istio-testing" },
     { role = "roles/remotebuildexecution.artifactCreator", project = "istio-testing" },
   ]
+  # Allow the same SA in istio-testing to access the secret. This is the trusted build cluster.
+  additional_workload_identity_principals = [
+    "serviceAccount:istio-testing.svc.id.goog[test-pods/prowjob-testing-write]"
+  ]
   prowjob = true
 }
