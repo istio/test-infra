@@ -65,49 +65,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 6h0m0s
-    name: release-centos_proxy_postsubmit_exp
-    path_alias: istio.io/proxy
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - ./prow/proxy-postsubmit-centos.sh
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools-centos:master-a6aacea56463a118b848ae002e42d72075e00f02
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: build-pool
-      serviceAccountName: prowjob-testing-write
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_proxy_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^experimental-.*
-    decorate: true
-    decoration_config:
-      timeout: 6h0m0s
     name: release_proxy_postsubmit_exp
     path_alias: istio.io/proxy
     spec:
@@ -198,50 +155,6 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )check-wasm,?($|\s.*))|((?m)^/test( | .* )check-wasm_proxy,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_proxy
-    branches:
-    - ^experimental-.*
-    decorate: true
-    decoration_config:
-      timeout: 6h0m0s
-    name: release-centos-test_proxy_exp
-    path_alias: istio.io/proxy
-    rerun_command: /test release-centos-test
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - ./prow/proxy-presubmit-centos-release.sh
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools-centos:master-a6aacea56463a118b848ae002e42d72075e00f02
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: build-pool
-      serviceAccountName: prowjob-rbe
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )release-centos-test,?($|\s.*))|((?m)^/test( | .* )release-centos-test_proxy,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_proxy
