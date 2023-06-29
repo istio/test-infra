@@ -979,10 +979,10 @@ jobs:
       - name: rel-pipeline-docker-config
         secret:
           secretName: rel-pipeline-docker-config
+  service_account_name: prowjob-release
   requirements:
   - cache
   - cache
-  - release
   - docker
   resources: build
   resources_presets:
@@ -1088,43 +1088,6 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
   requirements:
   - cache
   - cache
@@ -1150,11 +1113,9 @@ jobs:
   - postsubmit
 - command:
   - entrypoint
-  - release/build.sh
+  - release/build-base-images.sh
   cron: 0 19 * * *
   env:
-  - name: BUILD_BASE_IMAGES
-    value: "true"
   - name: VERSION
     value: "1.17"
   image: gcr.io/istio-testing/build-tools:release-1.17-23e3713f79cb748106e9b407dcff8d7d3546cbea
@@ -1279,9 +1240,8 @@ jobs:
   requirements:
   - cache
   - cache
-  - release
+  - build-base
   - docker
-  - github-istio-testing
   resources: build
   resources_presets:
     build:
@@ -1382,43 +1342,6 @@ requirement_presets:
       name: cgroup
     - emptyDir: {}
       name: docker-root
-  release:
-    env:
-    - name: COSIGN_KEY
-      value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-    - name: DOCKER_CONFIG
-      value: /etc/rel-pipeline-docker-config
-    - name: GITHUB_TOKEN_FILE
-      value: /etc/github/rel-pipeline-github
-    - name: GRAFANA_TOKEN_FILE
-      value: /etc/grafana/token
-    - name: GOOGLE_APPLICATION_CREDENTIALS
-      value: /etc/service-account/rel-pipeline-service-account.json
-    volumeMounts:
-    - mountPath: /etc/rel-pipeline-docker-config
-      name: rel-pipeline-docker-config
-    - mountPath: /etc/github
-      name: rel-pipeline-github
-      readOnly: true
-    - mountPath: /etc/grafana
-      name: rel-pipeline-grafana
-      readOnly: true
-    - mountPath: /etc/service-account
-      name: rel-pipeline-service-account
-      readOnly: true
-    volumes:
-    - name: rel-pipeline-service-account
-      secret:
-        secretName: rel-pipeline-service-account
-    - name: rel-pipeline-github
-      secret:
-        secretName: rel-pipeline-github
-    - name: rel-pipeline-grafana
-      secret:
-        secretName: grafana-token
-    - name: rel-pipeline-docker-config
-      secret:
-        secretName: rel-pipeline-docker-config
 requirements:
 - cache
 - cache
