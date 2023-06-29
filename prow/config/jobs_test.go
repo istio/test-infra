@@ -353,9 +353,7 @@ var LowPrivilegeVolumes = sets.NewString(
 	Modules,
 )
 
-var (
-	PrivateVolumes = sets.NewString(Netrc, SSHKey)
-)
+var PrivateVolumes = sets.NewString(Netrc, SSHKey)
 
 const (
 	GithubTesting    Volumes = "github-testing"
