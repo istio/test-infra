@@ -449,6 +449,7 @@ var ServiceAccounts = map[string]Sensitivity{
 	"prowjob-github-istio-testing": HighPrivilege,
 	"prowjob-release":              HighPrivilege,
 	"prowjob-build-tools":          HighPrivilege,
+	"prowjob-bots-deployer":        HighPrivilege,
 }
 
 var PrivateServiceAccounts = sets.NewString(
