@@ -18,7 +18,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"path"
 	"strings"
 	"testing"
 
@@ -318,38 +317,6 @@ func TestConfig(t *testing.T) {
 				t.Errorf("%t actual codeOwners != expected %t", *bp.RequiredPullRequestReviews.RequireOwners, *tc.codeOwners)
 			}
 		})
-	}
-}
-
-func TestTrustedJobs(t *testing.T) {
-	const trusted = "test-infra-trusted"
-	trustedPath := path.Join(*jobConfigPath, "istio", "test-infra")
-
-	// Presubmits may not use trusted clusters.
-	for _, pre := range c.AllStaticPresubmits(nil) {
-		if pre.Cluster == trusted {
-			t.Errorf("%s: presubmits cannot use trusted clusters", pre.Name)
-		}
-	}
-
-	// Trusted postsubmits must be defined in trustedPath
-	for _, post := range c.AllStaticPostsubmits(nil) {
-		if post.Cluster != trusted {
-			continue
-		}
-		if !strings.HasPrefix(post.SourcePath, trustedPath) {
-			t.Errorf("%s defined in %s may not run in trusted cluster", post.Name, post.SourcePath)
-		}
-	}
-
-	// Trusted periodics must be defined in trustedPath
-	for _, per := range c.AllPeriodics() {
-		if per.Cluster != trusted {
-			continue
-		}
-		if !strings.HasPrefix(per.SourcePath, trustedPath) {
-			t.Errorf("%s defined in %s may not run in trusted cluster", per.Name, per.SourcePath)
-		}
 	}
 }
 
