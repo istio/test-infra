@@ -62,6 +62,8 @@ resource "google_container_node_pool" "node_pool" {
   lifecycle {
     create_before_destroy = true
     ignore_changes = [
+      # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/container_node_pool#initial_node_count
+      initial_node_count,
       # https://www.terraform.io/docs/providers/google/r/container_cluster.html#taint
       node_config[0].taint,
       # Terraform does not yet support this mode, so we have to just set it manually and ignore changes

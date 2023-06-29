@@ -31,3 +31,9 @@ resource "google_storage_bucket" "istio_prow_private" {
     prevent_destroy = true
   }
 }
+# Give control plane (deck-private) read access to the bucket so logs can be read
+resource "google_storage_bucket_iam_member" "istio_prow_private_deck" {
+  bucket = google_storage_bucket.istio_prow_private.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:prow-control-plane@istio-testing.iam.gserviceaccount.com"
+}

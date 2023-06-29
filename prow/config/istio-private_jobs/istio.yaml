@@ -6,7 +6,6 @@ defaults:
   branches: [master]
   repo-allowlist: [istio]
 
-
 transforms:
 
 # istio/istio master build job(s) - postsubmit(s)
@@ -14,15 +13,14 @@ transforms:
     DOCKER_HUB: us-docker.pkg.dev/istio-prow-private/istio-prow-private
     GCS_BUCKET: istio-build-private/dev
   labels:
-    preset-enable-ssh: "true"
     preset-enable-netrc: "true"
+    preset-override-envoy: "true"
     preset-override-deps: master-istio
   job-type: [postsubmit]
   job-allowlist: [release_istio_postsubmit]
 
 # istio/istio master test jobs(s) - presubmit(s) and postsubmit(s)
 - labels:
-    preset-enable-ssh: "true"
     preset-enable-netrc: "true"
     preset-override-envoy: "true"
     preset-override-deps: master-istio

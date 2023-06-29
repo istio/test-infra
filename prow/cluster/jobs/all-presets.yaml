@@ -4,23 +4,6 @@
 # as release branches are pruned
 presets:
 - labels:
-    preset-enable-ssh: "true"
-  env:
-  - name: GIT_SSH_COMMAND
-    value: "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
-  volumeMounts:
-  - mountPath: /root/.ssh
-    name: ssh
-    readOnly: true
-  volumes:
-  - name: ssh
-    secret:
-      secretName: ssh-key-secret
-      items:
-      - key: secret
-        path: id_rsa
-        mode: 0600
-- labels:
     preset-enable-netrc: "true"
   volumeMounts:
   - mountPath: /home/.netrc
@@ -40,11 +23,6 @@ presets:
   env:
   - name: ISTIO_ENVOY_BASE_URL
     value: https://storage.googleapis.com/istio-private-build/proxy
-  - name: AUTH_HEADER
-    valueFrom:
-      secretKeyRef:
-        name: authentikos-token
-        key: token
 - labels:
     preset-override-deps: "master-release"
   env:

@@ -27,3 +27,8 @@ resource "google_project_iam_member" "prow_control_gke" {
   role    = "roles/container.developer"
   member  = "serviceAccount:prow-control-plane@istio-testing.iam.gserviceaccount.com"
 }
+resource "google_project_iam_member" "prow_deployer_gke" {
+  project = local.project_id
+  role    = "roles/container.developer"
+  member  = "serviceAccount:prow-deployer@istio-testing.iam.gserviceaccount.com"
+}

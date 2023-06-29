@@ -13,13 +13,11 @@ transforms:
 - env:
     GCS_BUCKET: istio-build-private/dev
   labels:
-    preset-enable-ssh: "true"
   job-type: [presubmit]
   job-allowlist: [build, gencheck]
 
 # istio/api master test jobs(s) - postsubmit(s)
 - labels:
-    preset-enable-ssh: "true"
     preset-override-envoy: "true"
   job-type: [postsubmit]
   job-allowlist: [build, gencheck]
