@@ -108,3 +108,20 @@ module "prowjob_build_tools_account" {
   ]
   prowjob = true
 }
+
+module "prowjob_testing_write_account" {
+  source            = "../modules/workload-identity-service-account"
+  project_id        = local.project_id
+  name              = "prowjob-testing-write"
+  description       = "Service account that has permissions to push to gcr.io/istio-testing and gs://istio-build."
+  cluster_namespace = local.pod_namespace
+  gcs_acls = [
+    { bucket = "artifacts.istio-testing.appspot.com", role = "OWNER" },
+    { bucket = "istio-build", role = "OWNER" },
+  ]
+  project_roles = [
+    { role = "roles/remotebuildexecution.actionCacheWriter", project = "istio-testing" },
+    { role = "roles/remotebuildexecution.artifactCreator", project = "istio-testing" },
+  ]
+  prowjob = true
+}

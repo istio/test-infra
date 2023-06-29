@@ -13,7 +13,7 @@ jobs:
     command: [make, gen-check]
 
   - name: push-authentikos
-    service_account_name: prowjob-advanced-sa
+    service_account_name: prowjob-testing-write
     types: [postsubmit]
     regex: '^authentikos/Makefile$'
     cluster: test-infra-trusted
@@ -30,7 +30,7 @@ jobs:
       prod: prow
 
   - name: push-prowgen
-    service_account_name: prowjob-advanced-sa
+    service_account_name: prowjob-testing-write
     types: [postsubmit]
     regex: '^tools/prowgen/.*$'
     cluster: test-infra-trusted
@@ -47,7 +47,7 @@ jobs:
       prod: prow
 
   - name: push-prowtrans
-    service_account_name: prowjob-advanced-sa
+    service_account_name: prowjob-testing-write
     types: [postsubmit]
     regex: '^tools/prowtrans/.*$'
     cluster: test-infra-trusted

@@ -446,6 +446,7 @@ var ServiceAccounts = map[string]Sensitivity{
 	"prow-deployer":                HighPrivilege,
 	"testgrid-updater":             HighPrivilege,
 	"prowjob-advanced-sa":          HighPrivilege,
+	"prowjob-testing-write":        HighPrivilege,
 	"prowjob-github-istio-testing": HighPrivilege,
 	"prowjob-release":              HighPrivilege,
 	"prowjob-build-tools":          HighPrivilege,
