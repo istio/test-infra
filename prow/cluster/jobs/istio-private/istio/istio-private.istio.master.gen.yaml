@@ -7,10 +7,6 @@ postsubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-ambient_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -27,6 +23,13 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.ambient
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -53,6 +56,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -71,6 +78,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -79,10 +93,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-assertion_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -97,6 +107,13 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -123,6 +140,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -141,16 +162,19 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-basic-arm64_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -163,6 +187,13 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -189,6 +220,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
@@ -212,6 +247,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -220,10 +262,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-cni_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -240,6 +278,13 @@ postsubmits:
           value: ' --istio.test.retries=1 --istio.test.istio.enableCNI=true '
         - name: TEST_SELECT
           value: -flaky
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -266,6 +311,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -284,16 +333,19 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-distroless_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -308,6 +360,13 @@ postsubmits:
           value: "0"
         - name: VARIANT
           value: distroless
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -334,6 +393,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -352,16 +415,19 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-ds_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -378,6 +444,13 @@ postsubmits:
           value: "true"
         - name: IP_FAMILY
           value: dual
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -404,6 +477,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -422,16 +499,19 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-helm_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -444,6 +524,13 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -470,6 +557,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -488,16 +579,19 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-ipv6_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -514,6 +608,13 @@ postsubmits:
           value: "true"
         - name: IP_FAMILY
           value: ipv6
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -540,6 +641,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -558,6 +663,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -566,10 +678,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-k8s-121_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -588,6 +696,13 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -614,6 +729,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -632,6 +751,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -640,10 +766,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-k8s-122_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -662,6 +784,13 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -688,6 +817,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -706,6 +839,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -714,10 +854,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-k8s-123_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -734,6 +870,13 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -760,6 +903,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -778,6 +925,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -786,10 +940,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-k8s-124_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -806,6 +956,13 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -832,6 +989,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -850,6 +1011,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -858,10 +1026,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-k8s-125_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -878,6 +1042,13 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -904,6 +1075,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -922,6 +1097,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -930,10 +1112,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-k8s-126_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -950,6 +1128,13 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -976,6 +1161,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -994,6 +1183,13 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -1002,10 +1198,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-k8s-128_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1024,6 +1216,13 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -1050,6 +1249,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1068,16 +1271,19 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-operator-controller_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1090,6 +1296,13 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -1116,6 +1329,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1134,16 +1351,19 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-pilot-cpp_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1158,6 +1378,13 @@ postsubmits:
           value: "0"
         - name: GRPC_ECHO_IMAGE
           value: grpctesting/istio_echo_cpp
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -1184,6 +1411,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1202,16 +1433,19 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-pilot-istiodremote-mc_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1230,6 +1464,13 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -1256,6 +1497,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1274,16 +1519,19 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-pilot-istiodremote_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1302,6 +1550,13 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -1328,6 +1583,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1346,16 +1605,19 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-pilot-multicluster_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1370,6 +1632,13 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -1396,6 +1665,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1414,16 +1687,19 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-pilot_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1436,6 +1712,13 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -1462,6 +1745,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1480,16 +1767,19 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-security-istiodremote_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1508,6 +1798,13 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -1534,6 +1831,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1552,16 +1853,19 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-security-multicluster_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1576,6 +1880,13 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -1602,6 +1913,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1620,16 +1935,19 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-security_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1642,6 +1960,13 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -1668,6 +1993,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1686,16 +2015,19 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-telemetry-istiodremote_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1714,6 +2046,13 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -1740,6 +2079,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1758,16 +2101,19 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-telemetry-mc_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1782,6 +2128,13 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -1808,6 +2161,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1826,16 +2183,19 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-telemetry_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1848,6 +2208,13 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -1874,6 +2241,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1892,16 +2263,19 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: release_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1917,6 +2291,13 @@ postsubmits:
           value: us-docker.pkg.dev/istio-prow-private/istio-prow-private
         - name: GCS_BUCKET
           value: istio-build-private/dev
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -1936,6 +2317,10 @@ postsubmits:
           subPath: gocache
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -1947,16 +2332,19 @@ postsubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: unit-tests-arm64_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1973,6 +2361,13 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -1990,6 +2385,10 @@ postsubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
@@ -2003,16 +2402,19 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: unit-tests_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -2029,6 +2431,13 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -2046,6 +2455,10 @@ postsubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2054,6 +2467,13 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
 presubmits:
   istio-private/istio:
   - always_run: true
@@ -2063,10 +2483,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: analyze-tests_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test analyze-tests
@@ -2079,6 +2495,13 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -2097,6 +2520,10 @@ presubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2105,6 +2532,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )analyze-tests,?($|\s.*))|((?m)^/test( | .* )analyze-tests_istio,?($|\s.*))
   - always_run: false
     annotations:
@@ -2113,10 +2547,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: benchmark_istio_pri
     optional: true
     path_alias: istio.io/istio
@@ -2131,6 +2561,13 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -2148,6 +2585,10 @@ presubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2156,6 +2597,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )benchmark,?($|\s.*))|((?m)^/test( | .* )benchmark_istio,?($|\s.*))
   - always_run: false
     annotations:
@@ -2164,10 +2612,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: bookinfo-build_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test bookinfo-build
@@ -2182,6 +2626,13 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -2202,6 +2653,10 @@ presubmits:
           subPath: gocache
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2212,6 +2667,13 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )bookinfo-build,?($|\s.*))|((?m)^/test( | .* )bookinfo-build_istio,?($|\s.*))
   - always_run: true
     annotations:
@@ -2220,10 +2682,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: gencheck_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test gencheck
@@ -2236,6 +2694,13 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -2254,6 +2719,10 @@ presubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2262,6 +2731,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_istio,?($|\s.*))
   - always_run: true
     annotations:
@@ -2270,10 +2746,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-ambient_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient
@@ -2291,6 +2763,13 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.ambient
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -2317,6 +2796,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2335,6 +2818,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-ambient,?($|\s.*))|((?m)^/test( | .* )integ-ambient_istio,?($|\s.*))
   - always_run: false
     annotations:
@@ -2345,10 +2835,6 @@ presubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-assertion_istio_pri
     optional: true
     path_alias: istio.io/istio
@@ -2365,6 +2851,13 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -2391,6 +2884,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2409,6 +2906,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-assertion,?($|\s.*))|((?m)^/test( | .* )integ-assertion_istio,?($|\s.*))
   - always_run: true
     annotations:
@@ -2417,10 +2921,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-basic-arm64_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-basic-arm64
@@ -2434,6 +2934,13 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -2460,6 +2967,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
@@ -2483,6 +2994,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-basic-arm64,?($|\s.*))|((?m)^/test( | .* )integ-basic-arm64_istio,?($|\s.*))
   - always_run: true
     annotations:
@@ -2491,10 +3009,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-cni_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-cni
@@ -2510,6 +3024,13 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.enableCNI=true '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -2536,6 +3057,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2554,6 +3079,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-cni,?($|\s.*))|((?m)^/test( | .* )integ-cni_istio,?($|\s.*))
   - always_run: true
     annotations:
@@ -2562,10 +3094,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-distroless_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-distroless
@@ -2581,6 +3109,13 @@ presubmits:
           value: "0"
         - name: VARIANT
           value: distroless
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -2607,6 +3142,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2625,6 +3164,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-distroless,?($|\s.*))|((?m)^/test( | .* )integ-distroless_istio,?($|\s.*))
   - always_run: true
     annotations:
@@ -2633,10 +3179,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-ds_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-ds
@@ -2654,6 +3196,13 @@ presubmits:
           value: "true"
         - name: IP_FAMILY
           value: dual
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -2680,6 +3229,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2698,6 +3251,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-ds,?($|\s.*))|((?m)^/test( | .* )integ-ds_istio,?($|\s.*))
   - always_run: true
     annotations:
@@ -2706,10 +3266,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-helm_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-helm
@@ -2723,6 +3279,13 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -2749,6 +3312,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2767,6 +3334,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-helm,?($|\s.*))|((?m)^/test( | .* )integ-helm_istio,?($|\s.*))
   - always_run: true
     annotations:
@@ -2775,10 +3349,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-ipv6_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-ipv6
@@ -2796,6 +3366,13 @@ presubmits:
           value: "true"
         - name: IP_FAMILY
           value: ipv6
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -2822,6 +3399,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2840,6 +3421,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-ipv6,?($|\s.*))|((?m)^/test( | .* )integ-ipv6_istio,?($|\s.*))
   - always_run: true
     annotations:
@@ -2848,10 +3436,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-operator-controller_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-operator-controller
@@ -2865,6 +3449,13 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -2891,6 +3482,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2909,6 +3504,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-operator-controller,?($|\s.*))|((?m)^/test(
       | .* )integ-operator-controller_istio,?($|\s.*))
   - always_run: true
@@ -2918,10 +3520,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-pilot-istiodremote-mc_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-pilot-istiodremote-mc
@@ -2941,6 +3539,13 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -2967,6 +3572,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -2985,6 +3594,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-pilot-istiodremote-mc,?($|\s.*))|((?m)^/test(
       | .* )integ-pilot-istiodremote-mc_istio,?($|\s.*))
   - always_run: true
@@ -2994,10 +3610,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-pilot-istiodremote_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-pilot-istiodremote
@@ -3017,6 +3629,13 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -3043,6 +3662,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3061,6 +3684,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-pilot-istiodremote,?($|\s.*))|((?m)^/test( |
       .* )integ-pilot-istiodremote_istio,?($|\s.*))
   - always_run: true
@@ -3070,10 +3700,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-pilot-multicluster_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-pilot-multicluster
@@ -3089,6 +3715,13 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -3115,6 +3748,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3133,6 +3770,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-pilot-multicluster,?($|\s.*))|((?m)^/test( |
       .* )integ-pilot-multicluster_istio,?($|\s.*))
   - always_run: true
@@ -3142,10 +3786,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-pilot_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-pilot
@@ -3159,6 +3799,13 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -3185,6 +3832,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3203,6 +3854,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-pilot,?($|\s.*))|((?m)^/test( | .* )integ-pilot_istio,?($|\s.*))
   - always_run: true
     annotations:
@@ -3211,10 +3869,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-security-istiodremote_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-security-istiodremote
@@ -3234,6 +3888,13 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -3260,6 +3921,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3278,6 +3943,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-security-istiodremote,?($|\s.*))|((?m)^/test(
       | .* )integ-security-istiodremote_istio,?($|\s.*))
   - always_run: true
@@ -3287,10 +3959,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-security-multicluster_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-security-multicluster
@@ -3306,6 +3974,13 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -3332,6 +4007,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3350,6 +4029,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-security-multicluster,?($|\s.*))|((?m)^/test(
       | .* )integ-security-multicluster_istio,?($|\s.*))
   - always_run: true
@@ -3359,10 +4045,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-security_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-security
@@ -3376,6 +4058,13 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -3402,6 +4091,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3420,6 +4113,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-security,?($|\s.*))|((?m)^/test( | .* )integ-security_istio,?($|\s.*))
   - always_run: true
     annotations:
@@ -3428,10 +4128,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-telemetry-istiodremote_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-telemetry-istiodremote
@@ -3451,6 +4147,13 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -3477,6 +4180,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3495,6 +4202,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-telemetry-istiodremote,?($|\s.*))|((?m)^/test(
       | .* )integ-telemetry-istiodremote_istio,?($|\s.*))
   - always_run: true
@@ -3504,10 +4218,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-telemetry-mc_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-telemetry-mc
@@ -3523,6 +4233,13 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -3549,6 +4266,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3567,6 +4288,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-telemetry-mc,?($|\s.*))|((?m)^/test( | .* )integ-telemetry-mc_istio,?($|\s.*))
   - always_run: true
     annotations:
@@ -3575,10 +4303,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: integ-telemetry_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-telemetry
@@ -3592,6 +4316,13 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -3618,6 +4349,10 @@ presubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3636,6 +4371,13 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-telemetry,?($|\s.*))|((?m)^/test( | .* )integ-telemetry_istio,?($|\s.*))
   - always_run: true
     annotations:
@@ -3644,10 +4386,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: lint_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test lint
@@ -3660,6 +4398,13 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -3677,6 +4422,10 @@ presubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3685,6 +4434,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_istio,?($|\s.*))
   - always_run: true
     annotations:
@@ -3693,10 +4449,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: release-test_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test release-test
@@ -3709,6 +4461,13 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -3728,6 +4487,10 @@ presubmits:
           subPath: gocache
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3738,6 +4501,13 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )release-test,?($|\s.*))|((?m)^/test( | .* )release-test_istio,?($|\s.*))
   - always_run: true
     annotations:
@@ -3746,10 +4516,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: unit-tests-arm64_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test unit-tests-arm64
@@ -3767,6 +4533,13 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -3784,6 +4557,10 @@ presubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
@@ -3797,6 +4574,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )unit-tests-arm64,?($|\s.*))|((?m)^/test( | .* )unit-tests-arm64_istio,?($|\s.*))
   - always_run: true
     annotations:
@@ -3805,10 +4589,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: master-istio
-      preset-override-envoy: "true"
     name: unit-tests_istio_pri
     path_alias: istio.io/istio
     rerun_command: /test unit-tests
@@ -3826,6 +4606,13 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -3843,6 +4630,10 @@ presubmits:
         - mountPath: /gocache
           name: build-cache
           subPath: gocache
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -3851,4 +4642,11 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )unit-tests,?($|\s.*))|((?m)^/test( | .* )unit-tests_istio,?($|\s.*))

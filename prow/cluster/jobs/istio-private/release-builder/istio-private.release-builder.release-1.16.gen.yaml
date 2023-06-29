@@ -7,10 +7,6 @@ postsubmits:
     - ^release-1.16$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
-      preset-override-deps: release-1.16-release
-      preset-override-envoy: "true"
     name: build-release_release-builder_release-1.16_postsubmit_pri
     path_alias: istio.io/release-builder
     run_if_changed: ^release/trigger-build$
@@ -40,6 +36,13 @@ postsubmits:
           value: istio-prerelease-private/charts
         - name: PRERELEASE_DOCKER_HUB
           value: us-docker.pkg.dev/istio-prow-private/istio-prow-private
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.16-release-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:release-1.16-04bff0a4819cdfd500eb7817ed686f10c30b4456
         name: ""
         resources:
@@ -68,6 +71,10 @@ postsubmits:
           readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -90,14 +97,19 @@ postsubmits:
           secretName: rel-pipeline-docker-config
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^release-1.16$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
     name: gencheck_release-builder_release-1.16_postsubmit_pri
     path_alias: istio.io/release-builder
     spec:
@@ -124,6 +136,10 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -132,14 +148,19 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^release-1.16$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
     name: lint_release-builder_release-1.16_postsubmit_pri
     path_alias: istio.io/release-builder
     spec:
@@ -166,6 +187,10 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -174,14 +199,19 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
     - ^release-1.16$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
     name: test_release-builder_release-1.16_postsubmit_pri
     path_alias: istio.io/release-builder
     spec:
@@ -208,6 +238,10 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -216,6 +250,13 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
 presubmits:
   istio-private/release-builder:
   - always_run: false
@@ -275,8 +316,6 @@ presubmits:
     - ^release-1.16$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
     name: gencheck_release-builder_release-1.16_pri
     path_alias: istio.io/release-builder
     rerun_command: /test gencheck
@@ -304,6 +343,10 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -312,6 +355,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_release-builder_release-1.16,?($|\s.*))
   - always_run: true
     annotations:
@@ -320,8 +370,6 @@ presubmits:
     - ^release-1.16$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
     name: lint_release-builder_release-1.16_pri
     path_alias: istio.io/release-builder
     rerun_command: /test lint
@@ -349,6 +397,10 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -357,6 +409,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_release-builder_release-1.16,?($|\s.*))
   - always_run: true
     annotations:
@@ -365,8 +424,6 @@ presubmits:
     - ^release-1.16$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-netrc: "true"
     name: test_release-builder_release-1.16_pri
     path_alias: istio.io/release-builder
     rerun_command: /test test
@@ -394,6 +451,10 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -402,4 +463,11 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_release-builder_release-1.16,?($|\s.*))

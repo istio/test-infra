@@ -9,8 +9,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 6h0m0s
-    labels:
-      preset-enable-netrc: "true"
     name: release-arm64_proxy_release-1.17_postsubmit_release-1.17_priv
     path_alias: istio.io/proxy
     spec:
@@ -48,6 +46,10 @@ postsubmits:
           subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
@@ -64,6 +66,13 @@ postsubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -72,8 +81,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 6h0m0s
-    labels:
-      preset-enable-netrc: "true"
     name: release-centos_proxy_release-1.17_postsubmit_release-1.17_priv
     path_alias: istio.io/proxy
     spec:
@@ -107,6 +114,10 @@ postsubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -116,6 +127,13 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
   - annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -124,8 +142,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 6h0m0s
-    labels:
-      preset-enable-netrc: "true"
     name: release_proxy_release-1.17_postsubmit_release-1.17_priv
     path_alias: istio.io/proxy
     spec:
@@ -162,6 +178,10 @@ postsubmits:
           subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -173,6 +193,13 @@ postsubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
 presubmits:
   istio-private/proxy:
   - always_run: true
@@ -184,8 +211,6 @@ presubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-enable-netrc: "true"
     name: check-wasm_proxy_release-1.17_release-1.17_priv
     path_alias: istio.io/proxy
     rerun_command: /test check-wasm
@@ -220,6 +245,10 @@ presubmits:
           subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -231,6 +260,13 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )check-wasm,?($|\s.*))|((?m)^/test( | .* )check-wasm_proxy_release-1.17,?($|\s.*))
   - always_run: true
     annotations:
@@ -241,8 +277,6 @@ presubmits:
     decorate: true
     decoration_config:
       timeout: 6h0m0s
-    labels:
-      preset-enable-netrc: "true"
     name: release-centos-test_proxy_release-1.17_release-1.17_priv
     path_alias: istio.io/proxy
     rerun_command: /test release-centos-test
@@ -274,6 +308,10 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -283,6 +321,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )release-centos-test,?($|\s.*))|((?m)^/test( | .* )release-centos-test_proxy_release-1.17,?($|\s.*))
   - always_run: true
     annotations:
@@ -293,8 +338,6 @@ presubmits:
     decorate: true
     decoration_config:
       timeout: 6h0m0s
-    labels:
-      preset-enable-netrc: "true"
     name: release-test-arm64_proxy_release-1.17_release-1.17_priv
     path_alias: istio.io/proxy
     rerun_command: /test release-test-arm64
@@ -327,6 +370,10 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
@@ -341,6 +388,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )release-test-arm64,?($|\s.*))|((?m)^/test( | .* )release-test-arm64_proxy_release-1.17,?($|\s.*))
   - always_run: true
     annotations:
@@ -351,8 +405,6 @@ presubmits:
     decorate: true
     decoration_config:
       timeout: 6h0m0s
-    labels:
-      preset-enable-netrc: "true"
     name: release-test_proxy_release-1.17_release-1.17_priv
     path_alias: istio.io/proxy
     rerun_command: /test release-test
@@ -384,6 +436,10 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -393,6 +449,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )release-test,?($|\s.*))|((?m)^/test( | .* )release-test_proxy_release-1.17,?($|\s.*))
   - always_run: true
     annotations:
@@ -403,8 +466,6 @@ presubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-enable-netrc: "true"
     name: test-asan_proxy_release-1.17_release-1.17_priv
     path_alias: istio.io/proxy
     rerun_command: /test test-asan
@@ -436,6 +497,10 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -445,6 +510,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )test-asan,?($|\s.*))|((?m)^/test( | .* )test-asan_proxy_release-1.17,?($|\s.*))
   - always_run: true
     annotations:
@@ -455,8 +527,6 @@ presubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-enable-netrc: "true"
     name: test-tsan_proxy_release-1.17_release-1.17_priv
     path_alias: istio.io/proxy
     rerun_command: /test test-tsan
@@ -488,6 +558,10 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -497,6 +571,13 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )test-tsan,?($|\s.*))|((?m)^/test( | .* )test-tsan_proxy_release-1.17,?($|\s.*))
   - always_run: true
     annotations:
@@ -507,8 +588,6 @@ presubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-enable-netrc: "true"
     name: test_proxy_release-1.17_release-1.17_priv
     path_alias: istio.io/proxy
     rerun_command: /test test
@@ -540,6 +619,10 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -549,4 +632,11 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
     trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_proxy_release-1.17,?($|\s.*))
