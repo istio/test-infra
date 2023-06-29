@@ -61,7 +61,22 @@ func TestJobs(t *testing.T) {
 		if j.Type == Presubmit {
 			return fmt.Errorf("trusted jobs cannot run in presubmit")
 		}
-		return nil
+		if j.RepoOrg == "istio/test-infra" {
+			// OK to run in trusted cluster
+			return nil
+		}
+		if j.Type == Periodic {
+			return nil
+		}
+		// Otherwise need allow-listed job only
+		Allowed := sets.NewString(
+			"sync-org_community_postsubmit",
+			"deploy-policybot_bots_postsubmit",
+		)
+		if Allowed.Has(j.Name) {
+			return nil
+		}
+		return fmt.Errorf("not allowed to run in trusted cluster")
 	})
 
 	RunTest("secure jobs do not use insecure caches", func(j Job) error {
