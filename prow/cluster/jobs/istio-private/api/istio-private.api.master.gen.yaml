@@ -7,9 +7,6 @@ postsubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-ssh: "true"
-      preset-override-envoy: "true"
     name: build_api_postsubmit_pri
     path_alias: istio.io/api
     spec:
@@ -21,6 +18,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -50,9 +49,6 @@ postsubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-ssh: "true"
-      preset-override-envoy: "true"
     name: gencheck_api_postsubmit_pri
     path_alias: istio.io/api
     spec:
@@ -64,6 +60,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-private-build/proxy
         image: gcr.io/istio-testing/build-tools:master-4c71169512fe79b59b89664ef1b273da813d1c93
         name: ""
         resources:
@@ -96,8 +94,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-ssh: "true"
     name: build_api_pri
     path_alias: istio.io/api
     rerun_command: /test build
@@ -143,8 +139,6 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    labels:
-      preset-enable-ssh: "true"
     name: gencheck_api_pri
     path_alias: istio.io/api
     rerun_command: /test gencheck

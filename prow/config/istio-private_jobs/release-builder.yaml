@@ -6,9 +6,7 @@ defaults:
   branches: [master]
   repo-allowlist: [release-builder]
 
-
 transforms:
-
 # istio/release-builder master test jobs(s) - pre/postsubmit(s)
 - job-type: [presubmit, postsubmit]
   job-allowlist: [lint_release-builder,lint_release-builder_postsubmit,test_release-builder,test_release-builder_postsubmit,gencheck_release-builder,gencheck_release-builder_postsubmit]
@@ -24,7 +22,6 @@ transforms:
   job-type: [presubmit]
   job-allowlist: [build-warning_release-builder]
   repo-allowlist: [release-builder]
-  labels:
 
   # istio/release-builder master build jobs(s) - postsubmit(s)
 - env:
@@ -33,7 +30,6 @@ transforms:
     GCS_BUCKET: istio-prerelease-private/prerelease
     GCP_SECRETS: null # Don't use their secrets. We only need to push to GCS and GCR which do not need secrets
   labels:
-    preset-enable-ssh: "true"
     preset-override-envoy: "true"
     preset-override-deps: master-release
     preset-enable-netrc: "true"

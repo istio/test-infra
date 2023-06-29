@@ -477,6 +477,11 @@ func mergePreset(labels map[string]string, job *config.JobBase, preset config.Pr
 		}
 	}
 
+	// Remove preset labels so we don't get confusing results where we still have the preset label but it does nohitng
+	for k := range preset.Labels {
+		delete(labels, k)
+	}
+
 	for _, env := range preset.Env {
 	econtainer:
 		for i := range job.Spec.Containers {
