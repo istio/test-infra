@@ -110,7 +110,7 @@ func TestJobs(t *testing.T) {
 		if orgJob {
 			return nil
 		}
-		usesOrgVolume := j.Volumes().Has(GithubTesting)
+		usesOrgVolume := j.Volumes().Has(GithubTestingOrgAdmin)
 		if usesOrgVolume {
 			return fmt.Errorf("only organization jobs can use organization volumes, found %v", j.Volumes())
 		}
@@ -338,7 +338,7 @@ const (
 type Volumes = string
 
 var AllVolumes = sets.NewString(
-	GithubTesting,
+	GithubTestingOrgAdmin,
 	GithubTestingSSH,
 	BuildCache,
 	Netrc,
@@ -356,8 +356,8 @@ var LowPrivilegeVolumes = sets.NewString(
 var PrivateVolumes = sets.NewString(Netrc, SSHKey)
 
 const (
-	GithubTesting    Volumes = "github-testing"
-	GithubTestingSSH Volumes = "github-testing-ssh"
+	GithubTestingOrgAdmin Volumes = "github-testing"
+	GithubTestingSSH      Volumes = "github-testing-ssh"
 
 	BuildCache Volumes = "buildcache"
 	Cgroups    Volumes = "cgroups"
@@ -395,7 +395,7 @@ func (j Job) Volumes() sets.String {
 		if v.Secret != nil {
 			switch v.Secret.SecretName {
 			case "oauth-token":
-				r.Insert(GithubTesting)
+				r.Insert(GithubTestingOrgAdmin)
 			case "istio-testing-robot-ssh-key":
 				r.Insert(GithubTestingSSH)
 			case "netrc-secret":
