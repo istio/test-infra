@@ -101,20 +101,6 @@ func TestJobs(t *testing.T) {
 		}
 		return nil
 	})
-	RunTest("release volumes only used in release jobs", func(j Job) error {
-		releaseJob := j.RepoOrg == "istio/release-builder" && j.Type == Postsubmit
-		// TODO: these shouldn't need grafana or docker, and they actually don't - the private cluster has empty secrets
-		privateReleaseJob := j.RepoOrg == "istio-private/release-builder" && j.Type == Postsubmit
-		baseImageBuilder := ((j.RepoOrg == "istio/istio" && j.Type == Postsubmit) || j.Type == Periodic) && j.BaseName() == "build-base-images"
-		if releaseJob || privateReleaseJob || baseImageBuilder {
-			return nil
-		}
-		usesReleaseVolumes := j.Volumes().Intersection(ReleaseVolumes).Len() > 0
-		if usesReleaseVolumes {
-			return fmt.Errorf("only release jobs can use release volumes, found %v", j.Volumes().Intersection(ReleaseVolumes).UnsortedList())
-		}
-		return nil
-	})
 	RunTest("org volumes only used in org jobs", func(j Job) error {
 		orgJob := (j.RepoOrg == "istio/community" && j.Type == Postsubmit) ||
 			(j.Name == "ci-test-infra-branchprotector" && j.Type == Periodic) ||
@@ -157,6 +143,11 @@ func TestJobs(t *testing.T) {
 		case HighPrivilege:
 			if j.Type == Presubmit {
 				return fmt.Errorf("privileged service accounts cannot run as presubmit")
+			}
+			releaseJob := (j.RepoOrg == "istio/release-builder" && j.Type == Postsubmit) ||
+				(strings.HasPrefix(j.Name, "build-base-images") && j.Type != Presubmit)
+			if j.ServiceAccount() == "prowjob-release" && !releaseJob {
+				return fmt.Errorf("only release jobs can use prowjob-release account")
 			}
 		default:
 			return fmt.Errorf("unknown sensitivity: %v", s)
@@ -347,15 +338,11 @@ const (
 type Volumes = string
 
 var AllVolumes = sets.NewString(
-	GithubRelease,
 	GithubTesting,
 	GithubTestingSSH,
 	BuildCache,
-	Docker,
-	Grafana,
 	Netrc,
 	SSHKey,
-	IstioReleaseGCP,
 	Cgroups,
 	Modules,
 )
@@ -366,20 +353,11 @@ var LowPrivilegeVolumes = sets.NewString(
 	Modules,
 )
 
-var (
-	PrivateVolumes = sets.NewString(Netrc, SSHKey)
-	ReleaseVolumes = sets.NewString(GithubRelease, IstioReleaseGCP, Grafana, Docker)
-)
+var PrivateVolumes = sets.NewString(Netrc, SSHKey)
 
 const (
-	GithubRelease    Volumes = "github-release"
 	GithubTesting    Volumes = "github-testing"
 	GithubTestingSSH Volumes = "github-testing-ssh"
-
-	IstioReleaseGCP Volumes = "istio-release_gcp"
-
-	Docker  Volumes = "docker"
-	Grafana Volumes = "grafana"
 
 	BuildCache Volumes = "buildcache"
 	Cgroups    Volumes = "cgroups"
@@ -420,14 +398,6 @@ func (j Job) Volumes() sets.String {
 				r.Insert(GithubTesting)
 			case "istio-testing-robot-ssh-key":
 				r.Insert(GithubTestingSSH)
-			case "rel-pipeline-service-account":
-				r.Insert(IstioReleaseGCP)
-			case "rel-pipeline-github":
-				r.Insert(GithubRelease)
-			case "grafana-token":
-				r.Insert(Grafana)
-			case "rel-pipeline-docker-config":
-				r.Insert(Docker)
 			case "netrc-secret":
 				r.Insert(Netrc)
 			case "ssh-key-secret":

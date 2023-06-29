@@ -48,25 +48,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -98,43 +80,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -202,25 +148,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -252,43 +180,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -359,25 +251,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -409,43 +283,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -521,25 +359,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -571,43 +391,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -679,25 +463,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -729,43 +495,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -840,25 +570,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -890,43 +602,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -997,25 +673,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -1047,43 +705,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -1154,25 +776,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -1204,43 +808,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -1317,25 +885,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -1367,43 +917,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -1476,25 +990,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -1526,43 +1022,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -1636,25 +1096,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -1686,43 +1128,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -1796,25 +1202,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -1846,43 +1234,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -1953,25 +1305,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -2003,43 +1337,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -2108,25 +1406,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -2158,43 +1438,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -2263,25 +1507,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -2313,43 +1539,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -2421,25 +1611,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -2471,43 +1643,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -2580,25 +1716,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -2630,43 +1748,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -2743,25 +1825,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -2793,43 +1857,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -2906,25 +1934,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -2956,43 +1966,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -3062,25 +2036,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -3112,43 +2068,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -3218,25 +2138,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -3268,43 +2170,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -3377,25 +2243,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -3427,43 +2275,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -3540,25 +2352,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -3590,43 +2384,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -3696,25 +2454,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -3746,43 +2486,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -3858,25 +2562,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -3908,43 +2594,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -4023,25 +2673,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -4073,43 +2705,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -4188,25 +2784,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -4238,43 +2816,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -4353,25 +2895,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -4403,43 +2927,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -4518,25 +3006,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -4568,43 +3038,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -4683,25 +3117,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -4733,43 +3149,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -4848,25 +3228,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -4898,43 +3260,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -5011,25 +3337,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -5061,43 +3369,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -5174,25 +3446,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -5224,43 +3478,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -5337,25 +3555,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -5387,43 +3587,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -5500,25 +3664,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -5550,43 +3696,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -5664,25 +3774,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -5714,43 +3806,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -5819,25 +3875,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -5869,43 +3907,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -5974,25 +3976,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -6024,43 +4008,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -6130,25 +4078,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -6180,43 +4110,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -6287,25 +4181,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -6337,43 +4213,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -6451,25 +4291,7 @@ jobs:
       volumes:
       - emptyDir: {}
         name: docker-root
-    github:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-optional:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          optional: true
-          secretName: oauth-token
+
     gocache:
       volumeMounts:
       - mountPath: /gocache
@@ -6501,43 +4323,7 @@ jobs:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-      - name: DOCKER_CONFIG
-        value: /etc/rel-pipeline-docker-config
-      - name: GITHUB_TOKEN_FILE
-        value: /etc/github/rel-pipeline-github
-      - name: GRAFANA_TOKEN_FILE
-        value: /etc/grafana/token
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /etc/service-account/rel-pipeline-service-account.json
-      volumeMounts:
-      - mountPath: /etc/rel-pipeline-docker-config
-        name: rel-pipeline-docker-config
-      - mountPath: /etc/github
-        name: rel-pipeline-github
-        readOnly: true
-      - mountPath: /etc/grafana
-        name: rel-pipeline-grafana
-        readOnly: true
-      - mountPath: /etc/service-account
-        name: rel-pipeline-service-account
-        readOnly: true
-      volumes:
-      - name: rel-pipeline-service-account
-        secret:
-          secretName: rel-pipeline-service-account
-      - name: rel-pipeline-github
-        secret:
-          secretName: rel-pipeline-github
-      - name: rel-pipeline-grafana
-        secret:
-          secretName: grafana-token
-      - name: rel-pipeline-docker-config
-        secret:
-          secretName: rel-pipeline-docker-config
+
   requirements:
   - cache
   - cache
@@ -6655,43 +4441,7 @@ requirement_presets:
       name: cgroup
     - emptyDir: {}
       name: docker-root
-  release:
-    env:
-    - name: COSIGN_KEY
-      value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
-    - name: DOCKER_CONFIG
-      value: /etc/rel-pipeline-docker-config
-    - name: GITHUB_TOKEN_FILE
-      value: /etc/github/rel-pipeline-github
-    - name: GRAFANA_TOKEN_FILE
-      value: /etc/grafana/token
-    - name: GOOGLE_APPLICATION_CREDENTIALS
-      value: /etc/service-account/rel-pipeline-service-account.json
-    volumeMounts:
-    - mountPath: /etc/rel-pipeline-docker-config
-      name: rel-pipeline-docker-config
-    - mountPath: /etc/github
-      name: rel-pipeline-github
-      readOnly: true
-    - mountPath: /etc/grafana
-      name: rel-pipeline-grafana
-      readOnly: true
-    - mountPath: /etc/service-account
-      name: rel-pipeline-service-account
-      readOnly: true
-    volumes:
-    - name: rel-pipeline-service-account
-      secret:
-        secretName: rel-pipeline-service-account
-    - name: rel-pipeline-github
-      secret:
-        secretName: rel-pipeline-github
-    - name: rel-pipeline-grafana
-      secret:
-        secretName: grafana-token
-    - name: rel-pipeline-docker-config
-      secret:
-        secretName: rel-pipeline-docker-config
+
 requirements:
 - cache
 - cache
