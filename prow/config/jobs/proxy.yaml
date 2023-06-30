@@ -75,7 +75,7 @@ jobs:
   timeout: 4h
 
 - name: release
-  service_account_name: prowjob-advanced-sa
+  service_account_name: prowjob-testing-write
   types: [postsubmit]
   command: [entrypoint, ./prow/proxy-postsubmit.sh]
   requirements: [docker]
@@ -87,7 +87,7 @@ jobs:
     value: $(params.arch)
   - name: BUILD_ENVOY_BINARY_ONLY
     value: "1"
-  service_account_name: prowjob-advanced-sa
+  service_account_name: prowjob-testing-write
   types: [postsubmit]
   command: [entrypoint, ./prow/proxy-postsubmit.sh]
   requirements: [docker]
@@ -98,7 +98,7 @@ jobs:
     testing: test-pool
 
 - name: release-centos
-  service_account_name: prowjob-advanced-sa
+  service_account_name: prowjob-testing-write
   types: [postsubmit]
   command: [./prow/proxy-postsubmit-centos.sh]
   image: gcr.io/istio-testing/build-tools-centos:master-4c71169512fe79b59b89664ef1b273da813d1c93

@@ -99,3 +99,9 @@ variable "prowjob_bucket" {
   type        = string
   default     = "istio-prow"
 }
+
+variable "additional_workload_identity_principals" {
+  description = "A list of extra principals to grant WorkloadIdentityUser on the service account"
+  type        = list(string)
+  default     = []
+}

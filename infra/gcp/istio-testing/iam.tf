@@ -51,6 +51,7 @@ resource "google_service_account" "istio_prow_test_job_private" {
   project      = "istio-testing"
 }
 # Used with WI as the "prowjob-advanced-sa" service account. This is used for jobs that need elevated permissions
+# Now obsolete; prowjob-advanced-sa is not used.
 resource "google_service_account" "istio_prow_test_job" {
   account_id   = "istio-prow-test-job"
   display_name = "Istio Prow Test Job Service Account"
@@ -111,4 +112,17 @@ data "google_iam_policy" "prow_control_plane" {
 resource "google_service_account_iam_policy" "prow_control_plane" {
   service_account_id = google_service_account.prow_control_plane.name
   policy_data        = data.google_iam_policy.prow_control_plane.policy_data
+}
+
+module "prowjob_bots_deployer_account" {
+  source            = "../modules/workload-identity-service-account"
+  project_id        = local.project_id
+  name              = "prowjob-bots-deployer"
+  description       = "ProwJob SA for deploying istio/bots"
+  cluster_namespace = local.pod_namespace
+  # Grant container admin so we can get credentials to deploy to the policy-bot GKE cluster
+  project_roles = [
+    { role = "roles/container.admin" },
+  ]
+  prowjob = true
 }

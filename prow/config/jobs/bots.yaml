@@ -16,7 +16,9 @@ jobs:
     command: [make, gen-check]
 
   - name: deploy-policybot
-    service_account_name: prowjob-advanced-sa
+    cluster: test-infra-trusted
+    excluded_requirements: [cache]
+    service_account_name: prowjob-bots-deployer
     regex: '^policybot/'
     types: [postsubmit]
     command:
