@@ -88,6 +88,7 @@ postsubmits:
       testgrid-num-failures-to-alert: "1"
     branches:
     - ^master$
+    cluster: test-infra-trusted
     decorate: true
     decoration_config:
       timeout: 4h0m0s
@@ -114,9 +115,6 @@ postsubmits:
         securityContext:
           privileged: true
         volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
         - mountPath: /etc/github-token
           name: github
           readOnly: true
@@ -124,10 +122,6 @@ postsubmits:
         kubernetes.io/arch: amd64
         testing: test-pool
       volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
       - name: github
         secret:
           secretName: oauth-token

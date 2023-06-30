@@ -61,7 +61,22 @@ func TestJobs(t *testing.T) {
 		if j.Type == Presubmit {
 			return fmt.Errorf("trusted jobs cannot run in presubmit")
 		}
-		return nil
+		if j.RepoOrg == "istio/test-infra" {
+			// OK to run in trusted cluster
+			return nil
+		}
+		if j.Type == Periodic {
+			return nil
+		}
+		// Otherwise need allow-listed job only
+		Allowed := sets.NewString(
+			"sync-org_community_postsubmit",
+			"deploy-policybot_bots_postsubmit",
+		)
+		if Allowed.Has(j.Name) {
+			return nil
+		}
+		return fmt.Errorf("not allowed to run in trusted cluster")
 	})
 
 	RunTest("secure jobs do not use insecure caches", func(j Job) error {
@@ -93,6 +108,16 @@ func TestJobs(t *testing.T) {
 		}
 		return fmt.Errorf("presubmit job using privileged volume: %v", priv.UnsortedList())
 	})
+	RunTest("untrusted clusters do not use privileged volumes", func(j Job) error {
+		if j.Base.Cluster == "test-infra-trusted" {
+			return nil
+		}
+		priv := j.Volumes().Difference(LowPrivilegeVolumes).Difference(PrivateVolumes)
+		if len(priv) == 0 {
+			return nil
+		}
+		return fmt.Errorf("privileged volume must run in trusted cluster: %v", priv.UnsortedList())
+	})
 	RunTest("private volumes only used in private jobs", func(j Job) error {
 		private := j.Org() == "istio-private"
 		usesPrivate := j.Volumes().Intersection(PrivateVolumes).Len() > 0
@@ -110,7 +135,7 @@ func TestJobs(t *testing.T) {
 		if orgJob {
 			return nil
 		}
-		usesOrgVolume := j.Volumes().Has(GithubTesting)
+		usesOrgVolume := j.Volumes().Has(GithubTestingOrgAdmin)
 		if usesOrgVolume {
 			return fmt.Errorf("only organization jobs can use organization volumes, found %v", j.Volumes())
 		}
@@ -338,7 +363,8 @@ const (
 type Volumes = string
 
 var AllVolumes = sets.NewString(
-	GithubTesting,
+	GithubTestingOrgAdmin,
+	GithubTestingPusher,
 	GithubTestingSSH,
 	BuildCache,
 	Netrc,
@@ -356,8 +382,9 @@ var LowPrivilegeVolumes = sets.NewString(
 var PrivateVolumes = sets.NewString(Netrc, SSHKey)
 
 const (
-	GithubTesting    Volumes = "github-testing"
-	GithubTestingSSH Volumes = "github-testing-ssh"
+	GithubTestingOrgAdmin Volumes = "github-testing"
+	GithubTestingPusher   Volumes = "github-testing-pusher"
+	GithubTestingSSH      Volumes = "github-testing-ssh"
 
 	BuildCache Volumes = "buildcache"
 	Cgroups    Volumes = "cgroups"
@@ -395,7 +422,9 @@ func (j Job) Volumes() sets.String {
 		if v.Secret != nil {
 			switch v.Secret.SecretName {
 			case "oauth-token":
-				r.Insert(GithubTesting)
+				r.Insert(GithubTestingOrgAdmin)
+			case "github-istio-testing-pusher":
+				r.Insert(GithubTestingOrgAdmin)
 			case "istio-testing-robot-ssh-key":
 				r.Insert(GithubTestingSSH)
 			case "netrc-secret":

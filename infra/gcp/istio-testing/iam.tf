@@ -79,6 +79,13 @@ resource "google_service_account" "kubernetes_external_secrets_sa" {
   display_name = "kubernetes-external-secrets-sa"
   project      = "istio-testing"
 }
+# External Secrets has project level IAM to secrets in istio-testing. Grant it access to one it needs in istio-prow-build as well.
+resource "google_secret_manager_secret_iam_member" "member" {
+  project   = "istio-prow-build"
+  secret_id = "github_istio-testing_pusher"
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.kubernetes_external_secrets_sa.email}"
+}
 
 # Used for WI for prow control plane deployment
 resource "google_service_account" "prow_control_plane" {
