@@ -105,6 +105,7 @@ data "google_iam_policy" "prow_control_plane" {
       "serviceAccount:istio-testing.svc.id.goog[default/deck-private]",
       "serviceAccount:istio-testing.svc.id.goog[default/hook]",
       "serviceAccount:istio-testing.svc.id.goog[default/prow-controller-manager]",
+      "serviceAccount:istio-testing.svc.id.goog[default/sinker]",
       "serviceAccount:istio-testing.svc.id.goog[default/tide]",
     ]
   }
