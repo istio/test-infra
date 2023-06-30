@@ -17,8 +17,7 @@ resource "google_container_cluster" "prow" {
 
   cluster_ipv4_cidr = "10.44.0.0/14"
 
-  enable_legacy_abac = true
-  location           = "us-west1-a"
+  location = "us-west1-a"
 
   logging_config {
     enable_components = ["SYSTEM_COMPONENTS", "WORKLOADS"]
