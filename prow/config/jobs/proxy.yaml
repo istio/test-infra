@@ -60,13 +60,6 @@ jobs:
   node_selector:
     testing: test-pool
 
-- name: release-centos-test
-  service_account_name: prowjob-rbe
-  types: [presubmit]
-  command: [./prow/proxy-presubmit-centos-release.sh]
-  image: gcr.io/istio-testing/build-tools-centos:master-a6aacea56463a118b848ae002e42d72075e00f02
-  timeout: 6h
-
 - name: check-wasm
   service_account_name: prowjob-rbe
   types: [presubmit]
@@ -96,13 +89,6 @@ jobs:
   resources: arm
   node_selector:
     testing: test-pool
-
-- name: release-centos
-  service_account_name: prowjob-testing-write
-  types: [postsubmit]
-  command: [./prow/proxy-postsubmit-centos.sh]
-  image: gcr.io/istio-testing/build-tools-centos:master-a6aacea56463a118b848ae002e42d72075e00f02
-  timeout: 6h
 
 - name: update-istio
   types: [postsubmit]
