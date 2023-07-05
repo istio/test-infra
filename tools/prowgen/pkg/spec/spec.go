@@ -27,6 +27,8 @@ import (
 type BaseConfig struct {
 	CommonConfig
 
+	AutoMaxProcs bool `json:"auto_max_procs,omitempty"`
+
 	AutogenHeader string `json:"autogen_header,omitempty"`
 
 	PathAliases map[string]string `json:"path_aliases,omitempty"`

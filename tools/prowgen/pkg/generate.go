@@ -292,7 +292,7 @@ func (cli *Client) ConvertJobConfig(fileName string, jobsConfig spec.JobsConfig,
 					}
 				}
 				decorator.ApplyModifiersPresubmit(&presubmit, job.Modifiers)
-				decorator.ApplyRequirements(&presubmit.JobBase, job.Requirements, job.ExcludedRequirements, jobsConfig.RequirementPresets)
+				decorator.ApplyRequirements(baseConfig, &presubmit.JobBase, job.Requirements, job.ExcludedRequirements, jobsConfig.RequirementPresets)
 				presubmits = append(presubmits, presubmit)
 			}
 
@@ -333,7 +333,7 @@ func (cli *Client) ConvertJobConfig(fileName string, jobsConfig spec.JobsConfig,
 					}
 				}
 				decorator.ApplyModifiersPostsubmit(&postsubmit, job.Modifiers)
-				decorator.ApplyRequirements(&postsubmit.JobBase, job.Requirements, job.ExcludedRequirements, jobsConfig.RequirementPresets)
+				decorator.ApplyRequirements(baseConfig, &postsubmit.JobBase, job.Requirements, job.ExcludedRequirements, jobsConfig.RequirementPresets)
 				postsubmits = append(postsubmits, postsubmit)
 			}
 
@@ -372,7 +372,7 @@ func (cli *Client) ConvertJobConfig(fileName string, jobsConfig spec.JobsConfig,
 						return output, err
 					}
 				}
-				decorator.ApplyRequirements(&periodic.JobBase, job.Requirements, job.ExcludedRequirements, jobsConfig.RequirementPresets)
+				decorator.ApplyRequirements(baseConfig, &periodic.JobBase, job.Requirements, job.ExcludedRequirements, jobsConfig.RequirementPresets)
 				periodics = append(periodics, periodic)
 			}
 		}

@@ -16,20 +16,19 @@ package decorator
 
 import (
 	"encoding/json"
-	"log"
-
 	"github.com/hashicorp/go-multierror"
 	"github.com/imdario/mergo"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/test-infra/prow/config"
+	"log"
+	"math"
+	"strconv"
 
 	"istio.io/test-infra/tools/prowgen/pkg/spec"
 )
 
-func ApplyRequirements(job *config.JobBase, requirements, excludedRequirements []string,
-	presetMap map[string]spec.RequirementPreset,
-) {
+func ApplyRequirements(baseConfig spec.BaseConfig, job *config.JobBase, requirements, excludedRequirements []string, presetMap map[string]spec.RequirementPreset) {
 	validRequirements := sets.NewString()
 	for name := range presetMap {
 		validRequirements = validRequirements.Insert(name)
@@ -64,6 +63,21 @@ func ApplyRequirements(job *config.JobBase, requirements, excludedRequirements [
 	}
 	resolveRequirements(job.Annotations, job.Labels, job.Spec, presets)
 	applySecrets(job, presets)
+	applyAutoMaxProcs(baseConfig, job)
+}
+
+// With a big node and low CPU limit, go will spawn a thread per node core. This can lead to bad performance.
+func applyAutoMaxProcs(baseConfig spec.BaseConfig, job *config.JobBase) {
+	if !baseConfig.AutoMaxProcs {
+		return
+	}
+	for i, c := range job.Spec.Containers {
+		if !c.Resources.Limits.Cpu().IsZero() {
+			lim := strconv.Itoa(int(math.Ceil(float64(c.Resources.Limits.Cpu().MilliValue()) / 1000)))
+			c.Env = append(c.Env, v1.EnvVar{Name: "GOMAXPROCS", Value: lim})
+			job.Spec.Containers[i] = c
+		}
+	}
 }
 
 func applySecrets(job *config.JobBase, presets []spec.RequirementPreset) {
