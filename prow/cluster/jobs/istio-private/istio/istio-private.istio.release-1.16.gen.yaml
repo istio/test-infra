@@ -23,6 +23,8 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -103,6 +105,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -194,6 +198,8 @@ postsubmits:
           value: ' --istio.test.retries=1 --istio.test.istio.enableCNI=true '
         - name: TEST_SELECT
           value: -flaky
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -276,6 +282,8 @@ postsubmits:
           value: "0"
         - name: VARIANT
           value: distroless
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -360,6 +368,8 @@ postsubmits:
           value: "true"
         - name: IP_FAMILY
           value: dual
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -440,6 +450,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -524,6 +536,8 @@ postsubmits:
           value: "true"
         - name: IP_FAMILY
           value: ipv6
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -612,6 +626,8 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -700,6 +716,8 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -788,6 +806,8 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -876,6 +896,8 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -964,6 +986,8 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -1052,6 +1076,8 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -1140,6 +1166,8 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -1226,6 +1254,8 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -1316,6 +1346,8 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -1396,6 +1428,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -1478,6 +1512,8 @@ postsubmits:
           value: "0"
         - name: GRPC_ECHO_IMAGE
           value: grpctesting/istio_echo_cpp
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -1564,6 +1600,8 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: GOMAXPROCS
+          value: "8"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -1650,6 +1688,8 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: GOMAXPROCS
+          value: "8"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -1732,6 +1772,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "8"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -1812,6 +1854,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -1898,6 +1942,8 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: GOMAXPROCS
+          value: "8"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -1980,6 +2026,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "8"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -2060,6 +2108,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -2146,6 +2196,8 @@ postsubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: GOMAXPROCS
+          value: "8"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -2228,6 +2280,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "8"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -2308,6 +2362,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -2595,6 +2651,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -2724,6 +2782,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -2794,6 +2854,8 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -2877,6 +2939,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -2967,6 +3031,8 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.enableCNI=true '
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3052,6 +3118,8 @@ presubmits:
           value: "0"
         - name: VARIANT
           value: distroless
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3139,6 +3207,8 @@ presubmits:
           value: "true"
         - name: IP_FAMILY
           value: dual
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3222,6 +3292,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3309,6 +3381,8 @@ presubmits:
           value: "true"
         - name: IP_FAMILY
           value: ipv6
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3392,6 +3466,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3482,6 +3558,8 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: GOMAXPROCS
+          value: "8"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3572,6 +3650,8 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: GOMAXPROCS
+          value: "8"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3658,6 +3738,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "8"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3742,6 +3824,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3831,6 +3915,8 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: GOMAXPROCS
+          value: "8"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3917,6 +4003,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "8"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -4001,6 +4089,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -4090,6 +4180,8 @@ presubmits:
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: GOMAXPROCS
+          value: "8"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -4176,6 +4268,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "8"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -4259,6 +4353,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "5"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
