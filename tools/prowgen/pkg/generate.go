@@ -29,7 +29,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 	prowjob "k8s.io/test-infra/prow/apis/prowjobs/v1"
 	"k8s.io/test-infra/prow/config"
-	"k8s.io/test-infra/prow/gerrit/client"
+	"k8s.io/test-infra/prow/kube"
 	"sigs.k8s.io/yaml"
 
 	"istio.io/test-infra/tools/prowgen/pkg/decorator"
@@ -261,7 +261,7 @@ func (cli *Client) ConvertJobConfig(fileName string, jobsConfig spec.JobsConfig,
 					Brancher:  brancher,
 				}
 				if job.GerritPresubmitLabel != "" {
-					presubmit.Labels[client.GerritReportLabel] = job.GerritPresubmitLabel
+					presubmit.Labels[kube.GerritReportLabel] = job.GerritPresubmitLabel
 				}
 				if pa, ok := baseConfig.PathAliases[jobsConfig.Org]; ok {
 					presubmit.UtilityConfig.PathAlias = fmt.Sprintf("%s/%s", pa, jobsConfig.Repo)
@@ -313,7 +313,7 @@ func (cli *Client) ConvertJobConfig(fileName string, jobsConfig spec.JobsConfig,
 					Brancher: brancher,
 				}
 				if job.GerritPostsubmitLabel != "" {
-					postsubmit.Labels[client.GerritReportLabel] = job.GerritPostsubmitLabel
+					postsubmit.Labels[kube.GerritReportLabel] = job.GerritPostsubmitLabel
 				}
 				if pa, ok := baseConfig.PathAliases[jobsConfig.Org]; ok {
 					postsubmit.UtilityConfig.PathAlias = fmt.Sprintf("%s/%s", pa, jobsConfig.Repo)
