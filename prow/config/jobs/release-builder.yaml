@@ -16,7 +16,7 @@ jobs:
   - name: dry-run
     command: [entrypoint, test/publish.sh]
     requirements: [docker]
-    resources: build
+    resources: dedicated
     regex: '\.go$|\.sh$'
 
   - name: build-warning
@@ -36,7 +36,7 @@ jobs:
     regex: '^release/trigger-build$'
     command: [entrypoint, release/build.sh]
     requirements: [docker]
-    resources: build
+    resources: dedicated
     # For build, we just need SA (giving GCS/GCR access)
     service_account_name: prowjob-release
 
@@ -45,7 +45,8 @@ jobs:
     regex: '^release/trigger-publish$'
     command: [entrypoint, release/publish.sh]
     requirements: [release, docker]
-    resources: build
+    resources: dedicated
+    max_concurrency: 1
 
   - name: build-base-images
     types: [periodic]
@@ -65,3 +66,10 @@ resources_presets:
     limits:
       memory: "24Gi"
       cpu: "8000m"
+  # Give 15 CPUs which will put us on a dedicated node, ensuring fast builds
+  dedicated:
+    requests:
+      memory: "8Gi"
+      cpu: "15000m"
+    limits:
+      memory: "24Gi"

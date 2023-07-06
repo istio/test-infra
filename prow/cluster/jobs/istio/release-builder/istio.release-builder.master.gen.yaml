@@ -207,17 +207,14 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: GOMAXPROCS
-          value: "8"
         image: gcr.io/istio-testing/build-tools:master-bb3a18f9d6ecb6f876d08fbfa6fde229979bcb1e
         name: ""
         resources:
           limits:
-            cpu: "8"
             memory: 24Gi
           requests:
-            cpu: "5"
-            memory: 3Gi
+            cpu: "15"
+            memory: 8Gi
         securityContext:
           privileged: true
         volumeMounts:
@@ -255,17 +252,14 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: GOMAXPROCS
-          value: "8"
         image: gcr.io/istio-testing/build-tools:master-bb3a18f9d6ecb6f876d08fbfa6fde229979bcb1e
         name: ""
         resources:
           limits:
-            cpu: "8"
             memory: 24Gi
           requests:
-            cpu: "5"
-            memory: 3Gi
+            cpu: "15"
+            memory: 8Gi
         securityContext:
           privileged: true
         volumeMounts:
@@ -292,6 +286,7 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
+    max_concurrency: 1
     name: publish-release_release-builder_postsubmit
     path_alias: istio.io/release-builder
     run_if_changed: ^release/trigger-publish$
@@ -314,17 +309,14 @@ postsubmits:
           value: /var/run/ci/github/token
         - name: GCP_SECRETS
           value: '[{"secret":"release_docker_istio","project":"istio-prow-build","file":"/var/run/ci/docker/config.json"},{"secret":"release_github_istio-release","project":"istio-prow-build","file":"/var/run/ci/github/token"},{"secret":"release_grafana_istio","project":"istio-prow-build","file":"/var/run/ci/grafana/token"}]'
-        - name: GOMAXPROCS
-          value: "8"
         image: gcr.io/istio-testing/build-tools:master-bb3a18f9d6ecb6f876d08fbfa6fde229979bcb1e
         name: ""
         resources:
           limits:
-            cpu: "8"
             memory: 24Gi
           requests:
-            cpu: "5"
-            memory: 3Gi
+            cpu: "15"
+            memory: 8Gi
         securityContext:
           privileged: true
         volumeMounts:
@@ -497,17 +489,14 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: GOMAXPROCS
-          value: "8"
         image: gcr.io/istio-testing/build-tools:master-bb3a18f9d6ecb6f876d08fbfa6fde229979bcb1e
         name: ""
         resources:
           limits:
-            cpu: "8"
             memory: 24Gi
           requests:
-            cpu: "5"
-            memory: 3Gi
+            cpu: "15"
+            memory: 8Gi
         securityContext:
           privileged: true
         volumeMounts:
