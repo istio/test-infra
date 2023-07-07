@@ -102,8 +102,9 @@ postsubmits:
       automountServiceAccountToken: false
       containers:
       - command:
-        - sh
-        - prow/sync-org.sh
+        - org-gen
+        - --write-to-github
+        - --github-token=/etc/github-token/oauth
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -126,7 +127,7 @@ postsubmits:
           readOnly: true
       nodeSelector:
         kubernetes.io/arch: amd64
-        testing: test-pool
+        prod: prow
       volumes:
       - name: github
         secret:

@@ -11,7 +11,9 @@ jobs:
 
   - name: sync-org
     types: [postsubmit]
-    command: [sh, prow/sync-org.sh]
+    command: [org-gen, --write-to-github, --github-token=/etc/github-token/oauth]
+    node_selector:
+      prod: prow
     requirements: [github-organization]
     excluded_requirements: [cache]
     timeout: 4h
