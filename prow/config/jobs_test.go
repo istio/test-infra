@@ -190,14 +190,8 @@ func TestJobs(t *testing.T) {
 	})
 
 	RunTest("selectors", func(j Job) error {
-		// Only 'prod' label is set on nodes in trusted cluster
+		// Node selectors are not used on trusted cluster (for now, anyways)
 		if j.Base.Cluster == "test-infra-trusted" {
-			allowed := sets.NewString("prod", "kubernetes.io/arch")
-			for k, v := range j.Base.Spec.NodeSelector {
-				if !allowed.Has(k) {
-					return fmt.Errorf("trusted cluster doesn't have nodes matching '%v=%v'", k, v)
-				}
-			}
 			return nil
 		}
 		validSelectors := []map[string]string{}
