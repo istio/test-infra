@@ -20,6 +20,13 @@ resource "google_storage_bucket" "istio_prerelease_private" {
     prevent_destroy = true
   }
 }
+# Give testers access to artifacts. TODO: move to google groups
+resource "google_storage_bucket_iam_member" "istio_prerelease_private" {
+  bucket = google_storage_bucket.istio_prerelease_private.name
+  role   = "roles/storage.objectViewer"
+  member = "user:sshapar@google.com"
+}
+
 # Mirrors the gs://istio-prow bucket, which stores Prow logs
 resource "google_storage_bucket" "istio_prow_private" {
   name          = "istio-prow-private"
