@@ -20,6 +20,13 @@ data "google_iam_policy" "artifact_registry" {
       "serviceAccount:${module.prowjob_private_account.email}",
     ]
   }
+  binding {
+    role = "roles/artifactregistry.reader"
+    members = [
+      // Give testers access to artifacts. TODO: move to google groups
+      "user:sshapar@google.com",
+    ]
+  }
 }
 resource "google_artifact_registry_repository_iam_policy" "policy" {
   project     = google_artifact_registry_repository.main.project
