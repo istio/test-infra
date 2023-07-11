@@ -1,0 +1,40 @@
+  # google_cloud_run_v2_service.redirector will be updated in-place
+  ~ resource "google_cloud_run_v2_service" "redirector" {
+      ~ annotations             = {
+          - "client.knative.dev/user-image" = "gcr.io/istio-io/redirector" -> null
+        }
+      - client                  = "cloud-console" -> null
+        id                      = "projects/istio-io/locations/us-central1/services/redirector"
+        name                    = "redirector"
+        # (16 unchanged attributes hidden)
+
+      ~ template {
+          ~ annotations                      = {
+              - "client.knative.dev/user-image" = "gcr.io/istio-io/redirector" -> null
+            }
+          ~ labels                           = {
+              - "client.knative.dev/nonce" = "da6d562e-6ec1-45a0-ae73-8243e97134eb" -> null
+            }
+            # (4 unchanged attributes hidden)
+
+          ~ containers {
+                # (3 unchanged attributes hidden)
+
+              ~ resources {
+                  - cpu_idle          = true -> null
+                    # (2 unchanged attributes hidden)
+                }
+
+                # (3 unchanged blocks hidden)
+            }
+
+            # (1 unchanged block hidden)
+        }
+
+      - timeouts {}
+
+        # (1 unchanged block hidden)
+    }
+
+Plan: 0 to add, 1 to change, 0 to destroy.
+
