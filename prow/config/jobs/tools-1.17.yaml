@@ -3,12 +3,12 @@ branches:
 env:
 - name: BUILD_WITH_CONTAINER
   value: "0"
-image: gcr.io/istio-testing/build-tools:release-1.17-a2e39a022bcbe2f777939106b0e4c8140aeee88f
+image: gcr.io/istio-testing/build-tools:release-1.17-d2a954b0da4e19f71e9c2fdf5701442e63dafb27
 jobs:
 - command:
   - make
   - build
-  image: gcr.io/istio-testing/build-tools:release-1.17-a2e39a022bcbe2f777939106b0e4c8140aeee88f
+  image: gcr.io/istio-testing/build-tools:release-1.17-d2a954b0da4e19f71e9c2fdf5701442e63dafb27
   name: build
   node_selector:
     testing: test-pool
@@ -94,7 +94,7 @@ jobs:
 - command:
   - make
   - lint
-  image: gcr.io/istio-testing/build-tools:release-1.17-a2e39a022bcbe2f777939106b0e4c8140aeee88f
+  image: gcr.io/istio-testing/build-tools:release-1.17-d2a954b0da4e19f71e9c2fdf5701442e63dafb27
   name: lint
   node_selector:
     testing: test-pool
@@ -180,7 +180,7 @@ jobs:
 - command:
   - make
   - test
-  image: gcr.io/istio-testing/build-tools:release-1.17-a2e39a022bcbe2f777939106b0e4c8140aeee88f
+  image: gcr.io/istio-testing/build-tools:release-1.17-d2a954b0da4e19f71e9c2fdf5701442e63dafb27
   name: test
   node_selector:
     testing: test-pool
@@ -266,7 +266,7 @@ jobs:
 - command:
   - make
   - gen-check
-  image: gcr.io/istio-testing/build-tools:release-1.17-a2e39a022bcbe2f777939106b0e4c8140aeee88f
+  image: gcr.io/istio-testing/build-tools:release-1.17-d2a954b0da4e19f71e9c2fdf5701442e63dafb27
   name: gencheck
   node_selector:
     testing: test-pool
@@ -362,7 +362,7 @@ jobs:
   env:
   - name: MANIFEST_ARCH
     value: arm64 amd64
-  image: gcr.io/istio-testing/build-tools:release-1.17-a2e39a022bcbe2f777939106b0e4c8140aeee88f
+  image: gcr.io/istio-testing/build-tools:release-1.17-d2a954b0da4e19f71e9c2fdf5701442e63dafb27
   name: containers
   node_selector:
     testing: test-pool
@@ -463,7 +463,7 @@ jobs:
   - containers
   env:
   - name: MANIFEST_ARCH
-  image: gcr.io/istio-testing/build-tools:release-1.17-a2e39a022bcbe2f777939106b0e4c8140aeee88f
+  image: gcr.io/istio-testing/build-tools:release-1.17-d2a954b0da4e19f71e9c2fdf5701442e63dafb27
   name: containers
   node_selector:
     testing: test-pool
@@ -556,7 +556,7 @@ jobs:
   - entrypoint
   - make
   - containers-test
-  image: gcr.io/istio-testing/build-tools:release-1.17-a2e39a022bcbe2f777939106b0e4c8140aeee88f
+  image: gcr.io/istio-testing/build-tools:release-1.17-d2a954b0da4e19f71e9c2fdf5701442e63dafb27
   name: containers-test
   node_selector:
     testing: test-pool
@@ -650,7 +650,7 @@ jobs:
   - entrypoint
   - make
   - containers-test
-  image: gcr.io/istio-testing/build-tools:release-1.17-a2e39a022bcbe2f777939106b0e4c8140aeee88f
+  image: gcr.io/istio-testing/build-tools:release-1.17-d2a954b0da4e19f71e9c2fdf5701442e63dafb27
   name: containers-test
   node_selector:
     testing: test-pool
