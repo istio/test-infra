@@ -155,3 +155,12 @@ requirement_presets:
       - secret: release_grafana_istio
         project: istio-prow-build
         file: /var/run/ci/grafana/token
+  # If enabled, jobs will report traces to GCP Cloud Trace
+  tracing:
+    env:
+    - name: OTEL_EXPORTER_OTLP_PROTOCOL
+      value: grpc
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      value: http://collector.opentelemetry:4317
+    - name: OTEL_EXPORTER_OTLP_INSECURE
+      value: "true"
