@@ -27,6 +27,8 @@ import (
 
 	dockername "github.com/google/go-containerregistry/pkg/name"
 	flag "github.com/spf13/pflag"
+	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
 	prowjob "k8s.io/test-infra/prow/apis/prowjobs/v1"
@@ -742,21 +744,29 @@ func updateEnvs(o options, job *config.JobBase) {
 		return
 	}
 
-	envKs := util.SortedKeys(o.Env)
-
-	for _, envK := range envKs {
-	container:
-		for i := range job.Spec.Containers {
-
-			for j := range job.Spec.Containers[i].Env {
-				if job.Spec.Containers[i].Env[j].Name == envK {
-					job.Spec.Containers[i].Env[j].Value = o.Env[envK]
-					continue container
+	for i := range job.Spec.Containers {
+		final := map[string]v1.EnvVar{}
+		// Add original Env vars
+		for _, e := range job.Spec.Containers[i].Env {
+			final[e.Name] = e
+		}
+		// Now override/add our custom ones
+		for k, v := range o.Env {
+			if v == "" {
+				delete(final, k)
+			} else {
+				final[k] = v1.EnvVar{
+					Name:  k,
+					Value: v,
 				}
 			}
-
-			job.Spec.Containers[i].Env = append(job.Spec.Containers[i].Env, v1.EnvVar{Name: envK, Value: o.Env[envK]})
 		}
+		vars := maps.Values(final)
+		slices.SortFunc(vars, func(a, b v1.EnvVar) bool {
+			return a.Name < b.Name
+		})
+
+		job.Spec.Containers[i].Env = vars
 	}
 }
 
