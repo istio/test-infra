@@ -129,3 +129,15 @@ module "prowjob_testing_write_account" {
   ]
   prowjob = true
 }
+
+module "opentelemetry_collector_account" {
+  source            = "../modules/workload-identity-service-account"
+  project_id        = local.project_id
+  name              = "opentelemetry-collector"
+  description       = "Service account that has permissions to telemetry data."
+  cluster_namespace = "opentelemetry"
+  project_roles = [
+    { role = "roles/cloudtrace.agent", project = local.project_id },
+  ]
+  prowjob = false
+}

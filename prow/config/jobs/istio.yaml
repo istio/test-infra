@@ -76,6 +76,13 @@ jobs:
       - name: VARIANT
         value: "distroless"
 
+  # Temporary job to test tracing
+  - name: experimental-tracing
+    types: [presubmit]
+    modifiers: [presubmit_optional, presubmit_skipped]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.environment]
+    requirements: [kind, tracing]
+
   - name: integ-ipv6
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.environment]
     requirements: [kind]

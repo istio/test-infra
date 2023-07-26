@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: opentelemetry-collector
+  annotations:
+    iam.gke.io/gcp-service-account: opentelemetry-collector@istio-prow-build.iam.gserviceaccount.com
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: collector
+data:
+  config: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+
+    processors:
+      batch:
+      memory_limiter:
+        check_interval: 1s
+        limit_percentage: 65
+        spike_limit_percentage: 20
+
+    exporters:
+      googlecloud:
+
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          exporters: [googlecloud]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: collector
+  labels:
+    app: collector
+spec:
+  ports:
+    - name: grpc-otlp
+      port: 4317
+      protocol: TCP
+  selector:
+    app: collector
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collector
+spec:
+  selector:
+    matchLabels:
+      app: collector
+  template:
+    metadata:
+      labels:
+        app: collector
+    spec:
+      serviceAccountName: opentelemetry-collector
+      containers:
+      - name: opentelemetry-collector
+        args:
+        - "--config=/conf/config.yaml"
+        image: otel/opentelemetry-collector-contrib:0.81.0
+        resources:
+          limits:
+            cpu: "2"
+            memory: 4Gi
+          requests:
+            cpu: 200m
+            memory: 400Mi
+        volumeMounts:
+        - name: config
+          mountPath: /conf
+      volumes:
+      - configMap:
+          defaultMode: 420
+          items:
+            - key: config
+              path: config.yaml
+          name: collector
+        name: config
