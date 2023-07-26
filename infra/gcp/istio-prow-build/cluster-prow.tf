@@ -63,8 +63,6 @@ resource "google_container_cluster" "prow" {
 
   networking_mode = "VPC_NATIVE"
 
-  node_version = "1.24.12-gke.1000"
-
   project = "istio-prow-build"
 
   release_channel {
@@ -148,8 +146,6 @@ resource "google_container_node_pool" "prow_build" {
     max_surge       = 1
     max_unavailable = 0
   }
-
-  version = "1.24.12-gke.1000"
 }
 
 
