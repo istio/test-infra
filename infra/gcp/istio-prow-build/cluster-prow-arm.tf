@@ -51,8 +51,6 @@ resource "google_container_cluster" "prow_arm" {
 
   networking_mode = "ROUTES"
 
-  node_version = "1.26.5-gke.1200"
-
   notification_config {
     pubsub {
       enabled = false
@@ -144,8 +142,6 @@ resource "google_container_node_pool" "prow_arm_build" {
     max_surge       = 1
     max_unavailable = 1
   }
-
-  version = "1.26.5-gke.1200"
 }
 
 # The default pool hosts an x86 node pool. This is to run some of the prow infrastructure which isn't arm compatible.
@@ -192,8 +188,6 @@ resource "google_container_node_pool" "prow_arm_default" {
     max_surge       = 1
     max_unavailable = 0
   }
-
-  version = "1.26.5-gke.1200"
 }
 
 # This pool provides the actual ARM (t2a) instances for tests.
@@ -264,8 +258,6 @@ resource "google_container_node_pool" "prow_arm_test_spot" {
     max_surge       = 1
     max_unavailable = 0
   }
-
-  version = "1.26.5-gke.1200"
 
   # ARM defaults to cgroups v2. However, our test setup (kind) do not yet support this
   # Terraform does not yet support this mode, so we have to just set it manually and ignore changes
