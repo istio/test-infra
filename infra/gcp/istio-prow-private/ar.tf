@@ -4,10 +4,6 @@ resource "google_artifact_registry_repository" "main" {
   description   = "registry to host private Istio release artifacts"
   format        = "DOCKER"
 
-  docker_config {
-    immutable_tags = false
-  }
-
   lifecycle {
     prevent_destroy = true
   }
