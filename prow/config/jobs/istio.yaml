@@ -80,8 +80,14 @@ jobs:
   - name: experimental-tracing
     types: [presubmit]
     modifiers: [presubmit_optional, presubmit_skipped]
-    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.environment]
+    command:
+    - entrypoint
+    - prow/integ-suite-kind.sh
+    - --topology
+    - MULTICLUSTER
+    - test.integration.kube
     requirements: [kind, tracing]
+    resources: multicluster
 
   - name: integ-ipv6
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.environment]

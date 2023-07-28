@@ -2750,12 +2750,14 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.integration.kube.environment
+        - --topology
+        - MULTICLUSTER
+        - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GOMAXPROCS
-          value: "5"
+          value: "8"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -2767,10 +2769,10 @@ presubmits:
         name: ""
         resources:
           limits:
-            cpu: "5"
+            cpu: "8"
             memory: 24Gi
           requests:
-            cpu: "5"
+            cpu: "8"
             memory: 3Gi
         securityContext:
           privileged: true
