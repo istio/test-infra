@@ -163,7 +163,9 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.integration.kube.environment
+        - --topology
+        - MULTICLUSTER
+        - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -174,15 +176,15 @@ presubmits:
         - name: OTEL_EXPORTER_OTLP_INSECURE
           value: "true"
         - name: GOMAXPROCS
-          value: "5"
+          value: "8"
         image: gcr.io/istio-testing/build-tools:master-b243f443862c075054d6061ce7d753d47b6c0a11
         name: ""
         resources:
           limits:
-            cpu: "5"
+            cpu: "8"
             memory: 24Gi
           requests:
-            cpu: "5"
+            cpu: "8"
             memory: 3Gi
         securityContext:
           privileged: true
