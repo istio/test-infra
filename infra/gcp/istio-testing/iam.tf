@@ -118,5 +118,8 @@ module "prowjob_bots_deployer_account" {
   project_roles = [
     { role = "roles/container.admin" },
   ]
+  gcs_acls = [
+    { bucket = "artifacts.istio-testing.appspot.com", role = "OWNER" },
+  ]
   prowjob = true
 }
