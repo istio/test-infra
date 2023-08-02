@@ -8,7 +8,7 @@ jobs:
 - command:
   - ./prow/proxy-presubmit.sh
   env:
- - name: BUILD_WITH_CONTAINER
+  - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools-proxy:master-936207ec8823f21aa330a82c20649c6f9e2f7a22
   name: test
@@ -165,7 +165,7 @@ jobs:
 - command:
   - ./prow/proxy-presubmit-asan.sh
   env:
- - name: BUILD_WITH_CONTAINER
+  - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools-proxy:master-936207ec8823f21aa330a82c20649c6f9e2f7a22
   name: test-asan
@@ -322,7 +322,7 @@ jobs:
 - command:
   - ./prow/proxy-presubmit-tsan.sh
   env:
- - name: BUILD_WITH_CONTAINER
+  - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools-proxy:master-936207ec8823f21aa330a82c20649c6f9e2f7a22
   name: test-tsan
@@ -481,7 +481,7 @@ jobs:
   command:
   - ./prow/proxy-presubmit.sh
   env:
- - name: BUILD_WITH_CONTAINER
+  - name: BUILD_WITH_CONTAINER
     value: "0"
   - name: ARCH_SUFFIX
     value: $(params.arch)
@@ -641,7 +641,7 @@ jobs:
 - command:
   - ./prow/proxy-presubmit-release.sh
   env:
- - name: BUILD_WITH_CONTAINER
+  - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools-proxy:master-936207ec8823f21aa330a82c20649c6f9e2f7a22
   name: release-test
@@ -800,7 +800,7 @@ jobs:
   command:
   - ./prow/proxy-presubmit-release.sh
   env:
- - name: BUILD_WITH_CONTAINER
+  - name: BUILD_WITH_CONTAINER
     value: "0"
   - name: ARCH_SUFFIX
     value: $(params.arch)
@@ -963,7 +963,7 @@ jobs:
   - entrypoint
   - ./prow/proxy-presubmit-wasm.sh
   env:
- - name: BUILD_WITH_CONTAINER
+  - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools-proxy:master-936207ec8823f21aa330a82c20649c6f9e2f7a22
   name: check-wasm
@@ -1122,7 +1122,7 @@ jobs:
   - entrypoint
   - ./prow/proxy-postsubmit.sh
   env:
- - name: BUILD_WITH_CONTAINER
+  - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools-proxy:master-936207ec8823f21aa330a82c20649c6f9e2f7a22
   name: release
@@ -1283,7 +1283,7 @@ jobs:
   - entrypoint
   - ./prow/proxy-postsubmit.sh
   env:
- - name: BUILD_WITH_CONTAINER
+  - name: BUILD_WITH_CONTAINER
     value: "0"
   - name: ARCH_SUFFIX
     value: $(params.arch)
@@ -1455,7 +1455,7 @@ jobs:
   - --git-exclude=^common/
   - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
   env:
- - name: BUILD_WITH_CONTAINER
+  - name: BUILD_WITH_CONTAINER
     value: "0"
   - name: AUTOMATOR_ORG
     value: istio
@@ -1624,7 +1624,7 @@ jobs:
   - --token-env
   - --cmd=UPDATE_BRANCH=main scripts/update_envoy.sh
   env:
- - name: BUILD_WITH_CONTAINER
+  - name: BUILD_WITH_CONTAINER
     value: "0"
   - name: AUTOMATOR_ORG
     value: istio
