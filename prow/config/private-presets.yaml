@@ -64,6 +64,22 @@ presets:
       configMapKeyRef:
         name: release-1.18-istio-deps
         key: dependencies
+- labels:
+    preset-override-deps: "release-1.19-release"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: release-1.19-release-deps
+        key: dependencies
+- labels:
+    preset-override-deps: "release-1.19-istio"
+  env:
+  - name: DEPENDENCIES
+    valueFrom:
+      configMapKeyRef:
+        name: release-1.19-istio-deps
+        key: dependencies
 
 # Use private Envoy URL, with auth header
 - labels:
