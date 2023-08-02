@@ -3,12 +3,12 @@ branches:
 env:
 - name: BUILD_WITH_CONTAINER
   value: "0"
-image: gcr.io/istio-testing/build-tools:release-1.17-d2a954b0da4e19f71e9c2fdf5701442e63dafb27
+image: gcr.io/istio-testing/build-tools:release-1.17-89261a4d5233b1b86e24f8878339322974aead3d
 jobs:
 - command:
   - make
   - build
-  image: gcr.io/istio-testing/build-tools:release-1.17-d2a954b0da4e19f71e9c2fdf5701442e63dafb27
+  image: gcr.io/istio-testing/build-tools:release-1.17-89261a4d5233b1b86e24f8878339322974aead3d
   name: build
   node_selector:
     testing: test-pool
@@ -87,7 +87,7 @@ jobs:
 - command:
   - make
   - lint
-  image: gcr.io/istio-testing/build-tools:release-1.17-d2a954b0da4e19f71e9c2fdf5701442e63dafb27
+  image: gcr.io/istio-testing/build-tools:release-1.17-89261a4d5233b1b86e24f8878339322974aead3d
   name: lint
   node_selector:
     testing: test-pool
@@ -166,7 +166,7 @@ jobs:
 - command:
   - make
   - gen-check
-  image: gcr.io/istio-testing/build-tools:release-1.17-d2a954b0da4e19f71e9c2fdf5701442e63dafb27
+  image: gcr.io/istio-testing/build-tools:release-1.17-89261a4d5233b1b86e24f8878339322974aead3d
   name: gencheck
   node_selector:
     testing: test-pool
@@ -254,7 +254,7 @@ jobs:
   - --token-env
   - --git-exclude=^common/
   - --cmd=go get istio.io/client-go@$AUTOMATOR_SHA && go mod tidy && make clean gen
-  image: gcr.io/istio-testing/build-tools:release-1.17-d2a954b0da4e19f71e9c2fdf5701442e63dafb27
+  image: gcr.io/istio-testing/build-tools:release-1.17-89261a4d5233b1b86e24f8878339322974aead3d
   name: update-client-go-dep
   node_selector:
     testing: test-pool
