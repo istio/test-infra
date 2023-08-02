@@ -7,8 +7,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-ambient_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -27,6 +25,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.ambient
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -92,8 +95,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-assertion_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -110,6 +111,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -173,8 +179,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-basic-arm64_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -189,6 +193,11 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -259,8 +268,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-cni_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -279,6 +286,11 @@ postsubmits:
           value: ' --istio.test.retries=1 --istio.test.istio.enableCNI=true '
         - name: TEST_SELECT
           value: -flaky
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -342,8 +354,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-distroless_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -360,6 +370,11 @@ postsubmits:
           value: "5"
         - name: VARIANT
           value: distroless
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -423,8 +438,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-ds_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -443,6 +456,11 @@ postsubmits:
           value: "5"
         - name: IP_FAMILY
           value: dual
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -506,8 +524,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-helm_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -522,6 +538,11 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -585,8 +606,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-ipv6_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -605,6 +624,11 @@ postsubmits:
           value: "5"
         - name: IP_FAMILY
           value: ipv6
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -670,8 +694,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-k8s-121_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -692,6 +714,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -757,8 +784,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-k8s-122_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -779,6 +804,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -844,8 +874,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-k8s-123_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -864,6 +892,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -929,8 +962,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-k8s-124_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -949,6 +980,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -1014,8 +1050,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-k8s-125_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1034,6 +1068,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -1099,8 +1138,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-k8s-126_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1119,6 +1156,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -1184,8 +1226,6 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-k8s-128_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1206,6 +1246,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -1269,8 +1314,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-operator-controller_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1285,6 +1328,11 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -1348,8 +1396,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-pilot-cpp_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1366,6 +1412,11 @@ postsubmits:
           value: "5"
         - name: GRPC_ECHO_IMAGE
           value: grpctesting/istio_echo_cpp
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -1429,8 +1480,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-pilot-istiodremote-mc_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1451,6 +1500,11 @@ postsubmits:
           value: "8"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -1514,8 +1568,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-pilot-istiodremote_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1536,6 +1588,11 @@ postsubmits:
           value: "8"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -1599,8 +1656,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-pilot-multicluster_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1617,6 +1672,11 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -1680,8 +1740,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-pilot_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1696,6 +1754,11 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -1759,8 +1822,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-security-istiodremote_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1781,6 +1842,11 @@ postsubmits:
           value: "8"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -1844,8 +1910,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-security-multicluster_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1862,6 +1926,11 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -1925,8 +1994,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-security_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1941,6 +2008,11 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -2004,8 +2076,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-telemetry-istiodremote_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -2026,6 +2096,11 @@ postsubmits:
           value: "8"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -2089,8 +2164,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-telemetry-mc_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -2107,6 +2180,11 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -2170,8 +2248,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-telemetry_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -2186,6 +2262,11 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -2249,8 +2330,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: release_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -2266,6 +2345,11 @@ postsubmits:
           value: us-docker.pkg.dev/istio-prow-private/istio-prow-private
         - name: GCS_BUCKET
           value: istio-build-private/dev
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -2315,8 +2399,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: unit-tests-arm64_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -2333,6 +2415,11 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -2382,8 +2469,6 @@ postsubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: unit-tests_istio_release-1.19_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -2400,6 +2485,11 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -2447,8 +2537,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: analyze-tests_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test analyze-tests
@@ -2463,6 +2551,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -2510,8 +2603,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: benchmark_istio_release-1.19_pri
     optional: true
     path_alias: istio.io/istio
@@ -2526,6 +2617,11 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -2572,8 +2668,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: bookinfo-build_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test bookinfo-build
@@ -2590,6 +2684,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -2641,8 +2740,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: experimental-tracing_istio_release-1.19_pri
     optional: true
     path_alias: istio.io/istio
@@ -2661,6 +2758,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -2727,8 +2829,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: gencheck_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test gencheck
@@ -2743,6 +2843,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -2790,8 +2895,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-ambient_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient
@@ -2811,6 +2914,11 @@ presubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.ambient
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -2878,8 +2986,6 @@ presubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-assertion_istio_release-1.19_pri
     optional: true
     path_alias: istio.io/istio
@@ -2898,6 +3004,11 @@ presubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -2963,8 +3074,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-basic-arm64_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-basic-arm64
@@ -2980,6 +3089,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -3050,8 +3164,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-cni_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-cni
@@ -3069,6 +3181,11 @@ presubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.enableCNI=true '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -3134,8 +3251,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-distroless_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-distroless
@@ -3153,6 +3268,11 @@ presubmits:
           value: "5"
         - name: VARIANT
           value: distroless
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -3218,8 +3338,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-ds_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-ds
@@ -3239,6 +3357,11 @@ presubmits:
           value: "5"
         - name: IP_FAMILY
           value: dual
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -3304,8 +3427,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-helm_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-helm
@@ -3321,6 +3442,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -3386,8 +3512,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-ipv6_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-ipv6
@@ -3407,6 +3531,11 @@ presubmits:
           value: "5"
         - name: IP_FAMILY
           value: ipv6
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -3472,8 +3601,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-operator-controller_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-operator-controller
@@ -3489,6 +3616,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -3555,8 +3687,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-pilot-istiodremote-mc_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-pilot-istiodremote-mc
@@ -3578,6 +3708,11 @@ presubmits:
           value: "8"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -3644,8 +3779,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-pilot-istiodremote_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-pilot-istiodremote
@@ -3667,6 +3800,11 @@ presubmits:
           value: "8"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -3733,8 +3871,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-pilot-multicluster_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-pilot-multicluster
@@ -3752,6 +3888,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -3818,8 +3959,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-pilot_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-pilot
@@ -3835,6 +3974,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -3900,8 +4044,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-security-istiodremote_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-security-istiodremote
@@ -3923,6 +4065,11 @@ presubmits:
           value: "8"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -3989,8 +4136,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-security-multicluster_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-security-multicluster
@@ -4008,6 +4153,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -4074,8 +4224,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-security_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-security
@@ -4091,6 +4239,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -4156,8 +4309,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-telemetry-istiodremote_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-telemetry-istiodremote
@@ -4179,6 +4330,11 @@ presubmits:
           value: "8"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -4245,8 +4401,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-telemetry-mc_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-telemetry-mc
@@ -4264,6 +4418,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -4329,8 +4488,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: integ-telemetry_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-telemetry
@@ -4346,6 +4503,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -4411,8 +4573,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: lint_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test lint
@@ -4425,6 +4585,11 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -4471,8 +4636,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: release-test_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test release-test
@@ -4485,6 +4648,11 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -4535,8 +4703,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: unit-tests-arm64_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test unit-tests-arm64
@@ -4554,6 +4720,11 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -4605,8 +4776,6 @@ presubmits:
     - ^release-1.19$
     cluster: private
     decorate: true
-    labels:
-      preset-override-deps: release-1.19-istio
     name: unit-tests_istio_release-1.19_pri
     path_alias: istio.io/istio
     rerun_command: /test unit-tests
@@ -4624,6 +4793,11 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.19-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
