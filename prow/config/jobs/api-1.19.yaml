@@ -3,16 +3,12 @@ branches:
 env:
 - name: BUILD_WITH_CONTAINER
   value: "0"
-- name: BUILD_WITH_CONTAINER
-  value: "0"
 image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
 jobs:
 - command:
   - make
   - presubmit
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -163,8 +159,6 @@ jobs:
   - make
   - gen-check
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -324,8 +318,6 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: AUTOMATOR_ORG
     value: istio
   image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
@@ -483,8 +475,6 @@ jobs:
   - --checkLabel
   - --validateOnly
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.19-936207ec8823f21aa330a82c20649c6f9e2f7a22
