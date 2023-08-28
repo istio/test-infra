@@ -220,6 +220,16 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.helm.kube]
     requirements: [kind]
 
+  - name: integ-helm-ds
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.helm.kube]
+    requirements: [kind]
+    types: [postsubmit]
+    env:
+      - name: DOCKER_IN_DOCKER_IPV6_ENABLED
+        value: "true"
+      - name: IP_FAMILY
+        value: "dual"
+
     # The node image must be kept in sync with the kind version we use.
     # See istio.io/tools/docker/build-tools to build a kind image
   - name: integ-k8s-121
