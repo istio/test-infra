@@ -129,6 +129,26 @@ jobs:
       - name: GRPC_ECHO_IMAGE
         value: "grpctesting/istio_echo_cpp"
 
+  - name: integ-pilot-ipv6
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
+    requirements: [kind]
+    types: [postsubmit]
+    env:
+      - name: DOCKER_IN_DOCKER_IPV6_ENABLED
+        value: "true"
+      - name: IP_FAMILY
+        value: "ipv6"
+
+  - name: integ-pilot-ds
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
+    requirements: [kind]
+    types: [postsubmit]
+    env:
+      - name: DOCKER_IN_DOCKER_IPV6_ENABLED
+        value: "true"
+      - name: IP_FAMILY
+        value: "dual"
+
   - name: integ-pilot-multicluster
     command:
       - entrypoint
