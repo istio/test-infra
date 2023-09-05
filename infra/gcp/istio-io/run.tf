@@ -16,7 +16,7 @@ resource "google_cloud_run_v2_service" "redirector" {
       image = "gcr.io/istio-testing/redirector"
       env {
         name  = "REDIRECT_URL"
-        value = "https://join.slack.com/t/istio/shared_invite/zt-1z9yjkym8-HTFsoVo4Zom7LOwBXxjc2Q"
+        value = "https://join.slack.com/t/istio/shared_invite/zt-22l940p1h-HdIPYKoZy8JzOAqTCfuOnA"
       }
       resources {
         cpu_idle = true
