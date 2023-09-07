@@ -216,6 +216,19 @@ jobs:
     - prow/config/ambient-sc.yaml
     - test.integration.ambient.kube
 
+  - name: integ-traffic-ambient
+    requirements: [kind]
+    types: [postsubmit]
+    env:
+    - name: INTEGRATION_TEST_FLAGS
+      value: --istio.test.ambient --istio.test.ambient.everywhere -run TestTraffic
+    command:
+    - entrypoint
+    - prow/integ-suite-kind.sh
+    - --kind-config
+    - prow/config/ambient-sc.yaml
+    - test.integration.traffic.kube
+
   - name: integ-helm
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.helm.kube]
     requirements: [kind]
