@@ -64,7 +64,7 @@ type Transform struct {
 	JobType                []string                `json:"job-type,omitempty"`
 	Selector               map[string]string       `json:"selector,omitempty"`
 	Labels                 map[string]string       `json:"labels,omitempty"`
-	Env                    map[string]string       `json:"env,omitempty"`
+	Env                    map[string]*string      `json:"env,omitempty"`
 	RefOrgMap              map[string]string       `json:"ref-mapping,omitempty"`
 	OrgMap                 map[string]string       `json:"mapping,omitempty"`
 	HubMap                 map[string]string       `json:"hub,omitempty"`
