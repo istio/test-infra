@@ -347,6 +347,10 @@ func applyDefaultTransforms(dst *configuration.Transform, srcs ...*configuration
 		}
 		if len(dst.Env) == 0 {
 			dst.Env = src.Env
+		} else {
+			for k, v := range src.Env {
+				dst.Env[k] = v
+			}
 		}
 		if len(dst.OrgMap) == 0 {
 			dst.OrgMap = src.OrgMap
