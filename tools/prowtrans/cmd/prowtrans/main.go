@@ -78,6 +78,7 @@ type options struct {
 
 // parseOpts parses the command-line flags.
 func (o *options) parseOpts() {
+	env := map[string]string{}
 	flag.StringVar(&o.Bucket, "bucket", "", "GCS bucket name to upload logs and build artifacts to.")
 	flag.StringVar(&o.Cluster, "cluster", "", "GCP cluster to run the job(s) in.")
 	flag.StringVar(&o.Channel, "channel", "", "Slack channel to report job status notifications to.")
@@ -98,7 +99,7 @@ func (o *options) parseOpts() {
 	flag.StringSliceVar(&o.RerunUsers, "rerun-users", []string{}, "GitHub user to authorize job rerun for.")
 	flag.StringToStringVar(&o.Selector, "selector", map[string]string{}, "Node selector(s) to constrain job(s).")
 	flag.StringToStringVarP(&o.Labels, "labels", "l", map[string]string{}, "Prow labels to apply to the job(s).")
-	flag.StringToStringVarP(&o.Env, "env", "e", map[string]string{}, "Environment variables to set for the job(s).")
+	flag.StringToStringVarP(&env, "env", "e", map[string]string{}, "Environment variables to set for the job(s).")
 	flag.StringToStringVarP(&o.OrgMap, "mapping", "m", map[string]string{}, "Mapping between public and private Github organization(s).")
 	flag.StringToStringVar(&o.RefOrgMap, "ref-mapping", map[string]string{}, "Mapping between public and private Github organization(s) in refs.")
 	flag.StringToStringVar(&o.HubMap, "hub-mapping", map[string]string{}, "Docker image hub mapping.")
@@ -122,6 +123,10 @@ func (o *options) parseOpts() {
 
 	flag.Parse()
 
+	for k, v := range env {
+		v := v
+		o.Env[k] = &v
+	}
 	o.EnvDenylistSet = sets.NewString(o.EnvDenylist...)
 	o.VolumeDenylistSet = sets.NewString(o.VolumeDenylist...)
 	o.JobAllowlistSet = sets.NewString(o.JobAllowlist...)
@@ -752,12 +757,12 @@ func updateEnvs(o options, job *config.JobBase) {
 		}
 		// Now override/add our custom ones
 		for k, v := range o.Env {
-			if v == "" {
+			if v == nil {
 				delete(final, k)
 			} else {
 				final[k] = v1.EnvVar{
 					Name:  k,
-					Value: v,
+					Value: *v,
 				}
 			}
 		}
