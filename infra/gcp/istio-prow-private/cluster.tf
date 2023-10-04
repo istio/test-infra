@@ -24,9 +24,6 @@ module "prow_node_test" {
 
   service_account = module.prow_cluster.cluster_node_sa.email
 
-  # we don't use private infra much, so make it cheaper in return for slightly less stability
-  spot = true
-
   labels = {
     "testing" = "test-pool"
   }
@@ -48,9 +45,6 @@ module "prow_node_build" {
   disk_type    = "pd-ssd"
 
   service_account = module.prow_cluster.cluster_node_sa.email
-
-  # we don't use private infra much, so make it cheaper in return for slightly less stability
-  spot = true
 
   labels = {
     "testing" = "build-pool"
