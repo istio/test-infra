@@ -20,6 +20,7 @@ postsubmits:
         env:
         - name: ARCH_SUFFIX
           value: arm64
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_ENVOY_BINARY_ONLY
           value: "1"
         - name: BUILD_WITH_CONTAINER
@@ -86,6 +87,7 @@ postsubmits:
         - entrypoint
         - ./prow/proxy-postsubmit.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: ENVOY_REPOSITORY
@@ -154,6 +156,7 @@ presubmits:
         - entrypoint
         - ./prow/proxy-presubmit-wasm.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: ENVOY_REPOSITORY
@@ -220,6 +223,7 @@ presubmits:
         env:
         - name: ARCH_SUFFIX
           value: arm64
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_ENVOY_BINARY_ONLY
           value: "1"
         - name: BUILD_WITH_CONTAINER
@@ -282,6 +286,7 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-release.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: ENVOY_REPOSITORY
@@ -344,6 +349,7 @@ presubmits:
         env:
         - name: ARCH_SUFFIX
           value: arm64
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: ENVOY_REPOSITORY
@@ -404,6 +410,7 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-asan.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: ENVOY_REPOSITORY
@@ -464,6 +471,7 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-tsan.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: ENVOY_REPOSITORY
@@ -524,6 +532,7 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: ENVOY_REPOSITORY

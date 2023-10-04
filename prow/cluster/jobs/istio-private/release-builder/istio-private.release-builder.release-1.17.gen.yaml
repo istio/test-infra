@@ -17,6 +17,7 @@ postsubmits:
         - entrypoint
         - release/build.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GCS_BUCKET
@@ -255,6 +256,7 @@ presubmits:
       - command:
         - release/build-warning.sh
         env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GCS_BUCKET
