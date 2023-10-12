@@ -110,6 +110,7 @@ jobs:
   - name: integ-cni-ds
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.environment]
     requirements: [kind]
+    types: [postsubmit]
     env:
       - name: INTEGRATION_TEST_FLAGS
         value: " --istio.test.istio.enableCNI=true "
