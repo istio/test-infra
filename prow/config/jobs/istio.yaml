@@ -107,6 +107,17 @@ jobs:
       - name: IP_FAMILY
         value: "dual"
 
+  - name: integ-cni-ds
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.environment]
+    requirements: [kind]
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: " --istio.test.istio.enableCNI=true "
+      - name: DOCKER_IN_DOCKER_IPV6_ENABLED
+        value: "true"
+      - name: IP_FAMILY
+        value: "dual"
+
   - name: integ-basic
     architectures: [arm64]
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.environment]
