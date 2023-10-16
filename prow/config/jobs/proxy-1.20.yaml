@@ -7,9 +7,6 @@ image: gcr.io/istio-testing/build-tools-proxy:release-1.20-ff93080f0b66b1649fd6f
 jobs:
 - command:
   - ./prow/proxy-presubmit.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   name: test
   node_selector:
     testing: build-pool
@@ -163,12 +160,6 @@ jobs:
   - presubmit
 - command:
   - ./prow/proxy-presubmit-asan.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:release-1.20-ff93080f0b66b1649fd6f3bfa6b63f74be377937
   name: test-asan
   node_selector:
     testing: build-pool
@@ -322,12 +313,6 @@ jobs:
   - presubmit
 - command:
   - ./prow/proxy-presubmit-tsan.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:release-1.20-ff93080f0b66b1649fd6f3bfa6b63f74be377937
   name: test-tsan
   node_selector:
     testing: build-pool
@@ -484,13 +469,8 @@ jobs:
   command:
   - ./prow/proxy-presubmit.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: ARCH_SUFFIX
     value: $(params.arch)
-  image: gcr.io/istio-testing/build-tools-proxy:release-1.20-ff93080f0b66b1649fd6f3bfa6b63f74be377937
   name: test-arm
   node_selector:
     testing: test-pool
@@ -645,12 +625,6 @@ jobs:
   - presubmit
 - command:
   - ./prow/proxy-presubmit-release.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:release-1.20-ff93080f0b66b1649fd6f3bfa6b63f74be377937
   name: release-test
   node_selector:
     testing: build-pool
@@ -807,15 +781,10 @@ jobs:
   command:
   - ./prow/proxy-presubmit-release.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: ARCH_SUFFIX
     value: $(params.arch)
   - name: BUILD_ENVOY_BINARY_ONLY
     value: "1"
-  image: gcr.io/istio-testing/build-tools-proxy:release-1.20-ff93080f0b66b1649fd6f3bfa6b63f74be377937
   name: release-test
   node_selector:
     testing: test-pool
@@ -971,12 +940,6 @@ jobs:
 - command:
   - entrypoint
   - ./prow/proxy-presubmit-wasm.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:release-1.20-ff93080f0b66b1649fd6f3bfa6b63f74be377937
   name: check-wasm
   node_selector:
     testing: build-pool
@@ -1132,12 +1095,6 @@ jobs:
 - command:
   - entrypoint
   - ./prow/proxy-postsubmit.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:release-1.20-ff93080f0b66b1649fd6f3bfa6b63f74be377937
   name: release
   node_selector:
     testing: build-pool
@@ -1296,15 +1253,10 @@ jobs:
   - entrypoint
   - ./prow/proxy-postsubmit.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: ARCH_SUFFIX
     value: $(params.arch)
   - name: BUILD_ENVOY_BINARY_ONLY
     value: "1"
-  image: gcr.io/istio-testing/build-tools-proxy:release-1.20-ff93080f0b66b1649fd6f3bfa6b63f74be377937
   name: release
   node_selector:
     testing: test-pool
