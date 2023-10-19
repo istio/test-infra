@@ -230,38 +230,6 @@ jobs:
 
     # The node image must be kept in sync with the kind version we use.
     # See istio.io/tools/docker/build-tools to build a kind image
-  - name: integ-k8s-121
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - gcr.io/istio-testing/kind-node:v1.21.9
-      - --kind-config
-      - prow/config/mixedlb-service.yaml
-      - test.integration.kube
-    requirements: [kind]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
-  - name: integ-k8s-122
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - gcr.io/istio-testing/kind-node:v1.22.9
-      - --kind-config
-      - prow/config/mixedlb-service.yaml
-      - test.integration.kube
-    requirements: [kind]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
   - name: integ-k8s-123
     types: [postsubmit]
     command:
