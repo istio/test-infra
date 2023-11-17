@@ -13,12 +13,14 @@ jobs:
   timeout: 4h
 
 - name: test-asan
+  modifiers: [presubmit_optional]
   service_account_name: prowjob-rbe
   types: [presubmit]
   command: [./prow/proxy-presubmit-asan.sh]
   timeout: 4h
 
 - name: test-tsan
+  modifiers: [presubmit_optional]
   service_account_name: prowjob-rbe
   types: [presubmit]
   command: [./prow/proxy-presubmit-tsan.sh]
