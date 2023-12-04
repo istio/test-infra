@@ -41,6 +41,16 @@ jobs:
     requirements: [kind]
     regex: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
 
+  - name: doc.test.dualstack
+    command: [entrypoint, prow/integ-suite-kind.sh, doc.test.dualstack]
+    requirements: [kind]
+    env:
+      - name: DOCKER_IN_DOCKER_IPV6_ENABLED
+        value: "true"
+      - name: IP_FAMILY
+        value: "dual"
+    regex: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
+
   - name: update-ref-docs-dry-run
     types: [presubmit]
     command:
