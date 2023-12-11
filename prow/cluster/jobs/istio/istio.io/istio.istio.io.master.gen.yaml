@@ -344,6 +344,8 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
+    decoration_config:
+      timeout: 1h30m0s
     name: doc.test.profile-none_istio.io_postsubmit
     path_alias: istio.io/istio.io
     run_if_changed: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
@@ -821,6 +823,8 @@ presubmits:
     branches:
     - ^master$
     decorate: true
+    decoration_config:
+      timeout: 1h30m0s
     name: doc.test.profile-none_istio.io
     path_alias: istio.io/istio.io
     rerun_command: /test doc.test.profile-none
