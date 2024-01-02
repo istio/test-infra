@@ -387,6 +387,8 @@ func (cli *Client) ConvertJobConfig(fileName string, jobsConfig spec.JobsConfig,
 			output.Periodics = periodics
 		}
 	}
+
+	sortJobs(output.PresubmitsStatic, output.PostsubmitsStatic, output.Periodics)
 	return output, nil
 }
 
@@ -554,4 +556,27 @@ func validate(input string, options sets.String, description string) error {
 		return fmt.Errorf("'%v' is not a valid %v. Must be one of %v", input, description, strings.Join(options.List(), ", "))
 	}
 	return nil
+}
+
+// sortJobs sorts jobs based on a provided sort order.
+func sortJobs(pre map[string][]config.Presubmit, post map[string][]config.Postsubmit, per []config.Periodic) {
+	comparator := func(a, b string) bool {
+		return a < b
+	}
+
+	for _, c := range pre {
+		sort.Slice(c, func(a, b int) bool {
+			return comparator(c[a].Name, c[b].Name)
+		})
+	}
+
+	for _, c := range post {
+		sort.Slice(c, func(a, b int) bool {
+			return comparator(c[a].Name, c[b].Name)
+		})
+	}
+
+	sort.Slice(per, func(a, b int) bool {
+		return comparator(per[a].Name, per[b].Name)
+	})
 }

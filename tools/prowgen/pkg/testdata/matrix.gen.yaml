@@ -8,6 +8,276 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
+    labels:
+      preset-service-account: "true"
+    name: test-gcp-arg1-val1_istio_postsubmit
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - prow/command.sh
+        - arg1
+        env:
+        - name: key
+          value: value
+        - name: var
+          value: val1
+        image: barimage
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_istio_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    name: test-gcp-arg1-val2_istio_postsubmit
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - prow/command.sh
+        - arg1
+        env:
+        - name: key
+          value: value
+        - name: var
+          value: val2
+        image: barimage
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_istio_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    name: test-gcp-arg2-val1_istio_postsubmit
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - prow/command.sh
+        - arg2
+        env:
+        - name: key
+          value: value
+        - name: var
+          value: val1
+        image: barimage
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_istio_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    name: test-gcp-arg2-val2_istio_postsubmit
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - prow/command.sh
+        - arg2
+        env:
+        - name: key
+          value: value
+        - name: var
+          value: val2
+        image: barimage
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_istio_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    name: test-gcp-arg3-val1_istio_postsubmit
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - prow/command.sh
+        - arg3
+        env:
+        - name: key
+          value: value
+        - name: var
+          value: val1
+        image: barimage
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_istio_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    name: test-gcp-arg3-val2_istio_postsubmit
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - prow/command.sh
+        - arg3
+        env:
+        - name: key
+          value: value
+        - name: var
+          value: val2
+        image: barimage
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_istio_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
     name: test-kind-arg1-val1_istio_postsubmit
     path_alias: istio.io/istio
     spec:
@@ -62,51 +332,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
-    labels:
-      preset-service-account: "true"
-    name: test-gcp-arg1-val1_istio_postsubmit
-    path_alias: istio.io/istio
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - prow/command.sh
-        - arg1
-        env:
-        - name: key
-          value: value
-        - name: var
-          value: val1
-        image: barimage
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_istio_postsubmit
@@ -175,51 +400,6 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    name: test-gcp-arg1-val2_istio_postsubmit
-    path_alias: istio.io/istio
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - prow/command.sh
-        - arg1
-        env:
-        - name: key
-          value: value
-        - name: var
-          value: val2
-        image: barimage
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
     name: test-kind-arg2-val1_istio_postsubmit
     path_alias: istio.io/istio
     spec:
@@ -274,51 +454,6 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
-    labels:
-      preset-service-account: "true"
-    name: test-gcp-arg2-val1_istio_postsubmit
-    path_alias: istio.io/istio
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - prow/command.sh
-        - arg2
-        env:
-        - name: key
-          value: value
-        - name: var
-          value: val1
-        image: barimage
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_istio_postsubmit
@@ -387,51 +522,6 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    name: test-gcp-arg2-val2_istio_postsubmit
-    path_alias: istio.io/istio
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - prow/command.sh
-        - arg2
-        env:
-        - name: key
-          value: value
-        - name: var
-          value: val2
-        image: barimage
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
     name: test-kind-arg3-val1_istio_postsubmit
     path_alias: istio.io/istio
     spec:
@@ -493,51 +583,6 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    name: test-gcp-arg3-val1_istio_postsubmit
-    path_alias: istio.io/istio
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - prow/command.sh
-        - arg3
-        env:
-        - name: key
-          value: value
-        - name: var
-          value: val1
-        image: barimage
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
     name: test-kind-arg3-val2_istio_postsubmit
     path_alias: istio.io/istio
     spec:
@@ -592,17 +637,249 @@ postsubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
+presubmits:
+  istio/istio:
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
     branches:
     - ^master$
     decorate: true
     labels:
       preset-service-account: "true"
-    name: test-gcp-arg3-val2_istio_postsubmit
+    name: test-gcp-arg1-val1_istio
     path_alias: istio.io/istio
+    rerun_command: /test test-gcp-arg1-val1
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - prow/command.sh
+        - arg1
+        env:
+        - name: key
+          value: value
+        - name: var
+          value: val1
+        image: barimage
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )test-gcp-arg1-val1,?($|\s.*))|((?m)^/test( | .* )test-gcp-arg1-val1_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    name: test-gcp-arg1-val2_istio
+    path_alias: istio.io/istio
+    rerun_command: /test test-gcp-arg1-val2
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - prow/command.sh
+        - arg1
+        env:
+        - name: key
+          value: value
+        - name: var
+          value: val2
+        image: barimage
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )test-gcp-arg1-val2,?($|\s.*))|((?m)^/test( | .* )test-gcp-arg1-val2_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    name: test-gcp-arg2-val1_istio
+    path_alias: istio.io/istio
+    rerun_command: /test test-gcp-arg2-val1
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - prow/command.sh
+        - arg2
+        env:
+        - name: key
+          value: value
+        - name: var
+          value: val1
+        image: barimage
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )test-gcp-arg2-val1,?($|\s.*))|((?m)^/test( | .* )test-gcp-arg2-val1_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    name: test-gcp-arg2-val2_istio
+    path_alias: istio.io/istio
+    rerun_command: /test test-gcp-arg2-val2
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - prow/command.sh
+        - arg2
+        env:
+        - name: key
+          value: value
+        - name: var
+          value: val2
+        image: barimage
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )test-gcp-arg2-val2,?($|\s.*))|((?m)^/test( | .* )test-gcp-arg2-val2_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    name: test-gcp-arg3-val1_istio
+    path_alias: istio.io/istio
+    rerun_command: /test test-gcp-arg3-val1
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - prow/command.sh
+        - arg3
+        env:
+        - name: key
+          value: value
+        - name: var
+          value: val1
+        image: barimage
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )test-gcp-arg3-val1,?($|\s.*))|((?m)^/test( | .* )test-gcp-arg3-val1_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    labels:
+      preset-service-account: "true"
+    name: test-gcp-arg3-val2_istio
+    path_alias: istio.io/istio
+    rerun_command: /test test-gcp-arg3-val2
     spec:
       automountServiceAccountToken: false
       containers:
@@ -637,8 +914,7 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-presubmits:
-  istio/istio:
+    trigger: ((?m)^/test( | .* )test-gcp-arg3-val2,?($|\s.*))|((?m)^/test( | .* )test-gcp-arg3-val2_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -707,52 +983,6 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    name: test-gcp-arg1-val1_istio
-    path_alias: istio.io/istio
-    rerun_command: /test test-gcp-arg1-val1
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - prow/command.sh
-        - arg1
-        env:
-        - name: key
-          value: value
-        - name: var
-          value: val1
-        image: barimage
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )test-gcp-arg1-val1,?($|\s.*))|((?m)^/test( | .* )test-gcp-arg1-val1_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^master$
-    decorate: true
     name: test-kind-arg1-val2_istio
     path_alias: istio.io/istio
     rerun_command: /test test-kind-arg1-val2
@@ -809,52 +1039,6 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )test-kind-arg1-val2,?($|\s.*))|((?m)^/test( | .* )test-kind-arg1-val2_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^master$
-    decorate: true
-    labels:
-      preset-service-account: "true"
-    name: test-gcp-arg1-val2_istio
-    path_alias: istio.io/istio
-    rerun_command: /test test-gcp-arg1-val2
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - prow/command.sh
-        - arg1
-        env:
-        - name: key
-          value: value
-        - name: var
-          value: val2
-        image: barimage
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )test-gcp-arg1-val2,?($|\s.*))|((?m)^/test( | .* )test-gcp-arg1-val2_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -923,52 +1107,6 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    name: test-gcp-arg2-val1_istio
-    path_alias: istio.io/istio
-    rerun_command: /test test-gcp-arg2-val1
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - prow/command.sh
-        - arg2
-        env:
-        - name: key
-          value: value
-        - name: var
-          value: val1
-        image: barimage
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )test-gcp-arg2-val1,?($|\s.*))|((?m)^/test( | .* )test-gcp-arg2-val1_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^master$
-    decorate: true
     name: test-kind-arg2-val2_istio
     path_alias: istio.io/istio
     rerun_command: /test test-kind-arg2-val2
@@ -1025,52 +1163,6 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )test-kind-arg2-val2,?($|\s.*))|((?m)^/test( | .* )test-kind-arg2-val2_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^master$
-    decorate: true
-    labels:
-      preset-service-account: "true"
-    name: test-gcp-arg2-val2_istio
-    path_alias: istio.io/istio
-    rerun_command: /test test-gcp-arg2-val2
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - prow/command.sh
-        - arg2
-        env:
-        - name: key
-          value: value
-        - name: var
-          value: val2
-        image: barimage
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )test-gcp-arg2-val2,?($|\s.*))|((?m)^/test( | .* )test-gcp-arg2-val2_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
@@ -1139,52 +1231,6 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    name: test-gcp-arg3-val1_istio
-    path_alias: istio.io/istio
-    rerun_command: /test test-gcp-arg3-val1
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - prow/command.sh
-        - arg3
-        env:
-        - name: key
-          value: value
-        - name: var
-          value: val1
-        image: barimage
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )test-gcp-arg3-val1,?($|\s.*))|((?m)^/test( | .* )test-gcp-arg3-val1_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^master$
-    decorate: true
     name: test-kind-arg3-val2_istio
     path_alias: istio.io/istio
     rerun_command: /test test-kind-arg3-val2
@@ -1241,49 +1287,3 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )test-kind-arg3-val2,?($|\s.*))|((?m)^/test( | .* )test-kind-arg3-val2_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_istio
-    branches:
-    - ^master$
-    decorate: true
-    labels:
-      preset-service-account: "true"
-    name: test-gcp-arg3-val2_istio
-    path_alias: istio.io/istio
-    rerun_command: /test test-gcp-arg3-val2
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - prow/command.sh
-        - arg3
-        env:
-        - name: key
-          value: value
-        - name: var
-          value: val2
-        image: barimage
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )test-gcp-arg3-val2,?($|\s.*))|((?m)^/test( | .* )test-gcp-arg3-val2_istio,?($|\s.*))

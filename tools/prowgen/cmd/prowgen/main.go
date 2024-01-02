@@ -24,14 +24,14 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"sort"
 
 	"github.com/hashicorp/go-multierror"
 	shell "github.com/kballard/go-shellquote"
-	k8sProwConfig "k8s.io/test-infra/prow/config"
-	"sigs.k8s.io/yaml"
-
 	"istio.io/test-infra/tools/prowgen/pkg"
 	"istio.io/test-infra/tools/prowgen/pkg/spec"
+	k8sProwConfig "k8s.io/test-infra/prow/config"
+	"sigs.k8s.io/yaml"
 )
 
 var (
@@ -264,9 +264,34 @@ func combineJobConfigs(jc1, jc2 k8sProwConfig.JobConfig, orgRepo string) k8sProw
 	postsubmits[orgRepo] = append(postsubmits[orgRepo], jc2.PostsubmitsStatic[orgRepo]...)
 	periodics = append(periodics, jc2.Periodics...)
 
+	sortJobs(presubmits, postsubmits, periodics)
+
 	return k8sProwConfig.JobConfig{
 		PresubmitsStatic:  presubmits,
 		PostsubmitsStatic: postsubmits,
 		Periodics:         periodics,
 	}
+}
+
+// sortJobs sorts jobs based on a provided sort order.
+func sortJobs(pre map[string][]k8sProwConfig.Presubmit, post map[string][]k8sProwConfig.Postsubmit, per []k8sProwConfig.Periodic) {
+	comparator := func(a, b string) bool {
+		return a < b
+	}
+
+	for _, c := range pre {
+		sort.Slice(c, func(a, b int) bool {
+			return comparator(c[a].Name, c[b].Name)
+		})
+	}
+
+	for _, c := range post {
+		sort.Slice(c, func(a, b int) bool {
+			return comparator(c[a].Name, c[b].Name)
+		})
+	}
+
+	sort.Slice(per, func(a, b int) bool {
+		return comparator(per[a].Name, per[b].Name)
+	})
 }

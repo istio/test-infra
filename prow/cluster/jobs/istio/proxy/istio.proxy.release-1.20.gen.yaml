@@ -72,56 +72,6 @@ postsubmits:
       testgrid-num-failures-to-alert: "1"
     branches:
     - ^release-1.20$
-    decorate: true
-    decoration_config:
-      timeout: 6h0m0s
-    name: release_proxy_release-1.20_postsubmit
-    path_alias: istio.io/proxy
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - ./prow/proxy-postsubmit.sh
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "64"
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.20-7a5a6eaafb86469d7796ab193153d04e437c85ad
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: build-pool
-      serviceAccountName: prowjob-testing-write
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - emptyDir: {}
-        name: docker-root
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.20_proxy_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^release-1.20$
     cluster: prow-arm
     decorate: true
     decoration_config:
@@ -164,6 +114,56 @@ postsubmits:
         key: kubernetes.io/arch
         operator: Equal
         value: arm64
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_release-1.20_proxy_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^release-1.20$
+    decorate: true
+    decoration_config:
+      timeout: 6h0m0s
+    name: release_proxy_release-1.20_postsubmit
+    path_alias: istio.io/proxy
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - ./prow/proxy-postsubmit.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "64"
+        image: gcr.io/istio-testing/build-tools-proxy:release-1.20-7a5a6eaafb86469d7796ab193153d04e437c85ad
+        name: ""
+        resources:
+          limits:
+            cpu: "64"
+            memory: 240G
+          requests:
+            cpu: "30"
+            memory: 100G
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: build-pool
+      serviceAccountName: prowjob-testing-write
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -244,14 +244,116 @@ presubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: test_proxy_release-1.20
+    name: check-wasm_proxy_release-1.20
     path_alias: istio.io/proxy
-    rerun_command: /test test
+    rerun_command: /test check-wasm
     spec:
       automountServiceAccountToken: false
       containers:
       - command:
-        - ./prow/proxy-presubmit.sh
+        - entrypoint
+        - ./prow/proxy-presubmit-wasm.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "64"
+        image: gcr.io/istio-testing/build-tools-proxy:release-1.20-7a5a6eaafb86469d7796ab193153d04e437c85ad
+        name: ""
+        resources:
+          limits:
+            cpu: "64"
+            memory: 240G
+          requests:
+            cpu: "30"
+            memory: 100G
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: build-pool
+      serviceAccountName: prowjob-rbe
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )check-wasm,?($|\s.*))|((?m)^/test( | .* )check-wasm_proxy_release-1.20,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_release-1.20_proxy
+    branches:
+    - ^release-1.20$
+    cluster: prow-arm
+    decorate: true
+    decoration_config:
+      timeout: 6h0m0s
+    name: release-test-arm64_proxy_release-1.20
+    path_alias: istio.io/proxy
+    rerun_command: /test release-test-arm64
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - ./prow/proxy-presubmit-release.sh
+        env:
+        - name: ARCH_SUFFIX
+          value: arm64
+        - name: BUILD_ENVOY_BINARY_ONLY
+          value: "1"
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools-proxy:release-1.20-7a5a6eaafb86469d7796ab193153d04e437c85ad
+        name: ""
+        resources:
+          requests:
+            cpu: "4"
+            memory: 16G
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: test-pool
+      serviceAccountName: prowjob-rbe
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )release-test-arm64,?($|\s.*))|((?m)^/test( | .* )release-test-arm64_proxy_release-1.20,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_release-1.20_proxy
+    branches:
+    - ^release-1.20$
+    decorate: true
+    decoration_config:
+      timeout: 6h0m0s
+    name: release-test_proxy_release-1.20
+    path_alias: istio.io/proxy
+    rerun_command: /test release-test
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - ./prow/proxy-presubmit-release.sh
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -281,7 +383,56 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_proxy_release-1.20,?($|\s.*))
+    trigger: ((?m)^/test( | .* )release-test,?($|\s.*))|((?m)^/test( | .* )release-test_proxy_release-1.20,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_release-1.20_proxy
+    branches:
+    - ^release-1.20$
+    cluster: prow-arm
+    decorate: true
+    decoration_config:
+      timeout: 6h0m0s
+    name: test-arm-arm64_proxy_release-1.20
+    path_alias: istio.io/proxy
+    rerun_command: /test test-arm-arm64
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - ./prow/proxy-presubmit.sh
+        env:
+        - name: ARCH_SUFFIX
+          value: arm64
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools-proxy:release-1.20-7a5a6eaafb86469d7796ab193153d04e437c85ad
+        name: ""
+        resources:
+          requests:
+            cpu: "4"
+            memory: 16G
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: test-pool
+      serviceAccountName: prowjob-rbe
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )test-arm-arm64,?($|\s.*))|((?m)^/test( | .* )test-arm-arm64_proxy_release-1.20,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_release-1.20_proxy
@@ -379,67 +530,18 @@ presubmits:
       testgrid-dashboards: istio_release-1.20_proxy
     branches:
     - ^release-1.20$
-    cluster: prow-arm
     decorate: true
     decoration_config:
-      timeout: 6h0m0s
-    name: test-arm-arm64_proxy_release-1.20
+      timeout: 4h0m0s
+    name: test_proxy_release-1.20
     path_alias: istio.io/proxy
-    rerun_command: /test test-arm-arm64
+    rerun_command: /test test
     spec:
       automountServiceAccountToken: false
       containers:
       - command:
         - ./prow/proxy-presubmit.sh
         env:
-        - name: ARCH_SUFFIX
-          value: arm64
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.20-7a5a6eaafb86469d7796ab193153d04e437c85ad
-        name: ""
-        resources:
-          requests:
-            cpu: "4"
-            memory: 16G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: arm64
-        testing: test-pool
-      serviceAccountName: prowjob-rbe
-      tolerations:
-      - effect: NoSchedule
-        key: kubernetes.io/arch
-        operator: Equal
-        value: arm64
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )test-arm-arm64,?($|\s.*))|((?m)^/test( | .* )test-arm-arm64_proxy_release-1.20,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_release-1.20_proxy
-    branches:
-    - ^release-1.20$
-    decorate: true
-    decoration_config:
-      timeout: 6h0m0s
-    name: release-test_proxy_release-1.20
-    path_alias: istio.io/proxy
-    rerun_command: /test release-test
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - ./prow/proxy-presubmit-release.sh
-        env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GOMAXPROCS
@@ -468,106 +570,4 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )release-test,?($|\s.*))|((?m)^/test( | .* )release-test_proxy_release-1.20,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_release-1.20_proxy
-    branches:
-    - ^release-1.20$
-    cluster: prow-arm
-    decorate: true
-    decoration_config:
-      timeout: 6h0m0s
-    name: release-test-arm64_proxy_release-1.20
-    path_alias: istio.io/proxy
-    rerun_command: /test release-test-arm64
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - ./prow/proxy-presubmit-release.sh
-        env:
-        - name: ARCH_SUFFIX
-          value: arm64
-        - name: BUILD_ENVOY_BINARY_ONLY
-          value: "1"
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.20-7a5a6eaafb86469d7796ab193153d04e437c85ad
-        name: ""
-        resources:
-          requests:
-            cpu: "4"
-            memory: 16G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: arm64
-        testing: test-pool
-      serviceAccountName: prowjob-rbe
-      tolerations:
-      - effect: NoSchedule
-        key: kubernetes.io/arch
-        operator: Equal
-        value: arm64
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )release-test-arm64,?($|\s.*))|((?m)^/test( | .* )release-test-arm64_proxy_release-1.20,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_release-1.20_proxy
-    branches:
-    - ^release-1.20$
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    name: check-wasm_proxy_release-1.20
-    path_alias: istio.io/proxy
-    rerun_command: /test check-wasm
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - ./prow/proxy-presubmit-wasm.sh
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "64"
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.20-7a5a6eaafb86469d7796ab193153d04e437c85ad
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: build-pool
-      serviceAccountName: prowjob-rbe
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - emptyDir: {}
-        name: docker-root
-    trigger: ((?m)^/test( | .* )check-wasm,?($|\s.*))|((?m)^/test( | .* )check-wasm_proxy_release-1.20,?($|\s.*))
+    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_proxy_release-1.20,?($|\s.*))

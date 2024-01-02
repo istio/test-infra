@@ -7,15 +7,16 @@ postsubmits:
       testgrid-num-failures-to-alert: "1"
     branches:
     - ^release-1.20$
+    cluster: prow-arm
     decorate: true
-    name: test_ztunnel_release-1.20_postsubmit
+    name: release-arm64_ztunnel_release-1.20_postsubmit
     path_alias: istio.io/ztunnel
     spec:
       automountServiceAccountToken: false
       containers:
       - command:
         - make
-        - presubmit
+        - release
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -40,8 +41,14 @@ postsubmits:
           name: build-cache
           subPath: cargo
       nodeSelector:
-        kubernetes.io/arch: amd64
+        kubernetes.io/arch: arm64
         testing: test-pool
+      serviceAccountName: prowjob-testing-write
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -100,64 +107,9 @@ postsubmits:
       testgrid-num-failures-to-alert: "1"
     branches:
     - ^release-1.20$
-    cluster: prow-arm
     decorate: true
-    name: release-arm64_ztunnel_release-1.20_postsubmit
+    name: test_ztunnel_release-1.20_postsubmit
     path_alias: istio.io/ztunnel
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - make
-        - release
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "3"
-        image: gcr.io/istio-testing/build-tools:release-1.20-7a5a6eaafb86469d7796ab193153d04e437c85ad
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /home/.cargo
-          name: build-cache
-          subPath: cargo
-      nodeSelector:
-        kubernetes.io/arch: arm64
-        testing: test-pool
-      serviceAccountName: prowjob-testing-write
-      tolerations:
-      - effect: NoSchedule
-        key: kubernetes.io/arch
-        operator: Equal
-        value: arm64
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-presubmits:
-  istio/ztunnel:
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_release-1.20_ztunnel
-    branches:
-    - ^release-1.20$
-    decorate: true
-    name: test_ztunnel_release-1.20
-    path_alias: istio.io/ztunnel
-    rerun_command: /test test
     spec:
       automountServiceAccountToken: false
       containers:
@@ -195,7 +147,8 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_ztunnel_release-1.20,?($|\s.*))
+presubmits:
+  istio/ztunnel:
   - always_run: false
     annotations:
       testgrid-dashboards: istio_release-1.20_ztunnel
@@ -243,3 +196,50 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
     trigger: ((?m)^/test( | .* )bench,?($|\s.*))|((?m)^/test( | .* )bench_ztunnel_release-1.20,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_release-1.20_ztunnel
+    branches:
+    - ^release-1.20$
+    decorate: true
+    name: test_ztunnel_release-1.20
+    path_alias: istio.io/ztunnel
+    rerun_command: /test test
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - presubmit
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "3"
+        image: gcr.io/istio-testing/build-tools:release-1.20-7a5a6eaafb86469d7796ab193153d04e437c85ad
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /home/.cargo
+          name: build-cache
+          subPath: cargo
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_ztunnel_release-1.20,?($|\s.*))

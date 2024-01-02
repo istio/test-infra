@@ -146,15 +146,63 @@ postsubmits:
         name: build-cache
 presubmits:
   gerrit.istio/istio:
-  - always_run: false
+  - always_run: true
     annotations:
       testgrid-dashboards: gerrit.istio_istio
     branches:
     - ^master$
     decorate: true
-    name: test_istio
-    rerun_command: /test test
-    run_if_changed: foo.*
+    labels:
+      preset-service-account: "true"
+    name: custom-node-selector_istio
+    rerun_command: /test custom-node-selector
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - args:
+        - common
+        - args
+        - that are reusable
+        command:
+        - prow/command.sh
+        env:
+        - name: key
+          value: value
+        image: fooimage
+        name: ""
+        resources:
+          requests:
+            cpu: "1"
+            memory: 1Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        foo: baz
+        kubernetes.io/arch: amd64
+      serviceAccountName: foobar
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )custom-node-selector,?($|\s.*))|((?m)^/test( | .*
+      )custom-node-selector_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: gerrit.istio_istio
+    branches:
+    - ^master$
+    cluster: arm64-cluster
+    decorate: true
+    name: multi-arch-arm64_istio
+    rerun_command: /test multi-arch-arm64
     spec:
       automountServiceAccountToken: false
       containers:
@@ -163,7 +211,101 @@ presubmits:
         env:
         - name: key
           value: value
-        image: barimage
+        image: test
+        name: ""
+        resources:
+          requests:
+            cpu: "1"
+            memory: 1Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: test-pool
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )multi-arch-arm64,?($|\s.*))|((?m)^/test( | .* )multi-arch-arm64_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: gerrit.istio_istio
+    branches:
+    - ^master$
+    cluster: arm64-cluster
+    decorate: true
+    name: multi-arch-param-arm64_istio
+    rerun_command: /test multi-arch-param-arm64
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - prow/command.sh
+        - arm64
+        env:
+        - name: key
+          value: value
+        image: test
+        name: ""
+        resources:
+          requests:
+            cpu: "1"
+            memory: 1Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: test-pool
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )multi-arch-param-arm64,?($|\s.*))|((?m)^/test( | .*
+      )multi-arch-param-arm64_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: gerrit.istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    name: multi-arch-param_istio
+    rerun_command: /test multi-arch-param
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - prow/command.sh
+        - amd64
+        env:
+        - name: key
+          value: value
+        image: test
         name: ""
         resources:
           requests:
@@ -186,8 +328,47 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_istio,?($|\s.*))|((?m)^/test
-      basic(\s+|$))
+    trigger: ((?m)^/test( | .* )multi-arch-param,?($|\s.*))|((?m)^/test( | .* )multi-arch-param_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: gerrit.istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    name: multi-arch_istio
+    rerun_command: /test multi-arch
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - prow/command.sh
+        env:
+        - name: key
+          value: value
+        image: test
+        name: ""
+        resources:
+          requests:
+            cpu: "1"
+            memory: 1Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )multi-arch,?($|\s.*))|((?m)^/test( | .* )multi-arch_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: gerrit.istio_istio
@@ -264,54 +445,6 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    labels:
-      preset-service-account: "true"
-    name: custom-node-selector_istio
-    rerun_command: /test custom-node-selector
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - args:
-        - common
-        - args
-        - that are reusable
-        command:
-        - prow/command.sh
-        env:
-        - name: key
-          value: value
-        image: fooimage
-        name: ""
-        resources:
-          requests:
-            cpu: "1"
-            memory: 1Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-      nodeSelector:
-        foo: baz
-        kubernetes.io/arch: amd64
-      serviceAccountName: foobar
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )custom-node-selector,?($|\s.*))|((?m)^/test( | .*
-      )custom-node-selector_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: gerrit.istio_istio
-    branches:
-    - ^master$
-    decorate: true
     extra_refs:
     - base_ref: master
       org: istio
@@ -361,181 +494,6 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    name: multi-arch_istio
-    rerun_command: /test multi-arch
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - prow/command.sh
-        env:
-        - name: key
-          value: value
-        image: test
-        name: ""
-        resources:
-          requests:
-            cpu: "1"
-            memory: 1Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )multi-arch,?($|\s.*))|((?m)^/test( | .* )multi-arch_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: gerrit.istio_istio
-    branches:
-    - ^master$
-    cluster: arm64-cluster
-    decorate: true
-    name: multi-arch-arm64_istio
-    rerun_command: /test multi-arch-arm64
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - prow/command.sh
-        env:
-        - name: key
-          value: value
-        image: test
-        name: ""
-        resources:
-          requests:
-            cpu: "1"
-            memory: 1Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-      nodeSelector:
-        kubernetes.io/arch: arm64
-        testing: test-pool
-      tolerations:
-      - effect: NoSchedule
-        key: kubernetes.io/arch
-        operator: Equal
-        value: arm64
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )multi-arch-arm64,?($|\s.*))|((?m)^/test( | .* )multi-arch-arm64_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: gerrit.istio_istio
-    branches:
-    - ^master$
-    decorate: true
-    name: multi-arch-param_istio
-    rerun_command: /test multi-arch-param
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - prow/command.sh
-        - amd64
-        env:
-        - name: key
-          value: value
-        image: test
-        name: ""
-        resources:
-          requests:
-            cpu: "1"
-            memory: 1Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )multi-arch-param,?($|\s.*))|((?m)^/test( | .* )multi-arch-param_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: gerrit.istio_istio
-    branches:
-    - ^master$
-    cluster: arm64-cluster
-    decorate: true
-    name: multi-arch-param-arm64_istio
-    rerun_command: /test multi-arch-param-arm64
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - prow/command.sh
-        - arm64
-        env:
-        - name: key
-          value: value
-        image: test
-        name: ""
-        resources:
-          requests:
-            cpu: "1"
-            memory: 1Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-      nodeSelector:
-        kubernetes.io/arch: arm64
-        testing: test-pool
-      tolerations:
-      - effect: NoSchedule
-        key: kubernetes.io/arch
-        operator: Equal
-        value: arm64
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )multi-arch-param-arm64,?($|\s.*))|((?m)^/test( | .*
-      )multi-arch-param-arm64_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: gerrit.istio_istio
-    branches:
-    - ^master$
-    decorate: true
     name: secret_istio
     rerun_command: /test secret
     spec:
@@ -572,3 +530,45 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
     trigger: ((?m)^/test( | .* )secret,?($|\s.*))|((?m)^/test( | .* )secret_istio,?($|\s.*))
+  - always_run: false
+    annotations:
+      testgrid-dashboards: gerrit.istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    name: test_istio
+    rerun_command: /test test
+    run_if_changed: foo.*
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - prow/command.sh
+        env:
+        - name: key
+          value: value
+        image: barimage
+        name: ""
+        resources:
+          requests:
+            cpu: "1"
+            memory: 1Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_istio,?($|\s.*))|((?m)^/test
+      basic(\s+|$))
