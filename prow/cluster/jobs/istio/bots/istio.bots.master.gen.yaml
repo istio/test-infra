@@ -50,6 +50,95 @@ postsubmits:
       testgrid-num-failures-to-alert: "1"
     branches:
     - ^master$
+    cluster: test-infra-trusted
+    decorate: true
+    name: deploy-policybot_bots_postsubmit
+    path_alias: istio.io/bots
+    run_if_changed: ^policybot/
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - -C
+        - policybot
+        - deploy
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "3"
+        image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        prod: prow
+      serviceAccountName: prowjob-bots-deployer
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_bots_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    name: gencheck_bots_postsubmit
+    path_alias: istio.io/bots
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - gen-check
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "3"
+        image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_bots_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
     decorate: true
     name: lint_bots_postsubmit
     path_alias: istio.io/bots
@@ -130,95 +219,6 @@ postsubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_bots_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
-    name: gencheck_bots_postsubmit
-    path_alias: istio.io/bots
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - make
-        - gen-check
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "3"
-        image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_bots_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    cluster: test-infra-trusted
-    decorate: true
-    name: deploy-policybot_bots_postsubmit
-    path_alias: istio.io/bots
-    run_if_changed: ^policybot/
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - make
-        - -C
-        - policybot
-        - deploy
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "3"
-        image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        prod: prow
-      serviceAccountName: prowjob-bots-deployer
-      volumes:
-      - emptyDir: {}
-        name: docker-root
 presubmits:
   istio/bots:
   - always_run: true
@@ -265,6 +265,50 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
     trigger: ((?m)^/test( | .* )build,?($|\s.*))|((?m)^/test( | .* )build_bots,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_bots
+    branches:
+    - ^master$
+    decorate: true
+    name: gencheck_bots
+    path_alias: istio.io/bots
+    rerun_command: /test gencheck
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - gen-check
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "3"
+        image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_bots,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_bots
@@ -353,47 +397,3 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
     trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_bots,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_bots
-    branches:
-    - ^master$
-    decorate: true
-    name: gencheck_bots
-    path_alias: istio.io/bots
-    rerun_command: /test gencheck
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - make
-        - gen-check
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "3"
-        image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_bots,?($|\s.*))

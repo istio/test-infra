@@ -51,14 +51,14 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    name: lint_client-go_postsubmit
+    name: gencheck_client-go_postsubmit
     path_alias: istio.io/client-go
     spec:
       automountServiceAccountToken: false
       containers:
       - command:
         - make
-        - lint
+        - gen-check
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -94,14 +94,14 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    name: gencheck_client-go_postsubmit
+    name: lint_client-go_postsubmit
     path_alias: istio.io/client-go
     spec:
       automountServiceAccountToken: false
       containers:
       - command:
         - make
-        - gen-check
+        - lint
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -245,50 +245,6 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    name: lint_client-go
-    path_alias: istio.io/client-go
-    rerun_command: /test lint
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - make
-        - lint
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "3"
-        image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_client-go,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_client-go
-    branches:
-    - ^master$
-    decorate: true
     name: gencheck_client-go
     path_alias: istio.io/client-go
     rerun_command: /test gencheck
@@ -327,3 +283,47 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
     trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_client-go,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_client-go
+    branches:
+    - ^master$
+    decorate: true
+    name: lint_client-go
+    path_alias: istio.io/client-go
+    rerun_command: /test lint
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - lint
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "3"
+        image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_client-go,?($|\s.*))

@@ -66,128 +66,45 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    name: lint_release-builder_postsubmit
+    name: build-release_release-builder_postsubmit
     path_alias: istio.io/release-builder
+    run_if_changed: ^release/trigger-build$
     spec:
       automountServiceAccountToken: false
       containers:
       - command:
-        - make
-        - lint
+        - entrypoint
+        - release/build.sh
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: GOMAXPROCS
-          value: "3"
         image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
         name: ""
         resources:
           limits:
-            cpu: "3"
             memory: 24Gi
           requests:
-            cpu: "1"
-            memory: 3Gi
+            cpu: "15"
+            memory: 8Gi
         securityContext:
           privileged: true
         volumeMounts:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /var/lib/docker
+          name: docker-root
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
+      serviceAccountName: prowjob-release
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-builder_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
-    name: test_release-builder_postsubmit
-    path_alias: istio.io/release-builder
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - make
-        - test
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "3"
-        image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-builder_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^master$
-    decorate: true
-    name: gencheck_release-builder_postsubmit
-    path_alias: istio.io/release-builder
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - make
-        - gen-check
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "3"
-        image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
+      - emptyDir: {}
+        name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_release-builder_postsubmit
@@ -240,45 +157,85 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    name: build-release_release-builder_postsubmit
+    name: gencheck_release-builder_postsubmit
     path_alias: istio.io/release-builder
-    run_if_changed: ^release/trigger-build$
     spec:
       automountServiceAccountToken: false
       containers:
       - command:
-        - entrypoint
-        - release/build.sh
+        - make
+        - gen-check
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOMAXPROCS
+          value: "3"
         image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
         name: ""
         resources:
           limits:
+            cpu: "3"
             memory: 24Gi
           requests:
-            cpu: "15"
-            memory: 8Gi
+            cpu: "1"
+            memory: 3Gi
         securityContext:
           privileged: true
         volumeMounts:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
-        - mountPath: /var/lib/docker
-          name: docker-root
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
-      serviceAccountName: prowjob-release
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-      - emptyDir: {}
-        name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_release-builder_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    name: lint_release-builder_postsubmit
+    path_alias: istio.io/release-builder
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - lint
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "3"
+        image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_release-builder_postsubmit
@@ -336,61 +293,15 @@ postsubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
-presubmits:
-  istio/release-builder:
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_release-builder
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_release-builder_postsubmit
+      testgrid-num-failures-to-alert: "1"
     branches:
     - ^master$
     decorate: true
-    name: lint_release-builder
+    name: test_release-builder_postsubmit
     path_alias: istio.io/release-builder
-    rerun_command: /test lint
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - make
-        - lint
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "3"
-        image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_release-builder,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_release-builder
-    branches:
-    - ^master$
-    decorate: true
-    name: test_release-builder
-    path_alias: istio.io/release-builder
-    rerun_command: /test test
     spec:
       automountServiceAccountToken: false
       containers:
@@ -425,97 +336,8 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_release-builder,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_release-builder
-    branches:
-    - ^master$
-    decorate: true
-    name: gencheck_release-builder
-    path_alias: istio.io/release-builder
-    rerun_command: /test gencheck
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - make
-        - gen-check
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "3"
-        image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
-        name: ""
-        resources:
-          limits:
-            cpu: "3"
-            memory: 24Gi
-          requests:
-            cpu: "1"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_release-builder,?($|\s.*))
-  - always_run: false
-    annotations:
-      testgrid-dashboards: istio_release-builder
-    branches:
-    - ^master$
-    decorate: true
-    name: dry-run_release-builder
-    path_alias: istio.io/release-builder
-    rerun_command: /test dry-run
-    run_if_changed: \.go$|\.sh$
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - test/publish.sh
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
-        name: ""
-        resources:
-          limits:
-            memory: 24Gi
-          requests:
-            cpu: "15"
-            memory: 8Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - emptyDir: {}
-        name: docker-root
-    trigger: ((?m)^/test( | .* )dry-run,?($|\s.*))|((?m)^/test( | .* )dry-run_release-builder,?($|\s.*))
+presubmits:
+  istio/release-builder:
   - always_run: false
     annotations:
       testgrid-dashboards: istio_release-builder
@@ -567,6 +389,140 @@ presubmits:
     branches:
     - ^master$
     decorate: true
+    name: dry-run_release-builder
+    path_alias: istio.io/release-builder
+    rerun_command: /test dry-run
+    run_if_changed: \.go$|\.sh$
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - test/publish.sh
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
+        name: ""
+        resources:
+          limits:
+            memory: 24Gi
+          requests:
+            cpu: "15"
+            memory: 8Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )dry-run,?($|\s.*))|((?m)^/test( | .* )dry-run_release-builder,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_release-builder
+    branches:
+    - ^master$
+    decorate: true
+    name: gencheck_release-builder
+    path_alias: istio.io/release-builder
+    rerun_command: /test gencheck
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - gen-check
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "3"
+        image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_release-builder,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_release-builder
+    branches:
+    - ^master$
+    decorate: true
+    name: lint_release-builder
+    path_alias: istio.io/release-builder
+    rerun_command: /test lint
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - lint
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "3"
+        image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_release-builder,?($|\s.*))
+  - always_run: false
+    annotations:
+      testgrid-dashboards: istio_release-builder
+    branches:
+    - ^master$
+    decorate: true
     name: publish-warning_release-builder
     optional: true
     path_alias: istio.io/release-builder
@@ -606,3 +562,47 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
     trigger: ((?m)^/test( | .* )publish-warning,?($|\s.*))|((?m)^/test( | .* )publish-warning_release-builder,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_release-builder
+    branches:
+    - ^master$
+    decorate: true
+    name: test_release-builder
+    path_alias: istio.io/release-builder
+    rerun_command: /test test
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - test
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "3"
+        image: gcr.io/istio-testing/build-tools:master-ed9be6366bc55d8601d45c601903ba0c6e172713
+        name: ""
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_release-builder,?($|\s.*))
