@@ -66,13 +66,13 @@ const (
 type options struct {
 	Configs           []string
 	Global            string
-	EnvDenylistSet    sets.String
-	VolumeDenylistSet sets.String
-	JobAllowlistSet   sets.String
-	JobDenylistSet    sets.String
-	RepoAllowlistSet  sets.String
-	RepoDenylistSet   sets.String
-	JobTypeSet        sets.String
+	EnvDenylistSet    sets.Set[string]
+	VolumeDenylistSet sets.Set[string]
+	JobAllowlistSet   sets.Set[string]
+	JobDenylistSet    sets.Set[string]
+	RepoAllowlistSet  sets.Set[string]
+	RepoDenylistSet   sets.Set[string]
+	JobTypeSet        sets.Set[string]
 	configuration.Transform
 }
 
@@ -127,13 +127,13 @@ func (o *options) parseOpts() {
 		v := v
 		o.Env[k] = &v
 	}
-	o.EnvDenylistSet = sets.NewString(o.EnvDenylist...)
-	o.VolumeDenylistSet = sets.NewString(o.VolumeDenylist...)
-	o.JobAllowlistSet = sets.NewString(o.JobAllowlist...)
-	o.JobDenylistSet = sets.NewString(o.JobDenylist...)
-	o.RepoAllowlistSet = sets.NewString(o.RepoAllowlist...)
-	o.RepoDenylistSet = sets.NewString(o.RepoDenylist...)
-	o.JobTypeSet = sets.NewString(o.JobType...)
+	o.EnvDenylistSet = sets.New(o.EnvDenylist...)
+	o.VolumeDenylistSet = sets.New(o.VolumeDenylist...)
+	o.JobAllowlistSet = sets.New(o.JobAllowlist...)
+	o.JobDenylistSet = sets.New(o.JobDenylist...)
+	o.RepoAllowlistSet = sets.New(o.RepoAllowlist...)
+	o.RepoDenylistSet = sets.New(o.RepoDenylist...)
+	o.JobTypeSet = sets.New(o.JobType...)
 }
 
 // parseConfiguration parses the yaml configuration transforms.
@@ -185,13 +185,13 @@ func (o *options) parseConfiguration() []options {
 				applyDefaultTransforms(&t, &c.Defaults, &local.Defaults, &global.Defaults)
 
 				oc := options{
-					EnvDenylistSet:    sets.NewString(t.EnvDenylist...),
-					VolumeDenylistSet: sets.NewString(t.VolumeDenylist...),
-					JobAllowlistSet:   sets.NewString(t.JobAllowlist...),
-					JobDenylistSet:    sets.NewString(t.JobDenylist...),
-					RepoAllowlistSet:  sets.NewString(t.RepoAllowlist...),
-					RepoDenylistSet:   sets.NewString(t.RepoDenylist...),
-					JobTypeSet:        sets.NewString(t.JobType...),
+					EnvDenylistSet:    sets.New(t.EnvDenylist...),
+					VolumeDenylistSet: sets.New(t.VolumeDenylist...),
+					JobAllowlistSet:   sets.New(t.JobAllowlist...),
+					JobDenylistSet:    sets.New(t.JobDenylist...),
+					RepoAllowlistSet:  sets.New(t.RepoAllowlist...),
+					RepoDenylistSet:   sets.New(t.RepoDenylist...),
+					JobTypeSet:        sets.New(t.JobType...),
 					Transform:         t,
 				}
 
@@ -404,7 +404,7 @@ func validateOrgRepo(o options, org string, repo string) bool {
 
 // validateJob validates that the job passes validation and should be converted.
 func validateJob(o options, name string, patterns []string, jType string) bool {
-	if hasMatch(name, o.JobDenylistSet.List()) || (len(o.JobAllowlistSet) > 0 && !hasMatch(name, o.JobAllowlistSet.List())) ||
+	if hasMatch(name, o.JobDenylistSet.UnsortedList()) || (len(o.JobAllowlistSet) > 0 && !hasMatch(name, o.JobAllowlistSet.UnsortedList())) ||
 		!isMatchBranch(o, patterns) || !o.JobTypeSet.Has(jType) {
 		return false
 	}
@@ -561,7 +561,7 @@ func pruneJobBase(o options, job *config.JobBase) {
 }
 
 // pruneEnvs prunes denylisted Env fields.
-func pruneEnvs(denylist sets.String, job *config.JobBase) {
+func pruneEnvs(denylist sets.Set[string], job *config.JobBase) {
 	for i := range job.Spec.Containers {
 		var envs []v1.EnvVar
 
@@ -576,7 +576,7 @@ func pruneEnvs(denylist sets.String, job *config.JobBase) {
 }
 
 // pruneVolumes prunes denylisted Volume and VolueMount fields.
-func pruneVolumes(denylist sets.String, job *config.JobBase) {
+func pruneVolumes(denylist sets.Set[string], job *config.JobBase) {
 	var volumes []v1.Volume
 
 	for _, vol := range job.Spec.Volumes {
