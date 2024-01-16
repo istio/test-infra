@@ -28,10 +28,11 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	shell "github.com/kballard/go-shellquote"
-	"istio.io/test-infra/tools/prowgen/pkg"
-	"istio.io/test-infra/tools/prowgen/pkg/spec"
 	k8sProwConfig "k8s.io/test-infra/prow/config"
 	"sigs.k8s.io/yaml"
+
+	"istio.io/test-infra/tools/prowgen/pkg"
+	"istio.io/test-infra/tools/prowgen/pkg/spec"
 )
 
 var (
