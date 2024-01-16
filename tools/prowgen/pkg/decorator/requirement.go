@@ -16,14 +16,15 @@ package decorator
 
 import (
 	"encoding/json"
+	"log"
+	"math"
+	"strconv"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/imdario/mergo"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/test-infra/prow/config"
-	"log"
-	"math"
-	"strconv"
 
 	"istio.io/test-infra/tools/prowgen/pkg/spec"
 )
@@ -112,7 +113,8 @@ func resolveRequirements(annotations, labels map[string]string, spec *v1.PodSpec
 
 // mergeRequirement will overlay the requirement on the existing job spec. Use mergo for all keys except containers and metadata
 func mergeRequirement(annotations, labels map[string]string, spec *v1.PodSpec, containers []v1.Container, volumes *[]v1.Volume,
-	req spec.RequirementPreset) {
+	req spec.RequirementPreset,
+) {
 	for a, v := range req.Annotations {
 		annotations[a] = v
 	}

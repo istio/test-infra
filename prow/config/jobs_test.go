@@ -368,7 +368,7 @@ const (
 
 type Volumes = string
 
-var AllVolumes = sets.NewString(
+var AllVolumes = sets.New(
 	GithubTestingOrgAdmin,
 	GithubTestingPusher,
 	GithubTestingSSH,
@@ -379,13 +379,13 @@ var AllVolumes = sets.NewString(
 	Modules,
 )
 
-var LowPrivilegeVolumes = sets.NewString(
+var LowPrivilegeVolumes = sets.New(
 	BuildCache,
 	Cgroups,
 	Modules,
 )
 
-var PrivateVolumes = sets.NewString(Netrc, SSHKey)
+var PrivateVolumes = sets.New(Netrc, SSHKey)
 
 const (
 	GithubTestingOrgAdmin Volumes = "github-testing"
@@ -422,8 +422,8 @@ func (j Job) BaseName() string {
 	return base
 }
 
-func (j Job) Volumes() sets.String {
-	r := sets.NewString()
+func (j Job) Volumes() sets.Set[string] {
+	r := sets.New[string]()
 	for _, v := range j.Base.Spec.Volumes {
 		if v.Secret != nil {
 			switch v.Secret.SecretName {
