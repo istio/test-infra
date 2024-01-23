@@ -113,7 +113,7 @@ func main() {
 						// image for the new branch is updated.
 						newImage := fmt.Sprintf("%s:%s-%s", match[1], branch, match[3])
 						if err := exec.Command("gcloud", "container", "images", "add-tag", match[0], newImage).Run(); err != nil {
-							log.Fatalf("Unable to add image tag %q: %v", newImage, err)
+							log.Printf("Unable to add image tag %q: %v", newImage, err)
 						} else {
 							jobs.Image = newImage
 						}
