@@ -1,0 +1,22 @@
+defaults:
+  branches:
+  - release-1.21
+  repo-allowlist:
+  - api
+org: istio
+repo: api
+transforms:
+- env:
+    GCS_BUCKET: istio-build-private/dev
+  job-allowlist:
+  - build_release-1.21
+  - gencheck_release-1.21
+  job-type:
+  - presubmit
+- job-allowlist:
+  - build_release-1.21
+  - gencheck_release-1.21
+  job-type:
+  - postsubmit
+  labels:
+    preset-override-envoy: "true"
