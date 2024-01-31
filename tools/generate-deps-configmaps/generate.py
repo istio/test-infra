@@ -117,6 +117,16 @@ def main():
     )
     args = parser.parse_args()
 
+    if not os.path.exists(args.templates) or not os.path.isdir(args.templates):
+        print("The specified template location " + args.templates +
+              " does not exist or is not a directory")
+        sys.exit(1)
+
+    if not os.path.exists(args.destination) or not os.path.isfile(args.destination):
+        print("The specified destination " + args.destination +
+              " does not exist or is not a file")
+        sys.exit(1)
+
     # This is primarily done so we can cleanly append the new ConfigMaps to the existing
     release_deps = load_configmaps(args.destination)
 
@@ -130,6 +140,10 @@ def main():
     if not args.dry_run:
         print("Writing to " + args.destination)
         with open(args.destination, "w") as stream:
+            stream.write(
+                "# Below contains the configmaps that configure the release-builder manifests in istio/istio and istio/release-builder.\n"
+            )
+            stream.write("# This should be updated for each version\n")
             generate_yaml(release_deps, stream)
     else:
         print("")
