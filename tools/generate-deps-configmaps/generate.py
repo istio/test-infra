@@ -30,8 +30,8 @@ def get_templates(path):
     templates = []
     for _, _, files in os.walk(path):
         for file in files:
-            if file.endswith(extension):
-                templates.append(file.replace(extension, ""))
+            if file.endswith(EXTENSION):
+                templates.append(file.replace(EXTENSION, ""))
     return templates
 
 
