@@ -13,7 +13,7 @@ This should be run during the steps of Step 3 where the release branch jobs are 
 
 ## Templates
 
-The templates utilize [Template strings](https://docs.python.org/3.4/library/string.html#template-strings) to generate the ConfigMap dependency data.
+The templates utilize [Template strings](https://docs.python.org/3.6/library/string.html#template-strings) to generate the ConfigMap dependency data.
 
 ## Usage
 
