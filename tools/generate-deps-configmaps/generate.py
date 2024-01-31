@@ -130,7 +130,7 @@ def main():
     if not args.dry_run:
         print("Writing to " + args.destination)
         with open(args.destination, "w") as stream:
-            generate_yaml(cm, stream)
+            generate_yaml(release_deps, stream)
     else:
         print("")
         generate_yaml(release_deps, sys.stdout)
