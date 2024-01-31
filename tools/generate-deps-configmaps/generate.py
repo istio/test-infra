@@ -26,7 +26,7 @@ from string import Template
 # Get a list of templates in the directory. We remove the suffix here as the name of the
 # template is also used in the name of the ConfigMap.
 def get_templates(path):
-    extension = ".template"
+    EXTENSION = ".template"
     templates = []
     for _, _, files in os.walk(path):
         for file in files:
