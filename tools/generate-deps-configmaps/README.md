@@ -25,7 +25,7 @@ You can run this within `make shell` to ensure you have the appropriate Python a
 
 ### Options
 
-The following is a list of supported options. If an option is optional, than its _default_ value will be used if not provided. If an option is required
+The following is a list of supported options. If an option is optional, then its _default_ value will be used if not provided. If an option is required
 and not provided, the execution will fail with a non-zero exit code.
 
 | Option | Required | Default | Description |
