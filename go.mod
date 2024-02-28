@@ -11,7 +11,7 @@ require (
 	golang.org/x/exp v0.0.0-20230626212559-97b1e661b5df
 	k8s.io/api v0.25.9
 	k8s.io/apimachinery v0.26.5
-	k8s.io/test-infra v0.0.0-20240116151427-253c5551b06a
+	k8s.io/test-infra v0.0.0-20240126232058-8ff8cc60ba01
 	sigs.k8s.io/yaml v1.3.0
 )
 
