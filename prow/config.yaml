@@ -409,6 +409,16 @@ branch-protection:
           branches:
             master:
               protect: true
+        sail-operator:
+          required_pull_request_reviews:
+            required_approving_review_count: 1
+            require_code_owner_reviews: true
+          branches:
+            main:
+              protect: true
+            # Temporary, used only in bootstrap phase
+            pre-main:
+              protect: true
         wasm-extensions:
           required_pull_request_reviews:
             required_approving_review_count: 1
@@ -454,6 +464,7 @@ tide:
     - istio/client-go
     - istio/release-builder
     - istio/ztunnel
+    - istio-ecosystem/sail-operator
     missingLabels: &istio_tide_missing_labels
     - do-not-merge
     - do-not-merge/hold
@@ -477,6 +488,7 @@ tide:
     - istio/client-go
     - istio/release-builder
     - istio/ztunnel
+    - istio-ecosystem/sail-operator
     labels:
     - auto-merge
     missingLabels: *istio_tide_missing_labels
@@ -503,6 +515,7 @@ tide:
   merge_method:
     istio: squash
     istio-ecosystem/authservice: squash
+    istio-ecosystem/sail-operator: squash
     istio-private: squash
   target_url: https://prow.istio.io/tide
   blocker_label: tide/merge-blocker
