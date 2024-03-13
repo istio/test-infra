@@ -83,191 +83,50 @@ resource "google_container_cluster" "prow_arm" {
   }
 }
 
-# The "build" cluster doesn't run anything as far as I can tell. This can probably be removed.
-resource "google_container_node_pool" "prow_arm_build" {
-  autoscaling {
-    max_node_count = 1
-    min_node_count = 1
-  }
-
-  cluster            = "prow-arm"
-  initial_node_count = 0
-  location           = "us-central1-f"
-
-  management {
-    auto_repair  = true
-    auto_upgrade = true
-  }
-
-  name = "arm-build-pool-large"
-
-  node_config {
-    disk_size_gb = 100
-    disk_type    = "pd-balanced"
-
-    gvnic {
-      enabled = true
-    }
-
-    image_type   = "COS_CONTAINERD"
-    machine_type = "t2a-standard-16"
-
-    metadata = {
-      disable-legacy-endpoints = "true"
-    }
-
-    oauth_scopes    = ["https://www.googleapis.com/auth/devstorage.read_only", "https://www.googleapis.com/auth/logging.write", "https://www.googleapis.com/auth/monitoring", "https://www.googleapis.com/auth/service.management.readonly", "https://www.googleapis.com/auth/servicecontrol", "https://www.googleapis.com/auth/trace.append"]
-    service_account = "default"
-
-    shielded_instance_config {
-      enable_integrity_monitoring = true
-    }
-
-    taint {
-      effect = "NO_SCHEDULE"
-      key    = "kubernetes.io/arch"
-      value  = "arm64"
-    }
-
-    workload_metadata_config {
-      mode = "GKE_METADATA"
-    }
-  }
-
-  node_count     = 1
-  node_locations = ["us-central1-f"]
-  project        = "istio-prow-build"
-
-  upgrade_settings {
-    max_surge       = 1
-    max_unavailable = 1
-  }
-}
-
 # The default pool hosts an x86 node pool. This is to run some of the prow infrastructure which isn't arm compatible.
 # This is just a single node without scaling, no tests run here.
-resource "google_container_node_pool" "prow_arm_default" {
-  cluster            = "prow-arm"
-  initial_node_count = 1
-  location           = "us-central1-f"
+module "prow_arm_default" {
+  source       = "../modules/gke-nodepool"
+  name         = "default-pool"
+  project_name = "istio-prow-build"
+  location     = "us-central1-f"
+  cluster_name = "prow-arm"
 
-  management {
-    auto_repair  = true
-    auto_upgrade = true
-  }
+  initial_count = 1
+  min_count     = 1
+  max_count     = 1
 
-  name = "default-pool"
-
-  node_config {
-    disk_size_gb = 100
-    disk_type    = "pd-ssd"
-    image_type   = "COS_CONTAINERD"
-    machine_type = "n1-standard-8"
-
-    metadata = {
-      disable-legacy-endpoints = "true"
-    }
-
-    oauth_scopes    = ["https://www.googleapis.com/auth/devstorage.read_only", "https://www.googleapis.com/auth/logging.write", "https://www.googleapis.com/auth/monitoring", "https://www.googleapis.com/auth/service.management.readonly", "https://www.googleapis.com/auth/servicecontrol", "https://www.googleapis.com/auth/trace.append"]
-    service_account = "default"
-
-    shielded_instance_config {
-      enable_integrity_monitoring = true
-    }
-
-    workload_metadata_config {
-      mode = "GKE_METADATA"
-    }
-  }
-
-  node_count     = 1
-  node_locations = ["us-central1-f"]
-  project        = "istio-prow-build"
-
-  upgrade_settings {
-    max_surge       = 1
-    max_unavailable = 0
-  }
+  disk_size_gb    = 100
+  disk_type       = "pd-ssd"
+  machine_type    = "n1-standard-8"
+  service_account = "istio-prow-jobs@istio-prow-build.iam.gserviceaccount.com"
 }
 
 # This pool provides the actual ARM (t2a) instances for tests.
-# Spot instances are used as quota is capped for ARM nodes, and its cheaper.
-# Currently, autoscaling is disabled due to ongoing networking issues on ARM.
-resource "google_container_node_pool" "prow_arm_test_spot" {
-  autoscaling {
-    total_max_node_count = 6
-    total_min_node_count = 6
+module "prow_arm_test_spot" {
+  source = "../modules/gke-nodepool"
+
+  name         = "t2a-spot"
+  project_name = "istio-prow-build"
+  location     = "us-central1-f"
+  cluster_name = "prow-arm"
+
+  # Currently, autoscaling is disabled due to ongoing networking issues on ARM.
+  min_count     = 8
+  max_count     = 8
+  initial_count = 0
+
+  disk_size_gb = 256
+  disk_type    = "pd-ssd"
+  labels = {
+    testing = "test-pool"
   }
 
-  cluster  = "prow-arm"
-  location = "us-central1-f"
+  arm          = true
+  machine_type = "t2a-standard-16"
+  # Spot instances are used as quota is capped for ARM nodes, and its cheaper.
+  spot = true
 
-  management {
-    auto_repair  = true
-    auto_upgrade = true
-  }
+  service_account = "istio-prow-jobs@istio-prow-build.iam.gserviceaccount.com"
 
-  name = "t2a-spot"
-
-  node_config {
-    disk_size_gb = 256
-    disk_type    = "pd-ssd"
-
-    gvnic {
-      enabled = true
-    }
-
-    image_type = "COS_CONTAINERD"
-
-    labels = {
-      testing = "test-pool"
-    }
-
-    machine_type = "t2a-standard-16"
-
-    metadata = {
-      disable-legacy-endpoints = "true"
-    }
-
-    oauth_scopes    = ["https://www.googleapis.com/auth/devstorage.read_only", "https://www.googleapis.com/auth/logging.write", "https://www.googleapis.com/auth/monitoring", "https://www.googleapis.com/auth/service.management.readonly", "https://www.googleapis.com/auth/servicecontrol", "https://www.googleapis.com/auth/trace.append"]
-    service_account = "default"
-
-    shielded_instance_config {
-      enable_integrity_monitoring = true
-    }
-
-    spot = true
-
-
-    taint {
-      effect = "NO_SCHEDULE"
-      key    = "kubernetes.io/arch"
-      value  = "arm64"
-    }
-
-    workload_metadata_config {
-      mode = "GKE_METADATA"
-    }
-  }
-
-  node_count     = 6
-  node_locations = ["us-central1-f"]
-  project        = "istio-prow-build"
-
-  upgrade_settings {
-    max_surge       = 1
-    max_unavailable = 0
-  }
-
-  # ARM defaults to cgroups v2. However, our test setup (kind) do not yet support this
-  # Terraform does not yet support this mode, so we have to just set it manually and ignore changes
-  # TODO: https://github.com/hashicorp/terraform-provider-google/issues/12712
-  #    linux_node_config {
-  #      cgroup_mode = "CGROUP_MODE_V1"
-  #    }
-  lifecycle {
-    ignore_changes = [
-      node_config[0].linux_node_config,
-    ]
-  }
 }

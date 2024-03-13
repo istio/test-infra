@@ -41,18 +41,36 @@ resource "google_container_node_pool" "node_pool" {
     disk_size_gb = var.disk_size_gb
     disk_type    = var.disk_type
     labels       = var.labels
-    taint        = var.taints
     spot         = var.spot
 
     service_account = var.service_account
     oauth_scopes    = ["https://www.googleapis.com/auth/cloud-platform"]
 
+    dynamic "taint" {
+      for_each = var.arm ? [1] : []
+      content {
+          effect = "NO_SCHEDULE"
+          key    = "kubernetes.io/arch"
+          value  = "arm64"
+      }
+    }
+    dynamic "gvnic" {
+      for_each = var.arm ? [1] : []
+      content {
+        enabled = true
+      }
+    }
     // Needed for workload identity
     workload_metadata_config {
       mode = "GKE_METADATA"
     }
     metadata = {
       disable-legacy-endpoints = "true"
+    }
+
+    linux_node_config {
+      // We cannot currently run prow on Cgroupsv2
+      cgroup_mode = "CGROUP_MODE_V1"
     }
   }
 
@@ -61,13 +79,11 @@ resource "google_container_node_pool" "node_pool" {
   // the old one
   lifecycle {
     create_before_destroy = true
-    ignore_changes = [
+    ignore_changes        = [
       # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/container_node_pool#initial_node_count
       initial_node_count,
       # https://www.terraform.io/docs/providers/google/r/container_cluster.html#taint
       node_config[0].taint,
-      # Terraform does not yet support this mode, so we have to just set it manually and ignore changes
-      node_config[0].linux_node_config,
     ]
   }
 }
