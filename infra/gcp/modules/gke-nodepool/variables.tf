@@ -80,3 +80,9 @@ variable "spot" {
   type        = bool
   default     = false
 }
+
+variable "arm" {
+  description = "If true, arm instances should be used"
+  type        = bool
+  default     = false
+}
