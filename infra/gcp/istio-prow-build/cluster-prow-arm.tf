@@ -195,8 +195,8 @@ resource "google_container_node_pool" "prow_arm_default" {
 # Currently, autoscaling is disabled due to ongoing networking issues on ARM.
 resource "google_container_node_pool" "prow_arm_test_spot" {
   autoscaling {
-    total_max_node_count = 6
-    total_min_node_count = 6
+    total_max_node_count = 8
+    total_min_node_count = 8
   }
 
   cluster  = "prow-arm"
@@ -250,24 +250,12 @@ resource "google_container_node_pool" "prow_arm_test_spot" {
     }
   }
 
-  node_count     = 6
+  node_count     = 8
   node_locations = ["us-central1-f"]
   project        = "istio-prow-build"
 
   upgrade_settings {
     max_surge       = 1
     max_unavailable = 0
-  }
-
-  # ARM defaults to cgroups v2. However, our test setup (kind) do not yet support this
-  # Terraform does not yet support this mode, so we have to just set it manually and ignore changes
-  # TODO: https://github.com/hashicorp/terraform-provider-google/issues/12712
-  #    linux_node_config {
-  #      cgroup_mode = "CGROUP_MODE_V1"
-  #    }
-  lifecycle {
-    ignore_changes = [
-      node_config[0].linux_node_config,
-    ]
   }
 }

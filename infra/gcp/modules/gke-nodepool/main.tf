@@ -41,7 +41,6 @@ resource "google_container_node_pool" "node_pool" {
     disk_size_gb = var.disk_size_gb
     disk_type    = var.disk_type
     labels       = var.labels
-    taint        = var.taints
     spot         = var.spot
 
     service_account = var.service_account
@@ -53,6 +52,11 @@ resource "google_container_node_pool" "node_pool" {
     }
     metadata = {
       disable-legacy-endpoints = "true"
+    }
+
+    linux_node_config {
+      // We cannot currently run prow on Cgroupsv2
+      cgroup_mode = "CGROUP_MODE_V1"
     }
   }
 
@@ -66,8 +70,6 @@ resource "google_container_node_pool" "node_pool" {
       initial_node_count,
       # https://www.terraform.io/docs/providers/google/r/container_cluster.html#taint
       node_config[0].taint,
-      # Terraform does not yet support this mode, so we have to just set it manually and ignore changes
-      node_config[0].linux_node_config,
     ]
   }
 }
