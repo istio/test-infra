@@ -17,9 +17,9 @@ resource "google_cloud_run_v2_service" "redirector" {
       # Built from https://github.com/ahmetb/serverless-url-redirect
       image = "gcr.io/istio-testing/redirector"
       env {
-        name  = "REDIRECT_URL"
+        name = "REDIRECT_URL"
         # expires 2024-09-13 or after 2000 uses
-        value = "https://join.slack.com/t/istio/shared_invite/zt-23hxe505s-dqKi3O~~YzYA88Qw1ITzeA" 
+        value = "https://join.slack.com/t/istio/shared_invite/zt-23hxe505s-dqKi3O~~YzYA88Qw1ITzeA"
       }
       resources {
         cpu_idle = true
