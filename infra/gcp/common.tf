@@ -6,7 +6,7 @@ locals {
     "howardjohn@google.com",     # howardjohn
     "johnbhoward96@gmail.com",   # howardjohn
     "ketihmattix@microsoft.com", # keithmattix
-    "daniel.hawton@solo.io",     #dhawton
+    "daniel.hawton@solo.io",     # dhawton
     "paul@tetrate.io",           # pmerrison 
   ])
 
