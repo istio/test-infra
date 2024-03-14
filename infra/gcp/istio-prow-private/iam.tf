@@ -32,3 +32,24 @@ resource "google_project_iam_member" "prow_deployer_gke" {
   role    = "roles/container.developer"
   member  = "serviceAccount:prow-deployer@istio-testing.iam.gserviceaccount.com"
 }
+
+resource "google_project_iam_member" "viewers" {
+  for_each = toset(local.private_infra_viewers)
+  project  = local.project_id
+  role     = "roles/viewer"
+  member   = "user:${each.key}"
+}
+
+resource "google_project_iam_member" "project-admins" {
+  for_each = toset(local.terraform_infra_admins)
+  project  = local.project_id
+  role     = "roles/resourcemanager.projectIamAdmin"
+  member   = "user:${each.key}"
+}
+
+resource "google_project_iam_member" "owners" {
+  for_each = toset(local.terraform_infra_admins)
+  project  = local.project_id
+  role     = "roles/owners"
+  member   = "user:${each.key}"
+}
