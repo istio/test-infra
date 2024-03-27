@@ -28,7 +28,7 @@ cleanup() {
 }
 
 get_opts() {
-  if opt="$(getopt -o '' -l branch:,org:,repo:,title:,match-title:,body:,labels:,user:,email:,modifier:,script-path:,cmd:,token-path:,token:,token-env,merge-repository:,merge-branch:,git-exclude:,strict,dry-run,verbose -n "$(basename "$0")" -- "$@")"; then
+  if opt="$(getopt -o '' -l branch:,org:,repo:,title:,match-title:,body:,labels:,user:,email:,modifier:,script-path:,cmd:,token-path:,token:,token-env,merge-repository:,merge-branch:,git-exclude:,signoff,strict,dry-run,verbose -n "$(basename "$0")" -- "$@")"; then
     eval set -- "$opt"
   else
     print_error_and_exit "unable to parse options"
@@ -115,6 +115,10 @@ get_opts() {
       ;;
     --verbose)
       shell_args+=("-x")
+      shift
+      ;;
+    --signoff)
+      commit_args+=("--signoff")
       shift
       ;;
     --strict)
@@ -253,7 +257,7 @@ commit() {
 
   local src_branch="${AUTOMATOR_SRC_BRANCH:-none}"
   fork_name="$src_branch-$branch-$modifier-$(hash "$title")"
-  git -c "user.name=$user" -c "user.email=$email" commit --message "$title" --author="$user <$email>"
+  git -c "user.name=$user" -c "user.email=$email" commit --message "$title" --author="$user <$email>" "${commit_args[@]}"
   git show --shortstat
   git push --force "https://$user:$token@github.com/$user/$repo.git" "HEAD:$fork_name"
   pull_request="$(create_pr)"
