@@ -4183,8 +4183,9 @@ presubmits:
       automountServiceAccountToken: false
       containers:
       - command:
-        - TARGET_OS=darwin
         - make
+        - -e
+        - TARGET_OS=darwin
         - build
         env:
         - name: BUILD_WITH_CONTAINER
