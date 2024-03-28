@@ -4175,6 +4175,56 @@ presubmits:
     branches:
     - ^master$
     decorate: true
+    name: macbuildcheck_istio
+    optional: true
+    path_alias: istio.io/istio
+    rerun_command: /test macbuildcheck
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - -e
+        - TARGET_OS=darwin
+        - build
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "5"
+        image: gcr.io/istio-testing/build-tools:master-30750b44971f0d66b92a8bcd681096a5f5e487f1
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )macbuildcheck,?($|\s.*))|((?m)^/test( | .* )macbuildcheck_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^master$
+    decorate: true
     name: release-notes_istio
     path_alias: istio.io/istio
     rerun_command: /test release-notes

@@ -402,6 +402,12 @@ jobs:
     regex: '^samples/bookinfo/src/'
     requirements: [docker]
 
+  # Try to create the Mac binaries. Ocassionally a change breaks the ability to build on MacOS.
+  - name: macbuildcheck
+    types: [presubmit]
+    modifiers: [presubmit_optional]
+    command: [make, -e, "TARGET_OS=darwin", build]
+
   - name: update-go-control-plane
     types: [periodic]
     cron: "0 2 * * 0" # run each Sunday at 02:00AM UTC
