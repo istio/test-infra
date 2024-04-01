@@ -3,7 +3,7 @@ locals {
   # Anyone here MUST be in the PSWG
   # Comment indicates github username
   private_infra_viewers = toset([
-    "howardjohn@google.com",     # howardjohn
+    "john.howard@solo.io",       # howardjohn
     "johnbhoward96@gmail.com",   # howardjohn
     "ketihmattix@microsoft.com", # keithmattix
     "daniel.hawton@solo.io",     # dhawton
@@ -11,7 +11,7 @@ locals {
   ])
 
   terraform_infra_admins = toset([
-    "howardjohn@google.com",   # howardjohn
+    "john.howard@solo.io",     # howardjohn
     "johnbhoward96@gmail.com", # howardjohn
   ])
 
