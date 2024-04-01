@@ -134,7 +134,7 @@ resource "google_project_iam_member" "project-admins" {
 resource "google_project_iam_member" "owners" {
   for_each = toset(local.terraform_infra_admins)
   project  = local.project_id
-  role     = "roles/owners"
+  role     = "roles/owner"
   member   = "user:${each.key}"
 }
 
