@@ -28,9 +28,8 @@ gen: generate-config fmt mirror-licenses
 gen-check: gen check-clean-repo
 
 generate-config:
-	@rm -fr prow/cluster/jobs/istio/*/*.gen.yaml
+	@rm -fr prow/cluster/jobs/istio*/*/*.gen.yaml
 	@(cd tools/prowgen/cmd/prowgen; go run main.go --input-dir=$(repo_root)/prow/config/jobs --output-dir=$(repo_root)/prow/cluster/jobs write)
-	@rm -fr prow/cluster/jobs/istio-private/*/*.gen.yaml
 	@go run tools/prowtrans/cmd/prowtrans/main.go --configs=./prow/config/istio-private_jobs --input=./prow/config/jobs
 	@go run tools/prowtrans/cmd/prowtrans/main.go --configs=./prow/config/experimental --input=./prow/config/jobs
 
