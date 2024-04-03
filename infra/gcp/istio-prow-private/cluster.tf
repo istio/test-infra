@@ -51,32 +51,28 @@ module "prow_node_build" {
   }
 }
 
-# Manual action is needed until terraform supports cgroup config
-# linuxConfig:
-#   cgroupMode: 'CGROUP_MODE_V1'
-# gcloud beta container node-pools update arm --cluster=prow --project istio-prow-private --system-config-from-file=config.yaml --zone us-central1-f
 module "prow_node_arm" {
   source = "../modules/gke-nodepool"
-  name   = "arm"
 
+  name   = "arm"
   project_name = local.project_id
   cluster_name = module.prow_cluster.cluster.name
   location     = module.prow_cluster.cluster.location
 
-  machine_type  = "t2a-standard-16"
   initial_count = 0
   min_count     = 0
   max_count     = 6
 
   disk_size_gb = 256
   disk_type    = "pd-ssd"
-
-  service_account = module.prow_cluster.cluster_node_sa.email
-
-  # GCP is only allowing non-trivial quotas for t2a nodes using spot instances, so enable spot instances.
-  spot = true
-
   labels = {
     "testing" = "test-pool"
   }
+
+  arm  = true
+  machine_type  = "t2a-standard-16"
+  # GCP is only allowing non-trivial quotas for t2a nodes using spot instances, so enable spot instances.
+  spot = true
+
+  service_account = module.prow_cluster.cluster_node_sa.email
 }

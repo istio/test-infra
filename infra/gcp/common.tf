@@ -5,7 +5,7 @@ locals {
   private_infra_viewers = toset([
     "john.howard@solo.io",       # howardjohn
     "johnbhoward96@gmail.com",   # howardjohn
-    "ketihmattix@microsoft.com", # keithmattix
+    "keithmattix@microsoft.com", # keithmattix
     "daniel.hawton@solo.io",     # dhawton
     "paul@tetrate.io",           # pmerrison 
   ])
