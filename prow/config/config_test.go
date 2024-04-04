@@ -111,11 +111,10 @@ func TestConfig(t *testing.T) {
 			codeOwners: &yes,
 		},
 		{
-			name:        "istio unprotected by default",
-			org:         "istio",
-			repo:        "istio",
-			branch:      "something-random",
-			unprotected: true,
+			name:   "istio protected by default",
+			org:    "istio",
+			repo:   "istio",
+			branch: "something-random",
 		},
 		{
 			name:   "api release 1.0 requires admin merge",
@@ -175,11 +174,10 @@ func TestConfig(t *testing.T) {
 			branch: "release-1.1",
 		},
 		{
-			name:        "all istio repos define a policy",
-			org:         "istio",
-			repo:        "random-repo",
-			branch:      "master",
-			unprotected: true,
+			name:   "all istio repos get a policy",
+			org:    "istio",
+			repo:   "random-repo",
+			branch: "master",
 		},
 		{
 			name:        "all istio-ecosystem repos define a policy",
