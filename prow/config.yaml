@@ -148,17 +148,23 @@ branch-protection:
   protect: false
   orgs:
     istio:
+      # Enable protection for all repos
+      protect: true
+      # Every repo requires CLA to pass
       required_status_checks:
         contexts:
         - EasyCLA
-      required_pull_request_reviews: &protection_required_pull_request_reviews
+      # By default, required 1 approval from a CODEOWNER
+      required_pull_request_reviews:
         required_approving_review_count: 1
         require_code_owner_reviews: true
-      restrictions: &protection_restrictions
+      # Repo admins are allowed to merge directly; typically the robot does all merging.
+      restrictions:
         teams:
         - repo-admins
-      repos: &protection_repos
+      repos:
         api:
+          # As API reviews are sensitive, require 2 approvals
           required_pull_request_reviews:
             required_approving_review_count: 2
           branches: &blocked_branches
@@ -314,6 +320,7 @@ branch-protection:
           branches: *blocked_branches
         community:
           branches: *blocked_branches
+          # Community is sensitive, as merges impact the org. Dismiss stale reviews to avoid unexpected changes post-approval.
           required_pull_request_reviews:
             dismiss_stale_reviews: true
             dismissal_restrictions:
