@@ -410,13 +410,18 @@ branch-protection:
       repos:
         authservice:
           required_pull_request_reviews:
-            required_approving_review_count: 1
+            required_approving_review_count: 0
             require_code_owner_reviews: false
-          restrictions:
           branches:
-            master:
-              protect: true
             main:
+              protect: true
+              required_pull_request_reviews:
+                required_approving_review_count: 1
+                require_code_owner_reviews: true
+              required_status_checks:
+                contexts:
+                - ci-checks
+            master:
               protect: true
             v0-c++:
               protect: true
@@ -442,16 +447,6 @@ in_repo_config:
 tide:
   queries:
   - repos:
-    - istio-ecosystem/authservice
-    labels:
-    - lgtm
-    - approved
-    missingLabels:
-    - do-not-merge
-    - do-not-merge/hold
-    - do-not-merge/work-in-progress
-    - needs-rebase
-  - repos:
     - istio/istio
     - istio/enhancements
     - istio/envoy
@@ -473,6 +468,7 @@ tide:
     - istio/release-builder
     - istio/ztunnel
     - istio-ecosystem/sail-operator
+    - istio-ecosystem/authservice
     missingLabels: &istio_tide_missing_labels
     - do-not-merge
     - do-not-merge/hold
