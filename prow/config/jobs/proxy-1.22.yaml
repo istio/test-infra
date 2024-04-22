@@ -3,8 +3,6 @@ branches:
 env:
 - name: BUILD_WITH_CONTAINER
   value: "0"
-- name: BUILD_WITH_CONTAINER
-  value: "0"
 image: gcr.io/istio-testing/build-tools-proxy:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
 jobs:
 - command:
@@ -12,9 +10,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools-proxy:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   name: test
   node_selector:
     testing: build-pool
@@ -171,9 +167,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools-proxy:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   name: test-asan
   node_selector:
     testing: build-pool
@@ -330,9 +324,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools-proxy:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   name: test-tsan
   node_selector:
     testing: build-pool
@@ -491,11 +483,9 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: ARCH_SUFFIX
     value: $(params.arch)
-  image: gcr.io/istio-testing/build-tools-proxy:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools-proxy:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   name: test-arm
   node_selector:
     testing: test-pool
@@ -653,9 +643,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools-proxy:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   name: release-test
   node_selector:
     testing: build-pool
@@ -814,13 +802,11 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: ARCH_SUFFIX
     value: $(params.arch)
   - name: BUILD_ENVOY_BINARY_ONLY
     value: "1"
-  image: gcr.io/istio-testing/build-tools-proxy:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools-proxy:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   name: release-test
   node_selector:
     testing: test-pool
@@ -979,9 +965,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools-proxy:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   name: check-wasm
   node_selector:
     testing: build-pool
@@ -1140,9 +1124,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools-proxy:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   name: release
   node_selector:
     testing: build-pool
@@ -1303,13 +1285,11 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: ARCH_SUFFIX
     value: $(params.arch)
   - name: BUILD_ENVOY_BINARY_ONLY
     value: "1"
-  image: gcr.io/istio-testing/build-tools-proxy:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools-proxy:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   name: release
   node_selector:
     testing: test-pool
@@ -1477,11 +1457,9 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: AUTOMATOR_ORG
     value: istio
-  image: gcr.io/istio-testing/build-tools:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   name: update-istio
   node_selector:
     testing: build-pool
@@ -1648,11 +1626,9 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: AUTOMATOR_ORG
     value: istio
-  image: gcr.io/istio-testing/build-tools:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   interval: 24h
   name: update-proxy
   node_selector:

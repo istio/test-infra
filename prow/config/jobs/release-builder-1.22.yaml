@@ -3,8 +3,6 @@ branches:
 env:
 - name: BUILD_WITH_CONTAINER
   value: "0"
-- name: BUILD_WITH_CONTAINER
-  value: "0"
 image: gcr.io/istio-testing/build-tools:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
 jobs:
 - command:
@@ -13,9 +11,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   name: lint
   node_selector:
     testing: test-pool
@@ -178,9 +174,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   name: test
   node_selector:
     testing: test-pool
@@ -343,9 +337,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   name: gencheck
   node_selector:
     testing: test-pool
@@ -508,9 +500,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   name: dry-run
   node_selector:
     testing: test-pool
@@ -675,9 +665,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   modifiers:
   - presubmit_optional
   name: build-warning
@@ -844,9 +832,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   modifiers:
   - presubmit_optional
   name: publish-warning
@@ -1014,9 +1000,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   name: build-release
   node_selector:
     testing: test-pool
@@ -1185,9 +1169,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   max_concurrency: 1
   name: publish-release
   node_selector:
@@ -1358,11 +1340,9 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: VERSION
     value: master
-  image: gcr.io/istio-testing/build-tools:master-f24be7b713480aab44d862ac839ead0b5324d593
+  image: gcr.io/istio-testing/build-tools:release-1.22-f24be7b713480aab44d862ac839ead0b5324d593
   name: build-base-images
   node_selector:
     testing: test-pool
