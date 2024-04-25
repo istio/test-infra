@@ -257,7 +257,11 @@ commit() {
 
   local src_branch="${AUTOMATOR_SRC_BRANCH:-none}"
   fork_name="$src_branch-$branch-$modifier-$(hash "$title")"
-  git -c "user.name=$user" -c "user.email=$email" commit --message "$title" --author="$user <$email>" "${commit_args[@]}"
+  if ! git diff --cached --quiet --exit-code; then
+    git -c "user.name=$user" -c "user.email=$email" commit --message "$title" --author="$user <$email>"
+  else
+    echo "No changes to commit. Assuming the commit was already made."
+  fi
   git show --shortstat
   git push --force "https://$user:$token@github.com/$user/$repo.git" "HEAD:$fork_name"
   pull_request="$(create_pr)"
@@ -330,6 +334,8 @@ work() { (
   pushd src/istio.io/"$repo"
 
   AUTOMATOR_REPO_DIR="$(pwd)"
+  local initialSHA
+  initialSHA=$(git rev-parse HEAD)
 
   if $merge; then
     merge
@@ -338,7 +344,9 @@ work() { (
 
     git add --all
 
-    if ! git diff --cached --quiet --exit-code; then
+    local currentSHA
+    currentSHA=$(git rev-parse HEAD)
+    if ! git diff --cached --quiet --exit-code || [ "${initialSHA}" != "${currentSHA}" ]; then
       commit
     elif $strict; then
       print_error "no diff for $repo" 1
