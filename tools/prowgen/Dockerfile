@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.20 as build-env
+FROM golang:1.22 as build-env
 
 WORKDIR /go/src/istio
 
@@ -26,7 +26,9 @@ RUN go install .
 
 RUN go install github.com/mikefarah/yq/v4@v4.16.2
 
-FROM gcr.io/distroless/static:22bd467b41e5e656e31db347265fae118db166d9
+# safer to use latest than never update...
+# hadolint ignore=DL3006
+FROM gcr.io/distroless/static
 
 COPY --from=build-env /go/bin/prowgen /bin
 
