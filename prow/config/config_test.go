@@ -22,8 +22,7 @@ import (
 	"testing"
 
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/test-infra/prow/config"
-	_ "k8s.io/test-infra/prow/hook"
+	"sigs.k8s.io/prow/pkg/config"
 )
 
 var (

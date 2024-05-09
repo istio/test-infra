@@ -22,7 +22,7 @@ import (
 	"path/filepath"
 
 	"github.com/google/go-cmp/cmp"
-	"k8s.io/test-infra/prow/config"
+	"sigs.k8s.io/prow/pkg/config"
 	"sigs.k8s.io/yaml"
 
 	"istio.io/test-infra/tools/prowgen/pkg/spec"

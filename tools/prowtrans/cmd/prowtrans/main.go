@@ -17,22 +17,23 @@ limitations under the License.
 package main
 
 import (
+	"cmp"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 
 	dockername "github.com/google/go-containerregistry/pkg/name"
 	flag "github.com/spf13/pflag"
 	"golang.org/x/exp/maps"
-	"golang.org/x/exp/slices"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
-	prowjob "k8s.io/test-infra/prow/apis/prowjobs/v1"
-	"k8s.io/test-infra/prow/config"
+	prowjob "sigs.k8s.io/prow/pkg/apis/prowjobs/v1"
+	"sigs.k8s.io/prow/pkg/config"
 	"sigs.k8s.io/yaml"
 
 	"istio.io/test-infra/tools/prowtrans/pkg/configuration"
@@ -771,8 +772,8 @@ func updateEnvs(o options, job *config.JobBase) {
 			}
 		}
 		vars := maps.Values(final)
-		slices.SortFunc(vars, func(a, b v1.EnvVar) bool {
-			return a.Name < b.Name
+		slices.SortFunc(vars, func(a, b v1.EnvVar) int {
+			return cmp.Compare(a.Name, b.Name)
 		})
 
 		job.Spec.Containers[i].Env = vars

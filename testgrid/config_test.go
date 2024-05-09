@@ -26,11 +26,11 @@ import (
 	"github.com/GoogleCloudPlatform/testgrid/config"
 	config_pb "github.com/GoogleCloudPlatform/testgrid/pb/config"
 	"k8s.io/apimachinery/pkg/util/sets"
-	prow_config "k8s.io/test-infra/prow/config"
-	"k8s.io/test-infra/prow/flagutil"
-	configflagutil "k8s.io/test-infra/prow/flagutil/config"
 	"k8s.io/test-infra/testgrid/pkg/configurator/configurator"
 	"k8s.io/test-infra/testgrid/pkg/configurator/options"
+	prow_config "sigs.k8s.io/prow/pkg/config"
+	prowflagutil "sigs.k8s.io/prow/pkg/flagutil"
+	configflagutil "sigs.k8s.io/prow/pkg/flagutil/config"
 )
 
 var dashboardPrefixes = []string{
@@ -75,7 +75,7 @@ func TestMain(m *testing.M) {
 				JobConfigPath: *jobPath,
 			},
 			DefaultYAML:     *defaultYAML,
-			Output:          flagutil.NewStringsBeenSet(tmpFile),
+			Output:          prowflagutil.NewStringsBeenSet(tmpFile),
 			Oneshot:         true,
 			StrictUnmarshal: true,
 		}
