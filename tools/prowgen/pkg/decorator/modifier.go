@@ -17,8 +17,8 @@ package decorator
 import (
 	"log"
 
-	prowjob "k8s.io/test-infra/prow/apis/prowjobs/v1"
-	"k8s.io/test-infra/prow/config"
+	prowjob "sigs.k8s.io/prow/pkg/apis/prowjobs/v1"
+	"sigs.k8s.io/prow/pkg/config"
 )
 
 const (

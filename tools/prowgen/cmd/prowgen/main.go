@@ -28,7 +28,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	shell "github.com/kballard/go-shellquote"
-	k8sProwConfig "k8s.io/test-infra/prow/config"
+	k8sProwConfig "sigs.k8s.io/prow/pkg/config"
 	"sigs.k8s.io/yaml"
 
 	"istio.io/test-infra/tools/prowgen/pkg"

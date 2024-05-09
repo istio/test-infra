@@ -21,7 +21,7 @@ import (
 	"os"
 
 	"github.com/ghodss/yaml"
-	prowjob "k8s.io/test-infra/prow/apis/prowjobs/v1"
+	prowjob "sigs.k8s.io/prow/pkg/apis/prowjobs/v1"
 
 	"istio.io/test-infra/tools/prowtrans/pkg/util"
 )
