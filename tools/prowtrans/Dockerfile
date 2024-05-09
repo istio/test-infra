@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.19 as build-env
+FROM golang:1.22 as build-env
 
 WORKDIR /go/src/istio
 
@@ -20,7 +20,9 @@ COPY . /go/src/istio
 
 RUN CGO_ENABLED=0 go build -o /go/bin/prowtrans /go/src/istio/tools/prowtrans/cmd/prowtrans
 
-FROM gcr.io/distroless/static:22bd467b41e5e656e31db347265fae118db166d9
+# safer to use latest than never update...
+# hadolint ignore=DL3006
+FROM gcr.io/distroless/static
 
 COPY --from=build-env /go/bin/prowtrans /
 
