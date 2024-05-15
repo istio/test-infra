@@ -11,7 +11,7 @@ locals {
     "release_grafana_istio",
 
     # Fine grained PAT in the Istio org, "github/release-notes/public-read-only". Has public access only.
-    "github-read_github_read", # Expires on 6/23/2024. TODO: find the best way to ensure this is noted.
+    "github-read_github_read", # Expires on 5/15/2025. TODO: find the best way to ensure this is noted.
 
     # Classic PAT for user "istio-testing", token name "github/istio-testing/pusher". Has scopes `repo,read:user`.
     # TODO(https://github.com/orgs/community/discussions/36441#discussioncomment-6286043) Use fine grained tokens
