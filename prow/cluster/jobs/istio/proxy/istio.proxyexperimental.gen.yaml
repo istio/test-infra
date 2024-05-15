@@ -113,57 +113,6 @@ presubmits:
       testgrid-dashboards: istio_proxy
     branches:
     - ^experimental-.*
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    name: check-wasm_proxy_exp
-    path_alias: istio.io/proxy
-    rerun_command: /test check-wasm
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - ./prow/proxy-presubmit-wasm.sh
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "64"
-        image: gcr.io/istio-testing/build-tools-proxy:master-5febdc9ef2a2e05a9451ced0db096b4ecefd2a64
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: build-pool
-      serviceAccountName: prowjob-rbe
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - emptyDir: {}
-        name: docker-root
-    trigger: ((?m)^/test( | .* )check-wasm,?($|\s.*))|((?m)^/test( | .* )check-wasm_proxy,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_proxy
-    branches:
-    - ^experimental-.*
     cluster: prow-arm
     decorate: true
     decoration_config:
@@ -351,52 +300,6 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
     trigger: ((?m)^/test( | .* )test-asan,?($|\s.*))|((?m)^/test( | .* )test-asan_proxy,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-dashboards: istio_proxy
-    branches:
-    - ^experimental-.*
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    name: test-tsan_proxy_exp
-    path_alias: istio.io/proxy
-    rerun_command: /test test-tsan
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - ./prow/proxy-presubmit-tsan.sh
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "64"
-        image: gcr.io/istio-testing/build-tools-proxy:master-5febdc9ef2a2e05a9451ced0db096b4ecefd2a64
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: build-pool
-      serviceAccountName: prowjob-rbe
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    trigger: ((?m)^/test( | .* )test-tsan,?($|\s.*))|((?m)^/test( | .* )test-tsan_proxy,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_proxy
