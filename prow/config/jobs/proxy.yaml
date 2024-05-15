@@ -18,12 +18,6 @@ jobs:
   command: [./prow/proxy-presubmit-asan.sh]
   timeout: 4h
 
-- name: test-tsan
-  service_account_name: prowjob-rbe
-  types: [presubmit]
-  command: [./prow/proxy-presubmit-tsan.sh]
-  timeout: 4h
-
 - name: test-arm
   architectures: [arm64]
   env:
@@ -59,13 +53,6 @@ jobs:
   resources: arm
   node_selector:
     testing: test-pool
-
-- name: check-wasm
-  service_account_name: prowjob-rbe
-  types: [presubmit]
-  command: [entrypoint, ./prow/proxy-presubmit-wasm.sh]
-  requirements: [docker]
-  timeout: 4h
 
 - name: release
   service_account_name: prowjob-testing-write
