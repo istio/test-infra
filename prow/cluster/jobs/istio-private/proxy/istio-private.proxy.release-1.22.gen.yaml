@@ -462,67 +462,6 @@ presubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: test-tsan_proxy_release-1.22_release-1.22_priv
-    path_alias: istio.io/proxy
-    rerun_command: /test test-tsan
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - ./prow/proxy-presubmit-tsan.sh
-        env:
-        - name: BAZEL_BUILD_RBE_INSTANCE
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: ENVOY_REPOSITORY
-          value: https://github.com/istio-private/envoy
-        - name: GOMAXPROCS
-          value: "64"
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.22-90c1573ac8a673ef69c7d0587232efa748243fac
-        name: ""
-        resources:
-          limits:
-            cpu: "64"
-            memory: 240G
-          requests:
-            cpu: "30"
-            memory: 100G
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: build-pool
-      serviceAccountName: prowjob-private
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )test-tsan,?($|\s.*))|((?m)^/test( | .* )test-tsan_proxy_release-1.22,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^release-1.22$
-    cluster: private
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
     name: test_proxy_release-1.22_release-1.22_priv
     path_alias: istio.io/proxy
     rerun_command: /test test
