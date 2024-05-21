@@ -1,7 +1,7 @@
 org: istio
 repo: proxy
 support_release_branching: true
-image: gcr.io/istio-testing/build-tools-proxy:master-9637643344b97c5f67c2c1fc1bdd29a97d9930dc
+image: gcr.io/istio-testing/build-tools-proxy:master-121eded1f81117fdfa16a845d0be462cb0cd0377
 node_selector:
   testing: build-pool
 
@@ -92,7 +92,7 @@ jobs:
   - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
   requirements: [github-istio-testing]
   repos: [istio/test-infra@master]
-  image: gcr.io/istio-testing/build-tools:master-9637643344b97c5f67c2c1fc1bdd29a97d9930dc
+  image: gcr.io/istio-testing/build-tools:master-121eded1f81117fdfa16a845d0be462cb0cd0377
   env:
     - name: AUTOMATOR_ORG
       value: istio
@@ -113,7 +113,7 @@ jobs:
   - --cmd=UPDATE_BRANCH=main scripts/update_envoy.sh
   requirements: [github-istio-testing]
   repos: [istio/test-infra@master]
-  image: gcr.io/istio-testing/build-tools:master-9637643344b97c5f67c2c1fc1bdd29a97d9930dc
+  image: gcr.io/istio-testing/build-tools:master-121eded1f81117fdfa16a845d0be462cb0cd0377
   env:
     - name: AUTOMATOR_ORG
       value: istio
@@ -135,7 +135,7 @@ jobs:
   disable_release_branching: true
   requirements: [github-istio-testing]
   repos: [istio/test-infra@master]
-  image: gcr.io/istio-testing/build-tools:master-9637643344b97c5f67c2c1fc1bdd29a97d9930dc
+  image: gcr.io/istio-testing/build-tools:master-121eded1f81117fdfa16a845d0be462cb0cd0377
   env:
     - name: AUTOMATOR_ORG
       value: istio
