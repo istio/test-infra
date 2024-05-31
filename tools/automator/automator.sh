@@ -258,7 +258,7 @@ commit() {
   local src_branch="${AUTOMATOR_SRC_BRANCH:-none}"
   fork_name="$src_branch-$branch-$modifier-$(hash "$title")"
   if ! git diff --cached --quiet --exit-code; then
-    git -c "user.name=$user" -c "user.email=$email" commit --message "$title" --author="$user <$email>"
+    git -c "user.name=$user" -c "user.email=$email" commit --message "$title" --author="$user <$email>" "${commit_args[@]}"
   else
     echo "No changes to commit. Assuming the commit was already made."
   fi
