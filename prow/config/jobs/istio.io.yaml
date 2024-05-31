@@ -31,6 +31,12 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, doc.test.profile-minimal]
     requirements: [kind]
     regex: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
+  
+  - name: doc.test.profile-ambient
+    command: [entrypoint, prow/integ-suite-kind.sh, doc.test.profile-ambient]
+    requirements: [kind]
+    modifiers: [presubmit_optional]
+    regex: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
 
   - name: doc.test.multicluster
     command:
