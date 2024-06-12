@@ -174,3 +174,32 @@ module "prow_test" {
     "testing" = "test-pool"
   }
 }
+
+# Prow 'test' node pool is used for most jobs
+# Consists of c3-22 nodes.
+# Note: despite the naming "build" vs "test", a lot of build jobs use the test pool.
+module "prow_test_c3" {
+  source = "../modules/gke-nodepool"
+
+  name         = "istio-test-pool-c3"
+  cluster_name = "prow"
+  location     = "us-west1-a"
+
+  machine_type  = "c3-standard-22"
+  initial_count = 1
+  max_count     = 10
+  min_count     = 1
+
+  # C3 are a bit expensive, so drop cut price by using spot instances
+  spot = true
+
+  disk_size_gb = 256
+  disk_type    = "pd-ssd"
+
+  project_name    = local.project_id
+  service_account = "istio-prow-jobs@istio-prow-build.iam.gserviceaccount.com"
+
+  labels = {
+    "testing" = "test-pool"
+  }
+}
