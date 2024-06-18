@@ -1,0 +1,48 @@
+org: istio-ecosystem
+repo: sail-operator
+branches:
+  - release-0.1
+
+support_release_branching: false
+image: gcr.io/istio-testing/build-tools:release-1.22-latest
+jobs:
+  - name: unit-tests
+    types: [presubmit]
+    architectures: [amd64, arm64]
+    command: [entrypoint, make, -e, "T=-v -count=1", build, test]
+
+  - name: gencheck
+    types: [presubmit]
+    command: [make, gen-check]
+
+  - name: lint
+    types: [presubmit]
+    command: [make, lint]
+    resources: lint
+
+  - name: e2e-kind
+    types: [presubmit]
+    command: [entrypoint, make, test.e2e.kind]
+    requirements: [kind]
+
+  - name: scorecard
+    types: [presubmit]
+    command: [entrypoint, make, test.scorecard]
+    requirements: [kind]
+
+resources_presets:
+  default:
+    requests:
+      memory: "3Gi"
+      cpu: "5000m"
+    limits:
+      memory: "24Gi"
+      cpu: "5000m"
+  lint:
+    requests:
+      memory: "16Gi"
+      cpu: "3000m"
+    limits:
+      memory: "24Gi"
+
+requirements: [gocache]
