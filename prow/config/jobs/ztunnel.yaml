@@ -5,11 +5,11 @@ support_release_branching: true
 
 jobs:
   - name: test
-    command: [make, presubmit]
+    command: [entrypoint, make, presubmit]
     requirements: [cratescache]
 
   - name: bench
-    command: [./scripts/benchtest.sh]
+    command: [entrypoint, ./scripts/benchtest.sh]
     modifiers: [presubmit_optional, presubmit_skipped]
     types: [presubmit]
     requirements: [cratescache]
