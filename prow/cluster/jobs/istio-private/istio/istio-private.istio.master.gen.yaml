@@ -116,7 +116,7 @@ postsubmits:
         - name: GOMAXPROCS
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
-          value: --istio.test.ambient
+          value: ' --istio.test.kube.helm.values=cni.ambient.ipv6=true --istio.test.ambient '
         - name: IP_FAMILY
           value: ipv6
         - name: DEPENDENCIES
@@ -3217,7 +3217,7 @@ presubmits:
           secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-ambient-calico,?($|\s.*))|((?m)^/test( | .*
       )integ-ambient-calico_istio,?($|\s.*))
-  - always_run: true
+  - always_run: false
     annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -3246,7 +3246,7 @@ presubmits:
         - name: GOMAXPROCS
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
-          value: --istio.test.ambient
+          value: ' --istio.test.kube.helm.values=cni.ambient.ipv6=true --istio.test.ambient '
         - name: IP_FAMILY
           value: ipv6
         - name: DEPENDENCIES
