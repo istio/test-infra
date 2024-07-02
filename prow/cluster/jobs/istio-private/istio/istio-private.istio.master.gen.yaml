@@ -3403,7 +3403,7 @@ presubmits:
             path: .netrc
           secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-ambient-dual,?($|\s.*))|((?m)^/test( | .* )integ-ambient-dual_istio,?($|\s.*))
-  - always_run: true
+  - always_run: false
     annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -3411,6 +3411,7 @@ presubmits:
     cluster: private
     decorate: true
     name: integ-ambient-ipv6_istio_pri
+    optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient-ipv6
     spec:

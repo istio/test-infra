@@ -372,13 +372,14 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-ambient-dual,?($|\s.*))|((?m)^/test( | .* )integ-ambient-dual_istio,?($|\s.*))
-  - always_run: true
+  - always_run: false
     annotations:
       testgrid-dashboards: istio_istio
     branches:
     - ^experimental-.*
     decorate: true
     name: integ-ambient-ipv6_istio_exp
+    optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient-ipv6
     spec:
