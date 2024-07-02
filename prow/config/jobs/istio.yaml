@@ -254,6 +254,24 @@ jobs:
     - prow/config/ambient-sc.yaml
     - test.integration.ambient.kube
 
+  - name: integ-ambient-dual
+    modifiers: [presubmit_optional, presubmit_skipped]
+    requirements: [kind]
+    env:
+    - name: INTEGRATION_TEST_FLAGS
+      # cni.ambient.ipv6 is true by default, explicitly setting it to make it visible
+      value: " --istio.test.kube.helm.values=cni.ambient.ipv6=true --istio.test.ambient "
+    - name: DOCKER_IN_DOCKER_IPV6_ENABLED
+      value: "true"
+    - name: IP_FAMILY
+      value: "dual"
+    command:
+    - entrypoint
+    - prow/integ-suite-kind.sh
+    - --kind-config
+    - prow/config/ambient-sc.yaml
+    - test.integration.ambient.kube
+
   - name: integ-helm
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.helm.kube]
     requirements: [kind]
