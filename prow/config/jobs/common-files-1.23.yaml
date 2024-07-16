@@ -3,16 +3,12 @@ branches:
 env:
 - name: BUILD_WITH_CONTAINER
   value: "0"
-- name: BUILD_WITH_CONTAINER
-  value: "0"
 image: gcr.io/istio-testing/build-tools:release-1.23-3a1982fd09c72f345f85d394d5cce906b5484b76
 jobs:
 - command:
   - make
   - lint
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.23-3a1982fd09c72f345f85d394d5cce906b5484b76
@@ -171,8 +167,6 @@ jobs:
   - --token-env
   - --cmd=make update-common && make gen
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   - name: AUTOMATOR_ORG
@@ -338,8 +332,6 @@ jobs:
   - --token-env
   - --cmd=make update-common && make gen
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   - name: AUTOMATOR_ORG
@@ -509,8 +501,6 @@ jobs:
   - --post=make gen
   - --source=$AUTOMATOR_ROOT_DIR/files/common/scripts/setup_env.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   - name: AUTOMATOR_ORG

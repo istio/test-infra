@@ -3,16 +3,12 @@ branches:
 env:
 - name: BUILD_WITH_CONTAINER
   value: "0"
-- name: BUILD_WITH_CONTAINER
-  value: "0"
 image: gcr.io/istio-testing/build-tools:release-1.23-3a1982fd09c72f345f85d394d5cce906b5484b76
 jobs:
 - command:
   - make
   - lint
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.23-3a1982fd09c72f345f85d394d5cce906b5484b76
@@ -178,8 +174,6 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.23-3a1982fd09c72f345f85d394d5cce906b5484b76
   name: test
   node_selector:
@@ -341,8 +335,6 @@ jobs:
   - make
   - gen-check
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.23-3a1982fd09c72f345f85d394d5cce906b5484b76
@@ -508,8 +500,6 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.23-3a1982fd09c72f345f85d394d5cce906b5484b76
   name: dry-run
   node_selector:
@@ -673,8 +663,6 @@ jobs:
 - command:
   - release/build-warning.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.23-3a1982fd09c72f345f85d394d5cce906b5484b76
@@ -844,8 +832,6 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.23-3a1982fd09c72f345f85d394d5cce906b5484b76
   modifiers:
   - presubmit_optional
@@ -1012,8 +998,6 @@ jobs:
   - entrypoint
   - release/build.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.23-3a1982fd09c72f345f85d394d5cce906b5484b76
@@ -1185,8 +1169,6 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.23-3a1982fd09c72f345f85d394d5cce906b5484b76
   max_concurrency: 1
   name: publish-release
@@ -1356,8 +1338,6 @@ jobs:
   - release/build-base-images.sh
   cron: 0 19 * * *
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   - name: VERSION
