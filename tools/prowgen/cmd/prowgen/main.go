@@ -44,6 +44,7 @@ var (
 	preprocessCommand   = flag.String("pre-process-command", "", "command to run to preprocess the meta config files")
 	postprocessCommand  = flag.String("post-process-command", "", "command to run to postprocess the generated config files")
 	longJobNamesAllowed = flag.Bool("allow-long-job-names", false, "allow job names that are longer than 63 characters")
+	skipGarTagging = flag.Bool("skip-gar-tagging", false, "skip tagging gar images since that is permitted by few folks")
 )
 
 func main() {
@@ -53,7 +54,7 @@ func main() {
 	if len(flag.Args()) < 1 {
 		panic("must provide one of write, print, check, branch")
 	} else if flag.Arg(0) == "branch" {
-		if len(flag.Args()) != 2 {
+		if len(flag.Args()) < 2 {
 			panic("must specify branch name")
 		}
 	} else if len(flag.Args()) != 1 {
@@ -112,10 +113,11 @@ func main() {
 						// will be overwritten by Automator the next time the
 						// image for the new branch is updated.
 						newImage := fmt.Sprintf("%s:%s-%s", match[1], branch, match[3])
-						if err := exec.Command("gcloud", "container", "images", "add-tag", match[0], newImage).Run(); err != nil {
-							log.Fatalf("Unable to add image tag %q: %v", newImage, err)
-						} else {
-							jobs.Image = newImage
+						jobs.Image = newImage
+						if ! *skipGarTagging {
+							if err := exec.Command("gcloud", "container", "images", "add-tag", match[0], newImage).Run(); err != nil {
+								log.Fatalf("Unable to add image tag %q: %v", newImage, err)
+							} 
 						}
 					}
 					jobs.Branches = []string{branch}
