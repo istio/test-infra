@@ -336,7 +336,7 @@ func TestPresets(t *testing.T) {
 			if strings.HasPrefix(k, "preset-") {
 				unused.Delete(k)
 				if !known.Has(k) {
-					t.Fatalf("%v: unknown preset %v", pre.Name, k)
+					t.Fatalf("%v: unknown preset: %v", pre.Name, k)
 				}
 			}
 		}
@@ -346,7 +346,7 @@ func TestPresets(t *testing.T) {
 			if strings.HasPrefix(k, "preset-") {
 				unused.Delete(k)
 				if !known.Has(k) {
-					t.Fatalf("%v: unknown preset %v", post.Name, k)
+					t.Fatalf("%v: unknown preset: %v", post.Name, k)
 				}
 			}
 		}
@@ -357,7 +357,7 @@ func TestPresets(t *testing.T) {
 			if strings.HasPrefix(k, "preset-") {
 				unused.Delete(k)
 				if !known.Has(k) {
-					t.Fatalf("%v: unknown preset %v", per.Name, k)
+					t.Fatalf("%v: unknown preset: %v", per.Name, k)
 				}
 			}
 		}
