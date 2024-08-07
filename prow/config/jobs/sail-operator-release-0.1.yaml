@@ -9,7 +9,12 @@ jobs:
   - name: unit-tests
     types: [presubmit]
     architectures: [amd64, arm64]
-    command: [entrypoint, make, -e, "T=-v -count=1", build, test]
+    command: [entrypoint, make, -e, "T=-v -count=1", build, test.unit]
+
+  - name: integ-tests
+    types: [presubmit]
+    architectures: [amd64, arm64]
+    command: [entrypoint, make, test.integration]
 
   - name: gencheck
     types: [presubmit]
