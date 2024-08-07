@@ -117,6 +117,106 @@ presubmits:
       testgrid-dashboards: istio-ecosystem_release-0.1_sail-operator
     branches:
     - ^release-0.1$
+    cluster: prow-arm
+    decorate: true
+    name: integ-tests-arm64_sail-operator_release-0.1
+    rerun_command: /test integ-tests-arm64
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - test.integration
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "5"
+        image: gcr.io/istio-testing/build-tools:release-1.22-46fce460ef8547fb88a20de8494683bfb3bfa8e5
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        testing: test-pool
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )integ-tests-arm64,?($|\s.*))|((?m)^/test( | .* )integ-tests-arm64_sail-operator_release-0.1,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio-ecosystem_release-0.1_sail-operator
+    branches:
+    - ^release-0.1$
+    decorate: true
+    name: integ-tests_sail-operator_release-0.1
+    rerun_command: /test integ-tests
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - test.integration
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "5"
+        image: gcr.io/istio-testing/build-tools:release-1.22-46fce460ef8547fb88a20de8494683bfb3bfa8e5
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )integ-tests,?($|\s.*))|((?m)^/test( | .* )integ-tests_sail-operator_release-0.1,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio-ecosystem_release-0.1_sail-operator
+    branches:
+    - ^release-0.1$
     decorate: true
     name: lint_sail-operator_release-0.1
     rerun_command: /test lint
@@ -238,7 +338,7 @@ presubmits:
         - -e
         - T=-v -count=1
         - build
-        - test
+        - test.unit
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -293,7 +393,7 @@ presubmits:
         - -e
         - T=-v -count=1
         - build
-        - test
+        - test.unit
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
