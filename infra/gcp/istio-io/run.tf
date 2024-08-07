@@ -18,8 +18,8 @@ resource "google_cloud_run_v2_service" "redirector" {
       image = "gcr.io/istio-testing/redirector"
       env {
         name = "REDIRECT_URL"
-        # expires 2034-07-21 or after 400 uses
-        value = "https://join.slack.com/t/istio/shared_invite/zt-2n6a8whhg-8IB9cGVezfL5Kqyy9Dfbxg"
+        # expires 2024-07-30 or after 2000 uses
+        value = "https://join.slack.com/t/istio/shared_invite/zt-2nnma2nk5-ed6E8~5LVowTzF48z~MNug"
       }
       resources {
         cpu_idle = true
