@@ -30,6 +30,11 @@ jobs:
     command: [entrypoint, make, test.e2e.kind]
     requirements: [kind]
 
+  - name: e2e-kind-olm
+    types: [presubmit]
+    command: [entrypoint, make, -e, "OLM=true", test.e2e.kind]
+    requirements: [kind]
+
   - name: scorecard
     types: [presubmit]
     command: [entrypoint, make, test.scorecard]
