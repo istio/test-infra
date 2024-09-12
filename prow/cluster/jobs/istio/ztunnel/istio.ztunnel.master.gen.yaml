@@ -7,6 +7,53 @@ postsubmits:
       testgrid-num-failures-to-alert: "1"
     branches:
     - ^master$
+    decorate: true
+    name: coverage_ztunnel_postsubmit
+    path_alias: istio.io/ztunnel
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - make
+        - coverage
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "8"
+        image: gcr.io/istio-testing/build-tools:master-688c4823afae1884e0a8faef2eeefd70af9d5e5c
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /home/.cargo
+          name: build-cache
+          subPath: cargo
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_ztunnel_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
     cluster: prow-arm
     decorate: true
     name: release-arm64_ztunnel_postsubmit
