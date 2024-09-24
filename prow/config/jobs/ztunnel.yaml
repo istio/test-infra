@@ -14,6 +14,11 @@ jobs:
     types: [presubmit]
     requirements: [cratescache]
 
+  - name: coverage
+    command: [entrypoint, make, coverage]
+    types: [postsubmit]
+    requirements: [cratescache]
+
   - name: release
     architectures: [amd64, arm64]
     service_account_name: prowjob-testing-write
