@@ -55,26 +55,6 @@ jobs:
     command: [entrypoint, make, test.scorecard]
     requirements: [kind]
 
-  - name: update-deps
-    types: [periodic]
-    cron: "0 23 * * 1-5" # run Mon-Fri at 11:00PM UTC
-    command:
-    - entrypoint
-    - ../../../istio.io/test-infra/tools/automator/automator.sh # Switch from .../src/github.com/istio-ecosystem/sail-operator to .../src/istio.io/test-infra
-    - --org=$AUTOMATOR_ORG
-    - --repo=sail-operator
-    - "--title=Automator: Update dependencies in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
-    - --labels=auto-merge
-    - --modifier=update_deps
-    - --token-env
-    - --cmd=./tools/update_deps.sh
-    - --signoff
-    requirements: [github-istio-testing]
-    repos: [istio/test-infra@master]
-    env:
-    - name: AUTOMATOR_ORG
-      value: istio-ecosystem
-
 resources_presets:
   default:
     requests:
