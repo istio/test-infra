@@ -7,8 +7,8 @@ presubmits:
     branches:
     - ^main$
     decorate: true
-    name: e2e-kind-ds_sail-operator_main
-    rerun_command: /test e2e-kind-ds
+    name: e2e-kind-dualstack_sail-operator_main
+    rerun_command: /test e2e-kind-dualstack
     spec:
       automountServiceAccountToken: false
       containers:
@@ -71,7 +71,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )e2e-kind-ds,?($|\s.*))|((?m)^/test( | .* )e2e-kind-ds_sail-operator_main,?($|\s.*))
+    trigger: ((?m)^/test( | .* )e2e-kind-dualstack,?($|\s.*))|((?m)^/test( | .* )e2e-kind-dualstack_sail-operator_main,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio-ecosystem_main_sail-operator
