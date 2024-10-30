@@ -28,6 +28,11 @@ postsubmits:
           value: --istio.test.ambient
         - name: KUBERNETES_CNI
           value: calico
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -114,6 +119,11 @@ postsubmits:
           value: ' --istio.test.kube.helm.values=cni.ambient.ipv6=true --istio.test.ambient '
         - name: IP_FAMILY
           value: dual
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -200,6 +210,11 @@ postsubmits:
           value: ' --istio.test.kube.helm.values=cni.ambient.ipv6=true --istio.test.ambient '
         - name: IP_FAMILY
           value: ipv6
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -282,6 +297,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.ambient
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -364,6 +384,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -442,6 +467,11 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -531,6 +561,11 @@ postsubmits:
           value: ' --istio.test.retries=1 --istio.test.istio.enableCNI=true '
         - name: TEST_SELECT
           value: -flaky
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -611,6 +646,11 @@ postsubmits:
           value: "5"
         - name: VARIANT
           value: distroless
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -693,6 +733,11 @@ postsubmits:
           value: "5"
         - name: IP_FAMILY
           value: dual
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -771,6 +816,11 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -853,6 +903,11 @@ postsubmits:
           value: "5"
         - name: IP_FAMILY
           value: ipv6
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -939,6 +994,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -1023,6 +1083,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -1107,6 +1172,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -1191,6 +1261,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -1277,6 +1352,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -1363,6 +1443,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -1449,6 +1534,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -1535,6 +1625,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -1621,6 +1716,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -1701,6 +1801,11 @@ postsubmits:
           value: "5"
         - name: GRPC_ECHO_IMAGE
           value: grpctesting/istio_echo_cpp
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -1785,6 +1890,11 @@ postsubmits:
           value: "8"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -1869,6 +1979,11 @@ postsubmits:
           value: "8"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -1949,6 +2064,11 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -2027,6 +2147,11 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -2111,6 +2236,11 @@ postsubmits:
           value: "8"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -2191,6 +2321,11 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -2269,6 +2404,11 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -2349,6 +2489,11 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.peer_metadata_discovery
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -2433,6 +2578,11 @@ postsubmits:
           value: "8"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -2513,6 +2663,11 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -2591,6 +2746,11 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -2670,6 +2830,11 @@ postsubmits:
           value: us-docker.pkg.dev/istio-prow-private/istio-prow-private
         - name: GCS_BUCKET
           value: istio-build-private/dev
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -2736,6 +2901,11 @@ postsubmits:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -2802,6 +2972,11 @@ postsubmits:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -2864,6 +3039,11 @@ presubmits:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -2927,6 +3107,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -2997,6 +3182,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -3078,6 +3268,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -3148,6 +3343,11 @@ presubmits:
           value: --istio.test.ambient
         - name: KUBERNETES_CNI
           value: calico
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -3214,7 +3414,6 @@ presubmits:
     - ^release-1.24$
     cluster: private
     decorate: true
-
     name: integ-ambient-dual_istio_release-1.24_pri
     optional: true
     path_alias: istio.io/istio
@@ -3240,6 +3439,11 @@ presubmits:
           value: ' --istio.test.kube.helm.values=cni.ambient.ipv6=true --istio.test.ambient '
         - name: IP_FAMILY
           value: dual
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -3305,7 +3509,6 @@ presubmits:
     - ^release-1.24$
     cluster: private
     decorate: true
-
     name: integ-ambient-ipv6_istio_release-1.24_pri
     optional: true
     path_alias: istio.io/istio
@@ -3331,6 +3534,11 @@ presubmits:
           value: ' --istio.test.kube.helm.values=cni.ambient.ipv6=true --istio.test.ambient '
         - name: IP_FAMILY
           value: ipv6
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -3416,6 +3624,11 @@ presubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.ambient
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -3502,6 +3715,11 @@ presubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -3583,6 +3801,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -3671,6 +3894,11 @@ presubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.enableCNI=true '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -3754,6 +3982,11 @@ presubmits:
           value: "5"
         - name: VARIANT
           value: distroless
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -3839,6 +4072,11 @@ presubmits:
           value: "5"
         - name: IP_FAMILY
           value: dual
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -3920,6 +4158,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -4005,6 +4248,11 @@ presubmits:
           value: "5"
         - name: IP_FAMILY
           value: ipv6
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -4092,6 +4340,11 @@ presubmits:
           value: "8"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -4180,6 +4433,11 @@ presubmits:
           value: "8"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -4264,6 +4522,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -4346,6 +4609,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -4433,6 +4701,11 @@ presubmits:
           value: "8"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -4517,6 +4790,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -4599,6 +4877,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -4682,6 +4965,11 @@ presubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.peer_metadata_discovery
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -4770,6 +5058,11 @@ presubmits:
           value: "8"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -4854,6 +5147,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -4935,6 +5233,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -5013,6 +5316,11 @@ presubmits:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -5076,6 +5384,11 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -5136,6 +5449,11 @@ presubmits:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -5204,6 +5522,11 @@ presubmits:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
@@ -5273,6 +5596,11 @@ presubmits:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.24-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
         image: gcr.io/istio-testing/build-tools:release-1.24-b9d5987e7b84504a75de25d4db720358198585fc
