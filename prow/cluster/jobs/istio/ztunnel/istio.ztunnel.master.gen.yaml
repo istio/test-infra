@@ -11,6 +11,16 @@ postsubmits:
     name: coverage_ztunnel_postsubmit
     path_alias: istio.io/ztunnel
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: cloud.google.com/machine-family
+                operator: In
+                values:
+                - c3
+            weight: 1
       automountServiceAccountToken: false
       containers:
       - command:
@@ -59,6 +69,16 @@ postsubmits:
     name: release-arm64_ztunnel_postsubmit
     path_alias: istio.io/ztunnel
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: cloud.google.com/machine-family
+                operator: In
+                values:
+                - c3
+            weight: 1
       automountServiceAccountToken: false
       containers:
       - command:
@@ -111,6 +131,16 @@ postsubmits:
     name: release_ztunnel_postsubmit
     path_alias: istio.io/ztunnel
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: cloud.google.com/machine-family
+                operator: In
+                values:
+                - c3
+            weight: 1
       automountServiceAccountToken: false
       containers:
       - command:
@@ -158,15 +188,28 @@ postsubmits:
     name: test_ztunnel_postsubmit
     path_alias: istio.io/ztunnel
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: cloud.google.com/machine-family
+                operator: In
+                values:
+                - c3
+            weight: 1
       automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
+        - ./scripts/run-cached.sh
         - make
         - presubmit
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: RUST_CACHE_DIR
+          value: /var/run/rustc-cache
         - name: GOMAXPROCS
           value: "8"
         image: gcr.io/istio-testing/build-tools:master-b9d5987e7b84504a75de25d4db720358198585fc
@@ -187,6 +230,9 @@ postsubmits:
         - mountPath: /home/.cargo
           name: build-cache
           subPath: cargo
+        - mountPath: /var/run/rustc-cache
+          name: build-cache
+          subPath: rustc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
@@ -208,6 +254,16 @@ presubmits:
     path_alias: istio.io/ztunnel
     rerun_command: /test bench
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: cloud.google.com/machine-family
+                operator: In
+                values:
+                - c3
+            weight: 1
       automountServiceAccountToken: false
       containers:
       - command:
@@ -255,15 +311,28 @@ presubmits:
     path_alias: istio.io/ztunnel
     rerun_command: /test test
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: cloud.google.com/machine-family
+                operator: In
+                values:
+                - c3
+            weight: 1
       automountServiceAccountToken: false
       containers:
       - command:
         - entrypoint
+        - ./scripts/run-cached.sh
         - make
         - presubmit
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: RUST_CACHE_DIR
+          value: /var/run/rustc-cache
         - name: GOMAXPROCS
           value: "8"
         image: gcr.io/istio-testing/build-tools:master-b9d5987e7b84504a75de25d4db720358198585fc
@@ -284,6 +353,9 @@ presubmits:
         - mountPath: /home/.cargo
           name: build-cache
           subPath: cargo
+        - mountPath: /var/run/rustc-cache
+          name: build-cache
+          subPath: rustc
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool

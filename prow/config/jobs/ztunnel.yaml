@@ -5,8 +5,8 @@ support_release_branching: true
 
 jobs:
   - name: test
-    command: [entrypoint, make, presubmit]
-    requirements: [cratescache]
+    command: [entrypoint, ./scripts/run-cached.sh, make, presubmit]
+    requirements: [cratescache, rustccache]
 
   - name: bench
     command: [entrypoint, ./scripts/benchtest.sh]

@@ -80,6 +80,19 @@ requirement_presets:
         type: DirectoryOrCreate
       name: build-cache
   cratescache:
+    # Rust quite expensive to compile and benefits from faster CPUs.
+    # Additionally, its jobs are not super common, minimizing cache sharing when spread across all nodes.
+    # Prefer the "C3" nodes, which are faster. Since that cuts down the number of nodes we prefer, it results in better caching too.
+    podSpec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+                - key: cloud.google.com/machine-family
+                  operator: In
+                  values: [c3]
     volumeMounts:
     - mountPath: /home/.cargo
       name: build-cache
@@ -89,6 +102,15 @@ requirement_presets:
         path: /var/tmp/prow/cache
         type: DirectoryOrCreate
       name: build-cache
+  rustccache:
+    env:
+    - name: RUST_CACHE_DIR
+      value: /var/run/rustc-cache
+    volumeMounts:
+    - mountPath: /var/run/rustc-cache
+      name: build-cache # Depends on 'cratescache' to define the volume
+      subPath: rustc
+
   # Access to istio-testing GitHub, with `admin:org`.
   # Highly privileged, should only be used from istio/community.
   # TODO: move to GCP Secrets
