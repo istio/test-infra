@@ -203,3 +203,32 @@ module "prow_test_c3" {
     "testing" = "test-pool"
   }
 }
+
+# Prow 'test' node pool is used for most jobs
+# Consists of n4-16 nodes.
+# Note: despite the naming "build" vs "test", a lot of build jobs use the test pool.
+module "prow_test_n4" {
+  source = "../modules/gke-nodepool"
+
+  name         = "istio-test-pool-n4"
+  cluster_name = "prow"
+  location     = "us-west1-a"
+
+  machine_type  = "n4-standard-16"
+  initial_count = 1
+  max_count     = 10
+  min_count     = 1
+
+  # N4 are a bit expensive, so drop cut price by using spot instances
+  spot = true
+
+  disk_size_gb = 256
+  disk_type    = "hyperdisk-balanced"
+
+  project_name    = local.project_id
+  service_account = "istio-prow-jobs@istio-prow-build.iam.gserviceaccount.com"
+
+  labels = {
+    "testing" = "test-pool"
+  }
+}

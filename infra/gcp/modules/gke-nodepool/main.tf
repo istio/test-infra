@@ -19,6 +19,9 @@ resource "google_container_node_pool" "node_pool" {
 
   project  = var.project_name
   location = var.location
+
+  node_locations = length(var.node_locations) > 0 ? var.node_locations : null
+
   cluster  = var.cluster_name
 
   // Auto repair, and auto upgrade nodes to match the master version
