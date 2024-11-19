@@ -93,40 +93,13 @@ module "prow_arm_default" {
   cluster_name = "prow-arm"
 
   initial_count = 0
+  min_count     = 1
+  max_count     = 1
 
   disk_size_gb    = 100
   disk_type       = "pd-ssd"
   machine_type    = "n1-standard-8"
   service_account = "istio-prow-jobs@istio-prow-build.iam.gserviceaccount.com"
-}
-
-# This pool provides the actual ARM (t2a) instances for tests.
-module "prow_arm_test_spot" {
-  source = "../modules/gke-nodepool"
-
-  name         = "t2a-spot"
-  project_name = "istio-prow-build"
-  location     = "us-central1-f"
-  cluster_name = "prow-arm"
-
-  # Currently, autoscaling is disabled due to ongoing networking issues on ARM.
-  min_count     = 8
-  max_count     = 8
-  initial_count = 0
-
-  disk_size_gb = 256
-  disk_type    = "pd-ssd"
-  labels = {
-    testing = "test-pool"
-  }
-
-  arm          = true
-  machine_type = "t2a-standard-16"
-  # Spot instances are used as quota is capped for ARM nodes, and its cheaper.
-  spot = true
-
-  service_account = "istio-prow-jobs@istio-prow-build.iam.gserviceaccount.com"
-
 }
 
 # This pool provides the actual ARM (c4a) instances for tests.
