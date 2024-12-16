@@ -2,8 +2,6 @@ module istio.io/test-infra
 
 go 1.23.0
 
-toolchain go1.23.2
-
 require (
 	github.com/GoogleCloudPlatform/testgrid v0.0.174
 	github.com/ghodss/yaml v1.0.0
@@ -27,7 +25,7 @@ require (
 	cloud.google.com/go/compute/metadata v0.6.0 // indirect
 	cloud.google.com/go/iam v1.3.0 // indirect
 	cloud.google.com/go/monitoring v1.22.0 // indirect
-	cloud.google.com/go/storage v1.48.0 // indirect
+	cloud.google.com/go/storage v1.46.0 // indirect
 	contrib.go.opencensus.io/exporter/ocagent v0.7.1-0.20200907061046-05415f1de66d // indirect
 	contrib.go.opencensus.io/exporter/prometheus v0.4.2 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.25.0 // indirect
