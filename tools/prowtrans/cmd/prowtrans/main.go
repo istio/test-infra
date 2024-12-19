@@ -125,7 +125,6 @@ func (o *options) parseOpts() {
 	flag.Parse()
 
 	for k, v := range env {
-		v := v
 		o.Env[k] = &v
 	}
 	o.EnvDenylistSet = sets.New(o.EnvDenylist...)
