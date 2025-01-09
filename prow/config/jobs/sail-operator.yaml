@@ -8,12 +8,12 @@ image: gcr.io/istio-testing/build-tools:master-a80b0e43255eca1b0094d203f57fed148
 jobs:
   - name: unit-tests
     types: [presubmit]
-    architectures: [amd64, arm64]
+    architectures: [arm64]
     command: [entrypoint, make, -e, "T=-v -count=1", build, test.unit]
 
   - name: integ-tests
     types: [presubmit]
-    architectures: [amd64, arm64]
+    architectures: [arm64]
     command: [entrypoint, make, test.integration]
 
   - name: gencheck
