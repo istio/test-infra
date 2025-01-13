@@ -53,8 +53,12 @@ jobs:
     env:
       - name: DOCKER_IN_DOCKER_IPV6_ENABLED
         value: "true"
+      # IP_FAMILY is to be replaced by IP_FAMILIES fully,
+      # temporarily retaining it until https://github.com/istio/istio/pull/54421 is merged.
       - name: IP_FAMILY
         value: "dual"
+      - name: IP_FAMILIES
+        value: "IPv4,IPv6"
     regex: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
 
   - name: update-ref-docs-dry-run
