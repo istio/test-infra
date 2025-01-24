@@ -44,7 +44,7 @@ var (
 	preprocessCommand   = flag.String("pre-process-command", "", "command to run to preprocess the meta config files")
 	postprocessCommand  = flag.String("post-process-command", "", "command to run to postprocess the generated config files")
 	longJobNamesAllowed = flag.Bool("allow-long-job-names", false, "allow job names that are longer than 63 characters")
-	skipGarTagging = flag.Bool("skip-gar-tagging", false, "skip tagging gar images since that is permitted by few folks")
+	skipGarTagging      = flag.Bool("skip-gar-tagging", false, "skip tagging gar images since that is permitted by few folks")
 )
 
 func main() {
@@ -68,7 +68,7 @@ func main() {
 
 	if os.Args[1] == "branch" {
 		if err := filepath.WalkDir(*inputDir, func(path string, d os.DirEntry, err error) error {
-			if !d.IsDir() {
+			if d != nil && !d.IsDir() {
 				return nil
 			}
 			if err != nil {
@@ -114,10 +114,10 @@ func main() {
 						// image for the new branch is updated.
 						newImage := fmt.Sprintf("%s:%s-%s", match[1], branch, match[3])
 						jobs.Image = newImage
-						if ! *skipGarTagging {
+						if !*skipGarTagging {
 							if err := exec.Command("gcloud", "container", "images", "add-tag", match[0], newImage).Run(); err != nil {
 								log.Fatalf("Unable to add image tag %q: %v", newImage, err)
-							} 
+							}
 						}
 					}
 					jobs.Branches = []string{branch}
@@ -161,7 +161,7 @@ func main() {
 		// In this way we can have multiple meta-config files for the same org/repo:branch
 		cachedOutput := map[ref]k8sProwConfig.JobConfig{}
 		if err := filepath.WalkDir(*inputDir, func(path string, d os.DirEntry, err error) error {
-			if !d.IsDir() {
+			if d != nil && !d.IsDir() {
 				return nil
 			}
 			if err != nil {
