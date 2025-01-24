@@ -2,47 +2,47 @@
 plank:
   job_url_template: 'https://prow.istio.io/view/istio-prow{{if eq .Spec.Type "presubmit"}}/pr-logs/pull/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if eq .Spec.Type "batch"}}/pr-logs/pull/batch{{else}}/logs{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}'
   job_url_prefix_config:
-    '*': https://prow.istio.io/view/
+    "*": https://prow.istio.io/view/
     istio-private: https://prow-private.istio.io/view/
   pod_pending_timeout: 15m
   pod_unscheduled_timeout: 30m
   default_decoration_config_entries:
-  - config:
-      timeout: 2h
-      grace_period: 15s
-      utility_images:
-        clonerefs: "us-docker.pkg.dev/k8s-infra-prow/images/clonerefs:v20241217-ace5c41a5"
-        initupload: "us-docker.pkg.dev/k8s-infra-prow/images/initupload:v20241217-ace5c41a5"
-        entrypoint: "us-docker.pkg.dev/k8s-infra-prow/images/entrypoint:v20241217-ace5c41a5"
-        sidecar: "us-docker.pkg.dev/k8s-infra-prow/images/sidecar:v20241217-ace5c41a5"
-      gcs_configuration:
-        bucket: "istio-prow"
-        path_strategy: "explicit"
-      blobless_fetch: true
-      ssh_host_fingerprints:
-        - "github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk="
-  - cluster: default
-    config:
-      gcs_credentials_secret: ""
-      default_service_account_name: "prowjob-default-sa"
-  - cluster: test-infra-trusted
-    config:
-      gcs_credentials_secret: ""
-      default_service_account_name: "prowjob-default-sa"
-  - repo: istio-private
-    config:
-      gcs_credentials_secret: ""
-      default_service_account_name: "prowjob-private"
-      gcs_configuration:
-        bucket: "istio-prow-private"
-        path_strategy: "explicit"
-      oauth_token_secret:
-        name: github-oauth
-        key: token
-  - cluster: prow-arm
-    config:
-      default_service_account_name: "prowjob-default-sa" # Use workload identity
-      gcs_credentials_secret: ""                         # rather than service account key secret
+    - config:
+        timeout: 2h
+        grace_period: 15s
+        utility_images:
+          clonerefs: "us-docker.pkg.dev/k8s-infra-prow/images/clonerefs:v20241217-ace5c41a5"
+          initupload: "us-docker.pkg.dev/k8s-infra-prow/images/initupload:v20241217-ace5c41a5"
+          entrypoint: "us-docker.pkg.dev/k8s-infra-prow/images/entrypoint:v20241217-ace5c41a5"
+          sidecar: "us-docker.pkg.dev/k8s-infra-prow/images/sidecar:v20241217-ace5c41a5"
+        gcs_configuration:
+          bucket: "istio-prow"
+          path_strategy: "explicit"
+        blobless_fetch: true
+        ssh_host_fingerprints:
+          - "github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk="
+    - cluster: default
+      config:
+        gcs_credentials_secret: ""
+        default_service_account_name: "prowjob-default-sa"
+    - cluster: test-infra-trusted
+      config:
+        gcs_credentials_secret: ""
+        default_service_account_name: "prowjob-default-sa"
+    - repo: istio-private
+      config:
+        gcs_credentials_secret: ""
+        default_service_account_name: "prowjob-private"
+        gcs_configuration:
+          bucket: "istio-prow-private"
+          path_strategy: "explicit"
+        oauth_token_secret:
+          name: github-oauth
+          key: token
+    - cluster: prow-arm
+      config:
+        default_service_account_name: "prowjob-default-sa" # Use workload identity
+        gcs_credentials_secret: "" # rather than service account key secret
 
 sinker:
   resync_period: 1m
@@ -58,88 +58,88 @@ deck:
     testgrid_config: gs://k8s-testgrid/config
     testgrid_root: https://testgrid.k8s.io/
     lenses:
-    - lens:
-        name: metadata
-      required_files:
-      - started.json|finished.json
-      optional_files:
-      - podinfo.json
-    - lens:
-        name: buildlog
-        config:
-          highlight_regexes:
-            - "timed out"
-            - "ERROR:"
-            - "(FAIL|Failure \\[)\\b"
-            - "panic\\b"
-            - "SUSPICIOUS:"
-      required_files:
-      - build-log.txt
-    - lens:
-        name: junit
-      required_files:
-      - artifacts/junit.*\.xml
-    - lens:
-        name: coverage
-      required_files:
-      - artifacts/filtered.cov
-    - lens:
-        name: podinfo
-      required_files:
-      - podinfo.json
+      - lens:
+          name: metadata
+        required_files:
+          - started.json|finished.json
+        optional_files:
+          - podinfo.json
+      - lens:
+          name: buildlog
+          config:
+            highlight_regexes:
+              - "timed out"
+              - "ERROR:"
+              - "(FAIL|Failure \\[)\\b"
+              - "panic\\b"
+              - "SUSPICIOUS:"
+        required_files:
+          - build-log.txt
+      - lens:
+          name: junit
+        required_files:
+          - artifacts/junit.*\.xml
+      - lens:
+          name: coverage
+        required_files:
+          - artifacts/filtered.cov
+      - lens:
+          name: podinfo
+        required_files:
+          - podinfo.json
   hidden_repos:
-  - istio-private
+    - istio-private
 
   tide_update_period: 10s
   rerun_auth_configs:
-    '*':
+    "*":
       github_users:
-      - cjwagner
-      - fejta
-      - clarketm
-      - chases2
-      - Katharine
-      - bentheelder
-      - michelle192837
-      - chizhg
+        - cjwagner
+        - fejta
+        - clarketm
+        - chases2
+        - Katharine
+        - bentheelder
+        - michelle192837
+        - chizhg
       github_team_slugs:
-      - org: istio
-        slug: maintainers
+        - org: istio
+          slug: maintainers
     istio-private:
       github_orgs:
-      - istio-private
+        - istio-private
 
 prowjob_namespace: default
 pod_namespace: test-pods
 log_level: debug
 
 slack_reporter_configs:
-  '*':
+  "*":
     job_types_to_report:
-    - postsubmit
-    - periodic
-    - batch
+      - postsubmit
+      - periodic
+      - batch
     job_states_to_report:
-    - failure
-    - error
+      - failure
+      - error
     channel: test-failures
-    report_template: 'Job *{{.Spec.Job}}* of type *{{.Spec.Type}}* ended with state *{{.Status.State}}*. <{{.Status.URL}}|View logs>'
+    report_template: "Job *{{.Spec.Job}}* of type *{{.Spec.Type}}* ended with state *{{.Status.State}}*. <{{.Status.URL}}|View logs>"
   istio-private:
     job_types_to_report:
-    - postsubmit
-    - periodic
-    - batch
+      - postsubmit
+      - periodic
+      - batch
     job_states_to_report:
-    - failure
-    - error
+      - failure
+      - error
     channel: private-test-failures
-    report_template: 'Job *{{.Spec.Job}}* of type *{{.Spec.Type}}* ended with state *{{.Status.State}}*. <{{.Status.URL}}|View logs>'
+    report_template: "Job *{{.Spec.Job}}* of type *{{.Spec.Type}}* ended with state *{{.Status.State}}*. <{{.Status.URL}}|View logs>"
 
 # Report job status for presubmit and postsubmit
 github_reporter:
   job_types_to_report:
-  - presubmit
-  - postsubmit
+    - presubmit
+    - postsubmit
 
 branch-protection:
   allow_disabled_policies: true
@@ -152,7 +152,7 @@ branch-protection:
       # Every repo requires CLA to pass
       required_status_checks:
         contexts:
-        - EasyCLA
+          - EasyCLA
       # By default, required 1 approval from a CODEOWNER
       required_pull_request_reviews:
         required_approving_review_count: 1
@@ -160,7 +160,7 @@ branch-protection:
       # Repo admins are allowed to merge directly; typically the robot does all merging.
       restrictions:
         teams:
-        - repo-admins
+          - repo-admins
       repos:
         api:
           # As API reviews are sensitive, require 2 approvals
@@ -176,7 +176,7 @@ branch-protection:
             release-0.1: &blocking_merge
               required_status_checks:
                 contexts:
-                - "merges-blocked-needs-admin"
+                  - "merges-blocked-needs-admin"
               protect: true
             release-0.2: *blocking_merge
             release-0.3: *blocking_merge
@@ -190,47 +190,47 @@ branch-protection:
               <<: *blocking_merge
               restrictions:
                 teams:
-                - release-managers-1-1
+                  - release-managers-1-1
             release-1.2: &release12
               <<: *blocking_merge
               restrictions:
                 teams:
-                - release-managers-1-2
+                  - release-managers-1-2
             release-1.3: &release13
               protect: true
               restrictions:
                 teams:
-                - release-managers-1-3
+                  - release-managers-1-3
             release-1.4: &release14
               protect: true
               restrictions:
                 teams:
-                - release-managers-1-4
+                  - release-managers-1-4
             release-1.5: &release15
               protect: true
               restrictions:
                 teams:
-                - release-managers-1-5
+                  - release-managers-1-5
             release-1.6: &release16
               protect: true
               restrictions:
                 teams:
-                - release-managers-1.6
+                  - release-managers-1.6
             release-1.7: &release17
               protect: true
               restrictions:
                 teams:
-                - release-managers-1.7
+                  - release-managers-1.7
             release-1.8: &release18
               protect: true
               restrictions:
                 teams:
-                - release-managers-1.8
+                  - release-managers-1.8
             release-1.9: &release19
               protect: true
               restrictions:
                 teams:
-                - release-managers-1.9
+                  - release-managers-1.9
             release-1.10: &release110
               protect: true
               restrictions:
@@ -305,7 +305,12 @@ branch-protection:
               protect: true
               restrictions:
                 teams:
-                  - release-managers-1.24 
+                  - release-managers-1.24
+            release-1.25: &release125
+              protect: true
+              restrictions:
+                teams:
+                  - release-managers-1.25
         operator:
           branches: *blocked_branches
         istio.io:
@@ -339,8 +344,8 @@ branch-protection:
             dismiss_stale_reviews: true
             dismissal_restrictions:
               teams:
-              - steering-committee
-              - repo-admins 
+                - steering-committee
+                - repo-admins
         release-builder:
           branches: *blocked_branches
         ztunnel:
@@ -352,24 +357,24 @@ branch-protection:
               <<: *release11
               required_status_checks:
                 contexts:
-                - "ci/circleci: codecov"
-                - "ci/circleci: shellcheck"
-                - "ci/circleci: lint"
-                - "ci/circleci: test"
-                - "ci/circleci: build"
-                - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
-                - "merges-blocked-needs-admin"
+                  - "ci/circleci: codecov"
+                  - "ci/circleci: shellcheck"
+                  - "ci/circleci: lint"
+                  - "ci/circleci: test"
+                  - "ci/circleci: build"
+                  - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
+                  - "merges-blocked-needs-admin"
             release-1.2:
               <<: *release12
               required_status_checks:
                 contexts:
-                - "ci/circleci: codecov"
-                - "ci/circleci: shellcheck"
-                - "ci/circleci: lint"
-                - "ci/circleci: test"
-                - "ci/circleci: build"
-                - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
-                - "merges-blocked-needs-admin"
+                  - "ci/circleci: codecov"
+                  - "ci/circleci: shellcheck"
+                  - "ci/circleci: lint"
+                  - "ci/circleci: test"
+                  - "ci/circleci: build"
+                  - "ci/circleci: e2e-pilot-cloudfoundry-v1alpha3-v2"
+                  - "merges-blocked-needs-admin"
             release-1.3:
               <<: *release13
             release-1.4:
@@ -414,6 +419,8 @@ branch-protection:
               <<: *release123
             release-1.24:
               <<: *release124
+            release-1.25:
+              <<: *release125
         proxy:
           branches:
             <<: *blocked_branches
@@ -440,7 +447,7 @@ branch-protection:
                 require_code_owner_reviews: true
               required_status_checks:
                 contexts:
-                - ci-checks
+                  - ci-checks
             master:
               protect: true
             v0-c++:
@@ -448,7 +455,7 @@ branch-protection:
         sail-operator:
           required_status_checks:
             contexts:
-            - EasyCLA
+              - EasyCLA
           required_pull_request_reviews:
             required_approving_review_count: 1
             require_code_owner_reviews: true
@@ -473,83 +480,83 @@ in_repo_config:
 
 tide:
   queries:
-  - repos:
-    - istio/istio
-    - istio/enhancements
-    - istio/envoy
-    - istio/get-istioctl
-    - istio/proxy
-    - istio/operator
-    - istio/pkg
-    - istio/tools
-    - istio/bots
-    - istio/api
-    - istio/common-files
-    - istio/community
-    - istio/gogo-genproto
-    - istio/test-infra
-    - istio/cni
-    - istio/installer
-    - istio/cri
-    - istio/client-go
-    - istio/release-builder
-    - istio/ztunnel
-    - istio-ecosystem/sail-operator
-    - istio-ecosystem/authservice
-    missingLabels: &istio_tide_missing_labels
-    - do-not-merge
-    - do-not-merge/hold
-    - do-not-merge/work-in-progress
-    reviewApprovedRequired: true
-  - repos:
-    - istio/istio
-    - istio/proxy
-    - istio/operator
-    - istio/pkg
-    - istio/tools
-    - istio/bots
-    - istio/api
-    - istio/common-files
-    - istio/community
-    - istio/gogo-genproto
-    - istio/test-infra
-    - istio/cni
-    - istio/installer
-    - istio/cri
-    - istio/client-go
-    - istio/release-builder
-    - istio/ztunnel
-    - istio-ecosystem/sail-operator
-    labels:
-    - auto-merge
-    missingLabels: *istio_tide_missing_labels
-    author: istio-testing
-    reviewApprovedRequired: false
-  - repos:
-    - istio/istio.io
-    missingLabels: &istio_tide_missing_labels
-    - do-not-merge
-    - do-not-merge/hold
-    - do-not-merge/work-in-progress
-    reviewApprovedRequired: true
-  - repos:
-    - istio/istio.io
-    labels:
-    - auto-merge
-    missingLabels: *istio_tide_missing_labels
-    author: istio-testing
-    reviewApprovedRequired: false
-  - orgs:
-    - istio-private
-    missingLabels: *istio_tide_missing_labels
-    reviewApprovedRequired: true
-  - repos:
-    - istio-ecosystem/sail-operator
-    labels:
-    - auto-merge
-    missingLabels: *istio_tide_missing_labels
-    author: openshift-service-mesh-bot
-    reviewApprovedRequired: false
+    - repos:
+        - istio/istio
+        - istio/enhancements
+        - istio/envoy
+        - istio/get-istioctl
+        - istio/proxy
+        - istio/operator
+        - istio/pkg
+        - istio/tools
+        - istio/bots
+        - istio/api
+        - istio/common-files
+        - istio/community
+        - istio/gogo-genproto
+        - istio/test-infra
+        - istio/cni
+        - istio/installer
+        - istio/cri
+        - istio/client-go
+        - istio/release-builder
+        - istio/ztunnel
+        - istio-ecosystem/sail-operator
+        - istio-ecosystem/authservice
+      missingLabels: &istio_tide_missing_labels
+        - do-not-merge
+        - do-not-merge/hold
+        - do-not-merge/work-in-progress
+      reviewApprovedRequired: true
+    - repos:
+        - istio/istio
+        - istio/proxy
+        - istio/operator
+        - istio/pkg
+        - istio/tools
+        - istio/bots
+        - istio/api
+        - istio/common-files
+        - istio/community
+        - istio/gogo-genproto
+        - istio/test-infra
+        - istio/cni
+        - istio/installer
+        - istio/cri
+        - istio/client-go
+        - istio/release-builder
+        - istio/ztunnel
+        - istio-ecosystem/sail-operator
+      labels:
+        - auto-merge
+      missingLabels: *istio_tide_missing_labels
+      author: istio-testing
+      reviewApprovedRequired: false
+    - repos:
+        - istio/istio.io
+      missingLabels: &istio_tide_missing_labels
+        - do-not-merge
+        - do-not-merge/hold
+        - do-not-merge/work-in-progress
+      reviewApprovedRequired: true
+    - repos:
+        - istio/istio.io
+      labels:
+        - auto-merge
+      missingLabels: *istio_tide_missing_labels
+      author: istio-testing
+      reviewApprovedRequired: false
+    - orgs:
+        - istio-private
+      missingLabels: *istio_tide_missing_labels
+      reviewApprovedRequired: true
+    - repos:
+        - istio-ecosystem/sail-operator
+      labels:
+        - auto-merge
+      missingLabels: *istio_tide_missing_labels
+      author: openshift-service-mesh-bot
+      reviewApprovedRequired: false
   merge_method:
     istio: squash
     istio-ecosystem/authservice: squash
