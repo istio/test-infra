@@ -39,8 +39,8 @@ var (
 	// regex to match the test image tags.
 	tagRegex = regexp.MustCompile(`^(.+):(.+)-([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2}|[0-9a-f]{40})$`)
 
-	inputDir            = flag.String("input-dir", "./prow/config/jobs", "directory of input jobs")
-	outputDir           = flag.String("output-dir", "./prow/cluster/jobs", "directory of output jobs")
+	inputDir            = flag.String("input-dir", "../../prow/config/jobs", "directory of input jobs")
+	outputDir           = flag.String("output-dir", "../../prow/cluster/jobs", "directory of output jobs")
 	preprocessCommand   = flag.String("pre-process-command", "", "command to run to preprocess the meta config files")
 	postprocessCommand  = flag.String("post-process-command", "", "command to run to postprocess the generated config files")
 	longJobNamesAllowed = flag.Bool("allow-long-job-names", false, "allow job names that are longer than 63 characters")
