@@ -66,7 +66,7 @@ func main() {
 		bc = pkg.ReadBase(nil, filepath.Join(*inputDir, ".base.yaml"))
 	}
 
-	if os.Args[1] == "branch" {
+	if flag.Arg(0) == "branch" {
 		if err := filepath.WalkDir(*inputDir, func(path string, d os.DirEntry, err error) error {
 			if d != nil && !d.IsDir() {
 				return nil
