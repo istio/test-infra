@@ -29,6 +29,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	shell "github.com/kballard/go-shellquote"
+	v1 "k8s.io/api/core/v1"
 	k8sProwConfig "sigs.k8s.io/prow/pkg/config"
 	"sigs.k8s.io/yaml"
 
@@ -98,6 +99,8 @@ func main() {
 				cfg.Jobs = pkg.FilterReleaseBranchingJobs(cfg.Jobs)
 
 				if cfg.SupportReleaseBranching {
+					cfg.Env = filterDuplicateEnvVars(cfg.Env)
+
 					branch := "release-" + flag.Arg(1)
 
 					err, newImage, matchedImage := branchedImageName(cfg.Image, branch)
@@ -113,6 +116,8 @@ func main() {
 					}
 
 					for index, job := range cfg.Jobs {
+						job.Env = filterDuplicateEnvVars(job.Env)
+
 						err, newImage, _ := branchedImageName(job.Image, branch)
 						if err != nil {
 							log.Fatalf("Error matching job image: %v", err)
@@ -234,6 +239,20 @@ func main() {
 			log.Fatalf("Get errors for the %q operation:\n%v", flag.Arg(0), err)
 		}
 	}
+}
+
+func filterDuplicateEnvVars(env []v1.EnvVar) (filtered []v1.EnvVar) {
+	m := make(map[string]string)
+
+	for _, v := range env {
+		m[v.Name] = v.Value
+	}
+
+	for key, value := range m {
+		filtered = append(filtered, v1.EnvVar{Name: key, Value: value})
+	}
+
+	return filtered
 }
 
 func branchedImageName(image string, branch string) (error, string, string) {
