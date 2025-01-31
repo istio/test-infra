@@ -68,7 +68,7 @@ func main() {
 		panic("too many arguments")
 	}
 
-	if os.Args[1] == "branch" {
+	if flag.Arg(0) == "branch" {
 		if err := filepath.Walk(*inputDir, func(src string, file os.FileInfo, err error) error {
 			if err != nil {
 				fmt.Printf("error: %s\n", err.Error())
