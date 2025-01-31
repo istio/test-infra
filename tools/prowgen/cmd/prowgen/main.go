@@ -82,6 +82,8 @@ func main() {
 			}
 			cli := pkg.Client{BaseConfig: baseConfig, LongJobNamesAllowed: *longJobNamesAllowed}
 
+			imagesToTag := make(map[string]string)
+
 			files, _ := ioutil.ReadDir(path)
 			for _, file := range files {
 				if file.IsDir() {
@@ -113,6 +115,8 @@ func main() {
 						if err := exec.Command("gcloud", "container", "images", "add-tag", matchedImage, newImage).Run(); err != nil {
 							log.Fatalf("Unable to add image tag %q: %v", newImage, err)
 						}
+					} else {
+						imagesToTag[matchedImage] = newImage
 					}
 
 					for index, job := range cfg.Jobs {
@@ -143,6 +147,12 @@ func main() {
 					if err := ioutil.WriteFile(dst, bytes, 0o644); err != nil {
 						log.Fatalf("Error writing branches config: %v", err)
 					}
+				}
+			}
+
+			if *skipGarTagging {
+				for matchedImage, newImage := range imagesToTag {
+					log.Printf("Please find a maintainer with sufficient permissions and have them run `gcloud container image add-tag %s %s`", matchedImage, newImage)
 				}
 			}
 
