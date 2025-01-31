@@ -18,7 +18,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -84,7 +83,7 @@ func main() {
 
 			imagesToTag := make(map[string]string)
 
-			files, _ := ioutil.ReadDir(path)
+			files, _ := os.ReadDir(path)
 			for _, file := range files {
 				if file.IsDir() {
 					continue
@@ -144,7 +143,7 @@ func main() {
 					}
 
 					// Writes the job yaml
-					if err := ioutil.WriteFile(dst, bytes, 0o644); err != nil {
+					if err := os.WriteFile(dst, bytes, 0o644); err != nil {
 						log.Fatalf("Error writing branches config: %v", err)
 					}
 				}
@@ -190,7 +189,7 @@ func main() {
 			}
 			cli := pkg.Client{BaseConfig: baseConfig, LongJobNamesAllowed: *longJobNamesAllowed}
 
-			files, _ := ioutil.ReadDir(path)
+			files, _ := os.ReadDir(path)
 			for _, file := range files {
 				if file.IsDir() {
 					continue
