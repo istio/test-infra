@@ -15,6 +15,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -93,42 +94,42 @@ func main() {
 				}
 
 				src := filepath.Join(path, file.Name())
-				jobs := cli.ReadJobsConfig(src)
-				jobs.Jobs = pkg.FilterReleaseBranchingJobs(jobs.Jobs)
+				cfg := cli.ReadJobsConfig(src)
+				cfg.Jobs = pkg.FilterReleaseBranchingJobs(cfg.Jobs)
 
-				if jobs.SupportReleaseBranching {
-					match := tagRegex.FindStringSubmatch(jobs.Image)
+				if cfg.SupportReleaseBranching {
 					branch := "release-" + flag.Arg(1)
-					if len(match) == 4 {
-						// HACK: replacing the branch name in the image tag and
-						// adding it as a new tag.
-						// For example, if the test image in the current Prow job
-						// config is
-						// `gcr.io/istio-testing/build-tools:release-1.10-2021-08-09T16-46-08`,
-						// and the Prow job config for release-1.11 branch is
-						// supposed to be generated, the image will be added a
-						// new `release-1.11-2021-08-09T16-46-08` tag.
-						// This is only needed for creating Prow jobs for a new
-						// release branch for the first time, and the image tag
-						// will be overwritten by Automator the next time the
-						// image for the new branch is updated.
-						newImage := fmt.Sprintf("%s:%s-%s", match[1], branch, match[3])
-						jobs.Image = newImage
-						if !*skipGarTagging {
-							if err := exec.Command("gcloud", "container", "images", "add-tag", match[0], newImage).Run(); err != nil {
-								log.Fatalf("Unable to add image tag %q: %v", newImage, err)
-							}
+
+					err, newImage, matchedImage := branchedImageName(cfg.Image, branch)
+					if err != nil {
+						log.Fatalf("Error matching config image: %v", err)
+					}
+
+					cfg.Image = newImage
+					if !*skipGarTagging {
+						if err := exec.Command("gcloud", "container", "images", "add-tag", matchedImage, newImage).Run(); err != nil {
+							log.Fatalf("Unable to add image tag %q: %v", newImage, err)
 						}
 					}
-					jobs.Branches = []string{branch}
-					jobs.SupportReleaseBranching = false
+
+					for index, job := range cfg.Jobs {
+						err, newImage, _ := branchedImageName(job.Image, branch)
+						if err != nil {
+							log.Fatalf("Error matching job image: %v", err)
+						}
+
+						cfg.Jobs[index].Image = newImage
+					}
+
+					cfg.Branches = []string{branch}
+					cfg.SupportReleaseBranching = false
 
 					name := file.Name()
 					ext := filepath.Ext(name)
 					name = name[:len(name)-len(ext)] + "-" + flag.Arg(1) + ext
 
 					dst := filepath.Join(*inputDir, name)
-					bytes, err := yaml.Marshal(jobs)
+					bytes, err := yaml.Marshal(cfg)
 					if err != nil {
 						log.Fatalf("Error marshaling jobs config: %v", err)
 					}
@@ -187,18 +188,18 @@ func main() {
 				}
 
 				src := filepath.Join(path, file.Name())
-				jobs := cli.ReadJobsConfig(src)
-				for _, branch := range jobs.Branches {
-					output, err := cli.ConvertJobConfig(file.Name(), jobs, branch)
+				cfg := cli.ReadJobsConfig(src)
+				for _, branch := range cfg.Branches {
+					output, err := cli.ConvertJobConfig(file.Name(), cfg, branch)
 					if err != nil {
 						log.Fatal(err)
 					}
-					rf := ref{jobs.Org, jobs.Repo, branch}
+					rf := ref{cfg.Org, cfg.Repo, branch}
 					if _, ok := cachedOutput[rf]; !ok {
 						cachedOutput[rf] = output
 					} else {
 						cachedOutput[rf] = combineJobConfigs(cachedOutput[rf], output,
-							fmt.Sprintf("%s/%s", jobs.Org, jobs.Repo))
+							fmt.Sprintf("%s/%s", cfg.Org, cfg.Repo))
 					}
 				}
 			}
@@ -233,6 +234,30 @@ func main() {
 			log.Fatalf("Get errors for the %q operation:\n%v", flag.Arg(0), err)
 		}
 	}
+}
+
+func branchedImageName(image string, branch string) (error, string, string) {
+	match := tagRegex.FindStringSubmatch(image)
+
+	if len(match) == 4 {
+		// HACK: replacing the branch name in the image tag and
+		// adding it as a new tag.
+		// For example, if the test image in the current Prow job
+		// config is
+		// `gcr.io/istio-testing/build-tools:master-gitsha`,
+		// and the Prow job config for release-1.25 branch is
+		// supposed to be generated, the image will be added a
+		// new `release-1.25-gitsha` tag.
+		// This is only needed for creating Prow jobs for a new
+		// release branch for the first time, and the image tag
+		// will be overwritten by Automator the next time the
+		// image for the new branch is updated.
+		newImage := fmt.Sprintf("%s:%s-%s", match[1], branch, match[3])
+
+		return nil, newImage, match[0]
+	}
+
+	return errors.New("no match found"), "", ""
 }
 
 func runProcessCommand(rawCommand string) error {
