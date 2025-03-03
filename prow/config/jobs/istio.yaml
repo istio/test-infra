@@ -481,6 +481,10 @@ jobs:
     types: [presubmit]
     command: [make, -e, "TARGET_OS=darwin", build]
 
+  - name: windowscnibuildcheck
+    types: [presubmit]
+    command: [make, -e, "TARGET_OS=windows", build-cni]
+
   - name: update-go-control-plane
     types: [periodic]
     cron: "0 2 * * 0" # run each Sunday at 02:00AM UTC
