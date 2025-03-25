@@ -12,3 +12,8 @@ transforms:
 - job-type:
   - presubmit
   job-denylist: [release_istio,build-base-images_istio,release-notes_istio]
+- job-type:
+  - postsubmit
+  job-allowlist: [release_istio]
+  # We will manually run these on-demand
+  skip-postsubmit: true
