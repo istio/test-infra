@@ -78,6 +78,7 @@ type Transform struct {
 	SupportGerritReporting bool                    `json:"support-gerrit-reporting,omitempty"`
 	AllowLongJobNames      bool                    `json:"allow-long-job-names,omitempty"`
 	Verbose                bool                    `json:"verbose,omitempty"`
+	SkipPostsubmit         bool                    `json:"skip-postsubmit,omitempty"`
 }
 
 // ReadTransformJobsConfig reads the private jobs yaml

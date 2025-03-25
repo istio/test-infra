@@ -121,6 +121,7 @@ func (o *options) parseOpts() {
 	flag.BoolVar(&o.SupportGerritReporting, "support-gerrit-reporting", false, "Generate Prow jobs that supports Gerrit reporting.")
 	flag.BoolVar(&o.AllowLongJobNames, "allow-long-job-names", false, "Allow job names that have more than 63 characters.")
 	flag.BoolVar(&o.Verbose, "verbose", false, "Enable verbose output.")
+	flag.BoolVar(&o.SkipPostsubmit, "skip-postsubmit", false, "Skip postsubmit jobs.")
 
 	flag.Parse()
 
@@ -385,6 +386,9 @@ func applyDefaultTransforms(dst *configuration.Transform, srcs ...*configuration
 		if !dst.Verbose {
 			dst.Verbose = src.Verbose
 		}
+		if !dst.SkipPostsubmit {
+			dst.SkipPostsubmit = src.SkipPostsubmit
+		}
 		if !dst.Clean {
 			dst.Clean = src.Clean
 		}
@@ -626,6 +630,14 @@ func updateBrancher(o options, job *config.Brancher) {
 	}
 
 	job.Branches = o.BranchesOut
+}
+
+// updateAlwaysRun updates the jobs alwaysRun fields based on provided inputs.
+func updateAlwaysRun(o options, job *config.Postsubmit) {
+	if o.SkipPostsubmit {
+		f := false
+		job.AlwaysRun = &f
+	}
 }
 
 // updateUtilityConfig updates the jobs UtilityConfig fields based on provided inputs.
@@ -1139,6 +1151,7 @@ func generateJobs(o options) {
 				pruneJobBase(o, &job.JobBase)
 				updateHubs(o, &job.JobBase)
 				updateTags(o, &job.JobBase)
+				updateAlwaysRun(o, &job)
 
 				postsubmit[orgrepo] = append(postsubmit[orgrepo], job)
 			}
