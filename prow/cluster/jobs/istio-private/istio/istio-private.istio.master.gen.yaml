@@ -278,7 +278,7 @@ postsubmits:
     - ^master$
     cluster: private
     decorate: true
-    name: integ-ambient-multicluster_istio_postsubmit_pri
+    name: integ-ambient-mc_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -3692,9 +3692,10 @@ presubmits:
     - ^master$
     cluster: private
     decorate: true
-    name: integ-ambient-multicluster_istio_pri
+    name: integ-ambient-mc_istio_pri
+    optional: true
     path_alias: istio.io/istio
-    rerun_command: /test integ-ambient-multicluster
+    rerun_command: /test integ-ambient-mc
     spec:
       automountServiceAccountToken: false
       containers:
@@ -3776,8 +3777,7 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-ambient-multicluster,?($|\s.*))|((?m)^/test(
-      | .* )integ-ambient-multicluster_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-ambient-mc,?($|\s.*))|((?m)^/test( | .* )integ-ambient-mc_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"

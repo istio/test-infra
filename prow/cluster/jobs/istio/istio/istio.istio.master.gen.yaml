@@ -535,7 +535,7 @@ postsubmits:
     branches:
     - ^master$
     decorate: true
-    name: integ-ambient-multicluster_istio_postsubmit
+    name: integ-ambient-mc_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -3217,9 +3217,10 @@ presubmits:
     branches:
     - ^master$
     decorate: true
-    name: integ-ambient-multicluster_istio
+    name: integ-ambient-mc_istio
+    optional: true
     path_alias: istio.io/istio
-    rerun_command: /test integ-ambient-multicluster
+    rerun_command: /test integ-ambient-mc
     spec:
       automountServiceAccountToken: false
       containers:
@@ -3282,8 +3283,7 @@ presubmits:
         name: cgroup
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-ambient-multicluster,?($|\s.*))|((?m)^/test(
-      | .* )integ-ambient-multicluster_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-ambient-mc,?($|\s.*))|((?m)^/test( | .* )integ-ambient-mc_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
