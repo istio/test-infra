@@ -250,6 +250,20 @@ jobs:
     - prow/config/ambient-sc.yaml
     - test.integration.ambient.kube
 
+  - name: integ-ambient-multicluster
+    requirements: [kind]
+    env:
+    - name: INTEGRATION_TEST_FLAGS
+      value: --istio.test.ambient --istio.test.ambient.multinetwork
+    command:
+    - entrypoint
+    - prow/integ-suite-kind.sh
+    - --kind-config
+    - prow/config/ambient-sc.yaml
+    - --topology
+    - MULTICLUSTER
+    - test.integration.ambient.kube
+
   - name: integ-ambient-dual
     modifiers: [presubmit_optional, presubmit_skipped]
     requirements: [kind]
