@@ -305,12 +305,17 @@ branch-protection:
               protect: true
               restrictions:
                 teams:
-                  - release-managers-1.24 
+                  - release-managers-1.24
             release-1.25: &release125
               protect: true
               restrictions:
                 teams:
-                  - release-managers-1.25 
+                  - release-managers-1.25
+            release-1.26: &release126
+              protect: true
+              restrictions:
+                teams:
+                  - release-managers-1.26
         operator:
           branches: *blocked_branches
         istio.io:
@@ -345,7 +350,7 @@ branch-protection:
             dismissal_restrictions:
               teams:
               - steering-committee
-              - repo-admins 
+              - repo-admins
         release-builder:
           branches: *blocked_branches
         ztunnel:
@@ -421,6 +426,8 @@ branch-protection:
               <<: *release124
             release-1.25:
               <<: *release125
+            release-1.26:
+              <<: *release126
         proxy:
           branches:
             <<: *blocked_branches
