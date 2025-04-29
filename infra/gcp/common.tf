@@ -14,6 +14,7 @@ locals {
     "john.howard@solo.io",     # howardjohn
     "johnbhoward96@gmail.com", # howardjohn
     "daniel.hawton@solo.io",   # dhawton
+    "keithmattix2@gmail.com",  # keithmattix
   ])
 
 }
