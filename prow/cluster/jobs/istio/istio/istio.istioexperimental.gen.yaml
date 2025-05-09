@@ -280,6 +280,54 @@ presubmits:
     branches:
     - ^experimental-.*
     decorate: true
+    name: govulncheck_istio_exp
+    optional: true
+    path_alias: istio.io/istio
+    rerun_command: /test govulncheck
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - govulncheck
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "5"
+        image: gcr.io/istio-testing/build-tools:master-01f7536c929d3fafece5d92ce0f2d321205937f1
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    trigger: ((?m)^/test( | .* )govulncheck,?($|\s.*))|((?m)^/test( | .* )govulncheck_istio,?($|\s.*))
+  - always_run: false
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^experimental-.*
+    decorate: true
     name: integ-ambient-calico_istio_exp
     optional: true
     path_alias: istio.io/istio
