@@ -461,6 +461,12 @@ jobs:
     command: [make, lint]
     resources: lint
 
+  - name: govulncheck
+    types: [periodic, presubmit]
+    modifiers: [presubmit_optional, presubmit_skipped]
+    cron: "0 7 * * *" # starts every day at 07:00AM UTC
+    command: [entrypoint, govulncheck]
+
   - name: gencheck
     types: [presubmit]
     command: [make, gen-check]
