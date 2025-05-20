@@ -55,6 +55,12 @@ jobs:
     command: [entrypoint, make, test.scorecard]
     requirements: [kind]
 
+  - name: docs-test
+    types: [presubmit]
+    command: [entrypoint, make, test.docs]
+    requirements: [kind]
+    modifiers: [presubmit_optional]
+
 resources_presets:
   default:
     requests:
