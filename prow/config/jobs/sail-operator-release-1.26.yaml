@@ -1,0 +1,79 @@
+org: istio-ecosystem
+repo: sail-operator
+branches:
+  - release-1.26
+
+support_release_branching: false
+image: gcr.io/istio-testing/build-tools:release-1.26-ee3bf3dfe7cf876624ace1edcec016fc7349bb3b
+jobs:
+  - name: unit-tests
+    types: [presubmit]
+    architectures: [amd64, arm64]
+    command: [entrypoint, make, -e, "T=-v -count=1", build, test.unit]
+
+  - name: integ-tests
+    types: [presubmit]
+    architectures: [amd64, arm64]
+    command: [entrypoint, make, test.integration]
+
+  - name: gencheck
+    types: [presubmit]
+    command: [make, gen-check]
+
+  - name: lint
+    types: [presubmit]
+    command: [make, lint]
+    resources: lint
+
+  - name: e2e-kind
+    types: [presubmit]
+    command: [entrypoint, make, test.e2e.kind]
+    requirements: [kind]
+
+  - name: e2e-kind-olm
+    types: [presubmit]
+    command: [entrypoint, make, -e, "OLM=true", test.e2e.kind]
+    requirements: [kind]
+
+  - name: e2e-kind-multicluster
+    types: [presubmit]
+    command: [entrypoint, make, -e, "MULTICLUSTER=true", test.e2e.kind]
+    requirements: [kind]
+
+  - name: e2e-kind-dualstack
+    types: [presubmit]
+    command: [entrypoint, make, -e, "IP_FAMILY=dual", test.e2e.kind]
+    requirements: [kind]
+    env:
+      - name: DOCKER_IN_DOCKER_IPV6_ENABLED
+        value: "true"
+      - name: IP_FAMILY
+        value: "dual"
+
+  - name: scorecard
+    types: [presubmit]
+    command: [entrypoint, make, test.scorecard]
+    requirements: [kind]
+
+  - name: docs-test
+    types: [presubmit]
+    command: [entrypoint, make, test.docs]
+    requirements: [kind]
+    modifiers: [presubmit_optional]
+
+resources_presets:
+  default:
+    requests:
+      memory: "3Gi"
+      cpu: "5000m"
+    limits:
+      memory: "24Gi"
+      cpu: "5000m"
+  lint:
+    requests:
+      memory: "16Gi"
+      cpu: "3000m"
+    limits:
+      memory: "24Gi"
+
+requirements: [gocache]
