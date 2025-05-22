@@ -58,7 +58,7 @@ The following is a list of supported options for `automator.sh`. If an option is
 | `--verbose`     |            | Enable verbose output. Print commands and their arguments as they are executed. **WARNING**: this has the potential to print sensitive data to standard output.                                                                                             |                                                                                                 |
 | `--strict`      |            | Enable strict mode. When enabled, if the command does not produce a [git diff] it will exit with a non-zero exit code.                                                                                                                                      |                                                                                                 |
 | `--dry-run`     |            | Enable dry run mode. When enabled, the command will terminate early and **NOT** perform a commit, push, or pull request for any changes. This is useful for local testing/debugging or when concerned only with the [git diff] or exit code of the command. |                                                                                                 |
-| `--git-exclude` | string | Applied to list of file changes in the commit CAUSING this automator run using grep -vE '\<string\>'. If no additional changes remain, the automator task will stop. | `^common/`<br> `^pkg/\|^pilot/`|
+| `--git-exclude` | string     | Applied to list of file changes in the commit CAUSING this automator run using grep -vE '\<string\>'. If no additional changes remain, the automator task will stop.                                                                                        | `^common/`                                                                                      |
 
 ### Environment Variables
 
@@ -78,7 +78,7 @@ above (e.g. `--title`) or in the **command** (e.g. `--cmd`) or **script** (e.g. 
 | `AUTOMATOR_SRC_BRANCH` | Set to the value of Prow's [`PULL_BASE_REF`][prow jobs].                                                                                                                                          | `master`                                   |
 | `AUTOMATOR_SHA`        | Set to the git commit sha (if inside a git directory).                                                                                                                                            | `c6418d1439d12eab2f1a4eae89f6eee46a34c31b` |
 | `AUTOMATOR_SHA_SHORT`  | Set to the git commit sha trimmed to 8 character (if inside a git directory).                                                                                                                     | `c6418d14`                                 |
-| `AUTOMATOR_SHA_COMMIT_DATE` | Set to the git sha committed date.                                                                                                                                                           | `2020-09-24`
+| `AUTOMATOR_SHA_COMMIT_DATE` | Set to the git sha committed date.                                                                                                                                                           | `2020-09-24`                               |
 
 ### Examples
 
