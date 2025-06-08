@@ -480,7 +480,7 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
     trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_sail-operator_main,?($|\s.*))
-  - always_run: true
+  - always_run: false
     annotations:
       testgrid-dashboards: istio-ecosystem_main_sail-operator
     branches:
@@ -488,6 +488,7 @@ presubmits:
     decorate: true
     name: scorecard_sail-operator_main
     rerun_command: /test scorecard
+    run_if_changed: ^bundle/
     spec:
       automountServiceAccountToken: false
       containers:
