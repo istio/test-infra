@@ -7,7 +7,7 @@ locals {
     "johnbhoward96@gmail.com",   # howardjohn
     "keithmattix@microsoft.com", # keithmattix
     "daniel.hawton@solo.io",     # dhawton
-    "paul@tetrate.io",           # pmerrison 
+    "paul@tetrate.io",           # pmerrison
   ])
 
   terraform_infra_admins = toset([
@@ -17,4 +17,10 @@ locals {
     "keithmattix2@gmail.com",  # keithmattix
   ])
 
+  kind_node_images = {
+    "kindest/node:v1.30.13" : "v1.30.13",
+    "kindest/node:v1.31.9" : "v1.31.0",
+    "kindest/node:v1.32.5" : "v1.32.5",
+    "kindest/node:v1.33.1" : "v1.33.1",
+  }
 }
