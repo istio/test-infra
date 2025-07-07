@@ -11,8 +11,6 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.27-9a50b34135f1aa16b04d56dcb89c5b91101a28aa
   name: build
   node_selector:
@@ -183,8 +181,6 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.27-9a50b34135f1aa16b04d56dcb89c5b91101a28aa
   name: lint
   node_selector:
@@ -353,8 +349,6 @@ jobs:
   - make
   - gen-check
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.27-9a50b34135f1aa16b04d56dcb89c5b91101a28aa
@@ -534,8 +528,6 @@ jobs:
   - --git-exclude=^common/
   - --cmd=go get istio.io/client-go@$AUTOMATOR_SHA && go mod tidy && make clean gen
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   - name: AUTOMATOR_ORG
