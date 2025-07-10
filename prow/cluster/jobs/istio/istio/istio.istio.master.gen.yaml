@@ -3234,14 +3234,13 @@ presubmits:
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-ambient-calico,?($|\s.*))|((?m)^/test( | .*
       )integ-ambient-calico_istio,?($|\s.*))
-  - always_run: false
+  - always_run: true
     annotations:
       testgrid-dashboards: istio_istio
     branches:
     - ^master$
     decorate: true
     name: integ-ambient-dual_istio
-    optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient-dual
     spec:
