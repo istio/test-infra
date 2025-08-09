@@ -16,7 +16,7 @@
 
 ROOT="$(cd -P "$(dirname -- "$0")" && pwd -P)"
 
-# shellcheck disable=SC1090,SC1091
+# shellcheck disable=SC1090,SC1091,SC2329
 source "$ROOT/lib.sh"
 
 timout="5m"
