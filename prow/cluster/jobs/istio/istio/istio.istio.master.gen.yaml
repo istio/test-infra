@@ -309,7 +309,7 @@ postsubmits:
       repo: release-builder
     name: build-base-images_istio_postsubmit
     path_alias: istio.io/istio
-    run_if_changed: ^(docker|pkg/.*)/Dockerfile.([a-zA-Z0-9_]+_)?base(_[a-zA-Z0-9_]+)?$
+    run_if_changed: ^((docker|pkg/.*)/Dockerfile\.([a-zA-Z0-9_]+_)?base(_[a-zA-Z0-9_]+)?|docker/iptables\.yaml)$
     spec:
       automountServiceAccountToken: false
       containers:
