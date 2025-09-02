@@ -511,7 +511,7 @@ jobs:
   - name: build-base-images
     repos: [istio/release-builder@master]
     types: [postsubmit]
-    regex: '^(docker|pkg/.*)/Dockerfile.([a-zA-Z0-9_]+_)?base(_[a-zA-Z0-9_]+)?$'
+    regex: ^((docker|pkg/.*)/Dockerfile\.([a-zA-Z0-9_]+_)?base(_[a-zA-Z0-9_]+)?|docker/iptables\.yaml)$
     env:
     - name: VERSION
       value: "master"
