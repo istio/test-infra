@@ -321,6 +321,11 @@ branch-protection:
               restrictions:
                 teams:
                   - release-managers-1.27
+            release-1.28:
+              protect: true
+              restriction:
+                teams:
+                  - release-managers-1.28
         operator:
           branches: *blocked_branches
         istio.io:
@@ -435,6 +440,8 @@ branch-protection:
               <<: *release126
             release-1.27:
               <<: *release127
+            release-1.28:
+              <<: *release128
         proxy:
           branches:
             <<: *blocked_branches
@@ -485,6 +492,8 @@ branch-protection:
             release-1.26:
               protect: true
             release-1.27:
+              protect: true
+            release-1.28:
               protect: true
         wasm-extensions:
           required_pull_request_reviews:
