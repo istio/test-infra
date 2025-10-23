@@ -277,10 +277,11 @@ jobs:
     - test.integration.ambient.kube
 
   - name: integ-ambient-mc
+    modifiers: [presubmit_optional]
     requirements: [kind]
     env:
     - name: INTEGRATION_TEST_FLAGS
-      value: --istio.test.ambient --istio.test.ambient.multinetwork --istio.test.retries 2
+      value: --istio.test.ambient --istio.test.ambient.multinetwork
     command:
     - entrypoint
     - prow/integ-suite-kind.sh

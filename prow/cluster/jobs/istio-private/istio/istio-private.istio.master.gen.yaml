@@ -300,8 +300,7 @@ postsubmits:
         - name: GOMAXPROCS
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
-          value: --istio.test.ambient --istio.test.ambient.multinetwork --istio.test.retries
-            2
+          value: --istio.test.ambient --istio.test.ambient.multinetwork
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -4120,6 +4119,7 @@ presubmits:
     cluster: private
     decorate: true
     name: integ-ambient-mc_istio_pri
+    optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient-mc
     spec:
@@ -4142,8 +4142,7 @@ presubmits:
         - name: GOMAXPROCS
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
-          value: --istio.test.ambient --istio.test.ambient.multinetwork --istio.test.retries
-            2
+          value: --istio.test.ambient --istio.test.ambient.multinetwork
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
