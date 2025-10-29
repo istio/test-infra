@@ -186,9 +186,9 @@ module "prow_test_c3" {
   location     = "us-west1-a"
 
   machine_type  = "c3-standard-22"
-  initial_count = 1
-  max_count     = 10
-  min_count     = 1
+  initial_count = 0
+  max_count     = 0
+  min_count     = 0
 
   # C3 are a bit expensive, so drop cut price by using spot instances
   spot = true
@@ -220,6 +220,35 @@ module "prow_test_n4" {
   min_count     = 1
 
   # N4 are a bit expensive, so drop cut price by using spot instances
+  spot = true
+
+  disk_size_gb = 256
+  disk_type    = "hyperdisk-balanced"
+
+  project_name    = local.project_id
+  service_account = "istio-prow-jobs@istio-prow-build.iam.gserviceaccount.com"
+
+  labels = {
+    "testing" = "test-pool"
+  }
+}
+
+# Prow 'test' node pool is used for most jobs
+# Consists of c4d-16 nodes.
+# Note: despite the naming "build" vs "test", a lot of build jobs use the test pool.
+module "prow_test_c4d" {
+  source = "../modules/gke-nodepool"
+
+  name         = "istio-test-pool-c4d"
+  cluster_name = "prow"
+  location     = "us-west1-a"
+
+  machine_type  = "c4d-standard-16"
+  initial_count = 1
+  max_count     = 20
+  min_count     = 1
+
+  # C4D are a bit expensive, so drop cut price by using spot instances
   spot = true
 
   disk_size_gb = 256
