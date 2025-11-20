@@ -10,16 +10,13 @@ defaults:
 transforms:
 
 # istio/proxy master test jobs(s) - presubmit(s)
-- env:
-    ENVOY_REPOSITORY: https://github.com/istio-private/envoy
-  labels:
+- labels:
     preset-enable-netrc: "true"
   job-type: [presubmit]
 
 # istio/proxy master build jobs(s) - postsubmit(s)
 - env:
     GCS_BUILD_BUCKET: istio-build-private
-    ENVOY_REPOSITORY: https://github.com/istio-private/envoy
   labels:
     preset-enable-netrc: "true"
   job-type: [postsubmit]
