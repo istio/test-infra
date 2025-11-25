@@ -54,7 +54,7 @@ module "prow_node_build" {
 module "prow_node_arm" {
   source = "../modules/gke-nodepool"
 
-  name   = "arm"
+  name         = "arm"
   project_name = local.project_id
   cluster_name = module.prow_cluster.cluster.name
   location     = module.prow_cluster.cluster.location
@@ -64,13 +64,13 @@ module "prow_node_arm" {
   max_count     = 6
 
   disk_size_gb = 256
-  disk_type    = "pd-ssd"
+  disk_type    = "hyperdisk-balanced"
   labels = {
     "testing" = "test-pool"
   }
 
-  arm  = true
-  machine_type  = "c4a-standard-16"
+  arm          = true
+  machine_type = "c4a-standard-16"
   # Spot instances are used as quota is capped for ARM nodes, and it's cheaper.
   spot = true
 
