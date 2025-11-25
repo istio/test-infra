@@ -70,8 +70,8 @@ module "prow_node_arm" {
   }
 
   arm  = true
-  machine_type  = "t2a-standard-16"
-  # GCP is only allowing non-trivial quotas for t2a nodes using spot instances, so enable spot instances.
+  machine_type  = "c4a-standard-16"
+  # Spot instances are used as quota is capped for ARM nodes, and it's cheaper.
   spot = true
 
   service_account = module.prow_cluster.cluster_node_sa.email
