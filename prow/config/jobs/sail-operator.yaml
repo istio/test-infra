@@ -68,6 +68,11 @@ jobs:
     requirements: [github-readonly]
     modifiers: [presubmit_skipped] # Remove once testing is done
 
+  - name: tools-hack-check
+    types: [presubmit]
+    command: [entrypoint, make, update-deps]
+    regex: ^(hack/|tools/)
+
 resources_presets:
   default:
     requests:
