@@ -19,7 +19,7 @@ resource "google_cloud_run_v2_service" "redirector" {
       env {
         name = "REDIRECT_URL"
         # expires after 30 days
-        value = "https://join.slack.com/t/istio/shared_invite/zt-3cynxeiwk-wUKfCvuWyxLe9YIRnekZbg"
+        value = "https://join.slack.com/t/istio/shared_invite/zt-3krpv49cx-PKT80L6RYPXKk2mPDoufHA"
       }
       resources {
         cpu_idle = true
