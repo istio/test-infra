@@ -145,9 +145,8 @@ periodics:
       - --labels=auto-merge,release-notes-none
       - --modifier=update_deps
       - --token-env
-      - --cmd=go get -u github.com/envoyproxy/go-control-plane/envoy@latest && go
-        get -u github.com/envoyproxy/go-control-plane/contrib@latest && go mod tidy
-        && make gen
+      - --cmd=go get github.com/envoyproxy/go-control-plane/contrib@main github.com/envoyproxy/go-control-plane/envoy@main
+        && go mod tidy && make gen
       env:
       - name: AUTOMATOR_ORG
         value: istio
