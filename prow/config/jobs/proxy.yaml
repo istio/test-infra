@@ -131,7 +131,7 @@ jobs:
   - --labels=auto-merge,release-notes-none
   - --modifier=update_deps
   - --token-env
-  - --cmd=go get -u github.com/envoyproxy/go-control-plane/envoy@latest && go get -u github.com/envoyproxy/go-control-plane/contrib@latest && go mod tidy
+  - --cmd=go get github.com/envoyproxy/go-control-plane/contrib@main github.com/envoyproxy/go-control-plane/envoy@main && go mod tidy
   disable_release_branching: true
   requirements: [github-istio-testing]
   repos: [istio/test-infra@master]
