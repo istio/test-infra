@@ -22,6 +22,8 @@ ENV CGO_ENABLED=0
 
 WORKDIR /go/src/istio/tools/prowgen/cmd/prowgen
 
+# We do not need to pin a version of our own packages
+# hadolint ignore=DL3062
 RUN go install .
 
 RUN go install github.com/mikefarah/yq/v4@v4.16.2
