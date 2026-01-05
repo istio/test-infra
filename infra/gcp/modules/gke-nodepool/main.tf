@@ -72,8 +72,7 @@ resource "google_container_node_pool" "node_pool" {
     }
 
     linux_node_config {
-      // We cannot currently run prow on Cgroupsv2
-      cgroup_mode = "CGROUP_MODE_V1"
+      cgroup_mode = "CGROUP_MODE_V2"
     }
   }
 
