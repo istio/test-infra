@@ -216,8 +216,8 @@ module "prow_test_n4" {
 
   machine_type  = "n4-standard-16"
   initial_count = 1
-  max_count     = 10
-  min_count     = 1
+  max_count     = 1
+  min_count     = 0
 
   # N4 are a bit expensive, so drop cut price by using spot instances
   spot = true
