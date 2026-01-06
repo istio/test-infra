@@ -43,9 +43,6 @@ presubmits:
         - mountPath: /lib/modules
           name: modules
           readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -60,10 +57,6 @@ presubmits:
           path: /lib/modules
           type: Directory
         name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )docs-test,?($|\s.*))|((?m)^/test( | .* )docs-test_sail-operator_release-1.26,?($|\s.*))
@@ -114,9 +107,6 @@ presubmits:
         - mountPath: /lib/modules
           name: modules
           readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -131,10 +121,6 @@ presubmits:
           path: /lib/modules
           type: Directory
         name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )e2e-kind-dualstack,?($|\s.*))|((?m)^/test( | .* )e2e-kind-dualstack_sail-operator_release-1.26,?($|\s.*))
@@ -181,9 +167,6 @@ presubmits:
         - mountPath: /lib/modules
           name: modules
           readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -198,10 +181,6 @@ presubmits:
           path: /lib/modules
           type: Directory
         name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )e2e-kind-multicluster,?($|\s.*))|((?m)^/test( | .*
@@ -249,9 +228,6 @@ presubmits:
         - mountPath: /lib/modules
           name: modules
           readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -266,10 +242,6 @@ presubmits:
           path: /lib/modules
           type: Directory
         name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )e2e-kind-olm,?($|\s.*))|((?m)^/test( | .* )e2e-kind-olm_sail-operator_release-1.26,?($|\s.*))
@@ -314,9 +286,6 @@ presubmits:
         - mountPath: /lib/modules
           name: modules
           readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -331,10 +300,6 @@ presubmits:
           path: /lib/modules
           type: Directory
         name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )e2e-kind,?($|\s.*))|((?m)^/test( | .* )e2e-kind_sail-operator_release-1.26,?($|\s.*))
@@ -569,9 +534,6 @@ presubmits:
         - mountPath: /lib/modules
           name: modules
           readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -586,10 +548,6 @@ presubmits:
           path: /lib/modules
           type: Directory
         name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )scorecard,?($|\s.*))|((?m)^/test( | .* )scorecard_sail-operator_release-1.26,?($|\s.*))
