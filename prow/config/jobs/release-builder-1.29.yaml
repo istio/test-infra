@@ -11,8 +11,6 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.29-4d8a6668b6d46b3becc35f9b24467f841bbb020a
   name: lint
   node_selector:
@@ -194,8 +192,6 @@ jobs:
   - make
   - test
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.29-4d8a6668b6d46b3becc35f9b24467f841bbb020a
@@ -381,8 +377,6 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.29-4d8a6668b6d46b3becc35f9b24467f841bbb020a
   name: gencheck
   node_selector:
@@ -564,8 +558,6 @@ jobs:
   - entrypoint
   - test/publish.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.29-4d8a6668b6d46b3becc35f9b24467f841bbb020a
@@ -753,8 +745,6 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.29-4d8a6668b6d46b3becc35f9b24467f841bbb020a
   modifiers:
   - presubmit_optional
@@ -940,8 +930,6 @@ jobs:
 - command:
   - release/publish-warning.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.29-4d8a6668b6d46b3becc35f9b24467f841bbb020a
@@ -1132,8 +1120,6 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.29-4d8a6668b6d46b3becc35f9b24467f841bbb020a
   name: build-release
   node_selector:
@@ -1321,8 +1307,6 @@ jobs:
   - entrypoint
   - release/publish.sh
   env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: BUILD_WITH_CONTAINER
     value: "0"
   image: gcr.io/istio-testing/build-tools:release-1.29-4d8a6668b6d46b3becc35f9b24467f841bbb020a
@@ -1516,10 +1500,8 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
   - name: VERSION
-    value: master
+    value: "1.29"
   image: gcr.io/istio-testing/build-tools:release-1.29-4d8a6668b6d46b3becc35f9b24467f841bbb020a
   name: build-base-images
   node_selector:
