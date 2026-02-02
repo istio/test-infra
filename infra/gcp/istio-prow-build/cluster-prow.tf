@@ -87,7 +87,7 @@ resource "google_container_cluster" "prow" {
 resource "google_container_node_pool" "prow_build" {
   autoscaling {
     max_node_count = 10
-    min_node_count = 0
+    min_node_count = 1
   }
 
   cluster            = "prow"
