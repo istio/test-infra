@@ -8,7 +8,6 @@ locals {
     "keithmattix@microsoft.com", # keithmattix
     "daniel.hawton@solo.io",     # dhawton
     "paul@tetrate.io",           # pmerrison 
-    "sjinxuan@microsoft.com",    # Stevenjin8 
   ])
 
   terraform_infra_admins = toset([
@@ -16,6 +15,7 @@ locals {
     "johnbhoward96@gmail.com", # howardjohn
     "daniel.hawton@solo.io",   # dhawton
     "keithmattix2@gmail.com",  # keithmattix
+    "stevenjin8gmail.com",     # Stevenjin8 
   ])
 
 }
