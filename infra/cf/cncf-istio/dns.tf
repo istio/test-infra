@@ -88,6 +88,16 @@ resource "cloudflare_dns_record" "cname_records" {
   content = each.value
 }
 
+// Dummy AAAA record to enable Cloudflare proxy for blob.istio.io, which is required to trigger redirect rules to <bucket>.r2.istio.io.
+resource "cloudflare_dns_record" "blob" {
+  zone_id = var.zone_id
+  name    = "blob"
+  type    = "AAAA"
+  content = "100::"
+  proxied = true
+  ttl     = 1
+}
+
 resource "cloudflare_dns_record" "a_records" {
   for_each = {
     "@"               = "75.2.60.5"
