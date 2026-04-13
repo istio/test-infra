@@ -157,6 +157,18 @@ jobs:
     requirements: [kind]
     resources: multicluster
 
+  - name: integ-pilot-filebasedkubeconfig
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --topology
+      - MULTICLUSTER
+      - --topology-config
+      - prow/config/topology/ambient-multicluster.json
+      - test.integration.pilot.filebasedkubeconfig.kube
+    requirements: [kind]
+    resources: multicluster
+
   - name: integ-pilot-istiodremote
     command:
       - entrypoint
