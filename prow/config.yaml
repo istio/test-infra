@@ -288,49 +288,27 @@ branch-protection:
                   - release-managers-1.20
             release-1.21: &release121
               protect: true
-              restrictions:
-                teams:
-                  - release-managers-1.21
             release-1.22: &release122
               protect: true
-              restrictions:
-                teams:
-                  - release-managers-1.22
             release-1.23: &release123
               protect: true
-              restrictions:
-                teams:
-                  - release-managers-1.23
             release-1.24: &release124
               protect: true
-              restrictions:
-                teams:
-                  - release-managers-1.24
             release-1.25: &release125
               protect: true
-              restrictions:
-                teams:
-                  - release-managers-1.25
             release-1.26: &release126
               protect: true
-              restrictions:
-                teams:
-                  - release-managers-1.26
             release-1.27: &release127
               protect: true
-              restrictions:
-                teams:
-                  - release-managers-1.27
             release-1.28: &release128
               protect: true
-              restrictions:
-                teams:
-                  - release-managers-1.28
             release-1.29: &release129
               protect: true
+            copilot|dependabot/:
+              protect: true
               restrictions:
-                teams:
-                  - release-managers-1.29
+                users:
+
         operator:
           branches: *blocked_branches
         istio.io:
@@ -364,8 +342,8 @@ branch-protection:
             dismiss_stale_reviews: true
             dismissal_restrictions:
               teams:
-              - steering-committee
-              - repo-admins
+              - istio/steering-committee
+              - istio/repo-admins
         release-builder:
           branches: *blocked_branches
         ztunnel:
