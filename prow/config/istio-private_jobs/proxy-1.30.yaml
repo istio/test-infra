@@ -1,0 +1,21 @@
+defaults:
+  branches:
+  - release-1.30
+  modifier: release-1.30_priv
+  repo-allowlist:
+  - proxy
+org: istio
+repo: proxy
+transforms:
+- job-type:
+  - presubmit
+  labels:
+    preset-enable-netrc: "true"
+- env:
+    GCS_BUILD_BUCKET: istio-build-private
+  job-denylist:
+  - update-istio_proxy_release-1.30
+  job-type:
+  - postsubmit
+  labels:
+    preset-enable-netrc: "true"
