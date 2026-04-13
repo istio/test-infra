@@ -2219,6 +2219,86 @@ postsubmits:
     - ^master$
     cluster: private
     decorate: true
+    name: integ-pilot-filebasedkubeconfig_istio_postsubmit_pri
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --topology
+        - MULTICLUSTER
+        - --topology-config
+        - prow/config/topology/ambient-multicluster.json
+        - test.integration.pilot.filebasedkubeconfig.kube
+        env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "8"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-build-private/proxy
+        image: gcr.io/istio-testing/build-tools:master-817db1b7909fb411f9c6d357b831b658285c26fb
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "8"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    cluster: private
+    decorate: true
     name: integ-pilot-istiodremote-mc_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -4824,6 +4904,90 @@ presubmits:
             path: .netrc
           secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-ipv6,?($|\s.*))|((?m)^/test( | .* )integ-ipv6_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    cluster: private
+    decorate: true
+    name: integ-pilot-filebasedkubeconfig_istio_pri
+    path_alias: istio.io/istio
+    rerun_command: /test integ-pilot-filebasedkubeconfig
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --topology
+        - MULTICLUSTER
+        - --topology-config
+        - prow/config/topology/ambient-multicluster.json
+        - test.integration.pilot.filebasedkubeconfig.kube
+        env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "8"
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-build-private/proxy
+        image: gcr.io/istio-testing/build-tools:master-817db1b7909fb411f9c6d357b831b658285c26fb
+        name: ""
+        resources:
+          limits:
+            cpu: "8"
+            memory: 24Gi
+          requests:
+            cpu: "8"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
+    trigger: ((?m)^/test( | .* )integ-pilot-filebasedkubeconfig,?($|\s.*))|((?m)^/test(
+      | .* )integ-pilot-filebasedkubeconfig_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
