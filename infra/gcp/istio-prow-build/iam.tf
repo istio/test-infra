@@ -117,6 +117,37 @@ module "prowjob_testing_write_account" {
   prowjob = true
 }
 
+# SA used by the kubernetes-external-secrets operator running in the build
+# clusters (both `prow` and `prow-arm` in istio-prow-build). Both clusters
+# share the same Workload Identity pool, so a single GCP SA + binding to
+# `default/kubernetes-external-secrets-sa` works for both.
+resource "google_service_account" "kubernetes_external_secrets_sa" {
+  account_id   = "kubernetes-external-secrets-sa"
+  display_name = "kubernetes-external-secrets-sa"
+  project      = local.project_id
+}
+
+data "google_iam_policy" "kubernetes_external_secrets_sa" {
+  binding {
+    role = "roles/iam.workloadIdentityUser"
+    members = [
+      "serviceAccount:${local.project_id}.svc.id.goog[default/kubernetes-external-secrets-sa]",
+    ]
+  }
+}
+resource "google_service_account_iam_policy" "kubernetes_external_secrets_sa" {
+  service_account_id = google_service_account.kubernetes_external_secrets_sa.name
+  policy_data        = data.google_iam_policy.kubernetes_external_secrets_sa.policy_data
+}
+# Grant project-level secretAccessor on istio-testing so the operator can
+# read any secret from that project (mirrors the existing setup for the
+# kubernetes-external-secrets SA in istio-testing/prow).
+resource "google_project_iam_member" "kubernetes_external_secrets_sa_secret_accessor" {
+  project = "istio-testing"
+  role    = "roles/secretmanager.secretAccessor"
+  member  = "serviceAccount:${google_service_account.kubernetes_external_secrets_sa.email}"
+}
+
 module "opentelemetry_collector_account" {
   source            = "../modules/workload-identity-service-account"
   project_id        = local.project_id
