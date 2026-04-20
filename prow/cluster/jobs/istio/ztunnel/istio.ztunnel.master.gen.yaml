@@ -92,11 +92,16 @@ postsubmits:
       automountServiceAccountToken: false
       containers:
       - command:
+        - entrypoint
         - make
         - release
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: CF_ACCOUNT_ID
+          value: 1eb8152ceed73d3ee6f66c3557819d4c
+        - name: GCP_SECRETS
+          value: '[{"secret":"cf_r2_access_key_id","project":"istio-testing","env":"CF_ACCESS_KEY_ID"},{"secret":"cf_r2_access_key_secret","project":"istio-testing","env":"CF_ACCESS_KEY_SECRET"}]'
         - name: GOMAXPROCS
           value: "8"
         image: gcr.io/istio-testing/build-tools:master-817db1b7909fb411f9c6d357b831b658285c26fb
@@ -159,11 +164,16 @@ postsubmits:
       automountServiceAccountToken: false
       containers:
       - command:
+        - entrypoint
         - make
         - release
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: CF_ACCOUNT_ID
+          value: 1eb8152ceed73d3ee6f66c3557819d4c
+        - name: GCP_SECRETS
+          value: '[{"secret":"cf_r2_access_key_id","project":"istio-testing","env":"CF_ACCESS_KEY_ID"},{"secret":"cf_r2_access_key_secret","project":"istio-testing","env":"CF_ACCESS_KEY_SECRET"}]'
         - name: GOMAXPROCS
           value: "8"
         image: gcr.io/istio-testing/build-tools:master-817db1b7909fb411f9c6d357b831b658285c26fb
