@@ -44,6 +44,7 @@ spec:
         - --github-endpoint=https://api.github.com
         - --github-oauth-config-file=/etc/githuboauth/secret
         - --cookie-secret=/etc/cookie/secret
+        - --s3-credentials-file=/etc/r2-credentials/service-account.json
         env:
         # Use KUBECONFIG envvar rather than --kubeconfig flag in order to provide multiple configs to merge.
         - name: KUBECONFIG
@@ -66,6 +67,9 @@ spec:
           readOnly: true
         - mountPath: /etc/kubeconfig
           name: kubeconfig
+          readOnly: true
+        - mountPath: /etc/r2-credentials
+          name: r2-credentials
           readOnly: true
         livenessProbe:
           httpGet:
@@ -100,3 +104,6 @@ spec:
         configMap:
           defaultMode: 420
           name: kubeconfig
+      - name: r2-credentials
+        secret:
+          secretName: r2-credentials
