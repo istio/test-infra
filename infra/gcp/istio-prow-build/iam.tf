@@ -102,9 +102,9 @@ module "prowjob_testing_write_account" {
     { bucket = "istio-build", role = "OWNER" },
   ]
   secrets = [
-    { name = "cf_r2_istio-build_access_key_id", project = "istio-testing" },
-    { name = "cf_r2_istio-build_access_key_secret", project = "istio-testing" },
-    { name = "cf_r2_istio-build_access_token", project = "istio-testing" },
+    { name = "cf_r2_access_key_id", project = "istio-testing" },
+    { name = "cf_r2_access_key_secret", project = "istio-testing" },
+    { name = "cf_r2_access_token", project = "istio-testing" },
   ]
   project_roles = [
     { role = "roles/remotebuildexecution.actionCacheWriter", project = "istio-testing" },

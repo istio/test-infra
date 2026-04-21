@@ -11,10 +11,10 @@ plank:
       timeout: 2h
       grace_period: 15s
       utility_images:
-        clonerefs: "us-docker.pkg.dev/k8s-infra-prow/images/clonerefs:v20260410-c210e98fe"
-        initupload: "us-docker.pkg.dev/k8s-infra-prow/images/initupload:v20260410-c210e98fe"
-        entrypoint: "us-docker.pkg.dev/k8s-infra-prow/images/entrypoint:v20260410-c210e98fe"
-        sidecar: "us-docker.pkg.dev/k8s-infra-prow/images/sidecar:v20260410-c210e98fe"
+        clonerefs: "us-docker.pkg.dev/k8s-infra-prow/images/clonerefs:v20260417-5edbb8e3a"
+        initupload: "us-docker.pkg.dev/k8s-infra-prow/images/initupload:v20260417-5edbb8e3a"
+        entrypoint: "us-docker.pkg.dev/k8s-infra-prow/images/entrypoint:v20260417-5edbb8e3a"
+        sidecar: "us-docker.pkg.dev/k8s-infra-prow/images/sidecar:v20260417-5edbb8e3a"
       gcs_configuration:
         bucket: "istio-prow"
         path_strategy: "explicit"
@@ -43,6 +43,13 @@ plank:
     config:
       default_service_account_name: "prowjob-default-sa" # Use workload identity
       gcs_credentials_secret: ""                         # rather than service account key secret
+  # Add this back when we figure out how to get R2 credentials in worker clusters.
+  # - repo: istio/test-infra
+  #   config:
+  #     gcs_configuration:
+  #       bucket: "s3://istio-prow"
+  #       path_strategy: "explicit"
+  #     s3_credentials_secret: "r2-credentials"
 
 sinker:
   resync_period: 1m

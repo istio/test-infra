@@ -23,8 +23,8 @@ jobs:
     architectures: [amd64, arm64]
     service_account_name: prowjob-testing-write
     types: [postsubmit]
-    command: [make, release]
-    requirements: [cratescache]
+    command: [entrypoint, make, release]
+    requirements: [cratescache, cf-r2-auth]
 
 resources_presets:
   # Rust jobs are CPU intensive. Bump up defaults (from 1/3) to 3/8 to speed up jobs.
