@@ -138,3 +138,44 @@ resource "google_project_iam_member" "owners" {
   member   = "user:${each.key}"
 }
 
+// GSA used by the cloudflare-rotator CronJob in the trusted cluster.
+// The KSA is "cloudflare-rotator" in the "default" namespace.
+module "cloudflare_rotator_account" {
+  source            = "../modules/workload-identity-service-account"
+  project_id        = local.project_id
+  name              = "cloudflare-rotator"
+  description       = "Rotates ephemeral Cloudflare R2 credentials in GSM."
+  cluster_namespace = "default"
+  prowjob           = false
+
+  // secretAccessor (read) on the permanent admin token and on the
+  secrets = [
+    { name = "cf_r2_admin_token" },
+    { name = "cf_r2_istio-prow_access_key_id" },
+  ]
+}
+
+// secretVersionManager (add new versions + enable/disable/destroy old ones)
+// on the per-bucket ephemeral secrets. Manager is needed (rather than the
+// append-only secretVersionAdder) because the rotator disables prior versions
+// after each successful upload to keep stale credentials from being read.
+//
+// Note: cf_r2_istio-prow_access_key_id is intentionally omitted. Cloudflare's
+// temp-access-credentials endpoint returns the parent's accessKeyId unchanged,
+// so that secret only needs to be read (granted via the module above) and is
+// never rewritten by the rotator.
+locals {
+  cloudflare_rotator_writable_secrets = toset([
+    "cf_r2_istio-prow_access_key_secret",
+    "cf_r2_istio-prow_credentials",
+    "cf_r2_istio-prow_session_token",
+  ])
+}
+
+resource "google_secret_manager_secret_iam_member" "cloudflare_rotator_version_adder" {
+  for_each  = local.cloudflare_rotator_writable_secrets
+  project   = local.project_id
+  secret_id = each.value
+  role      = "roles/secretmanager.secretVersionManager"
+  member    = "serviceAccount:${module.cloudflare_rotator_account.email}"
+}

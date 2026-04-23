@@ -25,7 +25,7 @@ source "$ROOT/../utils.sh"
 # Defaults
 image='gcr.io/istio-testing/build-tools.*'
 tag='$AUTOMATOR_SRC_BRANCH-\([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2}\|[0-9a-f]{40}\)'
-paths='$AUTOMATOR_REPO_DIR/prow/cluster/jobs/**/*.yaml,$AUTOMATOR_REPO_DIR/prow/config/jobs/**/*.yaml'
+paths='$AUTOMATOR_REPO_DIR/prow/cluster/jobs/**/*.yaml,$AUTOMATOR_REPO_DIR/prow/config/jobs/**/*.yaml,$AUTOMATOR_REPO_DIR/prow/cluster/cloudflare_rotator_cronjob.yaml'
 key="image"
 var="IMAGE_VERSION"
 source='$AUTOMATOR_ROOT_DIR/files/common/scripts/setup_env.sh'

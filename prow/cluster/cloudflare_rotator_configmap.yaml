@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudflare-rotator
+  namespace: default
+data:
+  rotate.sh: |
+    #!/usr/bin/env bash
+    # Inputs (env): CF_ACCOUNT_ID, GCP_PROJECT
+    set -euo pipefail
+    buckets=(
+      "istio-prow"
+    )
+    echo "Setting up gcloud"
+    gcloud config set project "$GCP_PROJECT"
+
+    # Append a new version of $1 with value $2, then disable all previously-enabled
+    # versions of that secret. Keeps GSM tidy so consumers can't accidentally
+    # pick up a stale credential.
+    upload_and_prune() {
+      local secret=$1
+      local value=$2
+      local new
+      new=$(printf '%s' "$value" | gcloud secrets versions add "$secret" --data-file=- --format='value(name)')
+      new=${new##*/}
+      gcloud secrets versions list "$secret" --filter="state:ENABLED" --format='value(name)' \
+        | while read -r v; do
+            if [[ -n "$v" && "$v" != "$new" ]]; then
+              gcloud secrets versions disable "$v" --secret="$secret"
+            fi
+          done
+    }
+    echo "Fetching latest version of admin token"
+    admin_secret_version=$(gcloud secrets versions describe latest --secret=cf_r2_admin_token --format='value(name)')
+    echo "Fetching admin token value"
+    admin_token=$(gcloud secrets versions access "$admin_secret_version" | tr -d '\n\r')
+    for bucket in "${buckets[@]}"; do
+      echo "Fetching secret key for bucket"
+      key_id_version=$(gcloud secrets versions describe latest --secret="cf_r2_${bucket}_access_key_id" --format='value(name)')
+      key_id=$(gcloud secrets versions access "$key_id_version" | tr -d '\n\r')
+      echo "Rotating credentials for bucket $bucket"
+      body=$(jq -n \
+        --arg bucket "$bucket" \
+        --arg parent "$key_id" \
+        '{bucket: $bucket, parentAccessKeyId: $parent, permission: "object-read-write", ttlSeconds: 86400}')
+      response=$( \
+        curl -XPOST \
+        --retry 3 \
+        --retry-delay 1 \
+        --retry-all-errors \
+        -sSL \
+        "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/r2/temp-access-credentials" \
+        -H "Authorization: Bearer ${admin_token}" \
+        -H "Content-Type: application/json" \
+        -d "$body" \
+      )
+
+      if ! echo "$response" | jq -e '.success' > /dev/null; then
+        echo "Cloudflare API error: $response"
+        exit 1
+      fi
+
+      if ! creds=$(echo "$response" | jq -e '.result | {accessKeyId, secretAccessKey, sessionToken} | select(.accessKeyId and .secretAccessKey and .sessionToken)'); then
+        echo "Cloudflare API error: missing fields in response: $response"
+        exit 1
+      fi
+      access_key_id=$(echo "$creds" | jq -r '.accessKeyId')
+      access_key_secret=$(echo "$creds" | jq -r '.secretAccessKey')
+      session_token=$(echo "$creds" | jq -r '.sessionToken')
+
+      # Cloudflare's temp-access-credentials endpoint returns the parent's
+      # accessKeyId unchanged, so cf_r2_${bucket}_access_key_id never needs
+      # to be rewritten -- it was seeded once with the parent value and stays
+      # valid across rotations. Only the secret_access_key and session_token
+      # change each run.
+      echo "Uploading secretAccessKey for bucket $bucket"
+      upload_and_prune "cf_r2_${bucket}_access_key_secret" "$access_key_secret"
+      echo "Uploading sessionToken for bucket $bucket"
+      upload_and_prune "cf_r2_${bucket}_session_token" "$session_token"
+      echo "Uploading credentials JSON for bucket $bucket"
+      credentials_json=$(jq -n \
+        --arg ak "$access_key_id" \
+        --arg sk "$access_key_secret" \
+        --arg st "$session_token" \
+        --arg ep "https://${CF_ACCOUNT_ID}.r2.cloudflarestorage.com" \
+        '{access_key: $ak, secret_key: $sk, session_token: $st, endpoint: $ep, s3_force_path_style: true, region: "auto"}')
+      upload_and_prune "cf_r2_${bucket}_credentials" "$credentials_json"
+    done
