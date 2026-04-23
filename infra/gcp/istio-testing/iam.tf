@@ -151,24 +151,13 @@ module "cloudflare_rotator_account" {
   // secretAccessor (read) on the permanent admin token and on the
   secrets = [
     { name = "cf_r2_admin_token" },
-    { name = "cf_r2_istio-prow_access_key_id" },
   ]
 }
 
-// secretVersionManager (add new versions + enable/disable/destroy old ones)
-// on the per-bucket ephemeral secrets. Manager is needed (rather than the
-// append-only secretVersionAdder) because the rotator disables prior versions
-// after each successful upload to keep stale credentials from being read.
-//
-// Note: cf_r2_istio-prow_access_key_id is intentionally omitted. Cloudflare's
-// temp-access-credentials endpoint returns the parent's accessKeyId unchanged,
-// so that secret only needs to be read (granted via the module above) and is
-// never rewritten by the rotator.
 locals {
   cloudflare_rotator_writable_secrets = toset([
-    "cf_r2_istio-prow_access_key_secret",
     "cf_r2_istio-prow_credentials",
-    "cf_r2_istio-prow_session_token",
+    "cf_r2_istio-build_credentials",
   ])
 }
 
