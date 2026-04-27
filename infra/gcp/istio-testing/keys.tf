@@ -6,7 +6,7 @@ resource "google_kms_key_ring" "istio_cosign_keyring" {
   project  = "istio-testing"
 }
 resource "google_kms_crypto_key" "istio_cosign_key" {
-  destroy_scheduled_duration = "86400s"
+  destroy_scheduled_duration = "2592000s"
   key_ring                   = "projects/istio-testing/locations/global/keyRings/istio-cosign-keyring"
   name                       = "istio-cosign-key"
   purpose                    = "ASYMMETRIC_SIGN"
@@ -14,5 +14,9 @@ resource "google_kms_crypto_key" "istio_cosign_key" {
   version_template {
     algorithm        = "EC_SIGN_P256_SHA256"
     protection_level = "SOFTWARE"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
