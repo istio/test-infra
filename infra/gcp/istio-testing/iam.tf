@@ -138,6 +138,14 @@ resource "google_project_iam_member" "owners" {
   member   = "user:${each.key}"
 }
 
+// We need to read from these secrets to get the key id, which lets us get new ephemeral credentials and refresh the secrets.
+locals {
+  cloudflare_rotator_r2_secrets = toset([
+    "cf_r2_istio-prow_credentials",
+    "cf_r2_istio-build_credentials",
+  ])
+}
+
 // GSA used by the cloudflare-rotator CronJob in the trusted cluster.
 // The KSA is "cloudflare-rotator" in the "cloudflare-secret-rotation" namespace.
 module "cloudflare_rotator_account" {
@@ -148,21 +156,15 @@ module "cloudflare_rotator_account" {
   cluster_namespace = "cloudflare-secret-rotation"
   prowjob           = false
 
-  // secretAccessor (read) on the permanent admin token
-  secrets = [
-    { name = "cf_r2_admin_token" },
-  ]
+  // secretAccessor (read) on the permanent admin token and r2 credentials secrets
+  secrets = concat(
+    [{ name = "cf_r2_admin_token" }],
+    [for s in local.cloudflare_rotator_r2_secrets : { name = s }],
+  )
 }
 
-locals {
-  cloudflare_rotator_writable_secrets = toset([
-    "cf_r2_istio-prow_credentials",
-    "cf_r2_istio-build_credentials",
-  ])
-}
-
-resource "google_secret_manager_secret_iam_member" "cloudflare_rotator_version_adder" {
-  for_each  = local.cloudflare_rotator_writable_secrets
+resource "google_secret_manager_secret_iam_member" "cloudflare_rotator_version_manager" {
+  for_each  = local.cloudflare_rotator_r2_secrets
   project   = local.project_id
   secret_id = each.value
   role      = "roles/secretmanager.secretVersionManager"

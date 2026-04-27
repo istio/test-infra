@@ -30,14 +30,11 @@ data:
             fi
           done
     }
-    echo "Fetching latest version of admin token"
-    admin_secret_version=$(gcloud secrets versions describe latest --secret=cf_r2_admin_token --format='value(name)')
     echo "Fetching admin token value"
-    admin_token=$(gcloud secrets versions access "${admin_secret_version}" | tr -d '\n\r')
+    admin_token=$(gcloud secrets versions access latest --secret=cf_r2_admin_token | tr -d '\n\r')
     for bucket in "${buckets[@]}"; do
-      echo "Fetching secret key for bucket"
-      key_credentials_version=$(gcloud secrets versions describe latest --secret="cf_r2_${bucket}_credentials" --format='value(name)')
-      key_id=$(gcloud secrets versions access "${key_credentials_version}" | jq -r '.access_key' | tr -d '\n\r')
+      echo "Fetching parent access key id for bucket ${bucket}"
+      key_id=$(gcloud secrets versions access latest --secret="cf_r2_${bucket}_credentials" | jq -r '.access_key' | tr -d '\n\r')
       echo "Rotating credentials for bucket ${bucket}"
       body=$(jq -n \
         --arg bucket "${bucket}" \
