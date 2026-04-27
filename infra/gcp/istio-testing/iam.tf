@@ -139,16 +139,16 @@ resource "google_project_iam_member" "owners" {
 }
 
 // GSA used by the cloudflare-rotator CronJob in the trusted cluster.
-// The KSA is "cloudflare-rotator" in the "default" namespace.
+// The KSA is "cloudflare-rotator" in the "cloudflare-secret-rotation" namespace.
 module "cloudflare_rotator_account" {
   source            = "../modules/workload-identity-service-account"
   project_id        = local.project_id
   name              = "cloudflare-rotator"
   description       = "Rotates ephemeral Cloudflare R2 credentials in GSM."
-  cluster_namespace = "default"
+  cluster_namespace = "cloudflare-secret-rotation"
   prowjob           = false
 
-  // secretAccessor (read) on the permanent admin token and on the
+  // secretAccessor (read) on the permanent admin token
   secrets = [
     { name = "cf_r2_admin_token" },
   ]
