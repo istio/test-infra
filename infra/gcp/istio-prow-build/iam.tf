@@ -130,7 +130,7 @@ module "kubernetes_external_secrets_account" {
   description       = "Service account used by kubernetes-external-secrets operator on the build clusters."
   cluster_namespace = "default"
   secrets = [
-    { name = "cf_r2_credentials", project = "istio-testing" },
+    { name = "cf_r2_istio-prow_credentials", project = "istio-testing" },
   ]
   prowjob = false
 }
