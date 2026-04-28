@@ -1,6 +1,6 @@
 org: istio
 repo: ztunnel
-image: gcr.io/istio-testing/build-tools:master-817db1b7909fb411f9c6d357b831b658285c26fb
+image: gcr.io/istio-testing/build-tools:master-63fd6eec6f3df5a3ed4e190e60153ef3425f66b4
 support_release_branching: true
 
 jobs:
@@ -24,7 +24,7 @@ jobs:
     service_account_name: prowjob-testing-write
     types: [postsubmit]
     command: [entrypoint, make, release]
-    requirements: [cratescache, cf-r2-auth]
+    requirements: [cratescache, cf-r2-istio-build-auth]
 
 resources_presets:
   # Rust jobs are CPU intensive. Bump up defaults (from 1/3) to 3/8 to speed up jobs.

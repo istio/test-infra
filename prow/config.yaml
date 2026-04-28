@@ -43,12 +43,13 @@ plank:
     config:
       default_service_account_name: "prowjob-default-sa" # Use workload identity
       gcs_credentials_secret: ""                         # rather than service account key secret
-  - repo: istio/test-infra
-    config:
-      gcs_configuration:
-        bucket: "s3://istio-prow"
-        path_strategy: "explicit"
-      s3_credentials_secret: "r2-credentials"
+  # Add this back when we figure out how to get R2 credentials in worker clusters.
+  # - repo: istio/test-infra
+  #   config:
+  #     gcs_configuration:
+  #       bucket: "s3://istio-prow"
+  #       path_strategy: "explicit"
+  #     s3_credentials_secret: "r2-credentials"
 
 sinker:
   resync_period: 1m
