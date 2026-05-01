@@ -9,8 +9,13 @@ data:
     # Inputs (env): CF_ACCOUNT_ID, GCP_PROJECT
     set -euo pipefail
     buckets=(
-      "istio-prow"
       "istio-build"
+      "istio-build-private"
+      "istio-prerelease"
+      "istio-prerelease-private"
+      "istio-prow"
+      "istio-prow-private"
+      "istio-testgrid"
     )
     echo "Setting up gcloud"
     gcloud config set project "${GCP_PROJECT}"

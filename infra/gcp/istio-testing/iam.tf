@@ -141,8 +141,13 @@ resource "google_project_iam_member" "owners" {
 // We need to read from these secrets to get the key id, which lets us get new ephemeral credentials and refresh the secrets.
 locals {
   cloudflare_rotator_r2_secrets = toset([
-    "cf_r2_istio-prow_credentials",
     "cf_r2_istio-build_credentials",
+    "cf_r2_istio-build-private_credentials",
+    "cf_r2_istio-prerelease_credentials",
+    "cf_r2_istio-prerelease-private_credentials",
+    "cf_r2_istio-prow_credentials",
+    "cf_r2_istio-prow-private_credentials",
+    "cf_r2_istio-testgrid_credentials",
   ])
 }
 
