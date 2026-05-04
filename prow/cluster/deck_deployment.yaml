@@ -44,7 +44,8 @@ spec:
         - --github-endpoint=https://api.github.com
         - --github-oauth-config-file=/etc/githuboauth/secret
         - --cookie-secret=/etc/cookie/secret
-        - --s3-credentials-file=/etc/cf-r2-istio-prow-credentials/service-account.json
+        # Deck only reads from blob storage (Spyglass, job/PR history).
+        - --s3-credentials-file=/etc/cf-r2-public-buckets-ro-credentials/service-account.json
         env:
         # Use KUBECONFIG envvar rather than --kubeconfig flag in order to provide multiple configs to merge.
         - name: KUBECONFIG
@@ -68,8 +69,8 @@ spec:
         - mountPath: /etc/kubeconfig
           name: kubeconfig
           readOnly: true
-        - mountPath: /etc/cf-r2-istio-prow-credentials
-          name: cf-r2-istio-prow-credentials
+        - mountPath: /etc/cf-r2-public-buckets-ro-credentials
+          name: cf-r2-public-buckets-ro-credentials
           readOnly: true
         livenessProbe:
           httpGet:
@@ -104,6 +105,6 @@ spec:
         configMap:
           defaultMode: 420
           name: kubeconfig
-      - name: cf-r2-istio-prow-credentials
+      - name: cf-r2-public-buckets-ro-credentials
         secret:
-          secretName: cf-r2-istio-prow-credentials
+          secretName: cf-r2-public-buckets-ro-credentials
