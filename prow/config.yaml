@@ -44,12 +44,6 @@ plank:
     config:
       default_service_account_name: "prowjob-default-sa" # Use workload identity
       gcs_credentials_secret: ""                         # rather than service account key secret
-  # istio/istio still uploads artifacts to GCS; everything else uses R2 by default.
-  - repo: istio/istio
-    config:
-      gcs_configuration:
-        bucket: "istio-prow"
-        path_strategy: "explicit"
 
 sinker:
   resync_period: 1m
@@ -61,7 +55,7 @@ deck:
   google_analytics: G-7HJSJ6B5Q6
   spyglass:
     size_limit: 500000000 # 500MB
-    gcs_browser_prefix: https://gcsweb.istio.io/gcs/
+    gcs_browser_prefix: https://gcsweb.istio.io/s3/
     testgrid_config: gs://k8s-testgrid/config
     testgrid_root: https://testgrid.k8s.io/
     lenses:

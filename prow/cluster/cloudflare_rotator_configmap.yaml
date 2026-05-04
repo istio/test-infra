@@ -8,6 +8,10 @@ data:
     #!/usr/bin/env bash
     # Inputs (env): CF_ACCOUNT_ID, GCP_PROJECT
     set -euo pipefail
+    set +x
+    # Note that we don't rotate "cf_r2_public_buckets_ro_credentials"
+    # because temp credentials can only be scoped to one bucket.
+    # That's probably fine since its read-only to already-public information.
     buckets=(
       "istio-build"
       "istio-build-private"
