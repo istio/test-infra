@@ -146,7 +146,6 @@ locals {
     "cf_r2_istio-prerelease_credentials",
     "cf_r2_istio-prerelease-private_credentials",
     "cf_r2_istio-prow_credentials",
-    "cf_r2_istio-prow_ro_credentials",
     "cf_r2_istio-prow-private_credentials",
     "cf_r2_istio-testgrid_credentials",
   ])

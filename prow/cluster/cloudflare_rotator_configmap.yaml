@@ -8,19 +8,18 @@ data:
     #!/usr/bin/env bash
     # Inputs (env): CF_ACCOUNT_ID, GCP_PROJECT
     set -euo pipefail
-    # Each entry is "<secret_suffix>:<bucket>:<permission>". The GSM secret name is
-    # "cf_r2_${bucket}${secret_suffix}_credentials". Permission is the value passed
-    # to Cloudflare's temp-access-credentials API (e.g. object-read-write,
-    # object-read-only).
-    rotations=(
-      ":istio-build:object-read-write"
-      ":istio-build-private:object-read-write"
-      ":istio-prerelease:object-read-write"
-      ":istio-prerelease-private:object-read-write"
-      ":istio-prow:object-read-write"
-      "_ro:istio-prow:object-read-only"
-      ":istio-prow-private:object-read-write"
-      ":istio-testgrid:object-read-write"
+    set +x
+    # Note that we don't rotate "cf_r2_public_buckets_ro_credentials"
+    # because temp credentials can only be scoped to one bucket.
+    # That's probably fine since its read-only to already-public information.
+    buckets=(
+      "istio-build"
+      "istio-build-private"
+      "istio-prerelease"
+      "istio-prerelease-private"
+      "istio-prow"
+      "istio-prow-private"
+      "istio-testgrid"
     )
     echo "Setting up gcloud"
     gcloud config set project "${GCP_PROJECT}"
@@ -42,17 +41,14 @@ data:
     }
     echo "Fetching admin token value"
     admin_token=$(gcloud secrets versions access latest --secret=cf_r2_admin_token | tr -d '\n\r')
-    for entry in "${rotations[@]}"; do
-      IFS=':' read -r suffix bucket permission <<< "${entry}"
-      secret="cf_r2_${bucket}${suffix}_credentials"
-      echo "Fetching parent access key id from ${secret}"
-      key_id=$(gcloud secrets versions access latest --secret="${secret}" | jq -r '.access_key' | tr -d '\n\r')
-      echo "Rotating credentials for ${secret} (bucket=${bucket}, permission=${permission})"
+    for bucket in "${buckets[@]}"; do
+      echo "Fetching parent access key id for bucket ${bucket}"
+      key_id=$(gcloud secrets versions access latest --secret="cf_r2_${bucket}_credentials" | jq -r '.access_key' | tr -d '\n\r')
+      echo "Rotating credentials for bucket ${bucket}"
       body=$(jq -n \
         --arg bucket "${bucket}" \
         --arg parent "${key_id}" \
-        --arg permission "${permission}" \
-        '{bucket: $bucket, parentAccessKeyId: $parent, permission: $permission, ttlSeconds: 86400}')
+        '{bucket: $bucket, parentAccessKeyId: $parent, permission: "object-read-write", ttlSeconds: 86400}')
       response=$( \
         curl -XPOST \
         --retry 3 \
@@ -86,5 +82,5 @@ data:
         --arg st "${session_token}" \
         --arg ep "https://${CF_ACCOUNT_ID}.r2.cloudflarestorage.com" \
         '{access_key: $ak, secret_key: $sk, session_token: $st, endpoint: $ep, s3_force_path_style: true, region: "auto"}')
-      upload_and_prune "${secret}" "${credentials_json}"
+      upload_and_prune "cf_r2_${bucket}_credentials" "${credentials_json}"
     done

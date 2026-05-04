@@ -55,12 +55,7 @@ deck:
   google_analytics: G-7HJSJ6B5Q6
   spyglass:
     size_limit: 500000000 # 500MB
-    # Default to the s3/ scheme (gcsweb routes both /gcs/<bucket>/ and /s3/<bucket>/),
-    # since prow logs now live in s3://istio-prow. Override per-bucket below for
-    # any bucket that still uses GCS (e.g. the private prow bucket).
-    gcs_browser_prefixes_by_bucket:
-      "*": https://gcsweb.istio.io/s3/
-      istio-prow-private: https://gcsweb.istio.io/gcs/
+    gcs_browser_prefix: https://gcsweb.istio.io/s3/
     testgrid_config: gs://k8s-testgrid/config
     testgrid_root: https://testgrid.k8s.io/
     lenses:
