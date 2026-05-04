@@ -9,20 +9,15 @@ data:
     # Inputs (env): CF_ACCOUNT_ID, GCP_PROJECT
     set -euo pipefail
     set +x
-    # We don't rotate two secrets, both for least-privilege reasons but coming
-    # from opposite directions:
-    #   - cf_r2_public_buckets_ro_credentials: temp credentials can only be
-    #     scoped to one bucket, but we need one credential covering several
-    #     public buckets for gcsweb / Deck Spyglass. Long-lived but RO and
-    #     read-only on already-public data, so the blast radius is small.
-    #   - cf_r2_istio-prow_credentials: Prow, as of right now, does not
-    #     support `session_token` in AWS creds, which are necessary for short-lived
-    #     creds.
+    # Note that we don't rotate "cf_r2_public_buckets_ro_credentials"
+    # because temp credentials can only be scoped to one bucket.
+    # That's probably fine since its read-only to already-public buckets.
     buckets=(
       "istio-build"
       "istio-build-private"
       "istio-prerelease"
       "istio-prerelease-private"
+      "istio-prow"
       "istio-prow-private"
       "istio-testgrid"
     )
