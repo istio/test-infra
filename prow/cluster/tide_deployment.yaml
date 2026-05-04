@@ -25,9 +25,10 @@ spec:
         - --github-endpoint=http://ghproxy
         - --github-endpoint=https://api.github.com
         - --github-token-path=/etc/github/oauth
-        - --history-uri=gs://istio-prow/tide-history.json
+        - --history-uri=s3://istio-prow/tide-history.json
         - --job-config-path=/etc/job-config
-        - --status-path=gs://istio-prow/tide-status-checkpoint.yaml
+        - --status-path=s3://istio-prow/tide-status-checkpoint.yaml
+        - --s3-credentials-file=/etc/cf-r2-istio-prow-credentials/service-account.json
         ports:
         - name: http
           containerPort: 8888
@@ -43,6 +44,9 @@ spec:
         - name: oauth
           mountPath: /etc/github
           readOnly: true
+        - name: cf-r2-istio-prow-credentials
+          mountPath: /etc/cf-r2-istio-prow-credentials
+          readOnly: true
       volumes:
       - name: oauth
         secret:
@@ -53,3 +57,6 @@ spec:
       - name: job-config
         configMap:
           name: job-config
+      - name: cf-r2-istio-prow-credentials
+        secret:
+          secretName: cf-r2-istio-prow-credentials
