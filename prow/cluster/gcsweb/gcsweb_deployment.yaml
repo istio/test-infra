@@ -30,14 +30,18 @@ spec:
         - name: nginx
           mountPath: /etc/nginx/conf.d
       - name: gcsweb
-        image: k8s.gcr.io/gcsweb:v1.1.0
+        # Upstream registry.k8s.io/gcsweb:v1.1.0 predates S3 support
+        # (kubernetes/test-infra#31241). Use the staging image until a newer tag
+        # is published to registry.k8s.io.
+        image: gcr.io/k8s-staging-test-infra/gcsweb:v20260325-0ac3b4d79f
         args:
-        - -b=istio-prow
+        - -b=s3://istio-prow
         - -b=istio-build
         - -b=istio-artifacts
         - -b=istio-release
         - -b=istio-prerelease
         - -b=istio-release-pipeline-data
+        - --s3-credentials-file=/etc/s3-credentials/service-account.json
         - -p=8080
         ports:
         - containerPort: 8080
@@ -56,7 +60,14 @@ spec:
           initialDelaySeconds: 3
           timeoutSeconds: 2
           failureThreshold: 2
+        volumeMounts:
+        - name: s3-credentials
+          mountPath: /etc/s3-credentials
+          readOnly: true
       volumes:
       - name: nginx
         configMap:
           name: nginx
+      - name: s3-credentials
+        secret:
+          secretName: cf-r2-istio-prow-ro-credentials
