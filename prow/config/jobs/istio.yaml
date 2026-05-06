@@ -26,11 +26,13 @@ jobs:
     modifiers: [presubmit_optional, presubmit_skipped]
     command: [entrypoint, make, benchtest]
     resources: dedicated
+    requirements: [cf-r2-istio-prow-auth]
 
   - name: benchmark-report
     types: [postsubmit]
     command: [entrypoint, make, benchtest, report-benchtest]
     resources: dedicated
+    requirements: [cf-r2-istio-prow-auth]
 
   - name: integ-cni
     types: [presubmit]

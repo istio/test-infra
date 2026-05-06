@@ -133,11 +133,13 @@ requirement_presets:
         project: istio-prow-build
         env: GH_TOKEN
   cf-r2-istio-build-auth:
-    env:
-      - name: CF_ACCOUNT_ID
-        value: "1eb8152ceed73d3ee6f66c3557819d4c"
     secrets:
       - secret: cf_r2_istio-build_credentials
+        project: istio-testing
+        env: CF_CREDENTIALS
+  cf-r2-istio-prow-auth:
+    secrets:
+      - secret: cf_r2_istio-prow_credentials
         project: istio-testing
         env: CF_CREDENTIALS
   # build-base has access to push to dockerhub and to push as istio-testing github. Only for use with base image building

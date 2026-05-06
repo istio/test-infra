@@ -65,6 +65,14 @@ resource "google_service_account" "testgrid_updater" {
   project      = "istio-testing"
 }
 
+# Allow the default prowjob SA to read the cf_r2_istio-prow_credentials secret
+resource "google_secret_manager_secret_iam_member" "prowjob_default_cf_r2_istio_prow" {
+  project   = "istio-testing"
+  secret_id = "cf_r2_istio-prow_credentials"
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.istio_prow_test_job_default.email}"
+}
+
 
 ## Prow Infra Service Accounts ##
 # Used for WI for external secrets deployment
