@@ -298,6 +298,10 @@ func TestJobs(t *testing.T) {
 			return fmt.Errorf("jobs with secrets %v cannot be presubmits", secrets.UnsortedList())
 		}
 
+		if secrets.Len() == 1 && secrets.Has("istio-testing/cf_r2_istio-prow_credentials") {
+			// All pods already have access to this secret, as its needed to upload prowjob results to R2.
+			return nil
+		}
 		secretSA := SecretServiceAccounts.Has(j.ServiceAccount())
 		if !secretSA {
 			return fmt.Errorf("service account %v does not have Secrets access", j.ServiceAccount())
