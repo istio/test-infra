@@ -98,8 +98,6 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-build_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
         - name: GOMAXPROCS
           value: "8"
         image: gcr.io/istio-testing/build-tools:master-63fd6eec6f3df5a3ed4e190e60153ef3425f66b4
@@ -168,8 +166,6 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-build_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
         - name: GOMAXPROCS
           value: "8"
         image: gcr.io/istio-testing/build-tools:master-63fd6eec6f3df5a3ed4e190e60153ef3425f66b4
@@ -280,6 +276,21 @@ presubmits:
     path_alias: istio.io/ztunnel
     rerun_command: /test bench
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: cloud.google.com/machine-family
+                operator: In
+                values:
+                - c3
+                - c3d
+                - n4
+                - c4d
+                - c4a
+                - c4
+            weight: 1
       automountServiceAccountToken: false
       containers:
       - command:
@@ -288,6 +299,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GCP_SECRETS
+          value: '[{"secret":"cf_r2_istio-prow_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
         - name: GOMAXPROCS
           value: "8"
         image: gcr.io/istio-testing/build-tools:master-63fd6eec6f3df5a3ed4e190e60153ef3425f66b4
@@ -305,6 +318,9 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+        - mountPath: /home/.cargo
+          name: build-cache
+          subPath: cargo
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: test-pool
