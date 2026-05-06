@@ -201,6 +201,14 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: --istio.test.skipVM
 
+  - name: integ-agentgateway
+    requirements: [kind]
+    modifiers: [presubmit_optional]
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: --istio.test.agentgateway
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.agentgateway]
+
   - name: integ-security
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube]
     requirements: [kind]
