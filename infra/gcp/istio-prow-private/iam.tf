@@ -63,9 +63,10 @@ resource "google_project_iam_member" "owners" {
 module "kubernetes_external_secrets_account" {
   source            = "../modules/workload-identity-service-account"
   project_id        = local.project_id
-  name              = "kubernetes-external-secrets-sa-private"
+  name              = "k8s-external-secrets-sa-priv"
   description       = "Service account used by kubernetes-external-secrets operator on the private clusters."
   cluster_namespace = "default"
+  cluster_serviceaccount_name = "k8s-external-secrets-sa-priv"
   secrets = [
     { name = "cf_r2_istio-prow-private_credentials", project = "istio-testing" },
   ]
