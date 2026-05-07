@@ -1141,6 +1141,762 @@ postsubmits:
     decorate: true
     decoration_config:
       timeout: 4h0m0s
+    name: integ-k8s-123_istio_release-1.30_postsubmit_pri
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.23.9
+        - --kind-config
+        - prow/config/modern.yaml
+        - test.integration.kube
+        env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "5"
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.30-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-build-private/proxy
+        image: gcr.io/istio-testing/build-tools:release-1.30-817db1b7909fb411f9c6d357b831b658285c26fb
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.30$
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    name: integ-k8s-124_istio_release-1.30_postsubmit_pri
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.24.9
+        - --kind-config
+        - prow/config/modern.yaml
+        - test.integration.kube
+        env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "5"
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.30-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-build-private/proxy
+        image: gcr.io/istio-testing/build-tools:release-1.30-817db1b7909fb411f9c6d357b831b658285c26fb
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.30$
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    name: integ-k8s-125_istio_release-1.30_postsubmit_pri
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.25.9
+        - --kind-config
+        - prow/config/modern.yaml
+        - test.integration.kube
+        env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "5"
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.30-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-build-private/proxy
+        image: gcr.io/istio-testing/build-tools:release-1.30-817db1b7909fb411f9c6d357b831b658285c26fb
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.30$
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    name: integ-k8s-126_istio_release-1.30_postsubmit_pri
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.26.6
+        - --kind-config
+        - prow/config/modern.yaml
+        - test.integration.kube
+        env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "5"
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.30-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-build-private/proxy
+        image: gcr.io/istio-testing/build-tools:release-1.30-817db1b7909fb411f9c6d357b831b658285c26fb
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.30$
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    name: integ-k8s-127_istio_release-1.30_postsubmit_pri
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.27.8
+        - --kind-config
+        - prow/config/modern.yaml
+        - test.integration.kube
+        env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "5"
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.30-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-build-private/proxy
+        image: gcr.io/istio-testing/build-tools:release-1.30-817db1b7909fb411f9c6d357b831b658285c26fb
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.30$
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    name: integ-k8s-128_istio_release-1.30_postsubmit_pri
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.28.4
+        - --kind-config
+        - prow/config/modern.yaml
+        - test.integration.kube
+        env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "5"
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.30-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-build-private/proxy
+        image: gcr.io/istio-testing/build-tools:release-1.30-817db1b7909fb411f9c6d357b831b658285c26fb
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.30$
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    name: integ-k8s-129_istio_release-1.30_postsubmit_pri
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.29.7
+        - --kind-config
+        - prow/config/modern.yaml
+        - test.integration.kube
+        env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "5"
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.30-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-build-private/proxy
+        image: gcr.io/istio-testing/build-tools:release-1.30-817db1b7909fb411f9c6d357b831b658285c26fb
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.30$
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    name: integ-k8s-130_istio_release-1.30_postsubmit_pri
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.30.3
+        - --kind-config
+        - prow/config/modern.yaml
+        - test.integration.kube
+        env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "5"
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.30-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-build-private/proxy
+        image: gcr.io/istio-testing/build-tools:release-1.30-817db1b7909fb411f9c6d357b831b658285c26fb
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.30$
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    name: integ-k8s-131_istio_release-1.30_postsubmit_pri
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.31.0
+        - --kind-config
+        - prow/config/modern.yaml
+        - test.integration.kube
+        env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "5"
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.30-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-build-private/proxy
+        image: gcr.io/istio-testing/build-tools:release-1.30-817db1b7909fb411f9c6d357b831b658285c26fb
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.30$
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
     name: integ-k8s-132_istio_release-1.30_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -1319,6 +2075,174 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - --node-image
         - gcr.io/istio-testing/kind-node:v1.34.0
+        - --kind-config
+        - prow/config/modern.yaml
+        - test.integration.kube
+        env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "5"
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.30-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-build-private/proxy
+        image: gcr.io/istio-testing/build-tools:release-1.30-817db1b7909fb411f9c6d357b831b658285c26fb
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.30$
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    name: integ-k8s-135_istio_release-1.30_postsubmit_pri
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.35.0
+        - --kind-config
+        - prow/config/modern.yaml
+        - test.integration.kube
+        env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "5"
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.30-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: https://storage.googleapis.com/istio-build-private/proxy
+        image: gcr.io/istio-testing/build-tools:release-1.30-817db1b7909fb411f9c6d357b831b658285c26fb
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.30$
+    cluster: private
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    name: integ-k8s-136_istio_release-1.30_postsubmit_pri
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.36.0
         - --kind-config
         - prow/config/modern.yaml
         - test.integration.kube
