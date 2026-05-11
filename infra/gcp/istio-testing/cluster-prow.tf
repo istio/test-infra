@@ -115,7 +115,6 @@ resource "google_container_node_pool" "prow_pool" {
     }
   }
 
-  node_count     = 4
   node_locations = ["us-west1-a"]
   project        = "istio-testing"
 
