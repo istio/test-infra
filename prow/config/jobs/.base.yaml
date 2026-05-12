@@ -168,6 +168,13 @@ requirement_presets:
       - secret: cf_r2_istio-build-private_credentials
         project: istio-testing
         env: CF_CREDENTIALS
+  # Generic read-only credentials for the public R2 buckets. Safe to grant to
+  # untrusted presubmits since it cannot write anywhere.
+  cf-r2-public-ro-auth:
+    secrets:
+      - secret: cf_r2_public_buckets_ro_credentials
+        project: istio-testing
+        env: CF_CREDENTIALS
   # build-base has access to push to dockerhub and to push as istio-testing github. Only for use with base image building
   build-base:
     env:
