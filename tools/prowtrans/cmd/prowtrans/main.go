@@ -117,7 +117,12 @@ func (o *options) parseOpts() {
 	flag.StringSliceVar(&o.RepoAllowlist, "repo-allowlist", []string{}, "Repositories to allowlist in generation process.")
 	flag.StringSliceVar(&o.RepoDenylist, "repo-denylist", []string{}, "Repositories to denylist in generation process.")
 	flag.StringSliceVarP(&o.JobType, "job-type", "t", defaultJobTypes, "Job type(s) to process (e.g. presubmit, postsubmit. periodic).")
-	flag.StringSliceVar(&o.RequirementPresetPaths, "requirement-presets", []string{}, "Path to file(s) containing prowgen requirement_presets definitions (e.g. .base.yaml).")
+	flag.StringSliceVar(
+		&o.RequirementPresetPaths,
+		"requirement-presets",
+		[]string{},
+		"Path to file(s) containing prowgen requirement_presets definitions (e.g. .base.yaml).",
+	)
 	flag.BoolVar(&o.Clean, "clean", false, "Clean output files before job(s) generation.")
 	flag.BoolVar(&o.DryRun, "dry-run", false, "Run in dry run mode.")
 	flag.BoolVar(&o.Refs, "refs", false, "Apply translation to all extra refs regardless of repo.")
