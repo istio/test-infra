@@ -33,6 +33,8 @@ postsubmits:
               name: master-release-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: https://storage.googleapis.com/istio-build-private/proxy
+        - name: GCP_SECRETS
+          value: '[{"secret":"cf_r2_istio-prerelease-private_credentials","project":"istio-testing","env":"CF_PRERELEASE_CREDENTIALS"}]'
         image: gcr.io/istio-testing/build-tools:master-63fd6eec6f3df5a3ed4e190e60153ef3425f66b4
         name: ""
         resources:
@@ -264,6 +266,8 @@ presubmits:
           value: istio-prerelease-private/charts
         - name: PRERELEASE_DOCKER_HUB
           value: us-docker.pkg.dev/istio-prow-private/istio-prow-private
+        - name: GCP_SECRETS
+          value: '[{"secret":"cf_r2_istio-prerelease-private_credentials","project":"istio-testing","env":"CF_PRERELEASE_CREDENTIALS"}]'
         image: gcr.io/istio-testing/build-tools:master-63fd6eec6f3df5a3ed4e190e60153ef3425f66b4
         name: ""
         resources:

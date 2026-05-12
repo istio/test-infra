@@ -62,6 +62,7 @@ type Transform struct {
 	RepoAllowlist          []string                `json:"repo-allowlist,omitempty"`
 	RepoDenylist           []string                `json:"repo-denylist,omitempty"`
 	JobType                []string                `json:"job-type,omitempty"`
+	Requirements           []string                `json:"requirements,omitempty"`
 	Selector               map[string]string       `json:"selector,omitempty"`
 	Labels                 map[string]string       `json:"labels,omitempty"`
 	Env                    map[string]*string      `json:"env,omitempty"`

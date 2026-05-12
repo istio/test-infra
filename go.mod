@@ -9,12 +9,15 @@ require (
 	github.com/google/go-containerregistry v0.20.2
 	github.com/spf13/pflag v1.0.5
 	golang.org/x/exp v0.0.0-20241215155358-4a5509556b9e
+	istio.io/test-infra/tools/prowgen v0.0.0-00010101000000-000000000000
 	k8s.io/api v0.32.0
 	k8s.io/apimachinery v0.32.0
 	k8s.io/test-infra v0.0.0-20240509142418-dcb0d8161491
 	sigs.k8s.io/prow v0.0.0-20241210202001-9b059e106dd9
 	sigs.k8s.io/yaml v1.4.0
 )
+
+replace istio.io/test-infra/tools/prowgen => ./tools/prowgen
 
 require (
 	bitbucket.org/creachadair/stringset v0.0.11 // indirect
@@ -104,6 +107,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.7 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
+	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -170,7 +174,7 @@ require (
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20241212222426-2c72e554b1e7 // indirect
 	k8s.io/utils v0.0.0-20241210054802-24370beab758 // indirect
-	knative.dev/pkg v0.0.0-20241128013618-f3ab5605e542 // indirect
+	knative.dev/pkg v0.0.0-20240416145024-0f34a8815650 // indirect
 	sigs.k8s.io/controller-runtime v0.19.3 // indirect
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.5.0 // indirect
