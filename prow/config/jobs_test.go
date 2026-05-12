@@ -303,7 +303,7 @@ func TestJobs(t *testing.T) {
 		if warningRO {
 			return nil
 		}
-		if !allowedSecret && j.Type == Presubmit {
+		if !allowedSecret && j.Type == Presubmit && !PrivateClusters.Has(j.Base.Cluster) {
 			return fmt.Errorf("jobs with secrets %v cannot be presubmits", secrets.UnsortedList())
 		}
 
@@ -312,6 +312,12 @@ func TestJobs(t *testing.T) {
 			return nil
 		}
 		secretSA := SecretServiceAccounts.Has(j.ServiceAccount())
+		// Private cluster jobs run as prowjob-private by default (set via
+		// cluster-wide default_service_account_name in prow/config.yaml,
+		// not on the podSpec), so the SA appears empty here.
+		if !secretSA && PrivateClusters.Has(j.Base.Cluster) && j.ServiceAccount() == "" {
+			secretSA = true
+		}
 		if !secretSA {
 			return fmt.Errorf("service account %v does not have Secrets access", j.ServiceAccount())
 		}

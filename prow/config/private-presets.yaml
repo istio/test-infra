@@ -103,6 +103,14 @@ presets:
   - name: ISTIO_ENVOY_BASE_URL
     value: https://storage.googleapis.com/istio-build-private/proxy
 
+# Use private Envoy URL via Cloudflare R2. Requires cf-r2-istio-build-private-auth
+# requirement (provides CF_CREDENTIALS)
+- labels:
+    preset-override-envoy-r2: "true"
+  env:
+  - name: ISTIO_ENVOY_BASE_URL
+    value: s3://istio-build-private/proxy
+
 # netrc allows authenticating requests through things like curl, etc
 - labels:
     preset-enable-netrc: "true"

@@ -26,6 +26,10 @@ postsubmits:
           value: istio-prerelease-private/charts
         - name: PRERELEASE_DOCKER_HUB
           value: us-docker.pkg.dev/istio-prow-private/istio-prow-private
+        - name: R2_BUCKET
+          value: istio-prerelease-private/prerelease
+        - name: R2_HELM_BUCKET
+          value: istio-prerelease-private/charts
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -259,14 +263,12 @@ presubmits:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: GCS_BUCKET
-          value: istio-prerelease-private/prerelease
         - name: GOMAXPROCS
           value: "3"
-        - name: HELM_BUCKET
-          value: istio-prerelease-private/charts
         - name: PRERELEASE_DOCKER_HUB
           value: us-docker.pkg.dev/istio-prow-private/istio-prow-private
+        - name: R2_BUCKET
+          value: istio-prerelease-private/prerelease
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-prerelease-private_credentials","project":"istio-testing","env":"CF_PRERELEASE_CREDENTIALS"}]'
         image: gcr.io/istio-testing/build-tools:master-63fd6eec6f3df5a3ed4e190e60153ef3425f66b4
