@@ -22,7 +22,7 @@ transforms:
   job-allowlist: [release_istio_postsubmit]
 
 # istio/istio master no-envoy jobs - presubmit(s) and postsubmit(s)
-# These don't invoke `make build` / init.sh, so they don't need R2 credentials.
+# These don't invoke `make build` / init.sh, so they don't need R2 credentials because they don't pull envoy binaries.
 - labels:
     preset-enable-netrc: "true"
     preset-override-deps: master-istio

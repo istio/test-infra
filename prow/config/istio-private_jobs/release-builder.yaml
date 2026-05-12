@@ -32,10 +32,10 @@ transforms:
     R2_HELM_BUCKET: istio-prerelease-private/charts
     R2_BUCKET: istio-prerelease-private/prerelease
   labels:
-    preset-override-envoy: "true"
+    preset-override-envoy-r2: "true"
     preset-override-deps: master-release
     preset-enable-netrc: "true"
   job-type: [postsubmit]
   job-allowlist: [build-release_release-builder_postsubmit]
   repo-allowlist: [release-builder]
-  requirements: [docker, cf-r2-istio-prerelease-private-auth]
+  requirements: [docker, cf-r2-istio-prerelease-private-auth, cf-r2-istio-build-private-auth]
