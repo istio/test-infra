@@ -14,5 +14,6 @@ locals {
   istio_registry_mappings = {
     release = "gcr.io/istio-release"
     testing = "gcr.io/istio-testing"
+    prerelease-testing = "gcr.io/istio-prerelease-testing"
   }
 }
