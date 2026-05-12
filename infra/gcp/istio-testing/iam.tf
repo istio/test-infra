@@ -74,8 +74,7 @@ resource "google_secret_manager_secret_iam_member" "prowjob_default_cf_r2_istio_
 }
 
 # Allow the default prowjob SA to read the generic public-buckets read-only R2
-# credentials. Used by release-builder build-warning/publish-warning presubmits
-# (which only need to read public prerelease buckets, not write to them).
+# credentials.
 resource "google_secret_manager_secret_iam_member" "prowjob_default_cf_r2_public_buckets_ro" {
   project   = "istio-testing"
   secret_id = "cf_r2_public_buckets_ro_credentials"
