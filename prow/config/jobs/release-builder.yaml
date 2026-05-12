@@ -22,14 +22,14 @@ jobs:
   - name: build-warning
     types: [presubmit]
     regex: '^release/trigger-build$'
-    command: [release/build-warning.sh]
+    command: [entrypoint, release/build-warning.sh]
     requirements: [cf-r2-public-ro-auth]
     modifiers: [presubmit_optional]
 
   - name: publish-warning
     types: [presubmit]
     regex: '^release/trigger-publish$'
-    command: [release/publish-warning.sh]
+    command: [entrypoint, release/publish-warning.sh]
     requirements: [cf-r2-public-ro-auth]
     modifiers: [presubmit_optional]
 

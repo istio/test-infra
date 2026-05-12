@@ -294,6 +294,15 @@ func TestJobs(t *testing.T) {
 		}
 		allowedSecret := strings.HasPrefix(j.Name, "release-notes") &&
 			sets.NewString("istio-prow-build/github-read_github_read").IsSuperset(secrets)
+		// release-builder build/publish-warning presubmits only need read-only
+		// access to public R2 buckets to print a summary of what would be built
+		// or published; safe to allow on presubmits (and to run under the
+		// cluster default service account).
+		warningRO := (strings.HasPrefix(j.Name, "build-warning_release-builder") || strings.HasPrefix(j.Name, "publish-warning_release-builder")) &&
+			sets.NewString("istio-testing/cf_r2_public_buckets_ro_credentials", "istio-testing/cf_r2_istio-prerelease-private_credentials").IsSuperset(secrets)
+		if warningRO {
+			return nil
+		}
 		if !allowedSecret && j.Type == Presubmit {
 			return fmt.Errorf("jobs with secrets %v cannot be presubmits", secrets.UnsortedList())
 		}
@@ -502,6 +511,7 @@ var SecretServiceAccounts = sets.NewString(
 	"prowjob-release",
 	"prowjob-build-tools",
 	"prowjob-testing-write",
+	"prowjob-private",
 )
 
 type Secret struct {
