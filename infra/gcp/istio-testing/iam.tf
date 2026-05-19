@@ -73,6 +73,15 @@ resource "google_secret_manager_secret_iam_member" "prowjob_default_cf_r2_istio_
   member    = "serviceAccount:${google_service_account.istio_prow_test_job_default.email}"
 }
 
+# Allow the default prowjob SA to read the generic public-buckets read-only R2
+# credentials.
+resource "google_secret_manager_secret_iam_member" "prowjob_default_cf_r2_public_buckets_ro" {
+  project   = "istio-testing"
+  secret_id = "cf_r2_public_buckets_ro_credentials"
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.istio_prow_test_job_default.email}"
+}
+
 
 ## Prow Infra Service Accounts ##
 # Used for WI for external secrets deployment

@@ -78,6 +78,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GCP_SECRETS
+          value: '[{"secret":"cf_r2_istio-prerelease_credentials","project":"istio-testing","env":"CF_PRERELEASE_CREDENTIALS"}]'
         image: gcr.io/istio-testing/build-tools:master-63fd6eec6f3df5a3ed4e190e60153ef3425f66b4
         name: ""
         resources:
@@ -265,7 +267,7 @@ postsubmits:
         - name: GITHUB_TOKEN_FILE
           value: /var/run/ci/github/token
         - name: GCP_SECRETS
-          value: '[{"secret":"release_docker_istio","project":"istio-prow-build","file":"/var/run/ci/docker/config.json"},{"secret":"release_github_istio-release","project":"istio-prow-build","file":"/var/run/ci/github/token"},{"secret":"release_grafana_istio","project":"istio-prow-build","file":"/var/run/ci/grafana/token"}]'
+          value: '[{"secret":"release_docker_istio","project":"istio-prow-build","file":"/var/run/ci/docker/config.json"},{"secret":"release_github_istio-release","project":"istio-prow-build","file":"/var/run/ci/github/token"},{"secret":"release_grafana_istio","project":"istio-prow-build","file":"/var/run/ci/grafana/token"},{"secret":"cf_r2_istio-prerelease_credentials","project":"istio-testing","env":"CF_PRERELEASE_CREDENTIALS"},{"secret":"cf_r2_istio-release_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
         image: gcr.io/istio-testing/build-tools:master-63fd6eec6f3df5a3ed4e190e60153ef3425f66b4
         name: ""
         resources:
@@ -353,10 +355,13 @@ presubmits:
       automountServiceAccountToken: false
       containers:
       - command:
+        - entrypoint
         - release/build-warning.sh
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GCP_SECRETS
+          value: '[{"secret":"cf_r2_public_buckets_ro_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
         - name: GOMAXPROCS
           value: "3"
         image: gcr.io/istio-testing/build-tools:master-63fd6eec6f3df5a3ed4e190e60153ef3425f66b4
@@ -532,10 +537,13 @@ presubmits:
       automountServiceAccountToken: false
       containers:
       - command:
+        - entrypoint
         - release/publish-warning.sh
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GCP_SECRETS
+          value: '[{"secret":"cf_r2_public_buckets_ro_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
         - name: GOMAXPROCS
           value: "3"
         image: gcr.io/istio-testing/build-tools:master-63fd6eec6f3df5a3ed4e190e60153ef3425f66b4

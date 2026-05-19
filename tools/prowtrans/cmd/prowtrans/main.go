@@ -36,6 +36,9 @@ import (
 	"sigs.k8s.io/prow/pkg/config"
 	"sigs.k8s.io/yaml"
 
+	prowgen "istio.io/test-infra/tools/prowgen/pkg"
+	"istio.io/test-infra/tools/prowgen/pkg/decorator"
+	"istio.io/test-infra/tools/prowgen/pkg/spec"
 	"istio.io/test-infra/tools/prowtrans/pkg/configuration"
 	"istio.io/test-infra/tools/prowtrans/pkg/util"
 )
@@ -65,15 +68,17 @@ const (
 
 // options are the available command-line flags.
 type options struct {
-	Configs           []string
-	Global            string
-	EnvDenylistSet    sets.Set[string]
-	VolumeDenylistSet sets.Set[string]
-	JobAllowlistSet   sets.Set[string]
-	JobDenylistSet    sets.Set[string]
-	RepoAllowlistSet  sets.Set[string]
-	RepoDenylistSet   sets.Set[string]
-	JobTypeSet        sets.Set[string]
+	Configs                []string
+	Global                 string
+	EnvDenylistSet         sets.Set[string]
+	VolumeDenylistSet      sets.Set[string]
+	JobAllowlistSet        sets.Set[string]
+	JobDenylistSet         sets.Set[string]
+	RepoAllowlistSet       sets.Set[string]
+	RepoDenylistSet        sets.Set[string]
+	JobTypeSet             sets.Set[string]
+	RequirementPresetPaths []string
+	RequirementPresetMap   map[string]spec.RequirementPreset
 	configuration.Transform
 }
 
@@ -112,6 +117,12 @@ func (o *options) parseOpts() {
 	flag.StringSliceVar(&o.RepoAllowlist, "repo-allowlist", []string{}, "Repositories to allowlist in generation process.")
 	flag.StringSliceVar(&o.RepoDenylist, "repo-denylist", []string{}, "Repositories to denylist in generation process.")
 	flag.StringSliceVarP(&o.JobType, "job-type", "t", defaultJobTypes, "Job type(s) to process (e.g. presubmit, postsubmit. periodic).")
+	flag.StringSliceVar(
+		&o.RequirementPresetPaths,
+		"requirement-presets",
+		[]string{},
+		"Path to file(s) containing prowgen requirement_presets definitions (e.g. .base.yaml).",
+	)
 	flag.BoolVar(&o.Clean, "clean", false, "Clean output files before job(s) generation.")
 	flag.BoolVar(&o.DryRun, "dry-run", false, "Run in dry run mode.")
 	flag.BoolVar(&o.Refs, "refs", false, "Apply translation to all extra refs regardless of repo.")
@@ -186,14 +197,15 @@ func (o *options) parseConfiguration() []options {
 				applyDefaultTransforms(&t, &c.Defaults, &local.Defaults, &global.Defaults)
 
 				oc := options{
-					EnvDenylistSet:    sets.New(t.EnvDenylist...),
-					VolumeDenylistSet: sets.New(t.VolumeDenylist...),
-					JobAllowlistSet:   sets.New(t.JobAllowlist...),
-					JobDenylistSet:    sets.New(t.JobDenylist...),
-					RepoAllowlistSet:  sets.New(t.RepoAllowlist...),
-					RepoDenylistSet:   sets.New(t.RepoDenylist...),
-					JobTypeSet:        sets.New(t.JobType...),
-					Transform:         t,
+					EnvDenylistSet:       sets.New(t.EnvDenylist...),
+					VolumeDenylistSet:    sets.New(t.VolumeDenylist...),
+					JobAllowlistSet:      sets.New(t.JobAllowlist...),
+					JobDenylistSet:       sets.New(t.JobDenylist...),
+					RepoAllowlistSet:     sets.New(t.RepoAllowlist...),
+					RepoDenylistSet:      sets.New(t.RepoDenylist...),
+					JobTypeSet:           sets.New(t.JobType...),
+					RequirementPresetMap: o.RequirementPresetMap,
+					Transform:            t,
 				}
 
 				if err := oc.validateOpts(); err != nil {
@@ -339,6 +351,9 @@ func applyDefaultTransforms(dst *configuration.Transform, srcs ...*configuration
 		}
 		if len(dst.JobType) == 0 {
 			dst.JobType = src.JobType
+		}
+		if dst.Requirements == nil {
+			dst.Requirements = src.Requirements
 		}
 		if len(dst.Selector) == 0 {
 			dst.Selector = src.Selector
@@ -1072,6 +1087,53 @@ func writeOutFile(o options, p string, pre map[string][]config.Presubmit, post m
 }
 
 // generateJobs generates jobs based on the specified options.
+// loadRequirementPresets reads one or more YAML files containing a top-level
+// `requirement_presets` map (as defined by prowgen's BaseConfig). Later files
+// override earlier ones on key collisions.
+func loadRequirementPresets(paths []string) map[string]spec.RequirementPreset {
+	merged := map[string]spec.RequirementPreset{}
+	var base *spec.BaseConfig
+	for _, p := range paths {
+		bc := prowgen.ReadBase(base, p)
+		base = &bc
+		for k, v := range bc.CommonConfig.RequirementPresets {
+			merged[k] = v
+		}
+	}
+	return merged
+}
+
+// applyRequirements applies prowgen-style requirement presets to a job. When
+// `requirements` is set on a transform, it completely replaces whatever
+// requirement contributions were baked into the input job: the existing
+// `GCP_SECRETS` env var is stripped before re-resolving so secrets are rebuilt
+// solely from the new requirement list.
+func applyRequirements(o options, job *config.JobBase) {
+	if o.Requirements == nil {
+		return
+	}
+	if job.Spec == nil {
+		return
+	}
+
+	// Strip any existing GCP_SECRETS env var so applySecrets rebuilds it from
+	// the new requirement list (rather than appending a duplicate).
+	for i := range job.Spec.Containers {
+		filtered := job.Spec.Containers[i].Env[:0]
+		for _, e := range job.Spec.Containers[i].Env {
+			if e.Name == "GCP_SECRETS" {
+				continue
+			}
+			filtered = append(filtered, e)
+		}
+		job.Spec.Containers[i].Env = filtered
+	}
+
+	// Pass an empty BaseConfig so applyAutoMaxProcs is a no-op (GOMAXPROCS is
+	// already present on the input job from the original prowgen run).
+	decorator.ApplyRequirements(spec.BaseConfig{}, job, o.Requirements, nil, o.RequirementPresetMap)
+}
+
 func generateJobs(o options) {
 	presets := combinePresets(o.Presets)
 
@@ -1123,6 +1185,7 @@ func generateJobs(o options) {
 				updateGerritReportingLabels(o, job.SkipReport, job.Optional, job.Labels)
 				resolvePresets(o, job.Labels, &job.JobBase, append(presets, jobs.Presets...))
 				pruneJobBase(o, &job.JobBase)
+				applyRequirements(o, &job.JobBase)
 				updateHubs(o, &job.JobBase)
 				updateTags(o, &job.JobBase)
 
@@ -1149,6 +1212,7 @@ func generateJobs(o options) {
 				updateUtilityConfig(o, &job.UtilityConfig)
 				resolvePresets(o, job.Labels, &job.JobBase, append(presets, jobs.Presets...))
 				pruneJobBase(o, &job.JobBase)
+				applyRequirements(o, &job.JobBase)
 				updateHubs(o, &job.JobBase)
 				updateTags(o, &job.JobBase)
 				updateAlwaysRun(o, &job)
@@ -1184,6 +1248,7 @@ func generateJobs(o options) {
 			updateUtilityConfig(o, &job.UtilityConfig)
 			resolvePresets(o, job.Labels, &job.JobBase, append(presets, jobs.Presets...))
 			pruneJobBase(o, &job.JobBase)
+			applyRequirements(o, &job.JobBase)
 			updateHubs(o, &job.JobBase)
 			updateTags(o, &job.JobBase)
 
@@ -1215,6 +1280,8 @@ func Main() {
 	if err := o.validateOpts(); err != nil {
 		util.PrintErrAndExit(err)
 	}
+
+	o.RequirementPresetMap = loadRequirementPresets(o.RequirementPresetPaths)
 
 	optsList := []options{o}
 	optsList = append(optsList, o.parseConfiguration()...)

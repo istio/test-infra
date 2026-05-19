@@ -25,6 +25,9 @@ module "prowjob_release_account" {
     # So we give this prow job access.
     # We could scope this down a bit with 2 accounts, but all of these are super high privilege anyways so it is simpler to keep them together.
     { name = "github_istio-testing_pusher" },
+    # R2 credentials for publishing release artifacts to Cloudflare R2 buckets.
+    { name = "cf_r2_istio-prerelease_credentials", project = "istio-testing" },
+    { name = "cf_r2_istio-release_credentials", project = "istio-testing" },
   ]
   gcs_acls = [
     { bucket = "istio-prerelease", role = "OWNER" },

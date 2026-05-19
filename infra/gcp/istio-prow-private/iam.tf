@@ -13,6 +13,10 @@ module "prowjob_private_account" {
     { bucket = google_storage_bucket.istio_build_private.name, role = "roles/storage.objectAdmin" },
     { bucket = google_storage_bucket.istio_prerelease_private.name, role = "roles/storage.objectAdmin" },
   ]
+  secrets = [
+    { name = "cf_r2_istio-prerelease-private_credentials", project = "istio-testing" },
+    { name = "cf_r2_istio-build-private_credentials", project = "istio-testing" },
+  ]
   prowjob        = true
   prowjob_bucket = "istio-prow-private"
 }

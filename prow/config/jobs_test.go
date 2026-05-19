@@ -28,6 +28,13 @@ import (
 var (
 	PrivateClusters = sets.NewString("private")
 	PublicClusters  = sets.NewString("default", "prow-arm", "test-infra-trusted")
+
+	// ReadOnlySecrets are GCP secrets that grant read-only access to public
+	// resources. They are safe to expose on presubmits and under any service
+	// account, so the secret-related checks ignore them entirely.
+	ReadOnlySecrets = sets.NewString(
+		"istio-testing/cf_r2_public_buckets_ro_credentials",
+	)
 )
 
 func TestJobs(t *testing.T) {
@@ -280,6 +287,9 @@ func TestJobs(t *testing.T) {
 						return err
 					}
 					for _, s := range gcpSecrets {
+						if ReadOnlySecrets.Has(s.Project + "/" + s.Name) {
+							continue
+						}
 						secrets.Insert(s.Project + "/" + s.Name)
 					}
 				}
@@ -294,7 +304,7 @@ func TestJobs(t *testing.T) {
 		}
 		allowedSecret := strings.HasPrefix(j.Name, "release-notes") &&
 			sets.NewString("istio-prow-build/github-read_github_read").IsSuperset(secrets)
-		if !allowedSecret && j.Type == Presubmit {
+		if !allowedSecret && j.Type == Presubmit && !PrivateClusters.Has(j.Base.Cluster) {
 			return fmt.Errorf("jobs with secrets %v cannot be presubmits", secrets.UnsortedList())
 		}
 
@@ -303,6 +313,12 @@ func TestJobs(t *testing.T) {
 			return nil
 		}
 		secretSA := SecretServiceAccounts.Has(j.ServiceAccount())
+		// Private cluster jobs run as prowjob-private by default (set via
+		// cluster-wide default_service_account_name in prow/config.yaml,
+		// not on the podSpec), so the SA appears empty here.
+		if !secretSA && PrivateClusters.Has(j.Base.Cluster) && j.ServiceAccount() == "" {
+			secretSA = true
+		}
 		if !secretSA {
 			return fmt.Errorf("service account %v does not have Secrets access", j.ServiceAccount())
 		}
@@ -502,6 +518,7 @@ var SecretServiceAccounts = sets.NewString(
 	"prowjob-release",
 	"prowjob-build-tools",
 	"prowjob-testing-write",
+	"prowjob-private",
 )
 
 type Secret struct {
