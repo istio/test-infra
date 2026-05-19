@@ -63,7 +63,7 @@ resource "google_project_iam_member" "owners" {
 module "kubernetes_external_secrets_account" {
   source            = "../modules/workload-identity-service-account"
   project_id        = local.project_id
-  name              = "kubernetes-external-secrets-sa-private"
+  name              = "k8s-external-secrets-sa-priv"  # GCP SAs have a 30 character limit, so we need to abbreviate.
   description       = "Service account used by kubernetes-external-secrets operator on the private clusters."
   cluster_namespace = "default"
   secrets = [
