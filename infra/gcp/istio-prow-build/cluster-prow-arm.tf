@@ -125,8 +125,6 @@ module "prow_arm_test_spot_preview" {
 
   arm          = true
   machine_type = "c4a-standard-16"
-  # Spot instances are used as quota is capped for ARM nodes, and its cheaper.
-  spot = true
 
   service_account = "istio-prow-jobs@istio-prow-build.iam.gserviceaccount.com"
 
