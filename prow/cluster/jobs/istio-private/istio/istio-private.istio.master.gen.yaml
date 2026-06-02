@@ -1087,6 +1087,86 @@ postsubmits:
     - ^master$
     cluster: private
     decorate: true
+    name: integ-gateway-api-only_istio_postsubmit_pri
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.pilot.gateway-api-only.kube
+        env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "5"
+        - name: INTEGRATION_TEST_FLAGS
+          value: --istio.test.gatewayAPIOnly --istio.test.kube.gatewayClassName=istio-alt
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: s3://istio-build-private/proxy
+        - name: GCP_SECRETS
+          value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
+        image: gcr.io/istio-testing/build-tools:master-1aae82591b3f663bba15d501ae7ce9c2d329aa70
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    cluster: private
+    decorate: true
     name: integ-helm_istio_postsubmit_pri
     path_alias: istio.io/istio
     spec:
@@ -5014,6 +5094,90 @@ presubmits:
             path: .netrc
           secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-ds,?($|\s.*))|((?m)^/test( | .* )integ-ds_istio,?($|\s.*))
+  - always_run: false
+    annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^master$
+    cluster: private
+    decorate: true
+    name: integ-gateway-api-only_istio_pri
+    path_alias: istio.io/istio
+    rerun_command: /test integ-gateway-api-only
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.pilot.gateway-api-only.kube
+        env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "5"
+        - name: INTEGRATION_TEST_FLAGS
+          value: --istio.test.gatewayAPIOnly --istio.test.kube.gatewayClassName=istio-alt
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: master-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: s3://istio-build-private/proxy
+        - name: GCP_SECRETS
+          value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
+        image: gcr.io/istio-testing/build-tools:master-1aae82591b3f663bba15d501ae7ce9c2d329aa70
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
+    trigger: ((?m)^/test( | .* )integ-gateway-api-only,?($|\s.*))|((?m)^/test( | .*
+      )integ-gateway-api-only_istio,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
