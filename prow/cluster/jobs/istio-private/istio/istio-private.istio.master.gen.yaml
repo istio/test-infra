@@ -5094,7 +5094,7 @@ presubmits:
             path: .netrc
           secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-ds,?($|\s.*))|((?m)^/test( | .* )integ-ds_istio,?($|\s.*))
-  - always_run: false
+  - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
@@ -5102,6 +5102,7 @@ presubmits:
     cluster: private
     decorate: true
     name: integ-gateway-api-only_istio_pri
+    optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-gateway-api-only
     spec:
