@@ -57,6 +57,17 @@ jobs:
         value: "IPv4,IPv6"
     regex: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
 
+  - name: doc.test.ipv6.profile-default
+    command: [entrypoint, prow/integ-suite-kind.sh, doc.test.profile-default]
+    requirements: [kind]
+    modifiers: [presubmit_optional]
+    env:
+      - name: DOCKER_IN_DOCKER_IPV6_ENABLED
+        value: "true"
+      - name: IP_FAMILIES
+        value: "IPv6"
+    regex: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
+
   - name: update-ref-docs-dry-run
     types: [presubmit]
     command:
