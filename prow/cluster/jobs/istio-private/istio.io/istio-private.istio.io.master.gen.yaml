@@ -87,7 +87,7 @@ postsubmits:
           value: "8"
         - name: IP_FAMILIES
           value: IPv6
-        image: gcr.io/istio-testing/build-tools:master-6de2ce5813071b34e0ca033dbac7f79ffc1644be
+        image: gcr.io/istio-testing/build-tools:master-1aae82591b3f663bba15d501ae7ce9c2d329aa70
         name: ""
         resources:
           limits:
@@ -105,9 +105,6 @@ postsubmits:
         - mountPath: /lib/modules
           name: modules
           readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -122,10 +119,6 @@ postsubmits:
           path: /lib/modules
           type: Directory
         name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
       - emptyDir: {}
         name: docker-root
   - annotations:
@@ -648,7 +641,7 @@ presubmits:
           value: "8"
         - name: IP_FAMILIES
           value: IPv6
-        image: gcr.io/istio-testing/build-tools:master-6de2ce5813071b34e0ca033dbac7f79ffc1644be
+        image: gcr.io/istio-testing/build-tools:master-1aae82591b3f663bba15d501ae7ce9c2d329aa70
         name: ""
         resources:
           limits:
@@ -666,9 +659,6 @@ presubmits:
         - mountPath: /lib/modules
           name: modules
           readOnly: true
-        - mountPath: /sys/fs/cgroup
-          name: cgroup
-          readOnly: true
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
@@ -683,10 +673,6 @@ presubmits:
           path: /lib/modules
           type: Directory
         name: modules
-      - hostPath:
-          path: /sys/fs/cgroup
-          type: Directory
-        name: cgroup
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )doc.test.ipv6.profile-default,?($|\s.*))|((?m)^/test(
