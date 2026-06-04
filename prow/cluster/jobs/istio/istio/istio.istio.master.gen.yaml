@@ -1191,12 +1191,14 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.integration.pilot.gateway-api-only.kube
+        - test.integration.pilot.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.gatewayAPIOnly --istio.test.kube.gatewayClassName=istio-alt
+        - name: T
+          value: -run=TestGatewayConformance|TestGateway$$|TestHTTPRouteAndGRPCRouteCoexistence|TestInferencePoolMultipleTargetPorts
         - name: GOMAXPROCS
           value: "5"
         image: gcr.io/istio-testing/build-tools:master-1aae82591b3f663bba15d501ae7ce9c2d329aa70
@@ -4205,12 +4207,14 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.integration.pilot.gateway-api-only.kube
+        - test.integration.pilot.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.gatewayAPIOnly --istio.test.kube.gatewayClassName=istio-alt
+        - name: T
+          value: -run=TestGatewayConformance|TestGateway$$|TestHTTPRouteAndGRPCRouteCoexistence|TestInferencePoolMultipleTargetPorts
         - name: GOMAXPROCS
           value: "5"
         image: gcr.io/istio-testing/build-tools:master-1aae82591b3f663bba15d501ae7ce9c2d329aa70
