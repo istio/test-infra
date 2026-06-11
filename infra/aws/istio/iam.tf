@@ -122,7 +122,7 @@ module "workload_identity" {
     length(try(each.value.write, [])) > 0 ? [{
       sid       = "WriteSecrets"
       effect    = "Allow"
-      actions   = ["secretsmanager:PutSecretValue", "secretsmanager:UpdateSecret"]
+      actions   = ["secretsmanager:PutSecretValue"]
       resources = [for s in each.value.write : aws_secretsmanager_secret.secrets[s].arn]
     }] : [],
   )

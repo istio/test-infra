@@ -1,60 +1,119 @@
-# eks.tf provisions the EKS clusters. These are skeletons: minimal node groups
-# just to stand the clusters up. Pools get sized to match the GKE workloads in a
-# later pass.
-#
-# Cluster mapping from GCP:
-#   prow         <- GKE `prow` in istio-testing      (control plane / trusted)
-#   prow-build   <- GKE `prow` in istio-prow-build    (core build)
-#                   + GKE `prow-arm` (merged: GCP needed a separate ARM cluster
-#                     because Graviton equivalents were single-zone; on AWS ARM
-#                     is multi-AZ, so it's just another node group here)
-#   prow-private <- GKE `prow` in istio-prow-private  (private / PSWG build)
-
 locals {
-  # EKS control-plane version. Bump deliberately; node groups follow.
-  cluster_version = "1.33"
+  cluster_version = "1.36"
 
   clusters = {
+    # Control plane / trusted (GKE `prow` in istio-testing).
     prow = {
       node_groups = {
         default = {
           ami_type       = "AL2023_x86_64_STANDARD"
           instance_types = ["t3.small"]
+          capacity_type  = "ON_DEMAND"
           min_size       = 1
-          max_size       = 3
+          max_size       = 1
           desired_size   = 1
+          disk_size      = 20
+          labels         = { prod = "prow" }
         }
       }
     }
 
+    # Core build cluster (for both amd and arm)
     prow-build = {
       node_groups = {
-        x86 = {
+        # Large build pool
+        build = {
           ami_type       = "AL2023_x86_64_STANDARD"
           instance_types = ["t3.small"]
+          capacity_type  = "ON_DEMAND"
           min_size       = 1
-          max_size       = 3
+          max_size       = 1
           desired_size   = 1
+          disk_size      = 20
+          labels         = { testing = "build-pool" }
         }
-        # Graviton pool — replaces the standalone GKE `prow-arm` cluster.
+        # Primary test pool
+        test-e2 = {
+          ami_type       = "AL2023_x86_64_STANDARD"
+          instance_types = ["t3.small"]
+          capacity_type  = "ON_DEMAND"
+          min_size       = 1
+          max_size       = 1
+          desired_size   = 1
+          disk_size      = 20
+          labels         = { testing = "test-pool" }
+        }
+        # Newer Intel spot test pool
+        test-n4 = {
+          ami_type       = "AL2023_x86_64_STANDARD"
+          instance_types = ["t3.small"]
+          capacity_type  = "ON_DEMAND"
+          min_size       = 1
+          max_size       = 1
+          desired_size   = 1
+          disk_size      = 20
+          labels         = { testing = "test-pool" }
+        }
+        # AMD
+        test-c4d = {
+          ami_type       = "AL2023_x86_64_STANDARD"
+          instance_types = ["t3.small"]
+          capacity_type  = "ON_DEMAND"
+          min_size       = 1
+          max_size       = 1
+          desired_size   = 1
+          disk_size      = 20
+          labels         = { testing = "test-pool" }
+        }
+        # Graviton spot pool
         arm = {
           ami_type       = "AL2023_ARM_64_STANDARD"
           instance_types = ["t4g.small"]
+          capacity_type  = "ON_DEMAND"
           min_size       = 1
-          max_size       = 3
+          max_size       = 1
           desired_size   = 1
+          disk_size      = 20
+          labels         = { testing = "test-pool" }
         }
       }
     }
 
+    # Private / PSWG build cluster (GKE `prow` in istio-prow-private).
     prow-private = {
       node_groups = {
-        default = {
+        # Test pool (e2-standard-16).
+        test = {
           ami_type       = "AL2023_x86_64_STANDARD"
           instance_types = ["t3.small"]
+          capacity_type  = "ON_DEMAND"
           min_size       = 1
-          max_size       = 3
+          max_size       = 1
           desired_size   = 1
+          disk_size      = 20
+          labels         = { testing = "test-pool" }
+        }
+        # High-memory build pool
+        build = {
+          ami_type       = "AL2023_x86_64_STANDARD"
+          instance_types = ["t3.small"]
+          capacity_type  = "ON_DEMAND"
+          min_size       = 0
+          max_size       = 1
+          desired_size   = 0
+          disk_size      = 20
+          labels         = { testing = "build-pool" }
+        }
+        # Graviton spot pool
+        arm = {
+          ami_type       = "AL2023_ARM_64_STANDARD"
+          instance_types = ["t4g.small"]
+          capacity_type  = "ON_DEMAND"
+          min_size       = 0
+          max_size       = 1
+          desired_size   = 0
+          disk_size      = 20
+          labels         = { testing = "test-pool" }
         }
       }
     }
@@ -84,9 +143,16 @@ module "eks" {
   endpoint_public_access = true
 
   addons = {
-    coredns    = {}
-    kube-proxy = {}
-    vpc-cni    = {}
+    coredns = {}
+    # CNI and kube-proxy must be installed before the node groups so nodes can
+    # get pod networking and reach Ready; otherwise node group creation deadlocks
+    # waiting on nodes that can never join.
+    kube-proxy = {
+      before_compute = true
+    }
+    vpc-cni = {
+      before_compute = true
+    }
     # Required for the workload IAM roles in iam.tf (EKS Pod Identity).
     eks-pod-identity-agent = {}
   }

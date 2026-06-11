@@ -8,15 +8,13 @@ terraform {
     }
   }
 
-  # Using local state for now. Once the state bucket exists, add an S3 backend:
-  #
-  # backend "s3" {
-  #   bucket       = "istio-terraform-aws"
-  #   key          = "secrets/terraform.tfstate"
-  #   region       = "us-west-2"
-  #   encrypt      = true
-  #   use_lockfile = true
-  # }
+  backend "s3" {
+    bucket       = "istio-terraform"
+    key          = "istio/terraform.tfstate"
+    region       = "us-west-2"
+    encrypt      = true
+    use_lockfile = true
+  }
 }
 
 provider "aws" {
