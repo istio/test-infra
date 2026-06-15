@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tide
+  namespace: default
+  labels:
+    app: tide
+spec:
+  replicas: 1 # Do not scale up.
+  selector:
+    matchLabels:
+      app: tide
+  template:
+    metadata:
+      labels:
+        app: tide
+    spec:
+      serviceAccountName: tide
+      containers:
+      - name: tide
+        image: us-docker.pkg.dev/k8s-infra-prow/images/tide:v20260526-71428b9c2
+        args:
+        - --config-path=/etc/config/config.yaml
+        - --dry-run=false
+        - --github-endpoint=http://ghproxy
+        - --github-endpoint=https://api.github.com
+        - --github-token-path=/etc/github/oauth
+        - --history-uri=s3://istio-prow/tide-history.json
+        - --job-config-path=/etc/job-config
+        - --status-path=s3://istio-prow/tide-status-checkpoint.yaml
+        - --s3-credentials-file=/etc/cf-r2-istio-prow-credentials/service-account.json
+        ports:
+        - name: http
+          containerPort: 8888
+        - name: metrics
+          containerPort: 9090
+        volumeMounts:
+        - name: config
+          mountPath: /etc/config
+          readOnly: true
+        - name: job-config
+          mountPath: /etc/job-config
+          readOnly: true
+        - name: oauth
+          mountPath: /etc/github
+          readOnly: true
+        - name: cf-r2-istio-prow-credentials
+          mountPath: /etc/cf-r2-istio-prow-credentials
+          readOnly: true
+      volumes:
+      - name: oauth
+        secret:
+          secretName: oauth-token
+      - name: config
+        configMap:
+          name: config
+      - name: job-config
+        configMap:
+          name: job-config
+      - name: cf-r2-istio-prow-credentials
+        secret:
+          secretName: cf-r2-istio-prow-credentials

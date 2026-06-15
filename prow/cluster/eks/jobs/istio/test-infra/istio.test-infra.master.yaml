@@ -1,0 +1,106 @@
+presubmits:
+  istio/test-infra:
+  - name: pull-test-infra-check-testgrid-config
+    run_if_changed: '^(prow/cluster/jobs/.*\.yaml)|(testgrid/default\.yaml)$'
+    decorate: true
+    branches:
+    - master
+    annotations:
+      testgrid-create-test-group: "false"
+    spec:
+      automountServiceAccountToken: false
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      containers:
+      - image: gcr.io/k8s-prow/configurator:v20240405-c76de01869
+        command:
+        - configurator
+        args:
+        - --yaml=testgrid/config.yaml
+        - --default=testgrid/default.yaml
+        - --prow-config=prow/config.yaml
+        - --prow-job-config=prow/cluster/jobs
+        - --prowjob-url-prefix=https://github.com/istio/test-infra/tree/master/prow/cluster/jobs
+        - --update-description
+        - --validate-config-file
+        - --oneshot
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: 1
+
+postsubmits:
+  istio/test-infra:
+  - name: deploy-prow_test-infra_postsubmit
+    annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_test-infra_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    cluster: test-infra-trusted
+    decorate: true
+    max_concurrency: 1
+    path_alias: istio.io/test-infra
+    reporter_config:
+      slack:
+        channel: oncall
+        job_states_to_report:
+        - success
+        - failure
+        - aborted
+        - error
+        report_template: 'Deploying prow: {{.Status.State}}. <{{.Spec.Refs.BaseLink}}|Commit
+          {{.Spec.Refs.BaseSHA}}> <{{.Status.URL}}|View logs> <https://testgrid.k8s.io/istio_test-infra_postsubmit#deploy-prow_test-infra_postsubmit|Job
+          history on Testgrid>'
+    run_if_changed: ^prow/cluster/(?:gcsweb/|monitoring/|build/|private/|arm/|private-arm/|[^/]+\.yaml$)
+    spec:
+      serviceAccountName: prow-deployer
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - make
+        - -C
+        - prow
+        - deploy
+        - deploy-gcsweb
+        - deploy-monitoring
+        - deploy-build
+        - deploy-private
+        - deploy-arm
+        image: gcr.io/istio-testing/build-tools:master-1aae82591b3f663bba15d501ae7ce9c2d329aa70
+        resources:
+          limits:
+            cpu: "3"
+            memory: 24Gi
+          requests:
+            cpu: "1"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+
+periodics:
+- interval: 5m
+  name: monitoring-verify-gcsweb
+  decorate: true
+  annotations:
+    testgrid-dashboards: istio_infrastructure
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
+  spec:
+    containers:
+      - image: alpine:3.10.1
+        command:
+          - wget
+        args:
+          - --spider
+          - https://gcsweb.istio.io/s3/istio-release/
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 100m
+    automountServiceAccountToken: false
+    nodeSelector:
+      kubernetes.io/arch: amd64
+      testing: test-pool

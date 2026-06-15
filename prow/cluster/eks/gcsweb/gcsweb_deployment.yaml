@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gcsweb
+  namespace: gcs
+  labels:
+    app: gcsweb
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: gcsweb
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: gcsweb
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: nginx-proxy
+        image: nginx:1.30-alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx
+          mountPath: /etc/nginx/conf.d
+      - name: gcsweb
+        # Upstream registry.k8s.io/gcsweb:v1.1.0 predates S3 support
+        # (kubernetes/test-infra#31241). Use the staging image until a newer tag
+        # is published to registry.k8s.io.
+        image: gcr.io/k8s-staging-test-infra/gcsweb:v20260325-0ac3b4d79f
+        # Upstream gcsweb refuses to serve buckets from different storage
+        # providers (gs:// + s3://) in the same process, so all -b entries
+        # must be R2.
+        args:
+        - -b=s3://istio-prow
+        - -b=s3://istio-build
+        - -b=s3://istio-release
+        - -b=s3://istio-prerelease
+        - -b=s3://istio-testgrid
+        - --s3-credentials-file=/etc/s3-credentials/service-account.json
+        - -p=8080
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: 0.1
+            memory: 128Mi
+        readinessProbe:
+          httpGet:
+            path: /robots.txt
+            port: 8080
+        livenessProbe:
+          httpGet:
+            path: /robots.txt
+            port: 8080
+          initialDelaySeconds: 3
+          timeoutSeconds: 2
+          failureThreshold: 2
+        volumeMounts:
+        - name: s3-credentials
+          mountPath: /etc/s3-credentials
+          readOnly: true
+      volumes:
+      - name: nginx
+        configMap:
+          name: nginx
+      - name: s3-credentials
+        secret:
+          secretName: cf-r2-public-buckets-ro-credentials

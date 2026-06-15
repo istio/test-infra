@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crier
+  namespace: default
+  labels:
+    app: crier
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crier
+  template:
+    metadata:
+      labels:
+        app: crier
+    spec:
+      serviceAccountName: crier
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: crier
+        image: us-docker.pkg.dev/k8s-infra-prow/images/crier:v20260526-71428b9c2
+        args:
+        - --blob-storage-workers=1
+        - --config-path=/etc/config/config.yaml
+        - --github-endpoint=http://ghproxy
+        - --github-endpoint=https://api.github.com
+        - --github-token-path=/etc/github/oauth
+        - --github-workers=5
+        - --job-config-path=/etc/job-config
+        - --kubernetes-blob-storage-workers=1
+        - --slack-token-file=/etc/slack/token
+        - --slack-workers=1
+        - --s3-credentials-file=/etc/cf-r2-istio-prow-credentials/service-account.json
+        env:
+        # Use KUBECONFIG envvar rather than --kubeconfig flag in order to provide multiple configs to merge.
+        - name: KUBECONFIG
+          value: "/etc/kubeconfig/kubeconfig"
+        ports:
+        - name: metrics
+          containerPort: 9090
+        volumeMounts:
+        - name: oauth
+          mountPath: /etc/github
+          readOnly: true
+        - name: slack
+          mountPath: /etc/slack
+          readOnly: true
+        - mountPath: /etc/kubeconfig
+          name: kubeconfig
+          readOnly: true
+        - name: config
+          mountPath: /etc/config
+          readOnly: true
+        - name: job-config
+          mountPath: /etc/job-config
+          readOnly: true
+        - name: cf-r2-istio-prow-credentials
+          mountPath: /etc/cf-r2-istio-prow-credentials
+          readOnly: true
+      volumes:
+      - name: oauth
+        secret:
+          secretName: oauth-token
+      - name: slack
+        secret:
+          secretName: slack-token
+      - name: kubeconfig
+        configMap:
+          defaultMode: 420
+          name: kubeconfig
+      - name: config
+        configMap:
+          name: config
+      - name: job-config
+        configMap:
+          name: job-config
+      - name: cf-r2-istio-prow-credentials
+        secret:
+          secretName: cf-r2-istio-prow-credentials

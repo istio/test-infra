@@ -1,0 +1,750 @@
+# Below contains the configmaps that configure the release-builder manifests in istio/istio and istio/release-builder.
+# This should be updated for each version
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        auto: modules
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: master
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: master
+kind: ConfigMap
+metadata:
+  name: master-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        branch: master
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        auto: modules
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: master
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: master
+kind: ConfigMap
+metadata:
+  name: master-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.20
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.20
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.20
+kind: ConfigMap
+metadata:
+  name: release-1.20-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        branch: release-1.20
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.20
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.20
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.20
+kind: ConfigMap
+metadata:
+  name: release-1.20-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.21
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.21
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.21
+kind: ConfigMap
+metadata:
+  name: release-1.21-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        branch: release-1.21
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.21
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.21
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.21
+kind: ConfigMap
+metadata:
+  name: release-1.21-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.22
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.22
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.22
+kind: ConfigMap
+metadata:
+  name: release-1.22-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        branch: release-1.22
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.22
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.22
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.22
+kind: ConfigMap
+metadata:
+  name: release-1.22-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.23
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.23
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.23
+kind: ConfigMap
+metadata:
+  name: release-1.23-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        branch: release-1.23
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        branch: release-1.23
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.23
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.23
+kind: ConfigMap
+metadata:
+  name: release-1.23-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        auto: modules
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.23
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.23
+kind: ConfigMap
+metadata:
+  name: release-1.24-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        branch: release-1.24
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        auto: modules
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.24
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.24
+kind: ConfigMap
+metadata:
+  name: release-1.24-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        auto: modules
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.26
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.26
+kind: ConfigMap
+metadata:
+  name: release-1.26-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        branch: release-1.26
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        auto: modules
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.26
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.26
+kind: ConfigMap
+metadata:
+  name: release-1.26-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        auto: modules
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.27
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.27
+kind: ConfigMap
+metadata:
+  name: release-1.27-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        branch: release-1.27
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        auto: modules
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.27
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.27
+kind: ConfigMap
+metadata:
+  name: release-1.27-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        auto: modules
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.28
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.28
+kind: ConfigMap
+metadata:
+  name: release-1.28-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        branch: release-1.28
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        auto: modules
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.28
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.28
+kind: ConfigMap
+metadata:
+  name: release-1.28-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        auto: modules
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.29
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.29
+kind: ConfigMap
+metadata:
+  name: release-1.29-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        branch: release-1.29
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        auto: modules
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.29
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.29
+kind: ConfigMap
+metadata:
+  name: release-1.29-release-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        localpath: /home/prow/go/src/istio.io/istio
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        auto: modules
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.30
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.30
+kind: ConfigMap
+metadata:
+  name: release-1.30-istio-deps
+  namespace: test-pods
+---
+apiVersion: v1
+data:
+  dependencies: |2
+      istio:
+        git: https://github.com/istio-private/istio
+        branch: release-1.30
+      api:
+        git: https://github.com/istio/api
+        auto: modules
+        goversionenabled: true
+      proxy:
+        git: https://github.com/istio-private/proxy
+        auto: deps
+      ztunnel:
+        git: https://github.com/istio/ztunnel
+        auto: deps
+      client-go:
+        git: https://github.com/istio/client-go
+        auto: modules
+        goversionenabled: true
+      test-infra:
+        git: https://github.com/istio/test-infra
+        branch: master
+      tools:
+        git: https://github.com/istio/tools
+        branch: release-1.30
+      release-builder:
+        git: https://github.com/istio/release-builder
+        branch: release-1.30
+kind: ConfigMap
+metadata:
+  name: release-1.30-release-deps
+  namespace: test-pods
+---
