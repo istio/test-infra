@@ -59,6 +59,10 @@ locals {
     "cf_r2_istio-prow_credentials"               = "Ephemeral Cloudflare R2 credentials for the istio-prow bucket"
     "cf_r2_istio-prow-private_credentials"       = "Ephemeral Cloudflare R2 credentials for the istio-prow-private bucket"
     "cf_r2_istio-testgrid_credentials"           = "Ephemeral Cloudflare R2 credentials for the istio-testgrid bucket"
+
+    # Read-only S3 credentials for gcsweb (public buckets). The value is managed
+    # by Terraform (aws_secretsmanager_secret_version.gcsweb_s3_credentials).
+    "gcsweb_s3_credentials" = "Read-only S3 credentials for gcsweb (public buckets)"
   }
 }
 
@@ -66,4 +70,17 @@ resource "aws_secretsmanager_secret" "secrets" {
   for_each    = local.all_secrets
   name        = each.key
   description = each.value
+}
+
+# Read-only S3 credentials for gcsweb, in the format expected by the prow
+# storage provider's s3-credentials file. The access key is minted in iam.tf
+# and synced into the cluster via external_secrets.yaml.
+resource "aws_secretsmanager_secret_version" "gcsweb_s3_credentials" {
+  secret_id = aws_secretsmanager_secret.secrets["gcsweb_s3_credentials"].id
+  secret_string = jsonencode({
+    region              = "us-west-2"
+    s3_force_path_style = false
+    access_key          = aws_iam_access_key.gcsweb.id
+    secret_key          = aws_iam_access_key.gcsweb.secret
+  })
 }

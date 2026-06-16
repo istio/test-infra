@@ -6,13 +6,11 @@ metadata:
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
 spec:
   ingressClassName: alb
   rules:
-  - host: prow.istio.io
-    http:
+  - http:
       paths:
       - path: /hook
         pathType: Prefix
@@ -26,15 +24,5 @@ spec:
         backend:
           service:
             name: deck
-            port:
-              number: 80
-  - host: prow-private.istio.io
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: deck-private
             port:
               number: 80

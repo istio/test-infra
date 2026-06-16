@@ -24,6 +24,7 @@ locals {
       "slack_token",
       "deck-oauth-proxy",
       "istio-testing_robot-ssh-key",
+      "gcsweb_s3_credentials",
     ]
     prow-build = [
       "cf_r2_istio-prow_credentials",

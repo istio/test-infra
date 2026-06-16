@@ -28,7 +28,9 @@ spec:
         - --history-uri=s3://istio-prow/tide-history.json
         - --job-config-path=/etc/job-config
         - --status-path=s3://istio-prow/tide-status-checkpoint.yaml
-        - --s3-credentials-file=/etc/cf-r2-istio-prow-credentials/service-account.json
+        env:
+        - name: AWS_REGION
+          value: "us-west-2"
         ports:
         - name: http
           containerPort: 8888
@@ -44,9 +46,6 @@ spec:
         - name: oauth
           mountPath: /etc/github
           readOnly: true
-        - name: cf-r2-istio-prow-credentials
-          mountPath: /etc/cf-r2-istio-prow-credentials
-          readOnly: true
       volumes:
       - name: oauth
         secret:
@@ -57,6 +56,3 @@ spec:
       - name: job-config
         configMap:
           name: job-config
-      - name: cf-r2-istio-prow-credentials
-        secret:
-          secretName: cf-r2-istio-prow-credentials

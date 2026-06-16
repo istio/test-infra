@@ -11,9 +11,6 @@ data:
       server_name _;
 
       location / {
-        if ($http_x_forwarded_proto = 'http') {
-            return 301 https://$host$request_uri;
-        }
         proxy_pass http://localhost:8080/;
       }
 

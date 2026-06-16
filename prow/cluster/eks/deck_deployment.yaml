@@ -34,7 +34,6 @@ spec:
         - --config-path=/etc/config/config.yaml
         - --hook-url=http://hook:8888/plugin-help
         - --job-config-path=/etc/job-config
-        - --redirect-http-to=prow.istio.io
         - --spyglass
         - --tide-url=http://tide/
         - --rerun-creates-job
@@ -44,12 +43,12 @@ spec:
         - --github-endpoint=https://api.github.com
         - --github-oauth-config-file=/etc/githuboauth/secret
         - --cookie-secret=/etc/cookie/secret
-        # Deck only reads from blob storage (Spyglass, job/PR history).
-        - --s3-credentials-file=/etc/cf-r2-public-buckets-ro-credentials/service-account.json
         env:
         # Use KUBECONFIG envvar rather than --kubeconfig flag in order to provide multiple configs to merge.
         - name: KUBECONFIG
           value: "/etc/kubeconfig/kubeconfig"
+        - name: AWS_REGION
+          value: "us-west-2"
         volumeMounts:
         - name: oauth-config
           mountPath: /etc/githuboauth
@@ -68,9 +67,6 @@ spec:
           readOnly: true
         - mountPath: /etc/kubeconfig
           name: kubeconfig
-          readOnly: true
-        - mountPath: /etc/cf-r2-public-buckets-ro-credentials
-          name: cf-r2-public-buckets-ro-credentials
           readOnly: true
         livenessProbe:
           httpGet:
@@ -105,6 +101,3 @@ spec:
         configMap:
           defaultMode: 420
           name: kubeconfig
-      - name: cf-r2-public-buckets-ro-credentials
-        secret:
-          secretName: cf-r2-public-buckets-ro-credentials

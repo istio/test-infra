@@ -31,11 +31,12 @@ spec:
         - --kubernetes-blob-storage-workers=1
         - --slack-token-file=/etc/slack/token
         - --slack-workers=1
-        - --s3-credentials-file=/etc/cf-r2-istio-prow-credentials/service-account.json
         env:
         # Use KUBECONFIG envvar rather than --kubeconfig flag in order to provide multiple configs to merge.
         - name: KUBECONFIG
           value: "/etc/kubeconfig/kubeconfig"
+        - name: AWS_REGION
+          value: "us-west-2"
         ports:
         - name: metrics
           containerPort: 9090
@@ -55,9 +56,6 @@ spec:
         - name: job-config
           mountPath: /etc/job-config
           readOnly: true
-        - name: cf-r2-istio-prow-credentials
-          mountPath: /etc/cf-r2-istio-prow-credentials
-          readOnly: true
       volumes:
       - name: oauth
         secret:
@@ -75,6 +73,3 @@ spec:
       - name: job-config
         configMap:
           name: job-config
-      - name: cf-r2-istio-prow-credentials
-        secret:
-          secretName: cf-r2-istio-prow-credentials

@@ -34,15 +34,8 @@ spec:
         # (kubernetes/test-infra#31241). Use the staging image until a newer tag
         # is published to registry.k8s.io.
         image: gcr.io/k8s-staging-test-infra/gcsweb:v20260325-0ac3b4d79f
-        # Upstream gcsweb refuses to serve buckets from different storage
-        # providers (gs:// + s3://) in the same process, so all -b entries
-        # must be R2.
         args:
         - -b=s3://istio-prow
-        - -b=s3://istio-build
-        - -b=s3://istio-release
-        - -b=s3://istio-prerelease
-        - -b=s3://istio-testgrid
         - --s3-credentials-file=/etc/s3-credentials/service-account.json
         - -p=8080
         ports:
@@ -72,4 +65,4 @@ spec:
           name: nginx
       - name: s3-credentials
         secret:
-          secretName: cf-r2-public-buckets-ro-credentials
+          secretName: gcsweb-s3-credentials
