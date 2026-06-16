@@ -39,3 +39,20 @@ resource "aws_s3_bucket_policy" "istio_prow" {
 
   depends_on = [aws_s3_bucket_public_access_block.istio_prow]
 }
+
+# Private equivalent of istio-prow for the private build cluster (mirrors the
+# private GCS istio-prow-private bucket). Access is restricted to authorized
+# IAM principals; no public access.
+
+resource "aws_s3_bucket" "istio_prow_private" {
+  bucket = "istio-prow-private"
+}
+
+resource "aws_s3_bucket_public_access_block" "istio_prow_private" {
+  bucket = aws_s3_bucket.istio_prow_private.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
