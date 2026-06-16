@@ -27,6 +27,7 @@ locals {
     "cf_r2_public_buckets_ro_credentials" = "Read-only R2 credentials for public buckets"
 
     # Bucket specific R2 credentials
+    "cf_r2_istio-release_credentials"            = "Ephemeral Cloudflare R2 credentials for the istio-release bucket"
     "cf_r2_istio-build_credentials"              = "Ephemeral Cloudflare R2 credentials for the istio-build bucket"
     "cf_r2_istio-build-private_credentials"      = "Ephemeral Cloudflare R2 credentials for the istio-build-private bucket"
     "cf_r2_istio-prerelease_credentials"         = "Ephemeral Cloudflare R2 credentials for the istio-prerelease bucket"

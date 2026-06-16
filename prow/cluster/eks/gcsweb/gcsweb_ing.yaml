@@ -4,12 +4,21 @@ metadata:
   name: gcsweb-ing
   namespace: gcs
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: gcsweb
-    networking.gke.io/managed-certificates: gcs-istio-io
-    kubernetes.io/ingress.class: "gce"
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/healthcheck-path: /robots.txt
 spec:
-  defaultBackend:
-    service:
-      name: gcsweb
-      port:
-        number: 80
+  ingressClassName: alb
+  rules:
+  - host: gcsweb.istio.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: gcsweb
+            port:
+              number: 80

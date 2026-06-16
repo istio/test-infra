@@ -4,33 +4,35 @@ metadata:
   namespace: default
   name: tls-ing
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: prow
-    networking.gke.io/managed-certificates: prow-istio-io,prow-private-istio-io
-    kubernetes.io/ingress.class: "gce"
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
 spec:
+  ingressClassName: alb
   rules:
   - host: prow.istio.io
     http:
       paths:
-      - path: /*
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: deck
-            port:
-              number: 80
       - path: /hook
-        pathType: ImplementationSpecific
+        pathType: Prefix
         backend:
           service:
             name: hook
             port:
               number: 8888
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: deck
+            port:
+              number: 80
   - host: prow-private.istio.io
     http:
       paths:
-      - path: /*
-        pathType: ImplementationSpecific
+      - path: /
+        pathType: Prefix
         backend:
           service:
             name: deck-private

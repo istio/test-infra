@@ -31,8 +31,7 @@ locals {
         "release_grafana_istio",
         "github_istio-testing_pusher",
         "cf_r2_istio-prerelease_credentials",
-        # TODO: declare the cf_r2_istio-release_credentials secret container in
-        # secrets.tf, then add it here (referenced by the GCP release SA).
+        "cf_r2_istio-release_credentials",
       ]
       associations = {
         prow-build = { namespace = "test-pods", service_account = "prowjob-release" }
