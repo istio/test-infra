@@ -47,3 +47,31 @@ provider "helm" {
     }
   }
 }
+
+provider "helm" {
+  alias = "prow_build"
+  kubernetes {
+    host                   = module.eks["prow-build"].cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks["prow-build"].cluster_certificate_authority_data)
+
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "aws"
+      args        = ["eks", "get-token", "--cluster-name", module.eks["prow-build"].cluster_name, "--region", local.region]
+    }
+  }
+}
+
+provider "helm" {
+  alias = "prow_private"
+  kubernetes {
+    host                   = module.eks["prow-private"].cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks["prow-private"].cluster_certificate_authority_data)
+
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "aws"
+      args        = ["eks", "get-token", "--cluster-name", module.eks["prow-private"].cluster_name, "--region", local.region]
+    }
+  }
+}

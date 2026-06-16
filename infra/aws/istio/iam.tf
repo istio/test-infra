@@ -59,11 +59,8 @@ locals {
       }
     }
 
-    # External Secrets operator on the build clusters.
-    "kubernetes-external-secrets" = {
-      read         = ["cf_r2_istio-prow_credentials"]
-      associations = { prow-build = { namespace = "default", service_account = "kubernetes-external-secrets-sa" } }
-    }
+    # ESO (External Secrets Operator) controller identity is defined per cluster
+    # in external_secrets.tf, not here.
 
     # Default Prow job service account.
     "prowjob-default" = {

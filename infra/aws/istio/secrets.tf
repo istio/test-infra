@@ -26,6 +26,12 @@ locals {
     # Generic read-only R2 credentials for the public buckets.
     "cf_r2_public_buckets_ro_credentials" = "Read-only R2 credentials for public buckets"
 
+    # GitHub OAuth token for Prow jobs (JSON: {oauth}).
+    "oauth_token" = "GitHub OAuth token for Prow jobs"
+
+    # SSH key material for the istio-testing robot (JSON: {id_rsa, id_rsa.pub, known_hosts}).
+    "istio-testing_robot-ssh-key" = "SSH key for the istio-testing robot"
+
     # Bucket specific R2 credentials
     "cf_r2_istio-release_credentials"            = "Ephemeral Cloudflare R2 credentials for the istio-release bucket"
     "cf_r2_istio-build_credentials"              = "Ephemeral Cloudflare R2 credentials for the istio-build bucket"

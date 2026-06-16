@@ -38,7 +38,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 # secret name -> source GCP project. Names are reused verbatim as the AWS
-# secret id and the GCP secret id.
+# secret id and the GCP secret id, unless an optional third field overrides the
+# GCP secret id (for secrets whose GCP id differs from the AWS id).
 read -r -d '' SECRET_MAP <<'EOF' || true
 istio-prow-build  release_docker_istio
 istio-prow-build  release_github_istio-release
@@ -55,6 +56,8 @@ istio-testing     cf_r2_istio-prow_credentials
 istio-testing     cf_r2_istio-prow-private_credentials
 istio-testing     cf_r2_istio-testgrid_credentials
 istio-testing     cf_r2_istio-release_credentials
+istio-testing     oauth_token                  gke_istio-testing_us-west1-a_prow__test-pods__oauth-token
+istio-testing     istio-testing_robot-ssh-key  gke_istio-testing_us-west1-a_prow__test-pods__istio-testing-robot-ssh-key
 EOF
 
 command -v gcloud >/dev/null 2>&1 || { echo "error: gcloud not found on PATH" >&2; exit 1; }
@@ -74,14 +77,17 @@ synced=0
 skipped=0
 failed=0
 
-while read -r project name; do
+while read -r project name gcp_name; do
   [[ -z "${project:-}" || -z "${name:-}" ]] && continue
   want "$name" || continue
+
+  # GCP secret id defaults to the AWS name unless a third field overrides it.
+  gcp_name="${gcp_name:-$name}"
 
   payload="$TMP_DIR/$name"
 
   if ! gcloud secrets versions access latest \
-        --project "$project" --secret "$name" \
+        --project "$project" --secret "$gcp_name" \
         --out-file "$payload" >/dev/null 2>&1; then
     echo "SKIP  $name (no readable version in gcp project $project)" >&2
     skipped=$((skipped + 1))
