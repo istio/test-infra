@@ -29,6 +29,24 @@ locals {
     # GitHub OAuth token for Prow jobs (JSON: {oauth}).
     "oauth_token" = "GitHub OAuth token for Prow jobs"
 
+    # HMAC token used by hook to validate GitHub webhook payloads.
+    "hmac_token" = "HMAC token for validating GitHub webhooks"
+
+    # Cookie secret used by deck/deck-private to sign session cookies.
+    "cookie" = "Cookie secret for signing Prow deck session cookies"
+
+    # GitHub OAuth app config for the public deck login flow.
+    "github-oauth-config" = "GitHub OAuth app config for deck login"
+
+    # GitHub OAuth app config for the private deck login flow.
+    "github-oauth-config-private" = "GitHub OAuth app config for deck-private login"
+
+    # Slack token used by crier/hook for Slack notifications.
+    "slack_token" = "Slack token for Prow notifications"
+
+    # OAuth2-proxy client credentials guarding deck-private.
+    "deck-oauth-proxy" = "OAuth2-proxy client credentials for deck-private"
+
     # SSH key material for the istio-testing robot (JSON: {id_rsa, id_rsa.pub, known_hosts}).
     "istio-testing_robot-ssh-key" = "SSH key for the istio-testing robot"
 

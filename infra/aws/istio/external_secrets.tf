@@ -17,6 +17,12 @@ locals {
       "cf_r2_istio-prow_credentials",
       "cf_r2_public_buckets_ro_credentials",
       "oauth_token",
+      "hmac_token",
+      "cookie",
+      "github-oauth-config",
+      "github-oauth-config-private",
+      "slack_token",
+      "deck-oauth-proxy",
       "istio-testing_robot-ssh-key",
     ]
     prow-build = [

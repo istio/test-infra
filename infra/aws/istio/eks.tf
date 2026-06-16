@@ -2,16 +2,15 @@ locals {
   cluster_version = "1.36"
 
   clusters = {
-    # Control plane / trusted (GKE `prow` in istio-testing).
     prow = {
       node_groups = {
         default = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["t3.small"]
+          instance_types = ["t3.large"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
-          max_size       = 1
-          desired_size   = 1
+          max_size       = 5
+          desired_size   = 3
           disk_size      = 20
           labels         = { prod = "prow" }
         }
@@ -27,7 +26,7 @@ locals {
           instance_types = ["t3.small"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
-          max_size       = 1
+          max_size       = 5
           desired_size   = 1
           disk_size      = 20
           labels         = { testing = "build-pool" }
@@ -38,7 +37,7 @@ locals {
           instance_types = ["t3.small"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
-          max_size       = 1
+          max_size       = 5
           desired_size   = 1
           disk_size      = 20
           labels         = { testing = "test-pool" }
@@ -49,7 +48,7 @@ locals {
           instance_types = ["t3.small"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
-          max_size       = 1
+          max_size       = 5
           desired_size   = 1
           disk_size      = 20
           labels         = { testing = "test-pool" }
@@ -60,7 +59,7 @@ locals {
           instance_types = ["t3.small"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
-          max_size       = 1
+          max_size       = 5
           desired_size   = 1
           disk_size      = 20
           labels         = { testing = "test-pool" }
@@ -71,7 +70,7 @@ locals {
           instance_types = ["t4g.small"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
-          max_size       = 1
+          max_size       = 5
           desired_size   = 1
           disk_size      = 20
           labels         = { testing = "test-pool" }
@@ -88,7 +87,7 @@ locals {
           instance_types = ["t3.small"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
-          max_size       = 1
+          max_size       = 5
           desired_size   = 1
           disk_size      = 20
           labels         = { testing = "test-pool" }
@@ -99,8 +98,8 @@ locals {
           instance_types = ["t3.small"]
           capacity_type  = "ON_DEMAND"
           min_size       = 0
-          max_size       = 1
-          desired_size   = 0
+          max_size       = 5
+          desired_size   = 1
           disk_size      = 20
           labels         = { testing = "build-pool" }
         }
@@ -110,8 +109,8 @@ locals {
           instance_types = ["t4g.small"]
           capacity_type  = "ON_DEMAND"
           min_size       = 0
-          max_size       = 1
-          desired_size   = 0
+          max_size       = 5
+          desired_size   = 1
           disk_size      = 20
           labels         = { testing = "test-pool" }
         }
