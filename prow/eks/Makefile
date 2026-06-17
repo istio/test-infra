@@ -3,28 +3,12 @@
 # Based off a similar file used to manage the k8s cluster
 # https://github.com/kubernetes/test-infra/blob/master/prow/Makefile
 
-include Makefile.gcloud.mk
 include Makefile.aws.mk
-
-# GKE variables.
-PROJECT ?= istio-testing
-PROJECT_ARM ?= istio-prow-build
-PROJECT_BUILD ?= istio-prow-build
-PROJECT_PRIVATE ?= istio-prow-private
-
-CLUSTER ?= prow
-CLUSTER_ARM ?= prow-arm
-CLUSTER_BUILD ?= prow
-CLUSTER_PRIVATE ?= prow
-
-ZONE    ?= us-west1-a
-ZONE_ARM ?= us-central1-f
-ZONE_BUILD ?= us-west1-a
-ZONE_PRIVATE ?= us-central1-f
 
 # AWS variables.
 REGION ?= us-west-2
 
+CLUSTER ?= prow
 CLUSTER_AWS ?= prow
 CLUSTER_BUILD_AWS ?= prow-build
 CLUSTER_PRIVATE_AWS ?= prow-private
@@ -49,11 +33,6 @@ create-release-deps-configmap: get-private-cluster-credentials
 	"$(branch)-release-deps"
 
 create-deps-configmaps: create-istio-deps-configmap create-release-deps-configmap
-
-# ---------------------------------------------------------------------------
-# AWS / EKS variants. Manifests live under ./cluster/ and authentication
-# goes through `aws eks update-kubeconfig` (see Makefile.aws.mk).
-# ---------------------------------------------------------------------------
 
 update-config-dry-run: get-cluster-credentials
 	./recreate_prow_configmaps.py \

@@ -29,6 +29,7 @@ spec:
         - --github-workers=5
         - --job-config-path=/etc/job-config
         - --kubernetes-blob-storage-workers=1
+        - --s3-credentials-file=/etc/cf-r2-istio-prow-credentials/service-account.json
         - --slack-token-file=/etc/slack/token
         - --slack-workers=1
         env:
@@ -56,6 +57,9 @@ spec:
         - name: job-config
           mountPath: /etc/job-config
           readOnly: true
+        - name: cf-r2-istio-prow-credentials
+          mountPath: /etc/cf-r2-istio-prow-credentials
+          readOnly: true
       volumes:
       - name: oauth
         secret:
@@ -73,3 +77,6 @@ spec:
       - name: job-config
         configMap:
           name: job-config
+      - name: cf-r2-istio-prow-credentials
+        secret:
+          secretName: cf-r2-istio-prow-credentials
