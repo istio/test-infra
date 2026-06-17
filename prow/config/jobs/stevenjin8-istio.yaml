@@ -1,0 +1,18 @@
+org: Stevenjin8
+repo: istio
+support_release_branching: false
+image: gcr.io/istio-testing/build-tools:master-1aae82591b3f663bba15d501ae7ce9c2d329aa70
+jobs:
+  - name: lint
+    types: [presubmit]
+    command: [make, lint]
+    resources: lint
+
+resources_presets:
+  lint:
+    requests:
+      memory: "16Gi"
+      cpu: "3000m"
+    limits:
+      memory: "24Gi"
+requirements: [gocache]

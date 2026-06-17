@@ -46,7 +46,7 @@ func TestJobs(t *testing.T) {
 			if !PrivateClusters.Has(j.Base.Cluster) {
 				return fmt.Errorf("private org must use private cluster, got %v", j.Base.Cluster)
 			}
-		case "istio", "istio-ecosystem":
+		case "istio", "istio-ecosystem", "Stevenjin8":
 			if !PublicClusters.Has(j.Base.Cluster) {
 				return fmt.Errorf("primary org must use a public cluster, got: %v", j.Base.Cluster)
 			}
@@ -340,7 +340,7 @@ func BuildRunTest(t *testing.T) func(name string, f func(j Job) error) {
 }
 
 func LoadJobs(t *testing.T) []Job {
-	const jobsPath = "../cluster/jobs"
+	const jobsPath = "../cluster/gke/jobs"
 	const configPath = "../config.yaml"
 	c, err := config.LoadStrict(configPath, jobsPath, nil, "")
 	if err != nil {

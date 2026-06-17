@@ -27,13 +27,21 @@ gen: generate-config fmt mirror-licenses
 
 gen-check: gen check-clean-repo
 
+# Generate the canonical (GKE) job config. Jobs are cloud-agnostic; this tree is the source of truth.
 generate-config:
-	@rm -fr prow/cluster/jobs/istio*/*/*.gen.yaml
-	@(cd tools/prowgen/cmd/prowgen; go run main.go --input-dir=$(repo_root)/prow/config/jobs --output-dir=$(repo_root)/prow/cluster/jobs write)
+	@rm -fr prow/cluster/gke/jobs/*/*/*.gen.yaml
+	@(cd tools/prowgen/cmd/prowgen; go run main.go --input-dir=$(repo_root)/prow/config/jobs --output-dir=$(repo_root)/prow/cluster/gke/jobs write)
 	@go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/config/jobs/.base.yaml --configs=./prow/config/istio-private_jobs --input=./prow/config/jobs
 	@go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/config/jobs/.base.yaml --configs=./prow/config/experimental --input=./prow/config/jobs
 
+# Mirror the canonical job config into the EKS (AWS) cluster tree consumed by the -aws deploy targets.
+generate-config-aws: generate-config
+	@rm -fr prow/cluster/eks/jobs && cp -a prow/cluster/gke/jobs prow/cluster/eks/jobs
+
 diff-config:
-	@(cd tools/prowgen/cmd/prowgen; GOARCH=$(GOARCH) GOOS=$(GOOS) go run main.go --input-dir=$(repo_root)/prow/config/jobs --output-dir=$(repo_root)/prow/cluster/jobs diff)
+	@(cd tools/prowgen/cmd/prowgen; GOARCH=$(GOARCH) GOOS=$(GOOS) go run main.go --input-dir=$(repo_root)/prow/config/jobs --output-dir=$(repo_root)/prow/cluster/gke/jobs diff)
+
+diff-config-aws:
+	@(cd tools/prowgen/cmd/prowgen; GOARCH=$(GOARCH) GOOS=$(GOOS) go run main.go --input-dir=$(repo_root)/prow/config/jobs --output-dir=$(repo_root)/prow/cluster/eks/jobs diff)
 
 include common/Makefile.common.mk
