@@ -1095,7 +1095,7 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.integration.pilot.gateway-api-only.kube
+        - test.integration.pilot.kube
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -1104,6 +1104,8 @@ postsubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.gatewayAPIOnly --istio.test.kube.gatewayClassName=istio-alt
+        - name: T
+          value: -run="TestGatewayConformance|TestGateway$$|TestHTTPRouteAndGRPCRouteCoexistence|TestInferencePoolMultipleTargetPorts"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -5111,7 +5113,7 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - test.integration.pilot.gateway-api-only.kube
+        - test.integration.pilot.kube
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -5120,6 +5122,8 @@ presubmits:
           value: "5"
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.gatewayAPIOnly --istio.test.kube.gatewayClassName=istio-alt
+        - name: T
+          value: -run="TestGatewayConformance|TestGateway$$|TestHTTPRouteAndGRPCRouteCoexistence|TestInferencePoolMultipleTargetPorts"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
