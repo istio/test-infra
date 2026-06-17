@@ -1,0 +1,77 @@
+org: istio
+repo: release-builder
+support_release_branching: true
+image: gcr.io/istio-testing/build-tools:master-1aae82591b3f663bba15d501ae7ce9c2d329aa70
+
+jobs:
+  - name: lint
+    command: [make, lint]
+
+  - name: test
+    command: [make, test]
+
+  - name: gencheck
+    command: [make, gen-check]
+
+  - name: dry-run
+    command: [entrypoint, test/publish.sh]
+    requirements: [docker]
+    resources: dedicated
+    regex: '\.go$|\.sh$'
+
+  - name: build-warning
+    types: [presubmit]
+    regex: '^release/trigger-build$'
+    command: [entrypoint, release/build-warning.sh]
+    requirements: [cf-r2-public-ro-auth]
+    modifiers: [presubmit_optional]
+
+  - name: publish-warning
+    types: [presubmit]
+    regex: '^release/trigger-publish$'
+    command: [entrypoint, release/publish-warning.sh]
+    requirements: [cf-r2-public-ro-auth]
+    modifiers: [presubmit_optional]
+
+  - name: build-release
+    types: [postsubmit]
+    regex: '^release/trigger-build$'
+    command: [entrypoint, release/build.sh]
+    requirements: [docker, cf-r2-istio-prerelease-auth]
+    resources: dedicated
+    # For build, we just need SA (giving GCS/GCR access)
+    service_account_name: prowjob-release
+
+  - name: publish-release
+    types: [postsubmit]
+    regex: '^release/trigger-publish$'
+    command: [entrypoint, release/publish.sh]
+    requirements: [release, docker, cf-r2-istio-prerelease-auth, cf-r2-istio-release-auth]
+    resources: dedicated
+    max_concurrency: 1
+
+  - name: build-base-images
+    types: [periodic]
+    cron: "0 19 * * *"  # every day at 07:00 PM UTC (12:00 PM PST)
+    env:
+    - name: VERSION
+      value: "master"
+    command: [entrypoint, release/build-base-images.sh]
+    requirements: [build-base, docker]
+    resources: build
+
+resources_presets:
+  build:
+    requests:
+      memory: "3Gi"
+      cpu: "5000m"
+    limits:
+      memory: "24Gi"
+      cpu: "8000m"
+  # Give 15 CPUs which will put us on a dedicated node, ensuring fast builds
+  dedicated:
+    requests:
+      memory: "8Gi"
+      cpu: "15000m"
+    limits:
+      memory: "24Gi"

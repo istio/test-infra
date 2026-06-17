@@ -1,0 +1,82 @@
+org: istio
+repo: tools
+support_release_branching: true
+image: gcr.io/istio-testing/build-tools:master-1aae82591b3f663bba15d501ae7ce9c2d329aa70
+
+jobs:
+  - name: build
+    command: [make, build]
+
+  - name: lint
+    command: [make, lint]
+
+  - name: test
+    command: [make, test]
+
+  - name: gencheck
+    command: [make, gen-check]
+
+  # amd64 build
+  - name: containers
+    service_account_name: prowjob-build-tools
+    types: [postsubmit]
+    command:
+    - entrypoint
+    - ../test-infra/tools/automator/automator.sh
+    - --org=$AUTOMATOR_ORG
+    - --repo=common-files
+    - "--title=Automator: update build-tools image@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+    - --labels=release-notes-none
+    - --modifier=update_image_version
+    - --token-env
+    - --script-path=../common-files/bin/create-buildtools-and-update.sh
+    resources: build
+    regex: 'docker/.+|cmd/.+|pkg/.+'
+    requirements: [docker, github-istio-testing]
+    repos: [istio/test-infra@master,istio/common-files@master]
+    env:
+    # For amd64, publish the manifest for arm64+amd64
+    - name: MANIFEST_ARCH
+      value: "arm64 amd64"
+    - name: AUTOMATOR_ORG
+      value: istio
+  # arm64 build
+  - name: containers
+    service_account_name: prowjob-build-tools
+    architectures: [arm64]
+    types: [postsubmit]
+    command:
+    - entrypoint
+    - make
+    - containers
+    env:
+    # For arm64, we do not generate the manifest; the amd job will handle it
+    - name: MANIFEST_ARCH
+      value: ""
+    resources: build
+    regex: 'docker/.+|cmd/.+|pkg/.+'
+    requirements: [docker]
+
+  - name: containers-test
+    types: [presubmit]
+    command: [entrypoint, make, containers-test]
+    resources: build
+    regex: 'docker/.+|cmd/.+'
+    requirements: [docker]
+  - name: containers-test
+    architectures: [arm64]
+    types: [presubmit]
+    command: [entrypoint, make, containers-test]
+    resources: build
+    regex: 'docker/.+|cmd/.+|pkg/.+'
+    requirements: [docker]
+
+
+resources_presets:
+  build:
+    requests:
+      memory: "4Gi"
+      cpu: "8000m"
+    limits:
+      memory: "24Gi"
+      cpu: "8000m"

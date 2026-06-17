@@ -1,0 +1,19 @@
+org: istio
+repo: istio
+support_release_branching: false
+
+defaults:
+  branches: [master]
+  branches-out: [^experimental-.*]
+  repo-allowlist: [istio]
+
+transforms:
+
+- job-type:
+  - presubmit
+  job-denylist: [release_istio,build-base-images_istio,release-notes_istio]
+- job-type:
+  - postsubmit
+  job-allowlist: [release_istio]
+  # We will manually run these on-demand
+  skip-postsubmit: true

@@ -1,0 +1,20 @@
+org: istio
+repo: community
+image: gcr.io/istio-testing/build-tools:master-1aae82591b3f663bba15d501ae7ce9c2d329aa70
+
+jobs:
+  - name: lint
+    command: [prow/community-lint.sh]
+
+  - name: test
+    command: [make, test]
+
+  - name: sync-org
+    types: [postsubmit]
+    command: [org-gen, --write-to-github, --github-token=/etc/github-token/oauth]
+    node_selector:
+      prod: prow
+    requirements: [github-organization]
+    excluded_requirements: [cache]
+    timeout: 4h
+    cluster: test-infra-trusted

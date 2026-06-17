@@ -29,19 +29,26 @@ gen-check: gen check-clean-repo
 
 # Generate the canonical (GKE) job config. Jobs are cloud-agnostic; this tree is the source of truth.
 generate-config:
-	@rm -fr prow/cluster/gke/jobs/*/*/*.gen.yaml
-	@(cd tools/prowgen/cmd/prowgen; go run main.go --input-dir=$(repo_root)/prow/config/jobs --output-dir=$(repo_root)/prow/cluster/gke/jobs write)
-	@go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/config/jobs/.base.yaml --configs=./prow/config/istio-private_jobs --input=./prow/config/jobs
-	@go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/config/jobs/.base.yaml --configs=./prow/config/experimental --input=./prow/config/jobs
+	@rm -fr prow/gke/cluster/jobs/*/*/*.gen.yaml
+	@(cd tools/prowgen/cmd/prowgen; go run main.go --input-dir=$(repo_root)/prow/gke/config/jobs --output-dir=$(repo_root)/prow/gke/cluster/jobs write)
+	@go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/gke/config/jobs/.base.yaml --configs=./prow/gke/config/istio-private_jobs --input=./prow/gke/config/jobs
+	@go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/gke/config/jobs/.base.yaml --configs=./prow/gke/config/experimental --input=./prow/gke/config/jobs
 
 # Mirror the canonical job config into the EKS (AWS) cluster tree consumed by the -aws deploy targets.
+# EKS has no separate arm cluster: arm64 is a node group inside the default build cluster (prow-build),
+# selected via nodeSelector. Strip the GKE-only `cluster: prow-arm` override so those jobs land there.
 generate-config-aws: generate-config
-	@rm -fr prow/cluster/eks/jobs && cp -a prow/cluster/gke/jobs prow/cluster/eks/jobs
+	@rm -fr prow/eks/cluster/jobs/*/*/*.gen.yaml
+	@(cd tools/prowgen/cmd/prowgen; go run main.go --input-dir=$(repo_root)/prow/eks/config/jobs --output-dir=$(repo_root)/prow/eks/cluster/jobs write)
+	# @go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/eks/config/jobs/.base.yaml --configs=./prow/eks/config/istio-private_jobs --input=./prow/eks/config/jobs
+	# @go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/eks/config/jobs/.base.yaml --configs=./prow/eks/config/experimental --input=./prow/eks/config/jobs
+
+
 
 diff-config:
-	@(cd tools/prowgen/cmd/prowgen; GOARCH=$(GOARCH) GOOS=$(GOOS) go run main.go --input-dir=$(repo_root)/prow/config/jobs --output-dir=$(repo_root)/prow/cluster/gke/jobs diff)
+	@(cd tools/prowgen/cmd/prowgen; GOARCH=$(GOARCH) GOOS=$(GOOS) go run main.go --input-dir=$(repo_root)/prow/gke/config/jobs --output-dir=$(repo_root)/prow/cluster/gke/jobs diff)
 
 diff-config-aws:
-	@(cd tools/prowgen/cmd/prowgen; GOARCH=$(GOARCH) GOOS=$(GOOS) go run main.go --input-dir=$(repo_root)/prow/config/jobs --output-dir=$(repo_root)/prow/cluster/eks/jobs diff)
+	@(cd tools/prowgen/cmd/prowgen; GOARCH=$(GOARCH) GOOS=$(GOOS) go run main.go --input-dir=$(repo_root)/prow/eks/config/jobs --output-dir=$(repo_root)/prow/cluster/eks/jobs diff)
 
 include common/Makefile.common.mk

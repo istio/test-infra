@@ -1,0 +1,41 @@
+org: istio
+repo: release-builder
+support_release_branching: true
+
+defaults:
+  branches: [master]
+  repo-allowlist: [release-builder]
+
+transforms:
+# istio/release-builder master test jobs(s) - pre/postsubmit(s)
+- job-type: [presubmit, postsubmit]
+  job-allowlist: [lint_release-builder,lint_release-builder_postsubmit,test_release-builder,test_release-builder_postsubmit,gencheck_release-builder,gencheck_release-builder_postsubmit]
+  repo-allowlist: [release-builder]
+  labels:
+    preset-enable-netrc: true
+
+# istio/release-builder master build warning jobs(s) - presubmit(s)
+- env:
+    PRERELEASE_DOCKER_HUB: us-docker.pkg.dev/istio-prow-private/istio-prow-private
+    GCS_BUCKET: istio-prerelease-private/prerelease
+    R2_BUCKET: istio-prerelease-private/prerelease
+  job-type: [presubmit]
+  job-allowlist: [build-warning_release-builder]
+  repo-allowlist: [release-builder]
+  requirements: [cf-r2-istio-prerelease-private-auth]
+
+  # istio/release-builder master build jobs(s) - postsubmit(s)
+- env:
+    PRERELEASE_DOCKER_HUB: us-docker.pkg.dev/istio-prow-private/istio-prow-private
+    HELM_BUCKET: istio-prerelease-private/charts
+    GCS_BUCKET: istio-prerelease-private/prerelease
+    R2_HELM_BUCKET: istio-prerelease-private/charts
+    R2_BUCKET: istio-prerelease-private/prerelease
+  labels:
+    preset-override-envoy-r2: "true"
+    preset-override-deps: master-release
+    preset-enable-netrc: "true"
+  job-type: [postsubmit]
+  job-allowlist: [build-release_release-builder_postsubmit]
+  repo-allowlist: [release-builder]
+  requirements: [docker, cf-r2-istio-prerelease-private-auth, cf-r2-istio-build-private-auth]

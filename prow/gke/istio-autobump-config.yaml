@@ -1,0 +1,24 @@
+---
+gitHubLogin: "istio-testing"
+gitHubToken: "/etc/github-token/oauth"
+onCallAddress: "https://storage.googleapis.com/kubernetes-jenkins/oncall.json"
+skipPullRequest: false
+selfAssign: true # Commenting `/cc`, so that autobump PR is not assigned to anyone
+gitHubOrg: "istio"
+gitHubRepo: "test-infra"
+remoteName: "test-infra"
+headBranchName: "autobump-prow"
+upstreamURLBase: "https://raw.githubusercontent.com/kubernetes/k8s.io/main"
+includedConfigPaths:
+  - prow/cluster
+targetVersion: "upstream"
+extraFiles:
+  - ".prow.yaml"
+  - "prow/config.yaml"
+prefixes: 
+  - name: "Prow"
+    prefix: "us-docker.pkg.dev/k8s-infra-prow/images/"
+    repo: "https://github.com/kubernetes-sigs/prow"
+    refConfigFile: "kubernetes/gke-prow/prow/deck.yaml"
+    summarise: false
+    consistentImages: true

@@ -1,0 +1,136 @@
+org: istio
+repo: istio.io
+support_release_branching: true
+image: gcr.io/istio-testing/build-tools:master-1aae82591b3f663bba15d501ae7ce9c2d329aa70
+
+jobs:
+  - name: lint
+    command: [make, lint]
+
+  - name: gencheck
+    command: [make, gen-check]
+
+  - name: doc.test.profile-default
+    command: [entrypoint, prow/integ-suite-kind.sh, doc.test.profile-default]
+    requirements: [kind]
+    resources: 6Gi
+    regex: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
+
+  - name: doc.test.profile-demo
+    command: [entrypoint, prow/integ-suite-kind.sh, doc.test.profile-demo]
+    requirements: [kind]
+    regex: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
+
+  - name: doc.test.profile-none
+    command: [entrypoint, prow/integ-suite-kind.sh, doc.test.profile-none]
+    requirements: [kind]
+    timeout: 1h30m0s
+    regex: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
+
+  - name: doc.test.profile-minimal
+    command: [entrypoint, prow/integ-suite-kind.sh, doc.test.profile-minimal]
+    requirements: [kind]
+    regex: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
+  
+  - name: doc.test.profile-ambient
+    command: [entrypoint, prow/integ-suite-kind.sh, doc.test.profile-ambient]
+    requirements: [kind]
+    regex: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
+
+  - name: doc.test.multicluster
+    command:
+    - entrypoint
+    - prow/integ-suite-kind.sh
+    - --topology
+    - MULTICLUSTER
+    - doc.test.multicluster
+    requirements: [kind]
+    regex: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
+
+  - name: doc.test.dualstack
+    command: [entrypoint, prow/integ-suite-kind.sh, doc.test.dualstack]
+    requirements: [kind]
+    env:
+      - name: DOCKER_IN_DOCKER_IPV6_ENABLED
+        value: "true"
+      - name: IP_FAMILIES
+        value: "IPv4,IPv6"
+    regex: ^(go.mod$|tests/|pkg/test/|prow/|content/en/boilerplates/snips/|content/en/docs/.*(test\.sh|/snips\.sh)$)
+
+  - name: update-ref-docs-dry-run
+    types: [presubmit]
+    command:
+    - entrypoint
+    - ../test-infra/tools/automator/automator.sh
+    - --org=$AUTOMATOR_ORG
+    - --repo=istio.io
+    - --cmd=make update_ref_docs
+    - --dry-run
+    modifiers: [presubmit_optional]
+    repos: [istio/test-infra@master]
+    env:
+    - name: AUTOMATOR_ORG
+      value: istio
+
+  - name: update-ref-docs
+    disable_release_branching: true
+    types: [periodic]
+    cron: "0 2 * * *"  # every day at 02:00AM UTC
+    command:
+    - entrypoint
+    - ../test-infra/tools/automator/automator.sh
+    - --org=$AUTOMATOR_ORG
+    - --repo=istio.io
+    - "--title=Automator: update istio.io@$AUTOMATOR_SRC_BRANCH reference docs"
+    - --labels=auto-merge,release-notes-none
+    - --modifier=refdocs
+    - --token-env
+    - --cmd=make update_ref_docs
+    requirements: [github-istio-testing]
+    repos: [istio/test-infra@master]
+    env:
+    - name: AUTOMATOR_ORG
+      value: istio
+
+  - name: update-istio-ref
+    disable_release_branching: true
+    types: [periodic]
+    cron: "0 2 * * 0"  # every Sunday at 02:00AM UTC
+    command:
+    - entrypoint
+    - ../test-infra/tools/automator/automator.sh
+    - --org=$AUTOMATOR_ORG
+    - --repo=istio.io
+    - "--title=Automator: update istio@$AUTOMATOR_SRC_BRANCH test reference"
+    - --labels=release-notes-none
+    - --token-env
+    - --cmd=make update_test_reference
+    requirements: [github-istio-testing]
+    repos: [istio/test-infra@master]
+    env:
+    - name: AUTOMATOR_ORG
+      value: istio
+
+resources_presets:
+  default:
+    requests:
+      memory: "3Gi"
+      cpu: "5000m"
+    limits:
+      memory: "24Gi"
+      cpu: "8000m"
+  lint:
+    requests:
+      memory: "16Gi"
+      cpu: "3000m"
+    limits:
+      memory: "24Gi"
+      cpu: "5000m"
+  # some gateway-api tests require more memory
+  6Gi:
+    requests:
+      memory: "6Gi"
+      cpu: "5000m"
+    limits:
+      memory: "24Gi"
+      cpu: "8000m"

@@ -1,0 +1,96 @@
+# Plugin repository allowlist.
+# Keys: Full repo name: "org/repo".
+# Values: List of plugins to run against the repo.
+---
+triggers:
+- repos:
+  - istio
+  - istio-ecosystem
+  - istio-private
+  trusted_org: Stevenjin8
+
+config_updater:
+  maps:
+    prow/config.yaml:
+      name: config
+    prow/plugins.yaml:
+      name: plugins
+    prow/cluster/gke/jobs/**/*.yaml:
+      name: job-config
+      gzip: true
+
+slack:
+  mergewarnings:
+  - repos:
+    - Stevenjin8/test-infra
+    channels:
+    - test-and-release
+    exempt_users:
+    - istio-testing
+    - istio-release-robot
+
+lgtm:
+- repos:
+  - istio
+  review_acts_as_lgtm: true
+
+plugins:
+  Stevenjin8:
+    plugins:
+    - size
+    - trigger
+    - wip
+
+  istio-ecosystem:
+    plugins:
+    - size
+    - trigger
+    - wip
+
+  istio-private:
+    plugins:
+    - trigger
+
+  istio/test-infra:
+    plugins:
+    - assign
+    - config-updater
+    - golint
+    - hold
+    - lifecycle
+    - skip
+    - slackevents
+
+  istio-ecosystem/authservice:
+    plugins:
+    - golint
+    - hold
+
+  istio-ecosystem/sail-operator:
+    plugins:
+    - assign
+    - hold
+
+external_plugins:
+  istio:
+  - name: needs-rebase
+    events:
+    - pull_request
+  - name: cherrypicker
+    events:
+      - issue_comment
+      - pull_request
+
+  istio-ecosystem/authservice:
+  - name: needs-rebase
+    events:
+    - pull_request
+
+  istio-ecosystem/sail-operator:
+  - name: needs-rebase
+    events:
+    - pull_request
+  - name: cherrypicker
+    events:
+      - issue_comment
+      - pull_request
