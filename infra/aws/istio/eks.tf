@@ -23,7 +23,7 @@ locals {
         # Large build pool
         build = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["t3.small"]
+          instance_types = ["t3.2xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
           max_size       = 5
@@ -67,7 +67,7 @@ locals {
         # Graviton spot pool
         arm = {
           ami_type       = "AL2023_ARM_64_STANDARD"
-          instance_types = ["t4g.small"]
+          instance_types = ["t4g.2xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
           max_size       = 5
