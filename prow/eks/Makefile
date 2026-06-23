@@ -55,12 +55,6 @@ deploy: get-cluster-credentials
 deploy-gcsweb: get-cluster-credentials
 	kubectl apply -f ./cluster/gcsweb/ -n gcs
 
-# TODO(clarketm): enable pruning
-deploy-monitoring: get-cluster-credentials
-	kubectl apply -f ./cluster/monitoring/prometheus-operator-crds/
-	$(MAKE) -C cluster/monitoring/mixins clean apply
-	kubectl apply -f ./cluster/monitoring/
-
 get-build-cluster-credentials: CLUSTER=$(CLUSTER_BUILD_AWS)
 
 deploy-build: get-build-cluster-credentials
@@ -77,4 +71,4 @@ deploy-private: get-private-cluster-credentials
 query-private: get-private-cluster-credentials
 	kubectl cluster-info
 
-.PHONY: deploy deploy-gcsweb deploy-monitoring deploy-build deploy-private query-build query-private update-config update-config-dry-run
+.PHONY: deploy deploy-gcsweb deploy-build deploy-private query-build query-private update-config update-config-dry-run
