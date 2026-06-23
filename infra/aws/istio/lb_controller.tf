@@ -1,10 +1,6 @@
 # AWS Load Balancer Controller. It reconciles `ingressClassName: alb` Ingress
 # objects into ALBs (and Service type=LoadBalancer into NLBs). The chart runs on
 # the control-plane `prow` cluster, which serves the public ingress endpoints.
-#
-# The controller's IAM role is delivered via EKS Pod Identity: the association
-# binds the role to the kube-system/aws-load-balancer-controller service account,
-# so the chart's service account needs no role annotation.
 
 module "lb_controller_identity" {
   source  = "terraform-aws-modules/eks-pod-identity/aws"

@@ -1,13 +1,3 @@
-# External Secrets Operator (ESO). ESO syncs AWS Secrets Manager secrets into
-# native Kubernetes Secrets, driven by ExternalSecret resources in cluster/eks/.
-# It runs on every cluster that consumes secrets.
-#
-# Auth uses EKS Pod Identity: the controller's service account
-# (external-secrets/external-secrets) is bound to a per-cluster IAM role scoped
-# to exactly the secrets that cluster reads. A ClusterSecretStore with no auth
-# block (see cluster/eks/.../external_secrets_store.yaml) therefore resolves
-# against the controller pod's identity.
-
 locals {
   # Secrets each cluster's ESO controller is allowed to read. Keys reference
   # aws_secretsmanager_secret.secrets (secrets.tf).

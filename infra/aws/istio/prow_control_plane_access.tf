@@ -5,14 +5,8 @@
 # the prow images; see prow/cluster/eks/build_kubeconfig.yaml) to schedule,
 # reap, and read job pods. Each component needs two things:
 #
-#   1. An IAM role with an EKS Pod Identity association on `prow`, so the pod
-#      carries an AWS identity that aws-iam-authenticator can present.
-#   2. An EKS access entry on every cluster it operates against, scoped to the
-#      `test-pods` namespace where job pods run.
-#
 # Writers (prow-controller-manager, sinker) create and delete pods -> Edit.
 # Readers (deck, deck-private, crier) only read pod logs/status -> View, reusing
-# the IAM roles they already have for S3 (see iam.tf).
 
 locals {
   # Components that create and delete job pods on the build clusters. They get

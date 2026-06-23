@@ -78,7 +78,6 @@ locals {
       }
     }
 
-    # Private / PSWG build cluster (GKE `prow` in istio-prow-private).
     prow-private = {
       node_groups = {
         # Test pool (e2-standard-16).

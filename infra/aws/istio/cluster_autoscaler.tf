@@ -1,13 +1,3 @@
-# Cluster Autoscaler. One deployment per cluster; each one scales only the
-# managed node groups of its own cluster via ASG auto-discovery. EKS managed
-# node groups automatically tag their Auto Scaling Groups with
-# k8s.io/cluster-autoscaler/enabled and k8s.io/cluster-autoscaler/<cluster>, so
-# no extra tagging is required for discovery.
-#
-# Each controller's IAM role is delivered via EKS Pod Identity: the association
-# binds the role to the kube-system/cluster-autoscaler service account, scoped
-# to that cluster's ASGs only.
-
 locals {
   cluster_autoscaler_chart_version = "9.58.0"
   cluster_autoscaler_image_tag     = "v1.35.0"

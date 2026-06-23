@@ -1,15 +1,5 @@
 # iam.tf defines the IAM roles assumed by in-cluster workloads via EKS Pod
 # Identity. Each role mirrors a GCP service account / Workload Identity binding.
-#
-# Because object storage moved to Cloudflare R2 and registries to GHCR, most
-# workloads' cloud permissions reduce to "read (and sometimes write) specific
-# Secrets Manager secrets" (the R2 credentials / tokens). GCS/GCR/RBE grants
-# from the GCP config have no AWS equivalent and are intentionally dropped.
-#
-# The community eks-pod-identity module builds the role + Pod Identity trust
-# policy (pods.eks.amazonaws.com) and our scoped secrets policy. Pod Identity
-# *associations* (binding a role to a cluster + namespace + service account) are
-# wired in the identity-secrets phase; see the example at the bottom.
 
 locals {
   # Object-storage buckets that workloads can be granted access to. `s3_read` /
@@ -19,16 +9,7 @@ locals {
     "istio-prow-private" = aws_s3_bucket.istio_prow_private.arn
   }
 
-  # Workloads that need an AWS IAM role. `read` / `write` reference secret keys
-  # in aws_secretsmanager_secret.secrets (see secrets.tf). `s3_read` /
-  # `s3_read_write` reference bucket keys in local.s3_buckets.
-  #
-  # Excluded by design:
-  #   - prowjob-rbe:             RBE is GCP-specific; no AWS equivalent.
-  #   - opentelemetry-collector: Cloud Trace -> X-Ray; different perm model.
-  #   - prow-deployer / prow-control-plane: cluster access is granted via EKS
-  #                              access entries, not IAM policies (EKS phase).
-  #   - istio-policy-bot / prowjob-bots-deployer: policy bot is a later phase.
+  # WI mappings and permissions
   workload_roles = {
     # Highly privileged release job. Its cosign signing access (kms:Sign on the
     # asymmetric key) is granted by the key's resource policy in kms.tf, not
@@ -87,14 +68,13 @@ locals {
     }
 
     # Private Prow job service account. Uploads job artifacts to the private
-    # bucket via Pod Identity (pod-utils decoration).
+    # bucket
     "prowjob-private" = {
       s3_read_write = ["istio-prow-private"]
       associations  = { prow-private = { namespace = "test-pods", service_account = "prowjob-private" } }
     }
 
     # Prow control-plane components (trusted "prow" cluster, default namespace).
-    # These authenticate to S3 via Pod Identity rather than a credentials file.
     "crier" = {
       s3_read_write = ["istio-prow", "istio-prow-private"]
       associations  = { prow = { namespace = "default", service_account = "crier" } }
@@ -190,9 +170,6 @@ module "workload_identity" {
     ] : s if s != null
   ]
 
-  # Pod Identity associations bind this role to a cluster + namespace + k8s
-  # service account. The map key references the EKS cluster (see eks.tf); the
-  # cluster_name comes from that module so associations wait for the cluster.
   associations = {
     for cluster, assoc in each.value.associations : cluster => {
       cluster_name    = module.eks[cluster].cluster_name
