@@ -30,8 +30,9 @@ locals {
   #                              access entries, not IAM policies (EKS phase).
   #   - istio-policy-bot / prowjob-bots-deployer: policy bot is a later phase.
   workload_roles = {
-    # Highly privileged release job. Also needs KMS (cosign) access, added with
-    # the KMS key in a later phase.
+    # Highly privileged release job. Its cosign signing access (kms:Sign on the
+    # asymmetric key) is granted by the key's resource policy in kms.tf, not
+    # here, so no KMS statement is needed on this role.
     "prowjob-release" = {
       read = [
         "release_docker_istio",

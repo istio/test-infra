@@ -1,4 +1,4 @@
-org: Stevenjin8
+org: istio
 repo: ztunnel
 image: gcr.io/istio-testing/build-tools:master-1aae82591b3f663bba15d501ae7ce9c2d329aa70
 support_release_branching: true
@@ -14,17 +14,17 @@ jobs:
     types: [presubmit]
     requirements: [cratescache]
 
-  # - name: coverage
-  #   command: [entrypoint, make, coverage]
-  #   types: [postsubmit]
-  #   requirements: [cratescache]
-  #
-  # - name: release
-  #   architectures: [amd64, arm64]
-  #   service_account_name: prowjob-testing-write
-  #   types: [postsubmit]
-  #   command: [entrypoint, make, release]
-  #   requirements: [cratescache, cf-r2-istio-build-auth]
+  - name: coverage
+    command: [entrypoint, make, coverage]
+    types: [postsubmit]
+    requirements: [cratescache]
+
+  - name: release
+    architectures: [amd64, arm64]
+    service_account_name: prowjob-testing-write
+    types: [postsubmit]
+    command: [entrypoint, make, release]
+    requirements: [cratescache, cf-r2-istio-build-auth]
 
 resources_presets:
   # Rust jobs are CPU intensive. Bump up defaults (from 1/3) to 3/8 to speed up jobs.

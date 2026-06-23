@@ -3,7 +3,7 @@ plank:
   job_url_template: 'http://k8s-default-tlsing-211de21a28-1671250631.us-west-2.elb.amazonaws.com/view/istio-prow{{if eq .Spec.Type "presubmit"}}/pr-logs/pull/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if eq .Spec.Type "batch"}}/pr-logs/pull/batch{{else}}/logs{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}'
   job_url_prefix_config:
     '*': http://k8s-default-tlsing-211de21a28-1671250631.us-west-2.elb.amazonaws.com/view/
-    # istio-private: https://prow-private.istio.io/view/
+    istio-private: https://prow-private.istio.io/view/
   pod_pending_timeout: 15m
   pod_unscheduled_timeout: 30m
   default_decoration_config_entries:
@@ -30,20 +30,16 @@ plank:
     config:
       gcs_credentials_secret: ""
       default_service_account_name: "prowjob-default-sa"
-  # - repo: istio-private
-  #   config:
-  #     gcs_credentials_secret: ""
-  #     default_service_account_name: "prowjob-private"
-  #     gcs_configuration:
-  #       bucket: "s3://istio-prow-private"
-  #       path_strategy: "explicit"
-  #     oauth_token_secret:
-  #       name: github-oauth
-  #       key: token
-  # - cluster: prow-arm
-  #   config:
-  #     default_service_account_name: "prowjob-default-sa" # Use workload identity
-  #     gcs_credentials_secret: ""                         # rather than service account key secret
+  - repo: istio-private
+    config:
+      gcs_credentials_secret: ""
+      default_service_account_name: "prowjob-private"
+      gcs_configuration:
+        bucket: "s3://istio-prow-private"
+        path_strategy: "explicit"
+      oauth_token_secret:
+        name: github-oauth
+        key: token
 
 sinker:
   resync_period: 1m
@@ -103,12 +99,12 @@ deck:
       - bentheelder
       - michelle192837
       - chizhg
-      # github_team_slugs:
-      # - org: istio
-      #   slug: maintainers
-    # istio-private:
-    #   github_orgs:
-    #   - istio-private
+      github_team_slugs:
+      - org: istio
+        slug: maintainers
+    istio-private:
+      github_orgs:
+      - istio-private
 
 prowjob_namespace: default
 pod_namespace: test-pods
@@ -125,16 +121,16 @@ slack_reporter_configs:
     - error
     channel: test-failures
     report_template: 'Job *{{.Spec.Job}}* of type *{{.Spec.Type}}* ended with state *{{.Status.State}}*. <{{.Status.URL}}|View logs>'
-  # istio-private:
-  #   job_types_to_report:
-  #   - postsubmit
-  #   - periodic
-  #   - batch
-  #   job_states_to_report:
-  #   - failure
-  #   - error
-  #   channel: private-test-failures
-  #   report_template: 'Job *{{.Spec.Job}}* of type *{{.Spec.Type}}* ended with state *{{.Status.State}}*. <{{.Status.URL}}|View logs>'
+  istio-private:
+    job_types_to_report:
+    - postsubmit
+    - periodic
+    - batch
+    job_states_to_report:
+    - failure
+    - error
+    channel: private-test-failures
+    report_template: 'Job *{{.Spec.Job}}* of type *{{.Spec.Type}}* ended with state *{{.Status.State}}*. <{{.Status.URL}}|View logs>'
 
 # Report job status for presubmit and postsubmit
 github_reporter:
@@ -147,7 +143,7 @@ branch-protection:
   allow_disabled_job_policies: true
   protect: false
   orgs:
-    Stevenjin8:
+    istio:
       # Enable protection for all repos
       protect: true
       # Every repo requires CLA to pass
@@ -163,7 +159,7 @@ branch-protection:
         teams:
         - repo-admins
       repos:
-        istio-api:
+        api:
           # As API reviews are sensitive, require 2 approvals
           required_pull_request_reviews:
             required_approving_review_count: 2
@@ -337,41 +333,41 @@ branch-protection:
               restrictions:
                 teams:
                   - release-managers-1.30
-        # operator:
-        #   branches: *blocked_branches
-        # istio.io:
-        #   branches: *blocked_branches
-        # cni:
-        #   branches: *blocked_branches
-        # installer:
-        #   branches: *blocked_branches
-        # pkg:
-        #   branches: *blocked_branches
-        # get-istioctl:
-        #   branches: *blocked_branches
-        # cri:
-        #   branches: *blocked_branches
-        # client-go:
-        #   branches: *blocked_branches
-        # enhancements:
-        #   branches: *blocked_branches
-        # tools:
-        #   branches: *blocked_branches
-        # bots:
-        #   branches: *blocked_branches
-        # gogo-genproto:
-        #   branches: *blocked_branches
-        # common-files:
-        #   branches: *blocked_branches
-        # community:
-        #   branches: *blocked_branches
-        #   # Community is sensitive, as merges impact the org. Dismiss stale reviews to avoid unexpected changes post-approval.
-        #   required_pull_request_reviews:
-        #     dismiss_stale_reviews: true
-        #     dismissal_restrictions:
-        #       teams:
-        #       - steering-committee
-        #       - repo-admins
+        operator:
+          branches: *blocked_branches
+        istio.io:
+          branches: *blocked_branches
+        cni:
+          branches: *blocked_branches
+        installer:
+          branches: *blocked_branches
+        pkg:
+          branches: *blocked_branches
+        get-istioctl:
+          branches: *blocked_branches
+        cri:
+          branches: *blocked_branches
+        client-go:
+          branches: *blocked_branches
+        enhancements:
+          branches: *blocked_branches
+        tools:
+          branches: *blocked_branches
+        bots:
+          branches: *blocked_branches
+        gogo-genproto:
+          branches: *blocked_branches
+        common-files:
+          branches: *blocked_branches
+        community:
+          branches: *blocked_branches
+          # Community is sensitive, as merges impact the org. Dismiss stale reviews to avoid unexpected changes post-approval.
+          required_pull_request_reviews:
+            dismiss_stale_reviews: true
+            dismissal_restrictions:
+              teams:
+              - steering-committee
+              - repo-admins
         release-builder:
           branches: *blocked_branches
         ztunnel:
@@ -464,100 +460,100 @@ branch-protection:
             endpoints-v1.2.x: *blocking_merge
         test-infra:
           branches: *blocked_branches
-        # envoy:
-        #   branches:
-        #     <<: *blocked_branches
-        #     master:
-        #       protect: false
+        envoy:
+          branches:
+            <<: *blocked_branches
+            master:
+              protect: false
 
 in_repo_config:
   enabled:
-    Stevenjin8/test-infra: true
+    istio/test-infra: true
 
 tide:
   queries:
   - repos:
-    - Stevenjin8/istio
-    # - Stevenjin8/enhancements
-    # - Stevenjin8/envoy
-    # - Stevenjin8/get-istioctl
-    - Stevenjin8/proxy
-    # - Stevenjin8/operator
-    # - Stevenjin8/pkg
-    # - Stevenjin8/tools
-    # - Stevenjin8/bots
-    - Stevenjin8/istio-api
-    # - Stevenjin8/common-files
-    # - Stevenjin8/community
-    # - Stevenjin8/gogo-genproto
-    - Stevenjin8/test-infra
-    # - Stevenjin8/cni
-    # - Stevenjin8/installer
-    # - Stevenjin8/cri
-    # - Stevenjin8/client-go
-    - Stevenjin8/release-builder
-    - Stevenjin8/ztunnel
-    # - istio-ecosystem/sail-operator
-    # - istio-ecosystem/authservice
+    - istio/istio
+    - istio/enhancements
+    - istio/envoy
+    - istio/get-istioctl
+    - istio/proxy
+    - istio/operator
+    - istio/pkg
+    - istio/tools
+    - istio/bots
+    - istio/istio-api
+    - istio/common-files
+    - istio/community
+    - istio/gogo-genproto
+    - istio/test-infra
+    - istio/cni
+    - istio/installer
+    - istio/cri
+    - istio/client-go
+    - istio/release-builder
+    - istio/ztunnel
+    - istio-ecosystem/sail-operator
+    - istio-ecosystem/authservice
     missingLabels: &istio_tide_missing_labels
     - do-not-merge
     - do-not-merge/hold
     - do-not-merge/work-in-progress
     reviewApprovedRequired: true
   - repos:
-    - Stevenjin8/istio
-    - Stevenjin8/proxy
-    # - Stevenjin8/operator
-    # - Stevenjin8/pkg
-    # - Stevenjin8/tools
-    # - Stevenjin8/bots
-    - Stevenjin8/istio-api
-    # - Stevenjin8/common-files
-    # - Stevenjin8/community
-    # - Stevenjin8/gogo-genproto
-    - Stevenjin8/test-infra
-    # - Stevenjin8/cni
-    # - Stevenjin8/installer
-    # - Stevenjin8/cri
-    # - Stevenjin8/client-go
-    - Stevenjin8/release-builder
-    # - Stevenjin8/ztunnel
-    # - Stevenjin8-ecosystem/sail-operator
+    - istio/istio
+    - istio/proxy
+    - istio/operator
+    - istio/pkg
+    - istio/tools
+    - istio/bots
+    - istio/istio-api
+    - istio/common-files
+    - istio/community
+    - istio/gogo-genproto
+    - istio/test-infra
+    - istio/cni
+    - istio/installer
+    - istio/cri
+    - istio/client-go
+    - istio/release-builder
+    - istio/ztunnel
+    - istio-ecosystem/sail-operator
     labels:
     - auto-merge
     missingLabels: *istio_tide_missing_labels
     author: istio-testing
     reviewApprovedRequired: false
-  # - repos:
-  #   - Stevenjin8/istio.io
-  #   missingLabels: &istio_tide_missing_labels
-  #   - do-not-merge
-  #   - do-not-merge/hold
-  #   - do-not-merge/work-in-progress
-  #   reviewApprovedRequired: true
-  # - repos:
-  #   - Stevenjin8/istio.io
-  #   labels:
-  #   - auto-merge
-  #   missingLabels: *istio_tide_missing_labels
-  #   author: istio-testing
-  #   reviewApprovedRequired: false
-  # - orgs:
-  #   - istio-private
-  #   missingLabels: *istio_tide_missing_labels
-  #   reviewApprovedRequired: true
-  # - repos:
-  #   - istio-ecosystem/sail-operator
-  #   labels:
-  #   - auto-merge
-  #   missingLabels: *istio_tide_missing_labels
-  #   author: openshift-service-mesh-bot
-  #   reviewApprovedRequired: false
+  - repos:
+    - istio/istio.io
+    missingLabels: &istio_tide_missing_labels
+    - do-not-merge
+    - do-not-merge/hold
+    - do-not-merge/work-in-progress
+    reviewApprovedRequired: true
+  - repos:
+    - istio/istio.io
+    labels:
+    - auto-merge
+    missingLabels: *istio_tide_missing_labels
+    author: istio-testing
+    reviewApprovedRequired: false
+  - orgs:
+    - istio-private
+    missingLabels: *istio_tide_missing_labels
+    reviewApprovedRequired: true
+  - repos:
+    - istio-ecosystem/sail-operator
+    labels:
+    - auto-merge
+    missingLabels: *istio_tide_missing_labels
+    author: openshift-service-mesh-bot
+    reviewApprovedRequired: false
   merge_method:
-    Stevenjin8: squash
-    # istio-ecosystem/authservice: squash
-    # istio-ecosystem/sail-operator: squash
-    # istio-private: squash
+    istio: squash
+    istio-ecosystem/authservice: squash
+    istio-ecosystem/sail-operator: squash
+    istio-private: squash
   target_url: http://k8s-default-tlsing-211de21a28-1671250631.us-west-2.elb.amazonaws.com/tide
   blocker_label: tide/merge-blocker
   squash_label: tide/merge-method-squash

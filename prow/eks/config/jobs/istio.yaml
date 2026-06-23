@@ -1,4 +1,4 @@
-org: Stevenjin8
+org: istio
 repo: istio
 support_release_branching: true
 image: gcr.io/istio-testing/build-tools:master-1aae82591b3f663bba15d501ae7ce9c2d329aa70
@@ -14,12 +14,12 @@ jobs:
     requirements: [docker]
     resources: dedicated
 
-  # - name: release
-  #   service_account_name: prowjob-testing-write
-  #   types: [postsubmit]
-  #   command: [entrypoint, prow/release-commit.sh]
-  #   requirements: [docker, cf-r2-istio-build-auth]
-  #   resources: dedicated
+  - name: release
+    service_account_name: prowjob-testing-write
+    types: [postsubmit]
+    command: [entrypoint, prow/release-commit.sh]
+    requirements: [docker, cf-r2-istio-build-auth]
+    resources: dedicated
 
   - name: benchmark
     types: [presubmit]
@@ -27,12 +27,12 @@ jobs:
     command: [entrypoint, make, benchtest]
     resources: dedicated
 
-  # - name: benchmark-report
-  #   types: [postsubmit]
-  #   command: [entrypoint, make, benchtest, report-benchtest]
-  #   resources: dedicated
-  #   requirements: [cf-r2-istio-prow-auth]
-  #
+  - name: benchmark-report
+    types: [postsubmit]
+    command: [entrypoint, make, benchtest, report-benchtest]
+    resources: dedicated
+    requirements: [cf-r2-istio-prow-auth]
+
   - name: integ-cni
     types: [presubmit]
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube.presubmit]
@@ -139,14 +139,14 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
     requirements: [kind]
 
-  # - name: integ-pilot-cpp
-  #   types: [postsubmit]
-  #   command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
-  #   requirements: [kind]
-  #   env:
-  #     # TODO(yashykt): Move the code for this image to the istio repository.
-  #     - name: GRPC_ECHO_IMAGE
-  #       value: "grpctesting/istio_echo_cpp"
+  - name: integ-pilot-cpp
+    types: [postsubmit]
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
+    requirements: [kind]
+    env:
+      # TODO(yashykt): Move the code for this image to the istio repository.
+      - name: GRPC_ECHO_IMAGE
+        value: "grpctesting/istio_echo_cpp"
 
   - name: integ-pilot-multicluster
     command:
@@ -213,11 +213,11 @@ jobs:
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.security.kube]
     requirements: [kind]
 
-  # - name: integ-security-fuzz
-  #   types: [periodic]
-  #   cron: "0 7 * * *" # starts every day at 07:00AM UTC
-  #   command: [entrypoint, prow/integ-suite-kind.sh, test.integration-fuzz.security.fuzz.kube]
-  #   requirements: [kind]
+  - name: integ-security-fuzz
+    types: [periodic]
+    cron: "0 7 * * *" # starts every day at 07:00AM UTC
+    command: [entrypoint, prow/integ-suite-kind.sh, test.integration-fuzz.security.fuzz.kube]
+    requirements: [kind]
 
   - name: integ-security-multicluster
     command:
@@ -337,205 +337,205 @@ jobs:
 
     # The node image must be kept in sync with the kind version we use.
     # See istio.io/tools/docker/build-tools to build a kind image
-  # - name: integ-k8s-123
-  #   types: [postsubmit]
-  #   command:
-  #     - entrypoint
-  #     - prow/integ-suite-kind.sh
-  #     - --node-image
-  #     - gcr.io/istio-testing/kind-node:v1.23.9
-  #     - --kind-config
-  #     - prow/config/mixedlb-service.yaml
-  #     - test.integration.kube
-  #   requirements: [kind]
-  #   timeout: 4h
-  #   env:
-  #     - name: INTEGRATION_TEST_FLAGS
-  #       value: " --istio.test.retries=1 "
+  - name: integ-k8s-123
+    types: [postsubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - gcr.io/istio-testing/kind-node:v1.23.9
+      - --kind-config
+      - prow/config/mixedlb-service.yaml
+      - test.integration.kube
+    requirements: [kind]
+    timeout: 4h
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: " --istio.test.retries=1 "
 
-  # - name: integ-k8s-124
-  #   types: [postsubmit]
-  #   command:
-  #     - entrypoint
-  #     - prow/integ-suite-kind.sh
-  #     - --node-image
-  #     - gcr.io/istio-testing/kind-node:v1.24.9
-  #     - test.integration.kube
-  #   requirements: [kind]
-  #   timeout: 4h
-  #   env:
-  #     - name: INTEGRATION_TEST_FLAGS
-  #       value: " --istio.test.retries=1 "
-  #
-  # - name: integ-k8s-125
-  #   types: [postsubmit]
-  #   command:
-  #     - entrypoint
-  #     - prow/integ-suite-kind.sh
-  #     - --node-image
-  #     - gcr.io/istio-testing/kind-node:v1.25.9
-  #     - test.integration.kube
-  #   requirements: [kind]
-  #   timeout: 4h
-  #   env:
-  #     - name: INTEGRATION_TEST_FLAGS
-  #       value: " --istio.test.retries=1 "
-  #
-  # - name: integ-k8s-126
-  #   types: [postsubmit]
-  #   command:
-  #     - entrypoint
-  #     - prow/integ-suite-kind.sh
-  #     - --node-image
-  #     - gcr.io/istio-testing/kind-node:v1.26.6
-  #     - test.integration.kube
-  #   requirements: [kind]
-  #   timeout: 4h
-  #   env:
-  #     - name: INTEGRATION_TEST_FLAGS
-  #       value: " --istio.test.retries=1 "
-  #
-  # - name: integ-k8s-127
-  #   types: [postsubmit]
-  #   command:
-  #     - entrypoint
-  #     - prow/integ-suite-kind.sh
-  #     - --node-image
-  #     - gcr.io/istio-testing/kind-node:v1.27.8
-  #     - --kind-config
-  #     - prow/config/modern.yaml
-  #     - test.integration.kube
-  #   requirements: [kind]
-  #   timeout: 4h
-  #   env:
-  #     - name: INTEGRATION_TEST_FLAGS
-  #       value: " --istio.test.retries=1 "
-  #
-  # - name: integ-k8s-128
-  #   types: [postsubmit]
-  #   command:
-  #     - entrypoint
-  #     - prow/integ-suite-kind.sh
-  #     - --node-image
-  #     - gcr.io/istio-testing/kind-node:v1.28.4
-  #     - --kind-config
-  #     - prow/config/modern.yaml
-  #     - test.integration.kube
-  #   requirements: [kind]
-  #   timeout: 4h
-  #   env:
-  #     - name: INTEGRATION_TEST_FLAGS
-  #       value: " --istio.test.retries=1 "
-  #
-  # - name: integ-k8s-129
-  #   types: [postsubmit]
-  #   command:
-  #     - entrypoint
-  #     - prow/integ-suite-kind.sh
-  #     - --node-image
-  #     - gcr.io/istio-testing/kind-node:v1.29.7
-  #     - --kind-config
-  #     - prow/config/modern.yaml
-  #     - test.integration.kube
-  #   requirements: [kind]
-  #   timeout: 4h
-  #   env:
-  #     - name: INTEGRATION_TEST_FLAGS
-  #       value: " --istio.test.retries=1 "
-  #
-  # - name: integ-k8s-130
-  #   types: [postsubmit]
-  #   command:
-  #     - entrypoint
-  #     - prow/integ-suite-kind.sh
-  #     - --node-image
-  #     - gcr.io/istio-testing/kind-node:v1.30.3
-  #     - --kind-config
-  #     - prow/config/modern.yaml
-  #     - test.integration.kube
-  #   requirements: [kind]
-  #   timeout: 4h
-  #   env:
-  #     - name: INTEGRATION_TEST_FLAGS
-  #       value: " --istio.test.retries=1 "
-  #
-  # - name: integ-k8s-131
-  #   types: [postsubmit]
-  #   command:
-  #     - entrypoint
-  #     - prow/integ-suite-kind.sh
-  #     - --node-image
-  #     - gcr.io/istio-testing/kind-node:v1.31.0
-  #     - --kind-config
-  #     - prow/config/modern.yaml
-  #     - test.integration.kube
-  #   requirements: [kind]
-  #   timeout: 4h
-  #   env:
-  #     - name: INTEGRATION_TEST_FLAGS
-  #       value: " --istio.test.retries=1 "
-  #
-  # - name: integ-k8s-132
-  #   types: [postsubmit]
-  #   command:
-  #     - entrypoint
-  #     - prow/integ-suite-kind.sh
-  #     - --node-image
-  #     - gcr.io/istio-testing/kind-node:v1.32.0
-  #     - --kind-config
-  #     - prow/config/modern.yaml
-  #     - test.integration.kube
-  #   requirements: [kind]
-  #   timeout: 4h
-  #   env:
-  #     - name: INTEGRATION_TEST_FLAGS
-  #       value: " --istio.test.retries=1 "
-  #
-  # - name: integ-k8s-133
-  #   types: [postsubmit]
-  #   command:
-  #     - entrypoint
-  #     - prow/integ-suite-kind.sh
-  #     - --node-image
-  #     - gcr.io/istio-testing/kind-node:v1.33.1
-  #     - --kind-config
-  #     - prow/config/modern.yaml
-  #     - test.integration.kube
-  #   requirements: [kind]
-  #   timeout: 4h
-  #   env:
-  #     - name: INTEGRATION_TEST_FLAGS
-  #       value: " --istio.test.retries=1 "
-  #
-  # - name: integ-k8s-134
-  #   types: [postsubmit]
-  #   command:
-  #     - entrypoint
-  #     - prow/integ-suite-kind.sh
-  #     - --node-image
-  #     - gcr.io/istio-testing/kind-node:v1.34.0
-  #     - --kind-config
-  #     - prow/config/modern.yaml
-  #     - test.integration.kube
-  #   requirements: [kind]
-  #   timeout: 4h
-  #   env:
-  #     - name: INTEGRATION_TEST_FLAGS
-  #       value: " --istio.test.retries=1 "
-  #
-  # - name: integ-cni
-  #   types: [postsubmit]
-  #   command:
-  #     - entrypoint
-  #     - prow/integ-suite-kind.sh
-  #     - test.integration.kube
-  #   requirements: [kind]
-  #   timeout: 4h
-  #   env:
-  #     - name: TEST_SELECT
-  #       value: "-flaky"
-  #     - name: INTEGRATION_TEST_FLAGS
-  #       value: " --istio.test.retries=1 --istio.test.istio.enableCNI=true "
+  - name: integ-k8s-124
+    types: [postsubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - gcr.io/istio-testing/kind-node:v1.24.9
+      - test.integration.kube
+    requirements: [kind]
+    timeout: 4h
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: " --istio.test.retries=1 "
+
+  - name: integ-k8s-125
+    types: [postsubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - gcr.io/istio-testing/kind-node:v1.25.9
+      - test.integration.kube
+    requirements: [kind]
+    timeout: 4h
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: " --istio.test.retries=1 "
+
+  - name: integ-k8s-126
+    types: [postsubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - gcr.io/istio-testing/kind-node:v1.26.6
+      - test.integration.kube
+    requirements: [kind]
+    timeout: 4h
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: " --istio.test.retries=1 "
+
+  - name: integ-k8s-127
+    types: [postsubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - gcr.io/istio-testing/kind-node:v1.27.8
+      - --kind-config
+      - prow/config/modern.yaml
+      - test.integration.kube
+    requirements: [kind]
+    timeout: 4h
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: " --istio.test.retries=1 "
+
+  - name: integ-k8s-128
+    types: [postsubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - gcr.io/istio-testing/kind-node:v1.28.4
+      - --kind-config
+      - prow/config/modern.yaml
+      - test.integration.kube
+    requirements: [kind]
+    timeout: 4h
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: " --istio.test.retries=1 "
+
+  - name: integ-k8s-129
+    types: [postsubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - gcr.io/istio-testing/kind-node:v1.29.7
+      - --kind-config
+      - prow/config/modern.yaml
+      - test.integration.kube
+    requirements: [kind]
+    timeout: 4h
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: " --istio.test.retries=1 "
+
+  - name: integ-k8s-130
+    types: [postsubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - gcr.io/istio-testing/kind-node:v1.30.3
+      - --kind-config
+      - prow/config/modern.yaml
+      - test.integration.kube
+    requirements: [kind]
+    timeout: 4h
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: " --istio.test.retries=1 "
+
+  - name: integ-k8s-131
+    types: [postsubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - gcr.io/istio-testing/kind-node:v1.31.0
+      - --kind-config
+      - prow/config/modern.yaml
+      - test.integration.kube
+    requirements: [kind]
+    timeout: 4h
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: " --istio.test.retries=1 "
+
+  - name: integ-k8s-132
+    types: [postsubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - gcr.io/istio-testing/kind-node:v1.32.0
+      - --kind-config
+      - prow/config/modern.yaml
+      - test.integration.kube
+    requirements: [kind]
+    timeout: 4h
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: " --istio.test.retries=1 "
+
+  - name: integ-k8s-133
+    types: [postsubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - gcr.io/istio-testing/kind-node:v1.33.1
+      - --kind-config
+      - prow/config/modern.yaml
+      - test.integration.kube
+    requirements: [kind]
+    timeout: 4h
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: " --istio.test.retries=1 "
+
+  - name: integ-k8s-134
+    types: [postsubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - gcr.io/istio-testing/kind-node:v1.34.0
+      - --kind-config
+      - prow/config/modern.yaml
+      - test.integration.kube
+    requirements: [kind]
+    timeout: 4h
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: " --istio.test.retries=1 "
+
+  - name: integ-cni
+    types: [postsubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - test.integration.kube
+    requirements: [kind]
+    timeout: 4h
+    env:
+      - name: TEST_SELECT
+        value: "-flaky"
+      - name: INTEGRATION_TEST_FLAGS
+        value: " --istio.test.retries=1 --istio.test.istio.enableCNI=true "
 
   # Test with assertions enabled.
   - name: integ-assertion
@@ -556,8 +556,9 @@ jobs:
     resources: lint
 
   - name: govulncheck
-    types: [presubmit]
+    types: [periodic, presubmit]
     modifiers: [presubmit_optional, presubmit_skipped]
+    cron: "0 7 * * *" # starts every day at 07:00AM UTC
     command: [entrypoint, govulncheck]
 
   - name: gencheck
@@ -573,18 +574,18 @@ jobs:
       - --validateOnly
     requirements: [github-readonly]
 
-  # # Recreate base images if the dockerfile changes (in postsubmit)
-  # - name: build-base-images
-  #   repos: [istio/release-builder@master]
-  #   types: [postsubmit]
-  #   regex: ^((docker|pkg/.*)/Dockerfile\.([a-zA-Z0-9_]+_)?base(_[a-zA-Z0-9_]+)?|docker/iptables\.yaml)$
-  #   env:
-  #   - name: VERSION
-  #     value: "master"
-  #   - name: ALWAYS_GENERATE_BASE_IMAGE
-  #     value: "true"
-  #   command: [entrypoint, ../release-builder/release/build-base-images.sh]
-  #   requirements: [build-base, docker]
+  # Recreate base images if the dockerfile changes (in postsubmit)
+  - name: build-base-images
+    repos: [istio/release-builder@master]
+    types: [postsubmit]
+    regex: ^((docker|pkg/.*)/Dockerfile\.([a-zA-Z0-9_]+_)?base(_[a-zA-Z0-9_]+)?|docker/iptables\.yaml)$
+    env:
+    - name: VERSION
+      value: "master"
+    - name: ALWAYS_GENERATE_BASE_IMAGE
+      value: "true"
+    command: [entrypoint, ../release-builder/release/build-base-images.sh]
+    requirements: [build-base, docker]
 
   - name: bookinfo-build
     types: [presubmit]
@@ -601,44 +602,44 @@ jobs:
     types: [presubmit]
     command: [make, -e, "TARGET_OS=windows", build-cni] # TODO: build more once we've refactored
 
-  # - name: update-go-control-plane
-  #   types: [periodic]
-  #   cron: "0 2 * * 0" # run each Sunday at 02:00AM UTC
-  #   command:
-  #   - entrypoint
-  #   - ../test-infra/tools/automator/automator.sh
-  #   - --org=$AUTOMATOR_ORG
-  #   - --repo=istio
-  #   - "--title=Automator: update go-control-plane in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
-  #   - --labels=auto-merge,release-notes-none
-  #   - --modifier=update_deps
-  #   - --token-env
-  #   - --cmd=go get github.com/envoyproxy/go-control-plane/contrib@main github.com/envoyproxy/go-control-plane/envoy@main && go mod tidy && make gen
-  #   disable_release_branching: true
-  #   requirements: [github-istio-testing]
-  #   repos: [istio/test-infra@master]
-  #   env:
-  #   - name: AUTOMATOR_ORG
-  #     value: istio
+  - name: update-go-control-plane
+    types: [periodic]
+    cron: "0 2 * * 0" # run each Sunday at 02:00AM UTC
+    command:
+    - entrypoint
+    - ../test-infra/tools/automator/automator.sh
+    - --org=$AUTOMATOR_ORG
+    - --repo=istio
+    - "--title=Automator: update go-control-plane in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+    - --labels=auto-merge,release-notes-none
+    - --modifier=update_deps
+    - --token-env
+    - --cmd=go get github.com/envoyproxy/go-control-plane/contrib@main github.com/envoyproxy/go-control-plane/envoy@main && go mod tidy && make gen
+    disable_release_branching: true
+    requirements: [github-istio-testing]
+    repos: [istio/test-infra@master]
+    env:
+    - name: AUTOMATOR_ORG
+      value: istio
 
-  # - name: update-ztunnel
-  #   types: [periodic]
-  #   interval: 24h
-  #   command:
-  #   - entrypoint
-  #   - ../test-infra/tools/automator/automator.sh
-  #   - --org=$AUTOMATOR_ORG
-  #   - --repo=istio
-  #   - "--title=Automator: update ztunnel@$AUTOMATOR_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
-  #   - --labels=auto-merge,release-notes-none
-  #   - --modifier=update_ztunnel_dep
-  #   - --token-env
-  #   - --cmd=./bin/update_ztunnel.sh
-  #   requirements: [github-istio-testing]
-  #   repos: [istio/test-infra@master]
-  #   env:
-  #   - name: AUTOMATOR_ORG
-  #     value: istio
+  - name: update-ztunnel
+    types: [periodic]
+    interval: 24h
+    command:
+    - entrypoint
+    - ../test-infra/tools/automator/automator.sh
+    - --org=$AUTOMATOR_ORG
+    - --repo=istio
+    - "--title=Automator: update ztunnel@$AUTOMATOR_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+    - --labels=auto-merge,release-notes-none
+    - --modifier=update_ztunnel_dep
+    - --token-env
+    - --cmd=./bin/update_ztunnel.sh
+    requirements: [github-istio-testing]
+    repos: [istio/test-infra@master]
+    env:
+    - name: AUTOMATOR_ORG
+      value: istio
 
 resources_presets:
   default:
