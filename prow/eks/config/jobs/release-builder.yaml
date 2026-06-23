@@ -1,4 +1,4 @@
-org: istio
+org: Stevenjin8
 repo: release-builder
 support_release_branching: true
 image: gcr.io/istio-testing/build-tools:master-1aae82591b3f663bba15d501ae7ce9c2d329aa70
@@ -33,32 +33,32 @@ jobs:
     requirements: [cf-r2-public-ro-auth]
     modifiers: [presubmit_optional]
 
-  - name: build-release
-    types: [postsubmit]
-    regex: '^release/trigger-build$'
-    command: [entrypoint, release/build.sh]
-    requirements: [docker, cf-r2-istio-prerelease-auth]
-    resources: dedicated
-    # For build, we just need SA (giving GCS/GCR access)
-    service_account_name: prowjob-release
+  # - name: build-release
+  #   types: [postsubmit]
+  #   regex: '^release/trigger-build$'
+  #   command: [entrypoint, release/build.sh]
+  #   requirements: [docker, cf-r2-istio-prerelease-auth]
+  #   resources: dedicated
+  #   # For build, we just need SA (giving GCS/GCR access)
+  #   service_account_name: prowjob-release
 
-  - name: publish-release
-    types: [postsubmit]
-    regex: '^release/trigger-publish$'
-    command: [entrypoint, release/publish.sh]
-    requirements: [release, docker, cf-r2-istio-prerelease-auth, cf-r2-istio-release-auth]
-    resources: dedicated
-    max_concurrency: 1
+  # - name: publish-release
+  #   types: [postsubmit]
+  #   regex: '^release/trigger-publish$'
+  #   command: [entrypoint, release/publish.sh]
+  #   requirements: [release, docker, cf-r2-istio-prerelease-auth, cf-r2-istio-release-auth]
+  #   resources: dedicated
+  #   max_concurrency: 1
 
-  - name: build-base-images
-    types: [periodic]
-    cron: "0 19 * * *"  # every day at 07:00 PM UTC (12:00 PM PST)
-    env:
-    - name: VERSION
-      value: "master"
-    command: [entrypoint, release/build-base-images.sh]
-    requirements: [build-base, docker]
-    resources: build
+  # - name: build-base-images
+  #   types: [periodic]
+  #   cron: "0 19 * * *"  # every day at 07:00 PM UTC (12:00 PM PST)
+  #   env:
+  #   - name: VERSION
+  #     value: "master"
+  #   command: [entrypoint, release/build-base-images.sh]
+  #   requirements: [build-base, docker]
+  #   resources: build
 
 resources_presets:
   build:

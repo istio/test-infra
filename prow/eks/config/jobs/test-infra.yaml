@@ -1,4 +1,4 @@
-org: istio
+org: Stevenjin8
 repo: test-infra
 image: gcr.io/istio-testing/build-tools:master-1aae82591b3f663bba15d501ae7ce9c2d329aa70
 
@@ -12,77 +12,77 @@ jobs:
   - name: gencheck
     command: [make, gen-check]
 
-  - name: push-authentikos
-    service_account_name: prowjob-testing-write
-    types: [postsubmit]
-    regex: '^authentikos/Makefile$'
-    cluster: test-infra-trusted
-    max_concurrency: 1
-    command:
-    - entrypoint
-    - make
-    - -C
-    - authentikos
-    - deploy
-    requirements: [docker]
-    excluded_requirements: [cache]
-    node_selector:
-      prod: prow
+  # - name: push-authentikos
+  #   service_account_name: prowjob-testing-write
+  #   types: [postsubmit]
+  #   regex: '^authentikos/Makefile$'
+  #   cluster: test-infra-trusted
+  #   max_concurrency: 1
+  #   command:
+  #   - entrypoint
+  #   - make
+  #   - -C
+  #   - authentikos
+  #   - deploy
+  #   requirements: [docker]
+  #   excluded_requirements: [cache]
+  #   node_selector:
+  #     prod: prow
 
-  - name: push-prowgen
-    service_account_name: prowjob-testing-write
-    types: [postsubmit]
-    regex: '^tools/prowgen/.*$'
-    cluster: test-infra-trusted
-    max_concurrency: 1
-    command:
-    - entrypoint
-    - make
-    - -C
-    - tools/prowgen
-    - deploy
-    requirements: [docker]
-    excluded_requirements: [cache]
-    node_selector:
-      prod: prow
+  # - name: push-prowgen
+  #   service_account_name: prowjob-testing-write
+  #   types: [postsubmit]
+  #   regex: '^tools/prowgen/.*$'
+  #   cluster: test-infra-trusted
+  #   max_concurrency: 1
+  #   command:
+  #   - entrypoint
+  #   - make
+  #   - -C
+  #   - tools/prowgen
+  #   - deploy
+  #   requirements: [docker]
+  #   excluded_requirements: [cache]
+  #   node_selector:
+  #     prod: prow
 
-  - name: push-prowtrans
-    service_account_name: prowjob-testing-write
-    types: [postsubmit]
-    regex: '^tools/prowtrans/.*$'
-    cluster: test-infra-trusted
-    max_concurrency: 1
-    command:
-    - entrypoint
-    - make
-    - -C
-    - tools/prowtrans
-    - deploy
-    requirements: [docker]
-    excluded_requirements: [cache]
-    node_selector:
-      prod: prow
-
-  - name: bump-k8s-prow-images
-    types: [periodic]
-    cron: "05 15-23 * * 1-5"  # Run at 7:05-15:05 PST (15:05 UTC) Mon-Fri
-    command:
-    - entrypoint
-    - ./tools/automator/automator.sh
-    - --org=$AUTOMATOR_ORG
-    - --repo=test-infra
-    - "--title=Automator: bump k8s-prow images"
-    - --modifier=bump-k8s-prow-images
-    - --token-env
-    - --script-path=../test-infra/tools/automator/scripts/update-images.sh
-    - --verbose
-    - --
-    - --paths=prow/cluster/gke/jobs/**/!(*test-infra*).yaml,prow/config/jobs/**/!(*test-infra*).yaml
-    - --source=$AUTOMATOR_ROOT_DIR/prow/cluster/prow-controller-manager.yaml
-    - --image=us-docker.pkg.dev/k8s-infra-prow/images/.*
-    - --tag=v[0-9]{8}-[a-f0-9]{9}
-    - --var=image
-    requirements: [github-istio-testing]
-    env:
-    - name: AUTOMATOR_ORG
-      value: istio
+  # - name: push-prowtrans
+  #   service_account_name: prowjob-testing-write
+  #   types: [postsubmit]
+  #   regex: '^tools/prowtrans/.*$'
+  #   cluster: test-infra-trusted
+  #   max_concurrency: 1
+  #   command:
+  #   - entrypoint
+  #   - make
+  #   - -C
+  #   - tools/prowtrans
+  #   - deploy
+  #   requirements: [docker]
+  #   excluded_requirements: [cache]
+  #   node_selector:
+  #     prod: prow
+  #
+  # - name: bump-k8s-prow-images
+  #   types: [periodic]
+  #   cron: "05 15-23 * * 1-5"  # Run at 7:05-15:05 PST (15:05 UTC) Mon-Fri
+  #   command:
+  #   - entrypoint
+  #   - ./tools/automator/automator.sh
+  #   - --org=$AUTOMATOR_ORG
+  #   - --repo=test-infra
+  #   - "--title=Automator: bump k8s-prow images"
+  #   - --modifier=bump-k8s-prow-images
+  #   - --token-env
+  #   - --script-path=../test-infra/tools/automator/scripts/update-images.sh
+  #   - --verbose
+  #   - --
+  #   - --paths=prow/cluster/gke/jobs/**/!(*test-infra*).yaml,prow/config/jobs/**/!(*test-infra*).yaml
+  #   - --source=$AUTOMATOR_ROOT_DIR/prow/cluster/prow-controller-manager.yaml
+  #   - --image=us-docker.pkg.dev/k8s-infra-prow/images/.*
+  #   - --tag=v[0-9]{8}-[a-f0-9]{9}
+  #   - --var=image
+  #   requirements: [github-istio-testing]
+  #   env:
+  #   - name: AUTOMATOR_ORG
+  #     value: istio
