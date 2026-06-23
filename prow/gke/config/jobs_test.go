@@ -46,7 +46,7 @@ func TestJobs(t *testing.T) {
 			if !PrivateClusters.Has(j.Base.Cluster) {
 				return fmt.Errorf("private org must use private cluster, got %v", j.Base.Cluster)
 			}
-		case "istio", "istio-ecosystem", "Stevenjin8":
+		case "istio", "istio-ecosystem":
 			if !PublicClusters.Has(j.Base.Cluster) {
 				return fmt.Errorf("primary org must use a public cluster, got: %v", j.Base.Cluster)
 			}
