@@ -9,8 +9,8 @@
 # to that cluster's ASGs only.
 
 locals {
-  cluster_autoscaler_chart_version = "9.46.6"
-  cluster_autoscaler_image_tag     = "v${local.cluster_version}.0"
+  cluster_autoscaler_chart_version = "9.58.0"
+  cluster_autoscaler_image_tag     = "v1.35.0"
 }
 
 module "cluster_autoscaler_identity" {
