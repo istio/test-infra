@@ -6,7 +6,7 @@ locals {
       node_groups = {
         default = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["t3.large"]
+          instance_types = ["t3.medium"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
           max_size       = 5
@@ -23,7 +23,7 @@ locals {
         # Large build pool
         build = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["t3.2xlarge"]
+          instance_types = ["t3.medium"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
           max_size       = 5
@@ -34,7 +34,7 @@ locals {
         # Primary test pool
         test-e2 = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["t3.2xlarge"]
+          instance_types = ["t3.medium"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
           max_size       = 5
@@ -45,7 +45,7 @@ locals {
         # Newer Intel spot test pool
         test-n4 = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["t3.2xlarge"]
+          instance_types = ["t3.medium"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
           max_size       = 5
@@ -56,7 +56,7 @@ locals {
         # AMD
         test-c4d = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["t3.2xlarge"]
+          instance_types = ["t3.medium"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
           max_size       = 5
@@ -67,7 +67,7 @@ locals {
         # Graviton spot pool
         arm = {
           ami_type       = "AL2023_ARM_64_STANDARD"
-          instance_types = ["t4g.2xlarge"]
+          instance_types = ["t4g.medium"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
           max_size       = 5
