@@ -465,6 +465,58 @@ branch-protection:
             <<: *blocked_branches
             master:
               protect: false
+    istio-ecosystem:
+      repos:
+        authservice:
+          required_pull_request_reviews:
+            required_approving_review_count: 0
+            require_code_owner_reviews: false
+          branches:
+            main:
+              protect: true
+              required_pull_request_reviews:
+                required_approving_review_count: 1
+                require_code_owner_reviews: true
+              required_status_checks:
+                contexts:
+                - ci-checks
+            master:
+              protect: true
+            v0-c++:
+              protect: true
+        sail-operator:
+          required_status_checks:
+            contexts:
+            - EasyCLA
+          required_pull_request_reviews:
+            required_approving_review_count: 1
+            require_code_owner_reviews: true
+          branches:
+            main:
+              protect: true
+            release-0.1:
+              protect: true
+            release-0.2:
+              protect: true
+            release-1.25:
+              protect: true
+            release-1.26:
+              protect: true
+            release-1.27:
+              protect: true
+            release-1.28:
+              protect: true
+            release-1.29:
+              protect: true
+            release-1.30:
+              protect: true
+        wasm-extensions:
+          required_pull_request_reviews:
+            required_approving_review_count: 1
+            require_code_owner_reviews: true
+          branches:
+            master:
+              protect: true
 
 in_repo_config:
   enabled:

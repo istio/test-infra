@@ -4,12 +4,12 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^release-1.28$
+    - ^master$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 6h0m0s
-    name: release-arm64_proxy_release-1.28_postsubmit_release-1.28_priv
+    name: release-arm64_proxy_postsubmit_master_priv
     path_alias: istio.io/proxy
     spec:
       automountServiceAccountToken: false
@@ -27,7 +27,7 @@ postsubmits:
           value: "0"
         - name: GCS_BUILD_BUCKET
           value: istio-build-private
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.28-879cab1fff4bf7578feb9973cac1e413b6e16147
+        image: gcr.io/istio-testing/build-tools-proxy:master-6db0b4c7fbe345bd531a07fbcff13877dc9cd801
         name: ""
         resources:
           requests:
@@ -71,12 +71,12 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^release-1.28$
+    - ^master$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 6h0m0s
-    name: release_proxy_release-1.28_postsubmit_release-1.28_priv
+    name: release_proxy_postsubmit_master_priv
     path_alias: istio.io/proxy
     spec:
       automountServiceAccountToken: false
@@ -92,7 +92,7 @@ postsubmits:
           value: istio-build-private
         - name: GOMAXPROCS
           value: "64"
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.28-879cab1fff4bf7578feb9973cac1e413b6e16147
+        image: gcr.io/istio-testing/build-tools-proxy:master-6db0b4c7fbe345bd531a07fbcff13877dc9cd801
         name: ""
         resources:
           limits:
@@ -137,12 +137,12 @@ presubmits:
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^release-1.28$
+    - ^master$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 6h0m0s
-    name: release-test-arm64_proxy_release-1.28_release-1.28_priv
+    name: release-test-arm64_proxy_master_priv
     path_alias: istio.io/proxy
     rerun_command: /test release-test-arm64
     spec:
@@ -158,7 +158,7 @@ presubmits:
           value: "1"
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.28-879cab1fff4bf7578feb9973cac1e413b6e16147
+        image: gcr.io/istio-testing/build-tools-proxy:master-6db0b4c7fbe345bd531a07fbcff13877dc9cd801
         name: ""
         resources:
           requests:
@@ -195,17 +195,17 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )release-test-arm64,?($|\s.*))|((?m)^/test( | .* )release-test-arm64_proxy_release-1.28,?($|\s.*))
+    trigger: ((?m)^/test( | .* )release-test-arm64,?($|\s.*))|((?m)^/test( | .* )release-test-arm64_proxy,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^release-1.28$
+    - ^master$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 6h0m0s
-    name: release-test_proxy_release-1.28_release-1.28_priv
+    name: release-test_proxy_master_priv
     path_alias: istio.io/proxy
     rerun_command: /test release-test
     spec:
@@ -219,7 +219,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "64"
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.28-879cab1fff4bf7578feb9973cac1e413b6e16147
+        image: gcr.io/istio-testing/build-tools-proxy:master-6db0b4c7fbe345bd531a07fbcff13877dc9cd801
         name: ""
         resources:
           limits:
@@ -254,17 +254,17 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )release-test,?($|\s.*))|((?m)^/test( | .* )release-test_proxy_release-1.28,?($|\s.*))
+    trigger: ((?m)^/test( | .* )release-test,?($|\s.*))|((?m)^/test( | .* )release-test_proxy,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^release-1.28$
+    - ^master$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 6h0m0s
-    name: test-arm-arm64_proxy_release-1.28_release-1.28_priv
+    name: test-arm-arm64_proxy_master_priv
     path_alias: istio.io/proxy
     rerun_command: /test test-arm-arm64
     spec:
@@ -278,7 +278,7 @@ presubmits:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.28-879cab1fff4bf7578feb9973cac1e413b6e16147
+        image: gcr.io/istio-testing/build-tools-proxy:master-6db0b4c7fbe345bd531a07fbcff13877dc9cd801
         name: ""
         resources:
           requests:
@@ -315,17 +315,17 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )test-arm-arm64,?($|\s.*))|((?m)^/test( | .* )test-arm-arm64_proxy_release-1.28,?($|\s.*))
+    trigger: ((?m)^/test( | .* )test-arm-arm64,?($|\s.*))|((?m)^/test( | .* )test-arm-arm64_proxy,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^release-1.28$
+    - ^master$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: test-asan_proxy_release-1.28_release-1.28_priv
+    name: test-asan_proxy_master_priv
     path_alias: istio.io/proxy
     rerun_command: /test test-asan
     spec:
@@ -339,7 +339,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "64"
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.28-879cab1fff4bf7578feb9973cac1e413b6e16147
+        image: gcr.io/istio-testing/build-tools-proxy:master-6db0b4c7fbe345bd531a07fbcff13877dc9cd801
         name: ""
         resources:
           limits:
@@ -374,17 +374,17 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )test-asan,?($|\s.*))|((?m)^/test( | .* )test-asan_proxy_release-1.28,?($|\s.*))
+    trigger: ((?m)^/test( | .* )test-asan,?($|\s.*))|((?m)^/test( | .* )test-asan_proxy,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^release-1.28$
+    - ^master$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: test_proxy_release-1.28_release-1.28_priv
+    name: test_proxy_master_priv
     path_alias: istio.io/proxy
     rerun_command: /test test
     spec:
@@ -398,7 +398,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "64"
-        image: gcr.io/istio-testing/build-tools-proxy:release-1.28-879cab1fff4bf7578feb9973cac1e413b6e16147
+        image: gcr.io/istio-testing/build-tools-proxy:master-6db0b4c7fbe345bd531a07fbcff13877dc9cd801
         name: ""
         resources:
           limits:
@@ -433,4 +433,4 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_proxy_release-1.28,?($|\s.*))
+    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_proxy,?($|\s.*))

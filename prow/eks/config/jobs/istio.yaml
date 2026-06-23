@@ -1,7 +1,7 @@
 org: istio
 repo: istio
 support_release_branching: true
-image: gcr.io/istio-testing/build-tools:master-1aae82591b3f663bba15d501ae7ce9c2d329aa70
+image: gcr.io/istio-testing/build-tools:master-6db0b4c7fbe345bd531a07fbcff13877dc9cd801
 jobs:
   - name: unit-tests
     architectures: [amd64, arm64]
@@ -330,6 +330,19 @@ jobs:
     - --kind-config
     - prow/config/ambient-sc.yaml
     - test.integration.ambient.kube
+
+  - name: integ-gateway-api-only
+    modifiers: [presubmit_optional]
+    requirements: [kind]
+    env:
+    - name: INTEGRATION_TEST_FLAGS
+      value: "--istio.test.gatewayAPIOnly --istio.test.kube.gatewayClassName=istio-alt"
+    - name: T
+      value: '-run="TestGatewayConformance|TestGateway$$|TestHTTPRouteAndGRPCRouteCoexistence|TestInferencePoolMultipleTargetPorts"'
+    command:
+    - entrypoint
+    - prow/integ-suite-kind.sh
+    - test.integration.pilot.kube
 
   - name: integ-helm
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.helm.kube]

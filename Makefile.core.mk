@@ -40,7 +40,8 @@ generate-config:
 generate-config-aws: generate-config
 	@rm -fr prow/eks/cluster/jobs/*/*/*.gen.yaml
 	@(cd tools/prowgen/cmd/prowgen; go run main.go --input-dir=$(repo_root)/prow/eks/config/jobs --output-dir=$(repo_root)/prow/eks/cluster/jobs write)
-	# @go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/eks/config/jobs/.base.yaml --configs=./prow/eks/config/istio-private_jobs --input=./prow/eks/config/jobs
+	@go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/eks/config/jobs/.base.yaml --configs=./prow/eks/config/istio-private_jobs --input=./prow/eks/config/jobs
+	# experimental jobs are intentionally not generated for EKS (config removed)
 	# @go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/eks/config/jobs/.base.yaml --configs=./prow/eks/config/experimental --input=./prow/eks/config/jobs
 
 

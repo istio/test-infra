@@ -340,7 +340,7 @@ func BuildRunTest(t *testing.T) func(name string, f func(j Job) error) {
 }
 
 func LoadJobs(t *testing.T) []Job {
-	const jobsPath = "../cluster/gke/jobs"
+	const jobsPath = "../cluster/jobs"
 	const configPath = "../config.yaml"
 	c, err := config.LoadStrict(configPath, jobsPath, nil, "")
 	if err != nil {

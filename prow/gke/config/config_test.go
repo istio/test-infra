@@ -27,7 +27,7 @@ import (
 
 var (
 	configPath    = flag.String("config", "../config.yaml", "Path to prow config")
-	jobConfigPath = flag.String("job-config", "../cluster/gke/jobs/", "Path to prow job config")
+	jobConfigPath = flag.String("job-config", "../cluster/jobs/", "Path to prow job config")
 )
 
 // Loaded at TestMain.

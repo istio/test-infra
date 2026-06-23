@@ -19,7 +19,7 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
       - name: deck-private
-        image: us-docker.pkg.dev/k8s-infra-prow/images/deck:v20260526-71428b9c2
+        image: us-docker.pkg.dev/k8s-infra-prow/images/deck:v20260623-bc70809cb
         ports:
         - name: http
           containerPort: 8080
@@ -37,6 +37,9 @@ spec:
         - --github-endpoint=https://api.github.com
         - --github-oauth-config-file=/etc/githuboauth/secret
         - --cookie-secret=/etc/cookie/secret
+        # Deck only reads from blob storage (Spyglass, job/PR history). Private
+        # jobs upload to s3://istio-prow-private.
+        - --s3-credentials-file=/etc/cf-r2-istio-prow-private-credentials/service-account.json
         env:
         # Use KUBECONFIG envvar rather than --kubeconfig flag in order to provide multiple configs to merge.
         - name: KUBECONFIG
@@ -59,6 +62,9 @@ spec:
           readOnly: true
         - mountPath: /etc/kubeconfig
           name: kubeconfig
+          readOnly: true
+        - mountPath: /etc/cf-r2-istio-prow-private-credentials
+          name: cf-r2-istio-prow-private-credentials
           readOnly: true
         livenessProbe:
           httpGet:
@@ -136,3 +142,6 @@ spec:
         configMap:
           defaultMode: 420
           name: kubeconfig
+      - name: cf-r2-istio-prow-private-credentials
+        secret:
+          secretName: cf-r2-istio-prow-private-credentials
