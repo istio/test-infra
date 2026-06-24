@@ -1,0 +1,138 @@
+# ProwJobs defined in this file specify `cluster: test-infra-trusted` in order to run in Prow's service cluster.
+postsubmits:
+  istio/test-infra:
+  - name: post-istio-test-infra-upload-testgrid-config
+    cluster: test-infra-trusted
+    run_if_changed: '^(prow/cluster/jobs/.*\.yaml)|(testgrid/default\.yaml)$'
+    decorate: true
+    branches:
+    - master
+    annotations:
+      testgrid-dashboards: istio_test-infra_postsubmit
+      testgrid-alert-email: k8s-infra-oncall@google.com
+    max_concurrency: 1
+    spec:
+      automountServiceAccountToken: false
+      serviceAccountName: testgrid-updater
+      containers:
+      - image: gcr.io/k8s-prow/configurator:v20240405-c76de01869
+        command:
+        - configurator
+        args:
+        - --yaml=testgrid/config.yaml
+        - --default=testgrid/default.yaml
+        - --prow-config=prow/config.yaml
+        - --prow-job-config=prow/cluster/jobs
+        - --prowjob-url-prefix=https://github.com/istio/test-infra/tree/master/prow/cluster/jobs
+        - --update-description
+        - --output=gs://istio-testgrid/config
+        - --oneshot
+        resources:
+          requests:
+            memory: "1Gi"
+
+periodics:
+- cron: "54 * * * *"  # Every hour at 54 minutes past the hour
+  name: ci-test-infra-branchprotector
+  cluster: test-infra-trusted
+  labels:
+    app: branchprotector
+  decorate: true
+  decoration_config:
+    timeout: 4h
+  extra_refs:
+  - org: istio
+    repo: test-infra
+    base_ref: master
+  annotations:
+    testgrid-create-test-group: "false"
+  spec:
+    automountServiceAccountToken: false
+    containers:
+    - image: us-docker.pkg.dev/k8s-infra-prow/images/branchprotector:v20260526-71428b9c2
+      command:
+      - branchprotector
+      args:
+      - --config-path=prow/config.yaml
+      - --job-config-path=prow/cluster/jobs
+      - --github-token-path=/etc/github/oauth
+      - --confirm
+      - --github-endpoint=http://ghproxy.default.svc.cluster.local
+      - --github-endpoint=https://api.github.com
+      volumeMounts:
+      - name: oauth
+        mountPath: /etc/github
+        readOnly: true
+    volumes:
+    - name: oauth
+      secret:
+        secretName: oauth-token
+- cron: "05 15-23 * * 1-5"  # Run at 7:05-15:05 PST (15:05 UTC) Mon-Fri
+  name: ci-prow-autobump
+  cluster: test-infra-trusted
+  decorate: true
+  extra_refs:
+  - org: istio
+    repo: test-infra
+    base_ref: master
+  annotations:
+    testgrid-create-test-group: "false"
+  spec:
+    automountServiceAccountToken: false
+    containers:
+    - image: us-docker.pkg.dev/k8s-infra-prow/images/generic-autobumper:v20260526-71428b9c2
+      command:
+      - generic-autobumper
+      args:
+      - --config=prow/istio-autobump-config.yaml
+      volumeMounts:
+      - name: github
+        mountPath: /etc/github-token
+        readOnly: true
+      - name: ssh
+        mountPath: /root/.ssh
+    volumes:
+    - name: github
+      secret:
+        secretName: github-istio-testing-pusher
+    - name: ssh
+      secret:
+        secretName: istio-testing-robot-ssh-key
+        defaultMode: 0400
+- cron: "01 22 * * 1-5"  # Bump with label `skip-review`. Run at 14:01 PST (22:01 UTC, fall) Mon-Fri
+  # Save for daylight saving:
+  # (Could consider not to switch, since running at 15:01 PST is an acceptable time)
+  # cron: "01 21 * * 1-5"  # Bump with label `skip-review`. Run at 14:01 PST (21:01 UTC, spring) Mon-Fri
+  name: ci-prow-autobump-for-auto-deploy
+  cluster: test-infra-trusted
+  decorate: true
+  extra_refs:
+  - org: istio
+    repo: test-infra
+    base_ref: master
+  annotations:
+    testgrid-create-test-group: "false"
+  spec:
+    automountServiceAccountToken: false
+    containers:
+    - image: us-docker.pkg.dev/k8s-infra-prow/images/generic-autobumper:v20260526-71428b9c2
+      command:
+      - generic-autobumper
+      args:
+      - --config=prow/istio-autobump-config.yaml
+      - --labels-override=auto-merge # This label is used by tide for identifying trusted PR
+      - --skip-if-no-oncall # Only apply `auto-merge` label when oncall is active
+      volumeMounts:
+      - name: github
+        mountPath: /etc/github-token
+        readOnly: true
+      - name: ssh
+        mountPath: /root/.ssh
+    volumes:
+    - name: github
+      secret:
+        secretName: github-istio-testing-pusher
+    - name: ssh
+      secret:
+        secretName: istio-testing-robot-ssh-key
+        defaultMode: 0400

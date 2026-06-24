@@ -1,0 +1,68 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  labels:
+    app: ghproxy
+  name: ghproxy
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 15Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: ghproxy
+  labels:
+    app: ghproxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ghproxy
+  template:
+    metadata:
+      labels:
+        app: ghproxy
+    spec:
+      containers:
+      - name: ghproxy
+        image: us-docker.pkg.dev/k8s-infra-prow/images/ghproxy:v20260526-71428b9c2
+        args:
+        - --cache-dir=/cache
+        - --cache-sizeGB=15
+        - --serve-metrics=true
+        ports:
+        - name: main
+          containerPort: 8888
+        - name: metrics
+          containerPort: 9090
+        volumeMounts:
+        - name: cache
+          mountPath: /cache
+      volumes:
+      - name: cache
+        persistentVolumeClaim:
+          claimName: ghproxy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: ghproxy
+  namespace: default
+  name: ghproxy
+spec:
+  ports:
+  - name: main
+    port: 80
+    protocol: TCP
+    targetPort: 8888
+  - name: metrics
+    port: 9090
+  selector:
+    app: ghproxy

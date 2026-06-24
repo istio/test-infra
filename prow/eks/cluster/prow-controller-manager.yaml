@@ -1,0 +1,169 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: prow-controller-manager
+  labels:
+    app: prow-controller-manager
+spec:
+  replicas: 1 # TODO(fejta) - delete plank
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: prow-controller-manager
+  template:
+    metadata:
+      labels:
+        app: prow-controller-manager
+    spec:
+      serviceAccountName: prow-controller-manager
+      containers:
+      - name: prow-controller-manager
+        image: us-docker.pkg.dev/k8s-infra-prow/images/prow-controller-manager:v20260526-71428b9c2
+        args:
+        - --config-path=/etc/config/config.yaml
+        - --dry-run=false
+        - --enable-controller=plank
+        - --job-config-path=/etc/job-config
+        env:
+        # Use KUBECONFIG envvar rather than --kubeconfig flag in order to provide multiple configs to merge.
+        - name: KUBECONFIG
+          value: "/etc/kubeconfig/kubeconfig"
+        ports:
+        - name: metrics
+          containerPort: 9090
+        volumeMounts:
+        - name: config
+          mountPath: /etc/config
+          readOnly: true
+        - name: job-config
+          mountPath: /etc/job-config
+          readOnly: true
+        - mountPath: /etc/kubeconfig
+          name: kubeconfig
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: config
+      - name: job-config
+        configMap:
+          name: job-config
+      - name: kubeconfig
+        configMap:
+          defaultMode: 420
+          name: kubeconfig
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: default
+  name: "prow-controller-manager"
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: default
+  name: "prow-controller-manager"
+rules:
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  resourceNames:
+  - prow-controller-manager-leader-lock
+  verbs:
+  - get
+  - update
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  resourceNames:
+  - prow-controller-manager-leader-lock
+  verbs:
+  - get
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - events
+  verbs:
+  - create
+- apiGroups:
+  - prow.k8s.io
+  resources:
+  - prowjobs
+  verbs:
+  - get
+  - update
+  - list
+  - watch
+  - update
+  - patch
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: test-pods
+  name: "prow-controller-manager"
+rules:
+- apiGroups:
+   - ""
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
+  - list
+  - watch
+  - get
+  - patch
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: default
+  name: "prow-controller-manager"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: "prow-controller-manager"
+subjects:
+- kind: ServiceAccount
+  name: "prow-controller-manager"
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: test-pods
+  name: "prow-controller-manager"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: "prow-controller-manager"
+subjects:
+- kind: ServiceAccount
+  name: "prow-controller-manager"
+  namespace: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: prow-controller-manager
+  namespace: default
+  name: prow-controller-manager
+spec:
+  ports:
+    - name: metrics
+      port: 9090
+  selector:
+    app: prow-controller-manager
