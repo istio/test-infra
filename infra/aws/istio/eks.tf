@@ -25,7 +25,7 @@ locals {
           ami_type       = "AL2023_x86_64_STANDARD"
           instance_types = ["m6i.4xlarge"]
           capacity_type  = "ON_DEMAND"
-          min_size       = 1
+          min_size       = 0
           max_size       = 5
           desired_size   = 1
           disk_size      = 20
@@ -34,29 +34,7 @@ locals {
         # Primary test pool
         test-e2 = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["m6i.4xlarge"]
-          capacity_type  = "ON_DEMAND"
-          min_size       = 1
-          max_size       = 5
-          desired_size   = 1
-          disk_size      = 20
-          labels         = { testing = "test-pool" }
-        }
-        # Newer Intel spot test pool
-        test-n4 = {
-          ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["m6i.4xlarge"]
-          capacity_type  = "ON_DEMAND"
-          min_size       = 1
-          max_size       = 5
-          desired_size   = 1
-          disk_size      = 20
-          labels         = { testing = "test-pool" }
-        }
-        # AMD
-        test-c4d = {
-          ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["m6i.4xlarge"]
+          instance_types = ["m6i.large"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
           max_size       = 5
@@ -69,7 +47,7 @@ locals {
           ami_type       = "AL2023_ARM_64_STANDARD"
           instance_types = ["m7g.4xlarge"]
           capacity_type  = "ON_DEMAND"
-          min_size       = 1
+          min_size       = 0
           max_size       = 5
           desired_size   = 1
           disk_size      = 20
