@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: cherrypicker
+  labels:
+    app: cherrypicker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cherrypicker
+  template:
+    metadata:
+      labels:
+        app: cherrypicker
+    spec:
+      terminationGracePeriodSeconds: 180
+      containers:
+      - name: cherrypicker
+        image: us-docker.pkg.dev/k8s-infra-prow/images/cherrypicker:v20260526-71428b9c2
+        args:
+        - --create-issue-on-conflict
+        - --dry-run=false
+        - --github-endpoint=http://ghproxy
+        - --github-endpoint=https://api.github.com
+        - --github-token-path=/etc/github/oauth
+        - --labels=release-notes-none
+        - --use-prow-assignments=false
+        ports:
+        - name: http
+          containerPort: 8888
+        volumeMounts:
+        - name: hmac
+          mountPath: /etc/webhook
+          readOnly: true
+        - name: oauth
+          mountPath: /etc/github
+          readOnly: true
+      volumes:
+      - name: hmac
+        secret:
+          secretName: hmac-token
+      - name: oauth
+        secret:
+          secretName: oauth-token

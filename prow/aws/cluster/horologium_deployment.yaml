@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: horologium
+  namespace: default
+  labels:
+    app: horologium
+spec:
+  replicas: 0  // FIXME(stevenjin8)!!
+  selector:
+    matchLabels:
+      app: horologium
+  template:
+    metadata:
+      labels:
+        app: horologium
+    spec:
+      serviceAccountName: horologium
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: horologium
+        image: us-docker.pkg.dev/k8s-infra-prow/images/horologium:v20260623-bc70809cb
+        args:
+        - --config-path=/etc/config/config.yaml
+        - --dry-run=false
+        - --job-config-path=/etc/job-config
+        ports:
+        - name: metrics
+          containerPort: 9090
+        volumeMounts:
+        - name: config
+          mountPath: /etc/config
+          readOnly: true
+        - name: job-config
+          mountPath: /etc/job-config
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: config
+      - name: job-config
+        configMap:
+          name: job-config

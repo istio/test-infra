@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cloudflare-rotator
+  namespace: cloudflare-secret-rotation
+spec:
+  schedule: "0 */12 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  startingDeadlineSeconds: 300
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 600
+      ttlSecondsAfterFinished: 86400
+      template:
+        spec:
+          serviceAccountName: cloudflare-rotator
+          restartPolicy: Never
+          nodeSelector:
+            kubernetes.io/arch: amd64
+          containers:
+            - name: rotator
+              image: gcr.io/istio-testing/build-tools:master-1aae82591b3f663bba15d501ae7ce9c2d329aa70
+              imagePullPolicy: IfNotPresent
+              command: ["/bin/bash", "/scripts/rotate.sh"]
+              env:
+                - name: CF_ACCOUNT_ID
+                  value: "1eb8152ceed73d3ee6f66c3557819d4c"
+                - name: GCP_PROJECT
+                  value: "istio-testing"
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  cpu: 500m
+                  memory: 256Mi
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+                  readOnly: true
+          volumes:
+            - name: scripts
+              configMap:
+                name: cloudflare-rotator
+                defaultMode: 0755
+                items:
+                  - key: rotate.sh
+                    path: rotate.sh
