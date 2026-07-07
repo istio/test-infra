@@ -36,6 +36,10 @@ spec:
         image: gcr.io/k8s-staging-test-infra/gcsweb:v20260325-0ac3b4d79f
         args:
         - -b=s3://istio-prow
+        - -b=s3://istio-build
+        - -b=s3://istio-release
+        - -b=s3://istio-prerelease
+        - -b=s3://istio-testgrid
         - --s3-credentials-file=/etc/s3-credentials/service-account.json
         - -p=8080
         ports:
