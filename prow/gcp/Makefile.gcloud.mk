@@ -40,4 +40,6 @@ configure-docker: activate-serviceaccount
 	gcloud auth configure-docker
 
 get%cluster-credentials: save-kubeconfig activate-serviceaccount
+# Guard against accidentally targeting GKE while this repo is being migrated to AWS/EKS.
+# Use the -aws targets instead, or set ALLOW_GKE=true to intentionally target GKE.
 	gcloud container clusters get-credentials "$(CLUSTER)" --project="$(PROJECT)" --zone="$(ZONE)"

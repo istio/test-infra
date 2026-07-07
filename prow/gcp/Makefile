@@ -21,39 +21,46 @@ ZONE_ARM ?= us-central1-f
 ZONE_BUILD ?= us-west1-a
 ZONE_PRIVATE ?= us-central1-f
 
+# AWS variables.
+REGION ?= us-west-2
+
+CLUSTER_AWS ?= prow
+CLUSTER_BUILD_AWS ?= prow-build
+CLUSTER_PRIVATE_AWS ?= prow-private
+
 update-config-dry-run: get-cluster-credentials
 	./recreate_prow_configmaps.py \
-		--job-config-dir=cluster/jobs \
+		--job-config-dir=cluster/gcp/jobs \
 		--prow-config-path=config.yaml \
 		--plugins-config-path=plugins.yaml
 
 update-config: get-cluster-credentials
 	./recreate_prow_configmaps.py \
-		--job-config-dir=cluster/jobs \
+		--job-config-dir=cluster/gcp/jobs \
 		--prow-config-path=config.yaml \
 		--plugins-config-path=plugins.yaml \
 		--wet
 
 deploy: get-cluster-credentials
 # Apply the ProwJob CRD with --server-side=true due to its size.
-	kubectl apply --server-side=true -f ./cluster/prowjob-crd/
-	kubectl apply -f ./cluster/
+	kubectl apply --server-side=true -f ./cluster/gcp/prowjob-crd/
+	kubectl apply -f ./cluster/gcp/
 
 deploy-gcsweb: get-cluster-credentials
-	kubectl apply -f ./cluster/gcsweb/ -n gcs
+	kubectl apply -f ./cluster/gcp/gcsweb/ -n gcs
 
 # TODO(clarketm): enable pruning
 deploy-monitoring: get-cluster-credentials
-	kubectl apply -f ./cluster/monitoring/prometheus-operator-crds/
-	$(MAKE) -C cluster/monitoring/mixins clean apply
-	kubectl apply -f ./cluster/monitoring/
+	kubectl apply -f ./cluster/gcp/monitoring/prometheus-operator-crds/
+	$(MAKE) -C cluster/gcp/monitoring/mixins clean apply
+	kubectl apply -f ./cluster/gcp/monitoring/
 
 get-build-cluster-credentials: PROJECT=$(PROJECT_BUILD)
 get-build-cluster-credentials: CLUSTER=$(CLUSTER_BUILD)
 get-build-cluster-credentials: ZONE=$(ZONE_BUILD)
 
 deploy-build: get-build-cluster-credentials
-	kubectl apply -f ./cluster/build/
+	kubectl apply -f ./cluster/gcp/build/
 
 query-build: get-build-cluster-credentials
 	kubectl cluster-info
@@ -63,7 +70,7 @@ get-arm-cluster-credentials: CLUSTER=$(CLUSTER_ARM)
 get-arm-cluster-credentials: ZONE=$(ZONE_ARM)
 
 deploy-arm: get-arm-cluster-credentials
-	kubectl apply -f ./cluster/arm
+	kubectl apply -f ./cluster/gcp/arm
 
 query-arm: get-arm-cluster-credentials
 	kubectl cluster-info
@@ -73,7 +80,7 @@ get-private-cluster-credentials: CLUSTER=$(CLUSTER_PRIVATE)
 get-private-cluster-credentials: ZONE=$(ZONE_PRIVATE)
 
 deploy-private: get-private-cluster-credentials
-	kubectl apply -f ./cluster/private/
+	kubectl apply -f ./cluster/gcp/private/
 
 query-private: get-private-cluster-credentials
 	kubectl cluster-info

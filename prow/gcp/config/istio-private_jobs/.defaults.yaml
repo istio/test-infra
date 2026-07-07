@@ -1,8 +1,8 @@
 defaults:
   mapping:
     istio: istio-private
-  input: ./prow/cluster/jobs/
-  output: ./prow/cluster/jobs/
+  input: ./prow/gcp/cluster/jobs/
+  output: ./prow/gcp/cluster/jobs/
   refs: true
   cluster: private
   sort: asc
@@ -14,7 +14,7 @@ defaults:
   # Various jobs require overriding settings. These are done through presets which are expanded in the
   # job generation
   presets:
-  - prow/config/private-presets.yaml
+  - prow/gcp/config/private-presets.yaml
   resolve: true
   env:
     GCP_SECRETS: ~ # Don't use their secrets.
