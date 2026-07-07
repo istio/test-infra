@@ -42,7 +42,6 @@ locals {
           disk_size      = 20
           labels         = { testing = "test-pool" }
         }
-        # Newer Intel spot test pool
         test-n4 = {
           ami_type       = "AL2023_x86_64_STANDARD"
           instance_types = ["m6i.4xlarge"]
@@ -64,7 +63,6 @@ locals {
           disk_size      = 20
           labels         = { testing = "test-pool" }
         }
-        # Graviton spot pool
         arm = {
           ami_type       = "AL2023_ARM_64_STANDARD"
           instance_types = ["m7g.4xlarge"]
@@ -102,7 +100,6 @@ locals {
           disk_size      = 20
           labels         = { testing = "build-pool" }
         }
-        # Graviton spot pool
         arm = {
           ami_type       = "AL2023_ARM_64_STANDARD"
           instance_types = ["t4g.small"]
