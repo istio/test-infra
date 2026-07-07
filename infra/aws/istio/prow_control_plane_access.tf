@@ -2,7 +2,7 @@
 #
 # The control-plane components run on the `prow` cluster but talk to the build
 # clusters' API servers (via the aws-iam-authenticator exec plugin bundled in
-# the prow images; see prow/cluster/eks/build_kubeconfig.yaml) to schedule,
+# the prow images; see prow/aws/cluster/build_kubeconfig.yaml) to schedule,
 # reap, and read job pods. Each component needs two things:
 #
 # Writers (prow-controller-manager, sinker) create and delete pods -> Edit.

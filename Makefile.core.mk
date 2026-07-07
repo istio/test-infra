@@ -27,13 +27,29 @@ gen: generate-config fmt mirror-licenses
 
 gen-check: gen check-clean-repo
 
+# Generate the canonical (GKE) job config. Jobs are cloud-agnostic; this tree is the source of truth.
 generate-config:
-	@rm -fr prow/cluster/jobs/istio*/*/*.gen.yaml
-	@(cd tools/prowgen/cmd/prowgen; go run main.go --input-dir=$(repo_root)/prow/config/jobs --output-dir=$(repo_root)/prow/cluster/jobs write)
-	@go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/config/jobs/.base.yaml --configs=./prow/config/istio-private_jobs --input=./prow/config/jobs
-	@go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/config/jobs/.base.yaml --configs=./prow/config/experimental --input=./prow/config/jobs
+	@rm -fr prow/gcp/cluster/jobs/*/*/*.gen.yaml
+	@(cd tools/prowgen/cmd/prowgen; go run main.go --input-dir=$(repo_root)/prow/gcp/config/jobs --output-dir=$(repo_root)/prow/gcp/cluster/jobs write)
+	@go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/gcp/config/jobs/.base.yaml --configs=./prow/gcp/config/istio-private_jobs --input=./prow/gcp/config/jobs
+	@go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/gcp/config/jobs/.base.yaml --configs=./prow/gcp/config/experimental --input=./prow/gcp/config/jobs
+
+# Mirror the canonical job config into the EKS (AWS) cluster tree consumed by the -aws deploy targets.
+# EKS has no separate arm cluster: arm64 is a node group inside the default build cluster (prow-build),
+# selected via nodeSelector. Strip the GKE-only `cluster: prow-arm` override so those jobs land there.
+generate-config-aws: generate-config
+	@rm -fr prow/aws/cluster/jobs/*/*/*.gen.yaml
+	@(cd tools/prowgen/cmd/prowgen; go run main.go --input-dir=$(repo_root)/prow/aws/config/jobs --output-dir=$(repo_root)/prow/aws/cluster/jobs write)
+	@go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/aws/config/jobs/.base.yaml --configs=./prow/aws/config/istio-private_jobs --input=./prow/aws/config/jobs
+	# experimental jobs are intentionally not generated for EKS (config removed)
+	# @go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/aws/config/jobs/.base.yaml --configs=./prow/aws/config/experimental --input=./prow/aws/config/jobs
+
+
 
 diff-config:
-	@(cd tools/prowgen/cmd/prowgen; GOARCH=$(GOARCH) GOOS=$(GOOS) go run main.go --input-dir=$(repo_root)/prow/config/jobs --output-dir=$(repo_root)/prow/cluster/jobs diff)
+	@(cd tools/prowgen/cmd/prowgen; GOARCH=$(GOARCH) GOOS=$(GOOS) go run main.go --input-dir=$(repo_root)/prow/gcp/config/jobs --output-dir=$(repo_root)/prow/cluster/gcp/jobs diff)
+
+diff-config-aws:
+	@(cd tools/prowgen/cmd/prowgen; GOARCH=$(GOARCH) GOOS=$(GOOS) go run main.go --input-dir=$(repo_root)/prow/aws/config/jobs --output-dir=$(repo_root)/prow/cluster/aws/jobs diff)
 
 include common/Makefile.common.mk
