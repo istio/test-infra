@@ -654,6 +654,26 @@ jobs:
     - name: AUTOMATOR_ORG
       value: istio
 
+  - name: update-agentgateway
+    types: [periodic]
+    interval: 24h
+    disable_release_branching: true
+    command:
+    - entrypoint
+    - ../test-infra/tools/automator/automator.sh
+    - --org=$AUTOMATOR_ORG
+    - --repo=istio
+    - "--title=Automator: update agentgateway@$AUTOMATOR_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH"
+    - --labels=auto-merge,release-notes-none
+    - --modifier=update_agentgateway_dep
+    - --token-env
+    - --cmd=./bin/update_agentgateway.sh
+    requirements: [github-istio-testing]
+    repos: [istio/test-infra@master]
+    env:
+    - name: AUTOMATOR_ORG
+      value: istio
+
 resources_presets:
   default:
     requests:
