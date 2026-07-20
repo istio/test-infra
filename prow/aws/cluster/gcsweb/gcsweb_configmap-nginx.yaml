@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx
+  namespace: gcs
+data:
+  nginx.conf: |
+    server {
+      listen 80 default_server;
+
+      server_name _;
+
+      location / {
+        proxy_pass http://localhost:8080/;
+      }
+
+    }

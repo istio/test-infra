@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: tune-sysctls
+  namespace: kube-system
+  labels:
+    app: tune-sysctls
+spec:
+  selector:
+    matchLabels:
+      name: tune-sysctls
+  template:
+    metadata:
+      labels:
+        name: tune-sysctls
+    spec:
+      hostNetwork: true
+      hostPID: true
+      hostIPC: true
+      initContainers:
+        - name: setsysctls
+          command:
+            - sh
+            - -c
+            - sysctl -w fs.inotify.max_user_watches=524288;
+          image: alpine:3.6
+          imagePullPolicy: IfNotPresent
+          resources: {}
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: sys
+              mountPath: /sys
+      containers:
+        - name: sleepforever
+          resources:
+            requests:
+              cpu: 0.01
+          image: alpine:3.6
+          command: ["tail"]
+          args: ["-f", "/dev/null"]
+      volumes:
+        - name: sys
+          hostPath:
+            path: /sys

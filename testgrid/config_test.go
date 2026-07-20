@@ -39,8 +39,8 @@ var dashboardPrefixes = []string{
 
 var (
 	defaultInputs options.MultiString = []string{"."}
-	prowPath                          = flag.String("prow-config", "../prow/config.yaml", "Path to prow config")
-	jobPath                           = flag.String("job-config", "../prow/cluster/jobs", "Path to prow job config")
+	prowPath                          = flag.String("prow-config", "../prow/gcp/config.yaml", "Path to prow config")
+	jobPath                           = flag.String("job-config", "../prow/gcp/cluster/jobs", "Path to prow job config")
 	defaultYAML                       = flag.String("default", "./default.yaml", "Default yaml for testgrid")
 	inputs        options.MultiString
 	protoPath     = flag.String("config", "", "Path to TestGrid config proto")

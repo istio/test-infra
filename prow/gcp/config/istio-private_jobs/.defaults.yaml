@@ -1,0 +1,25 @@
+defaults:
+  mapping:
+    istio: istio-private
+  input: ./prow/gcp/cluster/jobs/
+  output: ./prow/gcp/cluster/jobs/
+  refs: true
+  cluster: private
+  sort: asc
+  modifier: pri
+  annotations:
+    testgrid-create-test-group: "false"
+  allow-long-job-names: true
+  service_account_name: "prowjob-private"
+  # Various jobs require overriding settings. These are done through presets which are expanded in the
+  # job generation
+  presets:
+  - prow/gcp/config/private-presets.yaml
+  resolve: true
+  env:
+    GCP_SECRETS: ~ # Don't use their secrets.
+    BAZEL_BUILD_RBE_INSTANCE: "" # No RBE support
+    # No tracing in private cluster
+    OTEL_EXPORTER_OTLP_PROTOCOL: ~
+    OTEL_EXPORTER_OTLP_ENDPOINT: ~
+    OTEL_EXPORTER_OTLP_INSECURE: ~

@@ -1,0 +1,140 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deck-private
+  namespace: default
+  labels:
+    app: deck-private
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deck-private
+  template:
+    metadata:
+      labels:
+        app: deck-private
+    spec:
+      serviceAccountName: deck-private
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: deck-private
+        image: us-docker.pkg.dev/k8s-infra-prow/images/deck:v20260526-71428b9c2
+        ports:
+        - name: http
+          containerPort: 8080
+        args:
+        - --config-path=/etc/config/config.yaml
+        - --hook-url=http://hook:8888/plugin-help
+        - --job-config-path=/etc/job-config
+        - --redirect-http-to=prow-private.istio.io
+        - --spyglass
+        - --hidden-only
+        - --rerun-creates-job
+        - --oauth-url=/github-login
+        - --github-token-path=/etc/github/oauth
+        - --github-endpoint=http://ghproxy
+        - --github-endpoint=https://api.github.com
+        - --github-oauth-config-file=/etc/githuboauth/secret
+        - --cookie-secret=/etc/cookie/secret
+        env:
+        # Use KUBECONFIG envvar rather than --kubeconfig flag in order to provide multiple configs to merge.
+        - name: KUBECONFIG
+          value: "/etc/kubeconfig/kubeconfig"
+        - name: AWS_REGION
+          value: "us-west-2"
+        volumeMounts:
+        - name: oauth-config
+          mountPath: /etc/githuboauth
+          readOnly: true
+        - name: cookie-secret
+          mountPath: /etc/cookie
+          readOnly: true
+        - name: oauth-token
+          mountPath: /etc/github
+          readOnly: true
+        - name: config
+          mountPath: /etc/config
+          readOnly: true
+        - name: job-config
+          mountPath: /etc/job-config
+          readOnly: true
+        - mountPath: /etc/kubeconfig
+          name: kubeconfig
+          readOnly: true
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /healthz/ready
+            port: 8081
+          initialDelaySeconds: 10
+          periodSeconds: 3
+          timeoutSeconds: 600
+      - name: oauth2-proxy
+        image: quay.io/oauth2-proxy/oauth2-proxy:v7.15.2
+        ports:
+        - containerPort: 4180
+          protocol: TCP
+        args:
+        - --provider=github
+        - --github-org=istio-private
+        - --http-address=0.0.0.0:4180
+        - --upstream=http://localhost:8080
+        - --cookie-domain=prow-private.istio.io
+        - --cookie-name=prow-private-istio-io-oauth2-proxy
+        - --cookie-samesite=none
+        - --email-domain=*
+        - --reverse-proxy=true
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: 4180
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: 4180
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        env:
+        - name: OAUTH2_PROXY_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: deck-oauth-proxy
+              key: clientID
+        - name: OAUTH2_PROXY_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: deck-oauth-proxy
+              key: clientSecret
+        - name: OAUTH2_PROXY_COOKIE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: deck-oauth-proxy
+              key: cookieSecret
+      volumes:
+      - name: oauth-config
+        secret:
+          secretName: github-oauth-config-private
+      - name: oauth-token
+        secret:
+          secretName: oauth-token
+      - name: cookie-secret
+        secret:
+          secretName: cookie
+      - name: config
+        configMap:
+          name: config
+      - name: job-config
+        configMap:
+          name: job-config
+      - name: kubeconfig
+        configMap:
+          defaultMode: 420
+          name: kubeconfig
