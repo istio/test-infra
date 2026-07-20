@@ -1,8 +1,8 @@
 ---
 plank:
-  job_url_template: 'http://k8s-default-tlsing-211de21a28-1671250631.us-west-2.elb.amazonaws.com/view/istio-prow{{if eq .Spec.Type "presubmit"}}/pr-logs/pull/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if eq .Spec.Type "batch"}}/pr-logs/pull/batch{{else}}/logs{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}'
+  job_url_template: 'https://aws.prow.istio.io/view/istio-prow{{if eq .Spec.Type "presubmit"}}/pr-logs/pull/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if eq .Spec.Type "batch"}}/pr-logs/pull/batch{{else}}/logs{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}'
   job_url_prefix_config:
-    '*': http://k8s-default-tlsing-211de21a28-1671250631.us-west-2.elb.amazonaws.com/view/
+    '*': https://aws.prow.istio.io/view/
     istio-private: https://prow-private.istio.io/view/
   pod_pending_timeout: 15m
   pod_unscheduled_timeout: 30m
@@ -606,7 +606,7 @@ tide:
     istio-ecosystem/authservice: squash
     istio-ecosystem/sail-operator: squash
     istio-private: squash
-  target_url: http://k8s-default-tlsing-211de21a28-1671250631.us-west-2.elb.amazonaws.com/tide
+  target_url: https://aws.prow.istio.io/tide
   blocker_label: tide/merge-blocker
   squash_label: tide/merge-method-squash
   rebase_label: tide/merge-method-rebase
