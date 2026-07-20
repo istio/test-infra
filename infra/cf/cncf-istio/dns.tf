@@ -63,22 +63,25 @@ resource "cloudflare_dns_record" "istio_mx" {
   ttl      = 3600
   type     = "MX"
   priority = each.value
-  content  = each.key
+  # Cloudflare stores MX content without a trailing dot; strip it so the plan
+  # converges. The map key keeps the dot to preserve the resource address
+  # (changing the for_each key would destroy/recreate the MX record).
+  content = trimsuffix(each.key, ".")
 }
 
 resource "cloudflare_dns_record" "cname_records" {
   for_each = {
-    "archive"       = "archive-istio.netlify.com."
-    "elections"     = "router-default.apps.ospo-osci.z3b1.p1.openshiftapps.com."
-    "em535"         = "u10461948.wl199.sendgrid.net."
-    "em9813"        = "u17991541.wl042.sendgrid.net."
-    "fortio"        = "istio.fortio.org."
-    "latest"        = "istio-latest.netlify.app."
-    "preliminary"   = "preliminary-istio.netlify.com."
-    "s1._domainkey" = "s1.domainkey.u17991541.wl042.sendgrid.net."
-    "s2._domainkey" = "s2.domainkey.u17991541.wl042.sendgrid.net."
-    "slack"         = "ghs.googlehosted.com."
-    "www"           = "istio.io."
+    "archive"       = "archive-istio.netlify.com"
+    "elections"     = "router-default.apps.ospo-osci.z3b1.p1.openshiftapps.com"
+    "em535"         = "u10461948.wl199.sendgrid.net"
+    "em9813"        = "u17991541.wl042.sendgrid.net"
+    "fortio"        = "istio.fortio.org"
+    "latest"        = "istio-latest.netlify.app"
+    "preliminary"   = "preliminary-istio.netlify.com"
+    "s1._domainkey" = "s1.domainkey.u17991541.wl042.sendgrid.net"
+    "s2._domainkey" = "s2.domainkey.u17991541.wl042.sendgrid.net"
+    "slack"         = "ghs.googlehosted.com"
+    "www"           = "istio.io"
   }
 
   zone_id = var.zone_id
