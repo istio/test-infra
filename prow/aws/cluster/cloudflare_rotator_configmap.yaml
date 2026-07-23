@@ -6,7 +6,7 @@ metadata:
 data:
   rotate.sh: |
     #!/usr/bin/env bash
-    # Inputs (env): CF_ACCOUNT_ID, GCP_PROJECT
+    # Inputs (env): CF_ACCOUNT_ID, AWS_REGION
     set -euo pipefail
     set +x
     # Note that we don't rotate "cf_r2_public_buckets_ro_credentials"
@@ -19,31 +19,26 @@ data:
       "istio-prerelease-private"
       "istio-prow"
       "istio-prow-private"
+      "istio-release"
       "istio-testgrid"
     )
-    echo "Setting up gcloud"
-    gcloud config set project "${GCP_PROJECT}"
 
-    # Append a new version of $1 with value $2, then disable all previously-enabled
-    # versions of that secret.
-    upload_and_prune() {
+    # Store a new value for $1 in AWS Secrets Manager. put-secret-value creates a
+    # new version and moves the AWSCURRENT staging label to it (demoting the prior
+    # version to AWSPREVIOUS), so no explicit prune of old versions is needed.
+    upload_secret() {
       local secret=$1
       local value=$2
-      local new
-      new=$(printf '%s' "${value}" | gcloud secrets versions add "${secret}" --data-file=- --format='value(name)')
-      new=${new##*/}  # Strip "projects/*/secrets/*/versions/" prefix, leaving just the version number
-      gcloud secrets versions list "${secret}" --filter="state:ENABLED" --format='value(name)' \
-        | while read -r v; do
-            if [[ -n "${v}" && "${v}" != "${new}" ]]; then
-              gcloud secrets versions disable "${v}" --secret="${secret}"
-            fi
-          done
+      aws secretsmanager put-secret-value \
+        --secret-id "${secret}" \
+        --secret-string "${value}" \
+        --output text >/dev/null
     }
     echo "Fetching admin token value"
-    admin_token=$(gcloud secrets versions access latest --secret=cf_r2_admin_token | tr -d '\n\r')
+    admin_token=$(aws secretsmanager get-secret-value --secret-id cf_r2_admin_token --query SecretString --output text | tr -d '\n\r')
     for bucket in "${buckets[@]}"; do
       echo "Fetching parent access key id for bucket ${bucket}"
-      key_id=$(gcloud secrets versions access latest --secret="cf_r2_${bucket}_credentials" | jq -r '.access_key' | tr -d '\n\r')
+      key_id=$(aws secretsmanager get-secret-value --secret-id "cf_r2_${bucket}_credentials" --query SecretString --output text | jq -r '.access_key' | tr -d '\n\r')
       echo "Rotating credentials for bucket ${bucket}"
       body=$(jq -n \
         --arg bucket "${bucket}" \
@@ -82,5 +77,5 @@ data:
         --arg st "${session_token}" \
         --arg ep "https://${CF_ACCOUNT_ID}.r2.cloudflarestorage.com" \
         '{access_key: $ak, secret_key: $sk, session_token: $st, endpoint: $ep, s3_force_path_style: true, region: "auto"}')
-      upload_and_prune "cf_r2_${bucket}_credentials" "${credentials_json}"
+      upload_secret "cf_r2_${bucket}_credentials" "${credentials_json}"
     done

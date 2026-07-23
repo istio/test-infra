@@ -6,11 +6,12 @@ metadata:
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
 spec:
   ingressClassName: alb
   rules:
-  - http:
+  - host: aws.prow.istio.io
+    http:
       paths:
       - path: /hook
         pathType: Prefix

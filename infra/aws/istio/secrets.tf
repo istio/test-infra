@@ -63,6 +63,8 @@ locals {
     # Read-only S3 credentials for gcsweb (public buckets). The value is managed
     # by Terraform (aws_secretsmanager_secret_version.gcsweb_s3_credentials).
     "gcsweb_s3_credentials" = "Read-only S3 credentials for gcsweb (public buckets)"
+
+    "ghcr-push-pat" = "PAT to push to ghcr.io"
   }
 }
 
