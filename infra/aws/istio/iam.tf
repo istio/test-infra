@@ -20,6 +20,7 @@ locals {
         "release_github_istio-release",
         "release_grafana_istio",
         "github_istio-testing_pusher",
+        "ghcr-push-pat",
         "cf_r2_istio-prerelease_credentials",
         "cf_r2_istio-release_credentials",
       ]
@@ -46,7 +47,7 @@ locals {
     }
     # Runs on both the build cluster and the trusted control-plane cluster.
     "prowjob-testing-write" = {
-      read          = ["cf_r2_istio-build_credentials"]
+      read          = ["cf_r2_istio-build_credentials", "ghcr-push-pat"]
       s3_read_write = ["istio-prow"]
       associations = {
         prow-build = { namespace = "test-pods", service_account = "prowjob-testing-write" }
