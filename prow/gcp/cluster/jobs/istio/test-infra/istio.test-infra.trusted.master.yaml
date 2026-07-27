@@ -3,7 +3,7 @@ postsubmits:
   istio/test-infra:
   - name: post-istio-test-infra-upload-testgrid-config
     cluster: test-infra-trusted
-    run_if_changed: '^(prow/cluster/jobs/.*\.yaml)|(testgrid/default\.yaml)$'
+    run_if_changed: '^(prow/gcp/cluster/jobs/.*\.yaml)|(testgrid/default\.yaml)$'
     decorate: true
     branches:
     - master
@@ -21,9 +21,9 @@ postsubmits:
         args:
         - --yaml=testgrid/config.yaml
         - --default=testgrid/default.yaml
-        - --prow-config=prow/config.yaml
-        - --prow-job-config=prow/cluster/jobs
-        - --prowjob-url-prefix=https://github.com/istio/test-infra/tree/master/prow/cluster/jobs
+        - --prow-config=prow/gcp/config.yaml
+        - --prow-job-config=prow/gcp/cluster/jobs
+        - --prowjob-url-prefix=https://github.com/istio/test-infra/tree/master/prow/gcp/cluster/jobs
         - --update-description
         - --output=gs://istio-testgrid/config
         - --oneshot
@@ -53,8 +53,8 @@ periodics:
       command:
       - branchprotector
       args:
-      - --config-path=prow/config.yaml
-      - --job-config-path=prow/cluster/jobs
+      - --config-path=prow/gcp/config.yaml
+      - --job-config-path=prow/gcp/cluster/jobs
       - --github-token-path=/etc/github/oauth
       - --confirm
       - --github-endpoint=http://ghproxy.default.svc.cluster.local
@@ -84,7 +84,7 @@ periodics:
       command:
       - generic-autobumper
       args:
-      - --config=prow/istio-autobump-config.yaml
+      - --config=prow/gcp/istio-autobump-config.yaml
       volumeMounts:
       - name: github
         mountPath: /etc/github-token
@@ -119,7 +119,7 @@ periodics:
       command:
       - generic-autobumper
       args:
-      - --config=prow/istio-autobump-config.yaml
+      - --config=prow/gcp/istio-autobump-config.yaml
       - --labels-override=auto-merge # This label is used by tide for identifying trusted PR
       - --skip-if-no-oncall # Only apply `auto-merge` label when oncall is active
       volumeMounts:

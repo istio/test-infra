@@ -47,7 +47,7 @@ generate-config:
 
 
 diff-config:
-	@(cd tools/prowgen/cmd/prowgen; GOARCH=$(GOARCH) GOOS=$(GOOS) go run main.go --input-dir=$(repo_root)/prow/gcp/config/jobs --output-dir=$(repo_root)/prow/cluster/gcp/jobs diff)
+	@(cd tools/prowgen/cmd/prowgen; GOARCH=$(GOARCH) GOOS=$(GOOS) go run main.go --input-dir=$(repo_root)/prow/gcp/config/jobs --output-dir=$(repo_root)/prow/gcp/cluster/jobs diff)
 
 # diff-config-aws:
 # 	@(cd tools/prowgen/cmd/prowgen; GOARCH=$(GOARCH) GOOS=$(GOOS) go run main.go --input-dir=$(repo_root)/prow/aws/config/jobs --output-dir=$(repo_root)/prow/cluster/aws/jobs diff)

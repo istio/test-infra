@@ -1,7 +1,7 @@
 presubmits:
   istio/test-infra:
   - name: pull-test-infra-check-testgrid-config
-    run_if_changed: '^(prow/cluster/jobs/.*\.yaml)|(testgrid/default\.yaml)$'
+    run_if_changed: '^(prow/gcp/cluster/jobs/.*\.yaml)|(testgrid/default\.yaml)$'
     decorate: true
     branches:
     - master
@@ -19,9 +19,9 @@ presubmits:
         args:
         - --yaml=testgrid/config.yaml
         - --default=testgrid/default.yaml
-        - --prow-config=prow/config.yaml
-        - --prow-job-config=prow/cluster/jobs
-        - --prowjob-url-prefix=https://github.com/istio/test-infra/tree/master/prow/cluster/jobs
+        - --prow-config=prow/gcp/config.yaml
+        - --prow-job-config=prow/gcp/cluster/jobs
+        - --prowjob-url-prefix=https://github.com/istio/test-infra/tree/master/prow/gcp/cluster/jobs
         - --update-description
         - --validate-config-file
         - --oneshot
@@ -54,7 +54,7 @@ postsubmits:
         report_template: 'Deploying prow: {{.Status.State}}. <{{.Spec.Refs.BaseLink}}|Commit
           {{.Spec.Refs.BaseSHA}}> <{{.Status.URL}}|View logs> <https://testgrid.k8s.io/istio_test-infra_postsubmit#deploy-prow_test-infra_postsubmit|Job
           history on Testgrid>'
-    run_if_changed: ^prow/cluster/(?:gcsweb/|monitoring/|build/|private/|arm/|private-arm/|[^/]+\.yaml$)
+    run_if_changed: ^prow/gcp/cluster/(?:gcsweb/|monitoring/|build/|private/|arm/|private-arm/|[^/]+\.yaml$)
     spec:
       serviceAccountName: prow-deployer
       automountServiceAccountToken: false
