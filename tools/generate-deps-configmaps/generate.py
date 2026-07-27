@@ -89,10 +89,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--destination",
-        # Default directory is relative to script, ../../prow/cluster/private/release-deps.yaml
+        # Default directory is relative to script, ../../prow/gcp/cluster/private/release-deps.yaml
         default=os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
-            "../../prow/cluster/private/release-deps.yaml"
+            "../../prow/gcp/cluster/private/release-deps.yaml"
         ),
         help="Path to the release-deps.yaml file",
     )
