@@ -30,13 +30,13 @@ CLUSTER_PRIVATE_AWS ?= prow-private
 
 update-config-dry-run: get-cluster-credentials
 	./recreate_prow_configmaps.py \
-		--job-config-dir=cluster/gcp/jobs \
+		--job-config-dir=cluster/jobs \
 		--prow-config-path=config.yaml \
 		--plugins-config-path=plugins.yaml
 
 update-config: get-cluster-credentials
 	./recreate_prow_configmaps.py \
-		--job-config-dir=cluster/gcp/jobs \
+		--job-config-dir=cluster/jobs \
 		--prow-config-path=config.yaml \
 		--plugins-config-path=plugins.yaml \
 		--wet
