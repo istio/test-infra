@@ -2,16 +2,16 @@ presubmits:
 
 - name: pull-test-infra-prow-checkconfig
   decorate: true
-  run_if_changed: '^(\.prow|prow/(config|plugins|cluster/jobs/.*))\.yaml$'
+  run_if_changed: '^(\.prow|prow/gcp/(config|plugins|cluster/jobs/.*))\.yaml$'
   spec:
     containers:
     - image: us-docker.pkg.dev/k8s-infra-prow/images/checkconfig:v20260623-bc70809cb
       command:
       - checkconfig
       args:
-      - --config-path=prow/config.yaml
-      - --job-config-path=prow/cluster/jobs
-      - --plugin-config=prow/plugins.yaml
+      - --config-path=prow/gcp/config.yaml
+      - --job-config-path=prow/gcp/cluster/jobs
+      - --plugin-config=prow/gcp/plugins.yaml
       - --prow-yaml-repo-name=$(REPO_OWNER)/$(REPO_NAME)
       - --strict
       - --exclude-warning=mismatched-tide
