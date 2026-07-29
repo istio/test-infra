@@ -3,14 +3,14 @@ branches:
 env:
 - name: BUILD_WITH_CONTAINER
   value: "0"
-image: gcr.io/istio-testing/build-tools-proxy:release-1.31-6db0b4c7fbe345bd531a07fbcff13877dc9cd801
+image: gcr.io/istio-testing/build-tools-proxy:release-1.31-9dd215042ac24a150e432b1321a23be505f281a5
 jobs:
 - command:
   - ./prow/proxy-presubmit.sh
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:release-1.31-6db0b4c7fbe345bd531a07fbcff13877dc9cd801
+  image: gcr.io/istio-testing/build-tools-proxy:release-1.31-9dd215042ac24a150e432b1321a23be505f281a5
   name: test
   node_selector:
     testing: build-pool
@@ -220,7 +220,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:release-1.31-6db0b4c7fbe345bd531a07fbcff13877dc9cd801
+  image: gcr.io/istio-testing/build-tools-proxy:release-1.31-9dd215042ac24a150e432b1321a23be505f281a5
   name: test-asan
   node_selector:
     testing: build-pool
@@ -434,7 +434,7 @@ jobs:
     value: "0"
   - name: ARCH_SUFFIX
     value: $(params.arch)
-  image: gcr.io/istio-testing/build-tools-proxy:release-1.31-6db0b4c7fbe345bd531a07fbcff13877dc9cd801
+  image: gcr.io/istio-testing/build-tools-proxy:release-1.31-9dd215042ac24a150e432b1321a23be505f281a5
   name: test-arm
   node_selector:
     testing: test-pool
@@ -645,7 +645,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:release-1.31-6db0b4c7fbe345bd531a07fbcff13877dc9cd801
+  image: gcr.io/istio-testing/build-tools-proxy:release-1.31-9dd215042ac24a150e432b1321a23be505f281a5
   name: release-test
   node_selector:
     testing: build-pool
@@ -861,7 +861,7 @@ jobs:
     value: $(params.arch)
   - name: BUILD_ENVOY_BINARY_ONLY
     value: "1"
-  image: gcr.io/istio-testing/build-tools-proxy:release-1.31-6db0b4c7fbe345bd531a07fbcff13877dc9cd801
+  image: gcr.io/istio-testing/build-tools-proxy:release-1.31-9dd215042ac24a150e432b1321a23be505f281a5
   name: release-test
   node_selector:
     testing: test-pool
@@ -1073,7 +1073,7 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  image: gcr.io/istio-testing/build-tools-proxy:release-1.31-6db0b4c7fbe345bd531a07fbcff13877dc9cd801
+  image: gcr.io/istio-testing/build-tools-proxy:release-1.31-9dd215042ac24a150e432b1321a23be505f281a5
   name: release
   node_selector:
     testing: build-pool
@@ -1292,7 +1292,7 @@ jobs:
     value: $(params.arch)
   - name: BUILD_ENVOY_BINARY_ONLY
     value: "1"
-  image: gcr.io/istio-testing/build-tools-proxy:release-1.31-6db0b4c7fbe345bd531a07fbcff13877dc9cd801
+  image: gcr.io/istio-testing/build-tools-proxy:release-1.31-9dd215042ac24a150e432b1321a23be505f281a5
   name: release
   node_selector:
     testing: test-pool
@@ -1516,7 +1516,7 @@ jobs:
     value: "0"
   - name: AUTOMATOR_ORG
     value: istio
-  image: gcr.io/istio-testing/build-tools:release-1.31-6db0b4c7fbe345bd531a07fbcff13877dc9cd801
+  image: gcr.io/istio-testing/build-tools:release-1.31-9dd215042ac24a150e432b1321a23be505f281a5
   name: update-istio
   node_selector:
     testing: build-pool
@@ -1738,7 +1738,7 @@ jobs:
     value: "0"
   - name: AUTOMATOR_ORG
     value: istio
-  image: gcr.io/istio-testing/build-tools:release-1.31-6db0b4c7fbe345bd531a07fbcff13877dc9cd801
+  image: gcr.io/istio-testing/build-tools:release-1.31-9dd215042ac24a150e432b1321a23be505f281a5
   interval: 24h
   name: update-proxy
   node_selector:
