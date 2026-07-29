@@ -1,5 +1,10 @@
 locals {
   cluster_version = "1.36"
+  gp3_root_volume = {
+    delete_on_termination = true
+    encrypted             = true
+    volume_type           = "gp3"
+  }
 
   clusters = {
     prow = {
@@ -11,8 +16,13 @@ locals {
           min_size       = 1
           max_size       = 5
           desired_size   = 3
-          disk_size      = 20
-          labels         = { prod = "prow" }
+          block_device_mappings = {
+            root = {
+              device_name = "/dev/xvda"
+              ebs         = merge(local.gp3_root_volume, { volume_size = 100 })
+            }
+          }
+          labels = { prod = "prow" }
         }
       }
     }
@@ -23,24 +33,34 @@ locals {
         # Large build pool
         build = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["m6i.4xlarge"]
+          instance_types = ["m6i.16xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 0
           max_size       = 5
           desired_size   = 1
-          disk_size      = 20
-          labels         = { testing = "build-pool" }
+          block_device_mappings = {
+            root = {
+              device_name = "/dev/xvda"
+              ebs         = merge(local.gp3_root_volume, { volume_size = 2000 })
+            }
+          }
+          labels = { testing = "build-pool" }
         }
         # Primary test pool
         test-e2 = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["m6i.large"]
+          instance_types = ["m6i.4xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
           max_size       = 5
           desired_size   = 1
-          disk_size      = 20
-          labels         = { testing = "test-pool" }
+          block_device_mappings = {
+            root = {
+              device_name = "/dev/xvda"
+              ebs         = merge(local.gp3_root_volume, { volume_size = 256 })
+            }
+          }
+          labels = { testing = "test-pool" }
         }
         arm = {
           ami_type       = "AL2023_ARM_64_STANDARD"
@@ -49,8 +69,13 @@ locals {
           min_size       = 0
           max_size       = 5
           desired_size   = 1
-          disk_size      = 20
-          labels         = { testing = "test-pool" }
+          block_device_mappings = {
+            root = {
+              device_name = "/dev/xvda"
+              ebs         = merge(local.gp3_root_volume, { volume_size = 256 })
+            }
+          }
+          labels = { testing = "test-pool" }
         }
       }
     }
@@ -65,8 +90,13 @@ locals {
           min_size       = 1
           max_size       = 5
           desired_size   = 1
-          disk_size      = 20
-          labels         = { testing = "test-pool" }
+          block_device_mappings = {
+            root = {
+              device_name = "/dev/xvda"
+              ebs         = merge(local.gp3_root_volume, { volume_size = 256 })
+            }
+          }
+          labels = { testing = "test-pool" }
         }
         # High-memory build pool
         build = {
@@ -76,8 +106,13 @@ locals {
           min_size       = 0
           max_size       = 5
           desired_size   = 1
-          disk_size      = 20
-          labels         = { testing = "build-pool" }
+          block_device_mappings = {
+            root = {
+              device_name = "/dev/xvda"
+              ebs         = merge(local.gp3_root_volume, { volume_size = 2000 })
+            }
+          }
+          labels = { testing = "build-pool" }
         }
         arm = {
           ami_type       = "AL2023_ARM_64_STANDARD"
@@ -86,8 +121,13 @@ locals {
           min_size       = 0
           max_size       = 5
           desired_size   = 1
-          disk_size      = 20
-          labels         = { testing = "test-pool" }
+          block_device_mappings = {
+            root = {
+              device_name = "/dev/xvda"
+              ebs         = merge(local.gp3_root_volume, { volume_size = 256 })
+            }
+          }
+          labels = { testing = "test-pool" }
         }
       }
     }
@@ -116,7 +156,7 @@ module "eks" {
   # Lock this down (private endpoint + CIDR allow-list) before production.
   endpoint_public_access = true
 
-  addons = {
+  addons = merge({
     coredns = {}
     # CNI and kube-proxy must be installed before the node groups so nodes can
     # get pod networking and reach Ready; otherwise node group creation deadlocks
@@ -129,7 +169,14 @@ module "eks" {
     }
     # Required for the workload IAM roles in iam.tf (EKS Pod Identity).
     eks-pod-identity-agent = {}
-  }
+    }, each.key == "prow" ? {
+    aws-ebs-csi-driver = {
+      pod_identity_association = [{
+        role_arn        = module.ebs_csi_identity.iam_role_arn
+        service_account = "ebs-csi-controller-sa"
+      }]
+    }
+  } : {})
 
   eks_managed_node_groups = each.value.node_groups
 }

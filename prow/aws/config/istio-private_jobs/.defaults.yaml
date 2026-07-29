@@ -1,0 +1,22 @@
+defaults:
+  mapping:
+    istio: istio-private
+  input: ./prow/aws/cluster/jobs/
+  output: ./prow/aws/cluster/jobs/
+  refs: true
+  cluster: private
+  sort: asc
+  modifier: pri
+  annotations:
+    testgrid-create-test-group: "false"
+  allow-long-job-names: true
+  service_account_name: prowjob-private
+  presets:
+  - prow/aws/config/private-presets.yaml
+  resolve: true
+  env:
+    GCP_SECRETS: ~
+    BAZEL_BUILD_RBE_INSTANCE: ""
+    OTEL_EXPORTER_OTLP_PROTOCOL: ~
+    OTEL_EXPORTER_OTLP_ENDPOINT: ~
+    OTEL_EXPORTER_OTLP_INSECURE: ~

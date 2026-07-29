@@ -526,7 +526,7 @@ tide:
   - repos:
     - istio/api
     - istio/ztunnel
-    includedBranches:
+    includedBranches: &aws_tide_branches
     - master
     - release-1.31
     missingLabels: &istio_tide_missing_labels
@@ -537,14 +537,32 @@ tide:
   - repos:
     - istio/api
     - istio/ztunnel
-    includedBranches:
-    - master
-    - release-1.31
+    includedBranches: *aws_tide_branches
     labels:
     - auto-merge
     missingLabels: *istio_tide_missing_labels
     author: istio-testing
     reviewApprovedRequired: false
+  - repos:
+    - istio/istio.io
+    missingLabels: *istio_tide_missing_labels
+    reviewApprovedRequired: true
+    includedBranches: &istio_io_tide_branches
+    - master
+    - release-1.31
+  - repos:
+    - istio/istio.io
+    labels:
+    - auto-merge
+    missingLabels: *istio_tide_missing_labels
+    author: istio-testing
+    reviewApprovedRequired: false
+    includedBranches: *istio_io_tide_branches
+  - orgs:
+    - istio-private
+    missingLabels: *istio_tide_missing_labels
+    reviewApprovedRequired: true
+    includedBranches: *istio_io_tide_branches
   merge_method:
     istio: squash
     istio-ecosystem/authservice: squash

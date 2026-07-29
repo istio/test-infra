@@ -587,12 +587,29 @@ tide:
     author: istio-testing
     reviewApprovedRequired: false
   - repos:
-    - istio/istio.io
-    missingLabels: &istio_tide_missing_labels
-    - do-not-merge
-    - do-not-merge/hold
-    - do-not-merge/work-in-progress
+    - istio/api
+    - istio/ztunnel
+    excludedBranches: &aws_tide_branches
+    - master
+    - release-1.31
+    missingLabels: *istio_tide_missing_labels
     reviewApprovedRequired: true
+  - repos:
+    - istio/api
+    - istio/ztunnel
+    excludedBranches: *aws_tide_branches
+    labels:
+    - auto-merge
+    missingLabels: *istio_tide_missing_labels
+    author: istio-testing
+    reviewApprovedRequired: false
+  - repos:
+    - istio/istio.io
+    missingLabels: *istio_tide_missing_labels
+    reviewApprovedRequired: true
+    excludedBranches: &istio_io_tide_branches
+    - master
+    - release-1.31
   - repos:
     - istio/istio.io
     labels:
@@ -600,35 +617,18 @@ tide:
     missingLabels: *istio_tide_missing_labels
     author: istio-testing
     reviewApprovedRequired: false
+    excludedBranches: *istio_io_tide_branches
   - orgs:
     - istio-private
     missingLabels: *istio_tide_missing_labels
     reviewApprovedRequired: true
+    excludedBranches: *istio_io_tide_branches
   - repos:
     - istio-ecosystem/sail-operator
     labels:
     - auto-merge
     missingLabels: *istio_tide_missing_labels
     author: openshift-service-mesh-bot
-    reviewApprovedRequired: false
-  - repos:
-    - istio/api
-    - istio/ztunnel
-    excludedBranches:
-    - master
-    - release-1.31
-    missingLabels: *istio_tide_missing_labels
-    reviewApprovedRequired: true
-  - repos:
-    - istio/api
-    - istio/ztunnel
-    excludedBranches:
-    - master
-    - release-1.31
-    labels:
-    - auto-merge
-    missingLabels: *istio_tide_missing_labels
-    author: istio-testing
     reviewApprovedRequired: false
   merge_method:
     istio: squash
