@@ -1,4 +1,3 @@
----
 plank:
   job_url_template: 'https://aws.prow.istio.io/view/istio-prow{{if eq .Spec.Type "presubmit"}}/pr-logs/pull/{{.Spec.Refs.Org}}_{{.Spec.Refs.Repo}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if eq .Spec.Type "batch"}}/pr-logs/pull/batch{{else}}/logs{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}'
   job_url_prefix_config:
@@ -525,81 +524,26 @@ in_repo_config:
 tide:
   queries:
   - repos:
-    # - istio/istio
-    # - istio/enhancements
-    # - istio/envoy
-    # - istio/get-istioctl
-    # - istio/proxy
-    # - istio/operator
-    # - istio/pkg
-    # - istio/tools
-    # - istio/bots
-    # - istio/api
-    # - istio/common-files
-    # - istio/community
-    # - istio/gogo-genproto
-    # - istio/test-infra
-    # - istio/cni
-    # - istio/installer
-    # - istio/cri
-    # - istio/client-go
-    # - istio/release-builder
-    # - istio/ztunnel
-    # - istio-ecosystem/sail-operator
-    # - istio-ecosystem/authservice
+    - istio/api
+    - istio/ztunnel
+    includedBranches:
+    - master
+    - release-1.31
     missingLabels: &istio_tide_missing_labels
     - do-not-merge
     - do-not-merge/hold
     - do-not-merge/work-in-progress
     reviewApprovedRequired: true
   - repos:
-    # - istio/istio
-    # - istio/proxy
-    # - istio/operator
-    # - istio/pkg
-    # - istio/tools
-    # - istio/bots
-    # - istio/api
-    # - istio/common-files
-    # - istio/community
-    # - istio/gogo-genproto
-    # - istio/test-infra
-    # - istio/cni
-    # - istio/installer
-    # - istio/cri
-    # - istio/client-go
-    # - istio/release-builder
-    # - istio/ztunnel
-    # - istio-ecosystem/sail-operator
+    - istio/api
+    - istio/ztunnel
+    includedBranches:
+    - master
+    - release-1.31
     labels:
     - auto-merge
     missingLabels: *istio_tide_missing_labels
     author: istio-testing
-    reviewApprovedRequired: false
-  - repos:
-    - istio/istio.io
-    missingLabels: &istio_tide_missing_labels
-    - do-not-merge
-    - do-not-merge/hold
-    - do-not-merge/work-in-progress
-    reviewApprovedRequired: true
-  - repos:
-    - istio/istio.io
-    labels:
-    - auto-merge
-    missingLabels: *istio_tide_missing_labels
-    author: istio-testing
-    reviewApprovedRequired: false
-  - orgs:
-    - istio-private
-    missingLabels: *istio_tide_missing_labels
-    reviewApprovedRequired: true
-  - repos:
-    - istio-ecosystem/sail-operator
-    labels:
-    - auto-merge
-    missingLabels: *istio_tide_missing_labels
-    author: openshift-service-mesh-bot
     reviewApprovedRequired: false
   merge_method:
     istio: squash
