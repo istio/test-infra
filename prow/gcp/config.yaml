@@ -548,7 +548,6 @@ tide:
     - istio/pkg
     - istio/tools
     - istio/bots
-    - istio/api
     - istio/common-files
     - istio/community
     - istio/gogo-genproto
@@ -558,7 +557,6 @@ tide:
     - istio/cri
     - istio/client-go
     - istio/release-builder
-    - istio/ztunnel
     - istio-ecosystem/sail-operator
     - istio-ecosystem/authservice
     missingLabels: &istio_tide_missing_labels
@@ -573,7 +571,6 @@ tide:
     - istio/pkg
     - istio/tools
     - istio/bots
-    - istio/api
     - istio/common-files
     - istio/community
     - istio/gogo-genproto
@@ -583,7 +580,6 @@ tide:
     - istio/cri
     - istio/client-go
     - istio/release-builder
-    - istio/ztunnel
     - istio-ecosystem/sail-operator
     labels:
     - auto-merge
@@ -591,11 +587,25 @@ tide:
     author: istio-testing
     reviewApprovedRequired: false
   - repos:
+    - istio/api
+    - istio/ztunnel
+    excludedBranches: &aws_tide_branches
+    - master
+    - release-1.31
+    missingLabels: *istio_tide_missing_labels
+    reviewApprovedRequired: true
+  - repos:
+    - istio/api
+    - istio/ztunnel
+    excludedBranches: *aws_tide_branches
+    labels:
+    - auto-merge
+    missingLabels: *istio_tide_missing_labels
+    author: istio-testing
+    reviewApprovedRequired: false
+  - repos:
     - istio/istio.io
-    missingLabels: &istio_tide_missing_labels
-    - do-not-merge
-    - do-not-merge/hold
-    - do-not-merge/work-in-progress
+    missingLabels: *istio_tide_missing_labels
     reviewApprovedRequired: true
   - repos:
     - istio/istio.io
@@ -608,6 +618,7 @@ tide:
     - istio-private
     missingLabels: *istio_tide_missing_labels
     reviewApprovedRequired: true
+    excludedBranches: *aws_tide_branches
   - repos:
     - istio-ecosystem/sail-operator
     labels:
