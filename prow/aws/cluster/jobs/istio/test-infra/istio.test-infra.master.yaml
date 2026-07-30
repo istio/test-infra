@@ -54,7 +54,7 @@ postsubmits:
         report_template: 'Deploying prow: {{.Status.State}}. <{{.Spec.Refs.BaseLink}}|Commit
           {{.Spec.Refs.BaseSHA}}> <{{.Status.URL}}|View logs> <https://testgrid.k8s.io/istio_test-infra_postsubmit#deploy-prow_test-infra_postsubmit|Job
           history on Testgrid>'
-    run_if_changed: ^prow/gcp/cluster/(?:gcsweb/|monitoring/|build/|private/|arm/|private-arm/|[^/]+\.yaml$)
+    run_if_changed: ^prow/aws/cluster/(?:gcsweb/|build/|private/|[^/]+\.yaml$)
     spec:
       serviceAccountName: prow-deployer
       automountServiceAccountToken: false
@@ -62,13 +62,11 @@ postsubmits:
       - command:
         - make
         - -C
-        - prow
+        - prow/aws
         - deploy
         - deploy-gcsweb
-        - deploy-monitoring
         - deploy-build
         - deploy-private
-        - deploy-arm
         image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
         resources:
           limits:
@@ -79,28 +77,3 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
-
-periodics:
-- interval: 5m
-  name: monitoring-verify-gcsweb
-  decorate: true
-  annotations:
-    testgrid-dashboards: istio_infrastructure
-    testgrid-alert-email: istio-oncall@googlegroups.com
-    testgrid-num-failures-to-alert: '1'
-  spec:
-    containers:
-      - image: alpine:3.10.1
-        command:
-          - wget
-        args:
-          - --spider
-          - https://gcsweb.istio.io/s3/istio-release/
-        resources:
-          requests:
-            memory: 256Mi
-            cpu: 100m
-    automountServiceAccountToken: false
-    nodeSelector:
-      kubernetes.io/arch: amd64
-      testing: test-pool

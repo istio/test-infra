@@ -11,6 +11,70 @@ periodics:
     org: istio
     path_alias: istio.io/test-infra
     repo: test-infra
+  name: bump-k8s-prow-images-aws_test-infra_periodic
+  spec:
+    automountServiceAccountToken: false
+    containers:
+    - command:
+      - entrypoint
+      - ./tools/automator/automator.sh
+      - --org=$AUTOMATOR_ORG
+      - --repo=test-infra
+      - '--title=Automator: bump k8s-prow images'
+      - --modifier=bump-k8s-prow-images
+      - --token-env
+      - --script-path=../test-infra/tools/automator/scripts/update-images.sh
+      - --verbose
+      - --
+      - --paths=prow/aws/cluster/jobs/**/!(*test-infra*).yaml,prow/aws/config/jobs/**/!(*test-infra*).yaml
+      - --source=$AUTOMATOR_ROOT_DIR/prow/aws/cluster/prow-controller-manager.yaml
+      - --image=us-docker.pkg.dev/k8s-infra-prow/images/.*
+      - --tag=v[0-9]{8}-[a-f0-9]{9}
+      - --var=image
+      env:
+      - name: AUTOMATOR_ORG
+        value: istio
+      - name: BUILD_WITH_CONTAINER
+        value: "0"
+      - name: GCP_SECRETS
+        value: '[{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"}]'
+      - name: GOMAXPROCS
+        value: "3"
+      image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
+      name: ""
+      resources:
+        limits:
+          cpu: "3"
+          memory: 24Gi
+        requests:
+          cpu: "1"
+          memory: 3Gi
+      securityContext:
+        privileged: true
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+    nodeSelector:
+      kubernetes.io/arch: amd64
+      testing: test-pool
+    serviceAccountName: prowjob-github-istio-testing
+    volumes:
+    - hostPath:
+        path: /var/tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+- annotations:
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-dashboards: istio_test-infra_periodic
+    testgrid-num-failures-to-alert: "1"
+  cron: 05 15-23 * * 1-5
+  decorate: true
+  extra_refs:
+  - base_ref: master
+    org: istio
+    path_alias: istio.io/test-infra
+    repo: test-infra
   name: bump-k8s-prow-images_test-infra_periodic
   spec:
     automountServiceAccountToken: false
