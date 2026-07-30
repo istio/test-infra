@@ -32,7 +32,7 @@ gen-check: gen check-clean-repo
 generate-config:
 	@rm -fr prow/gcp/cluster/jobs/*/*/*.gen.yaml
 	@(cd tools/prowgen/cmd/prowgen; go run main.go --input-dir=$(repo_root)/prow/gcp/config/jobs --output-dir=$(repo_root)/prow/gcp/cluster/jobs write)
-	# @go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/gcp/config/jobs/.base.yaml --configs=./prow/gcp/config/istio-private_jobs --input=./prow/gcp/config/jobs
+	@go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/gcp/config/jobs/.base.yaml --configs=./prow/gcp/config/istio-private_jobs --input=./prow/gcp/config/jobs
 	@go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/gcp/config/jobs/.base.yaml --configs=./prow/gcp/config/experimental --input=./prow/gcp/config/jobs
 
 # Mirror the canonical job config into the EKS (AWS) cluster tree consumed by the -aws deploy targets.
