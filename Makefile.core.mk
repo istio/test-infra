@@ -41,7 +41,7 @@ generate-config-aws: generate-config
 	@rm -fr prow/aws/cluster/jobs/*/*/*.gen.yaml
 	@(cd tools/prowgen/cmd/prowgen; go run main.go --input-dir=$(repo_root)/prow/aws/config/jobs --output-dir=$(repo_root)/prow/aws/cluster/jobs write)
 	@go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/aws/config/jobs/.base.yaml --configs=./prow/aws/config/istio-private_jobs --input=./prow/aws/config/jobs
-	# @go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/aws/config/jobs/.base.yaml --configs=./prow/aws/config/experimental --input=./prow/aws/config/jobs
+	@go run tools/prowtrans/cmd/prowtrans/main.go --requirement-presets=./prow/aws/config/jobs/.base.yaml --configs=./prow/aws/config/experimental --input=./prow/aws/config/jobs
 
 
 

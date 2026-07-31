@@ -8,8 +8,7 @@ postsubmits:
     branches:
     - master
     annotations:
-      testgrid-dashboards: istio_test-infra_postsubmit
-      testgrid-alert-email: k8s-infra-oncall@google.com
+      testgrid-create-test-group: "false"
     max_concurrency: 1
     spec:
       automountServiceAccountToken: false
@@ -99,6 +98,29 @@ periodics:
       secret:
         secretName: istio-testing-robot-ssh-key
         defaultMode: 0400
+- interval: 5m
+  name: monitoring-verify-gcsweb
+  decorate: true
+  annotations:
+    testgrid-dashboards: istio_infrastructure
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-num-failures-to-alert: '1'
+  spec:
+    containers:
+      - image: alpine:3.10.1
+        command:
+          - wget
+        args:
+          - --spider
+          - https://gcsweb.istio.io/s3/istio-release/
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 100m
+    automountServiceAccountToken: false
+    nodeSelector:
+      kubernetes.io/arch: amd64
+      testing: test-pool
 - cron: "01 22 * * 1-5"  # Bump with label `skip-review`. Run at 14:01 PST (22:01 UTC, fall) Mon-Fri
   # Save for daylight saving:
   # (Could consider not to switch, since running at 15:01 PST is an acceptable time)
