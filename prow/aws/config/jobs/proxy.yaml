@@ -7,23 +7,37 @@ node_selector:
 
 jobs:
 - name: test
-  service_account_name: prowjob-rbe
+  service_account_name: prowjob-default-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit.sh]
   timeout: 4h
+  env:
+    - name: BAZEL_BUILD_RBE_INSTANCE
+      value: ""
+    - name: BAZEL_BUILD_RBE_CACHE
+      value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
 
 - name: test-asan
-  service_account_name: prowjob-rbe
+  service_account_name: prowjob-default-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit-asan.sh]
   timeout: 4h
+  env:
+    - name: BAZEL_BUILD_RBE_INSTANCE
+      value: ""
+    - name: BAZEL_BUILD_RBE_CACHE
+      value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
 
 - name: test-arm
   architectures: [arm64]
   env:
   - name: ARCH_SUFFIX
     value: $(params.arch)
-  service_account_name: prowjob-rbe
+  - name: BAZEL_BUILD_RBE_INSTANCE
+    value: ""
+  - name: BAZEL_BUILD_RBE_CACHE
+    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
+  service_account_name: prowjob-default-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit.sh]
   timeout: 6h
@@ -33,10 +47,15 @@ jobs:
     testing: test-pool
 
 - name: release-test
-  service_account_name: prowjob-rbe
+  service_account_name: prowjob-default-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit-release.sh]
   timeout: 6h
+  env:
+    - name: BAZEL_BUILD_RBE_INSTANCE
+      value: ""
+    - name: BAZEL_BUILD_RBE_CACHE
+      value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
 
 - name: release-test
   architectures: [arm64]
@@ -45,7 +64,11 @@ jobs:
     value: $(params.arch)
   - name: BUILD_ENVOY_BINARY_ONLY
     value: "1"
-  service_account_name: prowjob-rbe
+  - name: BAZEL_BUILD_RBE_INSTANCE
+    value: ""
+  - name: BAZEL_BUILD_RBE_CACHE
+    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
+  service_account_name: prowjob-default-sa
   types: [presubmit]
   command: [./prow/proxy-presubmit-release.sh]
   timeout: 6h
@@ -60,6 +83,11 @@ jobs:
   command: [entrypoint, ./prow/proxy-postsubmit.sh]
   requirements: [docker, cf-r2-istio-build-auth]
   timeout: 6h
+  env:
+  - name: BAZEL_BUILD_RBE_INSTANCE
+    value: ""
+  - name: BAZEL_BUILD_RBE_CACHE
+    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
 - name: release
   architectures: [arm64]
   env:
@@ -67,6 +95,10 @@ jobs:
     value: $(params.arch)
   - name: BUILD_ENVOY_BINARY_ONLY
     value: "1"
+  - name: BAZEL_BUILD_RBE_INSTANCE
+    value: ""
+  - name: BAZEL_BUILD_RBE_CACHE
+    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
   service_account_name: prowjob-testing-write
   types: [postsubmit]
   command: [entrypoint, ./prow/proxy-postsubmit.sh]
