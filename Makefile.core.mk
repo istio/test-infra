@@ -24,7 +24,7 @@ test:
 	@(cd tools/prowgen; go test -race ./...)
 	@(cd authentikos; go test -race ./...)
 
-gen: generate-config fmt mirror-licenses
+gen: generate-config generate-config-aws fmt mirror-licenses
 
 gen-check: gen check-clean-repo
 
