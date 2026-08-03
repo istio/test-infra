@@ -40,8 +40,7 @@ spec:
         app: bazel-remote
     spec:
       automountServiceAccountToken: false
-      nodeSelector:
-        testing: build-pool
+      enableServiceLinks: false
       securityContext:
         fsGroup: 65532
         runAsGroup: 65532
@@ -50,7 +49,7 @@ spec:
       serviceAccountName: prowjob-bazel-cache
       containers:
       - name: bazel-remote
-        image: buchgr/bazel-remote-cache:v2.6.2
+        image: gcr.io/istio-testing/bazel-remote-cache:v2.6.2
         args:
         - --dir=/data
         - --http_address=0.0.0.0:8080
@@ -71,7 +70,7 @@ spec:
         readinessProbe:
           grpc:
             service: /grpc.health.v1.Health/Check
-            port: grpc
+            port: 9092
           failureThreshold: 3
           periodSeconds: 3
           successThreshold: 1
@@ -79,7 +78,7 @@ spec:
         livenessProbe:
           grpc:
             service: /grpc.health.v1.Health/Check
-            port: grpc
+            port: 9092
           failureThreshold: 3
           initialDelaySeconds: 3
           periodSeconds: 1

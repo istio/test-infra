@@ -2,8 +2,8 @@
 # Identity. Each role mirrors a GCP service account / Workload Identity binding.
 
 locals {
-  # Object-storage buckets that workloads can be granted access to. `s3_read`,
-  # `s3_read` and `s3_read_write` on a workload role reference these keys.
+  # Object-storage buckets that workloads can be granted access to. `s3_read` /
+  # `s3_read_write` on a workload role reference these keys.
   s3_buckets = {
     "istio-prow"             = aws_s3_bucket.istio_prow.arn
     "istio-prow-bazel-cache" = aws_s3_bucket.istio_prow_bazel_cache.arn
