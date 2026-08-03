@@ -10,6 +10,10 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
+  - name: BAZEL_BUILD_RBE_INSTANCE
+    value: ""
+  - name: BAZEL_BUILD_RBE_CACHE
+    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
   image: gcr.io/istio-testing/build-tools-proxy:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
   name: test
   node_selector:
@@ -211,7 +215,7 @@ jobs:
       requests:
         cpu: "30"
         memory: 100G
-  service_account_name: prowjob-rbe
+  service_account_name: prowjob-default-sa
   timeout: 4h0m0s
   types:
   - presubmit
@@ -220,6 +224,10 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
+  - name: BAZEL_BUILD_RBE_INSTANCE
+    value: ""
+  - name: BAZEL_BUILD_RBE_CACHE
+    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
   image: gcr.io/istio-testing/build-tools-proxy:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
   name: test-asan
   node_selector:
@@ -421,7 +429,7 @@ jobs:
       requests:
         cpu: "30"
         memory: 100G
-  service_account_name: prowjob-rbe
+  service_account_name: prowjob-default-sa
   timeout: 4h0m0s
   types:
   - presubmit
@@ -434,6 +442,10 @@ jobs:
     value: "0"
   - name: ARCH_SUFFIX
     value: $(params.arch)
+  - name: BAZEL_BUILD_RBE_INSTANCE
+    value: ""
+  - name: BAZEL_BUILD_RBE_CACHE
+    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
   image: gcr.io/istio-testing/build-tools-proxy:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
   name: test-arm
   node_selector:
@@ -636,7 +648,7 @@ jobs:
       requests:
         cpu: "30"
         memory: 100G
-  service_account_name: prowjob-rbe
+  service_account_name: prowjob-default-sa
   timeout: 6h0m0s
   types:
   - presubmit
@@ -645,6 +657,10 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
+  - name: BAZEL_BUILD_RBE_INSTANCE
+    value: ""
+  - name: BAZEL_BUILD_RBE_CACHE
+    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
   image: gcr.io/istio-testing/build-tools-proxy:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
   name: release-test
   node_selector:
@@ -846,7 +862,7 @@ jobs:
       requests:
         cpu: "30"
         memory: 100G
-  service_account_name: prowjob-rbe
+  service_account_name: prowjob-default-sa
   timeout: 6h0m0s
   types:
   - presubmit
@@ -861,6 +877,10 @@ jobs:
     value: $(params.arch)
   - name: BUILD_ENVOY_BINARY_ONLY
     value: "1"
+  - name: BAZEL_BUILD_RBE_INSTANCE
+    value: ""
+  - name: BAZEL_BUILD_RBE_CACHE
+    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
   image: gcr.io/istio-testing/build-tools-proxy:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
   name: release-test
   node_selector:
@@ -1063,7 +1083,7 @@ jobs:
       requests:
         cpu: "30"
         memory: 100G
-  service_account_name: prowjob-rbe
+  service_account_name: prowjob-default-sa
   timeout: 6h0m0s
   types:
   - presubmit
@@ -1073,6 +1093,10 @@ jobs:
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
+  - name: BAZEL_BUILD_RBE_INSTANCE
+    value: ""
+  - name: BAZEL_BUILD_RBE_CACHE
+    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
   image: gcr.io/istio-testing/build-tools-proxy:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
   name: release
   node_selector:
@@ -1292,6 +1316,10 @@ jobs:
     value: $(params.arch)
   - name: BUILD_ENVOY_BINARY_ONLY
     value: "1"
+  - name: BAZEL_BUILD_RBE_INSTANCE
+    value: ""
+  - name: BAZEL_BUILD_RBE_CACHE
+    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
   image: gcr.io/istio-testing/build-tools-proxy:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
   name: release
   node_selector:

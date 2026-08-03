@@ -72,7 +72,6 @@ postsubmits:
       testgrid-num-failures-to-alert: "1"
     branches:
     - ^release-1.31$
-    cluster: prow-arm
     decorate: true
     decoration_config:
       timeout: 6h0m0s
@@ -87,6 +86,9 @@ postsubmits:
         env:
         - name: ARCH_SUFFIX
           value: arm64
+        - name: BAZEL_BUILD_RBE_CACHE
+          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_ENVOY_BINARY_ONLY
           value: "1"
         - name: BUILD_WITH_CONTAINER
@@ -141,6 +143,9 @@ postsubmits:
         - entrypoint
         - ./prow/proxy-postsubmit.sh
         env:
+        - name: BAZEL_BUILD_RBE_CACHE
+          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GCP_SECRETS
@@ -245,7 +250,6 @@ presubmits:
       testgrid-dashboards: istio_release-1.31_proxy
     branches:
     - ^release-1.31$
-    cluster: prow-arm
     decorate: true
     decoration_config:
       timeout: 6h0m0s
@@ -260,6 +264,9 @@ presubmits:
         env:
         - name: ARCH_SUFFIX
           value: arm64
+        - name: BAZEL_BUILD_RBE_CACHE
+          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_ENVOY_BINARY_ONLY
           value: "1"
         - name: BUILD_WITH_CONTAINER
@@ -279,7 +286,7 @@ presubmits:
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
-      serviceAccountName: prowjob-rbe
+      serviceAccountName: prowjob-default-sa
       tolerations:
       - effect: NoSchedule
         key: kubernetes.io/arch
@@ -308,6 +315,9 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-release.sh
         env:
+        - name: BAZEL_BUILD_RBE_CACHE
+          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GOMAXPROCS
@@ -330,7 +340,7 @@ presubmits:
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
-      serviceAccountName: prowjob-rbe
+      serviceAccountName: prowjob-default-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -342,7 +352,6 @@ presubmits:
       testgrid-dashboards: istio_release-1.31_proxy
     branches:
     - ^release-1.31$
-    cluster: prow-arm
     decorate: true
     decoration_config:
       timeout: 6h0m0s
@@ -357,6 +366,9 @@ presubmits:
         env:
         - name: ARCH_SUFFIX
           value: arm64
+        - name: BAZEL_BUILD_RBE_CACHE
+          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
         image: gcr.io/istio-testing/build-tools-proxy:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
@@ -374,7 +386,7 @@ presubmits:
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
-      serviceAccountName: prowjob-rbe
+      serviceAccountName: prowjob-default-sa
       tolerations:
       - effect: NoSchedule
         key: kubernetes.io/arch
@@ -403,6 +415,9 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-asan.sh
         env:
+        - name: BAZEL_BUILD_RBE_CACHE
+          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GOMAXPROCS
@@ -425,7 +440,7 @@ presubmits:
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
-      serviceAccountName: prowjob-rbe
+      serviceAccountName: prowjob-default-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -449,6 +464,9 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit.sh
         env:
+        - name: BAZEL_BUILD_RBE_CACHE
+          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
+        - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GOMAXPROCS
@@ -471,7 +489,7 @@ presubmits:
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
-      serviceAccountName: prowjob-rbe
+      serviceAccountName: prowjob-default-sa
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache

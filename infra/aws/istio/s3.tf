@@ -56,3 +56,41 @@ resource "aws_s3_bucket_public_access_block" "istio_prow_private" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
+
+# Private, durable backend for the Bazel remote cache. The cache service keeps
+# a bounded local working set; S3 lifecycle expiry bounds durable retention.
+resource "aws_s3_bucket" "istio_prow_bazel_cache" {
+  bucket = "istio-prow-bazel-cache"
+}
+
+resource "aws_s3_bucket_public_access_block" "istio_prow_bazel_cache" {
+  bucket = aws_s3_bucket.istio_prow_bazel_cache.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_ownership_controls" "istio_prow_bazel_cache" {
+  bucket = aws_s3_bucket.istio_prow_bazel_cache.id
+
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "istio_prow_bazel_cache" {
+  bucket = aws_s3_bucket.istio_prow_bazel_cache.id
+
+  rule {
+    id     = "expire-cache-entries"
+    status = "Enabled"
+
+    filter {}
+
+    expiration {
+      days = 30
+    }
+  }
+}

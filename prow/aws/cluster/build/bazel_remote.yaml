@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bazel-remote
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prowjob-bazel-cache
+  namespace: bazel-remote
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bazel-remote
+  namespace: bazel-remote
+  labels:
+    app: bazel-remote
+spec:
+  selector:
+    app: bazel-remote
+  ports:
+  - name: http
+    port: 8080
+    targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bazel-remote
+  namespace: bazel-remote
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bazel-remote
+  template:
+    metadata:
+      labels:
+        app: bazel-remote
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        fsGroup: 65532
+        runAsGroup: 65532
+        runAsNonRoot: true
+        runAsUser: 65532
+      serviceAccountName: prowjob-bazel-cache
+      containers:
+      - name: bazel-remote
+        image: gcr.io/istio-testing/bazel-remote-cache:v2.6.2
+        args:
+        - --dir=/data
+        - --http_address=0.0.0.0:8080
+        - --grpc_address=0.0.0.0:9092
+        - --max_size=16
+        - --s3.auth_method=iam_role
+        - --s3.bucket=istio-prow-bazel-cache
+        - --s3.endpoint=s3.us-west-2.amazonaws.com
+        - --s3.prefix=proxy
+        - --s3.region=us-west-2
+        ports:
+        - name: grpc
+          containerPort: 9092
+          protocol: TCP
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        readinessProbe:
+          grpc:
+            service: /grpc.health.v1.Health/Check
+            port: 9092
+          failureThreshold: 3
+          periodSeconds: 3
+          successThreshold: 1
+          timeoutSeconds: 10
+        livenessProbe:
+          grpc:
+            service: /grpc.health.v1.Health/Check
+            port: 9092
+          failureThreshold: 3
+          initialDelaySeconds: 3
+          periodSeconds: 1
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 32Gi
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 32Gi
+            memory: 1Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: cache
+          mountPath: /data
+      volumes:
+      - name: cache
+        emptyDir:
+          sizeLimit: 32Gi

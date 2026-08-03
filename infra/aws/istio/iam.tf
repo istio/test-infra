@@ -5,8 +5,9 @@ locals {
   # Object-storage buckets that workloads can be granted access to. `s3_read` /
   # `s3_read_write` on a workload role reference these keys.
   s3_buckets = {
-    "istio-prow"         = aws_s3_bucket.istio_prow.arn
-    "istio-prow-private" = aws_s3_bucket.istio_prow_private.arn
+    "istio-prow"             = aws_s3_bucket.istio_prow.arn
+    "istio-prow-bazel-cache" = aws_s3_bucket.istio_prow_bazel_cache.arn
+    "istio-prow-private"     = aws_s3_bucket.istio_prow_private.arn
   }
 
   # WI mappings and permissions
@@ -44,6 +45,10 @@ locals {
       read          = ["github_istio-testing_pusher"]
       s3_read_write = ["istio-prow"]
       associations  = { prow-build = { namespace = "test-pods", service_account = "prowjob-build-tools" } }
+    }
+    "prowjob-bazel-cache" = {
+      s3_read_write = ["istio-prow-bazel-cache"]
+      associations  = { prow-build = { namespace = "bazel-remote", service_account = "prowjob-bazel-cache" } }
     }
     # Runs on both the build cluster and the trusted control-plane cluster.
     "prowjob-testing-write" = {
