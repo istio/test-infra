@@ -4,6 +4,8 @@ presubmits:
   decorate: true
   run_if_changed: '^(\.prow|prow/gcp/(config|plugins|cluster/jobs/.*))\.yaml$'
   spec:
+    nodeSelector:
+      kubernetes.io/arch: amd64
     containers:
     - image: us-docker.pkg.dev/k8s-infra-prow/images/checkconfig:v20260714-0633879af
       command:
