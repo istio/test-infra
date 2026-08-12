@@ -11,7 +11,7 @@ locals {
       node_groups = {
         default = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["t3.medium"]
+          instance_types = ["t3.large"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
           max_size       = 5
@@ -157,19 +157,20 @@ module "eks" {
   endpoint_public_access = true
 
   addons = merge({
-    coredns = each.key == "prow" ? {
-      configuration_values = jsonencode({
-        podAnnotations = {
-          "cluster-autoscaler.kubernetes.io/safe-to-evict" = "true"
-        }
-      })
-      } : each.key == "prow-build" ? {
-      configuration_values = jsonencode({
-        nodeSelector = {
-          testing = "test-pool"
-        }
-      })
-    } : {}
+    coredns = {
+      configuration_values = jsonencode(merge(
+        {
+          podAnnotations = {
+            "cluster-autoscaler.kubernetes.io/safe-to-evict" = "true"
+          }
+        },
+        each.key == "prow-build" ? {
+          nodeSelector = {
+            testing = "test-pool"
+          }
+        } : {},
+      ))
+    }
     # CNI and kube-proxy must be installed before the node groups so nodes can
     # get pod networking and reach Ready; otherwise node group creation deadlocks
     # waiting on nodes that can never join.
