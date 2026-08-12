@@ -51,5 +51,10 @@ resource "helm_release" "aws_load_balancer_controller" {
     value = "aws-load-balancer-controller"
   }
 
+  set {
+    name  = "podDisruptionBudget.maxUnavailable"
+    value = "1"
+  }
+
   depends_on = [module.lb_controller_identity]
 }

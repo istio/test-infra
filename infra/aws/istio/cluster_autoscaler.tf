@@ -92,6 +92,11 @@ resource "helm_release" "cluster_autoscaler_prow_build" {
     value = "cluster-autoscaler"
   }
 
+  set {
+    name  = "nodeSelector.testing"
+    value = "test-pool"
+  }
+
   depends_on = [module.cluster_autoscaler_identity]
 }
 

@@ -81,6 +81,21 @@ resource "helm_release" "external_secrets_prow_build" {
     value = "true"
   }
 
+  set {
+    name  = "nodeSelector.testing"
+    value = "test-pool"
+  }
+
+  set {
+    name  = "webhook.nodeSelector.testing"
+    value = "test-pool"
+  }
+
+  set {
+    name  = "certController.nodeSelector.testing"
+    value = "test-pool"
+  }
+
   depends_on = [module.external_secrets_identity]
 }
 

@@ -157,7 +157,13 @@ module "eks" {
   endpoint_public_access = true
 
   addons = merge({
-    coredns = {}
+    coredns = each.key == "prow-build" ? {
+      configuration_values = jsonencode({
+        nodeSelector = {
+          testing = "test-pool"
+        }
+      })
+    } : {}
     # CNI and kube-proxy must be installed before the node groups so nodes can
     # get pod networking and reach Ready; otherwise node group creation deadlocks
     # waiting on nodes that can never join.
@@ -171,6 +177,13 @@ module "eks" {
     eks-pod-identity-agent = {}
     }, each.key == "prow" ? {
     aws-ebs-csi-driver = {
+      configuration_values = jsonencode({
+        controller = {
+          podAnnotations = {
+            "cluster-autoscaler.kubernetes.io/safe-to-evict" = "true"
+          }
+        }
+      })
       pod_identity_association = [{
         role_arn        = module.ebs_csi_identity.iam_role_arn
         service_account = "ebs-csi-controller-sa"
