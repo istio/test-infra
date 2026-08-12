@@ -157,7 +157,13 @@ module "eks" {
   endpoint_public_access = true
 
   addons = merge({
-    coredns = each.key == "prow-build" ? {
+    coredns = each.key == "prow" ? {
+      configuration_values = jsonencode({
+        podAnnotations = {
+          "cluster-autoscaler.kubernetes.io/safe-to-evict" = "true"
+        }
+      })
+      } : each.key == "prow-build" ? {
       configuration_values = jsonencode({
         nodeSelector = {
           testing = "test-pool"

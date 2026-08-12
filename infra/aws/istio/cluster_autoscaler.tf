@@ -55,6 +55,12 @@ resource "helm_release" "cluster_autoscaler_prow" {
     value = "cluster-autoscaler"
   }
 
+  set {
+    name  = "podAnnotations.cluster-autoscaler\\.kubernetes\\.io/safe-to-evict"
+    value = "true"
+    type  = "string"
+  }
+
   depends_on = [module.cluster_autoscaler_identity]
 }
 

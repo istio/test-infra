@@ -56,5 +56,11 @@ resource "helm_release" "aws_load_balancer_controller" {
     value = "1"
   }
 
+  set {
+    name  = "podAnnotations.cluster-autoscaler\\.kubernetes\\.io/safe-to-evict"
+    value = "true"
+    type  = "string"
+  }
+
   depends_on = [module.lb_controller_identity]
 }
