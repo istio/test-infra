@@ -179,6 +179,7 @@ module "eks" {
     aws-ebs-csi-driver = {
       configuration_values = jsonencode({
         controller = {
+          # cluster autoscaler is wary about evicting this because it has an emptydir
           podAnnotations = {
             "cluster-autoscaler.kubernetes.io/safe-to-evict" = "true"
           }

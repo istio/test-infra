@@ -63,6 +63,13 @@ resource "helm_release" "external_secrets_prow" {
     value = "true"
   }
 
+  # we can tolerate temporary downtime
+  set {
+    name  = "podAnnotations.cluster-autoscaler\\.kubernetes\\.io/safe-to-evict"
+    value = "true"
+    type  = "string"
+  }
+
   depends_on = [module.external_secrets_identity]
 }
 

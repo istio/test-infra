@@ -14,6 +14,9 @@ spec:
     metadata:
       labels:
         app: horologium
+      annotations:
+        # we can tolerate temporary downtime
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
     spec:
       serviceAccountName: horologium
       terminationGracePeriodSeconds: 30
