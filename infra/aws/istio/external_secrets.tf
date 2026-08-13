@@ -63,6 +63,13 @@ resource "helm_release" "external_secrets_prow" {
     value = "true"
   }
 
+  # we can tolerate temporary downtime
+  set {
+    name  = "podAnnotations.cluster-autoscaler\\.kubernetes\\.io/safe-to-evict"
+    value = "true"
+    type  = "string"
+  }
+
   depends_on = [module.external_secrets_identity]
 }
 
@@ -79,6 +86,21 @@ resource "helm_release" "external_secrets_prow_build" {
   set {
     name  = "installCRDs"
     value = "true"
+  }
+
+  set {
+    name  = "nodeSelector.testing"
+    value = "test-pool"
+  }
+
+  set {
+    name  = "webhook.nodeSelector.testing"
+    value = "test-pool"
+  }
+
+  set {
+    name  = "certController.nodeSelector.testing"
+    value = "test-pool"
   }
 
   depends_on = [module.external_secrets_identity]

@@ -38,11 +38,15 @@ spec:
     metadata:
       labels:
         app: bazel-remote
+      annotations:
+        # we can tolerate temporary downtime
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
     spec:
       automountServiceAccountToken: false
       enableServiceLinks: false
       nodeSelector:
         kubernetes.io/arch: amd64
+        testing: test-pool
       securityContext:
         fsGroup: 65532
         runAsGroup: 65532

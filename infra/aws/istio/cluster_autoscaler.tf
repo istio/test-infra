@@ -55,6 +55,12 @@ resource "helm_release" "cluster_autoscaler_prow" {
     value = "cluster-autoscaler"
   }
 
+  set {
+    name  = "podAnnotations.cluster-autoscaler\\.kubernetes\\.io/safe-to-evict"
+    value = "true"
+    type  = "string"
+  }
+
   depends_on = [module.cluster_autoscaler_identity]
 }
 
@@ -90,6 +96,11 @@ resource "helm_release" "cluster_autoscaler_prow_build" {
   set {
     name  = "rbac.serviceAccount.name"
     value = "cluster-autoscaler"
+  }
+
+  set {
+    name  = "nodeSelector.testing"
+    value = "test-pool"
   }
 
   depends_on = [module.cluster_autoscaler_identity]
