@@ -217,9 +217,9 @@ func TestJobs(t *testing.T) {
 			}
 		}
 		validSelectors = append(validSelectors, map[string]string{
-			"kubernetes.io/arch":              "amd64",
-			"testing":                         "test-pool",
-			"cloud.google.com/gke-nodepool":   "istio-test-pool-e2",
+			"kubernetes.io/arch":            "amd64",
+			"testing":                       "test-pool",
+			"cloud.google.com/gke-nodepool": "istio-test-pool-e2",
 		})
 		ns := j.Base.Spec.NodeSelector
 		for _, s := range validSelectors {
