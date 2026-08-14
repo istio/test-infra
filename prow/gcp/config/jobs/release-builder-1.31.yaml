@@ -1328,6 +1328,7 @@ jobs:
   name: build-release
   node_selector:
     testing: test-pool
+    cloud.google.com/gke-nodepool: istio-test-pool-e2
   regex: ^release/trigger-build$
   requirement_presets:
     build-base:
@@ -1552,6 +1553,7 @@ jobs:
   name: publish-release
   node_selector:
     testing: test-pool
+    cloud.google.com/gke-nodepool: istio-test-pool-e2
   regex: ^release/trigger-publish$
   requirement_presets:
     build-base:
