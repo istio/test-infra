@@ -2,16 +2,16 @@
 periodics:
 - annotations:
     testgrid-alert-email: istio-oncall@googlegroups.com
-    testgrid-dashboards: istio_release-1.31_istio_periodic
+    testgrid-dashboards: istio_istio_periodic
     testgrid-num-failures-to-alert: "1"
   cron: 0 7 * * *
   decorate: true
   extra_refs:
-  - base_ref: release-1.31
+  - base_ref: master
     org: istio
     path_alias: istio.io/istio
     repo: istio
-  name: govulncheck_istio_release-1.31_periodic
+  name: govulncheck_istio_periodic
   spec:
     automountServiceAccountToken: false
     containers:
@@ -23,7 +23,7 @@ periodics:
         value: "0"
       - name: GOMAXPROCS
         value: "5"
-      image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+      image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
       name: ""
       resources:
         limits:
@@ -51,16 +51,16 @@ periodics:
       name: build-cache
 - annotations:
     testgrid-alert-email: istio-oncall@googlegroups.com
-    testgrid-dashboards: istio_release-1.31_istio_periodic
+    testgrid-dashboards: istio_istio_periodic
     testgrid-num-failures-to-alert: "1"
   cron: 0 7 * * *
   decorate: true
   extra_refs:
-  - base_ref: release-1.31
+  - base_ref: master
     org: istio
     path_alias: istio.io/istio
     repo: istio
-  name: integ-security-fuzz_istio_release-1.31_periodic
+  name: integ-security-fuzz_istio_periodic
   spec:
     automountServiceAccountToken: false
     containers:
@@ -73,7 +73,7 @@ periodics:
         value: "0"
       - name: GOMAXPROCS
         value: "5"
-      image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+      image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
       name: ""
       resources:
         limits:
@@ -112,11 +112,11 @@ periodics:
       name: docker-root
 - annotations:
     testgrid-alert-email: istio-oncall@googlegroups.com
-    testgrid-dashboards: istio_release-1.31_istio_periodic
+    testgrid-dashboards: istio_istio_periodic
     testgrid-num-failures-to-alert: "1"
   decorate: true
   extra_refs:
-  - base_ref: release-1.31
+  - base_ref: master
     org: istio
     path_alias: istio.io/istio
     repo: istio
@@ -125,7 +125,138 @@ periodics:
     path_alias: istio.io/test-infra
     repo: test-infra
   interval: 24h
-  name: update-ztunnel_istio_release-1.31_periodic
+  name: update-agentgateway_istio_periodic
+  spec:
+    automountServiceAccountToken: false
+    containers:
+    - command:
+      - entrypoint
+      - ../test-infra/tools/automator/automator.sh
+      - --org=$AUTOMATOR_ORG
+      - --repo=istio
+      - '--title=Automator: update agentgateway@$AUTOMATOR_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+      - --labels=auto-merge,release-notes-none
+      - --modifier=update_agentgateway_dep
+      - --token-env
+      - --cmd=./bin/update_agentgateway.sh
+      env:
+      - name: AUTOMATOR_ORG
+        value: istio
+      - name: BUILD_WITH_CONTAINER
+        value: "0"
+      - name: GCP_SECRETS
+        value: '[{"secret":"github_istio-testing_pusher","env":"GH_TOKEN"}]'
+      - name: GOMAXPROCS
+        value: "5"
+      image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+      name: ""
+      resources:
+        limits:
+          cpu: "5"
+          memory: 24Gi
+        requests:
+          cpu: "5"
+          memory: 3Gi
+      securityContext:
+        privileged: true
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+    nodeSelector:
+      kubernetes.io/arch: amd64
+      testing: test-pool
+    serviceAccountName: prowjob-github-istio-testing
+    volumes:
+    - hostPath:
+        path: /var/tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+- annotations:
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-dashboards: istio_istio_periodic
+    testgrid-num-failures-to-alert: "1"
+  cron: 0 2 * * 0
+  decorate: true
+  extra_refs:
+  - base_ref: master
+    org: istio
+    path_alias: istio.io/istio
+    repo: istio
+  - base_ref: master
+    org: istio
+    path_alias: istio.io/test-infra
+    repo: test-infra
+  name: update-go-control-plane_istio_periodic
+  spec:
+    automountServiceAccountToken: false
+    containers:
+    - command:
+      - entrypoint
+      - ../test-infra/tools/automator/automator.sh
+      - --org=$AUTOMATOR_ORG
+      - --repo=istio
+      - '--title=Automator: update go-control-plane in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+      - --labels=auto-merge,release-notes-none
+      - --modifier=update_deps
+      - --token-env
+      - --cmd=go get github.com/envoyproxy/go-control-plane/contrib@main github.com/envoyproxy/go-control-plane/envoy@main
+        && go mod tidy && make gen
+      env:
+      - name: AUTOMATOR_ORG
+        value: istio
+      - name: BUILD_WITH_CONTAINER
+        value: "0"
+      - name: GCP_SECRETS
+        value: '[{"secret":"github_istio-testing_pusher","env":"GH_TOKEN"}]'
+      - name: GOMAXPROCS
+        value: "5"
+      image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+      name: ""
+      resources:
+        limits:
+          cpu: "5"
+          memory: 24Gi
+        requests:
+          cpu: "5"
+          memory: 3Gi
+      securityContext:
+        privileged: true
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+    nodeSelector:
+      kubernetes.io/arch: amd64
+      testing: test-pool
+    serviceAccountName: prowjob-github-istio-testing
+    volumes:
+    - hostPath:
+        path: /var/tmp/prow/cache
+        type: DirectoryOrCreate
+      name: build-cache
+- annotations:
+    testgrid-alert-email: istio-oncall@googlegroups.com
+    testgrid-dashboards: istio_istio_periodic
+    testgrid-num-failures-to-alert: "1"
+  decorate: true
+  extra_refs:
+  - base_ref: master
+    org: istio
+    path_alias: istio.io/istio
+    repo: istio
+  - base_ref: master
+    org: istio
+    path_alias: istio.io/test-infra
+    repo: test-infra
+  interval: 24h
+  name: update-ztunnel_istio_periodic
   spec:
     automountServiceAccountToken: false
     containers:
@@ -145,10 +276,10 @@ periodics:
       - name: BUILD_WITH_CONTAINER
         value: "0"
       - name: GCP_SECRETS
-        value: '[{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"}]'
+        value: '[{"secret":"github_istio-testing_pusher","env":"GH_TOKEN"}]'
       - name: GOMAXPROCS
         value: "5"
-      image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+      image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
       name: ""
       resources:
         limits:
@@ -179,12 +310,12 @@ postsubmits:
   istio/istio:
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: benchmark-report_istio_release-1.31_postsubmit
+    name: benchmark-report_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -198,8 +329,8 @@ postsubmits:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-prow_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+          value: '[{"secret":"cf_r2_istio-prow_credentials","env":"CF_CREDENTIALS"}]'
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -226,17 +357,17 @@ postsubmits:
         name: build-cache
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
     extra_refs:
     - base_ref: master
       org: istio
       path_alias: istio.io/release-builder
       repo: release-builder
-    name: build-base-images_istio_release-1.31_postsubmit
+    name: build-base-images_istio_postsubmit
     path_alias: istio.io/istio
     run_if_changed: ^((docker|pkg/.*)/Dockerfile\.([a-zA-Z0-9_]+_)?base(_[a-zA-Z0-9_]+)?|docker/iptables\.yaml)$
     spec:
@@ -255,10 +386,10 @@ postsubmits:
         - name: DOCKER_CONFIG
           value: /var/run/ci/docker
         - name: GCP_SECRETS
-          value: '[{"secret":"release_docker_istio","project":"istio-prow-build","file":"/var/run/ci/docker/config.json"},{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"}]'
+          value: '[{"secret":"release_docker_istio","file":"/var/run/ci/docker/config.json"},{"secret":"github_istio-testing_pusher","env":"GH_TOKEN"}]'
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -291,12 +422,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-agentgateway_istio_release-1.31_postsubmit
+    name: integ-agentgateway_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -312,7 +443,7 @@ postsubmits:
           value: --istio.test.agentgateway
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -351,12 +482,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-ambient-calico_istio_release-1.31_postsubmit
+    name: integ-ambient-calico_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -376,7 +507,7 @@ postsubmits:
           value: calico
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -415,12 +546,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-ambient-dual_istio_release-1.31_postsubmit
+    name: integ-ambient-dual_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -442,7 +573,7 @@ postsubmits:
           value: IPv4,IPv6
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -481,12 +612,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-ambient-ipv6_istio_release-1.31_postsubmit
+    name: integ-ambient-ipv6_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -508,7 +639,7 @@ postsubmits:
           value: IPv6
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -547,12 +678,78 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-ambient-mc_istio_release-1.31_postsubmit
+    name: integ-ambient-mc-mixed-network_istio_postsubmit
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --kind-config
+        - prow/config/default.yaml
+        - --topology
+        - AMBIENT_MULTICLUSTER
+        - --topology-config
+        - prow/config/topology/ambient-multicluster-large.json
+        - test.integration.ambient.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: INTEGRATION_TEST_FLAGS
+          value: --istio.test.ambient --istio.test.ambient.multinetwork
+        - name: GOMAXPROCS
+          value: "5"
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_istio_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    name: integ-ambient-mc_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -574,7 +771,7 @@ postsubmits:
           value: --istio.test.ambient --istio.test.ambient.multinetwork
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -613,12 +810,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-ambient-nftables_istio_release-1.31_postsubmit
+    name: integ-ambient-nftables_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -636,7 +833,7 @@ postsubmits:
           value: '--istio.test.ambient --istio.test.nativeNftables '
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -675,12 +872,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-ambient-owned-cni_istio_release-1.31_postsubmit
+    name: integ-ambient-owned-cni_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -699,7 +896,7 @@ postsubmits:
             --istio.test.ambient '
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -738,12 +935,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-ambient_istio_release-1.31_postsubmit
+    name: integ-ambient_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -761,7 +958,7 @@ postsubmits:
           value: --istio.test.ambient
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -800,14 +997,14 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-assertion_istio_release-1.31_postsubmit
+    name: integ-assertion_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -823,7 +1020,7 @@ postsubmits:
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -862,13 +1059,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
-    cluster: prow-arm
+    - ^master$
     decorate: true
-    name: integ-basic-arm64_istio_release-1.31_postsubmit
+    name: integ-basic-arm64_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -882,7 +1078,7 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -926,14 +1122,14 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-cni_istio_release-1.31_postsubmit
+    name: integ-cni_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -951,7 +1147,7 @@ postsubmits:
           value: -flaky
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -990,12 +1186,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-distroless_istio_release-1.31_postsubmit
+    name: integ-distroless_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1011,7 +1207,7 @@ postsubmits:
           value: distroless
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -1050,12 +1246,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-ds_istio_release-1.31_postsubmit
+    name: integ-ds_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1073,7 +1269,7 @@ postsubmits:
           value: IPv4,IPv6
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -1112,12 +1308,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-gateway-api-only_istio_release-1.31_postsubmit
+    name: integ-gateway-api-only_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1132,10 +1328,10 @@ postsubmits:
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.gatewayAPIOnly --istio.test.kube.gatewayClassName=istio-alt
         - name: T
-          value: -run="TestGatewayConformance|TestGateway$$|TestHTTPRouteAndGRPCRouteCoexistence|TestInferencePoolMultipleTargetPorts"
+          value: -run="TestGatewayConformance|TestGateway$$|TestHTTPRouteAndGRPCRouteCoexistence|TestInferencePoolMultipleTargetPorts|TestPilotResourceFilter"
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -1174,12 +1370,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-helm_istio_release-1.31_postsubmit
+    name: integ-helm_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1193,7 +1389,7 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -1232,12 +1428,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-ipv6_istio_release-1.31_postsubmit
+    name: integ-ipv6_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1255,7 +1451,7 @@ postsubmits:
           value: IPv6
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -1294,14 +1490,272 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-127_istio_release-1.31_postsubmit
+    name: integ-k8s-123_istio_postsubmit
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.23.9
+        - --kind-config
+        - prow/config/mixedlb-service.yaml
+        - test.integration.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
+        - name: GOMAXPROCS
+          value: "5"
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_istio_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    name: integ-k8s-124_istio_postsubmit
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.24.9
+        - test.integration.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
+        - name: GOMAXPROCS
+          value: "5"
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_istio_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    name: integ-k8s-125_istio_postsubmit
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.25.9
+        - test.integration.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
+        - name: GOMAXPROCS
+          value: "5"
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_istio_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    name: integ-k8s-126_istio_postsubmit
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.26.6
+        - test.integration.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
+        - name: GOMAXPROCS
+          value: "5"
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+  - annotations:
+      testgrid-alert-email: istio-oncall@googlegroups.com
+      testgrid-dashboards: istio_istio_postsubmit
+      testgrid-num-failures-to-alert: "1"
+    branches:
+    - ^master$
+    decorate: true
+    decoration_config:
+      timeout: 4h0m0s
+    name: integ-k8s-127_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1321,7 +1775,7 @@ postsubmits:
           value: ' --istio.test.retries=1 '
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -1360,14 +1814,14 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-128_istio_release-1.31_postsubmit
+    name: integ-k8s-128_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1387,7 +1841,7 @@ postsubmits:
           value: ' --istio.test.retries=1 '
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -1426,14 +1880,14 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-129_istio_release-1.31_postsubmit
+    name: integ-k8s-129_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1453,7 +1907,7 @@ postsubmits:
           value: ' --istio.test.retries=1 '
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -1492,14 +1946,14 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-130_istio_release-1.31_postsubmit
+    name: integ-k8s-130_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1519,7 +1973,7 @@ postsubmits:
           value: ' --istio.test.retries=1 '
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -1558,14 +2012,14 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-131_istio_release-1.31_postsubmit
+    name: integ-k8s-131_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1585,7 +2039,7 @@ postsubmits:
           value: ' --istio.test.retries=1 '
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -1624,14 +2078,14 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-132_istio_release-1.31_postsubmit
+    name: integ-k8s-132_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1651,7 +2105,7 @@ postsubmits:
           value: ' --istio.test.retries=1 '
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -1690,14 +2144,14 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-133_istio_release-1.31_postsubmit
+    name: integ-k8s-133_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1717,7 +2171,7 @@ postsubmits:
           value: ' --istio.test.retries=1 '
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -1756,14 +2210,14 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-134_istio_release-1.31_postsubmit
+    name: integ-k8s-134_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1783,7 +2237,7 @@ postsubmits:
           value: ' --istio.test.retries=1 '
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -1822,14 +2276,14 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-135_istio_release-1.31_postsubmit
+    name: integ-k8s-135_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1849,7 +2303,7 @@ postsubmits:
           value: ' --istio.test.retries=1 '
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -1888,78 +2342,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    name: integ-k8s-136_istio_release-1.31_postsubmit
-    path_alias: istio.io/istio
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - --node-image
-        - gcr.io/istio-testing/kind-node:v1.36.0
-        - --kind-config
-        - prow/config/modern.yaml
-        - test.integration.kube
-        env:
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: INTEGRATION_TEST_FLAGS
-          value: ' --istio.test.retries=1 '
-        - name: GOMAXPROCS
-          value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - emptyDir: {}
-        name: docker-root
-  - annotations:
-      testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
-      testgrid-num-failures-to-alert: "1"
-    branches:
-    - ^release-1.31$
-    decorate: true
-    name: integ-pilot-cpp_istio_release-1.31_postsubmit
+    name: integ-pilot-cpp_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1975,7 +2363,7 @@ postsubmits:
           value: grpctesting/istio_echo_cpp
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -2014,12 +2402,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-pilot-filebasedkubeconfig_istio_release-1.31_postsubmit
+    name: integ-pilot-filebasedkubeconfig_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2037,7 +2425,7 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -2076,12 +2464,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-pilot-istiodremote-mc_istio_release-1.31_postsubmit
+    name: integ-pilot-istiodremote-mc_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2101,7 +2489,7 @@ postsubmits:
           value: --istio.test.skipVM
         - name: GOMAXPROCS
           value: "8"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -2140,12 +2528,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-pilot-istiodremote_istio_release-1.31_postsubmit
+    name: integ-pilot-istiodremote_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2165,7 +2553,7 @@ postsubmits:
           value: --istio.test.skipVM
         - name: GOMAXPROCS
           value: "8"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -2204,12 +2592,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-pilot-multicluster_istio_release-1.31_postsubmit
+    name: integ-pilot-multicluster_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2225,7 +2613,7 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -2264,12 +2652,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-pilot_istio_release-1.31_postsubmit
+    name: integ-pilot_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2283,7 +2671,7 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -2322,12 +2710,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-security-istiodremote_istio_release-1.31_postsubmit
+    name: integ-security-istiodremote_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2347,7 +2735,7 @@ postsubmits:
           value: --istio.test.skipVM
         - name: GOMAXPROCS
           value: "8"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -2386,12 +2774,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-security-multicluster_istio_release-1.31_postsubmit
+    name: integ-security-multicluster_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2407,7 +2795,7 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -2446,12 +2834,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-security_istio_release-1.31_postsubmit
+    name: integ-security_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2465,7 +2853,7 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -2504,12 +2892,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-telemetry-discovery_istio_release-1.31_postsubmit
+    name: integ-telemetry-discovery_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2525,7 +2913,7 @@ postsubmits:
           value: --istio.test.peer_metadata_discovery
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -2564,12 +2952,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-telemetry-istiodremote_istio_release-1.31_postsubmit
+    name: integ-telemetry-istiodremote_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2589,7 +2977,7 @@ postsubmits:
           value: --istio.test.skipVM
         - name: GOMAXPROCS
           value: "8"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -2628,12 +3016,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-telemetry-mc_istio_release-1.31_postsubmit
+    name: integ-telemetry-mc_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2649,7 +3037,7 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -2688,12 +3076,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-telemetry_istio_release-1.31_postsubmit
+    name: integ-telemetry_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2707,7 +3095,7 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -2746,12 +3134,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: release_istio_release-1.31_postsubmit
+    name: release_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2762,9 +3150,15 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DOCKER_PUSH_HUB
+          value: ghcr.io/istio/testing
+        - name: HELM_HUB
+          value: ghcr.io/istio/testing
+        - name: DOCKER_CONFIG
+          value: /var/run/ci/docker
         - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-build_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+          value: '[{"secret":"cf_r2_istio-build_credentials","env":"CF_CREDENTIALS"},{"secret":"ghcr-push-path","file":"/var/run/ci/docker/config.json"}]'
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -2796,13 +3190,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
-    cluster: prow-arm
+    - ^master$
     decorate: true
-    name: unit-tests-arm64_istio_release-1.31_postsubmit
+    name: unit-tests-arm64_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2818,7 +3211,7 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -2850,12 +3243,12 @@ postsubmits:
         name: build-cache
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_istio_postsubmit
+      testgrid-dashboards: istio_istio_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: unit-tests_istio_release-1.31_postsubmit
+    name: unit-tests_istio_postsubmit
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2871,7 +3264,7 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -2900,11 +3293,11 @@ presubmits:
   istio/istio:
   - always_run: false
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: benchmark_istio_release-1.31
+    name: benchmark_istio
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test benchmark
@@ -2918,7 +3311,7 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -2943,14 +3336,14 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )benchmark,?($|\s.*))|((?m)^/test( | .* )benchmark_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )benchmark,?($|\s.*))|((?m)^/test( | .* )benchmark_istio,?($|\s.*))
   - always_run: false
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: bookinfo-build_istio_release-1.31
+    name: bookinfo-build_istio
     path_alias: istio.io/istio
     rerun_command: /test bookinfo-build
     run_if_changed: ^samples/bookinfo/src/
@@ -2966,7 +3359,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -2996,14 +3389,14 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )bookinfo-build,?($|\s.*))|((?m)^/test( | .* )bookinfo-build_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )bookinfo-build,?($|\s.*))|((?m)^/test( | .* )bookinfo-build_istio,?($|\s.*))
   - always_run: false
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: experimental-tracing_istio_release-1.31
+    name: experimental-tracing_istio
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test experimental-tracing
@@ -3027,7 +3420,7 @@ presubmits:
           value: "true"
         - name: GOMAXPROCS
           value: "8"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -3065,14 +3458,14 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )experimental-tracing,?($|\s.*))|((?m)^/test( | .*
-      )experimental-tracing_istio_release-1.31,?($|\s.*))
+      )experimental-tracing_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: gencheck_istio_release-1.31
+    name: gencheck_istio
     path_alias: istio.io/istio
     rerun_command: /test gencheck
     spec:
@@ -3086,7 +3479,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -3112,14 +3505,14 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_istio,?($|\s.*))
   - always_run: false
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: govulncheck_istio_release-1.31
+    name: govulncheck_istio
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test govulncheck
@@ -3134,7 +3527,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -3160,14 +3553,14 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )govulncheck,?($|\s.*))|((?m)^/test( | .* )govulncheck_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )govulncheck,?($|\s.*))|((?m)^/test( | .* )govulncheck_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-agentgateway_istio_release-1.31
+    name: integ-agentgateway_istio
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-agentgateway
@@ -3185,7 +3578,7 @@ presubmits:
           value: --istio.test.agentgateway
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -3222,14 +3615,14 @@ presubmits:
         name: modules
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-agentgateway,?($|\s.*))|((?m)^/test( | .* )integ-agentgateway_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-agentgateway,?($|\s.*))|((?m)^/test( | .* )integ-agentgateway_istio,?($|\s.*))
   - always_run: false
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-ambient-calico_istio_release-1.31
+    name: integ-ambient-calico_istio
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient-calico
@@ -3251,7 +3644,7 @@ presubmits:
           value: calico
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -3289,14 +3682,14 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-ambient-calico,?($|\s.*))|((?m)^/test( | .*
-      )integ-ambient-calico_istio_release-1.31,?($|\s.*))
+      )integ-ambient-calico_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-ambient-dual_istio_release-1.31
+    name: integ-ambient-dual_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient-dual
     spec:
@@ -3319,7 +3712,7 @@ presubmits:
           value: IPv4,IPv6
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -3356,14 +3749,14 @@ presubmits:
         name: modules
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-ambient-dual,?($|\s.*))|((?m)^/test( | .* )integ-ambient-dual_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-ambient-dual,?($|\s.*))|((?m)^/test( | .* )integ-ambient-dual_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-ambient-ipv6_istio_release-1.31
+    name: integ-ambient-ipv6_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient-ipv6
     spec:
@@ -3386,7 +3779,7 @@ presubmits:
           value: IPv6
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -3423,14 +3816,83 @@ presubmits:
         name: modules
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-ambient-ipv6,?($|\s.*))|((?m)^/test( | .* )integ-ambient-ipv6_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-ambient-ipv6,?($|\s.*))|((?m)^/test( | .* )integ-ambient-ipv6_istio,?($|\s.*))
+  - always_run: false
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    name: integ-ambient-mc-mixed-network_istio
+    optional: true
+    path_alias: istio.io/istio
+    rerun_command: /test integ-ambient-mc-mixed-network
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --kind-config
+        - prow/config/default.yaml
+        - --topology
+        - AMBIENT_MULTICLUSTER
+        - --topology-config
+        - prow/config/topology/ambient-multicluster-large.json
+        - test.integration.ambient.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: INTEGRATION_TEST_FLAGS
+          value: --istio.test.ambient --istio.test.ambient.multinetwork
+        - name: GOMAXPROCS
+          value: "5"
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )integ-ambient-mc-mixed-network,?($|\s.*))|((?m)^/test(
+      | .* )integ-ambient-mc-mixed-network_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-ambient-mc_istio_release-1.31
+    name: integ-ambient-mc_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient-mc
     spec:
@@ -3453,7 +3915,7 @@ presubmits:
           value: --istio.test.ambient --istio.test.ambient.multinetwork
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -3490,14 +3952,14 @@ presubmits:
         name: modules
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-ambient-mc,?($|\s.*))|((?m)^/test( | .* )integ-ambient-mc_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-ambient-mc,?($|\s.*))|((?m)^/test( | .* )integ-ambient-mc_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-ambient-nftables_istio_release-1.31
+    name: integ-ambient-nftables_istio
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient-nftables
@@ -3517,7 +3979,7 @@ presubmits:
           value: '--istio.test.ambient --istio.test.nativeNftables '
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -3555,14 +4017,14 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-ambient-nftables,?($|\s.*))|((?m)^/test( | .*
-      )integ-ambient-nftables_istio_release-1.31,?($|\s.*))
+      )integ-ambient-nftables_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-ambient-owned-cni_istio_release-1.31
+    name: integ-ambient-owned-cni_istio
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient-owned-cni
@@ -3583,7 +4045,7 @@ presubmits:
             --istio.test.ambient '
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -3621,14 +4083,14 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-ambient-owned-cni,?($|\s.*))|((?m)^/test( |
-      .* )integ-ambient-owned-cni_istio_release-1.31,?($|\s.*))
+      .* )integ-ambient-owned-cni_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-ambient_istio_release-1.31
+    name: integ-ambient_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient
     spec:
@@ -3647,7 +4109,7 @@ presubmits:
           value: --istio.test.ambient
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -3684,16 +4146,16 @@ presubmits:
         name: modules
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-ambient,?($|\s.*))|((?m)^/test( | .* )integ-ambient_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-ambient,?($|\s.*))|((?m)^/test( | .* )integ-ambient_istio,?($|\s.*))
   - always_run: false
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-assertion_istio_release-1.31
+    name: integ-assertion_istio
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-assertion
@@ -3711,7 +4173,7 @@ presubmits:
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -3748,15 +4210,14 @@ presubmits:
         name: modules
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-assertion,?($|\s.*))|((?m)^/test( | .* )integ-assertion_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-assertion,?($|\s.*))|((?m)^/test( | .* )integ-assertion_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
-    cluster: prow-arm
+    - ^master$
     decorate: true
-    name: integ-basic-arm64_istio_release-1.31
+    name: integ-basic-arm64_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-basic-arm64
     spec:
@@ -3771,7 +4232,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -3813,14 +4274,14 @@ presubmits:
         name: modules
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-basic-arm64,?($|\s.*))|((?m)^/test( | .* )integ-basic-arm64_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-basic-arm64,?($|\s.*))|((?m)^/test( | .* )integ-basic-arm64_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-cni_istio_release-1.31
+    name: integ-cni_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-cni
     spec:
@@ -3837,7 +4298,7 @@ presubmits:
           value: ' --istio.test.istio.enableCNI=true '
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -3874,14 +4335,14 @@ presubmits:
         name: modules
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-cni,?($|\s.*))|((?m)^/test( | .* )integ-cni_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-cni,?($|\s.*))|((?m)^/test( | .* )integ-cni_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-distroless_istio_release-1.31
+    name: integ-distroless_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-distroless
     spec:
@@ -3898,7 +4359,7 @@ presubmits:
           value: distroless
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -3935,14 +4396,14 @@ presubmits:
         name: modules
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-distroless,?($|\s.*))|((?m)^/test( | .* )integ-distroless_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-distroless,?($|\s.*))|((?m)^/test( | .* )integ-distroless_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-ds_istio_release-1.31
+    name: integ-ds_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-ds
     spec:
@@ -3961,7 +4422,7 @@ presubmits:
           value: IPv4,IPv6
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -3998,14 +4459,14 @@ presubmits:
         name: modules
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-ds,?($|\s.*))|((?m)^/test( | .* )integ-ds_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-ds,?($|\s.*))|((?m)^/test( | .* )integ-ds_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-gateway-api-only_istio_release-1.31
+    name: integ-gateway-api-only_istio
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-gateway-api-only
@@ -4022,10 +4483,10 @@ presubmits:
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.gatewayAPIOnly --istio.test.kube.gatewayClassName=istio-alt
         - name: T
-          value: -run="TestGatewayConformance|TestGateway$$|TestHTTPRouteAndGRPCRouteCoexistence|TestInferencePoolMultipleTargetPorts"
+          value: -run="TestGatewayConformance|TestGateway$$|TestHTTPRouteAndGRPCRouteCoexistence|TestInferencePoolMultipleTargetPorts|TestPilotResourceFilter"
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -4063,14 +4524,14 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-gateway-api-only,?($|\s.*))|((?m)^/test( | .*
-      )integ-gateway-api-only_istio_release-1.31,?($|\s.*))
+      )integ-gateway-api-only_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-helm_istio_release-1.31
+    name: integ-helm_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-helm
     spec:
@@ -4085,7 +4546,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -4122,14 +4583,14 @@ presubmits:
         name: modules
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-helm,?($|\s.*))|((?m)^/test( | .* )integ-helm_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-helm,?($|\s.*))|((?m)^/test( | .* )integ-helm_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-ipv6_istio_release-1.31
+    name: integ-ipv6_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-ipv6
     spec:
@@ -4148,7 +4609,7 @@ presubmits:
           value: IPv6
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -4185,14 +4646,77 @@ presubmits:
         name: modules
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-ipv6,?($|\s.*))|((?m)^/test( | .* )integ-ipv6_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-ipv6,?($|\s.*))|((?m)^/test( | .* )integ-ipv6_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-pilot-filebasedkubeconfig_istio_release-1.31
+    name: integ-pilot-cni-nftables_istio
+    optional: true
+    path_alias: istio.io/istio
+    rerun_command: /test integ-pilot-cni-nftables
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - test.integration.pilot.kube
+        env:
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: INTEGRATION_TEST_FLAGS
+          value: --istio.test.istio.enableCNI=true --istio.test.nativeNftables=true
+        - name: GOMAXPROCS
+          value: "5"
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+    trigger: ((?m)^/test( | .* )integ-pilot-cni-nftables,?($|\s.*))|((?m)^/test( |
+      .* )integ-pilot-cni-nftables_istio,?($|\s.*))
+  - always_run: true
+    annotations:
+      testgrid-dashboards: istio_istio
+    branches:
+    - ^master$
+    decorate: true
+    name: integ-pilot-filebasedkubeconfig_istio
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-pilot-filebasedkubeconfig
@@ -4212,7 +4736,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -4250,14 +4774,14 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-pilot-filebasedkubeconfig,?($|\s.*))|((?m)^/test(
-      | .* )integ-pilot-filebasedkubeconfig_istio_release-1.31,?($|\s.*))
+      | .* )integ-pilot-filebasedkubeconfig_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-pilot-istiodremote-mc_istio_release-1.31
+    name: integ-pilot-istiodremote-mc_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-pilot-istiodremote-mc
     spec:
@@ -4278,7 +4802,7 @@ presubmits:
           value: --istio.test.skipVM
         - name: GOMAXPROCS
           value: "8"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -4316,14 +4840,14 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-pilot-istiodremote-mc,?($|\s.*))|((?m)^/test(
-      | .* )integ-pilot-istiodremote-mc_istio_release-1.31,?($|\s.*))
+      | .* )integ-pilot-istiodremote-mc_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-pilot-istiodremote_istio_release-1.31
+    name: integ-pilot-istiodremote_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-pilot-istiodremote
     spec:
@@ -4344,7 +4868,7 @@ presubmits:
           value: --istio.test.skipVM
         - name: GOMAXPROCS
           value: "8"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -4382,14 +4906,14 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-pilot-istiodremote,?($|\s.*))|((?m)^/test( |
-      .* )integ-pilot-istiodremote_istio_release-1.31,?($|\s.*))
+      .* )integ-pilot-istiodremote_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-pilot-multicluster_istio_release-1.31
+    name: integ-pilot-multicluster_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-pilot-multicluster
     spec:
@@ -4406,7 +4930,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -4444,14 +4968,14 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-pilot-multicluster,?($|\s.*))|((?m)^/test( |
-      .* )integ-pilot-multicluster_istio_release-1.31,?($|\s.*))
+      .* )integ-pilot-multicluster_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-pilot_istio_release-1.31
+    name: integ-pilot_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-pilot
     spec:
@@ -4466,7 +4990,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -4503,14 +5027,14 @@ presubmits:
         name: modules
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-pilot,?($|\s.*))|((?m)^/test( | .* )integ-pilot_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-pilot,?($|\s.*))|((?m)^/test( | .* )integ-pilot_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-security-istiodremote_istio_release-1.31
+    name: integ-security-istiodremote_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-security-istiodremote
     spec:
@@ -4531,7 +5055,7 @@ presubmits:
           value: --istio.test.skipVM
         - name: GOMAXPROCS
           value: "8"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -4569,14 +5093,14 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-security-istiodremote,?($|\s.*))|((?m)^/test(
-      | .* )integ-security-istiodremote_istio_release-1.31,?($|\s.*))
+      | .* )integ-security-istiodremote_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-security-multicluster_istio_release-1.31
+    name: integ-security-multicluster_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-security-multicluster
     spec:
@@ -4593,7 +5117,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -4631,14 +5155,14 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-security-multicluster,?($|\s.*))|((?m)^/test(
-      | .* )integ-security-multicluster_istio_release-1.31,?($|\s.*))
+      | .* )integ-security-multicluster_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-security_istio_release-1.31
+    name: integ-security_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-security
     spec:
@@ -4653,7 +5177,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -4690,14 +5214,14 @@ presubmits:
         name: modules
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-security,?($|\s.*))|((?m)^/test( | .* )integ-security_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-security,?($|\s.*))|((?m)^/test( | .* )integ-security_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-telemetry-discovery_istio_release-1.31
+    name: integ-telemetry-discovery_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-telemetry-discovery
     spec:
@@ -4714,7 +5238,7 @@ presubmits:
           value: --istio.test.peer_metadata_discovery
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -4752,14 +5276,14 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-telemetry-discovery,?($|\s.*))|((?m)^/test(
-      | .* )integ-telemetry-discovery_istio_release-1.31,?($|\s.*))
+      | .* )integ-telemetry-discovery_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-telemetry-istiodremote_istio_release-1.31
+    name: integ-telemetry-istiodremote_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-telemetry-istiodremote
     spec:
@@ -4780,7 +5304,7 @@ presubmits:
           value: --istio.test.skipVM
         - name: GOMAXPROCS
           value: "8"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -4818,14 +5342,14 @@ presubmits:
       - emptyDir: {}
         name: docker-root
     trigger: ((?m)^/test( | .* )integ-telemetry-istiodremote,?($|\s.*))|((?m)^/test(
-      | .* )integ-telemetry-istiodremote_istio_release-1.31,?($|\s.*))
+      | .* )integ-telemetry-istiodremote_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-telemetry-mc_istio_release-1.31
+    name: integ-telemetry-mc_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-telemetry-mc
     spec:
@@ -4842,7 +5366,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "8"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -4879,14 +5403,14 @@ presubmits:
         name: modules
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-telemetry-mc,?($|\s.*))|((?m)^/test( | .* )integ-telemetry-mc_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-telemetry-mc,?($|\s.*))|((?m)^/test( | .* )integ-telemetry-mc_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: integ-telemetry_istio_release-1.31
+    name: integ-telemetry_istio
     path_alias: istio.io/istio
     rerun_command: /test integ-telemetry
     spec:
@@ -4901,7 +5425,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -4938,14 +5462,14 @@ presubmits:
         name: modules
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )integ-telemetry,?($|\s.*))|((?m)^/test( | .* )integ-telemetry_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-telemetry,?($|\s.*))|((?m)^/test( | .* )integ-telemetry_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: lint_istio_release-1.31
+    name: lint_istio
     path_alias: istio.io/istio
     rerun_command: /test lint
     spec:
@@ -4957,7 +5481,7 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -4982,14 +5506,14 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: macbuildcheck_istio_release-1.31
+    name: macbuildcheck_istio
     path_alias: istio.io/istio
     rerun_command: /test macbuildcheck
     spec:
@@ -5005,7 +5529,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -5031,14 +5555,14 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )macbuildcheck,?($|\s.*))|((?m)^/test( | .* )macbuildcheck_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )macbuildcheck,?($|\s.*))|((?m)^/test( | .* )macbuildcheck_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: release-notes_istio_release-1.31
+    name: release-notes_istio
     path_alias: istio.io/istio
     rerun_command: /test release-notes
     spec:
@@ -5053,10 +5577,10 @@ presubmits:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GCP_SECRETS
-          value: '[{"secret":"github-read_github_read","project":"istio-prow-build","env":"GH_TOKEN"}]'
+          value: '[{"secret":"github-read_github_read","env":"GH_TOKEN"}]'
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -5083,14 +5607,14 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )release-notes,?($|\s.*))|((?m)^/test( | .* )release-notes_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )release-notes,?($|\s.*))|((?m)^/test( | .* )release-notes_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: release-test_istio_release-1.31
+    name: release-test_istio
     path_alias: istio.io/istio
     rerun_command: /test release-test
     spec:
@@ -5102,7 +5626,7 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -5131,15 +5655,14 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )release-test,?($|\s.*))|((?m)^/test( | .* )release-test_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )release-test,?($|\s.*))|((?m)^/test( | .* )release-test_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
-    cluster: prow-arm
+    - ^master$
     decorate: true
-    name: unit-tests-arm64_istio_release-1.31
+    name: unit-tests-arm64_istio
     path_alias: istio.io/istio
     rerun_command: /test unit-tests-arm64
     spec:
@@ -5156,7 +5679,7 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -5186,14 +5709,14 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )unit-tests-arm64,?($|\s.*))|((?m)^/test( | .* )unit-tests-arm64_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )unit-tests-arm64,?($|\s.*))|((?m)^/test( | .* )unit-tests-arm64_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: unit-tests_istio_release-1.31
+    name: unit-tests_istio
     path_alias: istio.io/istio
     rerun_command: /test unit-tests
     spec:
@@ -5210,7 +5733,7 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -5235,14 +5758,14 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )unit-tests,?($|\s.*))|((?m)^/test( | .* )unit-tests_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )unit-tests,?($|\s.*))|((?m)^/test( | .* )unit-tests_istio,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_istio
+      testgrid-dashboards: istio_istio
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: windowsbuildcheck_istio_release-1.31
+    name: windowsbuildcheck_istio
     path_alias: istio.io/istio
     rerun_command: /test windowsbuildcheck
     spec:
@@ -5258,7 +5781,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "5"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -5284,4 +5807,4 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )windowsbuildcheck,?($|\s.*))|((?m)^/test( | .* )windowsbuildcheck_istio_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )windowsbuildcheck,?($|\s.*))|((?m)^/test( | .* )windowsbuildcheck_istio,?($|\s.*))
