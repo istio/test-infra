@@ -38,7 +38,7 @@ postsubmits:
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-prerelease-private_credentials","project":"istio-testing","env":"CF_PRERELEASE_CREDENTIALS"},{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
+          value: '[{"secret":"cf_r2_istio-prerelease-private_credentials","env":"CF_PRERELEASE_CREDENTIALS"},{"secret":"cf_r2_istio-build-private_credentials","env":"CF_CREDENTIALS"}]'
         image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
@@ -275,7 +275,7 @@ presubmits:
         - name: R2_BUCKET
           value: istio-prerelease-private/prerelease
         - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-prerelease-private_credentials","project":"istio-testing","env":"CF_PRERELEASE_CREDENTIALS"}]'
+          value: '[{"secret":"cf_r2_istio-prerelease-private_credentials","env":"CF_PRERELEASE_CREDENTIALS"}]'
         image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:

@@ -32,7 +32,7 @@ jobs:
     - --script-path=../common-files/bin/create-buildtools-and-update.sh
     resources: build
     regex: 'docker/.+|cmd/.+|pkg/.+'
-    requirements: [docker, github-istio-testing]
+    requirements: [docker, github-istio-testing, testing-pusher]
     repos: [istio/test-infra@master,istio/common-files@master]
     env:
     # For amd64, publish the manifest for arm64+amd64
@@ -40,6 +40,8 @@ jobs:
       value: "arm64 amd64"
     - name: AUTOMATOR_ORG
       value: istio
+    - name: HUB
+      value: ghcr.io/testing
   # arm64 build
   - name: containers
     service_account_name: prowjob-build-tools
@@ -53,9 +55,11 @@ jobs:
     # For arm64, we do not generate the manifest; the amd job will handle it
     - name: MANIFEST_ARCH
       value: ""
+    - name: HUB
+      value: ghcr.io/testing
     resources: build
     regex: 'docker/.+|cmd/.+|pkg/.+'
-    requirements: [docker]
+    requirements: [docker, testing-pusher]
 
   - name: containers-test
     types: [presubmit]
