@@ -70,7 +70,7 @@ postsubmits:
         - name: DOCKER_CONFIG
           value: /var/run/ci/docker
         - name: GCP_SECRETS
-          value: '[{"secret":"ghcr-push-path","file":"/var/run/ci/docker/config.json"}]'
+          value: '[{"secret":"ghcr-push-pat","file":"/var/run/ci/docker/config.json"}]'
         - name: GOMAXPROCS
           value: "8"
         image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
@@ -150,7 +150,7 @@ postsubmits:
         - name: DOCKER_CONFIG
           value: /var/run/ci/docker
         - name: GCP_SECRETS
-          value: '[{"secret":"github_istio-testing_pusher","env":"GH_TOKEN"},{"secret":"ghcr-push-path","file":"/var/run/ci/docker/config.json"}]'
+          value: '[{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"},{"secret":"ghcr-push-pat","file":"/var/run/ci/docker/config.json"}]'
         - name: GOMAXPROCS
           value: "8"
         image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
