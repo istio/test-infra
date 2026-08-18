@@ -13,7 +13,7 @@ variable "zone_id" {
 locals {
   istio_registry_mappings = {
     release = "gcr.io/istio-release"
-    testing = "gcr.io/istio-testing"
-    prerelease-testing = "gcr.io/istio-prerelease-testing"
+    testing = "ghcr.io/istio/testing"
+    prerelease-testing = "ghcr.io/istio/prerelease-testing"
   }
 }
