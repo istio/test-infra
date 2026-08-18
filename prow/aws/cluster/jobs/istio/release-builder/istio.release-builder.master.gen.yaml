@@ -26,7 +26,7 @@ periodics:
       - name: DOCKER_CONFIG
         value: /var/run/ci/docker
       - name: GCP_SECRETS
-        value: '[{"secret":"release_docker_istio","file":"/var/run/ci/docker/config.json"},{"secret":"github_istio-testing_pusher","env":"GH_TOKEN"}]'
+        value: '[{"secret":"release_docker_istio","project":"istio-prow-build","file":"/var/run/ci/docker/config.json"},{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"}]'
       - name: GOMAXPROCS
         value: "8"
       image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
@@ -81,7 +81,7 @@ postsubmits:
         - name: DOCKER_CONFIG
           value: /var/run/ci/docker
         - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-prerelease_credentials","env":"CF_PRERELEASE_CREDENTIALS"},{"secret":"ghcr-push-path","file":"/var/run/ci/docker/config.json"}]'
+          value: '[{"secret":"cf_r2_istio-prerelease_credentials","project":"istio-testing","env":"CF_PRERELEASE_CREDENTIALS"},{"secret":"ghcr-push-pat","file":"/var/run/ci/docker/config.json"}]'
         image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
         name: ""
         resources:
@@ -261,7 +261,9 @@ postsubmits:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: COSIGN_KEY
-          value: gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1
+          value: awskms:///alias/istio-cosign
+        - name: AWS_REGION
+          value: us-west-2
         - name: DOCKER_CONFIG
           value: /var/run/ci/docker
         - name: GRAFANA_TOKEN_FILE
@@ -269,7 +271,7 @@ postsubmits:
         - name: GITHUB_TOKEN_FILE
           value: /var/run/ci/github/token
         - name: GCP_SECRETS
-          value: '[{"secret":"release_docker_istio","file":"/var/run/ci/docker/config.json"},{"secret":"release_github_istio-release","file":"/var/run/ci/github/token"},{"secret":"release_grafana_istio","file":"/var/run/ci/grafana/token"},{"secret":"cf_r2_istio-prerelease_credentials","env":"CF_PRERELEASE_CREDENTIALS"},{"secret":"cf_r2_istio-release_credentials","env":"CF_CREDENTIALS"}]'
+          value: '[{"secret":"release_docker_istio","project":"istio-prow-build","file":"/var/run/ci/docker/config.json"},{"secret":"release_github_istio-release","project":"istio-prow-build","file":"/var/run/ci/github/token"},{"secret":"release_grafana_istio","project":"istio-prow-build","file":"/var/run/ci/grafana/token"},{"secret":"cf_r2_istio-prerelease_credentials","project":"istio-testing","env":"CF_PRERELEASE_CREDENTIALS"},{"secret":"cf_r2_istio-release_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
         image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
         name: ""
         resources:
@@ -363,7 +365,7 @@ presubmits:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_public_buckets_ro_credentials","env":"CF_CREDENTIALS"}]'
+          value: '[{"secret":"cf_r2_public_buckets_ro_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
         - name: GOMAXPROCS
           value: "3"
         image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
@@ -545,7 +547,7 @@ presubmits:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_public_buckets_ro_credentials","env":"CF_CREDENTIALS"}]'
+          value: '[{"secret":"cf_r2_public_buckets_ro_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
         - name: GOMAXPROCS
           value: "3"
         image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33

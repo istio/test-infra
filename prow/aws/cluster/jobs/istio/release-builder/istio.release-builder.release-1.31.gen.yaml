@@ -81,7 +81,7 @@ postsubmits:
         - name: DOCKER_CONFIG
           value: /var/run/ci/docker
         - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-prerelease_credentials","project":"istio-testing","env":"CF_PRERELEASE_CREDENTIALS"},{"secret":"ghcr-push-path","file":"/var/run/ci/docker/config.json"}]'
+          value: '[{"secret":"cf_r2_istio-prerelease_credentials","project":"istio-testing","env":"CF_PRERELEASE_CREDENTIALS"},{"secret":"ghcr-push-pat","file":"/var/run/ci/docker/config.json"}]'
         image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
@@ -263,7 +263,9 @@ postsubmits:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: COSIGN_KEY
-          value: gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1
+          value: awskms:///alias/istio-cosign
+        - name: AWS_REGION
+          value: us-west-2
         - name: DOCKER_CONFIG
           value: /var/run/ci/docker
         - name: GRAFANA_TOKEN_FILE
