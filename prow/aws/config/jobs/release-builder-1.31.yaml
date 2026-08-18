@@ -1328,7 +1328,6 @@ jobs:
   name: build-release
   node_selector:
     testing: test-pool
-    cloud.google.com/gke-nodepool: istio-test-pool-e2
   regex: ^release/trigger-build$
   requirement_presets:
     build-base:
@@ -1517,7 +1516,11 @@ jobs:
   - cache
   - docker
   - cf-r2-istio-prerelease-auth
+<<<<<<< HEAD
   - prerelease-ghcr
+=======
+  - testing-pusher
+>>>>>>> 01bcb5237 (add creds and better scheduling for release builder)
   resources: dedicated
   resources_presets:
     build:
@@ -1554,7 +1557,6 @@ jobs:
   name: publish-release
   node_selector:
     testing: test-pool
-    cloud.google.com/gke-nodepool: istio-test-pool-e2
   regex: ^release/trigger-publish$
   requirement_presets:
     build-base:
