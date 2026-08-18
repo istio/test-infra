@@ -20,6 +20,8 @@ postsubmits:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DOCKER_CONFIG
+          value: /var/run/ci/docker
         - name: GCS_BUCKET
           value: istio-prerelease-private/prerelease
         - name: HELM_BUCKET
@@ -60,7 +62,6 @@ postsubmits:
           readOnly: true
           subPath: .netrc
       nodeSelector:
-        cloud.google.com/gke-nodepool: istio-test-pool-e2
         kubernetes.io/arch: amd64
         testing: test-pool
       serviceAccountName: prowjob-private

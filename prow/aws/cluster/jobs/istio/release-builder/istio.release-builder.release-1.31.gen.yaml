@@ -78,8 +78,10 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DOCKER_CONFIG
+          value: /var/run/ci/docker
         - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-prerelease_credentials","project":"istio-testing","env":"CF_PRERELEASE_CREDENTIALS"}]'
+          value: '[{"secret":"cf_r2_istio-prerelease_credentials","project":"istio-testing","env":"CF_PRERELEASE_CREDENTIALS"},{"secret":"ghcr-push-path","file":"/var/run/ci/docker/config.json"}]'
         image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
@@ -97,7 +99,6 @@ postsubmits:
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
-        cloud.google.com/gke-nodepool: istio-test-pool-e2
         kubernetes.io/arch: amd64
         testing: test-pool
       serviceAccountName: prowjob-release
@@ -288,7 +289,6 @@ postsubmits:
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
-        cloud.google.com/gke-nodepool: istio-test-pool-e2
         kubernetes.io/arch: amd64
         testing: test-pool
       serviceAccountName: prowjob-release
