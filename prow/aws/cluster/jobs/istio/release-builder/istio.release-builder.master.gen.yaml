@@ -2,16 +2,16 @@
 periodics:
 - annotations:
     testgrid-alert-email: istio-oncall@googlegroups.com
-    testgrid-dashboards: istio_release-1.31_release-builder_periodic
+    testgrid-dashboards: istio_release-builder_periodic
     testgrid-num-failures-to-alert: "1"
   cron: 0 19 * * *
   decorate: true
   extra_refs:
-  - base_ref: release-1.31
+  - base_ref: master
     org: istio
     path_alias: istio.io/release-builder
     repo: release-builder
-  name: build-base-images_release-builder_release-1.31_periodic
+  name: build-base-images_release-builder_periodic
   spec:
     automountServiceAccountToken: false
     containers:
@@ -29,7 +29,7 @@ periodics:
         value: '[{"secret":"release_docker_istio","project":"istio-prow-build","file":"/var/run/ci/docker/config.json"},{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"}]'
       - name: GOMAXPROCS
         value: "8"
-      image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+      image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
       name: ""
       resources:
         limits:
@@ -61,12 +61,12 @@ postsubmits:
   istio/release-builder:
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_release-builder_postsubmit
+      testgrid-dashboards: istio_release-builder_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: build-release_release-builder_release-1.31_postsubmit
+    name: build-release_release-builder_postsubmit
     path_alias: istio.io/release-builder
     run_if_changed: ^release/trigger-build$
     spec:
@@ -78,9 +78,11 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: DOCKER_CONFIG
+          value: /var/run/ci/docker
         - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-prerelease_credentials","project":"istio-testing","env":"CF_PRERELEASE_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+          value: '[{"secret":"cf_r2_istio-prerelease_credentials","project":"istio-testing","env":"CF_PRERELEASE_CREDENTIALS"},{"secret":"ghcr-push-pat","file":"/var/run/ci/docker/config.json"}]'
+        image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
         name: ""
         resources:
           limits:
@@ -97,7 +99,6 @@ postsubmits:
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
-        cloud.google.com/gke-nodepool: istio-test-pool-e2
         kubernetes.io/arch: amd64
         testing: test-pool
       serviceAccountName: prowjob-release
@@ -110,12 +111,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_release-builder_postsubmit
+      testgrid-dashboards: istio_release-builder_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: dry-run_release-builder_release-1.31_postsubmit
+    name: dry-run_release-builder_postsubmit
     path_alias: istio.io/release-builder
     run_if_changed: \.go$|\.sh$
     spec:
@@ -127,7 +128,7 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
         name: ""
         resources:
           limits:
@@ -155,12 +156,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_release-builder_postsubmit
+      testgrid-dashboards: istio_release-builder_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: gencheck_release-builder_release-1.31_postsubmit
+    name: gencheck_release-builder_postsubmit
     path_alias: istio.io/release-builder
     spec:
       automountServiceAccountToken: false
@@ -173,7 +174,7 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "3"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
         name: ""
         resources:
           limits:
@@ -198,12 +199,12 @@ postsubmits:
         name: build-cache
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_release-builder_postsubmit
+      testgrid-dashboards: istio_release-builder_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: lint_release-builder_release-1.31_postsubmit
+    name: lint_release-builder_postsubmit
     path_alias: istio.io/release-builder
     spec:
       automountServiceAccountToken: false
@@ -214,11 +215,9 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: VERSION
-          value: "1.31"
         - name: GOMAXPROCS
           value: "3"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
         name: ""
         resources:
           limits:
@@ -243,13 +242,13 @@ postsubmits:
         name: build-cache
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_release-builder_postsubmit
+      testgrid-dashboards: istio_release-builder_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
     max_concurrency: 1
-    name: publish-release_release-builder_release-1.31_postsubmit
+    name: publish-release_release-builder_postsubmit
     path_alias: istio.io/release-builder
     run_if_changed: ^release/trigger-publish$
     spec:
@@ -262,7 +261,9 @@ postsubmits:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: COSIGN_KEY
-          value: gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1
+          value: awskms:///alias/istio-cosign
+        - name: AWS_REGION
+          value: us-west-2
         - name: DOCKER_CONFIG
           value: /var/run/ci/docker
         - name: GRAFANA_TOKEN_FILE
@@ -271,7 +272,7 @@ postsubmits:
           value: /var/run/ci/github/token
         - name: GCP_SECRETS
           value: '[{"secret":"release_docker_istio","project":"istio-prow-build","file":"/var/run/ci/docker/config.json"},{"secret":"release_github_istio-release","project":"istio-prow-build","file":"/var/run/ci/github/token"},{"secret":"release_grafana_istio","project":"istio-prow-build","file":"/var/run/ci/grafana/token"},{"secret":"cf_r2_istio-prerelease_credentials","project":"istio-testing","env":"CF_PRERELEASE_CREDENTIALS"},{"secret":"cf_r2_istio-release_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
         name: ""
         resources:
           limits:
@@ -288,7 +289,6 @@ postsubmits:
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
-        cloud.google.com/gke-nodepool: istio-test-pool-e2
         kubernetes.io/arch: amd64
         testing: test-pool
       serviceAccountName: prowjob-release
@@ -301,12 +301,12 @@ postsubmits:
         name: docker-root
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
-      testgrid-dashboards: istio_release-1.31_release-builder_postsubmit
+      testgrid-dashboards: istio_release-builder_postsubmit
       testgrid-num-failures-to-alert: "1"
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: test_release-builder_release-1.31_postsubmit
+    name: test_release-builder_postsubmit
     path_alias: istio.io/release-builder
     spec:
       automountServiceAccountToken: false
@@ -319,7 +319,7 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "3"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
         name: ""
         resources:
           limits:
@@ -346,11 +346,11 @@ presubmits:
   istio/release-builder:
   - always_run: false
     annotations:
-      testgrid-dashboards: istio_release-1.31_release-builder
+      testgrid-dashboards: istio_release-builder
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: build-warning_release-builder_release-1.31
+    name: build-warning_release-builder
     optional: true
     path_alias: istio.io/release-builder
     rerun_command: /test build-warning
@@ -368,7 +368,7 @@ presubmits:
           value: '[{"secret":"cf_r2_public_buckets_ro_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
         - name: GOMAXPROCS
           value: "3"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
         name: ""
         resources:
           limits:
@@ -391,14 +391,14 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )build-warning,?($|\s.*))|((?m)^/test( | .* )build-warning_release-builder_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )build-warning,?($|\s.*))|((?m)^/test( | .* )build-warning_release-builder,?($|\s.*))
   - always_run: false
     annotations:
-      testgrid-dashboards: istio_release-1.31_release-builder
+      testgrid-dashboards: istio_release-builder
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: dry-run_release-builder_release-1.31
+    name: dry-run_release-builder
     path_alias: istio.io/release-builder
     rerun_command: /test dry-run
     run_if_changed: \.go$|\.sh$
@@ -411,7 +411,7 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
         name: ""
         resources:
           limits:
@@ -437,14 +437,14 @@ presubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
-    trigger: ((?m)^/test( | .* )dry-run,?($|\s.*))|((?m)^/test( | .* )dry-run_release-builder_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )dry-run,?($|\s.*))|((?m)^/test( | .* )dry-run_release-builder,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_release-builder
+      testgrid-dashboards: istio_release-builder
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: gencheck_release-builder_release-1.31
+    name: gencheck_release-builder
     path_alias: istio.io/release-builder
     rerun_command: /test gencheck
     spec:
@@ -458,7 +458,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "3"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
         name: ""
         resources:
           limits:
@@ -481,14 +481,14 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_release-builder_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_release-builder,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_release-builder
+      testgrid-dashboards: istio_release-builder
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: lint_release-builder_release-1.31
+    name: lint_release-builder
     path_alias: istio.io/release-builder
     rerun_command: /test lint
     spec:
@@ -500,11 +500,9 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: VERSION
-          value: "1.31"
         - name: GOMAXPROCS
           value: "3"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
         name: ""
         resources:
           limits:
@@ -527,14 +525,14 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_release-builder_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_release-builder,?($|\s.*))
   - always_run: false
     annotations:
-      testgrid-dashboards: istio_release-1.31_release-builder
+      testgrid-dashboards: istio_release-builder
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: publish-warning_release-builder_release-1.31
+    name: publish-warning_release-builder
     optional: true
     path_alias: istio.io/release-builder
     rerun_command: /test publish-warning
@@ -552,7 +550,7 @@ presubmits:
           value: '[{"secret":"cf_r2_public_buckets_ro_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
         - name: GOMAXPROCS
           value: "3"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
         name: ""
         resources:
           limits:
@@ -575,14 +573,14 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )publish-warning,?($|\s.*))|((?m)^/test( | .* )publish-warning_release-builder_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )publish-warning,?($|\s.*))|((?m)^/test( | .* )publish-warning_release-builder,?($|\s.*))
   - always_run: true
     annotations:
-      testgrid-dashboards: istio_release-1.31_release-builder
+      testgrid-dashboards: istio_release-builder
     branches:
-    - ^release-1.31$
+    - ^master$
     decorate: true
-    name: test_release-builder_release-1.31
+    name: test_release-builder
     path_alias: istio.io/release-builder
     rerun_command: /test test
     spec:
@@ -596,7 +594,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "3"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-9a67f0594faf23c0974ab3db461b03f50f39ae33
         name: ""
         resources:
           limits:
@@ -619,4 +617,4 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_release-builder_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_release-builder,?($|\s.*))

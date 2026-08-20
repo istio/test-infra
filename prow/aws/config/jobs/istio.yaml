@@ -18,8 +18,13 @@ jobs:
     service_account_name: prowjob-testing-write
     types: [postsubmit]
     command: [entrypoint, prow/release-commit.sh]
-    requirements: [docker, cf-r2-istio-build-auth]
+    requirements: [docker, cf-r2-istio-build-auth, testing-pusher]
     resources: dedicated
+    env:
+      - name: DOCKER_PUSH_HUB
+        value: ghcr.io/istio/testing
+      - name: HELM_HUB
+        value: ghcr.io/istio/testing
 
   - name: benchmark
     types: [presubmit]

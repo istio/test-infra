@@ -7,12 +7,220 @@ image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a3
 jobs:
 - command:
   - make
+  - build
+  env:
+  - name: BUILD_WITH_CONTAINER
+    value: "0"
+  image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+  name: build
+  node_selector:
+    testing: test-pool
+  requirement_presets:
+    build-base:
+      env:
+      - name: DOCKER_CONFIG
+        value: /var/run/ci/docker
+      podSpec:
+        containers: null
+        serviceAccountName: prowjob-release
+      secrets:
+      - file: /var/run/ci/docker/config.json
+        project: istio-prow-build
+        secret: release_docker_istio
+      - env: GH_TOKEN
+        project: istio-prow-build
+        secret: github_istio-testing_pusher
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    cf-r2-istio-build-auth:
+      secrets:
+      - env: CF_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_istio-build_credentials
+    cf-r2-istio-build-private-auth:
+      secrets:
+      - env: CF_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_istio-build-private_credentials
+    cf-r2-istio-prerelease-auth:
+      secrets:
+      - env: CF_PRERELEASE_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_istio-prerelease_credentials
+    cf-r2-istio-prerelease-private-auth:
+      secrets:
+      - env: CF_PRERELEASE_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_istio-prerelease-private_credentials
+    cf-r2-istio-prow-auth:
+      secrets:
+      - env: CF_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_istio-prow_credentials
+    cf-r2-istio-release-auth:
+      secrets:
+      - env: CF_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_istio-release_credentials
+    cf-r2-public-ro-auth:
+      secrets:
+      - env: CF_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_public_buckets_ro_credentials
+    cratescache:
+      podSpec:
+        affinity:
+          nodeAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - preference:
+                matchExpressions:
+                - key: cloud.google.com/machine-family
+                  operator: In
+                  values:
+                  - c3
+                  - c3d
+                  - n4
+                  - c4d
+                  - c4a
+                  - c4
+              weight: 1
+        containers: null
+      volumeMounts:
+      - mountPath: /home/.cargo
+        name: build-cache
+        subPath: cargo
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github-istio-testing:
+      podSpec:
+        containers: null
+        serviceAccountName: prowjob-github-istio-testing
+      secrets:
+      - env: GH_TOKEN
+        project: istio-prow-build
+        secret: github_istio-testing_pusher
+    github-organization:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-readonly:
+      podSpec:
+        containers: null
+        serviceAccountName: prowjob-github-read
+      secrets:
+      - env: GH_TOKEN
+        project: istio-prow-build
+        secret: github-read_github_read
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        value: gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1
+      - name: DOCKER_CONFIG
+        value: /var/run/ci/docker
+      - name: GRAFANA_TOKEN_FILE
+        value: /var/run/ci/grafana/token
+      - name: GITHUB_TOKEN_FILE
+        value: /var/run/ci/github/token
+      podSpec:
+        containers: null
+        serviceAccountName: prowjob-release
+      secrets:
+      - file: /var/run/ci/docker/config.json
+        project: istio-prow-build
+        secret: release_docker_istio
+      - file: /var/run/ci/github/token
+        project: istio-prow-build
+        secret: release_github_istio-release
+      - file: /var/run/ci/grafana/token
+        project: istio-prow-build
+        secret: release_grafana_istio
+    rustccache:
+      env:
+      - name: RUST_CACHE_DIR
+        value: /var/run/rustc-cache
+      volumeMounts:
+      - mountPath: /var/run/rustc-cache
+        name: build-cache
+        subPath: rustc
+    tracing:
+      env:
+      - name: OTEL_EXPORTER_OTLP_PROTOCOL
+        value: grpc
+      - name: OTEL_EXPORTER_OTLP_ENDPOINT
+        value: http://collector.opentelemetry:4317
+      - name: OTEL_EXPORTER_OTLP_INSECURE
+        value: "true"
+  requirements:
+  - cache
+  - cache
+  resources_presets:
+    build:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 4Gi
+    default:
+      limits:
+        cpu: "3"
+        memory: 24Gi
+      requests:
+        cpu: "1"
+        memory: 3Gi
+- command:
+  - make
   - lint
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
-  - name: VERSION
-    value: "1.31"
   image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
   name: lint
   node_selector:
@@ -208,14 +416,8 @@ jobs:
         cpu: "8"
         memory: 24Gi
       requests:
-        cpu: "5"
-        memory: 3Gi
-    dedicated:
-      limits:
-        memory: 24Gi
-      requests:
-        cpu: "15"
-        memory: 8Gi
+        cpu: "8"
+        memory: 4Gi
     default:
       limits:
         cpu: "3"
@@ -424,14 +626,8 @@ jobs:
         cpu: "8"
         memory: 24Gi
       requests:
-        cpu: "5"
-        memory: 3Gi
-    dedicated:
-      limits:
-        memory: 24Gi
-      requests:
-        cpu: "15"
-        memory: 8Gi
+        cpu: "8"
+        memory: 4Gi
     default:
       limits:
         cpu: "3"
@@ -640,14 +836,8 @@ jobs:
         cpu: "8"
         memory: 24Gi
       requests:
-        cpu: "5"
-        memory: 3Gi
-    dedicated:
-      limits:
-        memory: 24Gi
-      requests:
-        cpu: "15"
-        memory: 8Gi
+        cpu: "8"
+        memory: 4Gi
     default:
       limits:
         cpu: "3"
@@ -657,15 +847,29 @@ jobs:
         memory: 3Gi
 - command:
   - entrypoint
-  - test/publish.sh
+  - ../test-infra/tools/automator/automator.sh
+  - --org=$AUTOMATOR_ORG
+  - --repo=common-files
+  - '--title=Automator: update build-tools image@$AUTOMATOR_SRC_BRANCH in $AUTOMATOR_ORG/$AUTOMATOR_REPO@$AUTOMATOR_BRANCH'
+  - --labels=release-notes-none
+  - --modifier=update_image_version
+  - --token-env
+  - --script-path=../common-files/bin/create-buildtools-and-update.sh
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
+  - name: MANIFEST_ARCH
+    value: arm64 amd64
+  - name: AUTOMATOR_ORG
+    value: istio
   image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
-  name: dry-run
+  name: containers
   node_selector:
     testing: test-pool
-  regex: \.go$|\.sh$
+  regex: docker/.+|cmd/.+|pkg/.+
+  repos:
+  - istio/test-infra@master
+  - istio/common-files@master
   requirement_presets:
     build-base:
       env:
@@ -852,21 +1056,16 @@ jobs:
   - cache
   - cache
   - docker
-  resources: dedicated
+  - github-istio-testing
+  resources: build
   resources_presets:
     build:
       limits:
         cpu: "8"
         memory: 24Gi
       requests:
-        cpu: "5"
-        memory: 3Gi
-    dedicated:
-      limits:
-        memory: 24Gi
-      requests:
-        cpu: "15"
-        memory: 8Gi
+        cpu: "8"
+        memory: 4Gi
     default:
       limits:
         cpu: "3"
@@ -874,687 +1073,26 @@ jobs:
       requests:
         cpu: "1"
         memory: 3Gi
-- command:
-  - entrypoint
-  - release/build-warning.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
-  modifiers:
-  - presubmit_optional
-  name: build-warning
-  node_selector:
-    testing: test-pool
-  regex: ^release/trigger-build$
-  requirement_presets:
-    build-base:
-      env:
-      - name: DOCKER_CONFIG
-        value: /var/run/ci/docker
-      podSpec:
-        containers: null
-        serviceAccountName: prowjob-release
-      secrets:
-      - file: /var/run/ci/docker/config.json
-        project: istio-prow-build
-        secret: release_docker_istio
-      - env: GH_TOKEN
-        project: istio-prow-build
-        secret: github_istio-testing_pusher
-    cache:
-      volumeMounts:
-      - mountPath: /home/prow/go/pkg
-        name: build-cache
-        subPath: gomod
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    cf-r2-istio-build-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-build_credentials
-    cf-r2-istio-build-private-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-build-private_credentials
-    cf-r2-istio-prerelease-auth:
-      secrets:
-      - env: CF_PRERELEASE_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-prerelease_credentials
-    cf-r2-istio-prerelease-private-auth:
-      secrets:
-      - env: CF_PRERELEASE_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-prerelease-private_credentials
-    cf-r2-istio-prow-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-prow_credentials
-    cf-r2-istio-release-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-release_credentials
-    cf-r2-public-ro-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_public_buckets_ro_credentials
-    cratescache:
-      podSpec:
-        affinity:
-          nodeAffinity:
-            preferredDuringSchedulingIgnoredDuringExecution:
-            - preference:
-                matchExpressions:
-                - key: cloud.google.com/machine-family
-                  operator: In
-                  values:
-                  - c3
-                  - c3d
-                  - n4
-                  - c4d
-                  - c4a
-                  - c4
-              weight: 1
-        containers: null
-      volumeMounts:
-      - mountPath: /home/.cargo
-        name: build-cache
-        subPath: cargo
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    docker:
-      volumeMounts:
-      - mountPath: /var/lib/docker
-        name: docker-root
-      volumes:
-      - emptyDir: {}
-        name: docker-root
-    github-istio-testing:
-      podSpec:
-        containers: null
-        serviceAccountName: prowjob-github-istio-testing
-      secrets:
-      - env: GH_TOKEN
-        project: istio-prow-build
-        secret: github_istio-testing_pusher
-    github-organization:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-readonly:
-      podSpec:
-        containers: null
-        serviceAccountName: prowjob-github-read
-      secrets:
-      - env: GH_TOKEN
-        project: istio-prow-build
-        secret: github-read_github_read
-    gocache:
-      volumeMounts:
-      - mountPath: /gocache
-        name: build-cache
-        subPath: gocache
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    kind:
-      volumeMounts:
-      - mountPath: /lib/modules
-        name: modules
-        readOnly: true
-      - mountPath: /var/lib/docker
-        name: docker-root
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - emptyDir: {}
-        name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1
-      - name: DOCKER_CONFIG
-        value: /var/run/ci/docker
-      - name: GRAFANA_TOKEN_FILE
-        value: /var/run/ci/grafana/token
-      - name: GITHUB_TOKEN_FILE
-        value: /var/run/ci/github/token
-      podSpec:
-        containers: null
-        serviceAccountName: prowjob-release
-      secrets:
-      - file: /var/run/ci/docker/config.json
-        project: istio-prow-build
-        secret: release_docker_istio
-      - file: /var/run/ci/github/token
-        project: istio-prow-build
-        secret: release_github_istio-release
-      - file: /var/run/ci/grafana/token
-        project: istio-prow-build
-        secret: release_grafana_istio
-    rustccache:
-      env:
-      - name: RUST_CACHE_DIR
-        value: /var/run/rustc-cache
-      volumeMounts:
-      - mountPath: /var/run/rustc-cache
-        name: build-cache
-        subPath: rustc
-    tracing:
-      env:
-      - name: OTEL_EXPORTER_OTLP_PROTOCOL
-        value: grpc
-      - name: OTEL_EXPORTER_OTLP_ENDPOINT
-        value: http://collector.opentelemetry:4317
-      - name: OTEL_EXPORTER_OTLP_INSECURE
-        value: "true"
-  requirements:
-  - cache
-  - cache
-  - cf-r2-public-ro-auth
-  resources_presets:
-    build:
-      limits:
-        cpu: "8"
-        memory: 24Gi
-      requests:
-        cpu: "5"
-        memory: 3Gi
-    dedicated:
-      limits:
-        memory: 24Gi
-      requests:
-        cpu: "15"
-        memory: 8Gi
-    default:
-      limits:
-        cpu: "3"
-        memory: 24Gi
-      requests:
-        cpu: "1"
-        memory: 3Gi
-  types:
-  - presubmit
-- command:
-  - entrypoint
-  - release/publish-warning.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
-  modifiers:
-  - presubmit_optional
-  name: publish-warning
-  node_selector:
-    testing: test-pool
-  regex: ^release/trigger-publish$
-  requirement_presets:
-    build-base:
-      env:
-      - name: DOCKER_CONFIG
-        value: /var/run/ci/docker
-      podSpec:
-        containers: null
-        serviceAccountName: prowjob-release
-      secrets:
-      - file: /var/run/ci/docker/config.json
-        project: istio-prow-build
-        secret: release_docker_istio
-      - env: GH_TOKEN
-        project: istio-prow-build
-        secret: github_istio-testing_pusher
-    cache:
-      volumeMounts:
-      - mountPath: /home/prow/go/pkg
-        name: build-cache
-        subPath: gomod
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    cf-r2-istio-build-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-build_credentials
-    cf-r2-istio-build-private-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-build-private_credentials
-    cf-r2-istio-prerelease-auth:
-      secrets:
-      - env: CF_PRERELEASE_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-prerelease_credentials
-    cf-r2-istio-prerelease-private-auth:
-      secrets:
-      - env: CF_PRERELEASE_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-prerelease-private_credentials
-    cf-r2-istio-prow-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-prow_credentials
-    cf-r2-istio-release-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-release_credentials
-    cf-r2-public-ro-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_public_buckets_ro_credentials
-    cratescache:
-      podSpec:
-        affinity:
-          nodeAffinity:
-            preferredDuringSchedulingIgnoredDuringExecution:
-            - preference:
-                matchExpressions:
-                - key: cloud.google.com/machine-family
-                  operator: In
-                  values:
-                  - c3
-                  - c3d
-                  - n4
-                  - c4d
-                  - c4a
-                  - c4
-              weight: 1
-        containers: null
-      volumeMounts:
-      - mountPath: /home/.cargo
-        name: build-cache
-        subPath: cargo
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    docker:
-      volumeMounts:
-      - mountPath: /var/lib/docker
-        name: docker-root
-      volumes:
-      - emptyDir: {}
-        name: docker-root
-    github-istio-testing:
-      podSpec:
-        containers: null
-        serviceAccountName: prowjob-github-istio-testing
-      secrets:
-      - env: GH_TOKEN
-        project: istio-prow-build
-        secret: github_istio-testing_pusher
-    github-organization:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-readonly:
-      podSpec:
-        containers: null
-        serviceAccountName: prowjob-github-read
-      secrets:
-      - env: GH_TOKEN
-        project: istio-prow-build
-        secret: github-read_github_read
-    gocache:
-      volumeMounts:
-      - mountPath: /gocache
-        name: build-cache
-        subPath: gocache
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    kind:
-      volumeMounts:
-      - mountPath: /lib/modules
-        name: modules
-        readOnly: true
-      - mountPath: /var/lib/docker
-        name: docker-root
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - emptyDir: {}
-        name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1
-      - name: DOCKER_CONFIG
-        value: /var/run/ci/docker
-      - name: GRAFANA_TOKEN_FILE
-        value: /var/run/ci/grafana/token
-      - name: GITHUB_TOKEN_FILE
-        value: /var/run/ci/github/token
-      podSpec:
-        containers: null
-        serviceAccountName: prowjob-release
-      secrets:
-      - file: /var/run/ci/docker/config.json
-        project: istio-prow-build
-        secret: release_docker_istio
-      - file: /var/run/ci/github/token
-        project: istio-prow-build
-        secret: release_github_istio-release
-      - file: /var/run/ci/grafana/token
-        project: istio-prow-build
-        secret: release_grafana_istio
-    rustccache:
-      env:
-      - name: RUST_CACHE_DIR
-        value: /var/run/rustc-cache
-      volumeMounts:
-      - mountPath: /var/run/rustc-cache
-        name: build-cache
-        subPath: rustc
-    tracing:
-      env:
-      - name: OTEL_EXPORTER_OTLP_PROTOCOL
-        value: grpc
-      - name: OTEL_EXPORTER_OTLP_ENDPOINT
-        value: http://collector.opentelemetry:4317
-      - name: OTEL_EXPORTER_OTLP_INSECURE
-        value: "true"
-  requirements:
-  - cache
-  - cache
-  - cf-r2-public-ro-auth
-  resources_presets:
-    build:
-      limits:
-        cpu: "8"
-        memory: 24Gi
-      requests:
-        cpu: "5"
-        memory: 3Gi
-    dedicated:
-      limits:
-        memory: 24Gi
-      requests:
-        cpu: "15"
-        memory: 8Gi
-    default:
-      limits:
-        cpu: "3"
-        memory: 24Gi
-      requests:
-        cpu: "1"
-        memory: 3Gi
-  types:
-  - presubmit
-- command:
-  - entrypoint
-  - release/build.sh
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
-  name: build-release
-  node_selector:
-    testing: test-pool
-    cloud.google.com/gke-nodepool: istio-test-pool-e2
-  regex: ^release/trigger-build$
-  requirement_presets:
-    build-base:
-      env:
-      - name: DOCKER_CONFIG
-        value: /var/run/ci/docker
-      podSpec:
-        containers: null
-        serviceAccountName: prowjob-release
-      secrets:
-      - file: /var/run/ci/docker/config.json
-        project: istio-prow-build
-        secret: release_docker_istio
-      - env: GH_TOKEN
-        project: istio-prow-build
-        secret: github_istio-testing_pusher
-    cache:
-      volumeMounts:
-      - mountPath: /home/prow/go/pkg
-        name: build-cache
-        subPath: gomod
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    cf-r2-istio-build-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-build_credentials
-    cf-r2-istio-build-private-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-build-private_credentials
-    cf-r2-istio-prerelease-auth:
-      secrets:
-      - env: CF_PRERELEASE_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-prerelease_credentials
-    cf-r2-istio-prerelease-private-auth:
-      secrets:
-      - env: CF_PRERELEASE_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-prerelease-private_credentials
-    cf-r2-istio-prow-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-prow_credentials
-    cf-r2-istio-release-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-release_credentials
-    cf-r2-public-ro-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_public_buckets_ro_credentials
-    cratescache:
-      podSpec:
-        affinity:
-          nodeAffinity:
-            preferredDuringSchedulingIgnoredDuringExecution:
-            - preference:
-                matchExpressions:
-                - key: cloud.google.com/machine-family
-                  operator: In
-                  values:
-                  - c3
-                  - c3d
-                  - n4
-                  - c4d
-                  - c4a
-                  - c4
-              weight: 1
-        containers: null
-      volumeMounts:
-      - mountPath: /home/.cargo
-        name: build-cache
-        subPath: cargo
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    docker:
-      volumeMounts:
-      - mountPath: /var/lib/docker
-        name: docker-root
-      volumes:
-      - emptyDir: {}
-        name: docker-root
-    github-istio-testing:
-      podSpec:
-        containers: null
-        serviceAccountName: prowjob-github-istio-testing
-      secrets:
-      - env: GH_TOKEN
-        project: istio-prow-build
-        secret: github_istio-testing_pusher
-    github-organization:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-readonly:
-      podSpec:
-        containers: null
-        serviceAccountName: prowjob-github-read
-      secrets:
-      - env: GH_TOKEN
-        project: istio-prow-build
-        secret: github-read_github_read
-    gocache:
-      volumeMounts:
-      - mountPath: /gocache
-        name: build-cache
-        subPath: gocache
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    kind:
-      volumeMounts:
-      - mountPath: /lib/modules
-        name: modules
-        readOnly: true
-      - mountPath: /var/lib/docker
-        name: docker-root
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - emptyDir: {}
-        name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1
-      - name: DOCKER_CONFIG
-        value: /var/run/ci/docker
-      - name: GRAFANA_TOKEN_FILE
-        value: /var/run/ci/grafana/token
-      - name: GITHUB_TOKEN_FILE
-        value: /var/run/ci/github/token
-      podSpec:
-        containers: null
-        serviceAccountName: prowjob-release
-      secrets:
-      - file: /var/run/ci/docker/config.json
-        project: istio-prow-build
-        secret: release_docker_istio
-      - file: /var/run/ci/github/token
-        project: istio-prow-build
-        secret: release_github_istio-release
-      - file: /var/run/ci/grafana/token
-        project: istio-prow-build
-        secret: release_grafana_istio
-    rustccache:
-      env:
-      - name: RUST_CACHE_DIR
-        value: /var/run/rustc-cache
-      volumeMounts:
-      - mountPath: /var/run/rustc-cache
-        name: build-cache
-        subPath: rustc
-    tracing:
-      env:
-      - name: OTEL_EXPORTER_OTLP_PROTOCOL
-        value: grpc
-      - name: OTEL_EXPORTER_OTLP_ENDPOINT
-        value: http://collector.opentelemetry:4317
-      - name: OTEL_EXPORTER_OTLP_INSECURE
-        value: "true"
-  requirements:
-  - cache
-  - cache
-  - docker
-  - cf-r2-istio-prerelease-auth
-  resources: dedicated
-  resources_presets:
-    build:
-      limits:
-        cpu: "8"
-        memory: 24Gi
-      requests:
-        cpu: "5"
-        memory: 3Gi
-    dedicated:
-      limits:
-        memory: 24Gi
-      requests:
-        cpu: "15"
-        memory: 8Gi
-    default:
-      limits:
-        cpu: "3"
-        memory: 24Gi
-      requests:
-        cpu: "1"
-        memory: 3Gi
-  service_account_name: prowjob-release
+  service_account_name: prowjob-build-tools
   types:
   - postsubmit
-- command:
+- architectures:
+  - arm64
+  command:
   - entrypoint
-  - release/publish.sh
+  - make
+  - containers
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
+  - name: MANIFEST_ARCH
+  - name: HUB
+    value: ghcr.io/testing
   image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
-  max_concurrency: 1
-  name: publish-release
+  name: containers
   node_selector:
     testing: test-pool
-    cloud.google.com/gke-nodepool: istio-test-pool-e2
-  regex: ^release/trigger-publish$
+  regex: docker/.+|cmd/.+|pkg/.+
   requirement_presets:
     build-base:
       env:
@@ -1740,233 +1278,6 @@ jobs:
   requirements:
   - cache
   - cache
-  - release
-  - docker
-  - cf-r2-istio-prerelease-auth
-  - cf-r2-istio-release-auth
-  resources: dedicated
-  resources_presets:
-    build:
-      limits:
-        cpu: "8"
-        memory: 24Gi
-      requests:
-        cpu: "5"
-        memory: 3Gi
-    dedicated:
-      limits:
-        memory: 24Gi
-      requests:
-        cpu: "15"
-        memory: 8Gi
-    default:
-      limits:
-        cpu: "3"
-        memory: 24Gi
-      requests:
-        cpu: "1"
-        memory: 3Gi
-  types:
-  - postsubmit
-- command:
-  - entrypoint
-  - release/build-base-images.sh
-  cron: 0 19 * * *
-  env:
-  - name: BUILD_WITH_CONTAINER
-    value: "0"
-  - name: VERSION
-    value: master
-  image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
-  name: build-base-images
-  node_selector:
-    testing: test-pool
-  requirement_presets:
-    build-base:
-      env:
-      - name: DOCKER_CONFIG
-        value: /var/run/ci/docker
-      podSpec:
-        containers: null
-        serviceAccountName: prowjob-release
-      secrets:
-      - file: /var/run/ci/docker/config.json
-        project: istio-prow-build
-        secret: release_docker_istio
-      - env: GH_TOKEN
-        project: istio-prow-build
-        secret: github_istio-testing_pusher
-    cache:
-      volumeMounts:
-      - mountPath: /home/prow/go/pkg
-        name: build-cache
-        subPath: gomod
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    cf-r2-istio-build-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-build_credentials
-    cf-r2-istio-build-private-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-build-private_credentials
-    cf-r2-istio-prerelease-auth:
-      secrets:
-      - env: CF_PRERELEASE_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-prerelease_credentials
-    cf-r2-istio-prerelease-private-auth:
-      secrets:
-      - env: CF_PRERELEASE_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-prerelease-private_credentials
-    cf-r2-istio-prow-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-prow_credentials
-    cf-r2-istio-release-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_istio-release_credentials
-    cf-r2-public-ro-auth:
-      secrets:
-      - env: CF_CREDENTIALS
-        project: istio-testing
-        secret: cf_r2_public_buckets_ro_credentials
-    cratescache:
-      podSpec:
-        affinity:
-          nodeAffinity:
-            preferredDuringSchedulingIgnoredDuringExecution:
-            - preference:
-                matchExpressions:
-                - key: cloud.google.com/machine-family
-                  operator: In
-                  values:
-                  - c3
-                  - c3d
-                  - n4
-                  - c4d
-                  - c4a
-                  - c4
-              weight: 1
-        containers: null
-      volumeMounts:
-      - mountPath: /home/.cargo
-        name: build-cache
-        subPath: cargo
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    docker:
-      volumeMounts:
-      - mountPath: /var/lib/docker
-        name: docker-root
-      volumes:
-      - emptyDir: {}
-        name: docker-root
-    github-istio-testing:
-      podSpec:
-        containers: null
-        serviceAccountName: prowjob-github-istio-testing
-      secrets:
-      - env: GH_TOKEN
-        project: istio-prow-build
-        secret: github_istio-testing_pusher
-    github-organization:
-      volumeMounts:
-      - mountPath: /etc/github-token
-        name: github
-        readOnly: true
-      volumes:
-      - name: github
-        secret:
-          secretName: oauth-token
-    github-readonly:
-      podSpec:
-        containers: null
-        serviceAccountName: prowjob-github-read
-      secrets:
-      - env: GH_TOKEN
-        project: istio-prow-build
-        secret: github-read_github_read
-    gocache:
-      volumeMounts:
-      - mountPath: /gocache
-        name: build-cache
-        subPath: gocache
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-    kind:
-      volumeMounts:
-      - mountPath: /lib/modules
-        name: modules
-        readOnly: true
-      - mountPath: /var/lib/docker
-        name: docker-root
-      volumes:
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - emptyDir: {}
-        name: docker-root
-    release:
-      env:
-      - name: COSIGN_KEY
-        value: gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1
-      - name: DOCKER_CONFIG
-        value: /var/run/ci/docker
-      - name: GRAFANA_TOKEN_FILE
-        value: /var/run/ci/grafana/token
-      - name: GITHUB_TOKEN_FILE
-        value: /var/run/ci/github/token
-      podSpec:
-        containers: null
-        serviceAccountName: prowjob-release
-      secrets:
-      - file: /var/run/ci/docker/config.json
-        project: istio-prow-build
-        secret: release_docker_istio
-      - file: /var/run/ci/github/token
-        project: istio-prow-build
-        secret: release_github_istio-release
-      - file: /var/run/ci/grafana/token
-        project: istio-prow-build
-        secret: release_grafana_istio
-    rustccache:
-      env:
-      - name: RUST_CACHE_DIR
-        value: /var/run/rustc-cache
-      volumeMounts:
-      - mountPath: /var/run/rustc-cache
-        name: build-cache
-        subPath: rustc
-    tracing:
-      env:
-      - name: OTEL_EXPORTER_OTLP_PROTOCOL
-        value: grpc
-      - name: OTEL_EXPORTER_OTLP_ENDPOINT
-        value: http://collector.opentelemetry:4317
-      - name: OTEL_EXPORTER_OTLP_INSECURE
-        value: "true"
-  requirements:
-  - cache
-  - cache
-  - build-base
   - docker
   resources: build
   resources_presets:
@@ -1975,14 +1286,225 @@ jobs:
         cpu: "8"
         memory: 24Gi
       requests:
-        cpu: "5"
-        memory: 3Gi
-    dedicated:
+        cpu: "8"
+        memory: 4Gi
+    default:
       limits:
+        cpu: "3"
         memory: 24Gi
       requests:
-        cpu: "15"
-        memory: 8Gi
+        cpu: "1"
+        memory: 3Gi
+  service_account_name: prowjob-build-tools
+  types:
+  - postsubmit
+- command:
+  - entrypoint
+  - make
+  - containers-test
+  env:
+  - name: BUILD_WITH_CONTAINER
+    value: "0"
+  image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+  name: containers-test
+  node_selector:
+    testing: test-pool
+  regex: docker/.+|cmd/.+
+  requirement_presets:
+    build-base:
+      env:
+      - name: DOCKER_CONFIG
+        value: /var/run/ci/docker
+      podSpec:
+        containers: null
+        serviceAccountName: prowjob-release
+      secrets:
+      - file: /var/run/ci/docker/config.json
+        project: istio-prow-build
+        secret: release_docker_istio
+      - env: GH_TOKEN
+        project: istio-prow-build
+        secret: github_istio-testing_pusher
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    cf-r2-istio-build-auth:
+      secrets:
+      - env: CF_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_istio-build_credentials
+    cf-r2-istio-build-private-auth:
+      secrets:
+      - env: CF_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_istio-build-private_credentials
+    cf-r2-istio-prerelease-auth:
+      secrets:
+      - env: CF_PRERELEASE_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_istio-prerelease_credentials
+    cf-r2-istio-prerelease-private-auth:
+      secrets:
+      - env: CF_PRERELEASE_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_istio-prerelease-private_credentials
+    cf-r2-istio-prow-auth:
+      secrets:
+      - env: CF_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_istio-prow_credentials
+    cf-r2-istio-release-auth:
+      secrets:
+      - env: CF_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_istio-release_credentials
+    cf-r2-public-ro-auth:
+      secrets:
+      - env: CF_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_public_buckets_ro_credentials
+    cratescache:
+      podSpec:
+        affinity:
+          nodeAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - preference:
+                matchExpressions:
+                - key: cloud.google.com/machine-family
+                  operator: In
+                  values:
+                  - c3
+                  - c3d
+                  - n4
+                  - c4d
+                  - c4a
+                  - c4
+              weight: 1
+        containers: null
+      volumeMounts:
+      - mountPath: /home/.cargo
+        name: build-cache
+        subPath: cargo
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github-istio-testing:
+      podSpec:
+        containers: null
+        serviceAccountName: prowjob-github-istio-testing
+      secrets:
+      - env: GH_TOKEN
+        project: istio-prow-build
+        secret: github_istio-testing_pusher
+    github-organization:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-readonly:
+      podSpec:
+        containers: null
+        serviceAccountName: prowjob-github-read
+      secrets:
+      - env: GH_TOKEN
+        project: istio-prow-build
+        secret: github-read_github_read
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        value: gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1
+      - name: DOCKER_CONFIG
+        value: /var/run/ci/docker
+      - name: GRAFANA_TOKEN_FILE
+        value: /var/run/ci/grafana/token
+      - name: GITHUB_TOKEN_FILE
+        value: /var/run/ci/github/token
+      podSpec:
+        containers: null
+        serviceAccountName: prowjob-release
+      secrets:
+      - file: /var/run/ci/docker/config.json
+        project: istio-prow-build
+        secret: release_docker_istio
+      - file: /var/run/ci/github/token
+        project: istio-prow-build
+        secret: release_github_istio-release
+      - file: /var/run/ci/grafana/token
+        project: istio-prow-build
+        secret: release_grafana_istio
+    rustccache:
+      env:
+      - name: RUST_CACHE_DIR
+        value: /var/run/rustc-cache
+      volumeMounts:
+      - mountPath: /var/run/rustc-cache
+        name: build-cache
+        subPath: rustc
+    tracing:
+      env:
+      - name: OTEL_EXPORTER_OTLP_PROTOCOL
+        value: grpc
+      - name: OTEL_EXPORTER_OTLP_ENDPOINT
+        value: http://collector.opentelemetry:4317
+      - name: OTEL_EXPORTER_OTLP_INSECURE
+        value: "true"
+  requirements:
+  - cache
+  - cache
+  - docker
+  resources: build
+  resources_presets:
+    build:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 4Gi
     default:
       limits:
         cpu: "3"
@@ -1991,11 +1513,229 @@ jobs:
         cpu: "1"
         memory: 3Gi
   types:
-  - periodic
+  - presubmit
+- architectures:
+  - arm64
+  command:
+  - entrypoint
+  - make
+  - containers-test
+  env:
+  - name: BUILD_WITH_CONTAINER
+    value: "0"
+  image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+  name: containers-test
+  node_selector:
+    testing: test-pool
+  regex: docker/.+|cmd/.+|pkg/.+
+  requirement_presets:
+    build-base:
+      env:
+      - name: DOCKER_CONFIG
+        value: /var/run/ci/docker
+      podSpec:
+        containers: null
+        serviceAccountName: prowjob-release
+      secrets:
+      - file: /var/run/ci/docker/config.json
+        project: istio-prow-build
+        secret: release_docker_istio
+      - env: GH_TOKEN
+        project: istio-prow-build
+        secret: github_istio-testing_pusher
+    cache:
+      volumeMounts:
+      - mountPath: /home/prow/go/pkg
+        name: build-cache
+        subPath: gomod
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    cf-r2-istio-build-auth:
+      secrets:
+      - env: CF_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_istio-build_credentials
+    cf-r2-istio-build-private-auth:
+      secrets:
+      - env: CF_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_istio-build-private_credentials
+    cf-r2-istio-prerelease-auth:
+      secrets:
+      - env: CF_PRERELEASE_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_istio-prerelease_credentials
+    cf-r2-istio-prerelease-private-auth:
+      secrets:
+      - env: CF_PRERELEASE_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_istio-prerelease-private_credentials
+    cf-r2-istio-prow-auth:
+      secrets:
+      - env: CF_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_istio-prow_credentials
+    cf-r2-istio-release-auth:
+      secrets:
+      - env: CF_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_istio-release_credentials
+    cf-r2-public-ro-auth:
+      secrets:
+      - env: CF_CREDENTIALS
+        project: istio-testing
+        secret: cf_r2_public_buckets_ro_credentials
+    cratescache:
+      podSpec:
+        affinity:
+          nodeAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - preference:
+                matchExpressions:
+                - key: cloud.google.com/machine-family
+                  operator: In
+                  values:
+                  - c3
+                  - c3d
+                  - n4
+                  - c4d
+                  - c4a
+                  - c4
+              weight: 1
+        containers: null
+      volumeMounts:
+      - mountPath: /home/.cargo
+        name: build-cache
+        subPath: cargo
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    docker:
+      volumeMounts:
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - emptyDir: {}
+        name: docker-root
+    github-istio-testing:
+      podSpec:
+        containers: null
+        serviceAccountName: prowjob-github-istio-testing
+      secrets:
+      - env: GH_TOKEN
+        project: istio-prow-build
+        secret: github_istio-testing_pusher
+    github-organization:
+      volumeMounts:
+      - mountPath: /etc/github-token
+        name: github
+        readOnly: true
+      volumes:
+      - name: github
+        secret:
+          secretName: oauth-token
+    github-readonly:
+      podSpec:
+        containers: null
+        serviceAccountName: prowjob-github-read
+      secrets:
+      - env: GH_TOKEN
+        project: istio-prow-build
+        secret: github-read_github_read
+    gocache:
+      volumeMounts:
+      - mountPath: /gocache
+        name: build-cache
+        subPath: gocache
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+    kind:
+      volumeMounts:
+      - mountPath: /lib/modules
+        name: modules
+        readOnly: true
+      - mountPath: /var/lib/docker
+        name: docker-root
+      volumes:
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+    release:
+      env:
+      - name: COSIGN_KEY
+        value: gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1
+      - name: DOCKER_CONFIG
+        value: /var/run/ci/docker
+      - name: GRAFANA_TOKEN_FILE
+        value: /var/run/ci/grafana/token
+      - name: GITHUB_TOKEN_FILE
+        value: /var/run/ci/github/token
+      podSpec:
+        containers: null
+        serviceAccountName: prowjob-release
+      secrets:
+      - file: /var/run/ci/docker/config.json
+        project: istio-prow-build
+        secret: release_docker_istio
+      - file: /var/run/ci/github/token
+        project: istio-prow-build
+        secret: release_github_istio-release
+      - file: /var/run/ci/grafana/token
+        project: istio-prow-build
+        secret: release_grafana_istio
+    rustccache:
+      env:
+      - name: RUST_CACHE_DIR
+        value: /var/run/rustc-cache
+      volumeMounts:
+      - mountPath: /var/run/rustc-cache
+        name: build-cache
+        subPath: rustc
+    tracing:
+      env:
+      - name: OTEL_EXPORTER_OTLP_PROTOCOL
+        value: grpc
+      - name: OTEL_EXPORTER_OTLP_ENDPOINT
+        value: http://collector.opentelemetry:4317
+      - name: OTEL_EXPORTER_OTLP_INSECURE
+        value: "true"
+  requirements:
+  - cache
+  - cache
+  - docker
+  resources: build
+  resources_presets:
+    build:
+      limits:
+        cpu: "8"
+        memory: 24Gi
+      requests:
+        cpu: "8"
+        memory: 4Gi
+    default:
+      limits:
+        cpu: "3"
+        memory: 24Gi
+      requests:
+        cpu: "1"
+        memory: 3Gi
+  types:
+  - presubmit
 node_selector:
   testing: test-pool
 org: istio
-repo: release-builder
+repo: tools
 requirement_presets:
   build-base:
     env:
@@ -2187,14 +1927,8 @@ resources_presets:
       cpu: "8"
       memory: 24Gi
     requests:
-      cpu: "5"
-      memory: 3Gi
-  dedicated:
-    limits:
-      memory: 24Gi
-    requests:
-      cpu: "15"
-      memory: 8Gi
+      cpu: "8"
+      memory: 4Gi
   default:
     limits:
       cpu: "3"

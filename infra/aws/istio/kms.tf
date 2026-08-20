@@ -37,7 +37,6 @@ data "aws_iam_policy_document" "istio_cosign_key" {
     effect = "Allow"
     actions = [
       "kms:Sign",
-      "kms:Verify",
       "kms:GetPublicKey",
       "kms:DescribeKey",
     ]
