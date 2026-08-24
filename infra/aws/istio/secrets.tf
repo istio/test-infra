@@ -1,12 +1,16 @@
 locals {
   # release_secrets contains secrets for the release prowjob.
   all_secrets = {
-    # Access token for "istio" dockerhub account.
+    # Access token for "istio" dockerhub account and GHCR.
+    # Merging dockerconfigs is kinda annoying
     "release_docker_istio" = "DockerHub access token for the \"istio\" account"
 
     # Fine grained PAT in the Istio org, "github/istio-release/release".
     # Has write access to "Contents" and "Workflows". Expires 7/29/2026.
     "release_github_istio-release" = "Fine-grained GitHub PAT for releases (Contents+Workflows write); expires 2026-07-29"
+
+    # GitHub PAT used by prerelease builds to push Istio images to GHCR.
+    "prerelease_ghcr_istio" = "Docker credentials to push to ghcr.io"
 
     # Access token for Grafana for the "Istio" org. Named
     # "release-pipeline-token" in Grafana, with role "Editor".

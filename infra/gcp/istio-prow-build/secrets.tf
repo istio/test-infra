@@ -3,8 +3,11 @@
 locals {
   # release_secrets contains secrets for prowjob-release
   all_secrets = [
-    # Access token for "istio" dockerhub account
+    # Access token for "istio" dockerhub account and GHCR.
+    # Merging dockerconfigs is kinda annoying
     "release_docker_istio",
+    # Docker config for prerelease Istio images published to GHCR.
+    "prerelease_ghcr_istio",
     # Fine grained PAT in the Istio org, "github/istio-release/release". Has write access to "Contents" and "Workflows".
     # Expires 7/29/2026.
     "release_github_istio-release",

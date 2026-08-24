@@ -189,6 +189,14 @@ requirement_presets:
       - secret: github_istio-testing_pusher # Note: This is NOT "release_github_istio-release", which is why this is separate from 'releae'
         project: istio-prow-build
         env: GH_TOKEN
+  prerelease-ghcr:
+    env:
+    - name: DOCKER_CONFIG
+      value: /var/run/ci/docker
+    secrets:
+    - secret: prerelease_ghcr_istio
+      project: istio-prow-build
+      file: /var/run/ci/docker/config.json
   # release is used for release jobs. This is the most privileged type of job.
   release:
     # For publish, we also need Grafana token, DockerHub token, and GitHub login
