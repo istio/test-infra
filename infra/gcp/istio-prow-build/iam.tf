@@ -19,6 +19,7 @@ module "prowjob_release_account" {
   cluster_namespace = local.pod_namespace
   secrets = [
     { name = "release_docker_istio" },
+    { name = "prerelease_ghcr_istio" },
     { name = "release_github_istio-release" },
     { name = "release_grafana_istio" },
     # This may look a bit weird, but for building base images we need dockerhub + istio-testing account, not istio-release account.
