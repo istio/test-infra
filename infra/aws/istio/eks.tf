@@ -14,7 +14,7 @@ locals {
           instance_types = ["t3.large"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
-          max_size       = 5
+          max_size       = 10
           desired_size   = 3
           block_device_mappings = {
             root = {
@@ -47,12 +47,12 @@ locals {
           labels = { testing = "build-pool" }
         }
         # Primary test pool
-        test-e2 = {
+        test = {
           ami_type       = "AL2023_x86_64_STANDARD"
           instance_types = ["m6i.4xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
-          max_size       = 5
+          max_size       = 30
           desired_size   = 1
           block_device_mappings = {
             root = {
@@ -82,7 +82,7 @@ locals {
 
     prow-private = {
       node_groups = {
-        # Test pool (e2-standard-16).
+        # Test pool
         test = {
           ami_type       = "AL2023_x86_64_STANDARD"
           instance_types = ["t3.large"]
@@ -101,7 +101,7 @@ locals {
         # High-memory build pool
         build = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["t3.small"]
+          instance_types = ["m6i.16xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 0
           max_size       = 5
@@ -116,7 +116,7 @@ locals {
         }
         arm = {
           ami_type       = "AL2023_ARM_64_STANDARD"
-          instance_types = ["t4g.small"]
+          instance_types = ["t4g.large"]
           capacity_type  = "ON_DEMAND"
           min_size       = 0
           max_size       = 5
