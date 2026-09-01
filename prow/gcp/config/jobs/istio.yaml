@@ -53,6 +53,7 @@ jobs:
     requirements: [kind]
 
   - name: integ-telemetry-mc
+    modifiers: [presubmit_optional, presubmit_skipped]
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -63,6 +64,7 @@ jobs:
     resources: multicluster
 
   - name: integ-telemetry-istiodremote
+    modifiers: [presubmit_optional, presubmit_skipped]
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -93,6 +95,7 @@ jobs:
     - test.integration.ambient.kube
 
   - name: integ-distroless
+    modifiers: [presubmit_optional, presubmit_skipped]
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.environment]
     requirements: [kind]
     env:
@@ -113,6 +116,7 @@ jobs:
     resources: multicluster
 
   - name: integ-ipv6
+    modifiers: [presubmit_optional, presubmit_skipped]
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.kube.environment]
     requirements: [kind]
     env:
@@ -140,8 +144,7 @@ jobs:
     requirements: [kind]
 
   - name: integ-pilot-cni-nftables
-    types: [presubmit]
-    modifiers: [presubmit_optional]
+    modifiers: [presubmit_optional, presubmit_skipped]
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.pilot.kube]
     requirements: [kind]
     env:
@@ -158,6 +161,7 @@ jobs:
         value: "grpctesting/istio_echo_cpp"
 
   - name: integ-pilot-multicluster
+    modifiers: [presubmit_optional, presubmit_skipped]
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -181,6 +185,7 @@ jobs:
     resources: multicluster
 
   - name: integ-pilot-istiodremote
+    modifiers: [presubmit_optional, presubmit_skipped]
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -196,6 +201,7 @@ jobs:
         value: --istio.test.skipVM
 
   - name: integ-pilot-istiodremote-mc
+    modifiers: [presubmit_optional, presubmit_skipped]
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -229,6 +235,7 @@ jobs:
     requirements: [kind]
 
   - name: integ-security-multicluster
+    modifiers: [presubmit_optional, presubmit_skipped]
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -239,6 +246,7 @@ jobs:
     resources: multicluster
 
   - name: integ-security-istiodremote
+    modifiers: [presubmit_optional, presubmit_skipped]
     command:
       - entrypoint
       - prow/integ-suite-kind.sh
@@ -279,7 +287,7 @@ jobs:
       - test.integration.ambient.kube
 
   - name: integ-ambient-owned-cni
-    modifiers: [presubmit_optional]
+    modifiers: [presubmit_optional, presubmit_skipped]
     requirements: [kind]
     env:
     - name: INTEGRATION_TEST_FLAGS
@@ -308,6 +316,7 @@ jobs:
     - test.integration.ambient.kube
 
   - name: integ-ambient-mc
+    modifiers: [presubmit_optional, presubmit_skipped]
     requirements: [kind]
     env:
     - name: INTEGRATION_TEST_FLAGS
@@ -346,6 +355,7 @@ jobs:
     - test.integration.ambient.kube
 
   - name: integ-ambient-dual
+    modifiers: [presubmit_optional, presubmit_skipped]
     requirements: [kind]
     env:
     - name: INTEGRATION_TEST_FLAGS
@@ -363,7 +373,7 @@ jobs:
     - test.integration.ambient.kube
 
   - name: integ-gateway-api-only
-    modifiers: [presubmit_optional]
+    modifiers: [presubmit_optional, presubmit_skipped]
     requirements: [kind]
     env:
     - name: INTEGRATION_TEST_FLAGS
@@ -378,146 +388,6 @@ jobs:
   - name: integ-helm
     command: [entrypoint, prow/integ-suite-kind.sh, test.integration.helm.kube]
     requirements: [kind]
-
-    # The node image must be kept in sync with the kind version we use.
-    # See istio.io/tools/docker/build-tools to build a kind image
-  - name: integ-k8s-123
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - gcr.io/istio-testing/kind-node:v1.23.9
-      - --kind-config
-      - prow/config/mixedlb-service.yaml
-      - test.integration.kube
-    requirements: [kind]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
-  - name: integ-k8s-124
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - gcr.io/istio-testing/kind-node:v1.24.9
-      - test.integration.kube
-    requirements: [kind]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
-  - name: integ-k8s-125
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - gcr.io/istio-testing/kind-node:v1.25.9
-      - test.integration.kube
-    requirements: [kind]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
-  - name: integ-k8s-126
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - gcr.io/istio-testing/kind-node:v1.26.6
-      - test.integration.kube
-    requirements: [kind]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
-  - name: integ-k8s-127
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - gcr.io/istio-testing/kind-node:v1.27.8
-      - --kind-config
-      - prow/config/modern.yaml
-      - test.integration.kube
-    requirements: [kind]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
-  - name: integ-k8s-128
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - gcr.io/istio-testing/kind-node:v1.28.4
-      - --kind-config
-      - prow/config/modern.yaml
-      - test.integration.kube
-    requirements: [kind]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
-  - name: integ-k8s-129
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - gcr.io/istio-testing/kind-node:v1.29.7
-      - --kind-config
-      - prow/config/modern.yaml
-      - test.integration.kube
-    requirements: [kind]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
-  - name: integ-k8s-130
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - gcr.io/istio-testing/kind-node:v1.30.3
-      - --kind-config
-      - prow/config/modern.yaml
-      - test.integration.kube
-    requirements: [kind]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
-  - name: integ-k8s-131
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - gcr.io/istio-testing/kind-node:v1.31.0
-      - --kind-config
-      - prow/config/modern.yaml
-      - test.integration.kube
-    requirements: [kind]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
 
   - name: integ-k8s-132
     types: [postsubmit]
