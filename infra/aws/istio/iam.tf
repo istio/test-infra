@@ -22,6 +22,7 @@ locals {
         "release_grafana_istio",
         "github_istio-testing_pusher",
         "ghcr-push-pat",
+        "prerelease_ghcr_istio",
         "cf_r2_istio-prerelease_credentials",
         "cf_r2_istio-release_credentials",
       ]

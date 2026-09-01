@@ -30,6 +30,40 @@ presubmits:
             memory: "1Gi"
             cpu: 1
 
+periodics:
+- cron: "05 15-23 * * 1-5"  # Run at 7:05-15:05 PST (15:05 UTC) Mon-Fri
+  name: ci-prow-autobump-aws
+  cluster: test-infra-trusted
+  decorate: true
+  extra_refs:
+  - org: istio
+    repo: test-infra
+    base_ref: master
+  annotations:
+    testgrid-create-test-group: "false"
+  spec:
+    automountServiceAccountToken: false
+    containers:
+    - image: us-docker.pkg.dev/k8s-infra-prow/images/generic-autobumper:v20260714-0633879af
+      command:
+      - generic-autobumper
+      args:
+      - --config=prow/aws/istio-autobump-config.yaml
+      volumeMounts:
+      - name: github
+        mountPath: /etc/github-token
+        readOnly: true
+      - name: ssh
+        mountPath: /root/.ssh
+    volumes:
+    - name: github
+      secret:
+        secretName: github-istio-testing-pusher
+    - name: ssh
+      secret:
+        secretName: istio-testing-robot-ssh-key
+        defaultMode: 0400
+
 postsubmits:
   istio/test-infra:
   - name: deploy-prow_test-infra_postsubmit
