@@ -52,6 +52,21 @@ locals {
           instance_types = ["m6i.4xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
+          max_size       = 60
+          desired_size   = 1
+          block_device_mappings = {
+            root = {
+              device_name = "/dev/xvda"
+              ebs         = merge(local.gp3_root_volume, { volume_size = 256 })
+            }
+          }
+          labels = { testing = "test-pool" }
+        }
+        test2 = {
+          ami_type       = "AL2023_x86_64_STANDARD"
+          instance_types = ["m7a.4xlarge", "m6a.4xlarge", "m7i.4xlarge", "m6i.4xlarge"]
+          capacity_type  = "SPOT"
+          min_size       = 1
           max_size       = 30
           desired_size   = 1
           block_device_mappings = {
@@ -79,7 +94,6 @@ locals {
         }
       }
     }
-
     prow-private = {
       node_groups = {
         # Test pool
@@ -105,7 +119,7 @@ locals {
           capacity_type  = "ON_DEMAND"
           min_size       = 0
           max_size       = 5
-          desired_size   = 1
+          desired_size   = 0
           block_device_mappings = {
             root = {
               device_name = "/dev/xvda"
@@ -120,7 +134,7 @@ locals {
           capacity_type  = "ON_DEMAND"
           min_size       = 0
           max_size       = 5
-          desired_size   = 1
+          desired_size   = 0
           block_device_mappings = {
             root = {
               device_name = "/dev/xvda"
