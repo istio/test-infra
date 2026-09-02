@@ -83,6 +83,13 @@ jobs:
       - env: CF_CREDENTIALS
         project: istio-testing
         secret: cf_r2_public_buckets_ro_credentials
+    testing-pusher:
+      env:
+      - name: DOCKER_CONFIG
+        value: /var/run/ci/docker
+      secrets:
+      - file: /var/run/ci/docker/config.json
+        secret: testing_ghcr_istio
     cratescache:
       podSpec:
         affinity:
@@ -666,6 +673,7 @@ jobs:
   - gocache
   - docker
   - cf-r2-istio-build-auth
+  - testing-pusher
   resources: dedicated
   resources_presets:
     dedicated:

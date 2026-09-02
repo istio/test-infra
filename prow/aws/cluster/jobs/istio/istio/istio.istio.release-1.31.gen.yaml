@@ -2765,8 +2765,10 @@ postsubmits:
           value: ghcr.io/istio/testing
         - name: HELM_HUB
           value: ghcr.io/istio/testing
+        - name: DOCKER_CONFIG
+          value: /var/run/ci/docker
         - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-build_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
+          value: '[{"secret":"cf_r2_istio-build_credentials","project":"istio-testing","env":"CF_CREDENTIALS"},{"secret":"testing_ghcr_istio","file":"/var/run/ci/docker/config.json"}]'
         image: registry.istio.io/testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
