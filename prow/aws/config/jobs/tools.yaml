@@ -1,7 +1,7 @@
 org: istio
 repo: tools
 support_release_branching: true
-image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+image: registry.istio.io/testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
 
 jobs:
   - name: build
@@ -41,7 +41,7 @@ jobs:
     - name: AUTOMATOR_ORG
       value: istio
     - name: HUB
-      value: ghcr.io/testing
+      value: registry.istio.io/testing
   # arm64 build
   - name: containers
     service_account_name: prowjob-build-tools
@@ -56,7 +56,7 @@ jobs:
     - name: MANIFEST_ARCH
       value: ""
     - name: HUB
-      value: ghcr.io/testing
+      value: registry.istio.io/testing
     resources: build
     regex: 'docker/.+|cmd/.+|pkg/.+'
     requirements: [docker, testing-pusher]
