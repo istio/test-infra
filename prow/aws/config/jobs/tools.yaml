@@ -41,7 +41,7 @@ jobs:
     - name: AUTOMATOR_ORG
       value: istio
     - name: HUB
-      value: registry.istio.io/testing
+      value: ghcr.io/istio/testing
   # arm64 build
   - name: containers
     service_account_name: prowjob-build-tools
@@ -56,7 +56,7 @@ jobs:
     - name: MANIFEST_ARCH
       value: ""
     - name: HUB
-      value: registry.istio.io/testing
+      value: ghcr.io/istio/testing
     resources: build
     regex: 'docker/.+|cmd/.+|pkg/.+'
     requirements: [docker, testing-pusher]
