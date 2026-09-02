@@ -4,10 +4,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^release-1.31$
+    - ^master$
     cluster: private
     decorate: true
-    name: build-release_release-builder_release-1.31_postsubmit_pri
+    name: build-release_release-builder_postsubmit_pri
     path_alias: istio.io/release-builder
     run_if_changed: ^release/trigger-build$
     spec:
@@ -36,12 +36,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: release-1.31-release-deps
+              name: master-release-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-prerelease-private_credentials","project":"istio-testing","env":"CF_PRERELEASE_CREDENTIALS"},{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -62,7 +62,6 @@ postsubmits:
           readOnly: true
           subPath: .netrc
       nodeSelector:
-        cloud.google.com/gke-nodepool: istio-test-pool-e2
         kubernetes.io/arch: amd64
         testing: test-pool
       serviceAccountName: prowjob-private
@@ -83,10 +82,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^release-1.31$
+    - ^master$
     cluster: private
     decorate: true
-    name: gencheck_release-builder_release-1.31_postsubmit_pri
+    name: gencheck_release-builder_postsubmit_pri
     path_alias: istio.io/release-builder
     spec:
       automountServiceAccountToken: false
@@ -100,7 +99,7 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "3"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -137,10 +136,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^release-1.31$
+    - ^master$
     cluster: private
     decorate: true
-    name: lint_release-builder_release-1.31_postsubmit_pri
+    name: lint_release-builder_postsubmit_pri
     path_alias: istio.io/release-builder
     spec:
       automountServiceAccountToken: false
@@ -154,9 +153,7 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "3"
-        - name: VERSION
-          value: "1.31"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -193,10 +190,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^release-1.31$
+    - ^master$
     cluster: private
     decorate: true
-    name: test_release-builder_release-1.31_postsubmit_pri
+    name: test_release-builder_postsubmit_pri
     path_alias: istio.io/release-builder
     spec:
       automountServiceAccountToken: false
@@ -210,7 +207,7 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "3"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -250,10 +247,10 @@ presubmits:
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^release-1.31$
+    - ^master$
     cluster: private
     decorate: true
-    name: build-warning_release-builder_release-1.31_pri
+    name: build-warning_release-builder_pri
     optional: true
     path_alias: istio.io/release-builder
     rerun_command: /test build-warning
@@ -278,7 +275,7 @@ presubmits:
           value: istio-prerelease-private/prerelease
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-prerelease-private_credentials","project":"istio-testing","env":"CF_PRERELEASE_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -301,15 +298,15 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
-    trigger: ((?m)^/test( | .* )build-warning,?($|\s.*))|((?m)^/test( | .* )build-warning_release-builder_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )build-warning,?($|\s.*))|((?m)^/test( | .* )build-warning_release-builder,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^release-1.31$
+    - ^master$
     cluster: private
     decorate: true
-    name: gencheck_release-builder_release-1.31_pri
+    name: gencheck_release-builder_pri
     path_alias: istio.io/release-builder
     rerun_command: /test gencheck
     spec:
@@ -324,7 +321,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "3"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -358,15 +355,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_release-builder_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_release-builder,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^release-1.31$
+    - ^master$
     cluster: private
     decorate: true
-    name: lint_release-builder_release-1.31_pri
+    name: lint_release-builder_pri
     path_alias: istio.io/release-builder
     rerun_command: /test lint
     spec:
@@ -381,9 +378,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "3"
-        - name: VERSION
-          value: "1.31"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -417,15 +412,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_release-builder_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_release-builder,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^release-1.31$
+    - ^master$
     cluster: private
     decorate: true
-    name: test_release-builder_release-1.31_pri
+    name: test_release-builder_pri
     path_alias: istio.io/release-builder
     rerun_command: /test test
     spec:
@@ -440,7 +435,7 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "3"
-        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
         name: ""
         resources:
           limits:
@@ -474,4 +469,4 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_release-builder_release-1.31,?($|\s.*))
+    trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_release-builder,?($|\s.*))

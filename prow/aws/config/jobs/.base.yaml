@@ -173,6 +173,13 @@ requirement_presets:
         project: istio-testing
         env: CF_CREDENTIALS
   # build-base has access to push to dockerhub and to push as istio-testing github. Only for use with base image building
+  testing-pusher:
+    env:
+    - name: DOCKER_CONFIG
+      value: /var/run/ci/docker
+    secrets:
+      - secret: testing_ghcr_istio
+        file: /var/run/ci/docker/config.json
   build-base:
     env:
     - name: DOCKER_CONFIG
@@ -186,6 +193,14 @@ requirement_presets:
       - secret: github_istio-testing_pusher # Note: This is NOT "release_github_istio-release", which is why this is separate from 'releae'
         project: istio-prow-build
         env: GH_TOKEN
+  prerelease-ghcr:
+    env:
+    - name: DOCKER_CONFIG
+      value: /var/run/ci/docker
+    secrets:
+    - secret: prerelease_ghcr_istio
+      project: istio-prow-build
+      file: /var/run/ci/docker/config.json
   # release is used for release jobs. This is the most privileged type of job.
   release:
     # For publish, we also need Grafana token, DockerHub token, and GitHub login
@@ -193,7 +208,9 @@ requirement_presets:
       serviceAccountName: prowjob-release
     env:
       - name: COSIGN_KEY
-        value: "gcpkms://projects/istio-prow-build/locations/global/keyRings/istio-cosign-keyring/cryptoKeys/istio-cosign-key/versions/1"
+        value: "awskms:///alias/istio-cosign"
+      - name: AWS_REGION
+        value: us-west-2
       - name: DOCKER_CONFIG
         value: /var/run/ci/docker
       - name: GRAFANA_TOKEN_FILE

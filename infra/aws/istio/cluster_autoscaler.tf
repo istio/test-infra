@@ -103,6 +103,17 @@ resource "helm_release" "cluster_autoscaler_prow_build" {
     value = "test-pool"
   }
 
+  // I could have named stuff better here, but test2 is spot isntances, and we want on-demand when possible
+  values = [yamlencode({
+    extraArgs = {
+      expander = "priority"
+    }
+    expanderPriorities = {
+      "100" = ["^eks-test-.*$"]
+      "10"  = ["^eks-test2-.*$"]
+    }
+  })]
+
   depends_on = [module.cluster_autoscaler_identity]
 }
 

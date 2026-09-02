@@ -4,10 +4,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-agentgateway_istio_postsubmit_pri
+    name: integ-agentgateway_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -28,12 +28,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -84,10 +84,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-ambient-calico_istio_postsubmit_pri
+    name: integ-ambient-calico_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -112,12 +112,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -168,10 +168,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-ambient-dual_istio_postsubmit_pri
+    name: integ-ambient-dual_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -198,12 +198,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -254,10 +254,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-ambient-ipv6_istio_postsubmit_pri
+    name: integ-ambient-ipv6_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -284,12 +284,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -340,96 +340,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-ambient-mc-mixed-network_istio_postsubmit_pri
-    path_alias: istio.io/istio
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - --kind-config
-        - prow/config/default.yaml
-        - --topology
-        - AMBIENT_MULTICLUSTER
-        - --topology-config
-        - prow/config/topology/ambient-multicluster-large.json
-        - test.integration.ambient.kube
-        env:
-        - name: BAZEL_BUILD_RBE_INSTANCE
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "5"
-        - name: INTEGRATION_TEST_FLAGS
-          value: --istio.test.ambient --istio.test.ambient.multinetwork
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: master-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: s3://istio-build-private/proxy
-        - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - emptyDir: {}
-        name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    cluster: private
-    decorate: true
-    name: integ-ambient-mc_istio_postsubmit_pri
+    name: integ-ambient-mc_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -456,12 +370,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -512,10 +426,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-ambient-nftables_istio_postsubmit_pri
+    name: integ-ambient-nftables_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -538,12 +452,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -594,10 +508,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-ambient-owned-cni_istio_postsubmit_pri
+    name: integ-ambient-owned-cni_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -621,12 +535,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -677,10 +591,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-ambient_istio_postsubmit_pri
+    name: integ-ambient_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -703,12 +617,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -759,12 +673,12 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-assertion_istio_postsubmit_pri
+    name: integ-assertion_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -785,12 +699,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -841,10 +755,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-basic-arm64_istio_postsubmit_pri
+    name: integ-basic-arm64_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -863,12 +777,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -924,12 +838,12 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-cni_istio_postsubmit_pri
+    name: integ-cni_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -952,12 +866,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -1008,10 +922,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-distroless_istio_postsubmit_pri
+    name: integ-distroless_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1032,12 +946,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -1088,10 +1002,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-ds_istio_postsubmit_pri
+    name: integ-ds_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1114,12 +1028,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -1170,10 +1084,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-gateway-api-only_istio_postsubmit_pri
+    name: integ-gateway-api-only_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1191,17 +1105,17 @@ postsubmits:
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.gatewayAPIOnly --istio.test.kube.gatewayClassName=istio-alt
         - name: T
-          value: -run="TestGatewayConformance|TestGateway$$|TestHTTPRouteAndGRPCRouteCoexistence|TestInferencePoolMultipleTargetPorts|TestPilotResourceFilter"
+          value: -run="TestGatewayConformance|TestGateway$$|TestHTTPRouteAndGRPCRouteCoexistence|TestInferencePoolMultipleTargetPorts"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -1252,10 +1166,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-helm_istio_postsubmit_pri
+    name: integ-helm_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1274,12 +1188,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -1330,10 +1244,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-ipv6_istio_postsubmit_pri
+    name: integ-ipv6_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1356,12 +1270,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -1412,350 +1326,12 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-123_istio_postsubmit_pri
-    path_alias: istio.io/istio
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - --node-image
-        - gcr.io/istio-testing/kind-node:v1.23.9
-        - --kind-config
-        - prow/config/mixedlb-service.yaml
-        - test.integration.kube
-        env:
-        - name: BAZEL_BUILD_RBE_INSTANCE
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "5"
-        - name: INTEGRATION_TEST_FLAGS
-          value: ' --istio.test.retries=1 '
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: master-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: s3://istio-build-private/proxy
-        - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - emptyDir: {}
-        name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    cluster: private
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    name: integ-k8s-124_istio_postsubmit_pri
-    path_alias: istio.io/istio
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - --node-image
-        - gcr.io/istio-testing/kind-node:v1.24.9
-        - test.integration.kube
-        env:
-        - name: BAZEL_BUILD_RBE_INSTANCE
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "5"
-        - name: INTEGRATION_TEST_FLAGS
-          value: ' --istio.test.retries=1 '
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: master-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: s3://istio-build-private/proxy
-        - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - emptyDir: {}
-        name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    cluster: private
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    name: integ-k8s-125_istio_postsubmit_pri
-    path_alias: istio.io/istio
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - --node-image
-        - gcr.io/istio-testing/kind-node:v1.25.9
-        - test.integration.kube
-        env:
-        - name: BAZEL_BUILD_RBE_INSTANCE
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "5"
-        - name: INTEGRATION_TEST_FLAGS
-          value: ' --istio.test.retries=1 '
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: master-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: s3://istio-build-private/proxy
-        - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - emptyDir: {}
-        name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    cluster: private
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    name: integ-k8s-126_istio_postsubmit_pri
-    path_alias: istio.io/istio
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - --node-image
-        - gcr.io/istio-testing/kind-node:v1.26.6
-        - test.integration.kube
-        env:
-        - name: BAZEL_BUILD_RBE_INSTANCE
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "5"
-        - name: INTEGRATION_TEST_FLAGS
-          value: ' --istio.test.retries=1 '
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: master-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: s3://istio-build-private/proxy
-        - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - emptyDir: {}
-        name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-  - annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    cluster: private
-    decorate: true
-    decoration_config:
-      timeout: 4h0m0s
-    name: integ-k8s-127_istio_postsubmit_pri
+    name: integ-k8s-127_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1780,12 +1356,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -1836,12 +1412,12 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-128_istio_postsubmit_pri
+    name: integ-k8s-128_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1866,12 +1442,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -1922,12 +1498,12 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-129_istio_postsubmit_pri
+    name: integ-k8s-129_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -1952,12 +1528,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -2008,12 +1584,12 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-130_istio_postsubmit_pri
+    name: integ-k8s-130_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2038,12 +1614,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -2094,12 +1670,12 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-131_istio_postsubmit_pri
+    name: integ-k8s-131_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2124,12 +1700,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -2180,12 +1756,12 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-132_istio_postsubmit_pri
+    name: integ-k8s-132_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2210,12 +1786,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -2266,12 +1842,12 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-133_istio_postsubmit_pri
+    name: integ-k8s-133_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2296,12 +1872,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -2352,12 +1928,12 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-134_istio_postsubmit_pri
+    name: integ-k8s-134_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2382,12 +1958,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -2438,12 +2014,12 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-k8s-135_istio_postsubmit_pri
+    name: integ-k8s-135_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2468,12 +2044,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -2524,10 +2100,96 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-pilot-cpp_istio_postsubmit_pri
+    decoration_config:
+      timeout: 4h0m0s
+    name: integ-k8s-136_istio_release-1.31_postsubmit_pri
+    path_alias: istio.io/istio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - command:
+        - entrypoint
+        - prow/integ-suite-kind.sh
+        - --node-image
+        - gcr.io/istio-testing/kind-node:v1.36.0
+        - --kind-config
+        - prow/config/modern.yaml
+        - test.integration.kube
+        env:
+        - name: BAZEL_BUILD_RBE_INSTANCE
+        - name: BUILD_WITH_CONTAINER
+          value: "0"
+        - name: GOMAXPROCS
+          value: "5"
+        - name: INTEGRATION_TEST_FLAGS
+          value: ' --istio.test.retries=1 '
+        - name: DEPENDENCIES
+          valueFrom:
+            configMapKeyRef:
+              key: dependencies
+              name: release-1.31-istio-deps
+        - name: ISTIO_ENVOY_BASE_URL
+          value: s3://istio-build-private/proxy
+        - name: GCP_SECRETS
+          value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
+        name: ""
+        resources:
+          limits:
+            cpu: "5"
+            memory: 24Gi
+          requests:
+            cpu: "5"
+            memory: 3Gi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /home/prow/go/pkg
+          name: build-cache
+          subPath: gomod
+        - mountPath: /gocache
+          name: build-cache
+          subPath: gocache
+        - mountPath: /lib/modules
+          name: modules
+          readOnly: true
+        - mountPath: /var/lib/docker
+          name: docker-root
+        - mountPath: /home/.netrc
+          name: netrc
+          readOnly: true
+          subPath: .netrc
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        testing: test-pool
+      volumes:
+      - hostPath:
+          path: /var/tmp/prow/cache
+          type: DirectoryOrCreate
+        name: build-cache
+      - hostPath:
+          path: /lib/modules
+          type: Directory
+        name: modules
+      - emptyDir: {}
+        name: docker-root
+      - name: netrc
+        secret:
+          items:
+          - key: secret
+            mode: 384
+            path: .netrc
+          secretName: netrc-secret
+  - annotations:
+      testgrid-create-test-group: "false"
+    branches:
+    - ^release-1.31$
+    cluster: private
+    decorate: true
+    name: integ-pilot-cpp_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2548,12 +2210,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -2604,10 +2266,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-pilot-filebasedkubeconfig_istio_postsubmit_pri
+    name: integ-pilot-filebasedkubeconfig_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2630,12 +2292,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -2686,10 +2348,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-pilot-istiodremote-mc_istio_postsubmit_pri
+    name: integ-pilot-istiodremote-mc_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2714,12 +2376,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -2770,10 +2432,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-pilot-istiodremote_istio_postsubmit_pri
+    name: integ-pilot-istiodremote_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2798,12 +2460,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -2854,10 +2516,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-pilot-multicluster_istio_postsubmit_pri
+    name: integ-pilot-multicluster_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2878,12 +2540,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -2934,10 +2596,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-pilot_istio_postsubmit_pri
+    name: integ-pilot_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -2956,12 +2618,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -3012,10 +2674,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-security-istiodremote_istio_postsubmit_pri
+    name: integ-security-istiodremote_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -3040,12 +2702,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -3096,10 +2758,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-security-multicluster_istio_postsubmit_pri
+    name: integ-security-multicluster_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -3120,12 +2782,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -3176,10 +2838,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-security_istio_postsubmit_pri
+    name: integ-security_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -3198,12 +2860,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -3254,10 +2916,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-telemetry-discovery_istio_postsubmit_pri
+    name: integ-telemetry-discovery_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -3278,12 +2940,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -3334,10 +2996,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-telemetry-istiodremote_istio_postsubmit_pri
+    name: integ-telemetry-istiodremote_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -3362,12 +3024,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -3418,10 +3080,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-telemetry-mc_istio_postsubmit_pri
+    name: integ-telemetry-mc_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -3442,12 +3104,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -3498,10 +3160,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-telemetry_istio_postsubmit_pri
+    name: integ-telemetry_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -3520,12 +3182,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -3576,10 +3238,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: release_istio_postsubmit_pri
+    name: release_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -3592,21 +3254,25 @@ postsubmits:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: DOCKER_HUB
-          value: us-docker.pkg.dev/istio-prow-private/istio-prow-private
+          value: ghcr.io/istio/private
+        - name: DOCKER_PUSH_HUB
+          value: ghcr.io/istio/testing
         - name: GCS_BUCKET
           value: istio-build-private/dev
+        - name: HELM_HUB
+          value: ghcr.io/istio/testing
         - name: R2_BUCKET
           value: istio-build-private/dev
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -3650,10 +3316,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: unit-tests-arm64_istio_postsubmit_pri
+    name: unit-tests-arm64_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -3674,12 +3340,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -3723,10 +3389,10 @@ postsubmits:
   - annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: unit-tests_istio_postsubmit_pri
+    name: unit-tests_istio_release-1.31_postsubmit_pri
     path_alias: istio.io/istio
     spec:
       automountServiceAccountToken: false
@@ -3747,12 +3413,12 @@ postsubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -3794,10 +3460,10 @@ presubmits:
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: benchmark_istio_pri
+    name: benchmark_istio_release-1.31_pri
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test benchmark
@@ -3816,12 +3482,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -3857,15 +3523,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )benchmark,?($|\s.*))|((?m)^/test( | .* )benchmark_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )benchmark,?($|\s.*))|((?m)^/test( | .* )benchmark_istio_release-1.31,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: bookinfo-build_istio_pri
+    name: bookinfo-build_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test bookinfo-build
     run_if_changed: ^samples/bookinfo/src/
@@ -3886,8 +3552,8 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+              name: release-1.31-istio-deps
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -3928,15 +3594,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )bookinfo-build,?($|\s.*))|((?m)^/test( | .* )bookinfo-build_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )bookinfo-build,?($|\s.*))|((?m)^/test( | .* )bookinfo-build_istio_release-1.31,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: experimental-tracing_istio_pri
+    name: experimental-tracing_istio_release-1.31_pri
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test experimental-tracing
@@ -3959,12 +3625,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -4013,15 +3679,15 @@ presubmits:
             path: .netrc
           secretName: netrc-secret
     trigger: ((?m)^/test( | .* )experimental-tracing,?($|\s.*))|((?m)^/test( | .*
-      )experimental-tracing_istio,?($|\s.*))
+      )experimental-tracing_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: gencheck_istio_pri
+    name: gencheck_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test gencheck
     spec:
@@ -4040,8 +3706,8 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+              name: release-1.31-istio-deps
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -4078,15 +3744,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )gencheck,?($|\s.*))|((?m)^/test( | .* )gencheck_istio_release-1.31,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: govulncheck_istio_pri
+    name: govulncheck_istio_release-1.31_pri
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test govulncheck
@@ -4106,8 +3772,8 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+              name: release-1.31-istio-deps
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -4144,15 +3810,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )govulncheck,?($|\s.*))|((?m)^/test( | .* )govulncheck_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )govulncheck,?($|\s.*))|((?m)^/test( | .* )govulncheck_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-agentgateway_istio_pri
+    name: integ-agentgateway_istio_release-1.31_pri
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-agentgateway
@@ -4175,12 +3841,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -4228,15 +3894,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-agentgateway,?($|\s.*))|((?m)^/test( | .* )integ-agentgateway_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-agentgateway,?($|\s.*))|((?m)^/test( | .* )integ-agentgateway_istio_release-1.31,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-ambient-calico_istio_pri
+    name: integ-ambient-calico_istio_release-1.31_pri
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient-calico
@@ -4263,12 +3929,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -4317,15 +3983,15 @@ presubmits:
             path: .netrc
           secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-ambient-calico,?($|\s.*))|((?m)^/test( | .*
-      )integ-ambient-calico_istio,?($|\s.*))
+      )integ-ambient-calico_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-ambient-dual_istio_pri
+    name: integ-ambient-dual_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient-dual
     spec:
@@ -4353,12 +4019,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -4406,15 +4072,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-ambient-dual,?($|\s.*))|((?m)^/test( | .* )integ-ambient-dual_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-ambient-dual,?($|\s.*))|((?m)^/test( | .* )integ-ambient-dual_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-ambient-ipv6_istio_pri
+    name: integ-ambient-ipv6_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient-ipv6
     spec:
@@ -4442,12 +4108,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -4495,106 +4161,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-ambient-ipv6,?($|\s.*))|((?m)^/test( | .* )integ-ambient-ipv6_istio,?($|\s.*))
-  - always_run: false
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    cluster: private
-    decorate: true
-    name: integ-ambient-mc-mixed-network_istio_pri
-    optional: true
-    path_alias: istio.io/istio
-    rerun_command: /test integ-ambient-mc-mixed-network
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - --kind-config
-        - prow/config/default.yaml
-        - --topology
-        - AMBIENT_MULTICLUSTER
-        - --topology-config
-        - prow/config/topology/ambient-multicluster-large.json
-        - test.integration.ambient.kube
-        env:
-        - name: BAZEL_BUILD_RBE_INSTANCE
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "5"
-        - name: INTEGRATION_TEST_FLAGS
-          value: --istio.test.ambient --istio.test.ambient.multinetwork
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: master-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: s3://istio-build-private/proxy
-        - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - emptyDir: {}
-        name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-ambient-mc-mixed-network,?($|\s.*))|((?m)^/test(
-      | .* )integ-ambient-mc-mixed-network_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-ambient-ipv6,?($|\s.*))|((?m)^/test( | .* )integ-ambient-ipv6_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-ambient-mc_istio_pri
+    name: integ-ambient-mc_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient-mc
     spec:
@@ -4622,12 +4197,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -4675,15 +4250,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-ambient-mc,?($|\s.*))|((?m)^/test( | .* )integ-ambient-mc_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-ambient-mc,?($|\s.*))|((?m)^/test( | .* )integ-ambient-mc_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-ambient-nftables_istio_pri
+    name: integ-ambient-nftables_istio_release-1.31_pri
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient-nftables
@@ -4708,12 +4283,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -4762,15 +4337,15 @@ presubmits:
             path: .netrc
           secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-ambient-nftables,?($|\s.*))|((?m)^/test( | .*
-      )integ-ambient-nftables_istio,?($|\s.*))
+      )integ-ambient-nftables_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-ambient-owned-cni_istio_pri
+    name: integ-ambient-owned-cni_istio_release-1.31_pri
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient-owned-cni
@@ -4796,12 +4371,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -4850,15 +4425,15 @@ presubmits:
             path: .netrc
           secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-ambient-owned-cni,?($|\s.*))|((?m)^/test( |
-      .* )integ-ambient-owned-cni_istio,?($|\s.*))
+      .* )integ-ambient-owned-cni_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-ambient_istio_pri
+    name: integ-ambient_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-ambient
     spec:
@@ -4882,12 +4457,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -4935,17 +4510,17 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-ambient,?($|\s.*))|((?m)^/test( | .* )integ-ambient_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-ambient,?($|\s.*))|((?m)^/test( | .* )integ-ambient_istio_release-1.31,?($|\s.*))
   - always_run: false
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
     decoration_config:
       timeout: 4h0m0s
-    name: integ-assertion_istio_pri
+    name: integ-assertion_istio_release-1.31_pri
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-assertion
@@ -4968,12 +4543,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -5021,15 +4596,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-assertion,?($|\s.*))|((?m)^/test( | .* )integ-assertion_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-assertion,?($|\s.*))|((?m)^/test( | .* )integ-assertion_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-basic-arm64_istio_pri
+    name: integ-basic-arm64_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-basic-arm64
     spec:
@@ -5049,12 +4624,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -5107,15 +4682,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-basic-arm64,?($|\s.*))|((?m)^/test( | .* )integ-basic-arm64_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-basic-arm64,?($|\s.*))|((?m)^/test( | .* )integ-basic-arm64_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-cni_istio_pri
+    name: integ-cni_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-cni
     spec:
@@ -5137,12 +4712,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -5190,15 +4765,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-cni,?($|\s.*))|((?m)^/test( | .* )integ-cni_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-cni,?($|\s.*))|((?m)^/test( | .* )integ-cni_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-distroless_istio_pri
+    name: integ-distroless_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-distroless
     spec:
@@ -5220,12 +4795,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -5273,15 +4848,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-distroless,?($|\s.*))|((?m)^/test( | .* )integ-distroless_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-distroless,?($|\s.*))|((?m)^/test( | .* )integ-distroless_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-ds_istio_pri
+    name: integ-ds_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-ds
     spec:
@@ -5305,12 +4880,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -5358,15 +4933,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-ds,?($|\s.*))|((?m)^/test( | .* )integ-ds_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-ds,?($|\s.*))|((?m)^/test( | .* )integ-ds_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-gateway-api-only_istio_pri
+    name: integ-gateway-api-only_istio_release-1.31_pri
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-gateway-api-only
@@ -5386,17 +4961,17 @@ presubmits:
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.gatewayAPIOnly --istio.test.kube.gatewayClassName=istio-alt
         - name: T
-          value: -run="TestGatewayConformance|TestGateway$$|TestHTTPRouteAndGRPCRouteCoexistence|TestInferencePoolMultipleTargetPorts|TestPilotResourceFilter"
+          value: -run="TestGatewayConformance|TestGateway$$|TestHTTPRouteAndGRPCRouteCoexistence|TestInferencePoolMultipleTargetPorts"
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -5445,15 +5020,15 @@ presubmits:
             path: .netrc
           secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-gateway-api-only,?($|\s.*))|((?m)^/test( | .*
-      )integ-gateway-api-only_istio,?($|\s.*))
+      )integ-gateway-api-only_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-helm_istio_pri
+    name: integ-helm_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-helm
     spec:
@@ -5473,12 +5048,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -5526,15 +5101,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-helm,?($|\s.*))|((?m)^/test( | .* )integ-helm_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-helm,?($|\s.*))|((?m)^/test( | .* )integ-helm_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-ipv6_istio_pri
+    name: integ-ipv6_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-ipv6
     spec:
@@ -5558,12 +5133,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -5611,100 +5186,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-ipv6,?($|\s.*))|((?m)^/test( | .* )integ-ipv6_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-ipv6,?($|\s.*))|((?m)^/test( | .* )integ-ipv6_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-pilot-cni-nftables_istio_pri
-    optional: true
-    path_alias: istio.io/istio
-    rerun_command: /test integ-pilot-cni-nftables
-    spec:
-      automountServiceAccountToken: false
-      containers:
-      - command:
-        - entrypoint
-        - prow/integ-suite-kind.sh
-        - test.integration.pilot.kube
-        env:
-        - name: BAZEL_BUILD_RBE_INSTANCE
-        - name: BUILD_WITH_CONTAINER
-          value: "0"
-        - name: GOMAXPROCS
-          value: "5"
-        - name: INTEGRATION_TEST_FLAGS
-          value: --istio.test.istio.enableCNI=true --istio.test.nativeNftables=true
-        - name: DEPENDENCIES
-          valueFrom:
-            configMapKeyRef:
-              key: dependencies
-              name: master-istio-deps
-        - name: ISTIO_ENVOY_BASE_URL
-          value: s3://istio-build-private/proxy
-        - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
-        name: ""
-        resources:
-          limits:
-            cpu: "5"
-            memory: 24Gi
-          requests:
-            cpu: "5"
-            memory: 3Gi
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /home/prow/go/pkg
-          name: build-cache
-          subPath: gomod
-        - mountPath: /gocache
-          name: build-cache
-          subPath: gocache
-        - mountPath: /lib/modules
-          name: modules
-          readOnly: true
-        - mountPath: /var/lib/docker
-          name: docker-root
-        - mountPath: /home/.netrc
-          name: netrc
-          readOnly: true
-          subPath: .netrc
-      nodeSelector:
-        kubernetes.io/arch: amd64
-        testing: test-pool
-      volumes:
-      - hostPath:
-          path: /var/tmp/prow/cache
-          type: DirectoryOrCreate
-        name: build-cache
-      - hostPath:
-          path: /lib/modules
-          type: Directory
-        name: modules
-      - emptyDir: {}
-        name: docker-root
-      - name: netrc
-        secret:
-          items:
-          - key: secret
-            mode: 384
-            path: .netrc
-          secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-pilot-cni-nftables,?($|\s.*))|((?m)^/test( |
-      .* )integ-pilot-cni-nftables_istio,?($|\s.*))
-  - always_run: true
-    annotations:
-      testgrid-create-test-group: "false"
-    branches:
-    - ^master$
-    cluster: private
-    decorate: true
-    name: integ-pilot-filebasedkubeconfig_istio_pri
+    name: integ-pilot-filebasedkubeconfig_istio_release-1.31_pri
     optional: true
     path_alias: istio.io/istio
     rerun_command: /test integ-pilot-filebasedkubeconfig
@@ -5729,12 +5219,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -5783,15 +5273,15 @@ presubmits:
             path: .netrc
           secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-pilot-filebasedkubeconfig,?($|\s.*))|((?m)^/test(
-      | .* )integ-pilot-filebasedkubeconfig_istio,?($|\s.*))
+      | .* )integ-pilot-filebasedkubeconfig_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-pilot-istiodremote-mc_istio_pri
+    name: integ-pilot-istiodremote-mc_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-pilot-istiodremote-mc
     spec:
@@ -5817,12 +5307,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -5871,15 +5361,15 @@ presubmits:
             path: .netrc
           secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-pilot-istiodremote-mc,?($|\s.*))|((?m)^/test(
-      | .* )integ-pilot-istiodremote-mc_istio,?($|\s.*))
+      | .* )integ-pilot-istiodremote-mc_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-pilot-istiodremote_istio_pri
+    name: integ-pilot-istiodremote_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-pilot-istiodremote
     spec:
@@ -5905,12 +5395,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -5959,15 +5449,15 @@ presubmits:
             path: .netrc
           secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-pilot-istiodremote,?($|\s.*))|((?m)^/test( |
-      .* )integ-pilot-istiodremote_istio,?($|\s.*))
+      .* )integ-pilot-istiodremote_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-pilot-multicluster_istio_pri
+    name: integ-pilot-multicluster_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-pilot-multicluster
     spec:
@@ -5989,12 +5479,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -6043,15 +5533,15 @@ presubmits:
             path: .netrc
           secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-pilot-multicluster,?($|\s.*))|((?m)^/test( |
-      .* )integ-pilot-multicluster_istio,?($|\s.*))
+      .* )integ-pilot-multicluster_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-pilot_istio_pri
+    name: integ-pilot_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-pilot
     spec:
@@ -6071,12 +5561,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -6124,15 +5614,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-pilot,?($|\s.*))|((?m)^/test( | .* )integ-pilot_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-pilot,?($|\s.*))|((?m)^/test( | .* )integ-pilot_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-security-istiodremote_istio_pri
+    name: integ-security-istiodremote_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-security-istiodremote
     spec:
@@ -6158,12 +5648,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -6212,15 +5702,15 @@ presubmits:
             path: .netrc
           secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-security-istiodremote,?($|\s.*))|((?m)^/test(
-      | .* )integ-security-istiodremote_istio,?($|\s.*))
+      | .* )integ-security-istiodremote_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-security-multicluster_istio_pri
+    name: integ-security-multicluster_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-security-multicluster
     spec:
@@ -6242,12 +5732,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -6296,15 +5786,15 @@ presubmits:
             path: .netrc
           secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-security-multicluster,?($|\s.*))|((?m)^/test(
-      | .* )integ-security-multicluster_istio,?($|\s.*))
+      | .* )integ-security-multicluster_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-security_istio_pri
+    name: integ-security_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-security
     spec:
@@ -6324,12 +5814,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -6377,15 +5867,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-security,?($|\s.*))|((?m)^/test( | .* )integ-security_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-security,?($|\s.*))|((?m)^/test( | .* )integ-security_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-telemetry-discovery_istio_pri
+    name: integ-telemetry-discovery_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-telemetry-discovery
     spec:
@@ -6407,12 +5897,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -6461,15 +5951,15 @@ presubmits:
             path: .netrc
           secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-telemetry-discovery,?($|\s.*))|((?m)^/test(
-      | .* )integ-telemetry-discovery_istio,?($|\s.*))
+      | .* )integ-telemetry-discovery_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-telemetry-istiodremote_istio_pri
+    name: integ-telemetry-istiodremote_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-telemetry-istiodremote
     spec:
@@ -6495,12 +5985,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -6549,15 +6039,15 @@ presubmits:
             path: .netrc
           secretName: netrc-secret
     trigger: ((?m)^/test( | .* )integ-telemetry-istiodremote,?($|\s.*))|((?m)^/test(
-      | .* )integ-telemetry-istiodremote_istio,?($|\s.*))
+      | .* )integ-telemetry-istiodremote_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-telemetry-mc_istio_pri
+    name: integ-telemetry-mc_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-telemetry-mc
     spec:
@@ -6579,12 +6069,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -6632,15 +6122,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-telemetry-mc,?($|\s.*))|((?m)^/test( | .* )integ-telemetry-mc_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-telemetry-mc,?($|\s.*))|((?m)^/test( | .* )integ-telemetry-mc_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: integ-telemetry_istio_pri
+    name: integ-telemetry_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test integ-telemetry
     spec:
@@ -6660,12 +6150,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -6713,15 +6203,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )integ-telemetry,?($|\s.*))|((?m)^/test( | .* )integ-telemetry_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )integ-telemetry,?($|\s.*))|((?m)^/test( | .* )integ-telemetry_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: lint_istio_pri
+    name: lint_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test lint
     spec:
@@ -6738,8 +6228,8 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+              name: release-1.31-istio-deps
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -6775,15 +6265,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )lint,?($|\s.*))|((?m)^/test( | .* )lint_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: macbuildcheck_istio_pri
+    name: macbuildcheck_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test macbuildcheck
     spec:
@@ -6804,8 +6294,8 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+              name: release-1.31-istio-deps
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -6842,15 +6332,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )macbuildcheck,?($|\s.*))|((?m)^/test( | .* )macbuildcheck_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )macbuildcheck,?($|\s.*))|((?m)^/test( | .* )macbuildcheck_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: release-test_istio_pri
+    name: release-test_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test release-test
     spec:
@@ -6867,12 +6357,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -6912,15 +6402,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )release-test,?($|\s.*))|((?m)^/test( | .* )release-test_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )release-test,?($|\s.*))|((?m)^/test( | .* )release-test_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: unit-tests-arm64_istio_pri
+    name: unit-tests-arm64_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test unit-tests-arm64
     spec:
@@ -6942,12 +6432,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -6988,15 +6478,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )unit-tests-arm64,?($|\s.*))|((?m)^/test( | .* )unit-tests-arm64_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )unit-tests-arm64,?($|\s.*))|((?m)^/test( | .* )unit-tests-arm64_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: unit-tests_istio_pri
+    name: unit-tests_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test unit-tests
     spec:
@@ -7018,12 +6508,12 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
+              name: release-1.31-istio-deps
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -7059,15 +6549,15 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )unit-tests,?($|\s.*))|((?m)^/test( | .* )unit-tests_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )unit-tests,?($|\s.*))|((?m)^/test( | .* )unit-tests_istio_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
       testgrid-create-test-group: "false"
     branches:
-    - ^master$
+    - ^release-1.31$
     cluster: private
     decorate: true
-    name: windowsbuildcheck_istio_pri
+    name: windowsbuildcheck_istio_release-1.31_pri
     path_alias: istio.io/istio
     rerun_command: /test windowsbuildcheck
     spec:
@@ -7088,8 +6578,8 @@ presubmits:
           valueFrom:
             configMapKeyRef:
               key: dependencies
-              name: master-istio-deps
-        image: gcr.io/istio-testing/build-tools:master-344978549023107b14c57d2ef8523d41b82ccc76
+              name: release-1.31-istio-deps
+        image: gcr.io/istio-testing/build-tools:release-1.31-7f929a842d4a0cb482c9d18a9a369b177d51a555
         name: ""
         resources:
           limits:
@@ -7126,4 +6616,4 @@ presubmits:
             mode: 384
             path: .netrc
           secretName: netrc-secret
-    trigger: ((?m)^/test( | .* )windowsbuildcheck,?($|\s.*))|((?m)^/test( | .* )windowsbuildcheck_istio,?($|\s.*))
+    trigger: ((?m)^/test( | .* )windowsbuildcheck,?($|\s.*))|((?m)^/test( | .* )windowsbuildcheck_istio_release-1.31,?($|\s.*))
