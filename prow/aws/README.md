@@ -12,3 +12,10 @@ Some of the prow secrets are managed by kubernetes external secrets, which
 allows prow cluster creating secrets based on values from google secret manager
 (Not necessarily the same GCP project where prow is located). See more detailed
 instruction at [Prow Secret](https://docs.prow.k8s.io/docs/prow-secrets/).
+
+## CI audits
+
+* [Ambient CI package audit](AMBIENT_CI_AUDIT.md) describes package-level
+  execution repetition in the AWS Istio ambient presubmits.
+* [Integration CI package audit](INTEGRATION_CI_PACKAGE_AUDIT.md) documents
+  all always-run AWS Istio `master` presubmit integration test packages.

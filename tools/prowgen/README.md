@@ -133,11 +133,10 @@ branches:
   - master
 
 # REQUIRED. Defines the image that will be used to run the jobs
-image: gcr.io/istio-testing/build-tools:master
+image: registry.istio.io/testing/build-tools:master
 
-# The policy and secrets for pulling the image.
+# The policy for pulling the image.
 image_pull_policy: Always
-image_pull_secrets: ["gcr-secret"]
 
 # The interval to schedule the periodic Prow jobs.
 interval: 5h
@@ -258,14 +257,14 @@ go run generate.go \
 ### `docker run` command
 
 The `prowgen` tool has been automatically published as a Docker image at
-gcr.io/istio-testing/prowgen:latest, so you can also run it with `docker run`
+registry.istio.io/testing/prowgen:latest, so you can also run it with `docker run`
 command if you don't want to install the binary on your local machine:
 
 ```bash
 export INPUT="/path/to/meta/config"
 export OUTPUT="/path/to/generated/config"
 docker run --mount type=bind,source=${INPUT},target=${INPUT} --mount type=bind,source=${OUTPUT},target=${OUTPUT} \
-  gcr.io/istio-testing/prowgen:latest \
+  registry.istio.io/testing/prowgen:latest \
   prowgen --input-dir=${INPUT} --output-dir=${OUTPUT} write
 ```
 

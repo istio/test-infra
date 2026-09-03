@@ -45,7 +45,7 @@ var (
 	preprocessCommand   = flag.String("pre-process-command", "", "command to run to preprocess the meta config files")
 	postprocessCommand  = flag.String("post-process-command", "", "command to run to postprocess the generated config files")
 	longJobNamesAllowed = flag.Bool("allow-long-job-names", false, "allow job names that are longer than 63 characters")
-	skipGarTagging      = flag.Bool("skip-gar-tagging", false, "skip tagging gar images since that is permitted by few folks")
+	skipImageTagging    = flag.Bool("skip-image-tagging", false, "skip creating release-branch image tags")
 )
 
 func main() {
@@ -110,8 +110,8 @@ func main() {
 					}
 
 					cfg.Image = newImage
-					if !*skipGarTagging {
-						if err := exec.Command("gcloud", "container", "images", "add-tag", matchedImage, newImage).Run(); err != nil {
+					if !*skipImageTagging {
+						if err := exec.Command("crane", "cp", matchedImage, newImage).Run(); err != nil {
 							log.Fatalf("Unable to add image tag %q: %v", newImage, err)
 						}
 					} else {
@@ -149,9 +149,9 @@ func main() {
 				}
 			}
 
-			if *skipGarTagging {
+			if *skipImageTagging {
 				for matchedImage, newImage := range imagesToTag {
-					log.Printf("Please find a maintainer with sufficient permissions and have them run `gcloud container image add-tag %s %s`", matchedImage, newImage)
+					log.Printf("Please find a maintainer with sufficient permissions and have them run `crane cp %s %s`", matchedImage, newImage)
 				}
 			}
 
@@ -272,7 +272,7 @@ func branchedImageName(image string, branch string) (error, string, string) {
 		// adding it as a new tag.
 		// For example, if the test image in the current Prow job
 		// config is
-		// `gcr.io/istio-testing/build-tools:master-gitsha`,
+		// `registry.istio.io/testing/build-tools:master-gitsha`,
 		// and the Prow job config for release-1.25 branch is
 		// supposed to be generated, the image will be added a
 		// new `release-1.25-gitsha` tag.
