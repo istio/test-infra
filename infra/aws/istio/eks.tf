@@ -213,5 +213,14 @@ module "eks" {
     }
   } : {})
 
-  eks_managed_node_groups = each.value.node_groups
+  eks_managed_node_groups = {
+    for name, config in each.value.node_groups : name => merge(config, {
+      iam_role_additional_policies = merge(
+        try(config.iam_role_additional_policies, {}),
+        {
+          ecr_pull_through_cache_read = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPullOnly"
+        },
+      )
+    })
+  }
 }

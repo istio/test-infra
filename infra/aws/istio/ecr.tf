@@ -40,11 +40,11 @@ locals {
   ecr_pull_through_cache_lifecycle_policy = jsonencode({
     rules = [{
       rulePriority = 1
-      description  = "Retain the 100 most recent cached images per repository"
+      description  = "Retain the 30 most recent cached images per repository"
       selection = {
         tagStatus   = "any"
         countType   = "imageCountMoreThan"
-        countNumber = 100
+        countNumber = 30
       }
       action = {
         type = "expire"
