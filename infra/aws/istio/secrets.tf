@@ -70,6 +70,15 @@ locals {
 
     # Docker config JSON for the istio/testing GHCR namespace.
     "testing_ghcr_istio" = "Docker credentials to push to ghcr.io/istio/testing"
+
+    # GHCR upstream credentials for the ECR pull-through cache. The secret
+    # value is managed outside Terraform to keep the access token out of state.
+    "ecr-pullthroughcache/ghcr" = "GHCR pull-through cache credentials"
+
+    # Docker Hub upstream credentials for the ECR pull-through cache. The
+    # secret value is managed outside Terraform to keep the access token out of state.
+    "ecr-pullthroughcache/docker-hub" = "Docker Hub pull-through cache credentials"
+
   }
 }
 

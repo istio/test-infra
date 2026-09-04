@@ -137,6 +137,10 @@ module "workload_identity" {
 
   name = each.key
 
+  additional_policy_arns = {
+    ecr_pull_through_cache_read = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPullOnly"
+  }
+
   attach_custom_policy = true
   policy_statements = [
     for s in [
