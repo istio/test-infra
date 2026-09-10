@@ -1171,7 +1171,7 @@ jobs:
   - prow/integ-suite-kind.sh
   - --node-image
   - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
-  - test.integration.pilot.kube.presubmit
+  - test.integration.pilot.kube.environment
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -1631,7 +1631,7 @@ jobs:
   - prow/integ-suite-kind.sh
   - --node-image
   - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
-  - test.integration.telemetry.kube
+  - test.integration.telemetry.kube.environment
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -1863,7 +1863,7 @@ jobs:
   - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
   - --topology
   - MULTICLUSTER
-  - test.integration.telemetry.kube
+  - test.integration.telemetry.kube.multicluster
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -2096,7 +2096,7 @@ jobs:
   - MULTICLUSTER
   - --topology-config
   - prow/config/topology/external-istiod.json
-  - test.integration.telemetry.kube
+  - test.integration.telemetry.kube.multicluster
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -2329,7 +2329,7 @@ jobs:
   - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
   - --kind-config
   - prow/config/ambient-sc.yaml
-  - test.integration.ambient.kube
+  - test.integration.ambient.kube.environment
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -4187,7 +4187,7 @@ jobs:
   - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
   - --topology
   - MULTICLUSTER
-  - test.integration.pilot.kube
+  - test.integration.pilot.kube.multicluster
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -4420,7 +4420,7 @@ jobs:
   - MULTICLUSTER
   - --topology-config
   - prow/config/topology/ambient-multicluster.json
-  - test.integration.pilot.filebasedkubeconfig.kube
+  - test.integration.pilot.filebasedkubeconfig.kube.multicluster
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -4655,7 +4655,7 @@ jobs:
   - MULTICLUSTER
   - --topology-config
   - prow/config/topology/external-istiod.json
-  - test.integration.pilot.kube
+  - test.integration.pilot.kube.multicluster
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -4890,7 +4890,7 @@ jobs:
   - MULTICLUSTER
   - --topology-config
   - prow/config/topology/external-istiod-multicluster.json
-  - test.integration.pilot.kube
+  - test.integration.pilot.kube.multicluster
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -5814,7 +5814,7 @@ jobs:
   - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
   - --topology
   - MULTICLUSTER
-  - test.integration.security.kube
+  - test.integration.security.kube.multicluster
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -6047,7 +6047,7 @@ jobs:
   - MULTICLUSTER
   - --topology-config
   - prow/config/topology/external-istiod.json
-  - test.integration.security.kube
+  - test.integration.security.kube.multicluster
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -6512,7 +6512,7 @@ jobs:
   - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
   - --kind-config
   - prow/config/ambient-sc.yaml
-  - test.integration.ambient.kube
+  - test.integration.ambient.kube.environment
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -6746,7 +6746,7 @@ jobs:
   - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
   - --kind-config
   - prow/config/ambient-sc.yaml
-  - test.integration.ambient.kube
+  - test.integration.ambient.kube.environment
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -6981,7 +6981,7 @@ jobs:
   - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
   - --kind-config
   - prow/config/ambient-sc.yaml
-  - test.integration.ambient.kube
+  - test.integration.ambient.kube.environment
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -7221,7 +7221,7 @@ jobs:
   - AMBIENT_MULTICLUSTER
   - --topology-config
   - prow/config/topology/ambient-multicluster.json
-  - test.integration.ambient.kube
+  - test.integration.ambient.kube.multicluster
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -7454,7 +7454,7 @@ jobs:
   - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
   - --kind-config
   - prow/config/ambient-sc.yaml
-  - test.integration.ambient.kube
+  - test.integration.ambient.kube.environment
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
