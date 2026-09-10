@@ -1,0 +1,78 @@
+# We need a cronjob to restart crier and deck-private every 12 hours to pick up new cloudflare credentials.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: crier-deck-private-rollout
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: crier-deck-private-rollout
+  namespace: default
+rules:
+- apiGroups:
+  - apps
+  resourceNames:
+  - crier
+  - deck-private
+  resources:
+  - deployments
+  verbs:
+  - get
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: crier-deck-private-rollout
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: crier-deck-private-rollout
+subjects:
+- kind: ServiceAccount
+  name: crier-deck-private-rollout
+  namespace: default
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: crier-deck-private-rollout
+  namespace: default
+spec:
+  schedule: "30 */12 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  startingDeadlineSeconds: 300
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 300
+      ttlSecondsAfterFinished: 86400
+      template:
+        spec:
+          serviceAccountName: crier-deck-private-rollout
+          restartPolicy: Never
+          nodeSelector:
+            kubernetes.io/arch: amd64
+          containers:
+          - name: rollout
+            image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:master-7f5d77ade26da4b04ed42f353d9c26fbb3a4e7f1
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+              kubectl rollout restart deployment/crier --namespace=default
+              kubectl rollout restart deployment/deck-private --namespace=default
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                cpu: 100m
+                memory: 64Mi
