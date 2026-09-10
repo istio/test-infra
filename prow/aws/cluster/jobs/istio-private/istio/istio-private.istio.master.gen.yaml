@@ -113,7 +113,7 @@ postsubmits:
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -211,7 +211,7 @@ postsubmits:
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -311,7 +311,7 @@ postsubmits:
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -415,7 +415,7 @@ postsubmits:
         - AMBIENT_MULTICLUSTER
         - --topology-config
         - prow/config/topology/ambient-multicluster-large.json
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -515,7 +515,7 @@ postsubmits:
         - AMBIENT_MULTICLUSTER
         - --topology-config
         - prow/config/topology/ambient-multicluster.json
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -611,7 +611,7 @@ postsubmits:
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -707,7 +707,7 @@ postsubmits:
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -2055,7 +2055,7 @@ postsubmits:
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/ambient-multicluster.json
-        - test.integration.pilot.filebasedkubeconfig.kube
+        - test.integration.pilot.filebasedkubeconfig.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -2151,7 +2151,7 @@ postsubmits:
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod-multicluster.json
-        - test.integration.pilot.kube
+        - test.integration.pilot.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -2249,7 +2249,7 @@ postsubmits:
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod.json
-        - test.integration.pilot.kube
+        - test.integration.pilot.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -2345,7 +2345,7 @@ postsubmits:
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
         - --topology
         - MULTICLUSTER
-        - test.integration.pilot.kube
+        - test.integration.pilot.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -2533,7 +2533,7 @@ postsubmits:
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod.json
-        - test.integration.security.kube
+        - test.integration.security.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -2629,7 +2629,7 @@ postsubmits:
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
         - --topology
         - MULTICLUSTER
-        - test.integration.security.kube
+        - test.integration.security.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -2813,7 +2813,7 @@ postsubmits:
         - prow/integ-suite-kind.sh
         - --node-image
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
-        - test.integration.telemetry.kube
+        - test.integration.telemetry.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -2911,7 +2911,7 @@ postsubmits:
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod.json
-        - test.integration.telemetry.kube
+        - test.integration.telemetry.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -3007,7 +3007,7 @@ postsubmits:
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
         - --topology
         - MULTICLUSTER
-        - test.integration.telemetry.kube
+        - test.integration.telemetry.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -3905,7 +3905,7 @@ presubmits:
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -4007,7 +4007,7 @@ presubmits:
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -4110,7 +4110,7 @@ presubmits:
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -4218,7 +4218,7 @@ presubmits:
         - AMBIENT_MULTICLUSTER
         - --topology-config
         - prow/config/topology/ambient-multicluster-large.json
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -4322,7 +4322,7 @@ presubmits:
         - AMBIENT_MULTICLUSTER
         - --topology-config
         - prow/config/topology/ambient-multicluster.json
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -4422,7 +4422,7 @@ presubmits:
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -4523,7 +4523,7 @@ presubmits:
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -4921,7 +4921,7 @@ presubmits:
         - prow/integ-suite-kind.sh
         - --node-image
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
-        - test.integration.pilot.kube.presubmit
+        - test.integration.pilot.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -5510,7 +5510,7 @@ presubmits:
         - prow/integ-suite-kind.sh
         - --node-image
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
-        - test.integration.pilot.kube
+        - test.integration.pilot.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -5613,7 +5613,7 @@ presubmits:
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/ambient-multicluster.json
-        - test.integration.pilot.filebasedkubeconfig.kube
+        - test.integration.pilot.filebasedkubeconfig.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -5713,7 +5713,7 @@ presubmits:
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod-multicluster.json
-        - test.integration.pilot.kube
+        - test.integration.pilot.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -5815,7 +5815,7 @@ presubmits:
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod.json
-        - test.integration.pilot.kube
+        - test.integration.pilot.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -5915,7 +5915,7 @@ presubmits:
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
         - --topology
         - MULTICLUSTER
-        - test.integration.pilot.kube
+        - test.integration.pilot.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -6110,7 +6110,7 @@ presubmits:
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod.json
-        - test.integration.security.kube
+        - test.integration.security.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -6210,7 +6210,7 @@ presubmits:
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
         - --topology
         - MULTICLUSTER
-        - test.integration.security.kube
+        - test.integration.security.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -6401,7 +6401,7 @@ presubmits:
         - prow/integ-suite-kind.sh
         - --node-image
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
-        - test.integration.telemetry.kube
+        - test.integration.telemetry.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -6503,7 +6503,7 @@ presubmits:
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod.json
-        - test.integration.telemetry.kube
+        - test.integration.telemetry.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
@@ -6603,7 +6603,7 @@ presubmits:
         - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
         - --topology
         - MULTICLUSTER
-        - test.integration.telemetry.kube
+        - test.integration.telemetry.kube.multicluster
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER

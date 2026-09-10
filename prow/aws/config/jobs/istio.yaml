@@ -40,7 +40,7 @@ jobs:
 
   - name: integ-cni
     types: [presubmit]
-    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.pilot.kube.presubmit]
+    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.pilot.kube.environment]
     requirements: [kind, ecr]
     env:
       - name: INTEGRATION_TEST_FLAGS
@@ -54,7 +54,7 @@ jobs:
     env:
     - name: INTEGRATION_TEST_FLAGS
       value: --istio.test.peer_metadata_discovery
-    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.telemetry.kube]
+    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.telemetry.kube.environment]
     requirements: [kind, ecr]
 
   - name: integ-telemetry-mc
@@ -65,7 +65,7 @@ jobs:
       - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
       - --topology
       - MULTICLUSTER
-      - test.integration.telemetry.kube
+      - test.integration.telemetry.kube.multicluster
     requirements: [kind, ecr]
     resources: multicluster
 
@@ -79,7 +79,7 @@ jobs:
       - MULTICLUSTER
       - --topology-config
       - prow/config/topology/external-istiod.json
-      - test.integration.telemetry.kube
+      - test.integration.telemetry.kube.multicluster
     requirements: [kind, ecr]
     resources: multicluster
     env:
@@ -101,7 +101,7 @@ jobs:
     - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
     - --kind-config
     - prow/config/ambient-sc.yaml
-    - test.integration.ambient.kube
+    - test.integration.ambient.kube.environment
 
   - name: integ-distroless
     command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.kube.environment]
@@ -155,7 +155,7 @@ jobs:
   - name: integ-pilot-cni-nftables
     types: [presubmit]
     modifiers: [presubmit_optional]
-    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.pilot.kube]
+    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.pilot.kube.environment]
     requirements: [kind, ecr]
     env:
       - name: INTEGRATION_TEST_FLAGS
@@ -178,7 +178,7 @@ jobs:
       - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
       - --topology
       - MULTICLUSTER
-      - test.integration.pilot.kube
+      - test.integration.pilot.kube.multicluster
     requirements: [kind, ecr]
     resources: multicluster
 
@@ -193,7 +193,7 @@ jobs:
       - MULTICLUSTER
       - --topology-config
       - prow/config/topology/ambient-multicluster.json
-      - test.integration.pilot.filebasedkubeconfig.kube
+      - test.integration.pilot.filebasedkubeconfig.kube.multicluster
     requirements: [kind, ecr]
     resources: multicluster
 
@@ -207,7 +207,7 @@ jobs:
       - MULTICLUSTER
       - --topology-config
       - prow/config/topology/external-istiod.json
-      - test.integration.pilot.kube
+      - test.integration.pilot.kube.multicluster
     requirements: [kind, ecr]
     resources: multicluster
     env:
@@ -224,7 +224,7 @@ jobs:
       - MULTICLUSTER
       - --topology-config
       - prow/config/topology/external-istiod-multicluster.json
-      - test.integration.pilot.kube
+      - test.integration.pilot.kube.multicluster
     requirements: [kind, ecr]
     resources: multicluster
     env:
@@ -257,7 +257,7 @@ jobs:
       - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
       - --topology
       - MULTICLUSTER
-      - test.integration.security.kube
+      - test.integration.security.kube.multicluster
     requirements: [kind, ecr]
     resources: multicluster
 
@@ -271,7 +271,7 @@ jobs:
       - MULTICLUSTER
       - --topology-config
       - prow/config/topology/external-istiod.json
-      - test.integration.security.kube
+      - test.integration.security.kube.multicluster
     requirements: [kind, ecr]
     resources: multicluster
     env:
@@ -305,7 +305,7 @@ jobs:
       - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
       - --kind-config
       - prow/config/ambient-sc.yaml
-      - test.integration.ambient.kube
+      - test.integration.ambient.kube.environment
 
   - name: integ-ambient-owned-cni
     modifiers: [presubmit_optional]
@@ -320,7 +320,7 @@ jobs:
     - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
     - --kind-config
     - prow/config/ambient-sc.yaml
-    - test.integration.ambient.kube
+    - test.integration.ambient.kube.environment
 
   - name: integ-ambient-ipv6
     requirements: [kind, ecr]
@@ -338,7 +338,7 @@ jobs:
     - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
     - --kind-config
     - prow/config/ambient-sc.yaml
-    - test.integration.ambient.kube
+    - test.integration.ambient.kube.environment
 
   - name: integ-ambient-mc
     resources: multicluster
@@ -357,7 +357,7 @@ jobs:
     - AMBIENT_MULTICLUSTER
     - --topology-config
     - prow/config/topology/ambient-multicluster.json
-    - test.integration.ambient.kube
+    - test.integration.ambient.kube.multicluster
     
   # TODO(#61067): once we can confirm that these tests aren't flakier than regular
   # ambient-mc test suite, we can merge the two suites into one.
@@ -382,7 +382,7 @@ jobs:
     - AMBIENT_MULTICLUSTER
     - --topology-config
     - prow/config/topology/ambient-multicluster-large.json
-    - test.integration.ambient.kube
+    - test.integration.ambient.kube.multicluster
 
   - name: integ-ambient-dual
     requirements: [kind, ecr]
@@ -401,7 +401,7 @@ jobs:
     - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
     - --kind-config
     - prow/config/ambient-sc.yaml
-    - test.integration.ambient.kube
+    - test.integration.ambient.kube.environment
 
   - name: integ-gateway-api-only
     modifiers: [presubmit_optional]
