@@ -57,8 +57,13 @@ periodics:
         subPath: gomod
     nodeSelector:
       kubernetes.io/arch: amd64
-      testing: build-pool
+      testing: trusted
     serviceAccountName: prowjob-github-istio-testing
+    tolerations:
+    - effect: NoSchedule
+      key: testing
+      operator: Equal
+      value: trusted
     volumes:
     - hostPath:
         path: /var/tmp/prow/cache
@@ -111,13 +116,17 @@ postsubmits:
           name: docker-root
       nodeSelector:
         kubernetes.io/arch: arm64
-        testing: test-pool
+        testing: trusted
       serviceAccountName: prowjob-testing-write
       tolerations:
       - effect: NoSchedule
         key: kubernetes.io/arch
         operator: Equal
         value: arm64
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -171,8 +180,13 @@ postsubmits:
           name: docker-root
       nodeSelector:
         kubernetes.io/arch: amd64
-        testing: build-pool
+        testing: trusted
       serviceAccountName: prowjob-testing-write
+      tolerations:
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -236,8 +250,13 @@ postsubmits:
           subPath: gomod
       nodeSelector:
         kubernetes.io/arch: amd64
-        testing: build-pool
+        testing: trusted
       serviceAccountName: prowjob-github-istio-testing
+      tolerations:
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache

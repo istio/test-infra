@@ -48,8 +48,13 @@ periodics:
         name: docker-root
     nodeSelector:
       kubernetes.io/arch: amd64
-      testing: test-pool
+      testing: trusted
     serviceAccountName: prowjob-release
+    tolerations:
+    - effect: NoSchedule
+      key: testing
+      operator: Equal
+      value: trusted
     volumes:
     - hostPath:
         path: /var/tmp/prow/cache
@@ -100,8 +105,13 @@ postsubmits:
           name: docker-root
       nodeSelector:
         kubernetes.io/arch: amd64
-        testing: test-pool
+        testing: trusted
       serviceAccountName: prowjob-release
+      tolerations:
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -290,8 +300,13 @@ postsubmits:
           name: docker-root
       nodeSelector:
         kubernetes.io/arch: amd64
-        testing: test-pool
+        testing: trusted
       serviceAccountName: prowjob-release
+      tolerations:
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache

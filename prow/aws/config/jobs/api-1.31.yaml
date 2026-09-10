@@ -618,6 +618,7 @@ jobs:
   - cache
   - cache
   - github-istio-testing
+  - trusted
   resources_presets:
     default:
       limits:
@@ -843,6 +844,15 @@ node_selector:
 org: istio
 repo: api
 requirement_presets:
+  trusted:
+    podSpec:
+      nodeSelector:
+        testing: trusted
+      tolerations:
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
   build-base:
     env:
     - name: DOCKER_CONFIG

@@ -41,7 +41,7 @@ locals {
           block_device_mappings = {
             root = {
               device_name = "/dev/xvda"
-              ebs         = merge(local.gp3_root_volume, { volume_size = 2000 })
+              ebs         = merge(local.gp3_root_volume, { volume_size = 512 })
             }
           }
           labels = { testing = "build-pool" }
@@ -92,6 +92,96 @@ locals {
           }
           labels = { testing = "test-pool" }
         }
+        # Trusted jobs with publishing, signing, or write credentials. Keep
+        # these nodes isolated from privileged presubmit workloads.
+        "trusted-build" = {
+          ami_type       = "AL2023_x86_64_STANDARD"
+          instance_types = ["m6i.16xlarge"]
+          capacity_type  = "ON_DEMAND"
+          min_size       = 0
+          max_size       = 5
+          desired_size   = 0
+          block_device_mappings = {
+            root = {
+              device_name = "/dev/xvda"
+              ebs         = merge(local.gp3_root_volume, { volume_size = 512 })
+            }
+          }
+          labels = { testing = "trusted" }
+          taints = {
+            trusted = {
+              key    = "testing"
+              value  = "trusted"
+              effect = "NO_SCHEDULE"
+            }
+          }
+        }
+        "trusted-release" = {
+          ami_type       = "AL2023_x86_64_STANDARD"
+          instance_types = ["m6i.4xlarge"]
+          capacity_type  = "ON_DEMAND"
+          min_size       = 0
+          max_size       = 5
+          desired_size   = 0
+          block_device_mappings = {
+            root = {
+              device_name = "/dev/xvda"
+              ebs         = merge(local.gp3_root_volume, { volume_size = 256 })
+            }
+          }
+          labels = { testing = "trusted" }
+          taints = {
+            trusted = {
+              key    = "testing"
+              value  = "trusted"
+              effect = "NO_SCHEDULE"
+            }
+          }
+        }
+        "trusted-build-arm" = {
+          ami_type       = "AL2023_ARM_64_STANDARD"
+          instance_types = ["m7g.16xlarge"]
+          capacity_type  = "ON_DEMAND"
+          min_size       = 0
+          max_size       = 2
+          desired_size   = 0
+          block_device_mappings = {
+            root = {
+              device_name = "/dev/xvda"
+              ebs         = merge(local.gp3_root_volume, { volume_size = 512 })
+            }
+          }
+          labels = { testing = "trusted" }
+          taints = {
+            trusted = {
+              key    = "testing"
+              value  = "trusted"
+              effect = "NO_SCHEDULE"
+            }
+          }
+        }
+        "trusted-release-arm" = {
+          ami_type       = "AL2023_ARM_64_STANDARD"
+          instance_types = ["m7g.4xlarge"]
+          capacity_type  = "ON_DEMAND"
+          min_size       = 0
+          max_size       = 2
+          desired_size   = 0
+          block_device_mappings = {
+            root = {
+              device_name = "/dev/xvda"
+              ebs         = merge(local.gp3_root_volume, { volume_size = 256 })
+            }
+          }
+          labels = { testing = "trusted" }
+          taints = {
+            trusted = {
+              key    = "testing"
+              value  = "trusted"
+              effect = "NO_SCHEDULE"
+            }
+          }
+        }
       }
     }
     prow-private = {
@@ -99,7 +189,7 @@ locals {
         # Test pool
         test = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["t3.large"]
+          instance_types = ["m7a.4xlarge", "m6a.4xlarge", "m7i.4xlarge", "m6i.4xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
           max_size       = 5
@@ -123,14 +213,19 @@ locals {
           block_device_mappings = {
             root = {
               device_name = "/dev/xvda"
-              ebs         = merge(local.gp3_root_volume, { volume_size = 2000 })
+              ebs         = merge(local.gp3_root_volume, { volume_size = 512 })
             }
           }
           labels = { testing = "build-pool" }
+          # so Cluster autoscaler knows about ephemeral storage availability
+          # https://github.com/kubernetes/autoscaler/issues/1650
+          tags = {
+            "k8s.io/cluster-autoscaler/node-template/resources/ephemeral-storage" = "500Gi"
+          }
         }
         arm = {
           ami_type       = "AL2023_ARM_64_STANDARD"
-          instance_types = ["t4g.large"]
+          instance_types = ["m7g.4xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 0
           max_size       = 5

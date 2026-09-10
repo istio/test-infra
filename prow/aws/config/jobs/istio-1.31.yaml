@@ -674,6 +674,7 @@ jobs:
   - docker
   - cf-r2-istio-build-auth
   - testing-pusher
+  - trusted
   resources: dedicated
   resources_presets:
     dedicated:
@@ -1134,6 +1135,7 @@ jobs:
   - cache
   - gocache
   - cf-r2-istio-prow-auth
+  - trusted
   resources: dedicated
   resources_presets:
     dedicated:
@@ -12082,6 +12084,7 @@ jobs:
   - gocache
   - build-base
   - docker
+  - trusted
   resources_presets:
     dedicated:
       limits:
@@ -13002,6 +13005,7 @@ jobs:
   - cache
   - gocache
   - github-istio-testing
+  - trusted
   resources_presets:
     dedicated:
       limits:
@@ -13036,6 +13040,15 @@ node_selector:
 org: istio
 repo: istio
 requirement_presets:
+  trusted:
+    podSpec:
+      nodeSelector:
+        testing: trusted
+      tolerations:
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
   build-base:
     env:
     - name: DOCKER_CONFIG

@@ -1288,6 +1288,7 @@ jobs:
   - cache
   - docker
   - cf-r2-istio-build-auth
+  - trusted
   resources_presets:
     arm:
       requests:
@@ -1511,6 +1512,7 @@ jobs:
   - cache
   - docker
   - cf-r2-istio-build-auth
+  - trusted
   resources: arm
   resources_presets:
     arm:
@@ -1736,6 +1738,7 @@ jobs:
   - cache
   - cache
   - github-istio-testing
+  - trusted
   resources_presets:
     arm:
       requests:
@@ -1959,6 +1962,7 @@ jobs:
   - cache
   - cache
   - github-istio-testing
+  - trusted
   resources_presets:
     arm:
       requests:
@@ -1979,6 +1983,15 @@ node_selector:
 org: istio
 repo: proxy
 requirement_presets:
+  trusted:
+    podSpec:
+      nodeSelector:
+        testing: trusted
+      tolerations:
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
   build-base:
     env:
     - name: DOCKER_CONFIG

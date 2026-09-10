@@ -166,6 +166,26 @@ func mergeRequirement(annotations, labels map[string]string, spec *v1.PodSpec, c
 	}
 
 	if req.PodSpec != nil {
+		if len(req.PodSpec.NodeSelector) > 0 {
+			if spec.NodeSelector == nil {
+				spec.NodeSelector = map[string]string{}
+			}
+			for k, v := range req.PodSpec.NodeSelector {
+				spec.NodeSelector[k] = v
+			}
+		}
+		for _, requirementToleration := range req.PodSpec.Tolerations {
+			exists := false
+			for _, toleration := range spec.Tolerations {
+				if toleration.MatchToleration(&requirementToleration) {
+					exists = true
+					break
+				}
+			}
+			if !exists {
+				spec.Tolerations = append(spec.Tolerations, requirementToleration)
+			}
+		}
 		if err := mergo.Merge(spec, req.PodSpec); err != nil {
 			log.Fatalf("Unable to merge PodSpec: %v", err)
 		}
