@@ -1532,6 +1532,7 @@ jobs:
   - docker
   - cf-r2-istio-prerelease-auth
   - prerelease-ghcr
+  - trusted
   resources: dedicated
   resources_presets:
     build:
@@ -1761,6 +1762,7 @@ jobs:
   - docker
   - cf-r2-istio-prerelease-auth
   - cf-r2-istio-release-auth
+  - trusted
   resources: dedicated
   resources_presets:
     build:
@@ -1987,6 +1989,7 @@ jobs:
   - cache
   - build-base
   - docker
+  - trusted
   resources: build
   resources_presets:
     build:
@@ -2016,6 +2019,15 @@ node_selector:
 org: istio
 repo: release-builder
 requirement_presets:
+  trusted:
+    podSpec:
+      nodeSelector:
+        testing: trusted
+      tolerations:
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
   build-base:
     env:
     - name: DOCKER_CONFIG

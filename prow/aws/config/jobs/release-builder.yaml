@@ -37,7 +37,7 @@ jobs:
     types: [postsubmit]
     regex: '^release/trigger-build$'
     command: [entrypoint, release/build.sh]
-    requirements: [docker, cf-r2-istio-prerelease-auth, testing-pusher]
+    requirements: [docker, cf-r2-istio-prerelease-auth, testing-pusher, trusted]
     resources: dedicated
     # For build, we just need SA (giving GCS/GCR access)
     service_account_name: prowjob-release
@@ -46,7 +46,7 @@ jobs:
     types: [postsubmit]
     regex: '^release/trigger-publish$'
     command: [entrypoint, release/publish.sh]
-    requirements: [release, docker, cf-r2-istio-prerelease-auth, cf-r2-istio-release-auth]
+    requirements: [release, docker, cf-r2-istio-prerelease-auth, cf-r2-istio-release-auth, trusted]
     resources: dedicated
     max_concurrency: 1
 
@@ -57,7 +57,7 @@ jobs:
     - name: VERSION
       value: "master"
     command: [entrypoint, release/build-base-images.sh]
-    requirements: [build-base, docker]
+    requirements: [build-base, docker, trusted]
     resources: build
 
 resources_presets:

@@ -28,6 +28,15 @@ resources_presets:
 
 requirements: [cache]
 requirement_presets:
+  trusted:
+    podSpec:
+      nodeSelector:
+        testing: trusted
+      tolerations:
+      - key: testing
+        operator: Equal
+        value: trusted
+        effect: NoSchedule
   ecr:
     env:
     - name: ECR_REGISTRY

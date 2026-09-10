@@ -3785,6 +3785,11 @@ postsubmits:
         kubernetes.io/arch: amd64
         testing: test-pool
       serviceAccountName: prowjob-private
+      tolerations:
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
