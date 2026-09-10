@@ -6,6 +6,7 @@ locals {
   # `s3_read_write` on a workload role reference these keys.
   s3_buckets = {
     "istio-prow"                        = aws_s3_bucket.istio_prow.arn
+    "istio-prow-athens-cache"           = aws_s3_bucket.istio_prow_athens_cache.arn
     "istio-prow-bazel-cache-presubmit"  = aws_s3_bucket.istio_prow_bazel_cache.arn
     "istio-prow-bazel-cache-postsubmit" = aws_s3_bucket.istio_prow_bazel_cache_postsubmit.arn
     "istio-prow-bazel-cache-private"    = aws_s3_bucket.istio_prow_bazel_cache_private.arn
@@ -88,6 +89,15 @@ locals {
       associations  = { prow-private = { namespace = "test-pods", service_account = "prowjob-private" } }
     }
 
+    "athens" = {
+      s3_read_write = ["istio-prow-athens-cache"]
+      associations = {
+        prow         = { namespace = "athens", service_account = "athens" }
+        prow-build   = { namespace = "athens", service_account = "athens" }
+        prow-private = { namespace = "athens", service_account = "athens" }
+      }
+    }
+
     # Prow control-plane components (trusted "prow" cluster, default namespace).
     "crier" = {
       s3_read_write = ["istio-prow", "istio-prow-private"]
@@ -144,7 +154,7 @@ module "workload_identity" {
 
   name = each.key
 
-  additional_policy_arns = {
+  additional_policy_arns = each.key == "athens" ? {} : {
     ecr_pull_through_cache_read = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPullOnly"
   }
 

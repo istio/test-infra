@@ -57,6 +57,44 @@ resource "aws_s3_bucket_public_access_block" "istio_prow_private" {
   restrict_public_buckets = true
 }
 
+# Private shared backend for the Athens Go module proxy instances in the public
+# and private build clusters.
+resource "aws_s3_bucket" "istio_prow_athens_cache" {
+  bucket = "istio-prow-athens-cache"
+}
+
+resource "aws_s3_bucket_public_access_block" "istio_prow_athens_cache" {
+  bucket = aws_s3_bucket.istio_prow_athens_cache.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_ownership_controls" "istio_prow_athens_cache" {
+  bucket = aws_s3_bucket.istio_prow_athens_cache.id
+
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "istio_prow_athens_cache" {
+  bucket = aws_s3_bucket.istio_prow_athens_cache.id
+
+  rule {
+    id     = "expire-cache-entries"
+    status = "Enabled"
+
+    filter {}
+
+    expiration {
+      days = 30
+    }
+  }
+}
+
 # Private, durable backend for presubmit Bazel remote-cache sidecars. Keep the
 # existing bucket name to preserve its cache contents during migration.
 resource "aws_s3_bucket" "istio_prow_bazel_cache" {
