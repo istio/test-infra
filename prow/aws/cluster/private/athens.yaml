@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: athens
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: athens
+  namespace: athens
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: athens
+  namespace: athens
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: athens
+  template:
+    metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+      labels:
+        app: athens
+    spec:
+      enableServiceLinks: false
+      nodeSelector:
+        testing: test-pool
+      serviceAccountName: athens
+      containers:
+      - name: athens
+        image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/gomods/athens:v0.18.1
+        env:
+        - name: ATHENS_STORAGE_TYPE
+          value: s3
+        - name: ATHENS_S3_BUCKET_NAME
+          value: istio-prow-athens-cache
+        - name: AWS_REGION
+          value: us-west-2
+        - name: AWS_USE_DEFAULT_CONFIGURATION
+          value: "true"
+        - name: ATHENS_GO_BINARY_ENV_VARS
+          value: GOPROXY=https://proxy.golang.org,direct
+        - name: GOCACHE
+          value: /tmp/go-cache
+        - name: GOPATH
+          value: /tmp/go
+        - name: HOME
+          value: /tmp
+        ports:
+        - name: http
+          containerPort: 3000
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: http
+          periodSeconds: 5
+          timeoutSeconds: 3
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+        resources:
+          limits:
+            cpu: "4"
+            memory: 8Gi
+          requests:
+            cpu: "1"
+            memory: 2Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: athens
+  namespace: athens
+spec:
+  ports:
+  - name: http
+    port: 3000
+    protocol: TCP
+    targetPort: http
+  selector:
+    app: athens
