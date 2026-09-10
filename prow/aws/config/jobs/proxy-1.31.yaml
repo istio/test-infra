@@ -12,13 +12,131 @@ jobs:
     value: "0"
   - name: BAZEL_BUILD_RBE_INSTANCE
     value: ""
-  - name: BAZEL_BUILD_RBE_CACHE
-    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
   image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
   name: test
   node_selector:
     testing: build-pool
   requirement_presets:
+    bazel-cache-postsubmit:
+      env:
+      - name: BAZEL_BUILD_RBE_CACHE
+        value: http://localhost:8080
+      sidecars:
+      - args:
+        - --dir=/data
+        - --http_address=0.0.0.0:8080
+        - --grpc_address=0.0.0.0:9092
+        - --max_size=16
+        - --s3.auth_method=iam_role
+        - --s3.bucket=$(BAZEL_REMOTE_BUCKET)
+        - --s3.endpoint=s3.us-west-2.amazonaws.com
+        - --s3.prefix=proxy
+        - --s3.region=us-west-2
+        env:
+        - name: BAZEL_REMOTE_BUCKET
+          value: istio-prow-bazel-cache-postsubmit
+        image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/buchgr/bazel-remote-cache:v2.6.2
+        name: bazel-remote
+        ports:
+        - containerPort: 8080
+          name: bazel-cache
+          protocol: TCP
+        readinessProbe:
+          grpc:
+            port: 9092
+          periodSeconds: 3
+          timeoutSeconds: 10
+        livenessProbe:
+          grpc:
+            port: 9092
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 3
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 32Gi
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 16Gi
+            memory: 1Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        volumeMounts:
+        - mountPath: /data
+          name: bazel-cache
+      volumes:
+      - emptyDir:
+          sizeLimit: 32Gi
+        name: bazel-cache
+    bazel-cache-presubmit:
+      env:
+      - name: BAZEL_BUILD_RBE_CACHE
+        value: http://localhost:8080
+      sidecars:
+      - args:
+        - --dir=/data
+        - --http_address=0.0.0.0:8080
+        - --grpc_address=0.0.0.0:9092
+        - --max_size=16
+        - --s3.auth_method=iam_role
+        - --s3.bucket=$(BAZEL_REMOTE_BUCKET)
+        - --s3.endpoint=s3.us-west-2.amazonaws.com
+        - --s3.prefix=proxy
+        - --s3.region=us-west-2
+        env:
+        - name: BAZEL_REMOTE_BUCKET
+          value: istio-prow-bazel-cache
+        image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/buchgr/bazel-remote-cache:v2.6.2
+        name: bazel-remote
+        ports:
+        - containerPort: 8080
+          name: bazel-cache
+          protocol: TCP
+        readinessProbe:
+          grpc:
+            port: 9092
+          periodSeconds: 3
+          timeoutSeconds: 10
+        livenessProbe:
+          grpc:
+            port: 9092
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 3
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 32Gi
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 16Gi
+            memory: 1Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        volumeMounts:
+        - mountPath: /data
+          name: bazel-cache
+      volumes:
+      - emptyDir:
+          sizeLimit: 32Gi
+        name: bazel-cache
     build-base:
       env:
       - name: DOCKER_CONFIG
@@ -203,6 +321,7 @@ jobs:
   requirements:
   - cache
   - cache
+  - bazel-cache-presubmit
   resources_presets:
     arm:
       requests:
@@ -215,7 +334,7 @@ jobs:
       requests:
         cpu: "30"
         memory: 100G
-  service_account_name: prowjob-default-sa
+  service_account_name: prowjob-proxy-presubmit
   timeout: 4h0m0s
   types:
   - presubmit
@@ -226,8 +345,6 @@ jobs:
     value: "0"
   - name: BAZEL_BUILD_RBE_INSTANCE
     value: ""
-  - name: BAZEL_BUILD_RBE_CACHE
-    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
   image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
   name: test-asan
   node_selector:
@@ -417,6 +534,7 @@ jobs:
   requirements:
   - cache
   - cache
+  - bazel-cache-presubmit
   resources_presets:
     arm:
       requests:
@@ -429,7 +547,7 @@ jobs:
       requests:
         cpu: "30"
         memory: 100G
-  service_account_name: prowjob-default-sa
+  service_account_name: prowjob-proxy-presubmit
   timeout: 4h0m0s
   types:
   - presubmit
@@ -444,8 +562,6 @@ jobs:
     value: $(params.arch)
   - name: BAZEL_BUILD_RBE_INSTANCE
     value: ""
-  - name: BAZEL_BUILD_RBE_CACHE
-    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
   image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
   name: test-arm
   node_selector:
@@ -635,6 +751,7 @@ jobs:
   requirements:
   - cache
   - cache
+  - bazel-cache-presubmit
   resources: arm
   resources_presets:
     arm:
@@ -648,7 +765,7 @@ jobs:
       requests:
         cpu: "30"
         memory: 100G
-  service_account_name: prowjob-default-sa
+  service_account_name: prowjob-proxy-presubmit
   timeout: 6h0m0s
   types:
   - presubmit
@@ -659,8 +776,6 @@ jobs:
     value: "0"
   - name: BAZEL_BUILD_RBE_INSTANCE
     value: ""
-  - name: BAZEL_BUILD_RBE_CACHE
-    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
   image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
   name: release-test
   node_selector:
@@ -850,6 +965,7 @@ jobs:
   requirements:
   - cache
   - cache
+  - bazel-cache-presubmit
   resources_presets:
     arm:
       requests:
@@ -862,7 +978,7 @@ jobs:
       requests:
         cpu: "30"
         memory: 100G
-  service_account_name: prowjob-default-sa
+  service_account_name: prowjob-proxy-presubmit
   timeout: 6h0m0s
   types:
   - presubmit
@@ -879,8 +995,6 @@ jobs:
     value: "1"
   - name: BAZEL_BUILD_RBE_INSTANCE
     value: ""
-  - name: BAZEL_BUILD_RBE_CACHE
-    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
   image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
   name: release-test
   node_selector:
@@ -1070,6 +1184,7 @@ jobs:
   requirements:
   - cache
   - cache
+  - bazel-cache-presubmit
   resources: arm
   resources_presets:
     arm:
@@ -1083,7 +1198,7 @@ jobs:
       requests:
         cpu: "30"
         memory: 100G
-  service_account_name: prowjob-default-sa
+  service_account_name: prowjob-proxy-presubmit
   timeout: 6h0m0s
   types:
   - presubmit
@@ -1095,8 +1210,6 @@ jobs:
     value: "0"
   - name: BAZEL_BUILD_RBE_INSTANCE
     value: ""
-  - name: BAZEL_BUILD_RBE_CACHE
-    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
   image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
   name: release
   node_selector:
@@ -1289,6 +1402,7 @@ jobs:
   - docker
   - cf-r2-istio-build-auth
   - trusted
+  - bazel-cache-postsubmit
   resources_presets:
     arm:
       requests:
@@ -1301,7 +1415,7 @@ jobs:
       requests:
         cpu: "30"
         memory: 100G
-  service_account_name: prowjob-testing-write
+  service_account_name: prowjob-proxy-postsubmit
   timeout: 6h0m0s
   types:
   - postsubmit
@@ -1319,8 +1433,6 @@ jobs:
     value: "1"
   - name: BAZEL_BUILD_RBE_INSTANCE
     value: ""
-  - name: BAZEL_BUILD_RBE_CACHE
-    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
   image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
   name: release
   node_selector:
@@ -1513,6 +1625,7 @@ jobs:
   - docker
   - cf-r2-istio-build-auth
   - trusted
+  - bazel-cache-postsubmit
   resources: arm
   resources_presets:
     arm:
@@ -1526,7 +1639,7 @@ jobs:
       requests:
         cpu: "30"
         memory: 100G
-  service_account_name: prowjob-testing-write
+  service_account_name: prowjob-proxy-postsubmit
   timeout: 6h0m0s
   types:
   - postsubmit

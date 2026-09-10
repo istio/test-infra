@@ -91,13 +91,13 @@ postsubmits:
         env:
         - name: ARCH_SUFFIX
           value: arm64
-        - name: BAZEL_BUILD_RBE_CACHE
-          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_ENVOY_BINARY_ONLY
           value: "1"
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: BAZEL_BUILD_RBE_CACHE
+          value: http://localhost:8080
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -114,10 +114,65 @@ postsubmits:
           subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
+      initContainers:
+      - args:
+        - --dir=/data
+        - --http_address=0.0.0.0:8080
+        - --grpc_address=0.0.0.0:9092
+        - --max_size=16
+        - --s3.auth_method=iam_role
+        - --s3.bucket=$(BAZEL_REMOTE_BUCKET)
+        - --s3.endpoint=s3.us-west-2.amazonaws.com
+        - --s3.prefix=proxy
+        - --s3.region=us-west-2
+        env:
+        - name: BAZEL_REMOTE_BUCKET
+          value: istio-prow-bazel-cache-postsubmit
+        image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/buchgr/bazel-remote-cache:v2.6.2
+        livenessProbe:
+          grpc:
+            port: 9092
+            service: null
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: bazel-remote
+        ports:
+        - containerPort: 8080
+          name: bazel-cache
+          protocol: TCP
+        readinessProbe:
+          grpc:
+            port: 9092
+            service: null
+          periodSeconds: 3
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 32Gi
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 16Gi
+            memory: 1Gi
+        restartPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        volumeMounts:
+        - mountPath: /data
+          name: bazel-cache
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: trusted
-      serviceAccountName: prowjob-testing-write
+      serviceAccountName: prowjob-proxy-postsubmit
       tolerations:
       - effect: NoSchedule
         key: kubernetes.io/arch
@@ -134,6 +189,9 @@ postsubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+      - emptyDir:
+          sizeLimit: 32Gi
+        name: bazel-cache
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_release-1.31_proxy_postsubmit
@@ -152,11 +210,11 @@ postsubmits:
         - entrypoint
         - ./prow/proxy-postsubmit.sh
         env:
-        - name: BAZEL_BUILD_RBE_CACHE
-          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: BAZEL_BUILD_RBE_CACHE
+          value: http://localhost:8080
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
         - name: GOMAXPROCS
@@ -178,10 +236,65 @@ postsubmits:
           subPath: gomod
         - mountPath: /var/lib/docker
           name: docker-root
+      initContainers:
+      - args:
+        - --dir=/data
+        - --http_address=0.0.0.0:8080
+        - --grpc_address=0.0.0.0:9092
+        - --max_size=16
+        - --s3.auth_method=iam_role
+        - --s3.bucket=$(BAZEL_REMOTE_BUCKET)
+        - --s3.endpoint=s3.us-west-2.amazonaws.com
+        - --s3.prefix=proxy
+        - --s3.region=us-west-2
+        env:
+        - name: BAZEL_REMOTE_BUCKET
+          value: istio-prow-bazel-cache-postsubmit
+        image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/buchgr/bazel-remote-cache:v2.6.2
+        livenessProbe:
+          grpc:
+            port: 9092
+            service: null
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: bazel-remote
+        ports:
+        - containerPort: 8080
+          name: bazel-cache
+          protocol: TCP
+        readinessProbe:
+          grpc:
+            port: 9092
+            service: null
+          periodSeconds: 3
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 32Gi
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 16Gi
+            memory: 1Gi
+        restartPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        volumeMounts:
+        - mountPath: /data
+          name: bazel-cache
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: trusted
-      serviceAccountName: prowjob-testing-write
+      serviceAccountName: prowjob-proxy-postsubmit
       tolerations:
       - effect: NoSchedule
         key: testing
@@ -194,6 +307,9 @@ postsubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+      - emptyDir:
+          sizeLimit: 32Gi
+        name: bazel-cache
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
       testgrid-dashboards: istio_release-1.31_proxy_postsubmit
@@ -283,13 +399,13 @@ presubmits:
         env:
         - name: ARCH_SUFFIX
           value: arm64
-        - name: BAZEL_BUILD_RBE_CACHE
-          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_ENVOY_BINARY_ONLY
           value: "1"
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: BAZEL_BUILD_RBE_CACHE
+          value: http://localhost:8080
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
         name: ""
         resources:
@@ -302,10 +418,65 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+      initContainers:
+      - args:
+        - --dir=/data
+        - --http_address=0.0.0.0:8080
+        - --grpc_address=0.0.0.0:9092
+        - --max_size=16
+        - --s3.auth_method=iam_role
+        - --s3.bucket=$(BAZEL_REMOTE_BUCKET)
+        - --s3.endpoint=s3.us-west-2.amazonaws.com
+        - --s3.prefix=proxy
+        - --s3.region=us-west-2
+        env:
+        - name: BAZEL_REMOTE_BUCKET
+          value: istio-prow-bazel-cache
+        image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/buchgr/bazel-remote-cache:v2.6.2
+        livenessProbe:
+          grpc:
+            port: 9092
+            service: null
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: bazel-remote
+        ports:
+        - containerPort: 8080
+          name: bazel-cache
+          protocol: TCP
+        readinessProbe:
+          grpc:
+            port: 9092
+            service: null
+          periodSeconds: 3
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 32Gi
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 16Gi
+            memory: 1Gi
+        restartPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        volumeMounts:
+        - mountPath: /data
+          name: bazel-cache
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
-      serviceAccountName: prowjob-default-sa
+      serviceAccountName: prowjob-proxy-presubmit
       tolerations:
       - effect: NoSchedule
         key: kubernetes.io/arch
@@ -316,6 +487,9 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - emptyDir:
+          sizeLimit: 32Gi
+        name: bazel-cache
     trigger: ((?m)^/test( | .* )release-test-arm64,?($|\s.*))|((?m)^/test( | .* )release-test-arm64_proxy_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
@@ -334,11 +508,11 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-release.sh
         env:
-        - name: BAZEL_BUILD_RBE_CACHE
-          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: BAZEL_BUILD_RBE_CACHE
+          value: http://localhost:8080
         - name: GOMAXPROCS
           value: "64"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -356,15 +530,73 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+      initContainers:
+      - args:
+        - --dir=/data
+        - --http_address=0.0.0.0:8080
+        - --grpc_address=0.0.0.0:9092
+        - --max_size=16
+        - --s3.auth_method=iam_role
+        - --s3.bucket=$(BAZEL_REMOTE_BUCKET)
+        - --s3.endpoint=s3.us-west-2.amazonaws.com
+        - --s3.prefix=proxy
+        - --s3.region=us-west-2
+        env:
+        - name: BAZEL_REMOTE_BUCKET
+          value: istio-prow-bazel-cache
+        image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/buchgr/bazel-remote-cache:v2.6.2
+        livenessProbe:
+          grpc:
+            port: 9092
+            service: null
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: bazel-remote
+        ports:
+        - containerPort: 8080
+          name: bazel-cache
+          protocol: TCP
+        readinessProbe:
+          grpc:
+            port: 9092
+            service: null
+          periodSeconds: 3
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 32Gi
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 16Gi
+            memory: 1Gi
+        restartPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        volumeMounts:
+        - mountPath: /data
+          name: bazel-cache
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
-      serviceAccountName: prowjob-default-sa
+      serviceAccountName: prowjob-proxy-presubmit
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - emptyDir:
+          sizeLimit: 32Gi
+        name: bazel-cache
     trigger: ((?m)^/test( | .* )release-test,?($|\s.*))|((?m)^/test( | .* )release-test_proxy_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
@@ -385,11 +617,11 @@ presubmits:
         env:
         - name: ARCH_SUFFIX
           value: arm64
-        - name: BAZEL_BUILD_RBE_CACHE
-          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: BAZEL_BUILD_RBE_CACHE
+          value: http://localhost:8080
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
         name: ""
         resources:
@@ -402,10 +634,65 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+      initContainers:
+      - args:
+        - --dir=/data
+        - --http_address=0.0.0.0:8080
+        - --grpc_address=0.0.0.0:9092
+        - --max_size=16
+        - --s3.auth_method=iam_role
+        - --s3.bucket=$(BAZEL_REMOTE_BUCKET)
+        - --s3.endpoint=s3.us-west-2.amazonaws.com
+        - --s3.prefix=proxy
+        - --s3.region=us-west-2
+        env:
+        - name: BAZEL_REMOTE_BUCKET
+          value: istio-prow-bazel-cache
+        image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/buchgr/bazel-remote-cache:v2.6.2
+        livenessProbe:
+          grpc:
+            port: 9092
+            service: null
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: bazel-remote
+        ports:
+        - containerPort: 8080
+          name: bazel-cache
+          protocol: TCP
+        readinessProbe:
+          grpc:
+            port: 9092
+            service: null
+          periodSeconds: 3
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 32Gi
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 16Gi
+            memory: 1Gi
+        restartPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        volumeMounts:
+        - mountPath: /data
+          name: bazel-cache
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
-      serviceAccountName: prowjob-default-sa
+      serviceAccountName: prowjob-proxy-presubmit
       tolerations:
       - effect: NoSchedule
         key: kubernetes.io/arch
@@ -416,6 +703,9 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - emptyDir:
+          sizeLimit: 32Gi
+        name: bazel-cache
     trigger: ((?m)^/test( | .* )test-arm-arm64,?($|\s.*))|((?m)^/test( | .* )test-arm-arm64_proxy_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
@@ -434,11 +724,11 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit-asan.sh
         env:
-        - name: BAZEL_BUILD_RBE_CACHE
-          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: BAZEL_BUILD_RBE_CACHE
+          value: http://localhost:8080
         - name: GOMAXPROCS
           value: "64"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -456,15 +746,73 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+      initContainers:
+      - args:
+        - --dir=/data
+        - --http_address=0.0.0.0:8080
+        - --grpc_address=0.0.0.0:9092
+        - --max_size=16
+        - --s3.auth_method=iam_role
+        - --s3.bucket=$(BAZEL_REMOTE_BUCKET)
+        - --s3.endpoint=s3.us-west-2.amazonaws.com
+        - --s3.prefix=proxy
+        - --s3.region=us-west-2
+        env:
+        - name: BAZEL_REMOTE_BUCKET
+          value: istio-prow-bazel-cache
+        image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/buchgr/bazel-remote-cache:v2.6.2
+        livenessProbe:
+          grpc:
+            port: 9092
+            service: null
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: bazel-remote
+        ports:
+        - containerPort: 8080
+          name: bazel-cache
+          protocol: TCP
+        readinessProbe:
+          grpc:
+            port: 9092
+            service: null
+          periodSeconds: 3
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 32Gi
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 16Gi
+            memory: 1Gi
+        restartPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        volumeMounts:
+        - mountPath: /data
+          name: bazel-cache
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
-      serviceAccountName: prowjob-default-sa
+      serviceAccountName: prowjob-proxy-presubmit
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - emptyDir:
+          sizeLimit: 32Gi
+        name: bazel-cache
     trigger: ((?m)^/test( | .* )test-asan,?($|\s.*))|((?m)^/test( | .* )test-asan_proxy_release-1.31,?($|\s.*))
   - always_run: true
     annotations:
@@ -483,11 +831,11 @@ presubmits:
       - command:
         - ./prow/proxy-presubmit.sh
         env:
-        - name: BAZEL_BUILD_RBE_CACHE
-          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: BAZEL_BUILD_RBE_CACHE
+          value: http://localhost:8080
         - name: GOMAXPROCS
           value: "64"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -505,13 +853,71 @@ presubmits:
         - mountPath: /home/prow/go/pkg
           name: build-cache
           subPath: gomod
+      initContainers:
+      - args:
+        - --dir=/data
+        - --http_address=0.0.0.0:8080
+        - --grpc_address=0.0.0.0:9092
+        - --max_size=16
+        - --s3.auth_method=iam_role
+        - --s3.bucket=$(BAZEL_REMOTE_BUCKET)
+        - --s3.endpoint=s3.us-west-2.amazonaws.com
+        - --s3.prefix=proxy
+        - --s3.region=us-west-2
+        env:
+        - name: BAZEL_REMOTE_BUCKET
+          value: istio-prow-bazel-cache
+        image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/buchgr/bazel-remote-cache:v2.6.2
+        livenessProbe:
+          grpc:
+            port: 9092
+            service: null
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: bazel-remote
+        ports:
+        - containerPort: 8080
+          name: bazel-cache
+          protocol: TCP
+        readinessProbe:
+          grpc:
+            port: 9092
+            service: null
+          periodSeconds: 3
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 32Gi
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 16Gi
+            memory: 1Gi
+        restartPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        volumeMounts:
+        - mountPath: /data
+          name: bazel-cache
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
-      serviceAccountName: prowjob-default-sa
+      serviceAccountName: prowjob-proxy-presubmit
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - emptyDir:
+          sizeLimit: 32Gi
+        name: bazel-cache
     trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_proxy_release-1.31,?($|\s.*))
