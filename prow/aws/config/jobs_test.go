@@ -351,6 +351,61 @@ func TestJobs(t *testing.T) {
 		}
 		return nil
 	})
+	RunTest("bazel cache isolation", func(j Job) error {
+		if j.Base.Spec == nil || len(j.Base.Spec.Containers) == 0 {
+			return nil
+		}
+		cacheURL := ""
+		for _, env := range j.Base.Spec.Containers[0].Env {
+			if env.Name == "BAZEL_BUILD_RBE_CACHE" {
+				cacheURL = env.Value
+			}
+		}
+		var cacheSidecar *v1.Container
+		for i := range j.Base.Spec.InitContainers {
+			if j.Base.Spec.InitContainers[i].Name == "bazel-remote" {
+				cacheSidecar = &j.Base.Spec.InitContainers[i]
+				break
+			}
+		}
+		if cacheURL == "" && cacheSidecar == nil {
+			return nil
+		}
+		if cacheURL != "http://localhost:8080" {
+			return fmt.Errorf("bazel cache must use localhost, got %q", cacheURL)
+		}
+		if cacheSidecar == nil {
+			return fmt.Errorf("bazel cache URL configured without sidecar")
+		}
+		if !sets.New(cacheSidecar.Args...).Has("--s3.bucket=$(BAZEL_REMOTE_BUCKET)") {
+			return fmt.Errorf("bazel cache sidecar must use the configured bucket")
+		}
+		expectedBucket := "istio-prow-bazel-cache"
+		expectedServiceAccount := "prowjob-proxy-presubmit"
+		if j.Org() == "istio-private" {
+			expectedBucket = "istio-prow-bazel-cache-private"
+			expectedServiceAccount = "prowjob-private"
+		} else if j.Type == Postsubmit {
+			expectedBucket = "istio-prow-bazel-cache-postsubmit"
+			expectedServiceAccount = "prowjob-proxy-postsubmit"
+		}
+		if j.Type != Presubmit && j.Type != Postsubmit {
+			return fmt.Errorf("bazel cache sidecar is not allowed for %v jobs", j.Type)
+		}
+		cacheBucket := ""
+		for _, env := range cacheSidecar.Env {
+			if env.Name == "BAZEL_REMOTE_BUCKET" {
+				cacheBucket = env.Value
+			}
+		}
+		if cacheBucket != expectedBucket {
+			return fmt.Errorf("bazel cache sidecar must use bucket %q", expectedBucket)
+		}
+		if j.ServiceAccount() != expectedServiceAccount {
+			return fmt.Errorf("bazel cache job must use service account %q, got %q", expectedServiceAccount, j.ServiceAccount())
+		}
+		return nil
+	})
 }
 
 func TestSensitiveRequirementsIncludeTrusted(t *testing.T) {
@@ -593,12 +648,14 @@ const (
 var ServiceAccounts = map[string]Sensitivity{
 	"":                             LowPrivilege, // Default is prowjob-default-sa
 	"prowjob-default-sa":           LowPrivilege,
+	"prowjob-proxy-presubmit":      LowPrivilege,
 	"prowjob-private":              LowPrivilege,
 	"prowjob-rbe":                  MediumPrivilege,
 	"prowjob-github-read":          MediumPrivilege,
 	"prow-deployer":                HighPrivilege,
 	"testgrid-updater":             HighPrivilege,
 	"prowjob-testing-write":        HighPrivilege,
+	"prowjob-proxy-postsubmit":     HighPrivilege,
 	"prowjob-github-istio-testing": HighPrivilege,
 	"prowjob-release":              HighPrivilege,
 	"prowjob-build-tools":          HighPrivilege,
@@ -616,6 +673,7 @@ var SecretServiceAccounts = sets.NewString(
 	"prowjob-release",
 	"prowjob-build-tools",
 	"prowjob-testing-write",
+	"prowjob-proxy-postsubmit",
 	"prowjob-private",
 )
 

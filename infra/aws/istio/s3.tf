@@ -57,8 +57,8 @@ resource "aws_s3_bucket_public_access_block" "istio_prow_private" {
   restrict_public_buckets = true
 }
 
-# Private, durable backend for the Bazel remote cache. The cache service keeps
-# a bounded local working set; S3 lifecycle expiry bounds durable retention.
+# Private, durable backend for presubmit Bazel remote-cache sidecars. Keep the
+# existing bucket name to preserve its cache contents during migration.
 resource "aws_s3_bucket" "istio_prow_bazel_cache" {
   bucket = "istio-prow-bazel-cache"
 }
@@ -82,6 +82,81 @@ resource "aws_s3_bucket_ownership_controls" "istio_prow_bazel_cache" {
 
 resource "aws_s3_bucket_lifecycle_configuration" "istio_prow_bazel_cache" {
   bucket = aws_s3_bucket.istio_prow_bazel_cache.id
+
+  rule {
+    id     = "expire-cache-entries"
+    status = "Enabled"
+
+    filter {}
+
+    expiration {
+      days = 30
+    }
+  }
+}
+
+# Postsubmit cache entries are isolated from untrusted presubmit writes.
+resource "aws_s3_bucket" "istio_prow_bazel_cache_postsubmit" {
+  bucket = "istio-prow-bazel-cache-postsubmit"
+}
+
+resource "aws_s3_bucket_public_access_block" "istio_prow_bazel_cache_postsubmit" {
+  bucket = aws_s3_bucket.istio_prow_bazel_cache_postsubmit.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_ownership_controls" "istio_prow_bazel_cache_postsubmit" {
+  bucket = aws_s3_bucket.istio_prow_bazel_cache_postsubmit.id
+
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "istio_prow_bazel_cache_postsubmit" {
+  bucket = aws_s3_bucket.istio_prow_bazel_cache_postsubmit.id
+
+  rule {
+    id     = "expire-cache-entries"
+    status = "Enabled"
+
+    filter {}
+
+    expiration {
+      days = 30
+    }
+  }
+}
+
+# Private repository jobs use an isolated cache to avoid exposing private build
+# outputs through public presubmit or postsubmit caches.
+resource "aws_s3_bucket" "istio_prow_bazel_cache_private" {
+  bucket = "istio-prow-bazel-cache-private"
+}
+
+resource "aws_s3_bucket_public_access_block" "istio_prow_bazel_cache_private" {
+  bucket = aws_s3_bucket.istio_prow_bazel_cache_private.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_ownership_controls" "istio_prow_bazel_cache_private" {
+  bucket = aws_s3_bucket.istio_prow_bazel_cache_private.id
+
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "istio_prow_bazel_cache_private" {
+  bucket = aws_s3_bucket.istio_prow_bazel_cache_private.id
 
   rule {
     id     = "expire-cache-entries"

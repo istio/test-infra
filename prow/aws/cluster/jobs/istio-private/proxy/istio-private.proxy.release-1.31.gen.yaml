@@ -21,7 +21,7 @@ postsubmits:
         - name: ARCH_SUFFIX
           value: arm64
         - name: BAZEL_BUILD_RBE_CACHE
-          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
+          value: http://localhost:8080
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_ENVOY_BINARY_ONLY
           value: "1"
@@ -47,6 +47,61 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+      initContainers:
+      - args:
+        - --dir=/data
+        - --http_address=0.0.0.0:8080
+        - --grpc_address=0.0.0.0:9092
+        - --max_size=16
+        - --s3.auth_method=iam_role
+        - --s3.bucket=$(BAZEL_REMOTE_BUCKET)
+        - --s3.endpoint=s3.us-west-2.amazonaws.com
+        - --s3.prefix=proxy
+        - --s3.region=us-west-2
+        env:
+        - name: BAZEL_REMOTE_BUCKET
+          value: istio-prow-bazel-cache-private
+        image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/buchgr/bazel-remote-cache:v2.6.2
+        livenessProbe:
+          grpc:
+            port: 9092
+            service: null
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: bazel-remote
+        ports:
+        - containerPort: 8080
+          name: bazel-cache
+          protocol: TCP
+        readinessProbe:
+          grpc:
+            port: 9092
+            service: null
+          periodSeconds: 3
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 32Gi
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 16Gi
+            memory: 1Gi
+        restartPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        volumeMounts:
+        - mountPath: /data
+          name: bazel-cache
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
@@ -56,6 +111,10 @@ postsubmits:
         key: kubernetes.io/arch
         operator: Equal
         value: arm64
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -63,6 +122,9 @@ postsubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+      - emptyDir:
+          sizeLimit: 32Gi
+        name: bazel-cache
       - name: netrc
         secret:
           items:
@@ -88,7 +150,7 @@ postsubmits:
         - ./prow/proxy-postsubmit.sh
         env:
         - name: BAZEL_BUILD_RBE_CACHE
-          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
+          value: http://localhost:8080
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -117,10 +179,70 @@ postsubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+      initContainers:
+      - args:
+        - --dir=/data
+        - --http_address=0.0.0.0:8080
+        - --grpc_address=0.0.0.0:9092
+        - --max_size=16
+        - --s3.auth_method=iam_role
+        - --s3.bucket=$(BAZEL_REMOTE_BUCKET)
+        - --s3.endpoint=s3.us-west-2.amazonaws.com
+        - --s3.prefix=proxy
+        - --s3.region=us-west-2
+        env:
+        - name: BAZEL_REMOTE_BUCKET
+          value: istio-prow-bazel-cache-private
+        image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/buchgr/bazel-remote-cache:v2.6.2
+        livenessProbe:
+          grpc:
+            port: 9092
+            service: null
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: bazel-remote
+        ports:
+        - containerPort: 8080
+          name: bazel-cache
+          protocol: TCP
+        readinessProbe:
+          grpc:
+            port: 9092
+            service: null
+          periodSeconds: 3
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 32Gi
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 16Gi
+            memory: 1Gi
+        restartPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        volumeMounts:
+        - mountPath: /data
+          name: bazel-cache
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
       serviceAccountName: prowjob-private
+      tolerations:
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -128,6 +250,9 @@ postsubmits:
         name: build-cache
       - emptyDir: {}
         name: docker-root
+      - emptyDir:
+          sizeLimit: 32Gi
+        name: bazel-cache
       - name: netrc
         secret:
           items:
@@ -158,7 +283,7 @@ presubmits:
         - name: ARCH_SUFFIX
           value: arm64
         - name: BAZEL_BUILD_RBE_CACHE
-          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
+          value: http://localhost:8080
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_ENVOY_BINARY_ONLY
           value: "1"
@@ -180,6 +305,61 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+      initContainers:
+      - args:
+        - --dir=/data
+        - --http_address=0.0.0.0:8080
+        - --grpc_address=0.0.0.0:9092
+        - --max_size=16
+        - --s3.auth_method=iam_role
+        - --s3.bucket=$(BAZEL_REMOTE_BUCKET)
+        - --s3.endpoint=s3.us-west-2.amazonaws.com
+        - --s3.prefix=proxy
+        - --s3.region=us-west-2
+        env:
+        - name: BAZEL_REMOTE_BUCKET
+          value: istio-prow-bazel-cache-private
+        image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/buchgr/bazel-remote-cache:v2.6.2
+        livenessProbe:
+          grpc:
+            port: 9092
+            service: null
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: bazel-remote
+        ports:
+        - containerPort: 8080
+          name: bazel-cache
+          protocol: TCP
+        readinessProbe:
+          grpc:
+            port: 9092
+            service: null
+          periodSeconds: 3
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 32Gi
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 16Gi
+            memory: 1Gi
+        restartPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        volumeMounts:
+        - mountPath: /data
+          name: bazel-cache
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
@@ -194,6 +374,9 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - emptyDir:
+          sizeLimit: 32Gi
+        name: bazel-cache
       - name: netrc
         secret:
           items:
@@ -221,7 +404,7 @@ presubmits:
         - ./prow/proxy-presubmit-release.sh
         env:
         - name: BAZEL_BUILD_RBE_CACHE
-          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
+          value: http://localhost:8080
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -246,6 +429,61 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+      initContainers:
+      - args:
+        - --dir=/data
+        - --http_address=0.0.0.0:8080
+        - --grpc_address=0.0.0.0:9092
+        - --max_size=16
+        - --s3.auth_method=iam_role
+        - --s3.bucket=$(BAZEL_REMOTE_BUCKET)
+        - --s3.endpoint=s3.us-west-2.amazonaws.com
+        - --s3.prefix=proxy
+        - --s3.region=us-west-2
+        env:
+        - name: BAZEL_REMOTE_BUCKET
+          value: istio-prow-bazel-cache-private
+        image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/buchgr/bazel-remote-cache:v2.6.2
+        livenessProbe:
+          grpc:
+            port: 9092
+            service: null
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: bazel-remote
+        ports:
+        - containerPort: 8080
+          name: bazel-cache
+          protocol: TCP
+        readinessProbe:
+          grpc:
+            port: 9092
+            service: null
+          periodSeconds: 3
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 32Gi
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 16Gi
+            memory: 1Gi
+        restartPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        volumeMounts:
+        - mountPath: /data
+          name: bazel-cache
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -255,6 +493,9 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - emptyDir:
+          sizeLimit: 32Gi
+        name: bazel-cache
       - name: netrc
         secret:
           items:
@@ -284,7 +525,7 @@ presubmits:
         - name: ARCH_SUFFIX
           value: arm64
         - name: BAZEL_BUILD_RBE_CACHE
-          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
+          value: http://localhost:8080
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -304,6 +545,61 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+      initContainers:
+      - args:
+        - --dir=/data
+        - --http_address=0.0.0.0:8080
+        - --grpc_address=0.0.0.0:9092
+        - --max_size=16
+        - --s3.auth_method=iam_role
+        - --s3.bucket=$(BAZEL_REMOTE_BUCKET)
+        - --s3.endpoint=s3.us-west-2.amazonaws.com
+        - --s3.prefix=proxy
+        - --s3.region=us-west-2
+        env:
+        - name: BAZEL_REMOTE_BUCKET
+          value: istio-prow-bazel-cache-private
+        image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/buchgr/bazel-remote-cache:v2.6.2
+        livenessProbe:
+          grpc:
+            port: 9092
+            service: null
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: bazel-remote
+        ports:
+        - containerPort: 8080
+          name: bazel-cache
+          protocol: TCP
+        readinessProbe:
+          grpc:
+            port: 9092
+            service: null
+          periodSeconds: 3
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 32Gi
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 16Gi
+            memory: 1Gi
+        restartPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        volumeMounts:
+        - mountPath: /data
+          name: bazel-cache
       nodeSelector:
         kubernetes.io/arch: arm64
         testing: test-pool
@@ -318,6 +614,9 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - emptyDir:
+          sizeLimit: 32Gi
+        name: bazel-cache
       - name: netrc
         secret:
           items:
@@ -345,7 +644,7 @@ presubmits:
         - ./prow/proxy-presubmit-asan.sh
         env:
         - name: BAZEL_BUILD_RBE_CACHE
-          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
+          value: http://localhost:8080
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -370,6 +669,61 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+      initContainers:
+      - args:
+        - --dir=/data
+        - --http_address=0.0.0.0:8080
+        - --grpc_address=0.0.0.0:9092
+        - --max_size=16
+        - --s3.auth_method=iam_role
+        - --s3.bucket=$(BAZEL_REMOTE_BUCKET)
+        - --s3.endpoint=s3.us-west-2.amazonaws.com
+        - --s3.prefix=proxy
+        - --s3.region=us-west-2
+        env:
+        - name: BAZEL_REMOTE_BUCKET
+          value: istio-prow-bazel-cache-private
+        image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/buchgr/bazel-remote-cache:v2.6.2
+        livenessProbe:
+          grpc:
+            port: 9092
+            service: null
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: bazel-remote
+        ports:
+        - containerPort: 8080
+          name: bazel-cache
+          protocol: TCP
+        readinessProbe:
+          grpc:
+            port: 9092
+            service: null
+          periodSeconds: 3
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 32Gi
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 16Gi
+            memory: 1Gi
+        restartPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        volumeMounts:
+        - mountPath: /data
+          name: bazel-cache
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -379,6 +733,9 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - emptyDir:
+          sizeLimit: 32Gi
+        name: bazel-cache
       - name: netrc
         secret:
           items:
@@ -406,7 +763,7 @@ presubmits:
         - ./prow/proxy-presubmit.sh
         env:
         - name: BAZEL_BUILD_RBE_CACHE
-          value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
+          value: http://localhost:8080
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
@@ -431,6 +788,61 @@ presubmits:
           name: netrc
           readOnly: true
           subPath: .netrc
+      initContainers:
+      - args:
+        - --dir=/data
+        - --http_address=0.0.0.0:8080
+        - --grpc_address=0.0.0.0:9092
+        - --max_size=16
+        - --s3.auth_method=iam_role
+        - --s3.bucket=$(BAZEL_REMOTE_BUCKET)
+        - --s3.endpoint=s3.us-west-2.amazonaws.com
+        - --s3.prefix=proxy
+        - --s3.region=us-west-2
+        env:
+        - name: BAZEL_REMOTE_BUCKET
+          value: istio-prow-bazel-cache-private
+        image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/buchgr/bazel-remote-cache:v2.6.2
+        livenessProbe:
+          grpc:
+            port: 9092
+            service: null
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: bazel-remote
+        ports:
+        - containerPort: 8080
+          name: bazel-cache
+          protocol: TCP
+        readinessProbe:
+          grpc:
+            port: 9092
+            service: null
+          periodSeconds: 3
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 32Gi
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 16Gi
+            memory: 1Gi
+        restartPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        volumeMounts:
+        - mountPath: /data
+          name: bazel-cache
       nodeSelector:
         kubernetes.io/arch: amd64
         testing: build-pool
@@ -440,6 +852,9 @@ presubmits:
           path: /var/tmp/prow/cache
           type: DirectoryOrCreate
         name: build-cache
+      - emptyDir:
+          sizeLimit: 32Gi
+        name: bazel-cache
       - name: netrc
         secret:
           items:
