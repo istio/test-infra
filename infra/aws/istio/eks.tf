@@ -3,6 +3,7 @@ locals {
   gp3_root_volume = {
     delete_on_termination = true
     encrypted             = true
+    throughput            = 300
     volume_type           = "gp3"
   }
 
@@ -45,11 +46,16 @@ locals {
             }
           }
           labels = { testing = "build-pool" }
+          # so Cluster autoscaler knows about ephemeral storage availability
+          # https://github.com/kubernetes/autoscaler/issues/1650
+          tags = {
+            "k8s.io/cluster-autoscaler/node-template/resources/ephemeral-storage" = "500Gi"
+          }
         }
         # Primary test pool
         test = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["m7a.4xlarge", "m6a.4xlarge", "m7i.4xlarge", "m6i.4xlarge"]
+          instance_types = ["m6a.4xlarge", "m6i.4xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
           max_size       = 60
@@ -64,7 +70,7 @@ locals {
         }
         testspot = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["m7a.4xlarge", "m6a.4xlarge", "m7i.4xlarge", "m6i.4xlarge"]
+          instance_types = ["m6a.4xlarge", "m6i.4xlarge"]
           capacity_type  = "SPOT"
           min_size       = 0
           max_size       = 30
@@ -91,6 +97,11 @@ locals {
             }
           }
           labels = { testing = "test-pool" }
+          # so Cluster autoscaler knows about ephemeral storage availability
+          # https://github.com/kubernetes/autoscaler/issues/1650
+          tags = {
+            "k8s.io/cluster-autoscaler/node-template/resources/ephemeral-storage" = "240Gi"
+          }
         }
         # Trusted jobs with publishing, signing, or write credentials. Keep
         # these nodes isolated from privileged presubmit workloads.
@@ -108,6 +119,11 @@ locals {
             }
           }
           labels = { testing = "trusted" }
+          # so Cluster autoscaler knows about ephemeral storage availability
+          # https://github.com/kubernetes/autoscaler/issues/1650
+          tags = {
+            "k8s.io/cluster-autoscaler/node-template/resources/ephemeral-storage" = "500Gi"
+          }
           taints = {
             trusted = {
               key    = "testing"
@@ -130,6 +146,11 @@ locals {
             }
           }
           labels = { testing = "trusted" }
+          # so Cluster autoscaler knows about ephemeral storage availability
+          # https://github.com/kubernetes/autoscaler/issues/1650
+          tags = {
+            "k8s.io/cluster-autoscaler/node-template/resources/ephemeral-storage" = "240Gi"
+          }
           taints = {
             trusted = {
               key    = "testing"
@@ -152,6 +173,11 @@ locals {
             }
           }
           labels = { testing = "trusted" }
+          # so Cluster autoscaler knows about ephemeral storage availability
+          # https://github.com/kubernetes/autoscaler/issues/1650
+          tags = {
+            "k8s.io/cluster-autoscaler/node-template/resources/ephemeral-storage" = "500Gi"
+          }
           taints = {
             trusted = {
               key    = "testing"
@@ -174,6 +200,11 @@ locals {
             }
           }
           labels = { testing = "trusted" }
+          # so Cluster autoscaler knows about ephemeral storage availability
+          # https://github.com/kubernetes/autoscaler/issues/1650
+          tags = {
+            "k8s.io/cluster-autoscaler/node-template/resources/ephemeral-storage" = "240Gi"
+          }
           taints = {
             trusted = {
               key    = "testing"
@@ -189,7 +220,7 @@ locals {
         # Test pool
         test = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["m7a.4xlarge", "m6a.4xlarge", "m7i.4xlarge", "m6i.4xlarge"]
+          instance_types = ["m6a.4xlarge", "m6i.4xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
           max_size       = 5
@@ -237,6 +268,11 @@ locals {
             }
           }
           labels = { testing = "test-pool" }
+          # so Cluster autoscaler knows about ephemeral storage availability
+          # https://github.com/kubernetes/autoscaler/issues/1650
+          tags = {
+            "k8s.io/cluster-autoscaler/node-template/resources/ephemeral-storage" = "240Gi"
+          }
         }
       }
     }
