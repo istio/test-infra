@@ -82,7 +82,7 @@ postsubmits:
         resources:
           limits:
             cpu: "2"
-            ephemeral-storage: 32Gi
+            ephemeral-storage: 64Gi
             memory: 4Gi
           requests:
             cpu: 500m
@@ -122,7 +122,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
       - emptyDir:
-          sizeLimit: 32Gi
+          sizeLimit: 150Gi
         name: bazel-cache
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
@@ -206,7 +206,7 @@ postsubmits:
         resources:
           limits:
             cpu: "2"
-            ephemeral-storage: 32Gi
+            ephemeral-storage: 64Gi
             memory: 4Gi
           requests:
             cpu: 500m
@@ -242,7 +242,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
       - emptyDir:
-          sizeLimit: 32Gi
+          sizeLimit: 150Gi
         name: bazel-cache
 presubmits:
   istio/proxy:
