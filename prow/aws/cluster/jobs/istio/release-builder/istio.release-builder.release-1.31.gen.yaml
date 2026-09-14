@@ -99,6 +99,7 @@ postsubmits:
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
+        eks.amazonaws.com/capacityType: ON_DEMAND
         kubernetes.io/arch: amd64
         testing: test-pool
       serviceAccountName: prowjob-release
@@ -291,6 +292,7 @@ postsubmits:
         - mountPath: /var/lib/docker
           name: docker-root
       nodeSelector:
+        eks.amazonaws.com/capacityType: ON_DEMAND
         kubernetes.io/arch: amd64
         testing: test-pool
       serviceAccountName: prowjob-release
