@@ -1340,6 +1340,7 @@ jobs:
   name: build-release
   node_selector:
     testing: test-pool
+    eks.amazonaws.com/capacityType: ON_DEMAND
   regex: ^release/trigger-build$
   requirement_presets:
     build-base:
@@ -1567,6 +1568,7 @@ jobs:
   name: publish-release
   node_selector:
     testing: test-pool
+    eks.amazonaws.com/capacityType: ON_DEMAND
   regex: ^release/trigger-publish$
   requirement_presets:
     build-base:
