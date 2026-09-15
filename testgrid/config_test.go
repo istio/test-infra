@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -41,10 +42,42 @@ var (
 	defaultInputs options.MultiString = []string{"."}
 	prowPath                          = flag.String("prow-config", "../prow/gcp/config.yaml", "Path to prow config")
 	jobPath                           = flag.String("job-config", "../prow/gcp/cluster/jobs", "Path to prow job config")
-	defaultYAML                       = flag.String("default", "./default.yaml", "Default yaml for testgrid")
-	inputs        options.MultiString
-	protoPath     = flag.String("config", "", "Path to TestGrid config proto")
+	awsJobPath                        = flag.String("aws-job-config", "../prow/aws/cluster/jobs/istio-ecosystem",
+		"Path to AWS prow job config for istio-ecosystem")
+	defaultYAML = flag.String("default", "./default.yaml", "Default yaml for testgrid")
+	inputs      options.MultiString
+	protoPath   = flag.String("config", "", "Path to TestGrid config proto")
 )
+
+// mergedJobDir creates a temporary directory containing copies of all YAML
+// job files from the given source directories, so prow can load them as a
+// single job config path. Callers must remove the returned directory when done.
+func mergedJobDir(sources ...string) (string, error) {
+	tmpDir, err := os.MkdirTemp("", "merged-prow-jobs")
+	if err != nil {
+		return "", err
+	}
+	for _, src := range sources {
+		err := filepath.Walk(src, func(p string, info os.FileInfo, err error) error {
+			if err != nil || info.IsDir() {
+				return nil
+			}
+			if ext := filepath.Ext(p); ext != ".yaml" && ext != ".yml" {
+				return nil
+			}
+			data, err := os.ReadFile(p)
+			if err != nil {
+				return err
+			}
+			return os.WriteFile(filepath.Join(tmpDir, info.Name()), data, 0o644)
+		})
+		if err != nil {
+			os.RemoveAll(tmpDir)
+			return "", err
+		}
+	}
+	return tmpDir, nil
+}
 
 // Shared testgrid config, loaded at TestMain.
 var cfg *config_pb.Configuration
@@ -55,6 +88,15 @@ var prowConfig *prow_config.Config
 func TestMain(m *testing.M) {
 	flag.Var(&inputs, "yaml", "comma-separated list of input YAML files or directories")
 	flag.Parse()
+
+	// Merge GCP and AWS cluster job directories so testgrid sees all jobs.
+	combinedJobDir, err := mergedJobDir(*jobPath, *awsJobPath)
+	if err != nil {
+		fmt.Printf("Could not create merged job dir: %v\n", err)
+		os.Exit(1)
+	}
+	defer os.RemoveAll(combinedJobDir)
+
 	if *protoPath == "" {
 		if len(inputs) == 0 {
 			inputs = defaultInputs
@@ -72,7 +114,7 @@ func TestMain(m *testing.M) {
 			Inputs: inputs,
 			ProwConfig: configflagutil.ConfigOptions{
 				ConfigPath:    *prowPath,
-				JobConfigPath: *jobPath,
+				JobConfigPath: combinedJobDir,
 			},
 			DefaultYAML:     *defaultYAML,
 			Output:          prowflagutil.NewStringsBeenSet(tmpFile),
@@ -88,14 +130,13 @@ func TestMain(m *testing.M) {
 		protoPath = &tmpFile
 	}
 
-	var err error
 	cfg, err = config.Read(context.Background(), *protoPath, nil)
 	if err != nil {
 		fmt.Printf("Could not load config: %v\n", err)
 		os.Exit(1)
 	}
 
-	prowConfig, err = prow_config.Load(*prowPath, *jobPath, nil, "")
+	prowConfig, err = prow_config.Load(*prowPath, combinedJobDir, nil, "")
 	if err != nil {
 		fmt.Printf("Could not load prow configs: %v\n", err)
 		os.Exit(1)
