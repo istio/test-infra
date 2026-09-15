@@ -39,6 +39,18 @@ requirement_presets:
         operator: Equal
         value: trusted
         effect: NoSchedule
+  # Put this on jobs that require qemu to avoid a race condition between qemu registrations.
+  binfmt:
+    labels:
+      prow.istio.io/binfmt-mutator: "true"
+    podSpec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                prow.istio.io/binfmt-mutator: "true"
+            topologyKey: kubernetes.io/hostname
   bazel-cache-presubmit:
     env:
     - name: BAZEL_BUILD_RBE_CACHE

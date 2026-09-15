@@ -11,8 +11,17 @@ periodics:
     org: istio
     path_alias: istio.io/release-builder
     repo: release-builder
+  labels:
+    prow.istio.io/binfmt-mutator: "true"
   name: build-base-images_release-builder_periodic
   spec:
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              prow.istio.io/binfmt-mutator: "true"
+          topologyKey: kubernetes.io/hostname
     automountServiceAccountToken: false
     containers:
     - command:
