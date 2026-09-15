@@ -1067,6 +1067,7 @@ jobs:
   - docker
   - github-istio-testing
   - testing-pusher
+  - trusted
   resources: build
   resources_presets:
     build:
@@ -1297,6 +1298,7 @@ jobs:
   - cache
   - docker
   - testing-pusher
+  - trusted
   resources: build
   resources_presets:
     build:
@@ -1755,6 +1757,15 @@ node_selector:
 org: istio
 repo: tools
 requirement_presets:
+  trusted:
+    podSpec:
+      nodeSelector:
+        testing: trusted
+      tolerations:
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
   build-base:
     env:
     - name: DOCKER_CONFIG

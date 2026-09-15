@@ -368,6 +368,19 @@ func applyDefaultTransforms(dst *configuration.Transform, srcs ...*configuration
 				dst.Env[k] = v
 			}
 		}
+		if len(dst.InitContainerEnv) == 0 {
+			dst.InitContainerEnv = src.InitContainerEnv
+		} else {
+			for container, env := range src.InitContainerEnv {
+				if len(dst.InitContainerEnv[container]) == 0 {
+					dst.InitContainerEnv[container] = env
+					continue
+				}
+				for k, v := range env {
+					dst.InitContainerEnv[container][k] = v
+				}
+			}
+		}
 		if len(dst.OrgMap) == 0 {
 			dst.OrgMap = src.OrgMap
 		}
@@ -617,6 +630,16 @@ func pruneVolumes(denylist sets.Set[string], job *config.JobBase) {
 		}
 		job.Spec.Containers[i].VolumeMounts = volumeMounts
 	}
+	for i := range job.Spec.InitContainers {
+		var volumeMounts []v1.VolumeMount
+		for _, volm := range job.Spec.InitContainers[i].VolumeMounts {
+			if denylist.Has(volm.Name) {
+				continue
+			}
+			volumeMounts = append(volumeMounts, volm)
+		}
+		job.Spec.InitContainers[i].VolumeMounts = volumeMounts
+	}
 }
 
 // updateJobName updates the jobs Name fields based on provided inputs.
@@ -780,14 +803,29 @@ func updateEnvs(o options, job *config.JobBase) {
 		return
 	}
 
-	for i := range job.Spec.Containers {
+	updateContainerEnvs(job.Spec.Containers, o.Env)
+}
+
+func updateInitContainerEnvs(o options, job *config.JobBase) {
+	if len(o.InitContainerEnv) == 0 {
+		return
+	}
+	for i := range job.Spec.InitContainers {
+		if updates, found := o.InitContainerEnv[job.Spec.InitContainers[i].Name]; found {
+			updateContainerEnvs(job.Spec.InitContainers[i:i+1], updates)
+		}
+	}
+}
+
+func updateContainerEnvs(containers []v1.Container, updates map[string]*string) {
+	for i := range containers {
 		final := map[string]v1.EnvVar{}
 		// Add original Env vars
-		for _, e := range job.Spec.Containers[i].Env {
+		for _, e := range containers[i].Env {
 			final[e.Name] = e
 		}
 		// Now override/add our custom ones
-		for k, v := range o.Env {
+		for k, v := range updates {
 			if v == nil {
 				delete(final, k)
 			} else {
@@ -802,7 +840,7 @@ func updateEnvs(o options, job *config.JobBase) {
 			return cmp.Compare(a.Name, b.Name)
 		})
 
-		job.Spec.Containers[i].Env = vars
+		containers[i].Env = vars
 	}
 }
 
@@ -826,6 +864,7 @@ func updateJobBase(o options, job *config.JobBase, orgrepo string) {
 	updateLabels(o, job)
 	updateNodeSelector(o, job)
 	updateEnvs(o, job)
+	updateInitContainerEnvs(o, job)
 	updateServiceAccount(o, job)
 }
 

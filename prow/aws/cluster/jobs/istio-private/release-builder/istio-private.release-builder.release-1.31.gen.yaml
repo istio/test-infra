@@ -24,6 +24,8 @@ postsubmits:
           value: /var/run/ci/docker
         - name: GCS_BUCKET
           value: istio-prerelease-private/prerelease
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: HELM_BUCKET
           value: istio-prerelease-private/charts
         - name: PRERELEASE_DOCKER_HUB
@@ -66,6 +68,11 @@ postsubmits:
         kubernetes.io/arch: amd64
         testing: test-pool
       serviceAccountName: prowjob-private
+      tolerations:
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -100,6 +107,8 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "3"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
         name: ""
         resources:
@@ -154,6 +163,8 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "3"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: VERSION
           value: "1.31"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -210,6 +221,8 @@ postsubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "3"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
         name: ""
         resources:
@@ -272,6 +285,8 @@ presubmits:
           value: istio-prerelease-private/prerelease
         - name: GOMAXPROCS
           value: "3"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: PRERELEASE_DOCKER_HUB
           value: us-docker.pkg.dev/istio-prow-private/istio-prow-private
         - name: R2_BUCKET
@@ -324,6 +339,8 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "3"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
         name: ""
         resources:
@@ -381,6 +398,8 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "3"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: VERSION
           value: "1.31"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -440,6 +459,8 @@ presubmits:
           value: "0"
         - name: GOMAXPROCS
           value: "3"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
         name: ""
         resources:

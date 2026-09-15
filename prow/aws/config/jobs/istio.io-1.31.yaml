@@ -2453,6 +2453,15 @@ node_selector:
 org: istio
 repo: istio.io
 requirement_presets:
+  trusted:
+    podSpec:
+      nodeSelector:
+        testing: trusted
+      tolerations:
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
   build-base:
     env:
     - name: DOCKER_CONFIG
