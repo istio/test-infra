@@ -214,10 +214,14 @@ func TestJobs(t *testing.T) {
 		validSelectors := []map[string]string{}
 		for _, arch := range []string{"amd64", "arm64"} {
 			for _, tpe := range []string{"test-pool", "build-pool", "trusted"} {
-				validSelectors = append(validSelectors, map[string]string{
+				selector := map[string]string{
 					"kubernetes.io/arch": arch,
 					"testing":            tpe,
-				})
+				}
+				validSelectors = append(validSelectors, selector)
+				onDemandSelector := maps.Clone(selector)
+				onDemandSelector["eks.amazonaws.com/capacityType"] = "ON_DEMAND"
+				validSelectors = append(validSelectors, onDemandSelector)
 			}
 		}
 		ns := j.Base.Spec.NodeSelector
