@@ -34,7 +34,7 @@ locals {
         # Large build pool
         build = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["m7i.16xlarge", "m7i.16xlarge"]
+          instance_types = ["m6a.16xlarge", "m6i.16xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 0
           max_size       = 5
@@ -54,7 +54,7 @@ locals {
         }
         # Primary test pool
         test = {
-          ami_type       = "AL2023_x86_64_STANDARD"
+          ami_type = "AL2023_x86_64_STANDARD"
           # Test is mostly waiting for reconcialiation, so we pick a cheaper CPU.
           instance_types = ["m6a.4xlarge", "m6i.4xlarge"]
           capacity_type  = "ON_DEMAND"
@@ -70,7 +70,7 @@ locals {
           labels = { testing = "test-pool" }
         }
         testspot = {
-          ami_type       = "AL2023_x86_64_STANDARD"
+          ami_type = "AL2023_x86_64_STANDARD"
           # Test is mostly waiting for reconcialiation, so we pick a cheaper CPU.
           instance_types = ["m6a.4xlarge", "m6i.4xlarge"]
           capacity_type  = "SPOT"
@@ -87,7 +87,7 @@ locals {
         }
         arm = {
           ami_type       = "AL2023_ARM_64_STANDARD"
-          instance_types = ["m7g.4xlarge"]
+          instance_types = ["m6g.4xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 0
           max_size       = 5
@@ -109,7 +109,7 @@ locals {
         # these nodes isolated from privileged presubmit workloads.
         "trusted-build" = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["m7a.16xlarge", "m7i.16xlarge"]
+          instance_types = ["m6a.16xlarge", "m6i.16xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 0
           max_size       = 5
@@ -163,7 +163,7 @@ locals {
         }
         "trusted-build-arm" = {
           ami_type       = "AL2023_ARM_64_STANDARD"
-          instance_types = ["m7g.16xlarge"]
+          instance_types = ["m6g.16xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 0
           max_size       = 2
@@ -190,7 +190,7 @@ locals {
         }
         "trusted-release-arm" = {
           ami_type       = "AL2023_ARM_64_STANDARD"
-          instance_types = ["m7g.4xlarge"]
+          instance_types = ["m6g.4xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 0
           max_size       = 2
@@ -221,7 +221,7 @@ locals {
       node_groups = {
         # Test pool
         test = {
-          ami_type       = "AL2023_x86_64_STANDARD"
+          ami_type = "AL2023_x86_64_STANDARD"
           # Test is mostly waiting for reconcialiation, so we pick a cheaper CPU.
           instance_types = ["m6a.4xlarge", "m6i.4xlarge"]
           capacity_type  = "ON_DEMAND"
@@ -239,7 +239,7 @@ locals {
         # High-memory build pool
         build = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["m7a.16xlarge", "m7i.16xlarge"]
+          instance_types = ["m6a.16xlarge", "m6i.16xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 0
           max_size       = 5
@@ -259,7 +259,7 @@ locals {
         }
         arm = {
           ami_type       = "AL2023_ARM_64_STANDARD"
-          instance_types = ["m7g.4xlarge"]
+          instance_types = ["m6g.4xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 0
           max_size       = 5
