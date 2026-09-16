@@ -7,26 +7,24 @@ node_selector:
 
 jobs:
 - name: test
-  service_account_name: prowjob-default-sa
+  service_account_name: prowjob-proxy-presubmit
   types: [presubmit]
   command: [./prow/proxy-presubmit.sh]
+  requirements: [bazel-cache-presubmit]
   timeout: 4h
   env:
     - name: BAZEL_BUILD_RBE_INSTANCE
       value: ""
-    - name: BAZEL_BUILD_RBE_CACHE
-      value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
 
 - name: test-asan
-  service_account_name: prowjob-default-sa
+  service_account_name: prowjob-proxy-presubmit
   types: [presubmit]
   command: [./prow/proxy-presubmit-asan.sh]
+  requirements: [bazel-cache-presubmit]
   timeout: 4h
   env:
     - name: BAZEL_BUILD_RBE_INSTANCE
       value: ""
-    - name: BAZEL_BUILD_RBE_CACHE
-      value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
 
 - name: test-arm
   architectures: [arm64]
@@ -35,11 +33,10 @@ jobs:
     value: $(params.arch)
   - name: BAZEL_BUILD_RBE_INSTANCE
     value: ""
-  - name: BAZEL_BUILD_RBE_CACHE
-    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
-  service_account_name: prowjob-default-sa
+  service_account_name: prowjob-proxy-presubmit
   types: [presubmit]
   command: [./prow/proxy-presubmit.sh]
+  requirements: [bazel-cache-presubmit]
   timeout: 6h
   # TODO: get build-pool for arm
   resources: arm
@@ -47,15 +44,14 @@ jobs:
     testing: test-pool
 
 - name: release-test
-  service_account_name: prowjob-default-sa
+  service_account_name: prowjob-proxy-presubmit
   types: [presubmit]
   command: [./prow/proxy-presubmit-release.sh]
+  requirements: [bazel-cache-presubmit]
   timeout: 6h
   env:
     - name: BAZEL_BUILD_RBE_INSTANCE
       value: ""
-    - name: BAZEL_BUILD_RBE_CACHE
-      value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
 
 - name: release-test
   architectures: [arm64]
@@ -66,11 +62,10 @@ jobs:
     value: "1"
   - name: BAZEL_BUILD_RBE_INSTANCE
     value: ""
-  - name: BAZEL_BUILD_RBE_CACHE
-    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
-  service_account_name: prowjob-default-sa
+  service_account_name: prowjob-proxy-presubmit
   types: [presubmit]
   command: [./prow/proxy-presubmit-release.sh]
+  requirements: [bazel-cache-presubmit]
   timeout: 6h
   # TODO: get build-pool for arm
   resources: arm
@@ -78,16 +73,15 @@ jobs:
     testing: test-pool
 
 - name: release
-  service_account_name: prowjob-testing-write
+  service_account_name: prowjob-proxy-postsubmit
   types: [postsubmit]
   command: [entrypoint, ./prow/proxy-postsubmit.sh]
-  requirements: [docker, cf-r2-istio-build-auth]
+  requirements: [docker, cf-r2-istio-build-auth, bazel-cache-postsubmit, trusted]
   timeout: 6h
   env:
   - name: BAZEL_BUILD_RBE_INSTANCE
     value: ""
-  - name: BAZEL_BUILD_RBE_CACHE
-    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
+
 - name: release
   architectures: [arm64]
   env:
@@ -97,12 +91,10 @@ jobs:
     value: "1"
   - name: BAZEL_BUILD_RBE_INSTANCE
     value: ""
-  - name: BAZEL_BUILD_RBE_CACHE
-    value: http://bazel-remote.bazel-remote.svc.cluster.local:8080
-  service_account_name: prowjob-testing-write
+  service_account_name: prowjob-proxy-postsubmit
   types: [postsubmit]
   command: [entrypoint, ./prow/proxy-postsubmit.sh]
-  requirements: [docker, cf-r2-istio-build-auth]
+  requirements: [docker, cf-r2-istio-build-auth, bazel-cache-postsubmit, trusted]
   timeout: 6h
   # TODO: get build-pool for arm
   resources: arm
@@ -122,7 +114,7 @@ jobs:
   - --token-env
   - --git-exclude=^common/
   - --cmd=bin/update_proxy.sh $AUTOMATOR_SHA
-  requirements: [github-istio-testing]
+  requirements: [github-istio-testing, trusted]
   repos: [istio/test-infra@master]
   image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:master-80657d56e324b5d8b4a74806bf0979e4b89e99a5
   env:
@@ -143,7 +135,7 @@ jobs:
   - --modifier=update_envoy_dep
   - --token-env
   - --cmd=UPDATE_BRANCH=main scripts/update_envoy.sh
-  requirements: [github-istio-testing]
+  requirements: [github-istio-testing, trusted]
   repos: [istio/test-infra@master]
   env:
     - name: AUTOMATOR_ORG
@@ -164,7 +156,7 @@ jobs:
   - --token-env
   - --cmd=go get github.com/envoyproxy/go-control-plane/contrib@main github.com/envoyproxy/go-control-plane/envoy@main && go mod tidy
   disable_release_branching: true
-  requirements: [github-istio-testing]
+  requirements: [github-istio-testing, trusted]
   repos: [istio/test-infra@master]
   image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:master-80657d56e324b5d8b4a74806bf0979e4b89e99a5
   env:

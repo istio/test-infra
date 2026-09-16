@@ -11,6 +11,8 @@ auto_max_procs: true
 env:
 - name: BUILD_WITH_CONTAINER
   value: "0"
+- name: GOPROXY
+  value: http://athens.athens.svc.cluster.local:3000|direct
 
 testgrid_config:
   enabled: true
@@ -28,10 +30,157 @@ resources_presets:
 
 requirements: [cache]
 requirement_presets:
+  trusted:
+    podSpec:
+      nodeSelector:
+        testing: trusted
+      tolerations:
+      - key: testing
+        operator: Equal
+        value: trusted
+        effect: NoSchedule
+  # Put this on jobs that require qemu to avoid a race condition between qemu registrations.
+  binfmt:
+    labels:
+      prow.istio.io/binfmt-mutator: "true"
+    podSpec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                prow.istio.io/binfmt-mutator: "true"
+            topologyKey: kubernetes.io/hostname
+  bazel-cache-presubmit:
+    env:
+    - name: BAZEL_BUILD_RBE_CACHE
+      value: http://localhost:8080
+    sidecars:
+    - name: bazel-remote
+      image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/buchgr/bazel-remote-cache:v2.6.2
+      args:
+      - --dir=/data
+      - --http_address=0.0.0.0:8080
+      - --grpc_address=0.0.0.0:9092
+      - --max_size=16
+      - --s3.auth_method=iam_role
+      - --s3.bucket=$(BAZEL_REMOTE_BUCKET)
+      - --s3.endpoint=s3.us-west-2.amazonaws.com
+      - --s3.prefix=proxy
+      - --s3.region=us-west-2
+      env:
+      - name: BAZEL_REMOTE_BUCKET
+        value: istio-prow-bazel-cache
+      ports:
+      - name: bazel-cache
+        containerPort: 8080
+        protocol: TCP
+      readinessProbe:
+        grpc:
+          port: 9092
+        periodSeconds: 3
+        timeoutSeconds: 10
+      livenessProbe:
+        grpc:
+          port: 9092
+        initialDelaySeconds: 3
+        periodSeconds: 10
+        timeoutSeconds: 3
+      resources:
+        limits:
+          cpu: "2"
+          ephemeral-storage: 32Gi
+          memory: 4Gi
+        requests:
+          cpu: 500m
+          ephemeral-storage: 1Gi
+          memory: 1Gi
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: [ALL]
+        readOnlyRootFilesystem: true
+        runAsGroup: 65532
+        runAsNonRoot: true
+        runAsUser: 65532
+      volumeMounts:
+      - mountPath: /data
+        name: bazel-cache
+    volumes:
+    - emptyDir:
+        sizeLimit: 32Gi
+      name: bazel-cache
+  bazel-cache-postsubmit:
+    env:
+    - name: BAZEL_BUILD_RBE_CACHE
+      value: http://localhost:8080
+    sidecars:
+    - name: bazel-remote
+      image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/buchgr/bazel-remote-cache:v2.6.2
+      args:
+      - --dir=/data
+      - --http_address=0.0.0.0:8080
+      - --grpc_address=0.0.0.0:9092
+      - --max_size=16
+      - --s3.auth_method=iam_role
+      - --s3.bucket=$(BAZEL_REMOTE_BUCKET)
+      - --s3.endpoint=s3.us-west-2.amazonaws.com
+      - --s3.prefix=proxy
+      - --s3.region=us-west-2
+      env:
+      - name: BAZEL_REMOTE_BUCKET
+        value: istio-prow-bazel-cache-postsubmit
+      ports:
+      - name: bazel-cache
+        containerPort: 8080
+        protocol: TCP
+      readinessProbe:
+        grpc:
+          port: 9092
+        periodSeconds: 3
+        timeoutSeconds: 10
+      livenessProbe:
+        grpc:
+          port: 9092
+        initialDelaySeconds: 3
+        periodSeconds: 10
+        timeoutSeconds: 3
+      resources:
+        limits:
+          cpu: "2"
+          ephemeral-storage: 64Gi
+          memory: 4Gi
+        requests:
+          cpu: 500m
+          ephemeral-storage: 1Gi
+          memory: 1Gi
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: [ALL]
+        readOnlyRootFilesystem: true
+        runAsGroup: 65532
+        runAsNonRoot: true
+        runAsUser: 65532
+      volumeMounts:
+      - mountPath: /data
+        name: bazel-cache
+    volumes:
+    - emptyDir:
+        sizeLimit: 150Gi
+      name: bazel-cache
   ecr:
     env:
     - name: ECR_REGISTRY
       value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+    - name: ISTIO_BASE_REGISTRY
+      value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+    - name: ISTIO_BUILDKIT_IMAGE
+      value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+    - name: WASM_REGISTRY
+      value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+    - name: METALLB_REGISTRY
+      value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
   kind:
     volumeMounts:
     - mountPath: /lib/modules

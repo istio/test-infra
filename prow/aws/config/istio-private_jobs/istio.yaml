@@ -20,6 +20,8 @@ transforms:
   requirements: [cf-r2-istio-build-private-auth]
   job-type: [postsubmit]
   job-allowlist: [release_istio_postsubmit]
+  selector:
+    testing: test-pool
 
 # istio/istio master no-envoy jobs - presubmit(s) and postsubmit(s)
 # These don't invoke `make build` / init.sh, so they don't need R2 credentials because they don't pull envoy binaries.

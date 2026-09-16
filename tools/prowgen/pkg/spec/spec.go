@@ -142,6 +142,7 @@ type RequirementPreset struct {
 	Annotations  map[string]string `json:"annotations,omitempty"`
 	Labels       map[string]string `json:"labels,omitempty"`
 	Env          []v1.EnvVar       `json:"env,omitempty"`
+	Sidecars     []v1.Container    `json:"sidecars,omitempty"`
 	Volumes      []v1.Volume       `json:"volumes,omitempty"`
 	VolumeMounts []v1.VolumeMount  `json:"volumeMounts,omitempty"`
 	Args         []string          `json:"args,omitempty"`

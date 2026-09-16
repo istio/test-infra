@@ -105,8 +105,25 @@ func applySecrets(job *config.JobBase, presets []spec.RequirementPreset) {
 
 func resolveRequirements(annotations, labels map[string]string, spec *v1.PodSpec, requirements []spec.RequirementPreset) {
 	if spec != nil {
+		primaryContainers := spec.Containers
 		for _, req := range requirements {
-			mergeRequirement(annotations, labels, spec, spec.Containers, &spec.Volumes, req)
+			mergeRequirement(annotations, labels, spec, primaryContainers, &spec.Volumes, req)
+		}
+		for _, req := range requirements {
+			for _, sidecar := range req.Sidecars {
+				exists := false
+				for _, container := range spec.InitContainers {
+					if container.Name == sidecar.Name {
+						exists = true
+						break
+					}
+				}
+				if !exists {
+					restartPolicy := v1.ContainerRestartPolicyAlways
+					sidecar.RestartPolicy = &restartPolicy
+					spec.InitContainers = append(spec.InitContainers, sidecar)
+				}
+			}
 		}
 	}
 }
@@ -166,6 +183,26 @@ func mergeRequirement(annotations, labels map[string]string, spec *v1.PodSpec, c
 	}
 
 	if req.PodSpec != nil {
+		if len(req.PodSpec.NodeSelector) > 0 {
+			if spec.NodeSelector == nil {
+				spec.NodeSelector = map[string]string{}
+			}
+			for k, v := range req.PodSpec.NodeSelector {
+				spec.NodeSelector[k] = v
+			}
+		}
+		for _, requirementToleration := range req.PodSpec.Tolerations {
+			exists := false
+			for _, toleration := range spec.Tolerations {
+				if toleration.MatchToleration(&requirementToleration) {
+					exists = true
+					break
+				}
+			}
+			if !exists {
+				spec.Tolerations = append(spec.Tolerations, requirementToleration)
+			}
+		}
 		if err := mergo.Merge(spec, req.PodSpec); err != nil {
 			log.Fatalf("Unable to merge PodSpec: %v", err)
 		}

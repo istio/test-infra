@@ -129,8 +129,8 @@ resource "helm_release" "cluster_autoscaler_prow_build" {
       expander = "priority"
     }
     expanderPriorities = {
-      "100" = ["^eks-test-.*$"]
-      "10"  = ["^eks-testspot-.*$"]
+      "100" = ["^eks-test-.*$", "^eks-trusted-release(-arm)?-.*$"]
+      "10"  = ["^eks-testspot-.*$", "^eks-trusted-build(-arm)?-.*$"]
     }
   })]
 

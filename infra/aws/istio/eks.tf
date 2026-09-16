@@ -3,6 +3,7 @@ locals {
   gp3_root_volume = {
     delete_on_termination = true
     encrypted             = true
+    throughput            = 300
     volume_type           = "gp3"
   }
 
@@ -33,7 +34,7 @@ locals {
         # Large build pool
         build = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["m6i.16xlarge"]
+          instance_types = ["m6a.16xlarge", "m6i.16xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 0
           max_size       = 5
@@ -41,15 +42,21 @@ locals {
           block_device_mappings = {
             root = {
               device_name = "/dev/xvda"
-              ebs         = merge(local.gp3_root_volume, { volume_size = 2000 })
+              ebs         = merge(local.gp3_root_volume, { volume_size = 512 })
             }
           }
           labels = { testing = "build-pool" }
+          # so Cluster autoscaler knows about ephemeral storage availability
+          # https://github.com/kubernetes/autoscaler/issues/1650
+          tags = {
+            "k8s.io/cluster-autoscaler/node-template/resources/ephemeral-storage" = "500Gi"
+          }
         }
         # Primary test pool
         test = {
-          ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["m7a.4xlarge", "m6a.4xlarge", "m7i.4xlarge", "m6i.4xlarge"]
+          ami_type = "AL2023_x86_64_STANDARD"
+          # Test is mostly waiting for reconcialiation, so we pick a cheaper CPU.
+          instance_types = ["m6a.4xlarge", "m6i.4xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
           max_size       = 60
@@ -63,8 +70,9 @@ locals {
           labels = { testing = "test-pool" }
         }
         testspot = {
-          ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["m7a.4xlarge", "m6a.4xlarge", "m7i.4xlarge", "m6i.4xlarge"]
+          ami_type = "AL2023_x86_64_STANDARD"
+          # Test is mostly waiting for reconcialiation, so we pick a cheaper CPU.
+          instance_types = ["m6a.4xlarge", "m6i.4xlarge"]
           capacity_type  = "SPOT"
           min_size       = 0
           max_size       = 30
@@ -79,7 +87,7 @@ locals {
         }
         arm = {
           ami_type       = "AL2023_ARM_64_STANDARD"
-          instance_types = ["m7g.4xlarge"]
+          instance_types = ["m6g.4xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 0
           max_size       = 5
@@ -91,6 +99,121 @@ locals {
             }
           }
           labels = { testing = "test-pool" }
+          # so Cluster autoscaler knows about ephemeral storage availability
+          # https://github.com/kubernetes/autoscaler/issues/1650
+          tags = {
+            "k8s.io/cluster-autoscaler/node-template/resources/ephemeral-storage" = "240Gi"
+          }
+        }
+        # Trusted jobs with publishing, signing, or write credentials. Keep
+        # these nodes isolated from privileged presubmit workloads.
+        "trusted-build" = {
+          ami_type       = "AL2023_x86_64_STANDARD"
+          instance_types = ["m6a.16xlarge", "m6i.16xlarge"]
+          capacity_type  = "ON_DEMAND"
+          min_size       = 0
+          max_size       = 5
+          desired_size   = 0
+          block_device_mappings = {
+            root = {
+              device_name = "/dev/xvda"
+              ebs         = merge(local.gp3_root_volume, { volume_size = 512 })
+            }
+          }
+          labels = { testing = "trusted" }
+          # so Cluster autoscaler knows about ephemeral storage availability
+          # https://github.com/kubernetes/autoscaler/issues/1650
+          tags = {
+            "k8s.io/cluster-autoscaler/node-template/resources/ephemeral-storage" = "500Gi"
+          }
+          taints = {
+            trusted = {
+              key    = "testing"
+              value  = "trusted"
+              effect = "NO_SCHEDULE"
+            }
+          }
+        }
+        "trusted-release" = {
+          ami_type       = "AL2023_x86_64_STANDARD"
+          instance_types = ["m6i.4xlarge"]
+          capacity_type  = "ON_DEMAND"
+          min_size       = 0
+          max_size       = 5
+          desired_size   = 0
+          block_device_mappings = {
+            root = {
+              device_name = "/dev/xvda"
+              ebs         = merge(local.gp3_root_volume, { volume_size = 256 })
+            }
+          }
+          labels = { testing = "trusted" }
+          # so Cluster autoscaler knows about ephemeral storage availability
+          # https://github.com/kubernetes/autoscaler/issues/1650
+          tags = {
+            "k8s.io/cluster-autoscaler/node-template/resources/ephemeral-storage" = "240Gi"
+          }
+          taints = {
+            trusted = {
+              key    = "testing"
+              value  = "trusted"
+              effect = "NO_SCHEDULE"
+            }
+          }
+        }
+        "trusted-build-arm" = {
+          ami_type       = "AL2023_ARM_64_STANDARD"
+          instance_types = ["m6g.16xlarge"]
+          capacity_type  = "ON_DEMAND"
+          min_size       = 0
+          max_size       = 2
+          desired_size   = 0
+          block_device_mappings = {
+            root = {
+              device_name = "/dev/xvda"
+              ebs         = merge(local.gp3_root_volume, { volume_size = 512 })
+            }
+          }
+          labels = { testing = "trusted" }
+          # so Cluster autoscaler knows about ephemeral storage availability
+          # https://github.com/kubernetes/autoscaler/issues/1650
+          tags = {
+            "k8s.io/cluster-autoscaler/node-template/resources/ephemeral-storage" = "500Gi"
+          }
+          taints = {
+            trusted = {
+              key    = "testing"
+              value  = "trusted"
+              effect = "NO_SCHEDULE"
+            }
+          }
+        }
+        "trusted-release-arm" = {
+          ami_type       = "AL2023_ARM_64_STANDARD"
+          instance_types = ["m6g.4xlarge"]
+          capacity_type  = "ON_DEMAND"
+          min_size       = 0
+          max_size       = 2
+          desired_size   = 0
+          block_device_mappings = {
+            root = {
+              device_name = "/dev/xvda"
+              ebs         = merge(local.gp3_root_volume, { volume_size = 256 })
+            }
+          }
+          labels = { testing = "trusted" }
+          # so Cluster autoscaler knows about ephemeral storage availability
+          # https://github.com/kubernetes/autoscaler/issues/1650
+          tags = {
+            "k8s.io/cluster-autoscaler/node-template/resources/ephemeral-storage" = "240Gi"
+          }
+          taints = {
+            trusted = {
+              key    = "testing"
+              value  = "trusted"
+              effect = "NO_SCHEDULE"
+            }
+          }
         }
       }
     }
@@ -98,8 +221,9 @@ locals {
       node_groups = {
         # Test pool
         test = {
-          ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["t3.large"]
+          ami_type = "AL2023_x86_64_STANDARD"
+          # Test is mostly waiting for reconcialiation, so we pick a cheaper CPU.
+          instance_types = ["m6a.4xlarge", "m6i.4xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 1
           max_size       = 5
@@ -115,7 +239,7 @@ locals {
         # High-memory build pool
         build = {
           ami_type       = "AL2023_x86_64_STANDARD"
-          instance_types = ["m6i.16xlarge"]
+          instance_types = ["m6a.16xlarge", "m6i.16xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 0
           max_size       = 5
@@ -123,14 +247,19 @@ locals {
           block_device_mappings = {
             root = {
               device_name = "/dev/xvda"
-              ebs         = merge(local.gp3_root_volume, { volume_size = 2000 })
+              ebs         = merge(local.gp3_root_volume, { volume_size = 512 })
             }
           }
           labels = { testing = "build-pool" }
+          # so Cluster autoscaler knows about ephemeral storage availability
+          # https://github.com/kubernetes/autoscaler/issues/1650
+          tags = {
+            "k8s.io/cluster-autoscaler/node-template/resources/ephemeral-storage" = "500Gi"
+          }
         }
         arm = {
           ami_type       = "AL2023_ARM_64_STANDARD"
-          instance_types = ["t4g.large"]
+          instance_types = ["m6g.4xlarge"]
           capacity_type  = "ON_DEMAND"
           min_size       = 0
           max_size       = 5
@@ -142,6 +271,11 @@ locals {
             }
           }
           labels = { testing = "test-pool" }
+          # so Cluster autoscaler knows about ephemeral storage availability
+          # https://github.com/kubernetes/autoscaler/issues/1650
+          tags = {
+            "k8s.io/cluster-autoscaler/node-template/resources/ephemeral-storage" = "240Gi"
+          }
         }
       }
     }
@@ -221,13 +355,21 @@ module "eks" {
   } : {})
 
   eks_managed_node_groups = {
-    for name, config in each.value.node_groups : name => merge(config, {
-      iam_role_additional_policies = merge(
-        try(config.iam_role_additional_policies, {}),
-        {
-          ecr_pull_through_cache_read = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPullOnly"
-        },
-      )
-    })
+    for name, config in each.value.node_groups : name => merge(
+      config,
+      # AWS does this dumb thing where it rebalances nodes and kills our pods.
+      # This pins the node group to a single AZ that AWS won't auto rebalance.
+      contains(["prow-build", "prow-private"], each.key) ? {
+        subnet_ids = [module.vpc[each.key].private_subnets[0]]
+      } : {},
+      {
+        iam_role_additional_policies = merge(
+          try(config.iam_role_additional_policies, {}),
+          {
+            ecr_pull_through_cache_read = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPullOnly"
+          },
+        )
+      },
+    )
   }
 }

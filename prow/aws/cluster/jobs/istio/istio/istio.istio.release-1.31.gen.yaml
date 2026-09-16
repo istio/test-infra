@@ -21,6 +21,8 @@ periodics:
       env:
       - name: BUILD_WITH_CONTAINER
         value: "0"
+      - name: GOPROXY
+        value: http://athens.athens.svc.cluster.local:3000|direct
       - name: GOMAXPROCS
         value: "5"
       image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -68,13 +70,23 @@ periodics:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
       - test.integration-fuzz.security.fuzz.kube
       env:
       - name: BUILD_WITH_CONTAINER
         value: "0"
+      - name: GOPROXY
+        value: http://athens.athens.svc.cluster.local:3000|direct
       - name: ECR_REGISTRY
         value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+      - name: ISTIO_BASE_REGISTRY
+        value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+      - name: ISTIO_BUILDKIT_IMAGE
+        value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+      - name: WASM_REGISTRY
+        value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+      - name: METALLB_REGISTRY
+        value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
       - name: GOMAXPROCS
         value: "5"
       image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -148,6 +160,8 @@ periodics:
         value: istio
       - name: BUILD_WITH_CONTAINER
         value: "0"
+      - name: GOPROXY
+        value: http://athens.athens.svc.cluster.local:3000|direct
       - name: GCP_SECRETS
         value: '[{"secret":"github_istio-testing_pusher","project":"istio-prow-build","env":"GH_TOKEN"}]'
       - name: GOMAXPROCS
@@ -172,8 +186,13 @@ periodics:
         subPath: gocache
     nodeSelector:
       kubernetes.io/arch: amd64
-      testing: test-pool
+      testing: trusted
     serviceAccountName: prowjob-github-istio-testing
+    tolerations:
+    - effect: NoSchedule
+      key: testing
+      operator: Equal
+      value: trusted
     volumes:
     - hostPath:
         path: /var/tmp/prow/cache
@@ -201,6 +220,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-prow_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -222,7 +243,12 @@ postsubmits:
           subPath: gocache
       nodeSelector:
         kubernetes.io/arch: amd64
-        testing: test-pool
+        testing: trusted
+      tolerations:
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -254,6 +280,8 @@ postsubmits:
           value: "true"
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: VERSION
           value: master
         - name: DOCKER_CONFIG
@@ -284,8 +312,13 @@ postsubmits:
           name: docker-root
       nodeSelector:
         kubernetes.io/arch: amd64
-        testing: test-pool
+        testing: trusted
       serviceAccountName: prowjob-release
+      tolerations:
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -309,15 +342,25 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.kube.agentgateway
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.agentgateway
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -373,19 +416,29 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.ambient
         - name: KUBERNETES_CNI
           value: calico
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -441,21 +494,31 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: DOCKER_IN_DOCKER_IPV6_ENABLED
           value: "true"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.kube.helm.values=cni.ambient.ipv6=true --istio.test.ambient '
         - name: IP_FAMILIES
           value: IPv4,IPv6
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -511,21 +574,31 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: DOCKER_IN_DOCKER_IPV6_ENABLED
           value: "true"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.kube.helm.values=cni.ambient.ipv6=true --istio.test.ambient '
         - name: IP_FAMILIES
           value: IPv6
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -581,21 +654,31 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --kind-config
         - prow/config/ambient-sc.yaml
         - --topology
         - AMBIENT_MULTICLUSTER
         - --topology-config
         - prow/config/topology/ambient-multicluster.json
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.ambient --istio.test.ambient.multinetwork
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -651,17 +734,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: '--istio.test.ambient --istio.test.nativeNftables '
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -717,18 +810,28 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: '--istio.test.kube.helm.values=cni.istioOwnedCNIConfig=true --istio.test.ambient.istioOwnedCNIConfig
             --istio.test.ambient '
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -784,17 +887,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.ambient
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -852,15 +965,25 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -916,13 +1039,23 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -985,17 +1118,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 --istio.test.istio.enableCNI=true '
         - name: TEST_SELECT
           value: -flaky
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -1051,15 +1194,25 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: VARIANT
           value: distroless
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -1115,17 +1268,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: DOCKER_IN_DOCKER_IPV6_ENABLED
           value: "true"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: IP_FAMILIES
           value: IPv4,IPv6
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -1181,17 +1344,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.pilot.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.gatewayAPIOnly --istio.test.kube.gatewayClassName=istio-alt
         - name: T
           value: -run="TestGatewayConformance|TestGateway$$|TestHTTPRouteAndGRPCRouteCoexistence|TestInferencePoolMultipleTargetPorts"
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -1247,13 +1420,23 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.helm.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -1309,17 +1492,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: DOCKER_IN_DOCKER_IPV6_ENABLED
           value: "true"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: IP_FAMILIES
           value: IPv6
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -1377,17 +1570,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.27.8
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.27.16
         - --kind-config
         - prow/config/modern.yaml
         - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -1445,17 +1648,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.28.4
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.28.15
         - --kind-config
         - prow/config/modern.yaml
         - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -1513,17 +1726,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.29.7
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.29.14
         - --kind-config
         - prow/config/modern.yaml
         - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -1581,17 +1804,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.30.3
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.30.8
         - --kind-config
         - prow/config/modern.yaml
         - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -1649,17 +1882,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.31.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.31.9
         - --kind-config
         - prow/config/modern.yaml
         - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -1717,17 +1960,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.32.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.32.8
         - --kind-config
         - prow/config/modern.yaml
         - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -1785,17 +2038,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.33.1
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.33.7
         - --kind-config
         - prow/config/modern.yaml
         - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -1853,17 +2116,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.34.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.34.8
         - --kind-config
         - prow/config/modern.yaml
         - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -1921,17 +2194,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --kind-config
         - prow/config/modern.yaml
         - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -1989,17 +2272,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/modern.yaml
         - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.retries=1 '
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -2055,15 +2348,25 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.pilot.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: GRPC_ECHO_IMAGE
           value: grpctesting/istio_echo_cpp
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -2119,17 +2422,27 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --topology
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/ambient-multicluster.json
-        - test.integration.pilot.filebasedkubeconfig.kube
+        - test.integration.pilot.filebasedkubeconfig.kube.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -2185,19 +2498,29 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --topology
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod-multicluster.json
-        - test.integration.pilot.kube
+        - test.integration.pilot.kube.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -2253,19 +2576,29 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --topology
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod.json
-        - test.integration.pilot.kube
+        - test.integration.pilot.kube.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -2321,15 +2654,25 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --topology
         - MULTICLUSTER
-        - test.integration.pilot.kube
+        - test.integration.pilot.kube.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -2385,13 +2728,23 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.pilot.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -2447,19 +2800,29 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --topology
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod.json
-        - test.integration.security.kube
+        - test.integration.security.kube.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -2515,15 +2878,25 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --topology
         - MULTICLUSTER
-        - test.integration.security.kube
+        - test.integration.security.kube.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -2579,13 +2952,23 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.security.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -2641,15 +3024,25 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
-        - test.integration.telemetry.kube
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
+        - test.integration.telemetry.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.peer_metadata_discovery
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -2705,19 +3098,29 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --topology
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod.json
-        - test.integration.telemetry.kube
+        - test.integration.telemetry.kube.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -2773,15 +3176,25 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --topology
         - MULTICLUSTER
-        - test.integration.telemetry.kube
+        - test.integration.telemetry.kube.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -2837,13 +3250,23 @@ postsubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.telemetry.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -2903,6 +3326,8 @@ postsubmits:
           value: "0"
         - name: DOCKER_PUSH_HUB
           value: ghcr.io/istio/testing
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: HELM_HUB
           value: ghcr.io/istio/testing/charts
         - name: DOCKER_CONFIG
@@ -2930,8 +3355,13 @@ postsubmits:
           name: docker-root
       nodeSelector:
         kubernetes.io/arch: amd64
-        testing: test-pool
+        testing: trusted
       serviceAccountName: prowjob-testing-write
+      tolerations:
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
       volumes:
       - hostPath:
           path: /var/tmp/prow/cache
@@ -2962,6 +3392,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
         name: ""
         resources:
@@ -3015,6 +3447,8 @@ postsubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
         name: ""
         resources:
@@ -3062,6 +3496,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
         name: ""
         resources:
@@ -3108,6 +3544,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -3158,13 +3596,15 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --topology
         - MULTICLUSTER
         - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: OTEL_EXPORTER_OTLP_PROTOCOL
           value: grpc
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
@@ -3173,6 +3613,14 @@ presubmits:
           value: "true"
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -3232,6 +3680,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -3280,6 +3730,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -3326,15 +3778,25 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.kube.agentgateway
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.agentgateway
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -3392,19 +3854,29 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.ambient
         - name: KUBERNETES_CNI
           value: calico
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -3462,21 +3934,31 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: DOCKER_IN_DOCKER_IPV6_ENABLED
           value: "true"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.kube.helm.values=cni.ambient.ipv6=true --istio.test.ambient '
         - name: IP_FAMILIES
           value: IPv4,IPv6
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -3533,21 +4015,31 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: DOCKER_IN_DOCKER_IPV6_ENABLED
           value: "true"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.kube.helm.values=cni.ambient.ipv6=true --istio.test.ambient '
         - name: IP_FAMILIES
           value: IPv6
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -3604,21 +4096,31 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --kind-config
         - prow/config/ambient-sc.yaml
         - --topology
         - AMBIENT_MULTICLUSTER
         - --topology-config
         - prow/config/topology/ambient-multicluster.json
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.ambient --istio.test.ambient.multinetwork
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -3676,17 +4178,27 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: '--istio.test.ambient --istio.test.nativeNftables '
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -3745,18 +4257,28 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --kind-config
         - prow/config/ambient-sc.yaml
-        - test.integration.ambient.kube
+        - test.integration.ambient.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: '--istio.test.kube.helm.values=cni.istioOwnedCNIConfig=true --istio.test.ambient.istioOwnedCNIConfig
             --istio.test.ambient '
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -3814,17 +4336,27 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.ambient
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -3884,15 +4416,25 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -3949,13 +4491,23 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -4017,15 +4569,25 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
-        - test.integration.pilot.kube.presubmit
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
+        - test.integration.pilot.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.enableCNI=true '
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -4082,15 +4644,25 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: VARIANT
           value: distroless
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -4147,17 +4719,27 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: DOCKER_IN_DOCKER_IPV6_ENABLED
           value: "true"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: IP_FAMILIES
           value: IPv4,IPv6
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -4215,17 +4797,27 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.pilot.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.gatewayAPIOnly --istio.test.kube.gatewayClassName=istio-alt
         - name: T
           value: -run="TestGatewayConformance|TestGateway$$|TestHTTPRouteAndGRPCRouteCoexistence|TestInferencePoolMultipleTargetPorts"
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -4283,13 +4875,23 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.helm.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -4346,17 +4948,27 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: DOCKER_IN_DOCKER_IPV6_ENABLED
           value: "true"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: IP_FAMILIES
           value: IPv6
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -4414,17 +5026,27 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --topology
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/ambient-multicluster.json
-        - test.integration.pilot.filebasedkubeconfig.kube
+        - test.integration.pilot.filebasedkubeconfig.kube.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -4482,19 +5104,29 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --topology
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod-multicluster.json
-        - test.integration.pilot.kube
+        - test.integration.pilot.kube.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -4552,19 +5184,29 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --topology
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod.json
-        - test.integration.pilot.kube
+        - test.integration.pilot.kube.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -4622,15 +5264,25 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --topology
         - MULTICLUSTER
-        - test.integration.pilot.kube
+        - test.integration.pilot.kube.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -4688,13 +5340,23 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.pilot.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -4751,19 +5413,29 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --topology
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod.json
-        - test.integration.security.kube
+        - test.integration.security.kube.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -4821,15 +5493,25 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --topology
         - MULTICLUSTER
-        - test.integration.security.kube
+        - test.integration.security.kube.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -4887,13 +5569,23 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.security.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -4950,15 +5642,25 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
-        - test.integration.telemetry.kube
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
+        - test.integration.telemetry.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.peer_metadata_discovery
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -5016,19 +5718,29 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --topology
         - MULTICLUSTER
         - --topology-config
         - prow/config/topology/external-istiod.json
-        - test.integration.telemetry.kube
+        - test.integration.telemetry.kube.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -5086,15 +5798,25 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - --topology
         - MULTICLUSTER
-        - test.integration.telemetry.kube
+        - test.integration.telemetry.kube.multicluster
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "8"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -5151,13 +5873,23 @@ presubmits:
         - entrypoint
         - prow/integ-suite-kind.sh
         - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
         - test.integration.telemetry.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
+        - name: ISTIO_BASE_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
+        - name: ISTIO_BUILDKIT_IMAGE
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: WASM_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
+        - name: METALLB_REGISTRY
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -5216,6 +5948,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
         name: ""
         resources:
@@ -5262,6 +5996,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
@@ -5311,6 +6047,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: GCP_SECRETS
           value: '[{"secret":"github-read_github_read","project":"istio-prow-build","env":"GH_TOKEN"}]'
         - name: GOMAXPROCS
@@ -5361,6 +6099,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
         name: ""
         resources:
@@ -5414,6 +6154,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
         name: ""
         resources:
@@ -5468,6 +6210,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019
         name: ""
         resources:
@@ -5514,6 +6258,8 @@ presubmits:
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
+        - name: GOPROXY
+          value: http://athens.athens.svc.cluster.local:3000|direct
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:release-1.31-b191766806f5d2982fab99ee081c7e519d436019

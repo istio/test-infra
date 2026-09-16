@@ -674,6 +674,7 @@ jobs:
   - docker
   - cf-r2-istio-build-auth
   - testing-pusher
+  - trusted
   resources: dedicated
   resources_presets:
     dedicated:
@@ -1134,6 +1135,7 @@ jobs:
   - cache
   - gocache
   - cf-r2-istio-prow-auth
+  - trusted
   resources: dedicated
   resources_presets:
     dedicated:
@@ -1168,8 +1170,8 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
-  - test.integration.pilot.kube.presubmit
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
+  - test.integration.pilot.kube.environment
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -1400,7 +1402,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - test.integration.telemetry.kube
   env:
   - name: BUILD_WITH_CONTAINER
@@ -1628,8 +1630,8 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
-  - test.integration.telemetry.kube
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
+  - test.integration.telemetry.kube.environment
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -1858,10 +1860,10 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - --topology
   - MULTICLUSTER
-  - test.integration.telemetry.kube
+  - test.integration.telemetry.kube.multicluster
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -2089,12 +2091,12 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - --topology
   - MULTICLUSTER
   - --topology-config
   - prow/config/topology/external-istiod.json
-  - test.integration.telemetry.kube
+  - test.integration.telemetry.kube.multicluster
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -2324,10 +2326,10 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - --kind-config
   - prow/config/ambient-sc.yaml
-  - test.integration.ambient.kube
+  - test.integration.ambient.kube.environment
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -2561,7 +2563,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - test.integration.kube.environment
   env:
   - name: BUILD_WITH_CONTAINER
@@ -2791,7 +2793,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - --topology
   - MULTICLUSTER
   - test.integration.kube
@@ -3028,7 +3030,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - test.integration.kube.environment
   env:
   - name: BUILD_WITH_CONTAINER
@@ -3260,7 +3262,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - test.integration.kube.environment
   env:
   - name: BUILD_WITH_CONTAINER
@@ -3494,7 +3496,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - test.integration.kube.environment
   env:
   - name: BUILD_WITH_CONTAINER
@@ -3722,7 +3724,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - test.integration.pilot.kube
   env:
   - name: BUILD_WITH_CONTAINER
@@ -3950,7 +3952,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - test.integration.pilot.kube
   env:
   - name: BUILD_WITH_CONTAINER
@@ -4182,10 +4184,10 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - --topology
   - MULTICLUSTER
-  - test.integration.pilot.kube
+  - test.integration.pilot.kube.multicluster
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -4413,12 +4415,12 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - --topology
   - MULTICLUSTER
   - --topology-config
   - prow/config/topology/ambient-multicluster.json
-  - test.integration.pilot.filebasedkubeconfig.kube
+  - test.integration.pilot.filebasedkubeconfig.kube.multicluster
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -4648,12 +4650,12 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - --topology
   - MULTICLUSTER
   - --topology-config
   - prow/config/topology/external-istiod.json
-  - test.integration.pilot.kube
+  - test.integration.pilot.kube.multicluster
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -4883,12 +4885,12 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - --topology
   - MULTICLUSTER
   - --topology-config
   - prow/config/topology/external-istiod-multicluster.json
-  - test.integration.pilot.kube
+  - test.integration.pilot.kube.multicluster
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -5118,7 +5120,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - test.integration.kube.agentgateway
   env:
   - name: BUILD_WITH_CONTAINER
@@ -5350,7 +5352,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - test.integration.security.kube
   env:
   - name: BUILD_WITH_CONTAINER
@@ -5578,7 +5580,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - test.integration-fuzz.security.fuzz.kube
   cron: 0 7 * * *
   env:
@@ -5809,10 +5811,10 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - --topology
   - MULTICLUSTER
-  - test.integration.security.kube
+  - test.integration.security.kube.multicluster
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -6040,12 +6042,12 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - --topology
   - MULTICLUSTER
   - --topology-config
   - prow/config/topology/external-istiod.json
-  - test.integration.security.kube
+  - test.integration.security.kube.multicluster
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -6275,7 +6277,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - --kind-config
   - prow/config/ambient-sc.yaml
   - test.integration.ambient.kube
@@ -6507,10 +6509,10 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - --kind-config
   - prow/config/ambient-sc.yaml
-  - test.integration.ambient.kube
+  - test.integration.ambient.kube.environment
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -6741,10 +6743,10 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - --kind-config
   - prow/config/ambient-sc.yaml
-  - test.integration.ambient.kube
+  - test.integration.ambient.kube.environment
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -6976,10 +6978,10 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - --kind-config
   - prow/config/ambient-sc.yaml
-  - test.integration.ambient.kube
+  - test.integration.ambient.kube.environment
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -7212,14 +7214,14 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - --kind-config
   - prow/config/ambient-sc.yaml
   - --topology
   - AMBIENT_MULTICLUSTER
   - --topology-config
   - prow/config/topology/ambient-multicluster.json
-  - test.integration.ambient.kube
+  - test.integration.ambient.kube.multicluster
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -7449,10 +7451,10 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - --kind-config
   - prow/config/ambient-sc.yaml
-  - test.integration.ambient.kube
+  - test.integration.ambient.kube.environment
   env:
   - name: BUILD_WITH_CONTAINER
     value: "0"
@@ -7685,7 +7687,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - test.integration.pilot.kube
   env:
   - name: BUILD_WITH_CONTAINER
@@ -7919,7 +7921,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - test.integration.helm.kube
   env:
   - name: BUILD_WITH_CONTAINER
@@ -8147,7 +8149,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.27.8
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.27.16
   - --kind-config
   - prow/config/modern.yaml
   - test.integration.kube
@@ -8382,7 +8384,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.28.4
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.28.15
   - --kind-config
   - prow/config/modern.yaml
   - test.integration.kube
@@ -8617,7 +8619,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.29.7
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.29.14
   - --kind-config
   - prow/config/modern.yaml
   - test.integration.kube
@@ -8852,7 +8854,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.30.3
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.30.8
   - --kind-config
   - prow/config/modern.yaml
   - test.integration.kube
@@ -9087,7 +9089,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.31.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.31.9
   - --kind-config
   - prow/config/modern.yaml
   - test.integration.kube
@@ -9322,7 +9324,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.32.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.32.8
   - --kind-config
   - prow/config/modern.yaml
   - test.integration.kube
@@ -9557,7 +9559,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.33.1
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.33.7
   - --kind-config
   - prow/config/modern.yaml
   - test.integration.kube
@@ -9792,7 +9794,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.34.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.34.8
   - --kind-config
   - prow/config/modern.yaml
   - test.integration.kube
@@ -10027,7 +10029,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - --kind-config
   - prow/config/modern.yaml
   - test.integration.kube
@@ -10262,7 +10264,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
   - --kind-config
   - prow/config/modern.yaml
   - test.integration.kube
@@ -10497,7 +10499,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - test.integration.kube
   env:
   - name: BUILD_WITH_CONTAINER
@@ -10732,7 +10734,7 @@ jobs:
   - entrypoint
   - prow/integ-suite-kind.sh
   - --node-image
-  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+  - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
   - test.integration.kube
   env:
   - name: BUILD_WITH_CONTAINER
@@ -12082,6 +12084,7 @@ jobs:
   - gocache
   - build-base
   - docker
+  - trusted
   resources_presets:
     dedicated:
       limits:
@@ -13002,6 +13005,7 @@ jobs:
   - cache
   - gocache
   - github-istio-testing
+  - trusted
   resources_presets:
     dedicated:
       limits:
@@ -13036,6 +13040,15 @@ node_selector:
 org: istio
 repo: istio
 requirement_presets:
+  trusted:
+    podSpec:
+      nodeSelector:
+        testing: trusted
+      tolerations:
+      - effect: NoSchedule
+        key: testing
+        operator: Equal
+        value: trusted
   build-base:
     env:
     - name: DOCKER_CONFIG

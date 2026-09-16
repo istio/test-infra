@@ -18,7 +18,7 @@ jobs:
     service_account_name: prowjob-testing-write
     types: [postsubmit]
     command: [entrypoint, prow/release-commit.sh]
-    requirements: [docker, cf-r2-istio-build-auth, testing-pusher]
+    requirements: [docker, cf-r2-istio-build-auth, testing-pusher, trusted]
     resources: dedicated
     env:
       - name: DOCKER_PUSH_HUB
@@ -36,25 +36,25 @@ jobs:
     types: [postsubmit]
     command: [entrypoint, make, benchtest, report-benchtest]
     resources: dedicated
-    requirements: [cf-r2-istio-prow-auth]
+    requirements: [cf-r2-istio-prow-auth, trusted]
 
   - name: integ-cni
     types: [presubmit]
-    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.pilot.kube.presubmit]
+    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4, test.integration.pilot.kube.environment]
     requirements: [kind, ecr]
     env:
       - name: INTEGRATION_TEST_FLAGS
         value: " --istio.test.istio.enableCNI=true "
 
   - name: integ-telemetry
-    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.telemetry.kube]
+    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4, test.integration.telemetry.kube]
     requirements: [kind, ecr]
 
   - name: integ-telemetry-discovery
     env:
     - name: INTEGRATION_TEST_FLAGS
       value: --istio.test.peer_metadata_discovery
-    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.telemetry.kube]
+    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4, test.integration.telemetry.kube.environment]
     requirements: [kind, ecr]
 
   - name: integ-telemetry-mc
@@ -62,10 +62,10 @@ jobs:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
       - --topology
       - MULTICLUSTER
-      - test.integration.telemetry.kube
+      - test.integration.telemetry.kube.multicluster
     requirements: [kind, ecr]
     resources: multicluster
 
@@ -74,12 +74,12 @@ jobs:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
       - --topology
       - MULTICLUSTER
       - --topology-config
       - prow/config/topology/external-istiod.json
-      - test.integration.telemetry.kube
+      - test.integration.telemetry.kube.multicluster
     requirements: [kind, ecr]
     resources: multicluster
     env:
@@ -98,13 +98,13 @@ jobs:
     - entrypoint
     - prow/integ-suite-kind.sh
     - --node-image
-    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
     - --kind-config
     - prow/config/ambient-sc.yaml
-    - test.integration.ambient.kube
+    - test.integration.ambient.kube.environment
 
   - name: integ-distroless
-    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.kube.environment]
+    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4, test.integration.kube.environment]
     requirements: [kind, ecr]
     env:
       - name: VARIANT
@@ -118,7 +118,7 @@ jobs:
     - entrypoint
     - prow/integ-suite-kind.sh
     - --node-image
-    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
     - --topology
     - MULTICLUSTER
     - test.integration.kube
@@ -126,7 +126,7 @@ jobs:
     resources: multicluster
 
   - name: integ-ipv6
-    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.kube.environment]
+    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4, test.integration.kube.environment]
     requirements: [kind, ecr]
     env:
       - name: DOCKER_IN_DOCKER_IPV6_ENABLED
@@ -135,7 +135,7 @@ jobs:
         value: "IPv6"
 
   - name: integ-ds
-    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.kube.environment]
+    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4, test.integration.kube.environment]
     requirements: [kind, ecr]
     env:
       - name: DOCKER_IN_DOCKER_IPV6_ENABLED
@@ -145,17 +145,17 @@ jobs:
 
   - name: integ-basic
     architectures: [arm64]
-    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.kube.environment]
+    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4, test.integration.kube.environment]
     requirements: [kind, ecr]
 
   - name: integ-pilot
-    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.pilot.kube]
+    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4, test.integration.pilot.kube]
     requirements: [kind, ecr]
 
   - name: integ-pilot-cni-nftables
     types: [presubmit]
     modifiers: [presubmit_optional]
-    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.pilot.kube]
+    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4, test.integration.pilot.kube.environment]
     requirements: [kind, ecr]
     env:
       - name: INTEGRATION_TEST_FLAGS
@@ -163,7 +163,7 @@ jobs:
 
   - name: integ-pilot-cpp
     types: [postsubmit]
-    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.pilot.kube]
+    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4, test.integration.pilot.kube]
     requirements: [kind, ecr]
     env:
       # TODO(yashykt): Move the code for this image to the istio repository.
@@ -175,10 +175,10 @@ jobs:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
       - --topology
       - MULTICLUSTER
-      - test.integration.pilot.kube
+      - test.integration.pilot.kube.multicluster
     requirements: [kind, ecr]
     resources: multicluster
 
@@ -188,12 +188,12 @@ jobs:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
       - --topology
       - MULTICLUSTER
       - --topology-config
       - prow/config/topology/ambient-multicluster.json
-      - test.integration.pilot.filebasedkubeconfig.kube
+      - test.integration.pilot.filebasedkubeconfig.kube.multicluster
     requirements: [kind, ecr]
     resources: multicluster
 
@@ -202,12 +202,12 @@ jobs:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
       - --topology
       - MULTICLUSTER
       - --topology-config
       - prow/config/topology/external-istiod.json
-      - test.integration.pilot.kube
+      - test.integration.pilot.kube.multicluster
     requirements: [kind, ecr]
     resources: multicluster
     env:
@@ -219,12 +219,12 @@ jobs:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
       - --topology
       - MULTICLUSTER
       - --topology-config
       - prow/config/topology/external-istiod-multicluster.json
-      - test.integration.pilot.kube
+      - test.integration.pilot.kube.multicluster
     requirements: [kind, ecr]
     resources: multicluster
     env:
@@ -237,16 +237,16 @@ jobs:
     env:
       - name: INTEGRATION_TEST_FLAGS
         value: --istio.test.agentgateway
-    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.kube.agentgateway]
+    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4, test.integration.kube.agentgateway]
 
   - name: integ-security
-    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.security.kube]
+    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4, test.integration.security.kube]
     requirements: [kind, ecr]
 
   - name: integ-security-fuzz
     types: [periodic]
     cron: "0 7 * * *" # starts every day at 07:00AM UTC
-    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration-fuzz.security.fuzz.kube]
+    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4, test.integration-fuzz.security.fuzz.kube]
     requirements: [kind, ecr]
 
   - name: integ-security-multicluster
@@ -254,10 +254,10 @@ jobs:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
       - --topology
       - MULTICLUSTER
-      - test.integration.security.kube
+      - test.integration.security.kube.multicluster
     requirements: [kind, ecr]
     resources: multicluster
 
@@ -266,12 +266,12 @@ jobs:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
       - --topology
       - MULTICLUSTER
       - --topology-config
       - prow/config/topology/external-istiod.json
-      - test.integration.security.kube
+      - test.integration.security.kube.multicluster
     requirements: [kind, ecr]
     resources: multicluster
     env:
@@ -287,7 +287,7 @@ jobs:
     - entrypoint
     - prow/integ-suite-kind.sh
     - --node-image
-    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
     - --kind-config
     - prow/config/ambient-sc.yaml
     - test.integration.ambient.kube
@@ -302,10 +302,10 @@ jobs:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
       - --kind-config
       - prow/config/ambient-sc.yaml
-      - test.integration.ambient.kube
+      - test.integration.ambient.kube.environment
 
   - name: integ-ambient-owned-cni
     modifiers: [presubmit_optional]
@@ -317,10 +317,10 @@ jobs:
     - entrypoint
     - prow/integ-suite-kind.sh
     - --node-image
-    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
     - --kind-config
     - prow/config/ambient-sc.yaml
-    - test.integration.ambient.kube
+    - test.integration.ambient.kube.environment
 
   - name: integ-ambient-ipv6
     requirements: [kind, ecr]
@@ -335,10 +335,10 @@ jobs:
     - entrypoint
     - prow/integ-suite-kind.sh
     - --node-image
-    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
     - --kind-config
     - prow/config/ambient-sc.yaml
-    - test.integration.ambient.kube
+    - test.integration.ambient.kube.environment
 
   - name: integ-ambient-mc
     resources: multicluster
@@ -350,14 +350,14 @@ jobs:
     - entrypoint
     - prow/integ-suite-kind.sh
     - --node-image
-    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
     - --kind-config
     - prow/config/ambient-sc.yaml
     - --topology
     - AMBIENT_MULTICLUSTER
     - --topology-config
     - prow/config/topology/ambient-multicluster.json
-    - test.integration.ambient.kube
+    - test.integration.ambient.kube.multicluster
     
   # TODO(#61067): once we can confirm that these tests aren't flakier than regular
   # ambient-mc test suite, we can merge the two suites into one.
@@ -375,14 +375,14 @@ jobs:
     - entrypoint
     - prow/integ-suite-kind.sh
     - --node-image
-    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
     - --kind-config
     - prow/config/default.yaml
     - --topology
     - AMBIENT_MULTICLUSTER
     - --topology-config
     - prow/config/topology/ambient-multicluster-large.json
-    - test.integration.ambient.kube
+    - test.integration.ambient.kube.multicluster
 
   - name: integ-ambient-dual
     requirements: [kind, ecr]
@@ -398,10 +398,10 @@ jobs:
     - entrypoint
     - prow/integ-suite-kind.sh
     - --node-image
-    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
     - --kind-config
     - prow/config/ambient-sc.yaml
-    - test.integration.ambient.kube
+    - test.integration.ambient.kube.environment
 
   - name: integ-gateway-api-only
     modifiers: [presubmit_optional]
@@ -415,168 +415,12 @@ jobs:
     - entrypoint
     - prow/integ-suite-kind.sh
     - --node-image
-    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
     - test.integration.pilot.kube
 
   - name: integ-helm
-    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0, test.integration.helm.kube]
+    command: [entrypoint, prow/integ-suite-kind.sh, --node-image, 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4, test.integration.helm.kube]
     requirements: [kind, ecr]
-
-    # The node image must be kept in sync with the kind version we use.
-    # See istio.io/tools/docker/build-tools to build a kind image
-  - name: integ-k8s-123
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.23.9
-      - --kind-config
-      - prow/config/mixedlb-service.yaml
-      - test.integration.kube
-    requirements: [kind, ecr]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
-  - name: integ-k8s-124
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.24.9
-      - test.integration.kube
-    requirements: [kind, ecr]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
-  - name: integ-k8s-125
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.25.9
-      - test.integration.kube
-    requirements: [kind, ecr]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
-  - name: integ-k8s-126
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.26.6
-      - test.integration.kube
-    requirements: [kind, ecr]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
-  - name: integ-k8s-127
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.27.8
-      - --kind-config
-      - prow/config/modern.yaml
-      - test.integration.kube
-    requirements: [kind, ecr]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
-  - name: integ-k8s-128
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.28.4
-      - --kind-config
-      - prow/config/modern.yaml
-      - test.integration.kube
-    requirements: [kind, ecr]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
-  - name: integ-k8s-129
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.29.7
-      - --kind-config
-      - prow/config/modern.yaml
-      - test.integration.kube
-    requirements: [kind, ecr]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
-  - name: integ-k8s-130
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.30.3
-      - --kind-config
-      - prow/config/modern.yaml
-      - test.integration.kube
-    requirements: [kind, ecr]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
-  - name: integ-k8s-131
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.31.0
-      - --kind-config
-      - prow/config/modern.yaml
-      - test.integration.kube
-    requirements: [kind, ecr]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
-
-  - name: integ-k8s-132
-    types: [postsubmit]
-    command:
-      - entrypoint
-      - prow/integ-suite-kind.sh
-      - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.32.0
-      - --kind-config
-      - prow/config/modern.yaml
-      - test.integration.kube
-    requirements: [kind, ecr]
-    timeout: 4h
-    env:
-      - name: INTEGRATION_TEST_FLAGS
-        value: " --istio.test.retries=1 "
 
   - name: integ-k8s-133
     types: [postsubmit]
@@ -584,7 +428,7 @@ jobs:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.33.1
+      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.33.7
       - --kind-config
       - prow/config/modern.yaml
       - test.integration.kube
@@ -600,7 +444,7 @@ jobs:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.34.0
+      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.34.8
       - --kind-config
       - prow/config/modern.yaml
       - test.integration.kube
@@ -616,7 +460,7 @@ jobs:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.35.0
+      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.35.8
       - --kind-config
       - prow/config/modern.yaml
       - test.integration.kube
@@ -632,7 +476,7 @@ jobs:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
       - test.integration.kube
     requirements: [kind, ecr]
     timeout: 4h
@@ -649,7 +493,7 @@ jobs:
       - entrypoint
       - prow/integ-suite-kind.sh
       - --node-image
-      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/kind-node:v1.36.0
+      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
       - test.integration.kube
     requirements: [kind, ecr]
     timeout: 4h
@@ -692,7 +536,7 @@ jobs:
     - name: ALWAYS_GENERATE_BASE_IMAGE
       value: "true"
     command: [entrypoint, ../release-builder/release/build-base-images.sh]
-    requirements: [build-base, docker]
+    requirements: [build-base, docker, trusted]
 
   - name: bookinfo-build
     types: [presubmit]
@@ -723,7 +567,7 @@ jobs:
     - --token-env
     - --cmd=go get github.com/envoyproxy/go-control-plane/contrib@main github.com/envoyproxy/go-control-plane/envoy@main && go mod tidy && make gen
     disable_release_branching: true
-    requirements: [github-istio-testing]
+    requirements: [github-istio-testing, trusted]
     repos: [istio/test-infra@master]
     env:
     - name: AUTOMATOR_ORG
@@ -742,7 +586,7 @@ jobs:
     - --modifier=update_ztunnel_dep
     - --token-env
     - --cmd=./bin/update_ztunnel.sh
-    requirements: [github-istio-testing]
+    requirements: [github-istio-testing, trusted]
     repos: [istio/test-infra@master]
     env:
     - name: AUTOMATOR_ORG
@@ -762,7 +606,7 @@ jobs:
     - --modifier=update_agentgateway_dep
     - --token-env
     - --cmd=./bin/update_agentgateway.sh
-    requirements: [github-istio-testing]
+    requirements: [github-istio-testing, trusted]
     repos: [istio/test-infra@master]
     env:
     - name: AUTOMATOR_ORG

@@ -1,6 +1,9 @@
 defaults:
   branches:
   - release-1.31
+  init-container-env:
+    bazel-remote:
+      BAZEL_REMOTE_BUCKET: istio-prow-bazel-cache-private
   modifier: release-1.31_priv
   repo-allowlist:
   - proxy
@@ -13,9 +16,21 @@ transforms:
     preset-enable-netrc: "true"
 - env:
     GCS_BUILD_BUCKET: istio-build-private
-  job-denylist:
-  - update-istio_proxy_release-1.31
+  job-allowlist:
+  - ^release-arm64_proxy
   job-type:
   - postsubmit
   labels:
     preset-enable-netrc: "true"
+  selector:
+    testing: test-pool
+- env:
+    GCS_BUILD_BUCKET: istio-build-private
+  job-allowlist:
+  - ^release_proxy
+  job-type:
+  - postsubmit
+  labels:
+    preset-enable-netrc: "true"
+  selector:
+    testing: build-pool
