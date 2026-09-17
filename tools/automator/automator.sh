@@ -348,8 +348,9 @@ work() { (
     currentSHA=$(git rev-parse HEAD)
     if ! git diff --cached --quiet --exit-code || [ "${initialSHA}" != "${currentSHA}" ]; then
       commit
-    elif $strict; then
-      print_error "no diff for $repo" 1
+    else
+      echo "no diff for $repo"
+      exit 3
     fi
   fi
 
@@ -370,13 +371,22 @@ main() {
 
   pushd "$tmp_dir" || print_error_and_exit "invalid dir: $tmp_dir"
 
+  local had_change=false
   set +e
   for repo in $repos; do
     work
     local code="$?"
-    [ "$code" -ne 0 ] && exit_code="$code"
+    case "$code" in
+      0) had_change=true ;;
+      3) : ;;
+      *) exit_code="$code" ;;
+    esac
   done
   set -e
+
+  if $strict && ! $had_change && [ -z "${exit_code:-}" ]; then
+    print_error "no diff for any repo" 1
+  fi
 
   popd || print_error_and_exit "invalid dir: $tmp_dir"
 }
