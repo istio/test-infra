@@ -3196,15 +3196,13 @@ postsubmits:
         - name: DOCKER_CONFIG
           value: /var/run/ci/docker
         - name: DOCKER_HUB
-          value: ghcr.io/istio/private
+          value: ghcr.io/istio/prow-private
         - name: DOCKER_PUSH_HUB
-          value: ghcr.io/istio/testing
-        - name: GCS_BUCKET
-          value: istio-build-private/dev
+          value: ghcr.io/istio/prow-private
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: HELM_HUB
-          value: ghcr.io/istio/testing/charts
+          value: ghcr.io/istio/prow-private/charts
         - name: R2_BUCKET
           value: istio-build-private/dev
         - name: DEPENDENCIES
@@ -3215,7 +3213,7 @@ postsubmits:
         - name: ISTIO_ENVOY_BASE_URL
           value: s3://istio-build-private/proxy
         - name: GCP_SECRETS
-          value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
+          value: '[{"secret":"cf_r2_istio-build-private_credentials","project":"istio-testing","env":"CF_CREDENTIALS"},{"secret":"prerelease_ghcr_istio","project":"istio-prow-build","file":"/var/run/ci/docker/config.json"}]'
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:master-80657d56e324b5d8b4a74806bf0979e4b89e99a5
         name: ""
         resources:

@@ -7,8 +7,9 @@ org: istio
 repo: istio
 transforms:
 - env:
-    DOCKER_HUB: ghcr.io/istio/private
-    GCS_BUCKET: istio-build-private/dev
+    DOCKER_HUB: ghcr.io/istio/prow-private
+    DOCKER_PUSH_HUB: ghcr.io/istio/prow-private
+    HELM_HUB: ghcr.io/istio/prow-private/charts
     R2_BUCKET: istio-build-private/dev
   job-allowlist:
   - release_istio_release-1.31_postsubmit
@@ -20,6 +21,7 @@ transforms:
     preset-override-envoy-r2: "true"
   requirements:
   - cf-r2-istio-build-private-auth
+  - prerelease-ghcr
   selector:
     testing: test-pool
 - job-allowlist:

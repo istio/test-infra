@@ -6,9 +6,7 @@ defaults:
 org: istio
 repo: api
 transforms:
-- env:
-    GCS_BUCKET: istio-build-private/dev
-  job-allowlist:
+- job-allowlist:
   - build_release-1.31
   - gencheck_release-1.31
   job-type:
@@ -18,5 +16,3 @@ transforms:
   - gencheck_release-1.31
   job-type:
   - postsubmit
-  labels:
-    preset-override-envoy: "true"

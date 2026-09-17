@@ -19,20 +19,22 @@ transforms:
 
 # istio/proxy master arm build job - postsubmit
 - env:
-    GCS_BUILD_BUCKET: istio-build-private
+    R2_BUILD_BUCKET: istio-build-private
   labels:
     preset-enable-netrc: "true"
   job-type: [postsubmit]
   job-allowlist: ["^release-arm64_proxy"]
+  requirements: [cf-r2-istio-build-private-auth]
   selector:
     testing: test-pool
 
 # istio/proxy master x86 build job - postsubmit
 - env:
-    GCS_BUILD_BUCKET: istio-build-private
+    R2_BUILD_BUCKET: istio-build-private
   labels:
     preset-enable-netrc: "true"
   job-type: [postsubmit]
   job-allowlist: ["^release_proxy"]
+  requirements: [cf-r2-istio-build-private-auth]
   selector:
     testing: build-pool

@@ -10,14 +10,15 @@ transforms:
 
 # istio/istio master build job(s) - postsubmit(s)
 - env:
-    DOCKER_HUB: ghcr.io/istio/private
-    GCS_BUCKET: istio-build-private/dev
+    DOCKER_HUB: ghcr.io/istio/prow-private
+    DOCKER_PUSH_HUB: ghcr.io/istio/prow-private
+    HELM_HUB: ghcr.io/istio/prow-private/charts
     R2_BUCKET: istio-build-private/dev
   labels:
     preset-enable-netrc: "true"
     preset-override-envoy-r2: "true"
     preset-override-deps: master-istio
-  requirements: [cf-r2-istio-build-private-auth]
+  requirements: [cf-r2-istio-build-private-auth, prerelease-ghcr]
   job-type: [postsubmit]
   job-allowlist: [release_istio_postsubmit]
   selector:

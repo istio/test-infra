@@ -15,22 +15,26 @@ transforms:
   labels:
     preset-enable-netrc: "true"
 - env:
-    GCS_BUILD_BUCKET: istio-build-private
+    R2_BUILD_BUCKET: istio-build-private
   job-allowlist:
   - ^release-arm64_proxy
   job-type:
   - postsubmit
   labels:
     preset-enable-netrc: "true"
+  requirements:
+  - cf-r2-istio-build-private-auth
   selector:
     testing: test-pool
 - env:
-    GCS_BUILD_BUCKET: istio-build-private
+    R2_BUILD_BUCKET: istio-build-private
   job-allowlist:
   - ^release_proxy
   job-type:
   - postsubmit
   labels:
     preset-enable-netrc: "true"
+  requirements:
+  - cf-r2-istio-build-private-auth
   selector:
     testing: build-pool
