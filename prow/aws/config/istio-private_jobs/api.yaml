@@ -10,14 +10,9 @@ defaults:
 transforms:
 
 # istio/api master build job(s) - presubmit(s)
-- env:
-    GCS_BUCKET: istio-build-private/dev
-  labels:
-  job-type: [presubmit]
+- job-type: [presubmit]
   job-allowlist: [build, gencheck]
 
 # istio/api master test jobs(s) - postsubmit(s)
-- labels:
-    preset-override-envoy: "true"
-  job-type: [postsubmit]
+- job-type: [postsubmit]
   job-allowlist: [build, gencheck]

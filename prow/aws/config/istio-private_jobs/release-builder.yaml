@@ -16,8 +16,7 @@ transforms:
 
 # istio/release-builder master build warning jobs(s) - presubmit(s)
 - env:
-    PRERELEASE_DOCKER_HUB: us-docker.pkg.dev/istio-prow-private/istio-prow-private
-    GCS_BUCKET: istio-prerelease-private/prerelease
+    PRERELEASE_DOCKER_HUB: ghcr.io/istio/prow-private
     R2_BUCKET: istio-prerelease-private/prerelease
   job-type: [presubmit]
   job-allowlist: [build-warning_release-builder]
@@ -26,9 +25,7 @@ transforms:
 
   # istio/release-builder master build jobs(s) - postsubmit(s)
 - env:
-    PRERELEASE_DOCKER_HUB: us-docker.pkg.dev/istio-prow-private/istio-prow-private
-    HELM_BUCKET: istio-prerelease-private/charts
-    GCS_BUCKET: istio-prerelease-private/prerelease
+    PRERELEASE_DOCKER_HUB: ghcr.io/istio/prow-private
     R2_HELM_BUCKET: istio-prerelease-private/charts
     R2_BUCKET: istio-prerelease-private/prerelease
   labels:
@@ -38,6 +35,6 @@ transforms:
   job-type: [postsubmit]
   job-allowlist: [build-release_release-builder_postsubmit]
   repo-allowlist: [release-builder]
-  requirements: [docker, cf-r2-istio-prerelease-private-auth, cf-r2-istio-build-private-auth]
+  requirements: [docker, cf-r2-istio-prerelease-private-auth, cf-r2-istio-build-private-auth, prerelease-ghcr]
   selector:
     testing: test-pool
