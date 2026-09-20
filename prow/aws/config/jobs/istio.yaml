@@ -470,6 +470,22 @@ jobs:
       - name: INTEGRATION_TEST_FLAGS
         value: " --istio.test.retries=1 "
 
+  - name: integ-k8s-137
+    types: [postsubmit]
+    command:
+      - entrypoint
+      - prow/integ-suite-kind.sh
+      - --node-image
+      - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.37.0
+      - --kind-config
+      - prow/config/modern.yaml
+      - test.integration.kube
+    requirements: [kind, ecr]
+    timeout: 4h
+    env:
+      - name: INTEGRATION_TEST_FLAGS
+        value: " --istio.test.retries=1 "
+
   - name: integ-cni
     types: [postsubmit]
     command:
