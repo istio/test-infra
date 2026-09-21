@@ -9,7 +9,7 @@ locals {
     # Docker config for prerelease Istio images published to GHCR.
     "prerelease_ghcr_istio",
     # Fine grained PAT in the Istio org, "github/istio-release/release". Has write access to "Contents" and "Workflows".
-    # Expires 7/29/2026.
+    # Expires 9/22/2027.
     "release_github_istio-release",
     # Access token for Grafana for the "Istio" org. Named "release-pipeline-token" in Grafana, with role "Editor".
     "release_grafana_istio",
