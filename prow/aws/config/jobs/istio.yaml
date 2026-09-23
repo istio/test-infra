@@ -356,34 +356,9 @@ jobs:
     - --topology
     - AMBIENT_MULTICLUSTER
     - --topology-config
-    - prow/config/topology/ambient-multicluster.json
-    - test.integration.ambient.kube.multicluster
-    
-  # TODO(#61067): once we can confirm that these tests aren't flakier than regular
-  # ambient-mc test suite, we can merge the two suites into one.
-  - name: integ-ambient-mc-mixed-network
-    # NOTE: to check flakiness of the suite it's enough to run it in postsubmit only;
-    # we can aggregate and analyze the results of the postsubmit runs without
-    # bothering anybody with failed presubmit runs.
-    modifiers: [presubmit_optional, presubmit_skipped]
-    resources: multicluster
-    requirements: [kind, ecr]
-    env:
-    - name: INTEGRATION_TEST_FLAGS
-      value: --istio.test.ambient --istio.test.ambient.multinetwork
-    command:
-    - entrypoint
-    - prow/integ-suite-kind.sh
-    - --node-image
-    - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
-    - --kind-config
-    - prow/config/default.yaml
-    - --topology
-    - AMBIENT_MULTICLUSTER
-    - --topology-config
     - prow/config/topology/ambient-multicluster-large.json
     - test.integration.ambient.kube.multicluster
-
+ 
   - name: integ-ambient-dual
     requirements: [kind, ecr]
     env:
