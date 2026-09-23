@@ -1,7 +1,7 @@
-# Bootstrap this file once with cluster-admin credentials after Terraform creates
-# the prow-deployer EKS access entry. On a new cluster, apply
-# test_pod_namespace.yaml first. The deploy-prow postsubmit maintains it after
-# the initial bootstrap.
+# Apply this file with cluster-admin credentials after Terraform creates the
+# prow-deployer EKS access entry. On a new cluster, apply
+# cluster/test_pod_namespace.yaml first. This authorization boundary is managed
+# separately from the Prow deployment job.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -30,10 +30,6 @@ rules:
 - apiGroups: ["external-secrets.io"]
   resources: ["clustersecretstores", "externalsecrets"]
   verbs: ["create", "get", "patch", "update"]
-- apiGroups: ["rbac.authorization.k8s.io"]
-  resources: ["clusterroles", "clusterrolebindings"]
-  resourceNames: ["prow-deployer"]
-  verbs: ["get", "patch", "update"]
 - apiGroups: [""]
   resources: ["pods"]
   verbs: ["create", "delete", "get", "list", "patch", "watch"]
