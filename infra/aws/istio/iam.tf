@@ -10,6 +10,7 @@ locals {
     "istio-prow-bazel-cache-presubmit"  = aws_s3_bucket.istio_prow_bazel_cache.arn
     "istio-prow-bazel-cache-postsubmit" = aws_s3_bucket.istio_prow_bazel_cache_postsubmit.arn
     "istio-prow-bazel-cache-private"    = aws_s3_bucket.istio_prow_bazel_cache_private.arn
+    "istio-prow-go-cache-presubmit"     = aws_s3_bucket.istio_prow_go_cache_presubmit.arn
     "istio-prow-private"                = aws_s3_bucket.istio_prow_private.arn
   }
 
@@ -86,7 +87,7 @@ locals {
         "cf_r2_istio-prow_credentials",
         "cf_r2_public_buckets_ro_credentials",
       ]
-      s3_read_write = ["istio-prow"]
+      s3_read_write = ["istio-prow", "istio-prow-go-cache-presubmit"]
       associations  = { prow-build = { namespace = "test-pods", service_account = "prowjob-default-sa" } }
     }
 
@@ -190,7 +191,7 @@ module "workload_identity" {
       length(try(each.value.s3_read_write, [])) > 0 ? {
         sid       = "S3ReadWriteList"
         effect    = "Allow"
-        actions   = ["s3:ListBucket"]
+        actions   = ["s3:ListBucket", "s3:GetBucketLocation"]
         resources = [for b in each.value.s3_read_write : local.s3_buckets[b]]
       } : null,
       length(try(each.value.s3_read, [])) > 0 ? {
@@ -202,7 +203,7 @@ module "workload_identity" {
       length(try(each.value.s3_read, [])) > 0 ? {
         sid       = "S3ReadList"
         effect    = "Allow"
-        actions   = ["s3:ListBucket"]
+        actions   = ["s3:ListBucket", "s3:GetBucketLocation"]
         resources = [for b in each.value.s3_read : local.s3_buckets[b]]
       } : null,
       length(try(each.value.eks_describe_clusters, [])) > 0 ? {

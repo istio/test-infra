@@ -95,6 +95,54 @@ resource "aws_s3_bucket_lifecycle_configuration" "istio_prow_athens_cache" {
   }
 }
 
+resource "aws_s3_bucket" "istio_prow_go_cache_presubmit" {
+  bucket = "istio-prow-go-cache-presubmit"
+}
+
+resource "aws_s3_bucket_public_access_block" "istio_prow_go_cache_presubmit" {
+  bucket = aws_s3_bucket.istio_prow_go_cache_presubmit.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_ownership_controls" "istio_prow_go_cache_presubmit" {
+  bucket = aws_s3_bucket.istio_prow_go_cache_presubmit.id
+
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "istio_prow_go_cache_presubmit" {
+  bucket = aws_s3_bucket.istio_prow_go_cache_presubmit.id
+
+  rule {
+    id     = "expire-cache-entries"
+    status = "Enabled"
+
+    filter {}
+
+    expiration {
+      days = 30
+    }
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "istio_prow_go_cache_presubmit" {
+  bucket = aws_s3_bucket.istio_prow_go_cache_presubmit.id
+
+  rule {
+    blocked_encryption_types = ["SSE-C"]
+
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
 # Private, durable backend for presubmit Bazel remote-cache sidecars. Keep the
 # existing bucket name to preserve its cache contents during migration.
 resource "aws_s3_bucket" "istio_prow_bazel_cache" {
