@@ -7,7 +7,7 @@ locals {
 
     # Fine grained PAT in the Istio org, "github/istio-release/release".
     # Has write access to "Contents" and "Workflows". Expires 9/22/2027.
-    "release_github_istio-release" = "Fine-grained GitHub PAT for releases (Contents+Workflows write); expires 2026-07-29"
+    "release_github_istio-release" = "Fine-grained GitHub PAT for releases (Contents+Workflows write); expires 2027-09-22"
 
     # GitHub PAT used by prerelease builds to push Istio images to GHCR.
     "prerelease_ghcr_istio" = "Docker credentials to push to ghcr.io"

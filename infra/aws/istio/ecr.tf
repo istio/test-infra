@@ -15,6 +15,11 @@ resource "aws_ecr_pull_through_cache_rule" "quay" {
   upstream_registry_url = "quay.io"
 }
 
+resource "aws_ecr_pull_through_cache_rule" "ecr_public" {
+  ecr_repository_prefix = "ecr-public"
+  upstream_registry_url = "public.ecr.aws"
+}
+
 resource "aws_ecr_repository_creation_template" "ghcr" {
   applied_for = ["PULL_THROUGH_CACHE"]
   prefix      = "ghcr"
@@ -32,6 +37,13 @@ resource "aws_ecr_repository_creation_template" "docker" {
 resource "aws_ecr_repository_creation_template" "quay" {
   applied_for = ["PULL_THROUGH_CACHE"]
   prefix      = "quay"
+
+  lifecycle_policy = local.ecr_pull_through_cache_lifecycle_policy
+}
+
+resource "aws_ecr_repository_creation_template" "ecr_public" {
+  applied_for = ["PULL_THROUGH_CACHE"]
+  prefix      = "ecr-public"
 
   lifecycle_policy = local.ecr_pull_through_cache_lifecycle_policy
 }

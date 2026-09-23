@@ -296,9 +296,37 @@ module "eks" {
 
   # Auth via EKS access entries (API). This is the boundary mechanism that
   # replaces GCP project isolation: each principal is granted RBAC only on the
-  # clusters it may use. The Terraform principal gets admin to bootstrap.
-  authentication_mode                      = "API"
-  enable_cluster_creator_admin_permissions = true
+  # clusters it may use.
+  authentication_mode = "API"
+  access_entries = {
+    cluster_creator = {
+      principal_arn = "arn:aws:iam::678412441677:user/stevenjinxuan"
+      policy_associations = {
+        admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
+    }
+    keithmattix = {
+      principal_arn = "arn:aws:iam::678412441677:user/keithmattix"
+      policy_associations = {
+        cluster_admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
+    }
+  }
+
+  kms_key_administrators = [
+    "arn:aws:iam::678412441677:user/keithmattix",
+    "arn:aws:iam::678412441677:user/stevenjinxuan",
+  ]
 
   # Skeleton: public endpoint so the API is reachable while building out.
   # Lock this down (private endpoint + CIDR allow-list) before production.
@@ -337,7 +365,7 @@ module "eks" {
         }
       })
     }
-    }, each.key == "prow" ? {
+    }, contains(["prow", "prow-build"], each.key) ? {
     aws-ebs-csi-driver = {
       configuration_values = jsonencode({
         controller = {

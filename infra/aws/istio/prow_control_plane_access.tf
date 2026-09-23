@@ -104,8 +104,8 @@ resource "aws_eks_access_policy_association" "prow_control_plane" {
 resource "aws_eks_access_entry" "prow_deployer" {
   for_each = local.prow_deployer_clusters
 
-  # The matching RBAC manifests must be bootstrapped once by a cluster
-  # administrator. Subsequent Prow deploys maintain them with the other YAML.
+  # The matching RBAC manifests are managed separately by a cluster
+  # administrator from prow/aws/bootstrap.
   cluster_name      = module.eks[each.key].cluster_name
   principal_arn     = module.workload_identity["prow-deployer"].iam_role_arn
   kubernetes_groups = ["prow-deployer"]
