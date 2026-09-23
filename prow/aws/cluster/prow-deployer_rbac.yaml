@@ -1,0 +1,108 @@
+# Bootstrap this file once with cluster-admin credentials after Terraform creates
+# the prow-deployer EKS access entry. On a new cluster, apply
+# test_pod_namespace.yaml first. The deploy-prow postsubmit maintains it after
+# the initial bootstrap.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prow-deployer
+rules:
+- nonResourceURLs: ["/api", "/api/*", "/apis", "/apis/*", "/openapi", "/openapi/*"]
+  verbs: ["get"]
+- apiGroups: [""]
+  resources: ["configmaps", "namespaces", "persistentvolumeclaims", "services", "serviceaccounts"]
+  verbs: ["create", "get", "patch", "update"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["create", "get", "patch", "update"]
+- apiGroups: ["batch"]
+  resources: ["cronjobs"]
+  verbs: ["create", "get", "patch", "update"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["create", "get", "patch", "update"]
+- apiGroups: ["storage.k8s.io"]
+  resources: ["storageclasses"]
+  verbs: ["create", "get", "patch", "update"]
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["create", "get", "patch", "update"]
+- apiGroups: ["external-secrets.io"]
+  resources: ["clustersecretstores", "externalsecrets"]
+  verbs: ["create", "get", "patch", "update"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["create", "delete", "get", "list", "patch", "watch"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create", "get", "list"]
+- apiGroups: [""]
+  resources: ["pods/log"]
+  verbs: ["get"]
+- apiGroups: ["coordination.k8s.io"]
+  resources: ["leases"]
+  verbs: ["create", "get", "update"]
+- apiGroups: ["prow.k8s.io"]
+  resources: ["prowjobs"]
+  verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prow-deployer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prow-deployer
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: prow-deployer
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: prow-deployer
+  namespace: default
+rules:
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["roles", "rolebindings"]
+  verbs: ["create", "get", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: prow-deployer
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: prow-deployer
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: prow-deployer
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: prow-deployer
+  namespace: test-pods
+rules:
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["roles", "rolebindings"]
+  verbs: ["create", "get", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: prow-deployer
+  namespace: test-pods
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: prow-deployer
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: prow-deployer

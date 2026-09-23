@@ -1,0 +1,69 @@
+# Bootstrap this file once with cluster-admin credentials after Terraform creates
+# the prow-deployer EKS access entry. On a new cluster, apply
+# test_pod_namespace.yaml first. The deploy-prow postsubmit maintains it after
+# the initial bootstrap.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prow-deployer
+rules:
+- nonResourceURLs: ["/api", "/api/*", "/apis", "/apis/*", "/openapi", "/openapi/*"]
+  verbs: ["get"]
+- apiGroups: [""]
+  resources: ["configmaps", "namespaces", "services", "serviceaccounts"]
+  verbs: ["create", "get", "patch", "update"]
+- apiGroups: ["apps"]
+  resources: ["daemonsets", "deployments"]
+  verbs: ["create", "get", "patch", "update"]
+- apiGroups: ["external-secrets.io"]
+  resources: ["clustersecretstores", "externalsecrets"]
+  verbs: ["create", "get", "patch", "update"]
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["clusterroles", "clusterrolebindings"]
+  verbs: ["create", "get", "patch", "update"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "patch"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prow-deployer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prow-deployer
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: prow-deployer
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: prow-deployer
+  namespace: test-pods
+rules:
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["roles", "rolebindings"]
+  verbs: ["create", "get", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: prow-deployer
+  namespace: test-pods
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: prow-deployer
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: prow-deployer

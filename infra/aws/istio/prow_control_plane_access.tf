@@ -53,6 +53,8 @@ locals {
   ]...)
 
   prow_cluster_access = merge(local.prow_writer_access, local.prow_reader_access)
+
+  prow_deployer_clusters = toset(["prow", "prow-build", "prow-private"])
 }
 
 module "prow_control_plane_identity" {
@@ -97,4 +99,14 @@ resource "aws_eks_access_policy_association" "prow_control_plane" {
   }
 
   depends_on = [aws_eks_access_entry.prow_control_plane]
+}
+
+resource "aws_eks_access_entry" "prow_deployer" {
+  for_each = local.prow_deployer_clusters
+
+  # The matching RBAC manifests must be bootstrapped once by a cluster
+  # administrator. Subsequent Prow deploys maintain them with the other YAML.
+  cluster_name      = module.eks[each.key].cluster_name
+  principal_arn     = module.workload_identity["prow-deployer"].iam_role_arn
+  kubernetes_groups = ["prow-deployer"]
 }

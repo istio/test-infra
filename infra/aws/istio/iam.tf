@@ -69,6 +69,14 @@ locals {
       }
     }
 
+    "prow-deployer" = {
+      ecr_pull              = false
+      eks_describe_clusters = ["prow", "prow-build", "prow-private"]
+      associations = {
+        prow = { namespace = "test-pods", service_account = "prow-deployer" }
+      }
+    }
+
     # ESO (External Secrets Operator) controller identity is defined per cluster
     # in external_secrets.tf, not here.
 
@@ -154,9 +162,9 @@ module "workload_identity" {
 
   name = each.key
 
-  additional_policy_arns = each.key == "athens" ? {} : {
+  additional_policy_arns = try(each.value.ecr_pull, each.key != "athens") ? {
     ecr_pull_through_cache_read = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPullOnly"
-  }
+  } : {}
 
   attach_custom_policy = true
   policy_statements = [
@@ -196,6 +204,12 @@ module "workload_identity" {
         effect    = "Allow"
         actions   = ["s3:ListBucket"]
         resources = [for b in each.value.s3_read : local.s3_buckets[b]]
+      } : null,
+      length(try(each.value.eks_describe_clusters, [])) > 0 ? {
+        sid       = "DescribeEKSClusters"
+        effect    = "Allow"
+        actions   = ["eks:DescribeCluster"]
+        resources = [for cluster in each.value.eks_describe_clusters : module.eks[cluster].cluster_arn]
       } : null,
     ] : s if s != null
   ]
