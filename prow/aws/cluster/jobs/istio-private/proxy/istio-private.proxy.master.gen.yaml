@@ -27,8 +27,6 @@ postsubmits:
           value: "1"
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: GOMAXPROCS
-          value: "64"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: R2_BUILD_BUCKET
@@ -38,14 +36,9 @@ postsubmits:
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:master-3d06fb2820260b49713de5d906e085598facaa43
         name: ""
         resources:
-          limits:
-            cpu: "64"
-            ephemeral-storage: 64Gi
-            memory: 240G
           requests:
-            cpu: "30"
-            ephemeral-storage: 64Gi
-            memory: 100G
+            cpu: "4"
+            memory: 16G
         securityContext:
           privileged: true
         volumeMounts:
@@ -306,21 +299,14 @@ presubmits:
           value: "1"
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: GOMAXPROCS
-          value: "64"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:master-3d06fb2820260b49713de5d906e085598facaa43
         name: ""
         resources:
-          limits:
-            cpu: "64"
-            ephemeral-storage: 64Gi
-            memory: 240G
           requests:
-            cpu: "30"
-            ephemeral-storage: 64Gi
-            memory: 100G
+            cpu: "4"
+            memory: 16G
         securityContext:
           privileged: true
         volumeMounts:
@@ -559,21 +545,14 @@ presubmits:
         - name: BAZEL_BUILD_RBE_INSTANCE
         - name: BUILD_WITH_CONTAINER
           value: "0"
-        - name: GOMAXPROCS
-          value: "64"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:master-3d06fb2820260b49713de5d906e085598facaa43
         name: ""
         resources:
-          limits:
-            cpu: "64"
-            ephemeral-storage: 64Gi
-            memory: 240G
           requests:
-            cpu: "30"
-            ephemeral-storage: 64Gi
-            memory: 100G
+            cpu: "4"
+            memory: 16G
         securityContext:
           privileged: true
         volumeMounts:
