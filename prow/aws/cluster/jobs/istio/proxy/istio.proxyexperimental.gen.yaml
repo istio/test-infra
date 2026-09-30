@@ -32,19 +32,12 @@ postsubmits:
           value: http://localhost:8080
         - name: GCP_SECRETS
           value: '[{"secret":"cf_r2_istio-build_credentials","project":"istio-testing","env":"CF_CREDENTIALS"}]'
-        - name: GOMAXPROCS
-          value: "64"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:master-3d06fb2820260b49713de5d906e085598facaa43
         name: ""
         resources:
-          limits:
-            cpu: "64"
-            ephemeral-storage: 64Gi
-            memory: 240G
           requests:
-            cpu: "30"
-            ephemeral-storage: 64Gi
-            memory: 100G
+            cpu: "4"
+            memory: 16G
         securityContext:
           privileged: true
         volumeMounts:
@@ -283,19 +276,12 @@ presubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: BAZEL_BUILD_RBE_CACHE
           value: http://localhost:8080
-        - name: GOMAXPROCS
-          value: "64"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:master-3d06fb2820260b49713de5d906e085598facaa43
         name: ""
         resources:
-          limits:
-            cpu: "64"
-            ephemeral-storage: 64Gi
-            memory: 240G
           requests:
-            cpu: "30"
-            ephemeral-storage: 64Gi
-            memory: 100G
+            cpu: "4"
+            memory: 16G
         securityContext:
           privileged: true
         volumeMounts:
@@ -512,19 +498,12 @@ presubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: BAZEL_BUILD_RBE_CACHE
           value: http://localhost:8080
-        - name: GOMAXPROCS
-          value: "64"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools-proxy:master-3d06fb2820260b49713de5d906e085598facaa43
         name: ""
         resources:
-          limits:
-            cpu: "64"
-            ephemeral-storage: 64Gi
-            memory: 240G
           requests:
-            cpu: "30"
-            ephemeral-storage: 64Gi
-            memory: 100G
+            cpu: "4"
+            memory: 16G
         securityContext:
           privileged: true
         volumeMounts:

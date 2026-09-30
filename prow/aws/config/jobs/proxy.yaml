@@ -38,6 +38,8 @@ jobs:
   command: [./prow/proxy-presubmit.sh]
   requirements: [bazel-cache-presubmit]
   timeout: 6h
+  # TODO: get build-pool for arm
+  resources: arm
   node_selector:
     testing: test-pool
 
@@ -65,6 +67,8 @@ jobs:
   command: [./prow/proxy-presubmit-release.sh]
   requirements: [bazel-cache-presubmit]
   timeout: 6h
+  # TODO: get build-pool for arm
+  resources: arm
   node_selector:
     testing: test-pool
 
@@ -92,6 +96,8 @@ jobs:
   command: [entrypoint, ./prow/proxy-postsubmit.sh]
   requirements: [docker, cf-r2-istio-build-auth, bazel-cache-postsubmit, trusted]
   timeout: 6h
+  # TODO: get build-pool for arm
+  resources: arm
   node_selector:
     testing: test-pool
 
@@ -167,3 +173,8 @@ resources_presets:
       memory: "240G"
       cpu: "64"
       ephemeral-storage: 64Gi
+  # Currently our ARM nodes are tiny while we try to get more capacity
+  arm:
+    requests:
+      memory: "16G"
+      cpu: "4"
