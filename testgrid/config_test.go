@@ -37,6 +37,8 @@ var dashboardPrefixes = []string{
 	"istio",
 }
 
+var dashboardGroups = sets.New("istio", "istio-ecosystem")
+
 var (
 	defaultInputs options.MultiString = []string{"."}
 	prowPath                          = flag.String("prow-config", "../prow/gcp/config.yaml", "Path to prow config")
@@ -105,8 +107,8 @@ func TestMain(m *testing.M) {
 }
 
 func TestConfig(t *testing.T) {
-	dashboardNames := sets.NewString()
-	dashboardGroupNames := sets.NewString()
+	dashboardNames := sets.New[string]()
+	dashboardGroupNames := sets.New[string]()
 	dashboardToGroupMap := make(map[string]string)
 
 	for _, db := range cfg.Dashboards {
@@ -119,8 +121,12 @@ func TestConfig(t *testing.T) {
 		}
 	}
 
+	if !dashboardGroupNames.Equal(dashboardGroups) {
+		t.Errorf("Dashboard groups: got %v, want %v", dashboardGroupNames.UnsortedList(), dashboardGroups.UnsortedList())
+	}
+
 	// Convention: all dashboard (group) names must start with a well known prefix
-	names := sets.NewString()
+	names := sets.New[string]()
 	names = names.Union(dashboardNames)
 	names = names.Union(dashboardGroupNames)
 	for name := range names {
