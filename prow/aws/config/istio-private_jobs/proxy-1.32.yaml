@@ -1,0 +1,40 @@
+defaults:
+  branches:
+  - release-1.32
+  init-container-env:
+    bazel-remote:
+      BAZEL_REMOTE_BUCKET: istio-prow-bazel-cache-private
+  modifier: release-1.32_priv
+  repo-allowlist:
+  - proxy
+org: istio
+repo: proxy
+transforms:
+- job-type:
+  - presubmit
+  labels:
+    preset-enable-netrc: "true"
+- env:
+    R2_BUILD_BUCKET: istio-build-private
+  job-allowlist:
+  - ^release-arm64_proxy_release-1.32
+  job-type:
+  - postsubmit
+  labels:
+    preset-enable-netrc: "true"
+  requirements:
+  - cf-r2-istio-build-private-auth
+  selector:
+    testing: test-pool
+- env:
+    R2_BUILD_BUCKET: istio-build-private
+  job-allowlist:
+  - ^release_proxy_release-1.32
+  job-type:
+  - postsubmit
+  labels:
+    preset-enable-netrc: "true"
+  requirements:
+  - cf-r2-istio-build-private-auth
+  selector:
+    testing: build-pool
