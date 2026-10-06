@@ -332,6 +332,11 @@ branch-protection:
               restrictions:
                 teams:
                   - release-managers-1.30
+            release-1.32: &release132
+              protect: true
+              restrictions:
+                teams:
+                  - release-managers-1.32
         operator:
           branches: *blocked_branches
         istio.io:
@@ -452,6 +457,8 @@ branch-protection:
               <<: *release129
             release-1.30:
               <<: *release130
+            release-1.32:
+              <<: *release132
         proxy:
           branches:
             <<: *blocked_branches
@@ -541,6 +548,7 @@ tide:
     includedBranches: &aws_tide_branches
     - master
     - release-1.31
+    - release-1.32
     missingLabels: &istio_tide_missing_labels
     - do-not-merge
     - do-not-merge/hold
