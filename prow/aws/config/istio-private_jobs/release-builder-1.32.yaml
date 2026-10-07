@@ -1,0 +1,54 @@
+defaults:
+  branches:
+  - release-1.32
+  repo-allowlist:
+  - release-builder
+org: istio
+repo: release-builder
+transforms:
+- job-allowlist:
+  - lint_release-builder_release-1.32
+  - lint_release-builder_release-1.32_postsubmit
+  - test_release-builder_release-1.32
+  - test_release-builder_release-1.32_postsubmit
+  - gencheck_release-builder_release-1.32
+  - gencheck_release-builder_release-1.32_postsubmit
+  job-type:
+  - presubmit
+  - postsubmit
+  labels:
+    preset-enable-netrc: "true"
+  repo-allowlist:
+  - release-builder
+- env:
+    PRERELEASE_DOCKER_HUB: ghcr.io/istio/prow-private
+    R2_BUCKET: istio-prerelease-private/prerelease
+  job-allowlist:
+  - build-warning_release-builder_release-1.32
+  job-type:
+  - presubmit
+  repo-allowlist:
+  - release-builder
+  requirements:
+  - cf-r2-istio-prerelease-private-auth
+- env:
+    PRERELEASE_DOCKER_HUB: ghcr.io/istio/prow-private
+    R2_BUCKET: istio-prerelease-private/prerelease
+    R2_HELM_BUCKET: istio-prerelease-private/charts
+  job-allowlist:
+  - build-release_release-builder_release-1.32_postsubmit
+  job-type:
+  - postsubmit
+  labels:
+    preset-enable-netrc: "true"
+    preset-override-deps: release-1.32-release
+    preset-override-envoy-r2: "true"
+  repo-allowlist:
+  - release-builder
+  requirements:
+  - docker
+  - cf-r2-istio-prerelease-private-auth
+  - cf-r2-istio-build-private-auth
+  - prerelease-ghcr
+  selector:
+    testing: test-pool

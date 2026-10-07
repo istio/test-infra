@@ -1,0 +1,18 @@
+defaults:
+  branches:
+  - release-1.32
+  repo-allowlist:
+  - api
+org: istio
+repo: api
+transforms:
+- job-allowlist:
+  - build_release-1.32
+  - gencheck_release-1.32
+  job-type:
+  - presubmit
+- job-allowlist:
+  - build_release-1.32
+  - gencheck_release-1.32
+  job-type:
+  - postsubmit
