@@ -161,7 +161,7 @@ postsubmits:
             memory: 4Gi
           requests:
             cpu: 500m
-            ephemeral-storage: 32Gi
+            ephemeral-storage: 64Gi
             memory: 1Gi
         restartPolicy: Always
         securityContext:
@@ -197,7 +197,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
       - emptyDir:
-          sizeLimit: 150Gi
+          sizeLimit: 64Gi
         name: bazel-cache
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
@@ -287,7 +287,7 @@ postsubmits:
             memory: 4Gi
           requests:
             cpu: 500m
-            ephemeral-storage: 32Gi
+            ephemeral-storage: 64Gi
             memory: 1Gi
         restartPolicy: Always
         securityContext:
@@ -319,7 +319,7 @@ postsubmits:
       - emptyDir: {}
         name: docker-root
       - emptyDir:
-          sizeLimit: 150Gi
+          sizeLimit: 64Gi
         name: bazel-cache
   - annotations:
       testgrid-alert-email: istio-oncall@googlegroups.com
@@ -472,11 +472,11 @@ presubmits:
         resources:
           limits:
             cpu: "2"
-            ephemeral-storage: 32Gi
+            ephemeral-storage: 64Gi
             memory: 4Gi
           requests:
             cpu: 500m
-            ephemeral-storage: 32Gi
+            ephemeral-storage: 64Gi
             memory: 1Gi
         restartPolicy: Always
         securityContext:
@@ -506,7 +506,7 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
       - emptyDir:
-          sizeLimit: 32Gi
+          sizeLimit: 64Gi
         name: bazel-cache
     trigger: ((?m)^/test( | .* )release-test-arm64,?($|\s.*))|((?m)^/test( | .* )release-test-arm64_proxy_release-1.32,?($|\s.*))
   - always_run: true
@@ -588,11 +588,11 @@ presubmits:
         resources:
           limits:
             cpu: "2"
-            ephemeral-storage: 32Gi
+            ephemeral-storage: 64Gi
             memory: 4Gi
           requests:
             cpu: 500m
-            ephemeral-storage: 32Gi
+            ephemeral-storage: 64Gi
             memory: 1Gi
         restartPolicy: Always
         securityContext:
@@ -617,7 +617,7 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
       - emptyDir:
-          sizeLimit: 32Gi
+          sizeLimit: 64Gi
         name: bazel-cache
     trigger: ((?m)^/test( | .* )release-test,?($|\s.*))|((?m)^/test( | .* )release-test_proxy_release-1.32,?($|\s.*))
   - always_run: true
@@ -695,11 +695,11 @@ presubmits:
         resources:
           limits:
             cpu: "2"
-            ephemeral-storage: 32Gi
+            ephemeral-storage: 64Gi
             memory: 4Gi
           requests:
             cpu: 500m
-            ephemeral-storage: 32Gi
+            ephemeral-storage: 64Gi
             memory: 1Gi
         restartPolicy: Always
         securityContext:
@@ -729,7 +729,7 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
       - emptyDir:
-          sizeLimit: 32Gi
+          sizeLimit: 64Gi
         name: bazel-cache
     trigger: ((?m)^/test( | .* )test-arm-arm64,?($|\s.*))|((?m)^/test( | .* )test-arm-arm64_proxy_release-1.32,?($|\s.*))
   - always_run: true
@@ -811,11 +811,11 @@ presubmits:
         resources:
           limits:
             cpu: "2"
-            ephemeral-storage: 32Gi
+            ephemeral-storage: 64Gi
             memory: 4Gi
           requests:
             cpu: 500m
-            ephemeral-storage: 32Gi
+            ephemeral-storage: 64Gi
             memory: 1Gi
         restartPolicy: Always
         securityContext:
@@ -840,7 +840,7 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
       - emptyDir:
-          sizeLimit: 32Gi
+          sizeLimit: 64Gi
         name: bazel-cache
     trigger: ((?m)^/test( | .* )test-asan,?($|\s.*))|((?m)^/test( | .* )test-asan_proxy_release-1.32,?($|\s.*))
   - always_run: true
@@ -922,11 +922,11 @@ presubmits:
         resources:
           limits:
             cpu: "2"
-            ephemeral-storage: 32Gi
+            ephemeral-storage: 64Gi
             memory: 4Gi
           requests:
             cpu: 500m
-            ephemeral-storage: 32Gi
+            ephemeral-storage: 64Gi
             memory: 1Gi
         restartPolicy: Always
         securityContext:
@@ -951,6 +951,6 @@ presubmits:
           type: DirectoryOrCreate
         name: build-cache
       - emptyDir:
-          sizeLimit: 32Gi
+          sizeLimit: 64Gi
         name: bazel-cache
     trigger: ((?m)^/test( | .* )test,?($|\s.*))|((?m)^/test( | .* )test_proxy_release-1.32,?($|\s.*))
