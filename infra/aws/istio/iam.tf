@@ -94,6 +94,11 @@ locals {
     # Private Prow job service account. Uploads job artifacts to the private
     # bucket
     "prowjob-private" = {
+      read = [
+        "cf_r2_istio-build-private_credentials",
+        "cf_r2_istio-prerelease-private_credentials",
+        "prerelease_ghcr_istio",
+      ]
       s3_read_write = ["istio-prow-private", "istio-prow-bazel-cache-private"]
       associations  = { prow-private = { namespace = "test-pods", service_account = "prowjob-private" } }
     }
