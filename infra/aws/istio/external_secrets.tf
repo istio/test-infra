@@ -5,6 +5,7 @@ locals {
     prow = [
       "github_istio-testing_pusher",
       "cf_r2_istio-prow_credentials",
+      "cf_r2_istio-prow-private_credentials",
       "cf_r2_public_buckets_ro_credentials",
       "oauth_token",
       "hmac_token",
