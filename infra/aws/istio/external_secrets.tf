@@ -21,6 +21,7 @@ locals {
     ]
     prow-private = [
       "cf_r2_istio-prow-private_credentials",
+      "github_istio-private_clone",
     ]
   }
 }

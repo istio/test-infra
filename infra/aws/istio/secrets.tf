@@ -24,6 +24,10 @@ locals {
     # "github/istio-testing/pusher". Has scopes `repo,read:user`. No expiration.
     "github_istio-testing_pusher" = "Classic GitHub PAT for istio-testing (repo,read:user); no expiration"
 
+    # GitHub PAT with `repo` access to the istio-private org.
+    # Used to clone repos
+    "github_istio-private_clone" = "GitHub PAT with repo access to istio-private (clonerefs and netrc)"
+
     # Permanent Cloudflare admin token; used to mint the ephemeral R2 creds.
     "cf_r2_admin_token" = "Permanent Cloudflare admin token (mints ephemeral R2 credentials)"
 
