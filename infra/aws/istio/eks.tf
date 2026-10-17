@@ -1,5 +1,5 @@
 locals {
-  cluster_version = "1.36"
+  cluster_version = "1.37"
   gp3_root_volume = {
     delete_on_termination = true
     encrypted             = true
