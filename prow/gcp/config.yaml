@@ -497,6 +497,7 @@ branch-protection:
             v0-c++:
               protect: true
         sail-operator:
+          # main and release-1.31 jobs live in prow/aws, so the AWS branchprotector manages them.
           required_status_checks:
             contexts:
             - EasyCLA
@@ -505,7 +506,7 @@ branch-protection:
             require_code_owner_reviews: true
           branches:
             main:
-              protect: true
+              unmanaged: true
             release-0.1:
               protect: true
             release-0.2:
@@ -523,7 +524,7 @@ branch-protection:
             release-1.30:
               protect: true
             release-1.31:
-              protect: true
+              unmanaged: true
         wasm-extensions:
           required_pull_request_reviews:
             required_approving_review_count: 1
@@ -547,7 +548,6 @@ tide:
     - istio/cni
     - istio/installer
     - istio/cri
-    - istio-ecosystem/sail-operator
     - istio-ecosystem/authservice
     missingLabels: &istio_tide_missing_labels
     - do-not-merge
@@ -561,7 +561,6 @@ tide:
     - istio/cni
     - istio/installer
     - istio/cri
-    - istio-ecosystem/sail-operator
     labels:
     - auto-merge
     missingLabels: *istio_tide_missing_labels
@@ -618,6 +617,22 @@ tide:
     excludedBranches: *aws_tide_branches
   - repos:
     - istio-ecosystem/sail-operator
+    excludedBranches: &sail_aws_tide_branches
+    - main
+    - release-1.31
+    missingLabels: *istio_tide_missing_labels
+    reviewApprovedRequired: true
+  - repos:
+    - istio-ecosystem/sail-operator
+    excludedBranches: *sail_aws_tide_branches
+    labels:
+    - auto-merge
+    missingLabels: *istio_tide_missing_labels
+    author: istio-testing
+    reviewApprovedRequired: false
+  - repos:
+    - istio-ecosystem/sail-operator
+    excludedBranches: *sail_aws_tide_branches
     labels:
     - auto-merge
     missingLabels: *istio_tide_missing_labels
