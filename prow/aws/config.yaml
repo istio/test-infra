@@ -491,6 +491,8 @@ branch-protection:
             v0-c++:
               protect: true
         sail-operator:
+          # The AWS branchprotector only manages main and release-1.31 (jobs in prow/aws);
+          # the other branches are managed by the GCP branchprotector.
           required_status_checks:
             contexts:
             - EasyCLA
@@ -501,21 +503,21 @@ branch-protection:
             main:
               protect: true
             release-0.1:
-              protect: true
+              unmanaged: true
             release-0.2:
-              protect: true
+              unmanaged: true
             release-1.25:
-              protect: true
+              unmanaged: true
             release-1.26:
-              protect: true
+              unmanaged: true
             release-1.27:
-              protect: true
+              unmanaged: true
             release-1.28:
-              protect: true
+              unmanaged: true
             release-1.29:
-              protect: true
+              unmanaged: true
             release-1.30:
-              protect: true
+              unmanaged: true
             release-1.31:
               protect: true
         wasm-extensions:
@@ -591,6 +593,29 @@ tide:
     missingLabels: *istio_tide_missing_labels
     reviewApprovedRequired: true
     includedBranches: *aws_tide_branches
+  - repos:
+    - istio-ecosystem/sail-operator
+    includedBranches: &sail_aws_tide_branches
+    - main
+    - release-1.31
+    missingLabels: *istio_tide_missing_labels
+    reviewApprovedRequired: true
+  - repos:
+    - istio-ecosystem/sail-operator
+    includedBranches: *sail_aws_tide_branches
+    labels:
+    - auto-merge
+    missingLabels: *istio_tide_missing_labels
+    author: istio-testing
+    reviewApprovedRequired: false
+  - repos:
+    - istio-ecosystem/sail-operator
+    includedBranches: *sail_aws_tide_branches
+    labels:
+    - auto-merge
+    missingLabels: *istio_tide_missing_labels
+    author: openshift-service-mesh-bot
+    reviewApprovedRequired: false
   merge_method:
     istio: squash
     istio-ecosystem/authservice: squash

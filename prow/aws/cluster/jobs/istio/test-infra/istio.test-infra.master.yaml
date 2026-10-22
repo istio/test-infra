@@ -77,3 +77,46 @@ postsubmits:
             memory: 3Gi
         securityContext:
           privileged: true
+
+periodics:
+# Only manages istio-ecosystem/sail-operator for now; everything else is handled
+# by the GCP branchprotector. Branches whose jobs are still on GCP are marked
+# `unmanaged: true` in prow/aws/config.yaml.
+- cron: "24 * * * *"  # Every hour at 24 minutes past the hour
+  name: ci-test-infra-branchprotector
+  cluster: test-infra-trusted
+  labels:
+    app: branchprotector
+  decorate: true
+  decoration_config:
+    timeout: 1h
+  extra_refs:
+  - org: istio
+    repo: test-infra
+    base_ref: master
+  annotations:
+    testgrid-create-test-group: "false"
+  spec:
+    automountServiceAccountToken: false
+    containers:
+    - image: us-docker.pkg.dev/k8s-infra-prow/images/branchprotector:v20260526-71428b9c2
+      command:
+      - branchprotector
+      args:
+      - --config-path=prow/aws/config.yaml
+      - --job-config-path=prow/aws/cluster/jobs
+      - --github-token-path=/etc/github/oauth
+      - --confirm
+      - --github-endpoint=http://ghproxy.default.svc.cluster.local
+      - --github-endpoint=https://api.github.com
+      - --github-enabled-org=istio-ecosystem
+      - --github-disabled-repo=istio-ecosystem/authservice
+      - --github-disabled-repo=istio-ecosystem/wasm-extensions
+      volumeMounts:
+      - name: oauth
+        mountPath: /etc/github
+        readOnly: true
+    volumes:
+    - name: oauth
+      secret:
+        secretName: oauth-token
