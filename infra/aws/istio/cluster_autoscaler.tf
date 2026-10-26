@@ -56,6 +56,11 @@ resource "helm_release" "cluster_autoscaler_prow" {
   }
 
   set {
+    name  = "extraArgs.scale-down-utilization-threshold"
+    value = "0.9"
+  }
+
+  set {
     name  = "extraArgs.scale-down-unneeded-time"
     value = "3m"
   }
@@ -114,6 +119,11 @@ resource "helm_release" "cluster_autoscaler_prow_build" {
   }
 
   set {
+    name  = "extraArgs.scale-down-utilization-threshold"
+    value = "0.9"
+  }
+
+  set {
     name  = "extraArgs.scale-down-unneeded-time"
     value = "3m"
   }
@@ -169,6 +179,11 @@ resource "helm_release" "cluster_autoscaler_prow_private" {
   set {
     name  = "rbac.serviceAccount.name"
     value = "cluster-autoscaler"
+  }
+
+  set {
+    name  = "extraArgs.scale-down-utilization-threshold"
+    value = "0.9"
   }
 
   set {

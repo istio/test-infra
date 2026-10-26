@@ -1,4 +1,4 @@
-# We need a cronjob to restart crier and deck-private every 12 hours to pick up new cloudflare credentials.
+# We need a cronjob to restart crier, crier-private, and deck-private every 12 hours to pick up new cloudflare credentials.
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -15,6 +15,7 @@ rules:
   - apps
   resourceNames:
   - crier
+  - crier-private
   - deck-private
   resources:
   - deployments
@@ -68,6 +69,7 @@ spec:
             - |
               set -euo pipefail
               kubectl rollout restart deployment/crier --namespace=default
+              kubectl rollout restart deployment/crier-private --namespace=default
               kubectl rollout restart deployment/deck-private --namespace=default
             resources:
               requests:
