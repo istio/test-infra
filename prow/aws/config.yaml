@@ -154,6 +154,7 @@ branch-protection:
       required_pull_request_reviews:
         required_approving_review_count: 1
         require_code_owner_reviews: true
+        dismiss_stale_reviews: true
       # Repo admins are allowed to merge directly; typically the robot does all merging.
       restrictions:
         teams:
@@ -366,13 +367,6 @@ branch-protection:
           branches: *blocked_branches
         community:
           branches: *blocked_branches
-          # Community is sensitive, as merges impact the org. Dismiss stale reviews to avoid unexpected changes post-approval.
-          required_pull_request_reviews:
-            dismiss_stale_reviews: true
-            dismissal_restrictions:
-              teams:
-              - steering-committee
-              - repo-admins
         release-builder:
           branches: *blocked_branches
         ztunnel:
@@ -473,6 +467,8 @@ branch-protection:
             master:
               protect: false
     istio-ecosystem:
+      required_pull_request_reviews:
+        dismiss_stale_reviews: true
       repos:
         authservice:
           required_pull_request_reviews:
