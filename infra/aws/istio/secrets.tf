@@ -29,6 +29,7 @@ locals {
     "github_istio-private_clone" = "GitHub PAT with repo access to istio-private (clonerefs and netrc)"
 
     # Permanent Cloudflare admin token; used to mint the ephemeral R2 creds.
+    # EXPIRES 2027-11-03!
     "cf_r2_admin_token" = "Permanent Cloudflare admin token (mints ephemeral R2 credentials)"
 
     # Generic read-only R2 credentials for the public buckets.
