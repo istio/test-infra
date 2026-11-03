@@ -1,0 +1,14 @@
+org: istio
+repo: istio
+image: fooimage
+cron: 0 2 * * *
+
+jobs:
+  - name: all-types
+    types: [presubmit, postsubmit, periodic]
+    command: [prow/command.sh]
+    gerrit_presubmit_label: presubmit-label
+    annotations:
+      foo: bar
+    labels:
+      baz: qux

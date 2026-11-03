@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"maps"
 	"sort"
 	"strings"
 	"time"
@@ -465,8 +466,8 @@ func (cli *Client) createJobBase(baseConfig spec.BaseConfig, jobConfig spec.Jobs
 			ExtraRefs: createExtraRefs(job.Repos, branch, baseConfig.PathAliases),
 		},
 		ReporterConfig: job.ReporterConfig,
-		Labels:         job.Labels,
-		Annotations:    job.Annotations,
+		Labels:         maps.Clone(job.Labels),
+		Annotations:    maps.Clone(job.Annotations),
 		Cluster:        job.Cluster,
 	}
 	if arch, f := job.NodeSelector[v1.LabelArchStable]; f && arch != ArchAMD64 {

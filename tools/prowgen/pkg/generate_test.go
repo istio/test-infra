@@ -41,6 +41,9 @@ func TestGenerateConfig(t *testing.T) {
 			name: "params",
 		},
 		{
+			name: "annotations",
+		},
+		{
 			name:        "long-job-name",
 			expectError: true,
 		},
