@@ -79,8 +79,8 @@ postsubmits:
           privileged: true
 
 periodics:
-# Only manages istio-ecosystem/sail-operator for now; everything else is handled
-# by the GCP branchprotector. Branches whose jobs are still on GCP are marked
+# Only manages istio/* release-1.32 and istio-ecosystem/sail-operator for now; everything
+# else is handled by the GCP branchprotector. Branches whose jobs are still on GCP are marked
 # `unmanaged: true` in prow/aws/config.yaml.
 - cron: "24 * * * *"  # Every hour at 24 minutes past the hour
   name: ci-test-infra-branchprotector
@@ -109,6 +109,7 @@ periodics:
       - --confirm
       - --github-endpoint=http://ghproxy.default.svc.cluster.local
       - --github-endpoint=https://api.github.com
+      - --github-enabled-org=istio
       - --github-enabled-org=istio-ecosystem
       - --github-disabled-repo=istio-ecosystem/authservice
       - --github-disabled-repo=istio-ecosystem/wasm-extensions

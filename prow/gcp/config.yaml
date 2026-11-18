@@ -344,6 +344,9 @@ branch-protection:
               restrictions:
                 teams:
                   - release-managers-1.31
+            # release-1.32 jobs live in prow/aws, so the AWS branchprotector manages it.
+            release-1.32:
+              unmanaged: true
         operator:
           branches: *blocked_branches
         istio.io:
@@ -459,6 +462,8 @@ branch-protection:
               <<: *release130
             release-1.31:
               <<: *release131
+            release-1.32:
+              unmanaged: true
         proxy:
           branches:
             <<: *blocked_branches
