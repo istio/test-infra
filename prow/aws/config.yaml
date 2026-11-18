@@ -146,6 +146,9 @@ branch-protection:
     istio:
       # Enable protection for all repos
       protect: true
+      # Only branches whose jobs live in prow/aws are managed here (unmanaged: false);
+      # all other branches are managed by the GCP branchprotector.
+      unmanaged: true
       # Every repo requires CLA to pass
       required_status_checks:
         contexts:
@@ -336,6 +339,7 @@ branch-protection:
                   - release-managers-1.30
             release-1.32: &release132
               protect: true
+              unmanaged: false
               restrictions:
                 teams:
                   - release-managers-1.32
