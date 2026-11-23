@@ -18,3 +18,22 @@ jobs:
     excluded_requirements: [cache]
     timeout: 4h
     cluster: test-infra-trusted
+
+  - name: sync-dot-project
+    types: [postsubmit]
+    command:
+    - entrypoint
+    - ../test-infra/tools/automator/automator.sh
+    - --org=$AUTOMATOR_ORG
+    - --repo=.project
+    - "--title=Automator: sync maintainers.yaml from istio/community@$AUTOMATOR_SRC_BRANCH"
+    - --labels=auto-merge,release-notes-none
+    - --strict
+    - --modifier=sync-maintainers
+    - --token-env
+    - --script-path=prow/sync-dot-project.sh
+    requirements: [github-istio-testing, trusted]
+    repos: [istio/test-infra@master]
+    env:
+    - name: AUTOMATOR_ORG
+      value: istio
