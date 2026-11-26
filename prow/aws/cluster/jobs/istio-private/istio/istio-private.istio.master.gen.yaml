@@ -15,8 +15,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube.agentgateway
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -34,6 +32,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -109,8 +109,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube.environment
@@ -130,6 +128,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: KUBERNETES_CNI
           value: calico
         - name: METALLB_REGISTRY
@@ -207,8 +207,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube.environment
@@ -232,6 +230,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -307,8 +307,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube.environment
@@ -332,6 +330,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -407,8 +407,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/default.yaml
         - --topology
@@ -432,6 +430,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -507,8 +507,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube.environment
@@ -528,6 +526,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -603,8 +603,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube.environment
@@ -625,6 +623,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -700,8 +700,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube
@@ -721,6 +719,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -798,8 +798,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -817,6 +815,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -892,8 +892,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -909,6 +907,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -991,8 +991,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -1010,6 +1008,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: TEST_SELECT
@@ -1087,8 +1087,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -1104,6 +1102,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: VARIANT
@@ -1181,8 +1181,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -1202,6 +1200,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -1277,8 +1277,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.pilot.kube
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -1296,6 +1294,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: T
@@ -1373,8 +1373,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.helm.kube
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -1390,6 +1388,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -1465,8 +1465,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -1486,6 +1484,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -1584,6 +1584,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -1682,6 +1684,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -1780,6 +1784,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -1876,6 +1882,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -1951,8 +1959,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.pilot.kube
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -1970,6 +1976,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -2045,8 +2053,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - --topology-config
@@ -2066,6 +2072,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -2141,8 +2149,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - --topology-config
@@ -2164,6 +2170,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -2239,8 +2247,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - --topology-config
@@ -2262,6 +2268,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -2337,8 +2345,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - test.integration.pilot.kube.multicluster
@@ -2356,6 +2362,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -2431,8 +2439,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.pilot.kube
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -2448,6 +2454,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -2523,8 +2531,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - --topology-config
@@ -2546,6 +2552,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -2621,8 +2629,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - test.integration.security.kube.multicluster
@@ -2640,6 +2646,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -2715,8 +2723,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.security.kube
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -2732,6 +2738,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -2807,8 +2815,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.telemetry.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -2826,6 +2832,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -2901,8 +2909,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - --topology-config
@@ -2924,6 +2930,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -2999,8 +3007,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - test.integration.telemetry.kube.multicluster
@@ -3018,6 +3024,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -3093,8 +3101,6 @@ postsubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.telemetry.kube
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -3110,6 +3116,8 @@ postsubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -3199,6 +3207,8 @@ postsubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: HELM_HUB
           value: ghcr.io/istio/prow-private/charts
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: R2_BUCKET
           value: istio-build-private/dev
         - name: DEPENDENCIES
@@ -3281,6 +3291,8 @@ postsubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3356,6 +3368,8 @@ postsubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3427,6 +3441,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3499,6 +3515,8 @@ presubmits:
           value: "5"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3563,8 +3581,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - test.integration.kube
@@ -3582,6 +3598,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -3669,6 +3687,8 @@ presubmits:
           value: "5"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3737,6 +3757,8 @@ presubmits:
           value: "5"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -3797,8 +3819,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube.agentgateway
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -3816,6 +3836,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -3895,8 +3917,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube.environment
@@ -3916,6 +3936,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: KUBERNETES_CNI
           value: calico
         - name: METALLB_REGISTRY
@@ -3997,8 +4019,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube.environment
@@ -4022,6 +4042,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -4100,8 +4122,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube.environment
@@ -4125,6 +4145,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -4203,8 +4225,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/default.yaml
         - --topology
@@ -4228,6 +4248,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -4307,8 +4329,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube.environment
@@ -4328,6 +4348,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -4408,8 +4430,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube.environment
@@ -4430,6 +4450,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -4509,8 +4531,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube
@@ -4530,6 +4550,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -4611,8 +4633,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -4630,6 +4650,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -4708,8 +4730,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -4725,6 +4745,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -4808,8 +4830,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.pilot.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -4827,6 +4847,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -4905,8 +4927,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -4922,6 +4942,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: VARIANT
@@ -5002,8 +5024,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -5023,6 +5043,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -5102,8 +5124,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.pilot.kube
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -5121,6 +5141,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: T
@@ -5202,8 +5224,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.helm.kube
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -5219,6 +5239,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -5297,8 +5319,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -5318,6 +5338,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -5397,8 +5419,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.pilot.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -5416,6 +5436,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -5496,8 +5518,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - --topology-config
@@ -5517,6 +5537,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -5596,8 +5618,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - --topology-config
@@ -5619,6 +5639,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -5698,8 +5720,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - --topology-config
@@ -5721,6 +5741,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -5800,8 +5822,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - test.integration.pilot.kube.multicluster
@@ -5819,6 +5839,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -5898,8 +5920,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.pilot.kube
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -5915,6 +5935,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -5993,8 +6015,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - --topology-config
@@ -6016,6 +6036,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -6095,8 +6117,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - test.integration.security.kube.multicluster
@@ -6114,6 +6134,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -6193,8 +6215,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.security.kube
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -6210,6 +6230,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -6288,8 +6310,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.telemetry.kube.environment
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -6307,6 +6327,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -6386,8 +6408,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - --topology-config
@@ -6409,6 +6429,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -6488,8 +6510,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - test.integration.telemetry.kube.multicluster
@@ -6507,6 +6527,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -6585,8 +6607,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.telemetry.kube
         env:
         - name: BAZEL_BUILD_RBE_INSTANCE
@@ -6602,6 +6622,8 @@ presubmits:
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/istio
         - name: ISTIO_BUILDKIT_IMAGE
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/buildkit:v0.11.0
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: METALLB_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing
         - name: WASM_REGISTRY
@@ -6686,6 +6708,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -6754,6 +6778,8 @@ presubmits:
           value: "5"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -6819,6 +6845,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -6896,6 +6924,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -6974,6 +7004,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
@@ -7046,6 +7078,8 @@ presubmits:
           value: "5"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: DEPENDENCIES
           valueFrom:
             configMapKeyRef:
