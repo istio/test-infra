@@ -119,13 +119,12 @@ func main() {
 					}
 
 					for index, job := range cfg.Jobs {
-						job.Env = filterDuplicateEnvVars(job.Env)
-
 						err, newImage, _ := branchedImageName(job.Image, branch)
 						if err != nil {
 							log.Fatalf("Error matching job image: %v", err)
 						}
 
+						cfg.Jobs[index].Env = filterDuplicateEnvVars(job.Env)
 						cfg.Jobs[index].Image = newImage
 					}
 
@@ -250,15 +249,20 @@ func main() {
 	}
 }
 
+// filterDuplicateEnvVars removes env vars with duplicate names. The last
+// definition of a name wins, matching how the generated job env is resolved,
+// and each name keeps the position of its first definition so the output is
+// deterministic.
 func filterDuplicateEnvVars(env []v1.EnvVar) (filtered []v1.EnvVar) {
-	m := make(map[string]string)
+	index := make(map[string]int)
 
 	for _, v := range env {
-		m[v.Name] = v.Value
-	}
-
-	for key, value := range m {
-		filtered = append(filtered, v1.EnvVar{Name: key, Value: value})
+		if i, ok := index[v.Name]; ok {
+			filtered[i] = v
+			continue
+		}
+		index[v.Name] = len(filtered)
+		filtered = append(filtered, v)
 	}
 
 	return filtered
