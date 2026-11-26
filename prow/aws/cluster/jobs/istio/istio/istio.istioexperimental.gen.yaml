@@ -26,6 +26,8 @@ postsubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: HELM_HUB
           value: ghcr.io/istio/testing/charts
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: DOCKER_CONFIG
           value: /var/run/ci/docker
         - name: GCP_SECRETS
@@ -89,6 +91,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:master-0eb075252e41929398de2248541496a173b79087
         name: ""
         resources:
@@ -137,6 +141,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:master-0eb075252e41929398de2248541496a173b79087
@@ -186,8 +192,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - test.integration.kube
@@ -196,6 +200,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: OTEL_EXPORTER_OTLP_PROTOCOL
           value: grpc
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
@@ -273,6 +279,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:master-0eb075252e41929398de2248541496a173b79087
@@ -323,6 +331,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:master-0eb075252e41929398de2248541496a173b79087
@@ -368,8 +378,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube.agentgateway
         env:
         - name: BUILD_WITH_CONTAINER
@@ -378,6 +386,8 @@ presubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.agentgateway
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -444,8 +454,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube.environment
@@ -456,6 +464,8 @@ presubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.ambient
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: KUBERNETES_CNI
           value: calico
         - name: ECR_REGISTRY
@@ -524,8 +534,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube.environment
@@ -540,6 +548,8 @@ presubmits:
           value: ' --istio.test.kube.helm.values=cni.ambient.ipv6=true --istio.test.ambient '
         - name: IP_FAMILIES
           value: IPv4,IPv6
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -605,8 +615,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube.environment
@@ -621,6 +629,8 @@ presubmits:
           value: ' --istio.test.kube.helm.values=cni.ambient.ipv6=true --istio.test.ambient '
         - name: IP_FAMILIES
           value: IPv6
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -686,8 +696,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/default.yaml
         - --topology
@@ -702,6 +710,8 @@ presubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.ambient --istio.test.ambient.multinetwork
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -768,8 +778,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube.environment
@@ -780,6 +788,8 @@ presubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: '--istio.test.ambient --istio.test.nativeNftables '
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -847,8 +857,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube.environment
@@ -860,6 +868,8 @@ presubmits:
         - name: INTEGRATION_TEST_FLAGS
           value: '--istio.test.kube.helm.values=cni.istioOwnedCNIConfig=true --istio.test.ambient.istioOwnedCNIConfig
             --istio.test.ambient '
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -926,8 +936,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --kind-config
         - prow/config/ambient-sc.yaml
         - test.integration.ambient.kube
@@ -938,6 +946,8 @@ presubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.ambient
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -1006,8 +1016,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube
         env:
         - name: BUILD_WITH_CONTAINER
@@ -1016,6 +1024,8 @@ presubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.operatorOptions=values.pilot.env.UNSAFE_PILOT_ENABLE_RUNTIME_ASSERTIONS=true '
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -1081,14 +1091,14 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -1159,8 +1169,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.pilot.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
@@ -1169,6 +1177,8 @@ presubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: ' --istio.test.istio.enableCNI=true '
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -1234,14 +1244,14 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: VARIANT
           value: distroless
         - name: ECR_REGISTRY
@@ -1309,8 +1319,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
@@ -1321,6 +1329,8 @@ presubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: IP_FAMILIES
           value: IPv4,IPv6
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -1387,8 +1397,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.pilot.kube
         env:
         - name: BUILD_WITH_CONTAINER
@@ -1397,6 +1405,8 @@ presubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.gatewayAPIOnly --istio.test.kube.gatewayClassName=istio-alt
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: T
           value: -run="TestGatewayConformance|TestGateway$$|TestHTTPRouteAndGRPCRouteCoexistence|TestInferencePoolMultipleTargetPorts|TestPilotResourceFilter"
         - name: ECR_REGISTRY
@@ -1465,14 +1475,14 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.helm.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -1538,8 +1548,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
@@ -1550,6 +1558,8 @@ presubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: IP_FAMILIES
           value: IPv6
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -1616,8 +1626,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.pilot.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
@@ -1626,6 +1634,8 @@ presubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.istio.enableCNI=true --istio.test.nativeNftables=true
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -1693,8 +1703,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - --topology-config
@@ -1705,6 +1713,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -1771,8 +1781,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - --topology-config
@@ -1785,6 +1793,8 @@ presubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -1851,8 +1861,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - --topology-config
@@ -1865,6 +1873,8 @@ presubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -1931,8 +1941,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - test.integration.pilot.kube.multicluster
@@ -1941,6 +1949,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -2007,14 +2017,14 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.pilot.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -2080,8 +2090,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - --topology-config
@@ -2094,6 +2102,8 @@ presubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -2160,8 +2170,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - test.integration.security.kube.multicluster
@@ -2170,6 +2178,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -2236,14 +2246,14 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.security.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -2309,8 +2319,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.telemetry.kube.environment
         env:
         - name: BUILD_WITH_CONTAINER
@@ -2319,6 +2327,8 @@ presubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.peer_metadata_discovery
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -2385,8 +2395,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - --topology-config
@@ -2399,6 +2407,8 @@ presubmits:
           value: http://athens.athens.svc.cluster.local:3000|direct
         - name: INTEGRATION_TEST_FLAGS
           value: --istio.test.skipVM
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -2465,8 +2475,6 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - --topology
         - MULTICLUSTER
         - test.integration.telemetry.kube.multicluster
@@ -2475,6 +2483,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -2540,14 +2550,14 @@ presubmits:
       - command:
         - entrypoint
         - prow/integ-suite-kind.sh
-        - --node-image
-        - 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node:v1.36.4
         - test.integration.telemetry.kube
         env:
         - name: BUILD_WITH_CONTAINER
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: ECR_REGISTRY
           value: 678412441677.dkr.ecr.us-west-2.amazonaws.com
         - name: ISTIO_BASE_REGISTRY
@@ -2618,6 +2628,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:master-0eb075252e41929398de2248541496a173b79087
         name: ""
         resources:
@@ -2666,6 +2678,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:master-0eb075252e41929398de2248541496a173b79087
@@ -2715,6 +2729,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:master-0eb075252e41929398de2248541496a173b79087
         name: ""
         resources:
@@ -2770,6 +2786,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:master-0eb075252e41929398de2248541496a173b79087
         name: ""
         resources:
@@ -2826,6 +2844,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:master-0eb075252e41929398de2248541496a173b79087
         name: ""
         resources:
@@ -2874,6 +2894,8 @@ presubmits:
           value: "0"
         - name: GOPROXY
           value: http://athens.athens.svc.cluster.local:3000|direct
+        - name: KIND_IMAGE_PREFIX
+          value: 678412441677.dkr.ecr.us-west-2.amazonaws.com/docker/kindest/node
         - name: GOMAXPROCS
           value: "5"
         image: 678412441677.dkr.ecr.us-west-2.amazonaws.com/ghcr/istio/testing/build-tools:master-0eb075252e41929398de2248541496a173b79087
